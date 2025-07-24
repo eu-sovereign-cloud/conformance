@@ -2,16 +2,13 @@
     "name": "Delete Workspace Usecase - Success",
     "priority": 1,
     "scenarioName": "Workspace Usecase Lifecycle",
-    "requiredScenarioState": "WorkspaceUsecaseCreated",
+    "requiredScenarioState": "WorkspaceUsecaseDeleted",
     "newScenarioState": "WorkspaceUsecaseDeleted",
 
     "request": {
       "method": "DELETE",
       "urlPath": "/providers/seca.workspace/v1/tenants/my-tenant/workspaces/workspace-usecase",
       "headers": {
-        "Content-Type": {
-          "equalTo": "application/json"
-        },
         "Accept": {
           "equalTo": "application/json"
         },

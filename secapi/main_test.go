@@ -29,35 +29,39 @@ func TestAll(t *testing.T) {
 	slog.SetDefault(logger)
 
 	// Read Configurations
-	regionURL := os.Getenv("REGION_PROVIDER_URL")
+	// regionURL := os.Getenv("REGION_PROVIDER_URL")
+	regionURL := "http://localhost:8080/providers/seca.region"
 	if regionURL == "" {
 		slog.Error("REGION_PROVIDER_URL is not set")
 		os.Exit(1)
 	}
 
-	authorizationURL := os.Getenv("AUTHORIZATION_PROVIDER_URL")
-	if authorizationURL == "" {
-		slog.Error("AUTHORIZATION_PROVIDER_URL is not set")
-		os.Exit(1)
-	}
+	// authorizationURL := os.Getenv("AUTHORIZATION_PROVIDER_URL"
+	authorizationURL := "http://localhost:8080/providers/seca.authorization"
 
-	regionName := os.Getenv("REGION_NAME")
+	// regionName := os.Getenv("REGION_NAME")
+	regionName := "eu-central-1"
 	if regionName == "" {
 		slog.Error("REGION_NAME is not set")
 		os.Exit(1)
 	}
 
-	authToken := os.Getenv("AUTH_TOKEN")
+	// authToken := os.Getenv("AUTH_TOKEN")
+	authToken := "test-token"
 	if authToken == "" {
 		slog.Error("AUTH_TOKEN is not set")
 		os.Exit(1)
 	}
 
 	// Setup clients
-	globalClient, err := sdk.NewGlobalClient(&sdk.GlobalEndpoints{
-		RegionV1:        regionURL,
-		AuthorizationV1: authorizationURL,
-	})
+	config := &sdk.GlobalConfig{
+		AuthToken: authToken,
+		Endpoints: sdk.GlobalEndpoints{
+			RegionV1:        regionURL,
+			AuthorizationV1: authorizationURL,
+		},
+	}
+	globalClient, err := sdk.NewGlobalClient(config)
 	if err != nil {
 		slog.Error("Failed to create global client", "error", err)
 		os.Exit(1)

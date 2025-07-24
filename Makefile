@@ -15,6 +15,10 @@ run:
 	@echo "Running tool..."
 	rm -rf $(RESULTS_PATH)
 	ALLURE_OUTPUT_PATH=$(REPORTS_PATH) ALLURE_OUTPUT_FOLDER=$(RESULTS_DIR) $(GO) test -count=1 ./secapi/...
+
+.PHONY: report
+report:
+	@echo "Running report..."
 	allure serve $(RESULTS_PATH)
 
 .PHONY: fmt
@@ -32,4 +36,10 @@ vet:
 	@echo "Running vet..."
 	$(GO) vet ./...
 
-dev: fmt lint vet
+.PHONY: sec
+sec:
+	@echo "Running gosec..."
+	$(GO_TOOL) github.com/securego/gosec/v2/cmd/gosec ./...
+
+.PHONY: dev
+dev: fmt lint vet sec

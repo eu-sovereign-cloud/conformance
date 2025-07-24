@@ -27,34 +27,34 @@ func (suite *WorkspaceTestSuite) SetupTest() {
 func (suite *WorkspaceTestSuite) TearDownTest() {
 }
 
-func (suite *WorkspaceTestSuite) TestCreateWorkspace(t provider.T) {
+func (suite *WorkspaceTestSuite) TestWorkspace(t provider.T) {
 	ctx := context.Background()
-	t.Title("Workspace Management")
+	t.Title("Workspace use case")
 
 	ws := &workspace.Workspace{
 		Metadata: &workspace.RegionalResourceMetadata{
 			Tenant: "my-tenant",
-			Name:   "workspace-1",
+			Name:   "workspace-usecase",
 		},
 	}
 
-	t.NewStep("Create a Workspace")
+	t.NewStep("Creating a Workspace")
 	resp, err := suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
 	t.Assert().NoError(err)
 	t.Assert().NotNil(resp)
 	t.Assert().Equal("creating", string(*resp.Status.State))
 
-	t.NewStep("Update a Workspace")
+	t.NewStep("Updating a Workspace")
 	resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
 	t.Assert().NoError(err)
 	t.Assert().NotNil(resp)
 	t.Assert().Equal("updating", string(*resp.Status.State))
 
-	t.NewStep("Delete a Workspace")
+	t.NewStep("Deleting a Workspace")
 	err = suite.client.WorkspaceV1.DeleteWorkspace(ctx, resp)
 	t.Assert().NoError(err)
 
-	t.NewStep("Redelete a Workspace")
+	t.NewStep("Retrying to delete a Workspace")
 	err = suite.client.WorkspaceV1.DeleteWorkspace(ctx, resp)
 	t.Assert().NoError(err)
 }
