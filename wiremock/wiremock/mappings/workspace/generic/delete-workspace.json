@@ -1,0 +1,27 @@
+
+  {
+    "name": "Delete Workspace",
+    "priority": 10,
+    "request": {
+      "method": "DELETE",
+      "urlPath": "/providers/seca.workspace/v1/tenants/[^/]+/workspaces/[^/]+",
+      "headers": {
+        "Content-Type": {
+          "equalTo": "application/json"
+        },
+        "Accept": {
+          "equalTo": "application/json"
+        },
+        "Authorization": {
+          "matches": "Bearer .+"
+        }
+      }
+    },
+    "response": {
+      "status": 202,
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  }
+

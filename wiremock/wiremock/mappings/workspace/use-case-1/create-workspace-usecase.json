@@ -1,0 +1,54 @@
+
+  {
+    "name": "Create Workspace Usecase - Success",
+	  "priority": 1,
+    "scenarioName": "Workspace Usecase Lifecycle",
+    "requiredScenarioState": "Started",
+    "newScenarioState": "WorkspaceUsecaseCreated",
+    "request": {
+        "method": "PUT",
+        "urlPath": "/providers/seca.workspace/v1/tenants/my-tenant/workspaces/workspace-usecase",
+        "headers": {
+        "Content-Type": {
+          "equalTo": "application/json"
+        },
+        "Accept": {
+          "equalTo": "application/json"
+        },
+        "Authorization": {
+          "matches": "Bearer .+"
+        }
+      }
+    },
+    "response": {
+      "status": 201,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "jsonBody": {
+        "metadata": {
+          "name": "{{request.pathSegments.[6]}}",
+          "createdAt": "2025-07-21T15:18:49Z",
+          "lastModifiedAt": "2025-07-21T15:18:49Z",
+          "resourceVersion": 1,
+          "tenant": "{{request.pathSegments.[4]}}",
+          "region": "eu-central-1",
+          "apiVersion": "v1",
+          "kind": "workspace",
+          "resource": "seca.workspace/v1/tenants/{{request.pathSegments.[4]}}/workspaces/{{request.pathSegments.[6]}}",
+          "verb": "put"
+        },
+        "spec": {},
+        "status": {
+          "state": "creating",
+          "conditions": [
+            {
+              "state": "creating",
+              "lastTransitionAt": "2025-07-21T15:18:49Z"
+            }
+          ]
+        }
+      }
+    }
+    
+  }
