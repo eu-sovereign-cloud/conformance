@@ -1,35 +1,35 @@
 GO := go
 TOOLS_GOMOD := -modfile=./tools/go.mod
 GO_TOOL := $(GO) run $(TOOLS_GOMOD)
-
-.PHONY: mock
-mock: generate
-	$(GO_TOOL) github.com/vektra/mockery/v2
+REPORTS_PATH := $(shell pwd)/reports
+RESULTS_DIR := results
+RESULTS_PATH := $(REPORTS_PATH)/$(RESULTS_DIR)
 
 .PHONY: build
 build:
+	@echo "Building code..."
 	$(GO) build ./...
 
-.PHONY: test
-test:
-	$(GO) test -count=1 -cover -coverprofile=coverage.out -v ./...
-	$(GO) tool cover -html=coverage.out -o coverage.html
-	rm coverage.out
+.PHONY: run
+run:
+	@echo "Running tool..."
+	rm -rf $(RESULTS_PATH)
+	ALLURE_OUTPUT_PATH=$(REPORTS_PATH) ALLURE_OUTPUT_FOLDER=$(RESULTS_DIR) $(GO) test -count=1 ./secapi/...
+	allure serve $(RESULTS_PATH)
 
 .PHONY: fmt
 fmt:
+	@echo "Formating code..."
 	$(GO_TOOL) mvdan.cc/gofumpt -w .
 
-lint: vet golint
+.PHONY: lint
+lint:
+	@echo "Linting code..."
+	$(GO_TOOL) github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 5m
 
 .PHONY: vet
 vet:
+	@echo "Running vet..."
 	$(GO) vet ./...
 
-.PHONY: golint
-golint:
-	$(GO_TOOL) github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 5m -c .golangci.yml
-
-.PHONY: clean
-clean:
-	rm -rf $(SCHEMAS_FINAL) $(SPEC_DIST) mock
+dev: fmt lint vet
