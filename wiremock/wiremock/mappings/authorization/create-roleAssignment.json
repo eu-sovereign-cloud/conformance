@@ -1,0 +1,55 @@
+
+  {
+    "name": "Create Role Assignment",
+	  "priority": 10,
+    "request": {
+        "method": "PUT",
+        "urlPathPattern": "/providers/seca.authorization/v1/tenants/[^/]+/role-assignments/[^/]+",
+        "headers": {
+          "Accept": {
+            "equalTo": "application/json"
+          },
+          "Authorization": {
+            "matches": "Bearer .+"
+          }
+        }
+    ,
+      "bodyPatterns": [
+        {
+          "matchesJsonPath": "$[?(@.spec != null && @.spec.subs != null && @.spec.roles != null)]"
+        }
+      ]
+    },
+    "response": { 
+      "status": 201,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "jsonBody": {
+        "metadata": {
+          "name": "{{request.pathSegments.[6]}}",
+          "createdAt": "2025-07-21T15:18:49Z",
+          "lastModifiedAt": "2025-07-21T15:18:49Z",
+          "resourceVersion": 1,
+          "tenant": "{{request.pathSegments.[4]}}",
+          "apiVersion": "v1",
+          "kind": "role-assignment",
+          "resource": "seca.authorization/v1/tenants/{{request.pathSegments.[4]}}/role-assignments/{{request.pathSegments.[6]}}",
+          "verb": "put"
+        },
+        "spec": {
+          "subs": "{{jsonPath request.body '$.spec.subs'}}",
+          "roles": "{{jsonPath request.body '$.spec.roles'}}"
+        },
+        "status": {
+          "state": "creating",
+          "conditions": [
+            {
+              "state": "creating",
+              "lastTransitionAt": "2025-07-21T15:18:49Z"
+            }
+          ]
+        }
+      }
+    }
+  }
