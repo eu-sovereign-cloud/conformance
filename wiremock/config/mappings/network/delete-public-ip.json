@@ -1,0 +1,22 @@
+{
+    "name": "delete-public-ip",
+    "priority": 10,
+	"request": {
+		"method": "DELETE",
+		"urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/public-ips/([^/]+)",
+		"headers": {
+			"Authorization": {
+				"matches": "Bearer .+"
+			}
+		}
+	},
+	"response": {
+		"status": 202,
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"message": "Public IP deletion accepted."
+		}
+	}
+}

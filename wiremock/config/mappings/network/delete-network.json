@@ -1,0 +1,22 @@
+{
+    "name": "delete-network",
+    "priority": 10,
+	"request": {
+		"method": "DELETE",
+		"urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/networks/([^/]+)",
+		"headers": {
+			"Authorization": {
+				"matches": "Bearer .+"
+			}
+		}
+	},
+	"response": {
+		"status": 202,
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"message": "Network deletion accepted."
+		}
+	}
+}

@@ -1,0 +1,52 @@
+{
+    "name": "get-subnet",
+    "priority": 10,
+	"request": {
+		"method": "GET",
+		"urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/subnets/([^/]+)",
+		"headers": {
+			"Authorization": {
+				"matches": "Bearer .+"
+			}
+		}
+	},
+	"response": {
+		"status": 200,
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"metadata": {
+				"name": "{{request.pathSegments.[8]}}",
+				"createdAt": "2025-07-25T10:00:00Z",
+				"lastModifiedAt": "2025-07-25T10:00:00Z",
+				"resourceVersion": 1,
+				"tenant": "{{request.pathSegments.[4]}}",
+				"region": "eu-central-1",
+				"apiVersion": "v1",
+				"kind": "subnet",
+				"scope": "workspace/{{request.pathSegments.[6]}}",
+				"resource": "seca.network/subnets/{{request.pathSegments.[8]}}",
+				"verb": "get",
+				"workspace": "{{request.pathSegments.[6]}}",
+				"zone": "a"
+			},
+			"spec": {
+				"cidr": {
+					"ipv4": "10.0.1.0/24",
+					"ipv6": "2001:db8:1234:5678::/64"
+				},
+				"zone": "a"
+			},
+			"status": {
+				"state": "active",
+				"conditions": [
+					{
+						"state": "active",
+						"lastTransitionAt": "2025-07-25T10:00:00Z"
+					}
+				]
+			}
+		}
+	}
+}
