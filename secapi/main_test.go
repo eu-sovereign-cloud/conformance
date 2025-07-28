@@ -73,7 +73,7 @@ func TestAll(t *testing.T) {
 		os.Exit(1)
 	}
 
-	suite.RunNamedSuite(t, "Workspace Provider", &WorkspaceTestSuite{
+	suite.RunNamedSuite(t, "Workspace V1", &WorkspaceV1TestSuite{
 		client: regionalClient,
 	})
 }

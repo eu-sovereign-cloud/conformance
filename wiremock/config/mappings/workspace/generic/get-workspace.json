@@ -6,9 +6,6 @@
       "method": "GET",
       "urlPath": "/providers/seca.workspace/v1/tenants/[^/]+/workspaces/[^/]+",
       "headers": {
-        "Content-Type": {
-          "equalTo": "application/json"
-        },
         "Accept": {
           "equalTo": "application/json"
         },

@@ -7,7 +7,7 @@
 
     "request": {
       "method": "DELETE",
-      "urlPath": "/providers/seca.workspace/v1/tenants/my-tenant/workspaces/workspace-usecase",
+      "urlPath": "/providers/seca.workspace/v1/tenants/tenant-1/workspaces/workspace-1",
       "headers": {
         "Authorization": {
           "matches": "Bearer .+"
