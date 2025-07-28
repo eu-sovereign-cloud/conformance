@@ -1,10 +1,10 @@
-package secapi
+package secatest
 
 import (
 	"context"
 
 	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
-	sdk "github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
@@ -12,7 +12,7 @@ import (
 
 type WorkspaceV1TestSuite struct {
 	suite.Suite
-	client *sdk.RegionalClient
+	client *secapi.RegionalClient
 }
 
 func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
@@ -54,8 +54,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 				"expected_name", workspace1Name,
 				"actual_name", resp.Metadata.Name,
 			)
-			stepCtx.Assert().Equal(tenant1Name, resp.Metadata.Tenant, "Metadata.Tenant should match expected")
-			stepCtx.Assert().Equal(workspace1Name, resp.Metadata.Name, "Metadata.Name should match expected")
+			stepCtx.Assert().Equal(tenant1Name, resp.Metadata.Tenant, "Tenant should match expected")
+			stepCtx.Assert().Equal(workspace1Name, resp.Metadata.Name, "Name should match expected")
 		})
 	})
 
@@ -86,8 +86,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 				"expected_name", workspace1Name,
 				"actual_name", resp.Metadata.Name,
 			)
-			stepCtx.Assert().Equal(tenant1Name, resp.Metadata.Tenant, "Metadata.Tenant should match expected")
-			stepCtx.Assert().Equal(workspace1Name, resp.Metadata.Name, "Metadata.Name should match expected")
+			stepCtx.Assert().Equal(tenant1Name, resp.Metadata.Tenant, "Tenant should match expected")
+			stepCtx.Assert().Equal(workspace1Name, resp.Metadata.Name, "Name should match expected")
 		})
 	})
 

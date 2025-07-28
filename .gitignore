@@ -1,5 +1,8 @@
-# IDE files
+# IDE
 .vscode
 
-## Allure reports
+# Build
+dist/
+
+## Allure
 reports/

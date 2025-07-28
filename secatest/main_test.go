@@ -1,4 +1,4 @@
-package secapi
+package secatest
 
 import (
 	"context"
@@ -6,14 +6,12 @@ import (
 	"os"
 	"testing"
 
-	sdk "github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
-func TestAll(t *testing.T) {
-	ctx := context.Background()
-
+func TestMain(m *testing.M) {
 	// Configure the report
 	if os.Getenv("ALLURE_OUTPUT_PATH") == "" {
 		os.Setenv("ALLURE_OUTPUT_PATH", "../reports")
@@ -27,6 +25,12 @@ func TestAll(t *testing.T) {
 		Level: slog.LevelInfo,
 	}))
 	slog.SetDefault(logger)
+
+	m.Run()
+}
+
+func TestSuites(t *testing.T) {
+	ctx := context.Background()
 
 	// Read Configurations
 	// regionURL := os.Getenv("REGION_PROVIDER_URL")
@@ -54,14 +58,14 @@ func TestAll(t *testing.T) {
 	}
 
 	// Setup clients
-	config := &sdk.GlobalConfig{
+	config := &secapi.GlobalConfig{
 		AuthToken: authToken,
-		Endpoints: sdk.GlobalEndpoints{
+		Endpoints: secapi.GlobalEndpoints{
 			RegionV1:        regionURL,
 			AuthorizationV1: authorizationURL,
 		},
 	}
-	globalClient, err := sdk.NewGlobalClient(config)
+	globalClient, err := secapi.NewGlobalClient(config)
 	if err != nil {
 		slog.Error("Failed to create global client", "error", err)
 		os.Exit(1)

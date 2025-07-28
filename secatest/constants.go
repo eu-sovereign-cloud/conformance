@@ -1,4 +1,4 @@
-package secapi
+package secatest
 
 const (
 	// Test Data
