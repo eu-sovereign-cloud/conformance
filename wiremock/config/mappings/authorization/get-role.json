@@ -1,56 +1,63 @@
-
-  {
-    "name": "Get Role",
-    "priority": 10,
-    "request": {
-      "method": "GET",
-      "urlPath": "/providers/seca.authorization/v1/tenants/[^/]+/roles/[^/]+",
-      "headers": {
-        "Content-Type": {
-          "equalTo": "application/json"
-        },
-        "Accept": {
-          "equalTo": "application/json"
-        },
-        "Authorization": {
-          "matches": "Bearer .+"
-        }
-      }
-    },
-    "response": {
-      "status": 200,
-      "headers": {
-        "Content-Type": "application/json"
+{
+  "name": "Get Role",
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPath": "/providers/seca.authorization/v1/tenants/[^/]+/roles/[^/]+",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
       },
-      "jsonBody": {
-        "metadata": {
-          "name": "{{request.pathSegments.[6]}}",
-          "createdAt": "2025-07-21T15:18:49Z",
-          "lastModifiedAt": "2025-07-21T15:18:49Z",
-          "resourceVersion": 1,
-          "tenant": "{{request.pathSegments.[4]}}",
-          "apiVersion": "v1",
-          "kind": "role",
-          "resource": "seca.authorization/v1/tenants/{{request.pathSegments.[4]}}/roles/{{request.pathSegments.[6]}}",
-          "verb": "get"
-        },
-        "spec": {  
-          "permissions": [
+      "Accept": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "metadata": {
+        "name": "{{request.pathSegments.[6]}}",
+        "createdAt": "2025-07-21T15:18:49Z",
+        "lastModifiedAt": "2025-07-21T15:18:49Z",
+        "resourceVersion": 1,
+        "tenant": "{{request.pathSegments.[4]}}",
+        "apiVersion": "v1",
+        "kind": "role",
+        "resource": "seca.authorization/v1/tenants/{{request.pathSegments.[4]}}/roles/{{request.pathSegments.[6]}}",
+        "verb": "get"
+      },
+      "spec": {
+        "permissions": [
           {
-            "scopes": ["workspaces/production"],
-            "resources": ["seca.compute/instances"],
-            "verb": ["get", "put"]
-          }]
-        },
-        "status": {
-          "state": "active",
-          "conditions": [
-            {
-              "state": "active",
-              "lastTransitionAt": "2025-07-21T15:18:49Z"
-            }
-          ]
-        }
+            "scopes": [
+              "workspaces/production"
+            ],
+            "resources": [
+              "seca.compute/instances"
+            ],
+            "verb": [
+              "get",
+              "put"
+            ]
+          }
+        ]
+      },
+      "status": {
+        "state": "active",
+        "conditions": [
+          {
+            "state": "active",
+            "lastTransitionAt": "2025-07-21T15:18:49Z"
+          }
+        ]
       }
     }
   }
+}

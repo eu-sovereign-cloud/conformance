@@ -1,5 +1,5 @@
 {
-  "name":"List Block Storage",
+  "name": "List Block Storage",
   "priority": 10,
   "request": {
     "method": "GET",

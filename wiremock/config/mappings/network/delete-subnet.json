@@ -1,22 +1,22 @@
 {
-    "name": "delete-subnet",
-    "priority": 10,
-	"request": {
-		"method": "DELETE",
-		"urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/subnets/([^/]+)",
-		"headers": {
-			"Authorization": {
-				"matches": "Bearer .+"
-			}
-		}
-	},
-	"response": {
-		"status": 202,
-		"headers": {
-			"Content-Type": "application/json"
-		},
-		"jsonBody": {
-			"message": "Subnet deletion accepted."
-		}
-	}
+  "name": "delete-subnet",
+  "priority": 10,
+  "request": {
+    "method": "DELETE",
+    "urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/subnets/([^/]+)",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "message": "Subnet deletion accepted."
+    }
+  }
 }

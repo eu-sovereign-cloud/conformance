@@ -3,6 +3,7 @@ TOOLS_GOMOD := -modfile=./tools/go.mod
 GO_TOOL := $(GO) run $(TOOLS_GOMOD)
 
 WIREMOCK_PATH := $(shell pwd)/wiremock
+WIREMOCK_MAPPINGS_PATH := $(WIREMOCK_PATH)/config/mappings
 
 REPORTS_PATH := $(shell pwd)/reports
 RESULTS_DIR := results
@@ -41,6 +42,10 @@ report:
 fmt:
 	@echo "Formating code..."
 	$(GO_TOOL) mvdan.cc/gofumpt -w .
+	@echo "Formatting mock mappings..."
+	find $(WIREMOCK_MAPPINGS_PATH) -name "*.json" -type f | while read -r file; do \
+      jq '.' "$$file" > "$$file.tmp" && mv "$$file.tmp" "$$file"; \
+	done
 
 .PHONY: lint
 lint:

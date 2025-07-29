@@ -1,5 +1,5 @@
 {
-  "name":"List Image",
+  "name": "List Image",
   "priority": 10,
   "request": {
     "method": "GET",
@@ -19,36 +19,42 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-        "items": [{
-            "metadata": {
-                "name": "image-A",
-                "createdAt": "2025-07-22T10:15:10Z",
-                "lastModifiedAt": "2025-07-22T10:15:10Z",
-                "resourceVersion": 1,
-                "tenant": "{{request.pathSegments.[4]}}",
-                "region": "eu-central-1",
-                "apiVersion": "v1",
-                "kind": "image",
-                "resource": "seca.storage/images/{{request.pathSegments.[5]}}",
-                "verb": "get"
-            },
-            "spec": {
-                "blockStorageRef": "block-storages/default-ref",
-                "cpuArchitecture": "amd64"
-            },
-            "labels": { "os": "linux", "version": "1.0" },
-            "annotations": { "description": "Default mocked image" },
-            "status": {
+      "items": [
+        {
+          "metadata": {
+            "name": "image-A",
+            "createdAt": "2025-07-22T10:15:10Z",
+            "lastModifiedAt": "2025-07-22T10:15:10Z",
+            "resourceVersion": 1,
+            "tenant": "{{request.pathSegments.[4]}}",
+            "region": "eu-central-1",
+            "apiVersion": "v1",
+            "kind": "image",
+            "resource": "seca.storage/images/{{request.pathSegments.[5]}}",
+            "verb": "get"
+          },
+          "spec": {
+            "blockStorageRef": "block-storages/default-ref",
+            "cpuArchitecture": "amd64"
+          },
+          "labels": {
+            "os": "linux",
+            "version": "1.0"
+          },
+          "annotations": {
+            "description": "Default mocked image"
+          },
+          "status": {
+            "state": "active",
+            "conditions": [
+              {
                 "state": "active",
-                "conditions": [
-                {
-                    "state": "active",
-                    "lastTransitionAt": "2025-07-22T10:15:10Z"
-                }
-                ]
-            }
-        }]
-      
+                "lastTransitionAt": "2025-07-22T10:15:10Z"
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 }

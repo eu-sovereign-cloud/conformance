@@ -35,8 +35,13 @@
         "blockStorageRef": "block-storages/default-ref",
         "cpuArchitecture": "amd64"
       },
-      "labels": { "os": "linux", "version": "1.0" },
-      "annotations": { "description": "Default mocked image" },
+      "labels": {
+        "os": "linux",
+        "version": "1.0"
+      },
+      "annotations": {
+        "description": "Default mocked image"
+      },
       "status": {
         "state": "active",
         "conditions": [

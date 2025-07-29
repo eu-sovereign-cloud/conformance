@@ -1,66 +1,66 @@
 {
-    "name": "list network",
-    "priority": 10,
-	"request": {
-		"method": "GET",
-		"urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/networks",
-		"headers": {
-			"Authorization": {
-				"matches": "Bearer .+"
-			}
-		}
-	},
-	"response": {
-		"status": 200,
-		"headers": {
-			"Content-Type": "application/json"
-		},
-		"jsonBody": {
-			"items": [
-				{
-					"metadata": {
-						"name": "network-alpha",
-						"createdAt": "2025-07-25T09:15:00Z",
-						"lastModifiedAt": "2025-07-25T09:15:00Z",
-						"resourceVersion": 1,
-						"tenant": "{{request.pathSegments.[4]}}",
-						"region": "eu-central-1",
-						"apiVersion": "v1",
-						"kind": "network",
-						"scope": "workspace/{{request.pathSegments.[6]}}",
-						"resource": "seca.network/networks/network-alpha",
-						"verb": "get",
-						"workspace": "{{request.pathSegments.[6]}}"
-					},
-					"spec": {
-						"cidr": {
-							"ipv4": "10.0.0.0/16",
-							"ipv6": "2001:db8::/56"
-						},
-						"skuRef": "seca.1000",
-						"routeTableRef": "route-tables/default-rt"
-					},
-					"status": {
-						"state": "active",
-						"conditions": [
-							{
-								"state": "active",
-								"lastTransitionAt": "2025-07-25T09:15:00Z"
-							}
-						],
-						"cidr": {
-							"ipv4": "10.0.0.0/16",
-							"ipv6": "2001:db8::/56"
-						}
-					}
-				}
-			],
-			"metadata": {
-				"skipToken": null,
-				"scope": "workspace/{{request.pathSegments.[6]}}",
-				"resource": "seca.network/networks",
-				"verb": "list"
-			}
-		}
-	}
+  "name": "list network",
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/networks",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "metadata": {
+            "name": "network-alpha",
+            "createdAt": "2025-07-25T09:15:00Z",
+            "lastModifiedAt": "2025-07-25T09:15:00Z",
+            "resourceVersion": 1,
+            "tenant": "{{request.pathSegments.[4]}}",
+            "region": "eu-central-1",
+            "apiVersion": "v1",
+            "kind": "network",
+            "scope": "workspace/{{request.pathSegments.[6]}}",
+            "resource": "seca.network/networks/network-alpha",
+            "verb": "get",
+            "workspace": "{{request.pathSegments.[6]}}"
+          },
+          "spec": {
+            "cidr": {
+              "ipv4": "10.0.0.0/16",
+              "ipv6": "2001:db8::/56"
+            },
+            "skuRef": "seca.1000",
+            "routeTableRef": "route-tables/default-rt"
+          },
+          "status": {
+            "state": "active",
+            "conditions": [
+              {
+                "state": "active",
+                "lastTransitionAt": "2025-07-25T09:15:00Z"
+              }
+            ],
+            "cidr": {
+              "ipv4": "10.0.0.0/16",
+              "ipv6": "2001:db8::/56"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "skipToken": null,
+        "scope": "workspace/{{request.pathSegments.[6]}}",
+        "resource": "seca.network/networks",
+        "verb": "list"
+      }
+    }
+  }
 }

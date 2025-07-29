@@ -1,24 +1,22 @@
-
-  {
-    "name": "Delete Role",
-    "priority": 10,
-    "request": {
-      "method": "DELETE",
-      "urlPath": "/providers/seca.authorization/v1/tenants/([^/]+)/roles/([^/]+)",
-      "headers": {
-        "Authorization": {
-          "matches": "Bearer .+"
-        }
-     }
-    },
-    "response": {
-      "status": 202,
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "jsonBody": {
-        "message": "Role deletion accepted."
+{
+  "name": "Delete Role",
+  "priority": 10,
+  "request": {
+    "method": "DELETE",
+    "urlPath": "/providers/seca.authorization/v1/tenants/([^/]+)/roles/([^/]+)",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
       }
     }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "message": "Role deletion accepted."
+    }
   }
-
+}
