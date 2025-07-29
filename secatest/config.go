@@ -24,7 +24,6 @@ const (
 )
 
 func loadConfig() (*Config, error) {
-
 	regionUrlFlag := flag.String(regionUrlConfig, "", "Region Provider Base URL")
 	authorizationUrlFlag := flag.String(authorizationUrlConfig, "", "Authorization Provider Base URL")
 	regionNameFlag := flag.String(regionNameConfig, "", "Regional Providers Region Name")
@@ -64,7 +63,6 @@ func loadConfig() (*Config, error) {
 }
 
 func readFlagOrEnv(flag *string, param string) (string, error) {
-
 	value := *flag
 
 	if value == "" {
@@ -79,7 +77,6 @@ func readFlagOrEnv(flag *string, param string) (string, error) {
 }
 
 func readFlagOrEnvOrDefault(flag *string, param string, defaultValue string) string {
-
 	value := *flag
 
 	if value == "" {

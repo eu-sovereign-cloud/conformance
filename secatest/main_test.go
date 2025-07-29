@@ -14,7 +14,6 @@ import (
 var config *Config
 
 func TestMain(m *testing.M) {
-
 	// Setup logger
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
