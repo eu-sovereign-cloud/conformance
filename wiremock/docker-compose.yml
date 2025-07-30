@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   wiremock:
     image: wiremock/wiremock:latest 

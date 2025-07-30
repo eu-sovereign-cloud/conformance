@@ -1,62 +1,62 @@
 {
-	"name": "list nics",
-    "priority": 10,
-    "request": {
-		"method": "GET",
-		"urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/nics",
-		"headers": {
-			"Authorization": {
-				"matches": "Bearer .+"
-			}
-		}
-	},
-	"response": {
-		"status": 200,
-		"headers": {
-			"Content-Type": "application/json"
-		},
-		"jsonBody": {
-			"items": [
-				{
-					"metadata": {
-						"name": "nic-01",
-						"createdAt": "2025-07-25T08:35:00Z",
-						"lastModifiedAt": "2025-07-25T08:35:00Z",
-						"resourceVersion": 1,
-						"tenant": "{{request.pathSegments.[4]}}",
-						"region": "eu-central-1",
-						"apiVersion": "v1",
-						"kind": "nic",
-						"scope": "workspace/{{request.pathSegments.[6]}}",
-						"resource": "seca.network/nics/nic-01",
-						"verb": "get",
-						"workspace": "{{request.pathSegments.[6]}}",
-						"zone": "a"
-					},
-					"spec": {
-						"addresses": [
-							"10.100.0.10",
-							"0.0.0.0"
-						],
-						"subnetRef": "subnets/subnet-A"
-					},
-					"status": {
-						"state": "active",
-						"conditions": [
-							{
-								"state": "active",
-								"lastTransitionAt": "2025-07-25T08:35:00Z"
-							}
-						]
-					}
-				}
-			],
-			"metadata": {
-				"skipToken": null,
-				"scope": "workspace/{{request.pathSegments.[6]}}",
-				"resource": "seca.network/nics",
-				"verb": "list"
-			}
-		}
-	}
+  "name": "list nics",
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/nics",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "metadata": {
+            "name": "nic-01",
+            "createdAt": "2025-07-25T08:35:00Z",
+            "lastModifiedAt": "2025-07-25T08:35:00Z",
+            "resourceVersion": 1,
+            "tenant": "{{request.pathSegments.[4]}}",
+            "region": "eu-central-1",
+            "apiVersion": "v1",
+            "kind": "nic",
+            "scope": "workspace/{{request.pathSegments.[6]}}",
+            "resource": "seca.network/nics/nic-01",
+            "verb": "get",
+            "workspace": "{{request.pathSegments.[6]}}",
+            "zone": "a"
+          },
+          "spec": {
+            "addresses": [
+              "10.100.0.10",
+              "0.0.0.0"
+            ],
+            "subnetRef": "subnets/subnet-A"
+          },
+          "status": {
+            "state": "active",
+            "conditions": [
+              {
+                "state": "active",
+                "lastTransitionAt": "2025-07-25T08:35:00Z"
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "skipToken": null,
+        "scope": "workspace/{{request.pathSegments.[6]}}",
+        "resource": "seca.network/nics",
+        "verb": "list"
+      }
+    }
+  }
 }

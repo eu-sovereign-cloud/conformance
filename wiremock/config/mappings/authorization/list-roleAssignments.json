@@ -1,29 +1,29 @@
-
-  {
-    "name": "List Role Assignments",
-    "priority": 10,
-    "request": {
-      "method": "GET",
-      "urlPath": "/providers/seca.authorization/v1/tenants/[^/]+/role-assignments/[^/]+",
-      "headers": {
-        "Content-Type": {
-          "equalTo": "application/json"
-        },
-        "Accept": {
-          "equalTo": "application/json"
-        },
-        "Authorization": {
-          "matches": "Bearer .+"
-        }
-      }
-    },
-    "response": {
-      "status": 200,
-      "headers": {
-        "Content-Type": "application/json"
+{
+  "name": "List Role Assignments",
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPath": "/providers/seca.authorization/v1/tenants/[^/]+/role-assignments/[^/]+",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
       },
-      "jsonBody": {
-        "items": [{
+      "Accept": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
           "metadata": {
             "name": "{{request.pathSegments.[6]}}",
             "createdAt": "2025-07-21T15:18:49Z",
@@ -36,13 +36,26 @@
             "verb": "get"
           },
           "spec": {
-            "subs": ["user-retrieved@example.com"],
-            "scopes": [{
-              "scopes": ["workspaces/production"],
-              "resources": ["seca.compute/instances"],
-              "verb": ["get", "put"]
-            }],
-            "roles": ["retrieved-role"]
+            "subs": [
+              "user-retrieved@example.com"
+            ],
+            "scopes": [
+              {
+                "scopes": [
+                  "workspaces/production"
+                ],
+                "resources": [
+                  "seca.compute/instances"
+                ],
+                "verb": [
+                  "get",
+                  "put"
+                ]
+              }
+            ],
+            "roles": [
+              "retrieved-role"
+            ]
           },
           "status": {
             "state": "active",
@@ -53,13 +66,14 @@
               }
             ]
           }
-      }],
-      "metadata": {
-          "provider": "seca.authorization",
-          "resource": "seca.authorization/v1/tenants/{{request.pathSegments.[4]}}/role-assignments",
-          "verb": "list",
-          "skipToken": null
         }
+      ],
+      "metadata": {
+        "provider": "seca.authorization",
+        "resource": "seca.authorization/v1/tenants/{{request.pathSegments.[4]}}/role-assignments",
+        "verb": "list",
+        "skipToken": null
+      }
     }
-  }  
+  }
 }

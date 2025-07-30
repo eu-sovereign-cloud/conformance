@@ -1,22 +1,22 @@
 {
-    "name": "stop-instance",
-    "priority": 10,
-    "request": {
-        "method": "POST",
-        "urlPathPattern": "/providers/seca.compute/v1/tenants/([^/]+)/workspaces/([^/]+)/instances/([^/]+)/power-off",
-        "headers": {
-        "Authorization": {
-            "matches": "Bearer .+"
-        }
-        }
-    },
-    "response": {
-        "status": 202,
-        "headers": {
-        "Content-Type": "application/json"
-        },
-        "jsonBody": {
-        "message": "Instance power off accepted."
-        }
+  "name": "stop-instance",
+  "priority": 10,
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/providers/seca.compute/v1/tenants/([^/]+)/workspaces/([^/]+)/instances/([^/]+)/power-off",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
     }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "message": "Instance power off accepted."
+    }
+  }
 }

@@ -4,80 +4,72 @@ import (
 	"context"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
-
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
-func TestMain(m *testing.M) {
-	// Configure the report
-	if os.Getenv("ALLURE_OUTPUT_PATH") == "" {
-		os.Setenv("ALLURE_OUTPUT_PATH", "../reports")
-	}
-	if os.Getenv("ALLURE_OUTPUT_FOLDER") == "" {
-		os.Setenv("ALLURE_OUTPUT_FOLDER", "results")
-	}
+var config *Config
 
+func TestMain(m *testing.M) {
 	// Setup logger
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 	}))
 	slog.SetDefault(logger)
 
-	m.Run()
+	// Load configuration
+	var err error
+	config, err = loadConfig()
+	if err != nil {
+		slog.Error("Failed to load configuration", "error", err)
+		os.Exit(1)
+	}
+
+	// Configure allure
+	configureReports(config)
+
+	// Run tests
+	os.Exit(m.Run())
 }
 
 func TestSuites(t *testing.T) {
 	ctx := context.Background()
 
-	// Read Configurations
-	// regionURL := os.Getenv("REGION_PROVIDER_URL")
-	regionURL := "http://localhost:8080/providers/seca.region"
-	if regionURL == "" {
-		slog.Error("REGION_PROVIDER_URL is not set")
-		os.Exit(1)
-	}
-
-	// authorizationURL := os.Getenv("AUTHORIZATION_PROVIDER_URL"
-	authorizationURL := "http://localhost:8080/providers/seca.authorization"
-
-	// regionName := os.Getenv("REGION_NAME")
-	regionName := "eu-central-1"
-	if regionName == "" {
-		slog.Error("REGION_NAME is not set")
-		os.Exit(1)
-	}
-
-	// authToken := os.Getenv("AUTH_TOKEN")
-	authToken := "test-token"
-	if authToken == "" {
-		slog.Error("AUTH_TOKEN is not set")
-		os.Exit(1)
-	}
-
-	// Setup clients
-	config := &secapi.GlobalConfig{
-		AuthToken: authToken,
+	// Initialize global client
+	globalClient, err := secapi.NewGlobalClient(&secapi.GlobalConfig{
+		AuthToken: config.ClientAuthToken,
 		Endpoints: secapi.GlobalEndpoints{
-			RegionV1:        regionURL,
-			AuthorizationV1: authorizationURL,
+			RegionV1:        config.ProviderRegionV1,
+			AuthorizationV1: config.ProviderAuthorizationV1,
 		},
-	}
-	globalClient, err := secapi.NewGlobalClient(config)
+	})
 	if err != nil {
 		slog.Error("Failed to create global client", "error", err)
 		os.Exit(1)
 	}
 
-	regionalClient, err := globalClient.NewRegionalClient(ctx, regionName)
+	// Initialize regional client
+	regionalClient, err := globalClient.NewRegionalClient(ctx, config.ClientRegion)
 	if err != nil {
 		slog.Error("Failed to create regional client", "error", err)
 		os.Exit(1)
 	}
 
+	// Run test suites
 	suite.RunNamedSuite(t, "Workspace V1", &WorkspaceV1TestSuite{
 		client: regionalClient,
 	})
+}
+
+func configureReports(config *Config) {
+	resultsPath := config.ReportResultsPath
+
+	outputPath := filepath.Dir(resultsPath)
+	os.Setenv("ALLURE_OUTPUT_PATH", outputPath)
+
+	outputFolder := filepath.Base(resultsPath)
+	os.Setenv("ALLURE_OUTPUT_FOLDER", outputFolder)
 }

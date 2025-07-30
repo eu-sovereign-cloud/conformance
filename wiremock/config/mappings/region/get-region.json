@@ -17,7 +17,7 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-		"metadata": {
+      "metadata": {
         "name": "{{request.pathSegments.[4]}}",
         "createdAt": "2025-07-23T08:10:00Z",
         "lastModifiedAt": "2025-07-23T08:10:00Z",
@@ -29,16 +29,39 @@
         "kind": "region",
         "tenant": "global"
       },
-		"spec": {
-            "availableZones": ["a", "b"],
-			"providers": [
-                { "name": "seca.autorization", "version": "v1", "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.authorization" },
-                { "name": "seca.compute", "version": "v1", "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.compute" },
-                { "name": "seca.network", "version": "v1", "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.network" },
-                { "name": "seca.storage", "version": "v1", "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.storage" },
-                { "name": "seca.workspace", "version": "v1", "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.workspace" }
-			]
-		}
-	}
+      "spec": {
+        "availableZones": [
+          "a",
+          "b"
+        ],
+        "providers": [
+          {
+            "name": "seca.autorization",
+            "version": "v1",
+            "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.authorization"
+          },
+          {
+            "name": "seca.compute",
+            "version": "v1",
+            "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.compute"
+          },
+          {
+            "name": "seca.network",
+            "version": "v1",
+            "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.network"
+          },
+          {
+            "name": "seca.storage",
+            "version": "v1",
+            "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.storage"
+          },
+          {
+            "name": "seca.workspace",
+            "version": "v1",
+            "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.workspace"
+          }
+        ]
+      }
+    }
   }
 }

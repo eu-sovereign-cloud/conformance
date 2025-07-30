@@ -3,19 +3,19 @@ TOOLS_GOMOD := -modfile=./tools/go.mod
 GO_TOOL := $(GO) run $(TOOLS_GOMOD)
 
 WIREMOCK_PATH := $(shell pwd)/wiremock
+WIREMOCK_MAPPINGS_PATH := $(WIREMOCK_PATH)/config/mappings
 
 REPORTS_PATH := $(shell pwd)/reports
 RESULTS_DIR := results
 RESULTS_PATH := $(REPORTS_PATH)/$(RESULTS_DIR)
 
-BINARY_NAME := secatest
-DIST_DIR := dist
-DIST_PATH := $(DIST_DIR)/$(BINARY_NAME)
+DIST_DIR := ./dist
+DIST_BIN := $(DIST_DIR)/secatest
 
-.PHONY: build
-build:
+.PHONY: $(DIST_BIN)
+$(DIST_BIN):
 	@echo "Building test code..."
-	$(GO) test -c -o $(DIST_PATH) ./...
+	$(GO) test -c -o $(DIST_BIN) ./...
 
 .PHONY: mock
 mock:
@@ -27,8 +27,11 @@ run:
 	@echo "Running test tool..."
 	rm -rf $(RESULTS_PATH)
 	mkdir -p $(RESULTS_PATH)
-	cp reports/categories.json $(RESULTS_PATH)/ 2>/dev/null || true
-	ALLURE_OUTPUT_PATH=$(REPORTS_PATH) ALLURE_OUTPUT_FOLDER=$(RESULTS_DIR) ./dist/secatest
+	$(DIST_BIN) -seca.provider.region.v1=http://localhost:8080/providers/seca.region \
+	  -seca.provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
+	  -seca.client.authtoken=test-token \
+	  -seca.client.region=eu-central-1 \
+	  -seca.report.resultspath=$(RESULTS_PATH)
 
 .PHONY: report
 report:
@@ -39,6 +42,10 @@ report:
 fmt:
 	@echo "Formating code..."
 	$(GO_TOOL) mvdan.cc/gofumpt -w .
+	@echo "Formatting mock mappings..."
+	find $(WIREMOCK_MAPPINGS_PATH) -name "*.json" -type f | while read -r file; do \
+      jq '.' "$$file" > "$$file.tmp" && mv "$$file.tmp" "$$file"; \
+	done
 
 .PHONY: lint
 lint:

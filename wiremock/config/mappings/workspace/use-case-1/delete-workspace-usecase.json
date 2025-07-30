@@ -1,25 +1,22 @@
 {
-    "name": "Delete Workspace Usecase - Success",
-    "priority": 1,
-    "scenarioName": "Workspace Usecase Lifecycle",
-    "requiredScenarioState": "WorkspaceUsecaseUpdated",
-    "newScenarioState": "WorkspaceUsecaseDeleted",
-
-    "request": {
-      "method": "DELETE",
-      "urlPath": "/providers/seca.workspace/v1/tenants/tenant-1/workspaces/workspace-1",
-      "headers": {
-        "Authorization": {
-          "matches": "Bearer .+"
-        }
-      }
-    },
-    "response": {
-      "status": 202,
-      "headers": {
-        "Content-Type": "application/json"
+  "name": "Delete Workspace Usecase - Success",
+  "priority": 1,
+  "scenarioName": "Workspace Usecase Lifecycle",
+  "requiredScenarioState": "WorkspaceUsecaseUpdated",
+  "newScenarioState": "WorkspaceUsecaseDeleted",
+  "request": {
+    "method": "DELETE",
+    "urlPath": "/providers/seca.workspace/v1/tenants/tenant-1/workspaces/workspace-1",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
       }
     }
-    
-
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    }
   }
+}

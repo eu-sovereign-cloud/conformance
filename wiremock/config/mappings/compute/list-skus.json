@@ -1,58 +1,58 @@
 {
-    "name": "list-skus",
-    "priority": 10,
-    "request": {
-        "method": "GET",
-        "urlPathPattern": "/providers/seca.compute/v1/tenants/([^/]+)/skus",
-        "headers": {
-        "Accept": {
-            "equalTo": "application/json"
-        },
-        "Authorization": {
-            "matches": "Bearer .+"
-        }
-        }
-    },
-    "response": {
-        "status": 200,
-        "headers": {
-        "Content-Type": "application/json"
-        },
-        "jsonBody": {
-        "items": [
-            {
-            "spec": {
-                "benchmarkPoints": 3000,
-                "cpuType": "amd64",
-                "provider": "SECA",
-                "ramGB": 4,
-                "tier": "seca.s",
-                "vCPU": 2
-            },
-            "metadata": {
-                "name": "seca.s"
-            }
-            },
-            {
-            "spec": {
-                "benchmarkPoints": 6000,
-                "cpuType": "amd64",
-                "provider": "SECA",
-                "ramGB": 8,
-                "tier": "seca.m",
-                "vCPU": 4
-            },
-            "metadata": {
-                "name": "seca.m"
-            }
-            }
-        ],
-        "metadata": {
-            "skipToken": "false",
-            "scope": "instance-sku/{{request.pathSegments.[4]}}",
-            "resource": "seca.compute/skus",
-            "verb": "list"
-        }
-        }
+  "name": "list-skus",
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/providers/seca.compute/v1/tenants/([^/]+)/skus",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
     }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "spec": {
+            "benchmarkPoints": 3000,
+            "cpuType": "amd64",
+            "provider": "SECA",
+            "ramGB": 4,
+            "tier": "seca.s",
+            "vCPU": 2
+          },
+          "metadata": {
+            "name": "seca.s"
+          }
+        },
+        {
+          "spec": {
+            "benchmarkPoints": 6000,
+            "cpuType": "amd64",
+            "provider": "SECA",
+            "ramGB": 8,
+            "tier": "seca.m",
+            "vCPU": 4
+          },
+          "metadata": {
+            "name": "seca.m"
+          }
+        }
+      ],
+      "metadata": {
+        "skipToken": "false",
+        "scope": "instance-sku/{{request.pathSegments.[4]}}",
+        "resource": "seca.compute/skus",
+        "verb": "list"
+      }
+    }
+  }
 }

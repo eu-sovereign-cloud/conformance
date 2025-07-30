@@ -16,7 +16,7 @@ type WorkspaceV1TestSuite struct {
 }
 
 func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
-	t.Title("Workspace Test Case")
+	t.Title("Workspace Lifecycle Test")
 	t.Tags(
 		"provider:workspace",
 		"resource:workspace",
