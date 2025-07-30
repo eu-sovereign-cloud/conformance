@@ -40,10 +40,10 @@ func TestSuites(t *testing.T) {
 
 	// Initialize global client
 	globalClient, err := secapi.NewGlobalClient(&secapi.GlobalConfig{
-		AuthToken: config.AuthToken,
+		AuthToken: config.ClientAuthToken,
 		Endpoints: secapi.GlobalEndpoints{
-			RegionV1:        config.RegionURL,
-			AuthorizationV1: config.AuthorizationURL,
+			RegionV1:        config.ProviderRegionV1,
+			AuthorizationV1: config.ProviderAuthorizationV1,
 		},
 	})
 	if err != nil {
@@ -52,7 +52,7 @@ func TestSuites(t *testing.T) {
 	}
 
 	// Initialize regional client
-	regionalClient, err := globalClient.NewRegionalClient(ctx, config.RegionName)
+	regionalClient, err := globalClient.NewRegionalClient(ctx, config.ClientRegion)
 	if err != nil {
 		slog.Error("Failed to create regional client", "error", err)
 		os.Exit(1)
@@ -65,7 +65,7 @@ func TestSuites(t *testing.T) {
 }
 
 func configureReports(config *Config) {
-	resultsPath := config.ResultsPath
+	resultsPath := config.ReportResultsPath
 
 	outputPath := filepath.Dir(resultsPath)
 	os.Setenv("ALLURE_OUTPUT_PATH", outputPath)

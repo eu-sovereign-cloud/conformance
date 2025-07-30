@@ -8,57 +8,61 @@ import (
 )
 
 type Config struct {
-	RegionURL        string
-	AuthorizationURL string
-	RegionName       string
-	AuthToken        string
-	ResultsPath      string
+	ProviderRegionV1        string
+	ProviderAuthorizationV1 string
+	ClientAuthToken         string
+	ClientRegion            string
+	ReportResultsPath       string
 }
 
 const (
-	regionUrlConfig        = "region_url"
-	authorizationUrlConfig = "authorization_url"
-	regionNameConfig       = "region_name"
-	authTokenConfig        = "auth_token"
-	resultsPathConfig      = "results_path"
+	providerRegionV1Config        = "seca.provider.region.v1"
+	providerAuthorizationV1Config = "seca.provider.authorization.v1"
+	clientAuthTokenConfig         = "seca.client.authtoken"
+	clientRegionConfig            = "seca.client.region"
+	reportResultsPathConfig       = "seca.report.resultspath"
 )
 
 func loadConfig() (*Config, error) {
-	regionUrlFlag := flag.String(regionUrlConfig, "", "Region Provider Base URL")
-	authorizationUrlFlag := flag.String(authorizationUrlConfig, "", "Authorization Provider Base URL")
-	regionNameFlag := flag.String(regionNameConfig, "", "Regional Providers Region Name")
-	authTokenFlag := flag.String(authTokenConfig, "", "JWT Authentication Token")
-	resultsPathFlag := flag.String(resultsPathConfig, "../reports/results", "Report Results Path")
+
+	providerRegionV1Flag := flag.String(providerRegionV1Config, "", "Region V1 Provider Base URL")
+	providerAuthorizationV1Flag := flag.String(providerAuthorizationV1Config, "", "Authorization V1 Provider Base URL")
+	clientAuthTokenFlag := flag.String(clientAuthTokenConfig, "", "Client Authentication Token")
+	clientRegionFlag := flag.String(clientRegionConfig, "", "Client Region Name")
+	reportResultsPathFlag := flag.String(reportResultsPathConfig, "", "Report Results Path")
 	flag.Parse()
 
-	regionUrl, err := readFlagOrEnv(regionUrlFlag, regionUrlConfig)
+	providerRegionV1, err := readFlagOrEnv(providerRegionV1Flag, providerRegionV1Config)
 	if err != nil {
 		return nil, err
 	}
 
-	authorizationUrl, err := readFlagOrEnv(authorizationUrlFlag, authorizationUrlConfig)
+	providerAuthorizationV1, err := readFlagOrEnv(providerAuthorizationV1Flag, providerAuthorizationV1Config)
 	if err != nil {
 		return nil, err
 	}
 
-	regionName, err := readFlagOrEnv(regionNameFlag, regionNameConfig)
+	clientAuthToken, err := readFlagOrEnv(clientAuthTokenFlag, clientAuthTokenConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	authToken, err := readFlagOrEnv(authTokenFlag, authTokenConfig)
+	clientRegion, err := readFlagOrEnv(clientRegionFlag, clientRegionConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	resultsPath := readFlagOrEnvOrDefault(resultsPathFlag, resultsPathConfig, "../reports/results")
+	reportResultsPath, err := readFlagOrEnv(reportResultsPathFlag, reportResultsPathConfig)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Config{
-		RegionURL:        regionUrl,
-		AuthorizationURL: authorizationUrl,
-		RegionName:       regionName,
-		AuthToken:        authToken,
-		ResultsPath:      resultsPath,
+		ProviderRegionV1:        providerRegionV1,
+		ProviderAuthorizationV1: providerAuthorizationV1,
+		ClientAuthToken:         clientAuthToken,
+		ClientRegion:            clientRegion,
+		ReportResultsPath:       reportResultsPath,
 	}, nil
 }
 
@@ -66,7 +70,10 @@ func readFlagOrEnv(flag *string, param string) (string, error) {
 	value := *flag
 
 	if value == "" {
-		value = os.Getenv(strings.ToUpper(param))
+		// Convert flag to environment variable name format
+		env := strings.ToUpper(strings.ReplaceAll(param, "-", "_"))
+
+		value = os.Getenv(env)
 
 		if value == "" {
 			return "", fmt.Errorf("missing required configuration: %s", param)
@@ -74,18 +81,4 @@ func readFlagOrEnv(flag *string, param string) (string, error) {
 	}
 
 	return value, nil
-}
-
-func readFlagOrEnvOrDefault(flag *string, param string, defaultValue string) string {
-	value := *flag
-
-	if value == "" {
-		value = os.Getenv(strings.ToUpper(param))
-
-		if value == "" {
-			return defaultValue
-		}
-	}
-
-	return value
 }
