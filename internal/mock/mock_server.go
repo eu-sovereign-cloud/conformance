@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"text/template"
 
-	responsesTemplate "github.com/eu-sovereign-cloud/conformance/mock/responses"
+	responsesTemplate "github.com/eu-sovereign-cloud/conformance/internal/mock/responses"
 	"github.com/wiremock/go-wiremock"
 )
 
@@ -37,7 +37,7 @@ const (
 	WorkspaceVersion = "v1"
 )
 
-func MockWorkspaceScenario(workspaceMock Workspace) error {
+func CreateWorkspaceScenario(workspaceMock Workspace) error {
 
 	wm := wiremock.NewClient(workspaceMock.WireMockURL)
 

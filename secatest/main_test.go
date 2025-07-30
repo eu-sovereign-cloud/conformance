@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
@@ -37,6 +38,19 @@ func TestMain(m *testing.M) {
 
 func TestSuites(t *testing.T) {
 	ctx := context.Background()
+
+	// Create Scenario
+	err := mock.CreateWorkspaceScenario(mock.Workspace{
+		WireMockURL:   config.MockServerURL,
+		TenantName:    tenant1Name,
+		WorkspaceName: workspace1Name,
+		Region:        config.ClientRegion,
+		Token:         config.ClientAuthToken,
+	})
+	if err != nil {
+		slog.Error("Failed to create workspace scenario", "error", err)
+		os.Exit(1)
+	}
 
 	// Initialize global client
 	globalClient, err := secapi.NewGlobalClient(&secapi.GlobalConfig{

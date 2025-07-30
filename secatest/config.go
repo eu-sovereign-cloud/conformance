@@ -13,6 +13,7 @@ type Config struct {
 	ClientAuthToken         string
 	ClientRegion            string
 	ReportResultsPath       string
+	MockServerURL           string
 }
 
 const (
@@ -21,6 +22,7 @@ const (
 	clientAuthTokenConfig         = "seca.client.authtoken"
 	clientRegionConfig            = "seca.client.region"
 	reportResultsPathConfig       = "seca.report.resultspath"
+	mockServerURLConfig           = "seca.mock.serverurl"
 )
 
 func loadConfig() (*Config, error) {
@@ -30,6 +32,8 @@ func loadConfig() (*Config, error) {
 	clientAuthTokenFlag := flag.String(clientAuthTokenConfig, "", "Client Authentication Token")
 	clientRegionFlag := flag.String(clientRegionConfig, "", "Client Region Name")
 	reportResultsPathFlag := flag.String(reportResultsPathConfig, "", "Report Results Path")
+	mockServerURLFlag := flag.String(mockServerURLConfig, "", "Mock Server URL")
+
 	flag.Parse()
 
 	providerRegionV1, err := readFlagOrEnv(providerRegionV1Flag, providerRegionV1Config)
@@ -57,12 +61,18 @@ func loadConfig() (*Config, error) {
 		return nil, err
 	}
 
+	mockServerURL, err := readFlagOrEnv(mockServerURLFlag, mockServerURLConfig)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Config{
 		ProviderRegionV1:        providerRegionV1,
 		ProviderAuthorizationV1: providerAuthorizationV1,
 		ClientAuthToken:         clientAuthToken,
 		ClientRegion:            clientRegion,
 		ReportResultsPath:       reportResultsPath,
+		MockServerURL:           mockServerURL,
 	}, nil
 }
 

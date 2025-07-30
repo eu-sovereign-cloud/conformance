@@ -26,7 +26,7 @@ func TestWorkspaceScenario(t *testing.T) {
 		Region:        Region,
 		Token:         Token,
 	}
-	err := MockWorkspaceScenario(WorkspaceMock)
+	err := CreateWorkspaceScenario(WorkspaceMock)
 
 	if err != nil {
 		log.Printf("Error creating workspace scenario: %v\n", err)
