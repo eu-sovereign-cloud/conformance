@@ -1,6 +1,6 @@
 package mock
 
-type Workspace struct {
+type MockParams struct {
 	WireMockURL   string
 	TenantName    string
 	WorkspaceName string
@@ -8,7 +8,7 @@ type Workspace struct {
 	Token         string
 }
 
-type WorkspaceMetadata struct {
+type UsecaseMetadata struct {
 	Name     string
 	Tenant   string
 	Region   string
@@ -18,9 +18,9 @@ type WorkspaceMetadata struct {
 	State    string
 }
 
-type WorkspaceStubMetadata struct {
-	WorkspaceMock      Workspace
-	WorkspaceMetadata  WorkspaceMetadata
+type UsecaseStubMetadata struct {
+	Params             MockParams
+	Metadata           UsecaseMetadata
 	Template           string
 	ScenarioState      string
 	NextScenarioState  string

@@ -40,7 +40,7 @@ func TestSuites(t *testing.T) {
 	ctx := context.Background()
 
 	// Create Scenario
-	err := mock.CreateWorkspaceScenario(mock.Workspace{
+	err := mock.CreateWorkspaceScenario(mock.MockParams{
 		WireMockURL:   config.MockServerURL,
 		TenantName:    tenant1Name,
 		WorkspaceName: workspace1Name,

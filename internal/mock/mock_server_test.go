@@ -19,7 +19,7 @@ const (
 )
 
 func TestWorkspaceScenario(t *testing.T) {
-	WorkspaceMock := Workspace{
+	WorkspaceMock := MockParams{
 		WireMockURL:   WireMockURL,
 		TenantName:    TenantName,
 		WorkspaceName: WorkspaceName,
