@@ -27,10 +27,4 @@ jobs:
         run: make ./dist/secatest
 
       - name: Run
-        env:
-          SECA_PROVIDER_REGION_V1: "http://localhost:8080/providers/seca.region"
-          SECA_PROVIDER_AUTHORIZATION_V1: "http://localhost:8080/providers/seca.authorization"
-          SECA_CLIENT_AUTHTOKEN: "test-token"
-          SECA_CLIENT_REGION: "eu-central-1"
-          SECA_REPORT_RESULTSPATH: "./reports/results"
         run: make run

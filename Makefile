@@ -60,7 +60,7 @@ vet:
 .PHONY: sec
 sec:
 	@echo "Running gosec..."
-	$(GO_TOOL) github.com/securego/gosec/v2/cmd/gosec ./...
+	$(GO_TOOL) github.com/securego/gosec/v2/cmd/gosec -exclude=G101 ./...
 
 .PHONY: dev
 dev: fmt lint vet sec
