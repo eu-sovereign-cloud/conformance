@@ -38,13 +38,6 @@ report:
 	@echo "Running report..."
 	allure serve $(RESULTS_PATH)
 
-.PHONY: test
-test:
-	@echo "Running tests..."
-	$(GO) test -count=1 -cover -coverprofile=coverage.out -v ./...
-	$(GO) tool cover -html=coverage.out -o coverage.html
-	rm coverage.out
-
 .PHONY: fmt
 fmt:
 	@echo "Formating code..."
