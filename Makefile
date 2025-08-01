@@ -20,7 +20,7 @@ $(DIST_BIN):
 .PHONY: mock
 mock:
 	@echo "Running mock..."
-	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance up
+	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance up -d
 
 .PHONY: run
 run:
@@ -37,6 +37,13 @@ run:
 report:
 	@echo "Running report..."
 	allure serve $(RESULTS_PATH)
+
+.PHONY: test
+test:
+	@echo "Running tests..."
+	$(GO) test -count=1 -cover -coverprofile=coverage.out -v ./...
+	$(GO) tool cover -html=coverage.out -o coverage.html
+	rm coverage.out
 
 .PHONY: fmt
 fmt:
