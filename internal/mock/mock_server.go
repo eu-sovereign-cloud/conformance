@@ -11,42 +11,41 @@ import (
 )
 
 const (
-	//Version
+	// Version
 	Version1 = "v1"
 
-	//Base Url for WireMock server
+	// Base Url for WireMock server
 	WorkspaceProviderV1     = "/providers/seca.workspace/v1/"
 	ComputeProviderV1       = "/providers/seca.compute/v1/"
 	NetworkProviderV1       = "/providers/seca.network/v1/"
 	StorageProviderV1       = "/providers/seca.storage/v1/"
 	AuthorizationProviderV1 = "/providers/seca.authorization/v1/"
 
-	//Resource
+	// Resource
 	WorkspaceResourceURL     = "seca.workspace/workspaces/"
 	ComputeResourceURL       = "seca.compute/workspaces/"
 	NetworkResourceURL       = "seca.network/workspaces/"
 	StorageResourceURL       = "seca.storage/workspaces/"
 	AuthorizationResourceURL = "seca.authorization/workspaces/"
 
-	//ScenarioName
+	// ScenarioName
 	ScenarioName = "Use Case Lifecycle"
 
-	//State for the scenario
+	// State for the scenario
 	StartedState = "Started"
 	CreatedState = "UsecaseCreated"
 	UpdatedState = "UsecaseUpdated"
 	DeletedState = "UsecaseDeleted"
 
-	//State for the workspace
+	// State for the workspace
 	CreatingState = "creating"
 	UpdatingState = "updating"
 
-	//Kind
+	// Kind
 	WorkspaceKind = "workspace"
 )
 
 func CreateWorkspaceScenario(workspaceMock MockParams) error {
-
 	wm := wiremock.NewClient(workspaceMock.WireMockURL)
 
 	defer wm.ResetAllScenarios()
@@ -109,13 +108,13 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 }
 
 func CreateComputeScenario(computeParams MockParams) error {
-	//Work in progress
+	// Work in progress
 
 	return nil
 }
 
 func CreateNetworkScenario(networkMock MockParams) error {
-	//Work in progress
+	// Work in progress
 
 	return nil
 }
@@ -152,6 +151,7 @@ func getStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
 		).
 		AtPriority(int64(stubMetadata.ScenarioPriority)))
 }
+
 func deleteStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
 	wm.StubFor(wiremock.Delete(wiremock.URLPathMatching(stubMetadata.Params.WireMockURL)).
 		WithHeader("Authorization", wiremock.Matching("Bearer "+stubMetadata.Params.Token)).

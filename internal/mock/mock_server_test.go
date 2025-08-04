@@ -27,13 +27,12 @@ func TestWorkspaceScenario(t *testing.T) {
 		Token:         Token,
 	}
 	err := CreateWorkspaceScenario(WorkspaceMock)
-
 	if err != nil {
 		log.Printf("Error creating workspace scenario: %v\n", err)
 		return
 	}
 
-	//Create Workspace
+	// Create Workspace
 	url := WireMockURL + testPutWorkspaceURL
 	responseUpdate, error := requestWorkspace("PUT", url, Token)
 	if error != nil {
@@ -42,7 +41,7 @@ func TestWorkspaceScenario(t *testing.T) {
 	}
 	assert.Equal(t, http.StatusCreated, responseUpdate.StatusCode, "Expected status code 201 OK")
 
-	//Update Workspace
+	// Update Workspace
 	responseUpdate, error = requestWorkspace("PUT", url, Token)
 	if error != nil {
 		log.Printf("Error updating workspace: %v\n", error)
@@ -65,7 +64,6 @@ func TestWorkspaceScenario(t *testing.T) {
 		return
 	}
 	assert.Equal(t, http.StatusAccepted, responseUpdate.StatusCode, "Expected status code 202 No Content")
-
 }
 
 func requestWorkspace(method string, url string, token string) (*http.Response, error) {
