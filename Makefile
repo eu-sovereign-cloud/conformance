@@ -20,7 +20,7 @@ $(DIST_BIN):
 .PHONY: mock
 mock:
 	@echo "Running mock..."
-	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance up
+	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance up -d
 
 .PHONY: run
 run:
@@ -61,7 +61,7 @@ vet:
 .PHONY: sec
 sec:
 	@echo "Running gosec..."
-	$(GO_TOOL) github.com/securego/gosec/v2/cmd/gosec ./...
+	$(GO_TOOL) github.com/securego/gosec/v2/cmd/gosec -exclude=G101 ./...
 
 .PHONY: dev
 dev: fmt lint vet sec

@@ -26,7 +26,6 @@ const (
 )
 
 func loadConfig() (*Config, error) {
-
 	providerRegionV1Flag := flag.String(providerRegionV1Config, "", "Region V1 Provider Base URL")
 	providerAuthorizationV1Flag := flag.String(providerAuthorizationV1Config, "", "Authorization V1 Provider Base URL")
 	clientAuthTokenFlag := flag.String(clientAuthTokenConfig, "", "Client Authentication Token")
@@ -81,7 +80,7 @@ func readFlagOrEnv(flag *string, param string) (string, error) {
 
 	if value == "" {
 		// Convert flag to environment variable name format
-		env := strings.ToUpper(strings.ReplaceAll(param, "-", "_"))
+		env := strings.ToUpper(strings.ReplaceAll(param, ".", "_"))
 
 		value = os.Getenv(env)
 
