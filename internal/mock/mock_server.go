@@ -2,6 +2,7 @@ package mock
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
 	"net/http"
 	"text/template"
@@ -120,6 +121,7 @@ func CreateNetworkScenario(networkMock MockParams) error {
 }
 
 func putStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
+
 	processTemplate, err := processTemplate(stubMetadata.Template, stubMetadata.Metadata)
 	if err != nil {
 		log.Printf("Error processing template: %v\n", err)
@@ -165,13 +167,19 @@ func deleteStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
 		AtPriority(int64(stubMetadata.ScenarioPriority)))
 }
 
-func processTemplate(templ string, data any) (string, error) {
+func processTemplate(templ string, data any) (map[string]interface{}, error) {
+
 	tmpl := template.Must(template.New("response").Parse(templ))
 
 	var buffer bytes.Buffer
 	if err := tmpl.Execute(&buffer, data); err != nil {
-		return "", err
+		return nil, err
+	}
+	var dataJsonMap map[string]interface{}
+	err := json.Unmarshal(buffer.Bytes(), &dataJsonMap)
+	if err != nil {
+		return nil, err
 	}
 
-	return buffer.String(), nil
+	return dataJsonMap, nil
 }
