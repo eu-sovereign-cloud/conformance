@@ -3,7 +3,5 @@ services:
     image: wiremock/wiremock:latest 
     command: --verbose --global-response-templating 
     ports:
-      - '8080:8080' 
-    volumes:
-      - ./config/mappings:/home/wiremock/mappings
+      - '8080:8080'
     restart: unless-stopped
