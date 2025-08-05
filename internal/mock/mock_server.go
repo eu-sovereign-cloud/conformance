@@ -121,7 +121,6 @@ func CreateNetworkScenario(networkMock MockParams) error {
 }
 
 func putStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
-
 	processTemplate, err := processTemplate(stubMetadata.Template, stubMetadata.Metadata)
 	if err != nil {
 		log.Printf("Error processing template: %v\n", err)
@@ -168,7 +167,6 @@ func deleteStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
 }
 
 func processTemplate(templ string, data any) (map[string]interface{}, error) {
-
 	tmpl := template.Must(template.New("response").Parse(templ))
 
 	var buffer bytes.Buffer
