@@ -4,6 +4,7 @@ type MockParams struct {
 	WireMockURL   string
 	TenantName    string
 	WorkspaceName string
+	Name          string
 	Region        string
 	Token         string
 }

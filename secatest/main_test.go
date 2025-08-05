@@ -41,11 +41,11 @@ func TestSuites(t *testing.T) {
 
 	// Create Scenario
 	err := mock.CreateWorkspaceScenario(mock.MockParams{
-		WireMockURL:   config.MockServerURL,
-		TenantName:    tenant1Name,
-		WorkspaceName: workspace1Name,
-		Region:        config.ClientRegion,
-		Token:         config.ClientAuthToken,
+		WireMockURL: config.MockServerURL,
+		TenantName:  tenant1Name,
+		Name:        workspace1Name,
+		Region:      config.ClientRegion,
+		Token:       config.ClientAuthToken,
 	})
 	if err != nil {
 		slog.Error("Failed to create workspace scenario", "error", err)

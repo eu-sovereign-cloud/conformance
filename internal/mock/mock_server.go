@@ -32,17 +32,25 @@ const (
 	ScenarioName = "Use Case Lifecycle"
 
 	// State for the scenario
-	StartedState = "Started"
-	CreatedState = "UsecaseCreated"
-	UpdatedState = "UsecaseUpdated"
-	DeletedState = "UsecaseDeleted"
+	StartedState   = "Started"
+	GettedState    = "UsecaseGetted"
+	CreatedState   = "UsecaseCreated"
+	UpdatedState   = "UsecaseUpdated"
+	DeletedState   = "UsecaseDeleted"
+	PowerOffState  = "UsecasePowerOff"
+	PowerOnState   = "UsecasePowerOn"
+	RestartedState = "UsecaseRestarted"
 
 	// State for the workspace
 	CreatingState = "creating"
 	UpdatingState = "updating"
 
 	// Kind
-	WorkspaceKind = "workspace"
+	WorkspaceKind     = "workspace"
+	ComputeKind       = "compute"
+	NetworkKind       = "network"
+	StorageKind       = "storage"
+	AuthorizationKind = "authorization"
 )
 
 func CreateWorkspaceScenario(workspaceMock MockParams) error {
@@ -50,10 +58,10 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 
 	defer wm.ResetAllScenarios()
 
-	workspaceMock.WireMockURL = WorkspaceProviderV1 + "tenants/" + workspaceMock.TenantName + "/workspaces/" + workspaceMock.WorkspaceName
+	workspaceMock.WireMockURL = WorkspaceProviderV1 + "tenants/" + workspaceMock.TenantName + "/workspaces/" + workspaceMock.Name
 
 	workspaceMetadata := UsecaseMetadata{
-		Name:     workspaceMock.WorkspaceName,
+		Name:     workspaceMock.Name,
 		Tenant:   workspaceMock.TenantName,
 		Region:   workspaceMock.Region,
 		Version:  Version1,
@@ -62,7 +70,7 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 		State:    CreatingState,
 	}
 
-	putStub(wm, UsecaseStubMetadata{
+	err := putStub(wm, UsecaseStubMetadata{
 		Params:             workspaceMock,
 		Metadata:           workspaceMetadata,
 		Template:           responsesTemplate.WorkspacePutTemplateResponse,
@@ -71,11 +79,14 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 		ScenarioHttpStatus: http.StatusCreated, // 201 Created
 		ScenarioPriority:   1,
 	})
+	if err != nil {
+		return err
+	}
 
 	// Update Workspace
 	workspaceMetadata.State = UpdatingState
 
-	putStub(wm, UsecaseStubMetadata{
+	err = putStub(wm, UsecaseStubMetadata{
 		Params:             workspaceMock,
 		Metadata:           workspaceMetadata,
 		Template:           responsesTemplate.WorkspacePutTemplateResponse,
@@ -84,10 +95,13 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 		ScenarioHttpStatus: http.StatusOK, // 200 OK
 		ScenarioPriority:   1,
 	})
+	if err != nil {
+		return err
+	}
 
 	// Delete Workspace
 	// First delete the workspace
-	deleteStub(wm, UsecaseStubMetadata{
+	err = deleteStub(wm, UsecaseStubMetadata{
 		Params:             workspaceMock,
 		Metadata:           workspaceMetadata,
 		ScenarioState:      UpdatedState,
@@ -95,8 +109,12 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 		ScenarioHttpStatus: http.StatusAccepted, // 202 Accepted
 		ScenarioPriority:   1,
 	})
+	if err != nil {
+		return err
+	}
+
 	// Second delete the workspace
-	deleteStub(wm, UsecaseStubMetadata{
+	err = deleteStub(wm, UsecaseStubMetadata{
 		Params:             workspaceMock,
 		Metadata:           workspaceMetadata,
 		ScenarioState:      DeletedState,
@@ -104,10 +122,144 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 		ScenarioHttpStatus: http.StatusAccepted, // 202 Accepted
 		ScenarioPriority:   1,
 	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func CreateComputeScenario(computeParams MockParams) error {
+func CreateComputeScenario(computeMock MockParams) error {
+
+	wm := wiremock.NewClient(computeMock.WireMockURL)
+
+	defer wm.ResetAllScenarios()
+
+	computeMock.WireMockURL = ComputeProviderV1 + "tenants/" + computeMock.TenantName + "/skus/D2XS"
+
+	computeMetadata := UsecaseMetadata{
+		Name:     computeMock.Name,
+		Tenant:   computeMock.TenantName,
+		Region:   computeMock.Region,
+		Version:  Version1,
+		Kind:     ComputeKind,
+		Resource: ComputeResourceURL,
+	}
+
+	//Get sku
+	err := getStub(wm, UsecaseStubMetadata{
+		Params:             computeMock,
+		Metadata:           computeMetadata,
+		Template:           responsesTemplate.WorkspacePutTemplateResponse,
+		ScenarioState:      StartedState,
+		NextScenarioState:  CreatedState,
+		ScenarioHttpStatus: http.StatusOK, // 200 OK
+		ScenarioPriority:   1,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	// Create Instance
+	computeMock.WireMockURL = ComputeProviderV1 + "tenants/" + computeMock.TenantName + "/workspaces/" + computeMock.WorkspaceName + "/instances/" + computeMock.Name
+	err = putStub(wm, UsecaseStubMetadata{
+		Params:             computeMock,
+		Metadata:           computeMetadata,
+		Template:           responsesTemplate.WorkspacePutTemplateResponse,
+		ScenarioState:      CreatedState,
+		NextScenarioState:  GettedState,
+		ScenarioHttpStatus: http.StatusCreated, // 201 Created
+		ScenarioPriority:   1,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	// Get Instance
+	err = getStub(wm, UsecaseStubMetadata{
+		Params:             computeMock,
+		Metadata:           computeMetadata,
+		Template:           responsesTemplate.WorkspacePutTemplateResponse,
+		ScenarioState:      GettedState,
+		NextScenarioState:  UpdatedState,
+		ScenarioHttpStatus: http.StatusOK, // 200 OK
+		ScenarioPriority:   1,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Update Instance
+	err = putStub(wm, UsecaseStubMetadata{Params: computeMock,
+		Metadata:           computeMetadata,
+		Template:           responsesTemplate.WorkspacePutTemplateResponse,
+		ScenarioState:      UpdatedState,
+		NextScenarioState:  PowerOffState,
+		ScenarioHttpStatus: http.StatusOK, // 200 OK
+		ScenarioPriority:   1,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Power off Instance
+	err = postStub(wm, UsecaseStubMetadata{Params: computeMock,
+		Metadata:           computeMetadata,
+		Template:           responsesTemplate.WorkspacePutTemplateResponse,
+		ScenarioState:      PowerOffState,
+		NextScenarioState:  PowerOnState,
+		ScenarioHttpStatus: http.StatusAccepted, // 202 Accepted
+		ScenarioPriority:   1,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Power on Instance
+	err = postStub(wm, UsecaseStubMetadata{Params: computeMock,
+		Metadata:           computeMetadata,
+		Template:           responsesTemplate.WorkspacePutTemplateResponse,
+		ScenarioState:      PowerOnState,
+		NextScenarioState:  RestartedState,
+		ScenarioHttpStatus: http.StatusAccepted, // 202 Accepted
+		ScenarioPriority:   1,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Restart Instance
+	err = postStub(wm, UsecaseStubMetadata{Params: computeMock,
+		Metadata:           computeMetadata,
+		Template:           responsesTemplate.WorkspacePutTemplateResponse,
+		ScenarioState:      RestartedState,
+		NextScenarioState:  DeletedState,
+		ScenarioHttpStatus: http.StatusAccepted, // 202 Accepted
+		ScenarioPriority:   1,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Delete Instance
+	err = deleteStub(wm, UsecaseStubMetadata{Params: computeMock,
+		Metadata:           computeMetadata,
+		Template:           responsesTemplate.WorkspacePutTemplateResponse,
+		ScenarioState:      DeletedState,
+		NextScenarioState:  StartedState,
+		ScenarioHttpStatus: http.StatusAccepted, // 202 Accepted
+		ScenarioPriority:   1,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CreateStorageScenario(storageMock MockParams) error {
 	// Work in progress
 
 	return nil
@@ -119,13 +271,14 @@ func CreateNetworkScenario(networkMock MockParams) error {
 	return nil
 }
 
-func putStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
+func putStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) error {
 	processTemplate, err := processTemplate(stubMetadata.Template, stubMetadata.Metadata)
 	if err != nil {
 		log.Printf("Error processing template: %v\n", err)
+		return err
 	}
 
-	wm.StubFor(wiremock.Put(wiremock.URLPathMatching(stubMetadata.Params.WireMockURL)).
+	err = wm.StubFor(wiremock.Put(wiremock.URLPathMatching(stubMetadata.Params.WireMockURL)).
 		WithHeader("Authorization", wiremock.Matching("Bearer "+stubMetadata.Params.Token)).
 		InScenario(ScenarioName).
 		WhenScenarioStateIs(stubMetadata.ScenarioState).
@@ -137,10 +290,37 @@ func putStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
 				WithJSONBody(processTemplate),
 		).
 		AtPriority(int64(stubMetadata.ScenarioPriority)))
-}
+	if condition := err != nil; condition {
+		log.Printf("Error configuring put method: %v\n", err)
+		return err
+	}
 
-func getStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
-	wm.StubFor(wiremock.Get(wiremock.URLPathMatching(stubMetadata.Params.WireMockURL)).
+	return nil
+}
+func postStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) error {
+
+	err := wm.StubFor(wiremock.Post(wiremock.URLPathMatching(stubMetadata.Params.WireMockURL)).
+		WithHeader("Authorization", wiremock.Matching("Bearer "+stubMetadata.Params.Token)).
+		InScenario(ScenarioName).
+		WhenScenarioStateIs(stubMetadata.ScenarioState).
+		WillSetStateTo(stubMetadata.NextScenarioState).
+		WillReturnResponse(
+			wiremock.NewResponse().
+				WithStatus(int64(stubMetadata.ScenarioHttpStatus)).
+				WithHeader("Content-Type", "application/json").
+				WithJSONBody(processTemplate),
+		).
+		AtPriority(int64(stubMetadata.ScenarioPriority)))
+
+	if err != nil {
+		log.Printf("Error processing template: %v\n", err)
+		return err
+	}
+	return nil
+}
+func getStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) error {
+
+	err := wm.StubFor(wiremock.Get(wiremock.URLPathMatching(stubMetadata.Params.WireMockURL)).
 		WithHeader("Authorization", wiremock.Matching("Bearer "+stubMetadata.Params.Token)).
 		InScenario(ScenarioName).
 		WhenScenarioStateIs(stubMetadata.ScenarioState).
@@ -150,10 +330,15 @@ func getStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
 				WithStatus(int64(stubMetadata.ScenarioHttpStatus)),
 		).
 		AtPriority(int64(stubMetadata.ScenarioPriority)))
+	if err != nil {
+		log.Printf("Error configuring getting method: %v\n", err)
+		return err
+	}
+	return nil
 }
 
-func deleteStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
-	wm.StubFor(wiremock.Delete(wiremock.URLPathMatching(stubMetadata.Params.WireMockURL)).
+func deleteStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) error {
+	err := wm.StubFor(wiremock.Delete(wiremock.URLPathMatching(stubMetadata.Params.WireMockURL)).
 		WithHeader("Authorization", wiremock.Matching("Bearer "+stubMetadata.Params.Token)).
 		InScenario(ScenarioName).
 		WhenScenarioStateIs(stubMetadata.ScenarioState).
@@ -163,6 +348,11 @@ func deleteStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) {
 				WithStatus(int64(stubMetadata.ScenarioHttpStatus)),
 		).
 		AtPriority(int64(stubMetadata.ScenarioPriority)))
+	if err != nil {
+		log.Printf("Error configuring delete method: %v\n", err)
+		return err
+	}
+	return nil
 }
 
 func processTemplate(templ string, data any) (string, error) {
