@@ -74,7 +74,7 @@ func TestSuites(t *testing.T) {
 
 	// Run test suites
 	suite.RunNamedSuite(t, "Workspace V1", &WorkspaceV1TestSuite{
-		client: regionalClient,
+		client: regionalClient, tenant: config.ClientTenant,
 	})
 }
 
