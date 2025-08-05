@@ -31,12 +31,24 @@ run:
 	  -seca.provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
 	  -seca.client.authtoken=test-token \
 	  -seca.client.region=eu-central-1 \
+	  -seca.client.tenant=tenant-1 \
 	  -seca.report.resultspath=$(RESULTS_PATH)
 
 .PHONY: report
 report:
 	@echo "Running report..."
 	allure serve $(RESULTS_PATH)
+
+.PHONY: test
+test:
+	@echo "Running tests suites..."
+	$(GO) test -count=1 -v ./secatest \
+	  -seca.provider.region.v1=http://localhost:8080/providers/seca.region \
+	  -seca.provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
+	  -seca.client.authtoken=test-token \
+	  -seca.client.region=eu-central-1 \
+	  -seca.client.tenant=tenant-1 \
+	  -seca.report.resultspath=$(RESULTS_PATH)
 
 .PHONY: fmt
 fmt:
