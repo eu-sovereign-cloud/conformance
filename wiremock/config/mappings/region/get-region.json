@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/providers/seca.region/v1/regions/eu-central-1",
+    "urlPathPattern": "/providers/seca.region/v1/regions/([^/]+)",
     "headers": {
       "Accept": {
         "equalTo": "application/json"
