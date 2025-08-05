@@ -2,6 +2,7 @@ package mock
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
 	"net/http"
 	"text/template"
@@ -56,7 +57,11 @@ const (
 func CreateWorkspaceScenario(workspaceMock MockParams) error {
 	wm := wiremock.NewClient(workspaceMock.WireMockURL)
 
-	defer wm.ResetAllScenarios()
+	defer func() {
+		if err := wm.ResetAllScenarios(); err != nil {
+			log.Printf("Error resetting all scenarios: %v\n", err)
+		}
+	}()
 
 	workspaceMock.WireMockURL = WorkspaceProviderV1 + "tenants/" + workspaceMock.TenantName + "/workspaces/" + workspaceMock.Name
 
@@ -355,13 +360,18 @@ func deleteStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) error {
 	return nil
 }
 
-func processTemplate(templ string, data any) (string, error) {
+func processTemplate(templ string, data any) (map[string]interface{}, error) {
 	tmpl := template.Must(template.New("response").Parse(templ))
 
 	var buffer bytes.Buffer
 	if err := tmpl.Execute(&buffer, data); err != nil {
-		return "", err
+		return nil, err
+	}
+	var dataJsonMap map[string]interface{}
+	err := json.Unmarshal(buffer.Bytes(), &dataJsonMap)
+	if err != nil {
+		return nil, err
 	}
 
-	return buffer.String(), nil
+	return dataJsonMap, nil
 }
