@@ -1,0 +1,39 @@
+on:
+  push:
+    branches: ["main"]
+    paths-ignore:
+      - "*.md"
+  pull_request:
+    branches: ["*"]
+    paths-ignore:
+      - "*.md"
+
+name: Linting
+jobs:
+  linting:
+    strategy:
+      matrix:
+        go-version: [1.24.x]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Formating
+        run: make fmt
+      - name: Check if all generated files are either not added or up to date in git
+        run: if [[ -z $(git status --porcelain) ]]; then echo "ok"; else echo "Found modified files:"; git status --porcelain; exit 1; fi
+
+      - name: Vet
+        run: make vet
+
+      - name: Sec
+        run: make sec
+
+      - name: Lint
+        run: make lint

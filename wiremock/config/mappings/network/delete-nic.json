@@ -1,0 +1,22 @@
+{
+  "name": "delete-nic",
+  "priority": 10,
+  "request": {
+    "method": "DELETE",
+    "urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/nics/([^/]+)",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "message": "NIC deletion accepted."
+    }
+  }
+}

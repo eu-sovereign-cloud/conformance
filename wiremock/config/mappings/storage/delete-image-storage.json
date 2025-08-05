@@ -1,0 +1,22 @@
+{
+  "name": "Delete Image",
+  "priority": 10,
+  "request": {
+    "method": "DELETE",
+    "urlPathPattern": "/providers/seca.storage/v1/tenants/[^/]+/images/[^/]+",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "message": "Image  deletion accepted."
+    }
+  }
+}

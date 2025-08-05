@@ -1,0 +1,62 @@
+{
+  "name": "create-nic",
+  "priority": 10,
+  "request": {
+    "method": "PUT",
+    "urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/nics/([^/]+)",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
+      },
+      "Accept": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.spec != null && @.spec.addresses != null && @.spec.subnetRef != null)]"
+      }
+    ]
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "metadata": {
+        "name": "{{request.pathSegments.[8]}}",
+        "createdAt": "2025-07-25T08:45:00Z",
+        "lastModifiedAt": "2025-07-25T08:45:00Z",
+        "resourceVersion": 1,
+        "tenant": "{{request.pathSegments.[4]}}",
+        "region": "eu-central-1",
+        "apiVersion": "v1",
+        "kind": "nic",
+        "scope": "workspace/{{request.pathSegments.[6]}}",
+        "resource": "seca.network/nics/{{request.pathSegments.[8]}}",
+        "verb": "put",
+        "workspace": "{{request.pathSegments.[6]}}",
+        "zone": "a"
+      },
+      "spec": {
+        "addresses": "{{jsonPath request.body '$.spec.addresses'}}",
+        "publicIpRefs": "{{jsonPath request.body '$.spec.publicIpRefs' fallback null}}",
+        "skuRef": "{{jsonPath request.body '$.spec.skuRef' fallback null}}",
+        "subnetRef": "{{jsonPath request.body '$.spec.subnetRef'}}"
+      },
+      "status": {
+        "state": "creating",
+        "conditions": [
+          {
+            "state": "creating",
+            "lastTransitionAt": "2025-07-25T08:45:00Z"
+          }
+        ]
+      }
+    }
+  }
+}

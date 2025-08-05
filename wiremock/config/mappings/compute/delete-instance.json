@@ -1,0 +1,22 @@
+{
+  "name": "delete-instance",
+  "priority": 10,
+  "request": {
+    "method": "DELETE",
+    "urlPathPattern": "/providers/seca.compute/v1/tenants/([^/]+)/workspaces/([^/]+)/instances/([^/]+)",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "message": "Instance deletion accepted."
+    }
+  }
+}

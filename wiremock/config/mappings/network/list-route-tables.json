@@ -1,0 +1,63 @@
+{
+  "name": "list route tables",
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/route-tables",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "metadata": {
+            "name": "route-table-default",
+            "createdAt": "2025-07-25T10:15:00Z",
+            "lastModifiedAt": "2025-07-25T10:15:00Z",
+            "resourceVersion": 1,
+            "tenant": "{{request.pathSegments.[4]}}",
+            "region": "eu-central-1",
+            "apiVersion": "v1",
+            "kind": "route-table",
+            "scope": "workspace/{{request.pathSegments.[6]}}",
+            "resource": "seca.network/route-tables/route-table-default",
+            "verb": "get",
+            "workspace": "{{request.pathSegments.[6]}}"
+          },
+          "spec": {
+            "localRef": "networks/network-alpha",
+            "routes": [
+              {
+                "destinationCidrBlock": "0.0.0.0/0",
+                "targetRef": "internet-gateways/igw-alpha"
+              }
+            ]
+          },
+          "status": {
+            "state": "active",
+            "conditions": [
+              {
+                "state": "active",
+                "lastTransitionAt": "2025-07-25T10:15:00Z"
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "skipToken": null,
+        "scope": "workspace/{{request.pathSegments.[6]}}",
+        "resource": "seca.network/route-tables",
+        "verb": "list"
+      }
+    }
+  }
+}

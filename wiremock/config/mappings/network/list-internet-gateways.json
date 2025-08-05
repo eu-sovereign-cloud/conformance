@@ -1,0 +1,57 @@
+{
+  "name": "list-internet-gateways",
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/internet-gateways",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "metadata": {
+            "name": "igw-alpha",
+            "createdAt": "2025-07-25T09:35:00Z",
+            "lastModifiedAt": "2025-07-25T09:35:00Z",
+            "resourceVersion": 1,
+            "tenant": "{{request.pathSegments.[4]}}",
+            "region": "eu-central-1",
+            "apiVersion": "v1",
+            "kind": "internet-gateway",
+            "scope": "workspace/{{request.pathSegments.[6]}}",
+            "resource": "seca.network/internet-gateways/igw-alpha",
+            "verb": "get",
+            "workspace": "{{request.pathSegments.[6]}}"
+          },
+          "spec": {
+            "egressOnly": false
+          },
+          "status": {
+            "state": "active",
+            "conditions": [
+              {
+                "state": "active",
+                "lastTransitionAt": "2025-07-25T09:35:00Z"
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "skipToken": null,
+        "scope": "workspace/{{request.pathSegments.[6]}}",
+        "resource": "seca.network/internet-gateways",
+        "verb": "list"
+      }
+    }
+  }
+}

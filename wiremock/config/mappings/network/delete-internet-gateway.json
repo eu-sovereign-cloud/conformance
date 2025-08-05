@@ -1,0 +1,22 @@
+{
+  "name": "delete-internet-gateway",
+  "priority": 10,
+  "request": {
+    "method": "DELETE",
+    "urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/workspaces/([^/]+)/internet-gateways/([^/]+)",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "message": "Internet Gateway deletion accepted."
+    }
+  }
+}

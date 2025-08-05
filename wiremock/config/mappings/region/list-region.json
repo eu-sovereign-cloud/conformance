@@ -1,0 +1,122 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/providers/seca.region/v1/regions",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "metadata": {
+            "name": "eu-central-1",
+            "createdAt": "2025-07-23T08:00:00Z",
+            "lastModifiedAt": "2025-07-23T08:00:00Z",
+            "resourceVersion": 1,
+            "resource": "seca.region/regions/eu-central-1",
+            "verb": "get",
+            "apiVersion": "v1",
+            "kind": "region",
+            "tenant": "global"
+          },
+          "spec": {
+            "availableZones": [
+              "a",
+              "b",
+              "c"
+            ],
+            "providers": [
+              {
+                "name": "seca.autorization",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.authorization"
+              },
+              {
+                "name": "seca.compute",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.compute"
+              },
+              {
+                "name": "seca.network",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.network"
+              },
+              {
+                "name": "seca.storage",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.storage"
+              },
+              {
+                "name": "seca.workspace",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.workspace"
+              }
+            ]
+          }
+        },
+        {
+          "metadata": {
+            "name": "eu-central-2",
+            "createdAt": "2025-07-23T08:05:00Z",
+            "lastModifiedAt": "2025-07-23T08:05:00Z",
+            "resourceVersion": 1,
+            "resource": "seca.region/regions/eu-central-2",
+            "verb": "get",
+            "apiVersion": "v1",
+            "kind": "region",
+            "tenant": "global"
+          },
+          "spec": {
+            "availableZones": [
+              "a",
+              "b"
+            ],
+            "providers": [
+              {
+                "name": "seca.autorization",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.authorization"
+              },
+              {
+                "name": "seca.compute",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.compute"
+              },
+              {
+                "name": "seca.network",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.network"
+              },
+              {
+                "name": "seca.storage",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.storage"
+              },
+              {
+                "name": "seca.workspace",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.workspace"
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "skipToken": null,
+        "resource": "seca.region/regions",
+        "verb": "list"
+      }
+    }
+  }
+}

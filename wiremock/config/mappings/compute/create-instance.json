@@ -1,0 +1,63 @@
+{
+  "name": "create-instance",
+  "priority": 10,
+  "request": {
+    "method": "PUT",
+    "urlPathPattern": "/providers/seca.compute/v1/tenants/([^/]+)/workspaces/([^/]+)/instances/([^/]+)",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
+      },
+      "Accept": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.spec != null && @.spec.skuRef != null && @.spec.zone != null && @.spec.bootVolume != null)]"
+      }
+    ]
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "metadata": {
+        "name": "{{request.pathSegments.[7]}}",
+        "provider": "seca.compute",
+        "resource": "seca.compute/instances/{{request.pathSegments.[7]}}",
+        "verb": "put",
+        "createdAt": "2025-07-24T10:30:00Z",
+        "lastModifiedAt": "2025-07-24T10:30:00Z",
+        "resourceVersion": 1,
+        "apiVersion": "v1",
+        "tenant": "{{request.pathSegments.[4]}}",
+        "region": "eu-central-1",
+        "kind": "instance",
+        "workspace": "{{request.pathSegments.[5]}}",
+        "zone": "{{jsonPath request.body '$.spec.zone'}}"
+      },
+      "spec": {
+        "skuRef": "{{jsonPath request.body '$.spec.skuRef'}}",
+        "zone": "{{jsonPath request.body '$.spec.zone'}}",
+        "bootVolume": "{{jsonPath request.body '$.spec.bootVolume'}}"
+      },
+      "status": {
+        "state": "creating",
+        "conditions": [
+          {
+            "state": "creating",
+            "lastTransitionAt": "2025-07-24T10:30:00Z"
+          }
+        ]
+      },
+      "labels": "{{jsonPath request.body '$.labels' fallback null}}",
+      "annotations": "{{jsonPath request.body '$.annotations' fallback null}}"
+    }
+  }
+}

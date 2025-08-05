@@ -1,0 +1,8 @@
+# IDE
+.vscode
+
+# Build
+dist/
+
+## Allure
+reports/
