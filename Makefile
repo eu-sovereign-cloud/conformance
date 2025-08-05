@@ -31,6 +31,7 @@ run:
 	  -seca.provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
 	  -seca.client.authtoken=test-token \
 	  -seca.client.region=eu-central-1 \
+	  -seca.mock.serverurl=http://localhost:8080 \
 	  -seca.report.resultspath=$(RESULTS_PATH)
 
 .PHONY: report
