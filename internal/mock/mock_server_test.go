@@ -11,13 +11,15 @@ import (
 const (
 	WireMockURL            = "http://localhost:8080"
 	testPutWorkspaceURL    = "/providers/seca.workspace/v1/tenants/tenant1/workspaces/workspace1"
-	testComputeSkuURL      = "/providers/seca.compute/v1/tenants/tenant1/skus/D2XS"
-	testComputeInstanceUrl = "/providers/seca.compute/v1/tenants/tenant1/instances/workspace1/compute"
+	testComputeSkuURL      = "/providers/seca.compute/v1/tenants/tenant1/skus/"
+	testComputeInstanceUrl = "/providers/seca.compute/v1/tenants/tenant1/workspaces/workspace1/instances/" + ComputeName
 	TenantName             = "tenant1"
 	WorkspaceName          = "workspace1"
+	ComputeName            = "compute1"
 	Region                 = "eu-central-1"
 	Token                  = "your_token"
 	Version                = "v1"
+	ComputeSkuName         = "D2SX"
 )
 
 func TestWorkspaceScenario(t *testing.T) {
@@ -36,7 +38,7 @@ func TestWorkspaceScenario(t *testing.T) {
 
 	// Create Workspace
 	url := WireMockURL + testPutWorkspaceURL
-	responseUpdate, error := requestWorkspace("PUT", url, Token)
+	responseUpdate, error := requestMethod("PUT", url, WorkspaceMock.Token)
 	if error != nil {
 		log.Printf("Error updating workspace: %v\n", error)
 		assert.Error(t, err, "Expected error when updating workspace")
@@ -44,7 +46,7 @@ func TestWorkspaceScenario(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, responseUpdate.StatusCode, "Expected status code 201 OK")
 
 	// Update Workspace
-	responseUpdate, error = requestWorkspace("PUT", url, Token)
+	responseUpdate, error = requestMethod("PUT", url, WorkspaceMock.Token)
 	if error != nil {
 		log.Printf("Error updating workspace: %v\n", error)
 		assert.Error(t, err, "Expected error when updating workspace")
@@ -52,7 +54,7 @@ func TestWorkspaceScenario(t *testing.T) {
 	assert.Equal(t, http.StatusOK, responseUpdate.StatusCode, "Expected status code 200 OK")
 
 	// Delete Workspace
-	responseUpdate, error = requestWorkspace("DELETE", url, Token)
+	responseUpdate, error = requestMethod("DELETE", url, WorkspaceMock.Token)
 	if error != nil {
 		log.Printf("Error deleting workspace: %v\n", error)
 		assert.Error(t, err, "Expected error when deleting workspace")
@@ -60,7 +62,7 @@ func TestWorkspaceScenario(t *testing.T) {
 	assert.Equal(t, http.StatusAccepted, responseUpdate.StatusCode, "Expected status code 202 No Content")
 
 	// Delete workspace 2 time
-	responseUpdate, error = requestWorkspace("DELETE", url, Token)
+	responseUpdate, error = requestMethod("DELETE", url, WorkspaceMock.Token)
 	if error != nil {
 		log.Printf("Error deleting workspace: %v\n", error)
 		assert.Error(t, err, "Expected error when deleting workspace")
@@ -73,9 +75,10 @@ func TestComputeScenario(t *testing.T) {
 		WireMockURL:   WireMockURL,
 		TenantName:    TenantName,
 		WorkspaceName: WorkspaceName,
-		Name:          "D2XS",
+		Name:          ComputeName,
 		Region:        Region,
 		Token:         Token,
+		SkuName:       ComputeSkuName,
 	}
 	err := CreateComputeScenario(ComputeMock)
 	if err != nil {
@@ -84,8 +87,36 @@ func TestComputeScenario(t *testing.T) {
 	}
 
 	// Get Sku
-	url := WireMockURL + testPutWorkspaceURL
-	responseUpdate, error := requestWorkspace("GET", url, Token)
+
+	url := WireMockURL + testComputeSkuURL + ComputeMock.SkuName
+	responseUpdate, error := requestMethod("GET", url, ComputeMock.Token)
+	if error != nil {
+		log.Printf("Error updating workspace: %v\n", error)
+		assert.Error(t, err, "Expected error when updating workspace")
+	}
+	assert.Equal(t, http.StatusOK, responseUpdate.StatusCode, "Expected status code 200 OK")
+
+	// Create Compute Instance
+	url = WireMockURL + testComputeInstanceUrl
+	responseUpdate, error = requestMethod("PUT", url, ComputeMock.Token)
+	if error != nil {
+		log.Printf("Error creating workspace: %v\n", error)
+		assert.Error(t, err, "Expected error when creating workspace")
+	}
+	assert.Equal(t, http.StatusCreated, responseUpdate.StatusCode, "Expected status code 201 Created")
+
+	// Get Compute Instance
+	url = WireMockURL + testComputeInstanceUrl
+	responseUpdate, error = requestMethod("GET", url, ComputeMock.Token)
+	if error != nil {
+		log.Printf("Error getting workspace: %v\n", error)
+		assert.Error(t, err, "Expected error when getting workspace")
+	}
+	assert.Equal(t, http.StatusOK, responseUpdate.StatusCode, "Expected status code 200 OK")
+
+	// Update Compute Instance
+	url = WireMockURL + testComputeInstanceUrl
+	responseUpdate, error = requestMethod("PUT", url, ComputeMock.Token)
 	if error != nil {
 		log.Printf("Error updating workspace: %v\n", error)
 		assert.Error(t, err, "Expected error when updating workspace")
@@ -93,14 +124,15 @@ func TestComputeScenario(t *testing.T) {
 	assert.Equal(t, http.StatusOK, responseUpdate.StatusCode, "Expected status code 200 OK")
 }
 
-func requestWorkspace(method string, url string, token string) (*http.Response, error) {
+func requestMethod(method string, url string, token string) (*http.Response, error) {
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		log.Printf("Error creating request for %s: %v\n", url, err)
 		return nil, err
 	}
-
-	req.Header.Add("Authorization", "Bearer "+Token)
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

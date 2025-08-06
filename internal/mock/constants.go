@@ -5,18 +5,21 @@ type MockParams struct {
 	TenantName    string
 	WorkspaceName string
 	Name          string
+	SkuName       string
 	Region        string
 	Token         string
 }
 
 type UsecaseMetadata struct {
-	Name     string
-	Tenant   string
-	Region   string
-	Version  string
-	Kind     string
-	Resource string
-	State    string
+	Name      string
+	Tenant    string
+	Workspace string
+	Region    string
+	Version   string
+	Kind      string
+	Resource  string
+	State     string
+	Zone      string
 }
 
 type UsecaseStubMetadata struct {
