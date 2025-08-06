@@ -2,7 +2,12 @@ package secatest
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
+	"math"
+	"math/rand"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -12,7 +17,9 @@ import (
 
 type WorkspaceV1TestSuite struct {
 	suite.Suite
-	client *secapi.RegionalClient
+	client     *secapi.RegionalClient
+	tenant     string
+	mockParams *mock.MockParams
 }
 
 func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
@@ -23,6 +30,23 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		"version:v1",
 	)
 
+	// Generate scenario data
+	workspaceName := fmt.Sprintf("workspace-%d", rand.Intn(math.MaxInt32))
+
+	// Setup mock, if configured to use
+	if suite.mockParams != nil {
+		if err := mock.CreateWorkspaceScenario(mock.MockParams{
+			WireMockURL:   suite.mockParams.WireMockURL,
+			TenantName:    suite.mockParams.TenantName,
+			WorkspaceName: workspaceName,
+			Region:        suite.mockParams.Region,
+			Token:         suite.mockParams.Token,
+		}); err != nil {
+			slog.Error("Failed to create workspace scenario", "error", err)
+			return
+		}
+	}
+
 	ctx := context.Background()
 	var resp *workspace.Workspace
 	var err error
@@ -31,14 +55,14 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.WithNewStep("Create Workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			"operation", "CreateOrUpdateWorkspace",
-			"tenant", tenant1Name,
-			"workspace", workspace1Name,
+			"tenant", suite.tenant,
+			"workspace", workspaceName,
 		)
 
 		ws := &workspace.Workspace{
 			Metadata: &workspace.RegionalResourceMetadata{
-				Tenant: tenant1Name,
-				Name:   workspace1Name,
+				Tenant: suite.tenant,
+				Name:   workspaceName,
 			},
 		}
 		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
@@ -49,13 +73,13 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 		sCtx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
 			stepCtx.WithNewParameters(
-				"expected_tenant", tenant1Name,
+				"expected_tenant", suite.tenant,
 				"actual_tenant", resp.Metadata.Tenant,
-				"expected_name", workspace1Name,
+				"expected_name", workspaceName,
 				"actual_name", resp.Metadata.Name,
 			)
-			stepCtx.Assert().Equal(tenant1Name, resp.Metadata.Tenant, "Tenant should match expected")
-			stepCtx.Assert().Equal(workspace1Name, resp.Metadata.Name, "Name should match expected")
+			stepCtx.Assert().Equal(suite.tenant, resp.Metadata.Tenant, "Tenant should match expected")
+			stepCtx.Assert().Equal(workspaceName, resp.Metadata.Name, "Name should match expected")
 		})
 	})
 
@@ -63,14 +87,14 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.WithNewStep("Update Workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			"operation", "CreateOrUpdateWorkspace",
-			"tenant", tenant1Name,
-			"workspace", workspace1Name,
+			"tenant", suite.tenant,
+			"workspace", workspaceName,
 		)
 
 		ws := &workspace.Workspace{
 			Metadata: &workspace.RegionalResourceMetadata{
-				Tenant: tenant1Name,
-				Name:   workspace1Name,
+				Tenant: suite.tenant,
+				Name:   workspaceName,
 			},
 		}
 		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
@@ -81,13 +105,13 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 		sCtx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
 			stepCtx.WithNewParameters(
-				"expected_tenant", tenant1Name,
+				"expected_tenant", suite.tenant,
 				"actual_tenant", resp.Metadata.Tenant,
-				"expected_name", workspace1Name,
+				"expected_name", workspaceName,
 				"actual_name", resp.Metadata.Name,
 			)
-			stepCtx.Assert().Equal(tenant1Name, resp.Metadata.Tenant, "Tenant should match expected")
-			stepCtx.Assert().Equal(workspace1Name, resp.Metadata.Name, "Name should match expected")
+			stepCtx.Assert().Equal(suite.tenant, resp.Metadata.Tenant, "Tenant should match expected")
+			stepCtx.Assert().Equal(workspaceName, resp.Metadata.Name, "Name should match expected")
 		})
 	})
 
@@ -95,8 +119,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.WithNewStep("Delete Workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			"operation", "DeleteWorkspace",
-			"tenant", tenant1Name,
-			"workspace", workspace1Name,
+			"tenant", suite.tenant,
+			"workspace", workspaceName,
 		)
 
 		err = suite.client.WorkspaceV1.DeleteWorkspace(ctx, resp)
@@ -107,8 +131,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.WithNewStep("Re-Delete Workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			"operation", "DeleteWorkspace",
-			"tenant", tenant1Name,
-			"workspace", workspace1Name,
+			"tenant", suite.tenant,
+			"workspace", workspaceName,
 		)
 
 		err = suite.client.WorkspaceV1.DeleteWorkspace(ctx, resp)

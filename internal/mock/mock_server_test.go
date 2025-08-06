@@ -22,6 +22,11 @@ const (
 	ComputeSkuName         = "D2SX"
 )
 
+/*
+func TestProcessTemplate() {
+
+}
+*/
 func TestWorkspaceScenario(t *testing.T) {
 	WorkspaceMock := MockParams{
 		WireMockURL: WireMockURL,
@@ -66,6 +71,14 @@ func TestWorkspaceScenario(t *testing.T) {
 	if error != nil {
 		log.Printf("Error deleting workspace: %v\n", error)
 		assert.Error(t, err, "Expected error when deleting workspace")
+	}
+	assert.Equal(t, http.StatusAccepted, responseUpdate.StatusCode, "Expected status code 202 No Content")
+
+	// Get workspace
+	responseUpdate, error = requestMethod("GET", url, Token)
+	if error != nil {
+		log.Printf("Error getting workspace: %v\n", error)
+		return
 	}
 	assert.Equal(t, http.StatusAccepted, responseUpdate.StatusCode, "Expected status code 202 No Content")
 }

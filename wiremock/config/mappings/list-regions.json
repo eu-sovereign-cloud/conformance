@@ -20,11 +20,11 @@
       "items": [
         {
           "metadata": {
-            "name": "eu-central-1",
+            "name": "region-1",
             "createdAt": "2025-07-23T08:00:00Z",
             "lastModifiedAt": "2025-07-23T08:00:00Z",
             "resourceVersion": 1,
-            "resource": "seca.region/regions/eu-central-1",
+            "resource": "seca.region/regions/region-1",
             "verb": "get",
             "apiVersion": "v1",
             "kind": "region",

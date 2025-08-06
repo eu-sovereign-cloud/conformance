@@ -1,12 +1,12 @@
 package mock
 
 const (
-	WorkspacePutTemplateResponse = `
+	WorkspaceTemplateResponse = `
 	{
 		"metadata": {
 			"name": "[[.Name]]",
-			"createdAt": "2025-07-21T15:18:49Z",
-			"lastModifiedAt": "2025-07-21T15:18:49Z",
+			"createdAt": "[[.CreatedAt]]",
+			"lastModifiedAt": "[[.LastModifiedAt]]",
 			"tenant": "[[.Tenant]]",
 			"region": "[[.Region]]",
 			"apiVersion": "[[.Version]]",
@@ -20,7 +20,7 @@ const (
 			"conditions": [
 				{
 					"state": "[[.State]]",
-					"lastTransitionAt": "2025-07-21T15:18:49Z"
+					"lastTransitionAt": "[[.LastTransitionAt]]"
 				}
 			]
 		}
@@ -29,8 +29,8 @@ const (
 	{
 		"metadata": {
 			"name": "[[.Name]]",
-			"createdAt": "2025-07-21T15:18:49Z",
-			"lastModifiedAt": "2025-07-21T15:18:49Z",
+			"createdAt": "[[.CreatedAt]]",
+			"lastModifiedAt": "[[.LastModifiedAt]]",
 			"tenant": "[[.Tenant]]",
 			"region": "[[.Region]]",
 			"apiVersion": "[[.Version]]",
@@ -79,8 +79,8 @@ const (
 	{
       "metadata": {
         "name": "[[.Name]]",
-        "createdAt": "2025-07-24T10:25:00Z",
-        "lastModifiedAt": "2025-07-24T10:25:00Z",
+        "createdAt": "[[.CreatedAt]]",
+        "lastModifiedAt": "[[.LastModifiedAt]]",
         "resourceVersion": 1,
         "tenant": "[[.Tenant]]",
         "region": "[[.Region]]",
@@ -103,7 +103,7 @@ const (
         "conditions": [
           {
             "state": "active",
-            "lastTransitionAt": "2025-07-24T10:25:00Z"
+            "lastTransitionAt": "[[.LastTransitionAt]]"
           }
         ]
       }
