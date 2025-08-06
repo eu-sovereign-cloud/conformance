@@ -1,7 +1,7 @@
 package mock
 
 const (
-	WorkspacePutTemplateResponse = `
+	WorkspaceTemplateResponse = `
 	{
 		"metadata": {
 			"name": "{{.Name}}",

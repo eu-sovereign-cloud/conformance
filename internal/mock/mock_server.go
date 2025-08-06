@@ -75,7 +75,7 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 	err := putStub(wm, UsecaseStubMetadata{
 		Params:             workspaceMock,
 		Metadata:           workspaceMetadata,
-		Template:           responsesTemplate.WorkspacePutTemplateResponse,
+		Template:           responsesTemplate.WorkspaceTemplateResponse,
 		ScenarioState:      StartedState,
 		NextScenarioState:  CreatedState,
 		ScenarioHttpStatus: http.StatusCreated, // 201 Created
@@ -91,7 +91,7 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 	err = putStub(wm, UsecaseStubMetadata{
 		Params:             workspaceMock,
 		Metadata:           workspaceMetadata,
-		Template:           responsesTemplate.WorkspacePutTemplateResponse,
+		Template:           responsesTemplate.WorkspaceTemplateResponse,
 		ScenarioState:      CreatedState,
 		NextScenarioState:  UpdatedState,
 		ScenarioHttpStatus: http.StatusOK, // 200 OK
@@ -128,6 +128,15 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 		return err
 	}
 
+	err = getStub(wm, UsecaseStubMetadata{
+		Params:             workspaceMock,
+		Metadata:           workspaceMetadata,
+		ScenarioHttpStatus: http.StatusOK, // 200 OK
+		ScenarioPriority:   1,
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -170,6 +179,32 @@ func putStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) error {
 	return nil
 }
 
+func getStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) error {
+	processTemplate, err := processTemplate(stubMetadata.Template, stubMetadata.Metadata)
+	if err != nil {
+		log.Printf("Error processing template: %v\n", err)
+		return err
+	}
+
+	err = wm.StubFor(wiremock.Put(wiremock.URLPathMatching(stubMetadata.Params.WireMockURL)).
+		WithHeader("Authorization", wiremock.Matching("Bearer "+stubMetadata.Params.Token)).
+		InScenario(ScenarioName).
+		WhenScenarioStateIs(stubMetadata.ScenarioState).
+		WillSetStateTo(stubMetadata.NextScenarioState).
+		WillReturnResponse(
+			wiremock.NewResponse().
+				WithStatus(int64(stubMetadata.ScenarioHttpStatus)).
+				WithHeader("Content-Type", "application/json").
+				WithJSONBody(processTemplate),
+		).
+		AtPriority(int64(stubMetadata.ScenarioPriority)))
+	if condition := err != nil; condition {
+		log.Printf("Error configuring put method: %v\n", err)
+		return err
+	}
+
+	return nil
+}
 func deleteStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) error {
 	err := wm.StubFor(wiremock.Delete(wiremock.URLPathMatching(stubMetadata.Params.WireMockURL)).
 		WithHeader("Authorization", wiremock.Matching("Bearer "+stubMetadata.Params.Token)).

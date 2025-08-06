@@ -18,10 +18,11 @@ const (
 	Version             = "v1"
 )
 
+/*
 func TestProcessTemplate() {
-	
-}
 
+}
+*/
 func TestWorkspaceScenario(t *testing.T) {
 	WorkspaceMock := MockParams{
 		WireMockURL:   WireMockURL,
@@ -65,6 +66,14 @@ func TestWorkspaceScenario(t *testing.T) {
 	responseUpdate, error = requestWorkspace("DELETE", url, Token)
 	if error != nil {
 		log.Printf("Error deleting workspace: %v\n", error)
+		return
+	}
+	assert.Equal(t, http.StatusAccepted, responseUpdate.StatusCode, "Expected status code 202 No Content")
+
+	// Get workspace
+	responseUpdate, error = requestWorkspace("GET", url, Token)
+	if error != nil {
+		log.Printf("Error getting workspace: %v\n", error)
 		return
 	}
 	assert.Equal(t, http.StatusAccepted, responseUpdate.StatusCode, "Expected status code 202 No Content")
