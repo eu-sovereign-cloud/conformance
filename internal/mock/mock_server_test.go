@@ -11,12 +11,16 @@ import (
 const (
 	WireMockURL         = "http://localhost:8080"
 	testPutWorkspaceURL = "/providers/seca.workspace/v1/tenants/tenant1/workspaces/workspace1"
-	TenantName          = "tenant1"
-	WorkspaceName       = "workspace1"
-	Region              = "eu-central-1"
+	TenantName          = "tenant1-"
+	WorkspaceName       = "workspace-1"
+	Region              = "region-1"
 	Token               = "your_token"
 	Version             = "v1"
 )
+
+func TestProcessTemplate() {
+	
+}
 
 func TestWorkspaceScenario(t *testing.T) {
 	WorkspaceMock := MockParams{

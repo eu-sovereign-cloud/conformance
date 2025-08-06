@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"text/template"
+	"time"
 
 	responsesTemplate "github.com/eu-sovereign-cloud/conformance/internal/mock/responses"
 	"github.com/wiremock/go-wiremock"
@@ -57,14 +58,18 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 
 	workspaceMock.WireMockURL = WorkspaceProviderV1 + "tenants/" + workspaceMock.TenantName + "/workspaces/" + workspaceMock.WorkspaceName
 
+	// Create Workspace
 	workspaceMetadata := UsecaseMetadata{
-		Name:     workspaceMock.WorkspaceName,
-		Tenant:   workspaceMock.TenantName,
-		Region:   workspaceMock.Region,
-		Version:  Version1,
-		Kind:     WorkspaceKind,
-		Resource: WorkspaceResourceURL,
-		State:    CreatingState,
+		Name:             workspaceMock.WorkspaceName,
+		CreatedAt:        time.Now().Format(time.RFC3339),
+		LastModifiedAt:   time.Now().Format(time.RFC3339),
+		Tenant:           workspaceMock.TenantName,
+		Region:           workspaceMock.Region,
+		Version:          Version1,
+		Kind:             WorkspaceKind,
+		Resource:         WorkspaceResourceURL,
+		State:            CreatingState,
+		LastTransitionAt: time.Now().Format(time.RFC3339),
 	}
 
 	err := putStub(wm, UsecaseStubMetadata{

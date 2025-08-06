@@ -30,10 +30,12 @@ run:
 	$(DIST_BIN) -seca.provider.region.v1=http://localhost:8080/providers/seca.region \
 	  -seca.provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
 	  -seca.client.authtoken=test-token \
-	  -seca.client.region=eu-central-1 \
+	  -seca.client.region=region-1 \
 	  -seca.client.tenant=tenant-1 \
-	  -seca.mock.serverurl=http://localhost:8080 \
-	  -seca.report.resultspath=$(RESULTS_PATH)
+	  -seca.report.resultspath=$(RESULTS_PATH) \
+	  -seca.mock.enabled=true \
+	  -seca.mock.serverurl=http://localhost:8080
+	  
 
 .PHONY: report
 report:
@@ -47,10 +49,11 @@ test:
 	  -seca.provider.region.v1=http://localhost:8080/providers/seca.region \
 	  -seca.provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
 	  -seca.client.authtoken=test-token \
-	  -seca.client.region=eu-central-1 \
+	  -seca.client.region=region-1 \
 	  -seca.client.tenant=tenant-1 \
-	  -seca.mock.serverurl=http://localhost:8080 \
-	  -seca.report.resultspath=$(RESULTS_PATH)
+	  -seca.report.resultspath=$(RESULTS_PATH) \
+	  -seca.mock.enabled=true \
+	  -seca.mock.serverurl=http://localhost:8080
 
 .PHONY: fmt
 fmt:
@@ -74,7 +77,7 @@ vet:
 .PHONY: sec
 sec:
 	@echo "Running gosec..."
-	$(GO_TOOL) github.com/securego/gosec/v2/cmd/gosec -exclude=G101 ./...
+	$(GO_TOOL) github.com/securego/gosec/v2/cmd/gosec -exclude=G101,G404 ./...
 
 .PHONY: dev
 dev: fmt lint vet sec

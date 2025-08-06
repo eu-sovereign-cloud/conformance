@@ -9,13 +9,16 @@ type MockParams struct {
 }
 
 type UsecaseMetadata struct {
-	Name     string
-	Tenant   string
-	Region   string
-	Version  string
-	Kind     string
-	Resource string
-	State    string
+	Name             string
+	CreatedAt        string
+	LastModifiedAt   string
+	Tenant           string
+	Region           string
+	Version          string
+	Kind             string
+	Resource         string
+	State            string
+	LastTransitionAt string
 }
 
 type UsecaseStubMetadata struct {

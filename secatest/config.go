@@ -14,6 +14,7 @@ type Config struct {
 	ClientRegion            string
 	ClientTenant            string
 	ReportResultsPath       string
+	MockEnabled             string
 	MockServerURL           string
 }
 
@@ -24,6 +25,7 @@ const (
 	clientRegionConfig            = "seca.client.region"
 	clientTenantConfig            = "seca.client.tenant"
 	reportResultsPathConfig       = "seca.report.resultspath"
+	mockEnabledConfig             = "seca.mock.enabled"
 	mockServerURLConfig           = "seca.mock.serverurl"
 )
 
@@ -34,6 +36,7 @@ func loadConfig() (*Config, error) {
 	clientRegionFlag := flag.String(clientRegionConfig, "", "Client Region Name")
 	clientTenantFlag := flag.String(clientTenantConfig, "", "Client Tenant Name")
 	reportResultsPathFlag := flag.String(reportResultsPathConfig, "", "Report Results Path")
+	mockEnabledFlag := flag.String(mockEnabledConfig, "", "Enable Mock Usage")
 	mockServerURLFlag := flag.String(mockServerURLConfig, "", "Mock Server URL")
 
 	flag.Parse()
@@ -68,6 +71,11 @@ func loadConfig() (*Config, error) {
 		return nil, err
 	}
 
+	mockEnabled, err := readFlagOrEnv(mockEnabledFlag, mockEnabledConfig)
+	if err != nil {
+		return nil, err
+	}
+
 	mockServerURL, err := readFlagOrEnv(mockServerURLFlag, mockServerURLConfig)
 	if err != nil {
 		return nil, err
@@ -80,6 +88,7 @@ func loadConfig() (*Config, error) {
 		ClientRegion:            clientRegion,
 		ClientTenant:            clientTenant,
 		ReportResultsPath:       reportResultsPath,
+		MockEnabled:             mockEnabled,
 		MockServerURL:           mockServerURL,
 	}, nil
 }

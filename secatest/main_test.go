@@ -39,19 +39,6 @@ func TestMain(m *testing.M) {
 func TestSuites(t *testing.T) {
 	ctx := context.Background()
 
-	// Create Scenario
-	err := mock.CreateWorkspaceScenario(mock.MockParams{
-		WireMockURL:   config.MockServerURL,
-		TenantName:    tenant1Name,
-		WorkspaceName: workspace1Name,
-		Region:        config.ClientRegion,
-		Token:         config.ClientAuthToken,
-	})
-	if err != nil {
-		slog.Error("Failed to create workspace scenario", "error", err)
-		os.Exit(1)
-	}
-
 	// Initialize global client
 	globalClient, err := secapi.NewGlobalClient(&secapi.GlobalConfig{
 		AuthToken: config.ClientAuthToken,
@@ -72,9 +59,22 @@ func TestSuites(t *testing.T) {
 		os.Exit(1)
 	}
 
+	// Setup mock
+	var mockParams *mock.MockParams
+	if config.MockEnabled == "true" {
+		mockParams = &mock.MockParams{
+			WireMockURL: config.MockServerURL,
+			TenantName:  config.ClientTenant,
+			Region:      config.ClientRegion,
+			Token:       config.ClientAuthToken,
+		}
+	}
+
 	// Run test suites
 	suite.RunNamedSuite(t, "Workspace V1", &WorkspaceV1TestSuite{
-		client: regionalClient, tenant: config.ClientTenant,
+		client:     regionalClient,
+		tenant:     config.ClientTenant,
+		mockParams: mockParams,
 	})
 }
 
