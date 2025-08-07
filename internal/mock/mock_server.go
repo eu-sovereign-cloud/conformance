@@ -154,6 +154,8 @@ func CreateComputeScenario(computeMock MockParams) error {
 		Name:             computeMock.Name,
 		Tenant:           computeMock.TenantName,
 		Region:           computeMock.Region,
+		CreatedAt:        time.Now().Format(time.RFC3339),
+		LastModifiedAt:   time.Now().Format(time.RFC3339),
 		Version:          Version1,
 		Kind:             ComputeKind,
 		Resource:         ComputeResourceURL,
