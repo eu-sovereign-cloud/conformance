@@ -29,6 +29,7 @@ type UsecaseStubMetadata struct {
 	Params             MockParams
 	Metadata           UsecaseMetadata
 	Template           string
+	RequestTemplate    string
 	ScenarioState      string
 	NextScenarioState  string
 	ScenarioPriority   int

@@ -187,6 +187,7 @@ func CreateComputeScenario(computeMock MockParams) error {
 		Params:             computeMock,
 		Metadata:           computeMetadata,
 		Template:           responsesTemplate.ComputePutTemplateResponse,
+		RequestTemplate:    responsesTemplate.ComputePutRestrictionTemplate,
 		ScenarioState:      CreatedState,
 		NextScenarioState:  GettedState,
 		ScenarioHttpStatus: http.StatusCreated, // 201 Created
@@ -309,6 +310,7 @@ func putStub(wm *wiremock.Client, stubMetadata UsecaseStubMetadata) error {
 		InScenario(ScenarioName).
 		WhenScenarioStateIs(stubMetadata.ScenarioState).
 		WillSetStateTo(stubMetadata.NextScenarioState).
+		WithBodyPattern(wiremock.MatchingJsonPath(stubMetadata.RequestTemplate)).
 		WillReturnResponse(
 			wiremock.NewResponse().
 				WithStatus(int64(stubMetadata.ScenarioHttpStatus)).
