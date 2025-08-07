@@ -46,6 +46,7 @@ const (
 	// State for the workspace
 	CreatingState = "creating"
 	UpdatingState = "updating"
+	ActiveState   = "active"
 
 	// Kind
 	WorkspaceKind     = "workspace"
@@ -131,6 +132,7 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 		return err
 	}
 
+	workspaceMetadata.State = ActiveState
 	err = getStub(wm, UsecaseStubMetadata{
 		Params:             workspaceMock,
 		Metadata:           workspaceMetadata,
@@ -146,16 +148,18 @@ func CreateWorkspaceScenario(workspaceMock MockParams) error {
 func CreateComputeScenario(computeMock MockParams) error {
 
 	wm := wiremock.NewClient(computeMock.WireMockURL)
-	wm.Clear()
+	//wm.Clear()
 
 	computeMetadata := UsecaseMetadata{
-		Name:      computeMock.Name,
-		Tenant:    computeMock.TenantName,
-		Region:    computeMock.Region,
-		Version:   Version1,
-		Kind:      ComputeKind,
-		Resource:  ComputeResourceURL,
-		Workspace: computeMock.WorkspaceName,
+		Name:             computeMock.Name,
+		Tenant:           computeMock.TenantName,
+		Region:           computeMock.Region,
+		Version:          Version1,
+		Kind:             ComputeKind,
+		Resource:         ComputeResourceURL,
+		Workspace:        computeMock.WorkspaceName,
+		State:            CreatingState,
+		LastTransitionAt: time.Now().Format(time.RFC3339),
 	}
 
 	//Get sku
@@ -193,6 +197,7 @@ func CreateComputeScenario(computeMock MockParams) error {
 	}
 
 	// Get Instance
+	computeMetadata.State = ActiveState
 	err = getStub(wm, UsecaseStubMetadata{
 		Params:             computeMock,
 		Metadata:           computeMetadata,
@@ -208,6 +213,7 @@ func CreateComputeScenario(computeMock MockParams) error {
 	}
 
 	// Update Instance
+	computeMetadata.State = UpdatingState
 	err = putStub(wm, UsecaseStubMetadata{Params: computeMock,
 		Metadata:           computeMetadata,
 		Template:           responsesTemplate.ComputePutTemplateResponse,
