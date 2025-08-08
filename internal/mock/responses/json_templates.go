@@ -54,9 +54,7 @@ const (
 					"lastTransitionAt": "2025-07-21T15:18:49Z"
 				}
 			]
-		},
-      	"labels": \"{{jsonPath request.body '$.labels' fallback null}}\",
-      	"annotations": \"{{jsonPath request.body '$.annotations' fallback null}}\"
+		}
 
 	}`
 
@@ -108,4 +106,142 @@ const (
         ]
       }
     }`
+
+	StoragePutImageTemplateResponse = `
+	{
+		"metadata": {
+        "name": "[[.Storage.ImageName]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": 1,
+        "tenant": "[[.Storage.Tenant]]",
+        "region": "[[.Storage.Region]]",
+        "apiVersion": "[[.Metadata.Version]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "seca.storage/images/[[.Storage.ImageName]]",
+        "verb": "put"
+      },
+      "spec": {
+        "blockStorageRef": "{{jsonPath request.body '$.spec.blockStorageRef'}}",
+        "cpuArchitecture": "{{jsonPath request.body '$.spec.cpuArchitecture'}}"
+      },
+      "status": {
+        "state": "[[.Metadata.State]]",
+        "conditions": [
+          {
+            "state": "[[.Metadata.State]]",
+            "lastTransitionAt": "[[.Metadata.LastTransitionAt]]"
+          }
+        ]
+      }
+	}`
+
+	StorageGetImageTemplateResponse = `
+	{
+		"metadata": {
+			"name": "[[.Storage.ImageName]]",
+			"createdAt": "[[.Metadata.CreatedAt]]",
+			"lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+			"resourceVersion": 1,
+			"tenant": "[[.Storage.Tenant]]",
+			"region": "[[.Storage.Region]]",
+			"apiVersion": "[[.Metadata.Version]]",
+			"kind": "[[.Metadata.Kind]]",
+			"resource": "seca.storage/images/[[.Storage.ImageName]]",
+			"verb": "get"
+		},
+		"spec": {
+			"blockStorageRef": "[[.Storage.BlockStorageRef]]",
+			"cpuArchitecture": "[[.Storage.CpuArchitecture]]"
+		},
+		"status": {
+			"state": "[[.Metadata.State]]",
+			"conditions": [
+			{
+				"state": "[[.Metadata.State]]",
+				"lastTransitionAt": "[[.Metadata.LastTransitionAt]]"
+			}
+			]
+		}
+    }`
+
+	StoragePutBlockStorageTemplateResponse = `
+	{
+		"metadata": {
+			"name": "[[.Storage.BlockStorageName]]",
+			"createdAt": "[[.Metadata.CreatedAt]]",
+			"lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+			"resourceVersion": 1,
+			"tenant": "[[.Storage.Tenant]]",
+			"region": "[[.Storage.Region]]",
+			"apiVersion": "[[.Metadata.Version]]",
+			"kind": "[[.Metadata.Kind]]",
+			"resource": "seca.storage/images/[[.Storage.BlockStorageName]]",
+			"verb": "put"
+		},
+		"spec": {
+			"skuRef": "{{jsonPath request.body '$.spec.skuRef'}}",
+			"sizeGB": "{{jsonPath request.body '$.spec.sizeGB'}}"
+		},
+		"status": {
+			"state": "[[.Metadata.State]]",
+			"conditions": [
+			{
+				"state": "[[.Metadata.State]]",
+				"lastTransitionAt": "[[.Metadata.LastTransitionAt]]"
+			}
+			]
+		}
+	}`
+
+	StorageGetBlockStorageTemplateResponse = `
+	{
+		"metadata": {
+			"name": "[[.Storage.BlockStorageName]]",
+			"createdAt": "[[.Metadata.CreatedAt]]",
+			"lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+			"resourceVersion": 1,
+			"tenant": "[[.Storage.Tenant]]",
+			"region": "[[.Storage.Region]]",
+			"apiVersion": "[[.Metadata.Version]]",
+			"kind": "[[.Metadata.Kind]]",
+			"resource": "seca.storage/images/[[.Storage.BlockStorageName]]",
+			"verb": "put"
+		},
+		"spec": {
+			"skuRef": "[[.Storage.SkuRef]]",
+			"sizeGB": "[[.Storage.SizeGB]]"
+		},
+		"status": {
+			"state": "[[.Metadata.State]]",
+			"conditions": [
+			{
+				"state": "[[.Metadata.State]]",
+				"lastTransitionAt": "[[.Metadata.LastTransitionAt]]"
+			}
+			]
+		}
+	}`
+
+	StorageGetSkuTemplateResponse = `
+	{
+		"metadata": {
+			"name": "[[.Storage.ImageName]]",
+			"createdAt": "[[.Metadata.CreatedAt]]",
+			"lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+			"resourceVersion": 1,
+			"tenant": "[[.Storage.Tenant]]",
+			"region": "[[.Storage.Region]]",
+			"apiVersion": "[[.Metadata.Version]]",
+			"kind": "[[.Metadata.Kind]]",
+			"resource": "seca.storage/images/[[.Storage.ImageName]]",
+			"verb": "put"
+		},
+		"spec": {
+			"provider": "SECA",
+			"type": "remote-durable",
+			"iops": 100,
+			"minVolumeSize": 1
+		}
+	}`
 )
