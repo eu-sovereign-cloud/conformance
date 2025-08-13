@@ -40,10 +40,10 @@ func TestSuites(t *testing.T) {
 
 	// Initialize global client
 	globalClient, err := secapi.NewGlobalClient(&secapi.GlobalConfig{
-		AuthToken: config.ClientAuthToken,
+		AuthToken: config.clientAuthToken,
 		Endpoints: secapi.GlobalEndpoints{
-			RegionV1:        config.ProviderRegionV1,
-			AuthorizationV1: config.ProviderAuthorizationV1,
+			RegionV1:        config.providerRegionV1,
+			AuthorizationV1: config.providerAuthorizationV1,
 		},
 	})
 	if err != nil {
@@ -52,7 +52,7 @@ func TestSuites(t *testing.T) {
 	}
 
 	// Initialize regional client
-	regionalClient, err := globalClient.NewRegionalClient(ctx, config.ClientRegion)
+	regionalClient, err := globalClient.NewRegionalClient(ctx, config.clientRegion)
 	if err != nil {
 		slog.Error("Failed to create regional client", "error", err)
 		os.Exit(1)
@@ -60,16 +60,29 @@ func TestSuites(t *testing.T) {
 
 	// Run test suites
 	suite.RunNamedSuite(t, "Workspace V1", &WorkspaceV1TestSuite{
-		client: regionalClient, tenant: config.ClientTenant,
+		regionalTestSuite: regionalTestSuite{
+			testSuite: testSuite{
+				tenant:        config.clientTenant,
+				authToken:     config.clientAuthToken,
+				mockEnabled:   config.mockEnabled,
+				mockServerURL: config.mockServerURL,
+			},
+			region: config.clientRegion,
+			client: regionalClient,
+		},
 	})
 }
 
 func configureReports(config *Config) {
-	resultsPath := config.ReportResultsPath
+	resultsPath := config.reportResultsPath
 
 	outputPath := filepath.Dir(resultsPath)
-	os.Setenv("ALLURE_OUTPUT_PATH", outputPath)
+	if err := os.Setenv("ALLURE_OUTPUT_PATH", outputPath); err != nil {
+		slog.Error("Failed to configure reports", "error", err)
+	}
 
 	outputFolder := filepath.Base(resultsPath)
-	os.Setenv("ALLURE_OUTPUT_FOLDER", outputFolder)
+	if err := os.Setenv("ALLURE_OUTPUT_FOLDER", outputFolder); err != nil {
+		slog.Error("Failed to configure reports", "error", err)
+	}
 }
