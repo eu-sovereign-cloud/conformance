@@ -8,14 +8,14 @@ import (
 )
 
 type Config struct {
-	ProviderRegionV1        string
-	ProviderAuthorizationV1 string
-	ClientAuthToken         string
-	ClientRegion            string
-	ClientTenant            string
-	ReportResultsPath       string
-	MockEnabled             string
-	MockServerURL           string
+	providerRegionV1        string
+	providerAuthorizationV1 string
+	clientAuthToken         string
+	clientRegion            string
+	clientTenant            string
+	reportResultsPath       string
+	mockEnabled             string
+	mockServerURL           string
 }
 
 const (
@@ -82,14 +82,14 @@ func loadConfig() (*Config, error) {
 	}
 
 	return &Config{
-		ProviderRegionV1:        providerRegionV1,
-		ProviderAuthorizationV1: providerAuthorizationV1,
-		ClientAuthToken:         clientAuthToken,
-		ClientRegion:            clientRegion,
-		ClientTenant:            clientTenant,
-		ReportResultsPath:       reportResultsPath,
-		MockEnabled:             mockEnabled,
-		MockServerURL:           mockServerURL,
+		providerRegionV1:        providerRegionV1,
+		providerAuthorizationV1: providerAuthorizationV1,
+		clientAuthToken:         clientAuthToken,
+		clientRegion:            clientRegion,
+		clientTenant:            clientTenant,
+		reportResultsPath:       reportResultsPath,
+		mockEnabled:             mockEnabled,
+		mockServerURL:           mockServerURL,
 	}, nil
 }
 

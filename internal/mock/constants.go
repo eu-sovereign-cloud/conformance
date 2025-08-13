@@ -1,32 +1,42 @@
 package mock
 
-type MockParams struct {
-	WireMockURL   string
-	TenantName    string
-	WorkspaceName string
-	Region        string
-	Token         string
-}
+const (
+	// Scenario States
+	startedScenarioState    = "Started"
+	creatingScenarioState   = "Creating"
+	createdScenarioState    = "Created"
+	updatingScenarioState   = "Updating"
+	updatedScenarioState    = "Updated"
+	deletingScenarioState   = "Deleting"
+	redeletingScenarioState = "Re-Deleting"
 
-type UsecaseMetadata struct {
-	Name             string
-	CreatedAt        string
-	LastModifiedAt   string
-	Tenant           string
-	Region           string
-	Version          string
-	Kind             string
-	Resource         string
-	State            string
-	LastTransitionAt string
-}
+	// Scenario Priorities
+	defaultScenarioPriority = 1
 
-type UsecaseStubMetadata struct {
-	Params             MockParams
-	Metadata           UsecaseMetadata
-	Template           string
-	ScenarioState      string
-	NextScenarioState  string
-	ScenarioPriority   int
-	ScenarioHttpStatus int
-}
+	// Base URLs
+	workspaceV1BaseURL = "/providers/seca.workspace/v1/tenants/%s/workspaces/%s"
+
+	// Versions
+	version1 = "v1"
+
+	// Resource URLs
+	workspaceResource = "tenants/%s/workspaces/%s"
+
+	// Providers
+	workspaceV1Provider = "seca.workspace/v1"
+
+	// Kinds
+	workspaceKind = "workspace"
+
+	// Status States
+	creatingStatusState = "creating"
+	activeStatusState   = "active"
+	updatingStatusState = "updating"
+
+	// Http Headers
+	authorizationHttpHeaderKey         = "Authorization"
+	authorizationHttpHeaderValuePrefix = "Bearer "
+
+	contentTypeHttpHeaderKey   = "Content-Type"
+	contentTypeHttpHeaderValue = "application/json"
+)
