@@ -14,7 +14,7 @@ type scenarioConfig struct {
 	template     string
 	response     interface{}
 	currentState string
-	nextState    string	
+	nextState    string
 	httpStatus   int
 	priority     int
 }
