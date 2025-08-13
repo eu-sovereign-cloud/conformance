@@ -15,7 +15,7 @@ DIST_BIN := $(DIST_DIR)/secatest
 .PHONY: $(DIST_BIN)
 $(DIST_BIN):
 	@echo "Building test code..."
-	$(GO) test -c -o $(DIST_BIN) ./...
+	$(GO) test -c -o $(DIST_BIN) ./secatest
 
 .PHONY: mock
 mock:
@@ -35,7 +35,6 @@ run:
 	  -seca.report.resultspath=$(RESULTS_PATH) \
 	  -seca.mock.enabled=true \
 	  -seca.mock.serverurl=http://localhost:8080
-	  
 
 .PHONY: report
 report:
@@ -67,7 +66,7 @@ fmt:
 .PHONY: lint
 lint:
 	@echo "Linting code..."
-	$(GO_TOOL) github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 5m
+	$(GO_TOOL) github.com/golangci/golangci-lint/v2/cmd/golangci-lint run --timeout 5m
 
 .PHONY: vet
 vet:
