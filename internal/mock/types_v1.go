@@ -63,14 +63,14 @@ type AuthorizationParamsV1 struct {
 
 type RolesParamsV1 struct {
 	Name        string
-	permissions []permissionsParamsV1
+	Permissions []PermissionsParamsV1
 }
 
 type RoleAssignmentParamsV1 struct {
 	Name   string
 	roles  []string
 	subs   []string
-	scopes scopes
+	scopes Scopes
 }
 
 func (p AuthorizationParamsV1) getParams() Params { return p.Params }
@@ -130,28 +130,28 @@ type imageResponseV1 struct {
 }
 
 type rolesResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	permissions []permissionsParamsV1
+	Permissions []PermissionsParamsV1
 }
-type permissionsParamsV1 struct {
-	provider  string
-	resources []string
-	verbs     []string
+type PermissionsParamsV1 struct {
+	Provider  string
+	Resources []string
+	Verbs     []string
 }
 
 type roleAssignmentResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	roles  []string
-	subs   []string
-	scopes scopes
+	Roles  []string
+	Subs   []string
+	Scopes []Scopes
 }
 
-type scopes struct {
-	tenants    []string
-	regions    []string
-	workspaces []string
+type Scopes struct {
+	Tenants    []string
+	Regions    []string
+	Workspaces []string
 }

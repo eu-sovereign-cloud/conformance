@@ -223,18 +223,22 @@ const (
         "verb": "[[.Metadata.Verb]]"
       },
       "spec": {
-        "permissions": {
-          "provider": "[[.Permissions.Provider]]",
-          "resources": "[[.Permissions.Resources]]",
-          "verbs": "[[.Permissions.Verbs]]"
-        }
+        "permissions": [
+		 [[- range $i, $p :=.Permissions]]
+		 [[if $i]],[[end]]
+			{
+			"provider": "[[$p.Provider]]",
+			"resources": "[[$p.Resources]]",
+			"verbs": "[[$p.Verbs]]"
+			}[[- end]]
+		]
       },
       "status": {
         "state": "[[.Status.State]]",
         "conditions": [
           {
-            "state": "[[.Status.Conditions.State]]",
-            "lastTransitionAt": "[[.Status.Conditions.LastTransitionAt]]"
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
           }
         ]
       }
@@ -255,18 +259,23 @@ const (
       "spec": {
         "subs": "[[.Subs]]",
         "roles": "[[.Roles]]",
-		"scopes": {
-			"tenants": "[[.Scopes.Tenants]]",
-			"regions": "[[.Scopes.Regions]]",
-			"workspaces": "[[.Scopes.Workspaces]]"
-		}
+		"scopes": [
+		 [[- range $i, $p :=.Scopes]]
+		 [[if $i]],[[end]]
+			{
+			"tenants": "[[$p.Tenants]]",
+			"regions": "[[$p.Regions]]",
+			"workspaces": "[[$p.Workspaces]]"
+		}[[- end]]
+		]
+		
       },
       "status": {
         "state": "[[.Status.State]]",
         "conditions": [
           {
-            "state": "[[.Status.Conditions.State]]",
-            "lastTransitionAt": "[[.Status.Conditions.LastTransitionAt]]"
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
           }
         ]
       }
