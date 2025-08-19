@@ -363,3 +363,262 @@ func CreateComputeScenarioV1(scenario string, params ComputeParamsV1) (*wiremock
 func CreateStorageScenarioV1(scenario string, mockParams Params) (*wiremock.Client, error) {
 	return nil, nil
 }
+
+func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1) (*wiremock.Client, error) {
+	wm, err := newClient(params.MockURL)
+	if err != nil {
+		return nil, err
+	}
+
+	params.MockURL = fmt.Sprintf(rolesURLV1, params.Tenant, params.roles.Name)
+
+	response := rolesResponseV1{
+		metadata: metadataResponse{
+			Name:            params.roles.Name,
+			Provider:        authorizationProviderV1,
+			Resource:        fmt.Sprintf(rolesResource, params.Tenant, params.roles.Name),
+			Verb:            http.MethodPut,
+			CreatedAt:       time.Now().Format(time.RFC3339),
+			LastModifiedAt:  time.Now().Format(time.RFC3339),
+			ResourceVersion: 1,
+			ApiVersion:      version1,
+			Kind:            rolesKind,
+			Tenant:          params.Tenant,
+		},
+	}
+
+	// Create a Role
+	response.metadata.Verb = http.MethodPut
+	response.status.State = creatingStatusState
+	response.metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	response.metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	response.metadata.ResourceVersion = 1
+	response.status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configurePutStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     response,
+		template:     roleResponseTemplateV1,
+		currentState: startedScenarioState,
+		nextState:    createdScenarioState,
+		httpStatus:   http.StatusCreated,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Get created Role
+	response.metadata.Verb = http.MethodGet
+	response.status.State = activeStatusState
+	response.metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	response.metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	response.metadata.ResourceVersion = 1
+	response.status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configurePutStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     response,
+		template:     roleResponseTemplateV1,
+		currentState: startedScenarioState,
+		nextState:    creatingScenarioState,
+		httpStatus:   http.StatusOK,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Update the Role
+	response.metadata.Verb = http.MethodPut
+	response.status.State = updatingStatusState
+	response.metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	response.metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	response.metadata.ResourceVersion = 1
+	response.status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configurePutStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     response,
+		template:     roleResponseTemplateV1,
+		currentState: creatingScenarioState,
+		nextState:    updatingScenarioState,
+		httpStatus:   http.StatusOK,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Get updated Role
+	response.metadata.Verb = http.MethodGet
+	response.status.State = activeStatusState
+	response.metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	response.metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	response.metadata.ResourceVersion = 1
+	response.status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configurePutStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     response,
+		template:     roleResponseTemplateV1,
+		currentState: updatingScenarioState,
+		nextState:    updatedScenarioState,
+		httpStatus:   http.StatusOK,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Delete the Role
+	response.metadata.Verb = http.MethodDelete
+	if err := configureDeleteStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     response,
+		currentState: updatedScenarioState,
+		nextState:    deletingScenarioState,
+		httpStatus:   http.StatusAccepted,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Get deleted Role
+	response.metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     response,
+		currentState: redeletingScenarioState,
+		nextState:    startedScenarioState,
+		httpStatus:   http.StatusNotFound,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	params.MockURL = fmt.Sprintf(roleAssignmentURLV1, params.Tenant, params.roleAssignment.Name)
+
+	responseRA := roleAssignmentResponseV1{
+		metadata: metadataResponse{
+			Name:            params.roleAssignment.Name,
+			Provider:        authorizationProviderV1,
+			Resource:        fmt.Sprintf(roleAssignmentResource, params.Tenant, params.roleAssignment.Name),
+			Verb:            http.MethodPut,
+			CreatedAt:       time.Now().Format(time.RFC3339),
+			LastModifiedAt:  time.Now().Format(time.RFC3339),
+			ResourceVersion: 1,
+			ApiVersion:      version1,
+			Kind:            roleAssignmentKind,
+			Tenant:          params.Tenant,
+		},
+	}
+
+	// Create a Role-Assignment
+	responseRA.metadata.Verb = http.MethodPut
+	responseRA.status.State = creatingStatusState
+	responseRA.metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	responseRA.metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	responseRA.metadata.ResourceVersion = 1
+	responseRA.status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configurePutStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     responseRA,
+		template:     roleResponseTemplateV1,
+		currentState: startedScenarioState,
+		nextState:    createdScenarioState,
+		httpStatus:   http.StatusCreated,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Get created Role-Assignment
+	responseRA.metadata.Verb = http.MethodGet
+	responseRA.status.State = activeStatusState
+	responseRA.metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	responseRA.metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	responseRA.metadata.ResourceVersion = 1
+	responseRA.status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configurePutStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     responseRA,
+		template:     roleResponseTemplateV1,
+		currentState: startedScenarioState,
+		nextState:    creatingScenarioState,
+		httpStatus:   http.StatusOK,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Update the Role-Assignment
+	responseRA.metadata.Verb = http.MethodPut
+	responseRA.status.State = updatingStatusState
+	responseRA.metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	responseRA.metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	responseRA.metadata.ResourceVersion = 1
+	responseRA.status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configurePutStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     responseRA,
+		template:     roleResponseTemplateV1,
+		currentState: creatingScenarioState,
+		nextState:    updatingScenarioState,
+		httpStatus:   http.StatusOK,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Get updated Role-Assignment
+	responseRA.metadata.Verb = http.MethodGet
+	responseRA.status.State = activeStatusState
+	responseRA.metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	responseRA.metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	responseRA.metadata.ResourceVersion = 1
+	responseRA.status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configurePutStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     responseRA,
+		template:     roleResponseTemplateV1,
+		currentState: updatingScenarioState,
+		nextState:    updatedScenarioState,
+		httpStatus:   http.StatusOK,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Delete the Role-Assignment
+	responseRA.metadata.Verb = http.MethodDelete
+	if err := configureDeleteStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     responseRA,
+		currentState: updatedScenarioState,
+		nextState:    deletingScenarioState,
+		httpStatus:   http.StatusAccepted,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Get deleted Role-Assignment
+	responseRA.metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenarioConfig{
+		name:         scenario,
+		params:       params,
+		response:     responseRA,
+		currentState: redeletingScenarioState,
+		nextState:    startedScenarioState,
+		httpStatus:   http.StatusNotFound,
+		priority:     defaultScenarioPriority,
+	}); err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}

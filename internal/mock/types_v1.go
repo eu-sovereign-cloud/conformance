@@ -55,6 +55,26 @@ type ImageParamsV1 struct {
 
 func (p StorageSkuParamsV1) getParams() Params { return p.Params }
 
+type AuthorizationParamsV1 struct {
+	Params
+	roles          RolesParamsV1
+	roleAssignment RoleAssignmentParamsV1
+}
+
+type RolesParamsV1 struct {
+	Name        string
+	permissions []permissionsParamsV1
+}
+
+type RoleAssignmentParamsV1 struct {
+	Name   string
+	roles  []string
+	subs   []string
+	scopes scopes
+}
+
+func (p AuthorizationParamsV1) getParams() Params { return p.Params }
+
 // Responses
 
 type workspaceResponseV1 struct {
@@ -107,4 +127,31 @@ type imageResponseV1 struct {
 
 	blockStorageRef string
 	cpuArchitecture string
+}
+
+type rolesResponseV1 struct {
+	metadata metadataResponse
+	status   statusResponse
+
+	permissions []permissionsParamsV1
+}
+type permissionsParamsV1 struct {
+	provider  string
+	resources []string
+	verbs     []string
+}
+
+type roleAssignmentResponseV1 struct {
+	metadata metadataResponse
+	status   statusResponse
+
+	roles  []string
+	subs   []string
+	scopes scopes
+}
+
+type scopes struct {
+	tenants    []string
+	regions    []string
+	workspaces []string
 }

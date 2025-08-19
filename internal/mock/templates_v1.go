@@ -209,4 +209,66 @@ const (
 			]
 		}
 	}`
+
+	roleResponseTemplateV1 = `{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "tenant": "[[.Metadata.Tenant]]",
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]"
+      },
+      "spec": {
+        "permissions": {
+          "provider": "[[.Permissions.Provider]]",
+          "resources": "[[.Permissions.Resources]]",
+          "verbs": "[[.Permissions.Verbs]]"
+        }
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.Conditions.State]]",
+            "lastTransitionAt": "[[.Status.Conditions.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
+
+	roleAssignmentResponseTemplateV1 = `{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "tenant": "[[.Metadata.Tenant]]",
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]"
+      },
+      "spec": {
+        "subs": "[[.Subs]]",
+        "roles": "[[.Roles]]",
+		"scopes": {
+			"tenants": "[[.Scopes.Tenants]]",
+			"regions": "[[.Scopes.Regions]]",
+			"workspaces": "[[.Scopes.Workspaces]]"
+		}
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.Conditions.State]]",
+            "lastTransitionAt": "[[.Status.Conditions.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
 )
