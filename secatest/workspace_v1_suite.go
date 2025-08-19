@@ -32,13 +32,15 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled == "true" {
-		wm, err := mock.CreateWorkspaceScenario("Workspace Lifecycle",
-			mock.MockParams{
-				MockURL:   suite.mockServerURL,
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Region:    suite.region,
-				AuthToken: suite.authToken,
+		wm, err := mock.CreateWorkspaceScenarioV1("Workspace Lifecycle",
+			mock.WorkspaceParamsV1{
+				Params: mock.Params{
+					MockURL:   suite.mockServerURL,
+					AuthToken: suite.authToken,
+					Tenant:    suite.tenant,
+					Region:    suite.region,
+				},
+				Name: workspaceName,
 			})
 		if err != nil {
 			slog.Error("Failed to create workspace scenario", "error", err)

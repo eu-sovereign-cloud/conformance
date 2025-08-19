@@ -13,20 +13,21 @@ const (
 	// Scenario Priorities
 	defaultScenarioPriority = 1
 
-	// Base URLs
-	workspaceV1BaseURL = "/providers/seca.workspace/v1/tenants/%s/workspaces/%s"
-
-	// Versions
-	version1 = "v1"
-
 	// Resource URLs
-	workspaceResource = "tenants/%s/workspaces/%s"
+	workspaceResource    = "tenants/%s/workspaces/%s"
+	instanceSkuResource  = "tenants/%s/workspaces/%s/skus/%s"
+	instanceResource     = "tenants/%s/workspaces/%s/instances/%s"
+	storageSkuResource   = "tenants/%s/workspaces/%s/skus/%s"
+	blockStorageResource = "tenants/%s/workspaces/%s/block-storages/%s"
+	imageResource        = "tenants/%s/workspaces/%s/images/%s"
 
-	// Providers
-	workspaceV1Provider = "seca.workspace/v1"
-
-	// Kinds
-	workspaceKind = "workspace"
+	// Resource Kinds
+	workspaceKind    = "workspace"
+	instanceSkuKind  = "instance-sku"
+	instanceKind     = "instance"
+	storageSkuKind   = "storage-sku"
+	blockStorageKind = "block-storage"
+	imageKind        = "image"
 
 	// Status States
 	creatingStatusState = "creating"

@@ -1,25 +1,30 @@
 package mock
 
-type MockParams struct {
+type Params struct {
 	MockURL   string
+	AuthToken string
+
 	Tenant    string
 	Workspace string
 	Region    string
-	AuthToken string
+}
+
+type HasParams interface {
+	getParams() Params
 }
 
 type scenarioConfig struct {
 	name         string
-	params       MockParams
+	params       HasParams
+	response     any
 	template     string
-	response     interface{}
 	currentState string
 	nextState    string
 	httpStatus   int
 	priority     int
 }
 
-type regionalMetadataResponseV1 struct {
+type metadataResponse struct {
 	Name            string
 	Provider        string
 	Resource        string
@@ -30,15 +35,11 @@ type regionalMetadataResponseV1 struct {
 	ApiVersion      string
 	Kind            string
 	Tenant          string
+	Workspace       string
 	Region          string
 }
 
-type statusResponseV1 struct {
+type statusResponse struct {
 	State            string
 	LastTransitionAt string
-}
-
-type workspaceResponseV1 struct {
-	Metadata regionalMetadataResponseV1
-	Status   statusResponseV1
 }
