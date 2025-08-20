@@ -17,6 +17,6 @@ const (
 	storageSkuURLV1     = "/providers/" + storageProviderV1 + "/" + storageSkuResource
 	blockStorageURLV1   = "/providers/" + storageProviderV1 + "/" + blockStorageResource
 	imageV1URLV1        = "/providers/" + storageProviderV1 + "/" + imageResource
-	rolesURLV1          = "/providers/" + workspaceProviderV1 + "/" + rolesResource
+	rolesURLV1          = "/providers/" + authorizationProviderV1 + "/" + rolesResource
 	roleAssignmentURLV1 = "/providers/" + authorizationProviderV1 + "/" + roleAssignmentResource
 )

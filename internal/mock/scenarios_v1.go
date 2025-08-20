@@ -408,7 +408,7 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		response:     response,
 		template:     roleResponseTemplateV1,
 		currentState: startedScenarioState,
-		nextState:    createdScenarioState,
+		nextState:    "Get created Role",
 		httpStatus:   http.StatusCreated,
 		priority:     defaultScenarioPriority,
 	}); err != nil {
@@ -428,8 +428,8 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		params:       params,
 		response:     response,
 		template:     roleResponseTemplateV1,
-		currentState: startedScenarioState,
-		nextState:    creatingScenarioState,
+		currentState: "Get created Role",
+		nextState:    "Update the Role",
 		httpStatus:   http.StatusOK,
 		priority:     defaultScenarioPriority,
 	}); err != nil {
@@ -449,8 +449,8 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		params:       params,
 		response:     response,
 		template:     roleResponseTemplateV1,
-		currentState: creatingScenarioState,
-		nextState:    updatingScenarioState,
+		currentState: "Update the Role",
+		nextState:    "Get updated Role",
 		httpStatus:   http.StatusOK,
 		priority:     defaultScenarioPriority,
 	}); err != nil {
@@ -470,8 +470,8 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		params:       params,
 		response:     response,
 		template:     roleResponseTemplateV1,
-		currentState: updatingScenarioState,
-		nextState:    updatedScenarioState,
+		currentState: "Get updated Role",
+		nextState:    "Delete the Role",
 		httpStatus:   http.StatusOK,
 		priority:     defaultScenarioPriority,
 	}); err != nil {
@@ -485,8 +485,8 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		name:         scenario,
 		params:       params,
 		response:     response,
-		currentState: updatedScenarioState,
-		nextState:    deletingScenarioState,
+		currentState: "Delete the Role",
+		nextState:    "Get deleted Role",
 		httpStatus:   http.StatusAccepted,
 		priority:     defaultScenarioPriority,
 	}); err != nil {
@@ -500,8 +500,8 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		name:         scenario,
 		params:       params,
 		response:     response,
-		currentState: redeletingScenarioState,
-		nextState:    startedScenarioState,
+		currentState: "Get deleted Role",
+		nextState:    "Create a Role-Assignment",
 		httpStatus:   http.StatusNotFound,
 		priority:     defaultScenarioPriority,
 	}); err != nil {
@@ -552,10 +552,10 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		params:       params,
 		response:     responseRA,
 		template:     roleAssignmentResponseTemplateV1,
-		currentState: startedScenarioState,
-		nextState:    createdScenarioState,
+		currentState: "Create a Role-Assignment",
+		nextState:    "Get created Role-Assignment",
 		httpStatus:   http.StatusCreated,
-		priority:     defaultScenarioPriority,
+		priority:     2,
 	}); err != nil {
 		log.Printf("Failed to configure Create a Role-assignment PUT stub for scenario %q: %v", scenario, err)
 		return nil, err
@@ -573,10 +573,10 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		params:       params,
 		response:     responseRA,
 		template:     roleAssignmentResponseTemplateV1,
-		currentState: startedScenarioState,
-		nextState:    creatingScenarioState,
+		currentState: "Get created Role-Assignment",
+		nextState:    "Update the Role-Assignment",
 		httpStatus:   http.StatusOK,
-		priority:     defaultScenarioPriority,
+		priority:     2,
 	}); err != nil {
 		log.Printf("Failed to configure Get created Role-Assignment Get stub for scenario %q: %v", scenario, err)
 		return nil, err
@@ -594,10 +594,10 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		params:       params,
 		response:     responseRA,
 		template:     roleAssignmentResponseTemplateV1,
-		currentState: creatingScenarioState,
-		nextState:    updatingScenarioState,
+		currentState: "Update the Role-Assignment",
+		nextState:    "Get updated Role-Assignment",
 		httpStatus:   http.StatusOK,
-		priority:     defaultScenarioPriority,
+		priority:     2,
 	}); err != nil {
 		log.Printf("Failed to configure Update the Role-Assignment PUT stub for scenario %q: %v", scenario, err)
 		return nil, err
@@ -615,10 +615,10 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		params:       params,
 		response:     responseRA,
 		template:     roleAssignmentResponseTemplateV1,
-		currentState: updatingScenarioState,
-		nextState:    updatedScenarioState,
+		currentState: "Get updated Role-Assignment",
+		nextState:    "Delete the Role-Assignment",
 		httpStatus:   http.StatusOK,
-		priority:     defaultScenarioPriority,
+		priority:     2,
 	}); err != nil {
 		log.Printf("Failed to configure Get updated Role-Assignment stub for scenario %q: %v", scenario, err)
 		return nil, err
@@ -630,10 +630,10 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		name:         scenario,
 		params:       params,
 		response:     responseRA,
-		currentState: updatedScenarioState,
-		nextState:    deletingScenarioState,
+		currentState: "Delete the Role-Assignment",
+		nextState:    "Get deleted Role-Assignment",
 		httpStatus:   http.StatusAccepted,
-		priority:     defaultScenarioPriority,
+		priority:     2,
 	}); err != nil {
 		log.Printf("Failed to configure DELETE Role-Assignment stub for scenario %q: %v", scenario, err)
 		return nil, err
@@ -645,10 +645,9 @@ func CreateAuthorizationScenarioV1(scenario string, params AuthorizationParamsV1
 		name:         scenario,
 		params:       params,
 		response:     responseRA,
-		currentState: redeletingScenarioState,
-		nextState:    startedScenarioState,
+		currentState: "Get deleted Role-Assignment",
 		httpStatus:   http.StatusNotFound,
-		priority:     defaultScenarioPriority,
+		priority:     2,
 	}); err != nil {
 		log.Printf("Failed to configure GET deleted Role-Assignment stub for scenario %q: %v", scenario, err)
 		return nil, err
