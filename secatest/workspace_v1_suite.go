@@ -21,18 +21,15 @@ type WorkspaceV1TestSuite struct {
 
 func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.Title("Workspace Lifecycle Test")
-	t.Tags(
-		"provider:"+workspaceV1Provider,
-		"resource:"+workspaceKind,
-	)
+	configureTags(t, workspaceV1Provider, workspaceKind)
 
 	// Generate scenario data
 	workspaceName := fmt.Sprintf("workspace-%d", rand.Intn(math.MaxInt32))
 	resource := fmt.Sprintf(workspaceResource, suite.tenant, workspaceName)
 
 	// Setup mock, if configured to use
-	if suite.mockEnabled == "true" {
-		wm, err := mock.CreateWorkspaceScenarioV1("Workspace Lifecycle",
+	if suite.isMockEnabled() {
+		wm, err := mock.CreateWorkspaceLifecycleScenarioV1("Workspace Lifecycle",
 			mock.WorkspaceParamsV1{
 				Params: mock.Params{
 					MockURL:   suite.mockServerURL,
@@ -49,7 +46,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		suite.mockClient = wm
 	}
 
-	expectedMetadataParams := verifyRegionalMetadataStepParams{
+	expectedMetadata := verifyRegionalMetadataStepParams{
 		name:       workspaceName,
 		provider:   workspaceV1Provider,
 		resource:   resource,
@@ -64,7 +61,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	var err error
 
 	// Step 1
-	t.WithNewStep("Create Workspace", func(sCtx provider.StepCtx) {
+	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateWorkspace",
 			tenantStepParameter, suite.tenant,
@@ -81,18 +78,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadataParams.verb = http.MethodPut
-		actualMetadataParams := verifyRegionalMetadataStepParams{
-			name:       resp.Metadata.Name,
-			provider:   resp.Metadata.Provider,
-			verb:       resp.Metadata.Verb,
-			resource:   resp.Metadata.Resource,
-			apiVersion: resp.Metadata.ApiVersion,
-			kind:       string(resp.Metadata.Kind),
-			tenant:     resp.Metadata.Tenant,
-			region:     resp.Metadata.Region,
-		}
-		verifyRegionalMetadataStep(sCtx, expectedMetadataParams, actualMetadataParams)
+		expectedMetadata.verb = http.MethodPut
+		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: creatingStatusState,
@@ -102,7 +89,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	})
 
 	// Step 2
-	t.WithNewStep("Get Created Workspace", func(sCtx provider.StepCtx) {
+	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetWorkspace",
 			tenantStepParameter, suite.tenant,
@@ -117,18 +104,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadataParams.verb = http.MethodGet
-		actualMetadataParams := verifyRegionalMetadataStepParams{
-			name:       resp.Metadata.Name,
-			provider:   resp.Metadata.Provider,
-			verb:       resp.Metadata.Verb,
-			resource:   resp.Metadata.Resource,
-			apiVersion: resp.Metadata.ApiVersion,
-			kind:       string(resp.Metadata.Kind),
-			tenant:     resp.Metadata.Tenant,
-			region:     resp.Metadata.Region,
-		}
-		verifyRegionalMetadataStep(sCtx, expectedMetadataParams, actualMetadataParams)
+		expectedMetadata.verb = http.MethodGet
+		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: activeStatusState,
@@ -138,35 +115,19 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	})
 
 	// Step 3
-	t.WithNewStep("Update Workspace", func(sCtx provider.StepCtx) {
+	t.WithNewStep("Update workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateWorkspace",
 			tenantStepParameter, suite.tenant,
 			workspaceStepParameter, workspaceName,
 		)
 
-		ws := &workspace.Workspace{
-			Metadata: &workspace.RegionalResourceMetadata{
-				Tenant: suite.tenant,
-				Name:   workspaceName,
-			},
-		}
-		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
+		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, resp)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadataParams.verb = http.MethodPut
-		actualMetadataParams := verifyRegionalMetadataStepParams{
-			name:       resp.Metadata.Name,
-			provider:   resp.Metadata.Provider,
-			verb:       resp.Metadata.Verb,
-			resource:   resp.Metadata.Resource,
-			apiVersion: resp.Metadata.ApiVersion,
-			kind:       string(resp.Metadata.Kind),
-			tenant:     resp.Metadata.Tenant,
-			region:     resp.Metadata.Region,
-		}
-		verifyRegionalMetadataStep(sCtx, expectedMetadataParams, actualMetadataParams)
+		expectedMetadata.verb = http.MethodPut
+		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: updatingStatusState,
@@ -176,7 +137,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	})
 
 	// Step 4
-	t.WithNewStep("Get Updated Workspace", func(sCtx provider.StepCtx) {
+	t.WithNewStep("Get updated workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetWorkspace",
 			tenantStepParameter, suite.tenant,
@@ -191,18 +152,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadataParams.verb = http.MethodGet
-		actualMetadataParams := verifyRegionalMetadataStepParams{
-			name:       resp.Metadata.Name,
-			provider:   resp.Metadata.Provider,
-			verb:       resp.Metadata.Verb,
-			resource:   resp.Metadata.Resource,
-			apiVersion: resp.Metadata.ApiVersion,
-			kind:       string(resp.Metadata.Kind),
-			tenant:     resp.Metadata.Tenant,
-			region:     resp.Metadata.Region,
-		}
-		verifyRegionalMetadataStep(sCtx, expectedMetadataParams, actualMetadataParams)
+		expectedMetadata.verb = http.MethodGet
+		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: activeStatusState,
@@ -212,7 +163,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	})
 
 	// Step 5
-	t.WithNewStep("Delete Workspace", func(sCtx provider.StepCtx) {
+	t.WithNewStep("Delete workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteWorkspace",
 			tenantStepParameter, suite.tenant,
@@ -224,7 +175,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	})
 
 	// Step 6
-	t.WithNewStep("Re-Delete Workspace", func(sCtx provider.StepCtx) {
+	t.WithNewStep("Re-delete workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteWorkspace",
 			tenantStepParameter, suite.tenant,
@@ -236,7 +187,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	})
 
 	// Step 7
-	t.WithNewStep("Get Deleted Workspace", func(sCtx provider.StepCtx) {
+	t.WithNewStep("Get deleted workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetWorkspace",
 			tenantStepParameter, suite.tenant,
@@ -248,11 +199,24 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 			Name:   workspaceName,
 		}
 		resp, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNilResponse(sCtx, resp)
+		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 }
 
 func (suite *WorkspaceV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
+}
+
+func verifyWorkspaceMetadataStep(ctx provider.StepCtx, expected verifyRegionalMetadataStepParams, metadata *workspace.RegionalResourceMetadata) {
+	actualMetadata := verifyRegionalMetadataStepParams{
+		name:       metadata.Name,
+		provider:   metadata.Provider,
+		verb:       metadata.Verb,
+		resource:   metadata.Resource,
+		apiVersion: metadata.ApiVersion,
+		kind:       string(metadata.Kind),
+		tenant:     metadata.Tenant,
+		region:     metadata.Region,
+	}
+	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }

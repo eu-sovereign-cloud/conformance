@@ -14,7 +14,7 @@ type HasParams interface {
 }
 
 type scenarioConfig struct {
-	name         string
+	url          string
 	params       HasParams
 	response     any
 	template     string

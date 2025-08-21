@@ -17,10 +17,20 @@ $(DIST_BIN):
 	@echo "Building test code..."
 	$(GO) test -c -o $(DIST_BIN) ./secatest
 
-.PHONY: mock
-mock:
+.PHONY: mock-run
+mock-run:
 	@echo "Running mock..."
+	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance up
+
+.PHONY: mock-start
+mock-start:
+	@echo "Starting mock..."
 	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance up -d
+
+.PHONY: mock-stop
+mock-stop:
+	@echo "Stopping mock..."
+	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance down
 
 .PHONY: run
 run:

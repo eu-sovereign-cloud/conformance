@@ -11,9 +11,9 @@ const (
 
 	// Base URLs
 	workspaceURLV1    = "/providers/" + workspaceProviderV1 + "/" + workspaceResource
-	instanceSkuURLV1  = "/providers/" + computeProviderV1 + "/" + instanceSkuResource
+	instanceSkuURLV1  = "/providers/" + computeProviderV1 + "/" + skuResource
 	instanceURLV1     = "/providers/" + computeProviderV1 + "/" + instanceResource
-	storageSkuURLV1   = "/providers/" + storageProviderV1 + "/" + storageSkuResource
+	storageSkuURLV1   = "/providers/" + storageProviderV1 + "/" + skuResource
 	blockStorageURLV1 = "/providers/" + storageProviderV1 + "/" + blockStorageResource
-	imageV1URLV1      = "/providers/" + storageProviderV1 + "/" + imageResource
+	imageURLV1        = "/providers/" + storageProviderV1 + "/" + imageResource
 )

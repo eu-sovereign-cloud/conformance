@@ -11,8 +11,10 @@ func (p WorkspaceParamsV1) getParams() Params { return p.Params }
 
 type ComputeParamsV1 struct {
 	Params
-	Sku      InstanceSkuParamsV1
-	Instance InstanceParamsV1
+	StorageSku   StorageSkuParamsV1
+	BlockStorage BlockStorageParamsV1
+	InstanceSku  InstanceSkuParamsV1
+	Instance     InstanceParamsV1
 }
 type InstanceSkuParamsV1 struct {
 	Name         string
@@ -25,19 +27,21 @@ type InstanceSkuParamsV1 struct {
 type InstanceParamsV1 struct {
 	Name          string
 	SkuRef        string
-	Zone          string
+	CreatedZone   string
+	UpdatedZone   string
 	BootDeviceRef string
 }
 
 func (p ComputeParamsV1) getParams() Params { return p.Params }
 
-type StorageSkuParamsV1 struct {
+type StorageParamsV1 struct {
 	Params
-	Sku          SkuParamsV1
+	Sku          StorageSkuParamsV1
 	BlockStorage BlockStorageParamsV1
 	Image        ImageParamsV1
 }
-type SkuParamsV1 struct {
+type StorageSkuParamsV1 struct {
+	Name          string
 	Provider      string
 	Tier          string
 	Iops          int
@@ -45,15 +49,19 @@ type SkuParamsV1 struct {
 	MinVolumeSize int
 }
 type BlockStorageParamsV1 struct {
-	SkuRef string
-	SizeGB int
+	Name          string
+	SkuRef        string
+	CreatedSizeGB int
+	UpdatedSizeGB int
 }
 type ImageParamsV1 struct {
-	BlockStorageRef string
-	CpuArchitecture string
+	Name                   string
+	BlockStorageRef        string
+	CreatedCpuArchitecture string
+	UpdatedCpuArchitecture string
 }
 
-func (p StorageSkuParamsV1) getParams() Params { return p.Params }
+func (p StorageParamsV1) getParams() Params { return p.Params }
 
 // Responses
 
@@ -63,48 +71,48 @@ type workspaceResponseV1 struct {
 }
 
 type instanceSkuResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	architecture string
-	provider     string
-	tier         string
-	ram          int
-	vCPU         int
+	Architecture string
+	Provider     string
+	Tier         string
+	RAM          int
+	VCPU         int
 }
 
 type instanceResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	skuRef        string
-	zone          string
-	bootDeviceRef string
+	SkuRef        string
+	Zone          string
+	BootDeviceRef string
 }
 
 type storageSkuResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	provider      string
-	tier          string
-	iops          int
-	storageType   string
-	minVolumeSize int
+	Provider      string
+	Tier          string
+	Iops          int
+	StorageType   string
+	MinVolumeSize int
 }
 
 type blockStorageResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	skuRef string
-	sizeGB int
+	SkuRef string
+	SizeGB int
 }
 
 type imageResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	blockStorageRef string
-	cpuArchitecture string
+	BlockStorageRef string
+	CpuArchitecture string
 }

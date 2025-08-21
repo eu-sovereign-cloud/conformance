@@ -10,7 +10,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func configureStub(wm *wiremock.Client, method string, config scenarioConfig) error {
+func configureStub(wm *wiremock.Client, method string, name string, config scenarioConfig) error {
 	// Build the response
 	response := wiremock.NewResponse().WithStatus(int64(config.httpStatus))
 	if config.template != "" {
@@ -27,7 +27,7 @@ func configureStub(wm *wiremock.Client, method string, config scenarioConfig) er
 	params := config.params.getParams()
 
 	// Request matchers
-	urlMatcher := wiremock.URLPathMatching(params.MockURL)
+	urlMatcher := wiremock.URLPathMatching(config.url)
 	headerMatcher := wiremock.Matching(authorizationHttpHeaderValuePrefix + params.AuthToken)
 
 	// Configure the stub
@@ -43,33 +43,38 @@ func configureStub(wm *wiremock.Client, method string, config scenarioConfig) er
 		stubRule = wiremock.Delete(urlMatcher)
 	}
 
+	priority := defaultScenarioPriority
+	if config.priority != 0 {
+		priority = config.priority
+	}
+
 	if err := wm.StubFor(stubRule.
 		WithHeader(authorizationHttpHeaderKey, headerMatcher).
-		InScenario(config.name).
+		InScenario(name).
 		WhenScenarioStateIs(config.currentState).
 		WillSetStateTo(config.nextState).
 		WillReturnResponse(response).
-		AtPriority(int64(config.priority))); err != nil {
+		AtPriority(int64(priority))); err != nil {
 		slog.Error("Error configuring stub", "method", method, "error", err)
 		return err
 	}
 	return nil
 }
 
-func configurePutStub(wm *wiremock.Client, scenarioConfig scenarioConfig) error {
-	return configureStub(wm, http.MethodPut, scenarioConfig)
+func configurePutStub(wm *wiremock.Client, scenarioName string, scenarioConfig scenarioConfig) error {
+	return configureStub(wm, http.MethodPut, scenarioName, scenarioConfig)
 }
 
-func configurePostStub(wm *wiremock.Client, scenarioConfig scenarioConfig) error {
-	return configureStub(wm, http.MethodPost, scenarioConfig)
+func configurePostStub(wm *wiremock.Client, scenarioName string, scenarioConfig scenarioConfig) error {
+	return configureStub(wm, http.MethodPost, scenarioName, scenarioConfig)
 }
 
-func configureGetStub(wm *wiremock.Client, scenarioConfig scenarioConfig) error {
-	return configureStub(wm, http.MethodGet, scenarioConfig)
+func configureGetStub(wm *wiremock.Client, scenarioName string, scenarioConfig scenarioConfig) error {
+	return configureStub(wm, http.MethodGet, scenarioName, scenarioConfig)
 }
 
-func configureDeleteStub(wm *wiremock.Client, scenarioConfig scenarioConfig) error {
-	return configureStub(wm, http.MethodDelete, scenarioConfig)
+func configureDeleteStub(wm *wiremock.Client, scenarioName string, scenarioConfig scenarioConfig) error {
+	return configureStub(wm, http.MethodDelete, scenarioName, scenarioConfig)
 }
 
 func processTemplate(templ string, data any) (any, error) {
