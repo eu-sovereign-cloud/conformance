@@ -8,12 +8,14 @@ import (
 )
 
 type Config struct {
-	ProviderRegionV1        string
-	ProviderAuthorizationV1 string
-	ClientAuthToken         string
-	ClientRegion            string
-	ClientTenant            string
-	ReportResultsPath       string
+	providerRegionV1        string
+	providerAuthorizationV1 string
+	clientAuthToken         string
+	clientRegion            string
+	clientTenant            string
+	reportResultsPath       string
+	mockEnabled             string
+	mockServerURL           string
 }
 
 const (
@@ -23,6 +25,8 @@ const (
 	clientRegionConfig            = "seca.client.region"
 	clientTenantConfig            = "seca.client.tenant"
 	reportResultsPathConfig       = "seca.report.resultspath"
+	mockEnabledConfig             = "seca.mock.enabled"
+	mockServerURLConfig           = "seca.mock.serverurl"
 )
 
 func loadConfig() (*Config, error) {
@@ -32,6 +36,9 @@ func loadConfig() (*Config, error) {
 	clientRegionFlag := flag.String(clientRegionConfig, "", "Client Region Name")
 	clientTenantFlag := flag.String(clientTenantConfig, "", "Client Tenant Name")
 	reportResultsPathFlag := flag.String(reportResultsPathConfig, "", "Report Results Path")
+	mockEnabledFlag := flag.String(mockEnabledConfig, "", "Enable Mock Usage")
+	mockServerURLFlag := flag.String(mockServerURLConfig, "", "Mock Server URL")
+
 	flag.Parse()
 
 	providerRegionV1, err := readFlagOrEnv(providerRegionV1Flag, providerRegionV1Config)
@@ -64,13 +71,25 @@ func loadConfig() (*Config, error) {
 		return nil, err
 	}
 
+	mockEnabled, err := readFlagOrEnv(mockEnabledFlag, mockEnabledConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	mockServerURL, err := readFlagOrEnv(mockServerURLFlag, mockServerURLConfig)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Config{
-		ProviderRegionV1:        providerRegionV1,
-		ProviderAuthorizationV1: providerAuthorizationV1,
-		ClientAuthToken:         clientAuthToken,
-		ClientRegion:            clientRegion,
-		ClientTenant:            clientTenant,
-		ReportResultsPath:       reportResultsPath,
+		providerRegionV1:        providerRegionV1,
+		providerAuthorizationV1: providerAuthorizationV1,
+		clientAuthToken:         clientAuthToken,
+		clientRegion:            clientRegion,
+		clientTenant:            clientTenant,
+		reportResultsPath:       reportResultsPath,
+		mockEnabled:             mockEnabled,
+		mockServerURL:           mockServerURL,
 	}, nil
 }
 

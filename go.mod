@@ -5,12 +5,13 @@ go 1.24
 require (
 	github.com/eu-sovereign-cloud/go-sdk v0.1.2
 	github.com/ozontech/allure-go/pkg/framework v0.7.2
+	github.com/wiremock/go-wiremock v1.13.0
 )
 
 require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/google/uuid v1.5.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/ozontech/allure-go/pkg/allure v0.6.14 // indirect

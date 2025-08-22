@@ -1,10 +1,25 @@
 package secatest
 
 const (
-	// Test Data
-	workspace1Name = "workspace-1"
+	// Step Parameters
+	operationStepParameter = "operation"
+	tenantStepParameter    = "tenant"
+	workspaceStepParameter = "workspace"
 
-	/// Status Sates
-	statusStateCreating = "creating"
-	statusStateUpdating = "updating"
+	// Versions
+	version1 = "v1"
+
+	// Resource URLs
+	workspaceResource = "tenants/%s/workspaces/%s"
+
+	// Providers
+	workspaceV1Provider = "seca.workspace/v1"
+
+	// Kinds
+	workspaceKind = "workspace"
+
+	// Status States
+	creatingStatusState = "creating"
+	activeStatusState   = "active"
+	updatingStatusState = "updating"
 )
