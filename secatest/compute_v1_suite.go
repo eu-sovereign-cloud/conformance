@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"math"
-	"math/rand"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
@@ -41,8 +39,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.Title("Compute Lifecycle Test")
 	configureTags(t, computeV1Provider, instanceSkuKind, instanceSkuKind)
 
-	// TODO Export to configuration or create before the test
-	workspaceName := "workspace-1"
+	// TODO Export to configuration
 	skuProvider := "seca"
 	instanceSkuTier := "DXS"
 	instanceSkuRAM := 2048
@@ -51,19 +48,21 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	instanceZoneB := "zone-b"
 	storageSkuTier := "gold"
 
+	// TODO Create before the scenario
+	workspaceName := suite.generateWorkspaceName()
+
 	// Generate scenario data
-	// TODO Create generator functions
-	instanceSkuName := fmt.Sprintf("sku-%d", rand.Intn(math.MaxInt32))
-	instanceSkuRef := fmt.Sprintf(skuRef, instanceSkuName)
+	instanceSkuName := suite.generateSkuName()
+	instanceSkuRef := suite.generateSkuRef(instanceSkuName)
 
-	instanceName := fmt.Sprintf("instance-%d", rand.Intn(math.MaxInt32))
-	instanceResource := fmt.Sprintf(instanceResource, suite.tenant, workspaceName, instanceName)
+	instanceName := suite.generateInstanceName()
+	instanceResource := suite.generateInstanceResource(workspaceName, instanceName)
 
-	storageSkuName := fmt.Sprintf("sku-%d", rand.Intn(math.MaxInt32))
-	storageSkuRef := fmt.Sprintf(skuRef, storageSkuName)
+	storageSkuName := suite.generateSkuName()
+	storageSkuRef := suite.generateSkuRef(storageSkuName)
 
-	blockStorageName := fmt.Sprintf("disk-%d", rand.Intn(math.MaxInt32))
-	blockStorageRef := fmt.Sprintf(blockStoragesRef, blockStorageName)
+	blockStorageName := suite.generateBlockStorageName()
+	blockStorageRef := suite.generateBlockStorageRef(blockStorageName)
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
@@ -87,7 +86,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 				BlockStorage: mock.BlockStorageParamsV1{
 					Name:          blockStorageName,
 					SkuRef:        storageSkuRef,
-					CreatedSizeGB: blockStorageSizeGB100,
+					SizeGBInitial: blockStorageSizeGB100,
 				},
 				InstanceSku: mock.InstanceSkuParamsV1{
 					Name:         instanceSkuName,
@@ -100,8 +99,8 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 				Instance: mock.InstanceParamsV1{
 					Name:          instanceName,
 					SkuRef:        fmt.Sprintf(skuRef, instanceSkuName),
-					CreatedZone:   instanceZoneA,
-					UpdatedZone:   instanceZoneB,
+					ZoneInitial:   instanceZoneA,
+					ZoneUpdated:   instanceZoneB,
 					BootDeviceRef: blockStorageRef,
 				},
 			})

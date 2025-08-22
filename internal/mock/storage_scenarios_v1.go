@@ -78,7 +78,7 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	blockResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
 	blockResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	blockResponse.Metadata.ResourceVersion = 1
-	blockResponse.SizeGB = params.BlockStorage.CreatedSizeGB
+	blockResponse.SizeGB = params.BlockStorage.SizeGBInitial
 	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          blockStorageUrl,
@@ -113,7 +113,7 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	blockResponse.Status.State = updatingStatusState
 	blockResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	blockResponse.Metadata.ResourceVersion = blockResponse.Metadata.ResourceVersion + 1
-	blockResponse.SizeGB = params.BlockStorage.UpdatedSizeGB
+	blockResponse.SizeGB = params.BlockStorage.SizeGBUpdated
 	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          blockStorageUrl,
@@ -155,7 +155,7 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 			Region:     params.Region,
 		},
 		BlockStorageRef: params.Image.BlockStorageRef,
-		CpuArchitecture: params.Image.CreatedCpuArchitecture,
+		CpuArchitecture: params.Image.CpuArchitectureInitial,
 	}
 
 	// Create an image
@@ -198,7 +198,7 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	imageResponse.Status.State = updatingStatusState
 	imageResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	imageResponse.Metadata.ResourceVersion = imageResponse.Metadata.ResourceVersion + 1
-	imageResponse.CpuArchitecture = params.Image.UpdatedCpuArchitecture
+	imageResponse.CpuArchitecture = params.Image.CpuArchitectureUpdated
 	imageResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          imageUrl,

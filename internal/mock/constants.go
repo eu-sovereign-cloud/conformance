@@ -8,17 +8,17 @@ const (
 	// Resource URLs
 	skuResource          = "tenants/%s/skus/%s"
 	workspaceResource    = "tenants/%s/workspaces/%s"
-	instanceResource     = "tenants/%s/workspaces/%s/instances/%s"
 	blockStorageResource = "tenants/%s/workspaces/%s/block-storages/%s"
 	imageResource        = "tenants/%s/images/%s"
+	instanceResource     = "tenants/%s/workspaces/%s/instances/%s"
 
 	// Resource Kinds
 	workspaceKind    = "workspace"
-	instanceSkuKind  = "instance-sku"
-	instanceKind     = "instance"
 	storageSkuKind   = "storage-sku"
 	blockStorageKind = "block-storage"
 	imageKind        = "image"
+	instanceSkuKind  = "instance-sku"
+	instanceKind     = "instance"
 
 	// Status States
 	creatingStatusState  = "creating"

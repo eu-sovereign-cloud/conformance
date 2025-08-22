@@ -27,8 +27,8 @@ type InstanceSkuParamsV1 struct {
 type InstanceParamsV1 struct {
 	Name          string
 	SkuRef        string
-	CreatedZone   string
-	UpdatedZone   string
+	ZoneInitial   string
+	ZoneUpdated   string
 	BootDeviceRef string
 }
 
@@ -51,14 +51,14 @@ type StorageSkuParamsV1 struct {
 type BlockStorageParamsV1 struct {
 	Name          string
 	SkuRef        string
-	CreatedSizeGB int
-	UpdatedSizeGB int
+	SizeGBInitial int
+	SizeGBUpdated int
 }
 type ImageParamsV1 struct {
 	Name                   string
 	BlockStorageRef        string
-	CreatedCpuArchitecture string
-	UpdatedCpuArchitecture string
+	CpuArchitectureInitial string
+	CpuArchitectureUpdated string
 }
 
 func (p StorageParamsV1) getParams() Params { return p.Params }

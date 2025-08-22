@@ -2,10 +2,7 @@ package secatest
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
-	"math"
-	"math/rand"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
@@ -52,21 +49,23 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.Title("Storage Lifecycle Test")
 	configureTags(t, storageV1Provider, storageSkuKind, blockStorageKind, imageKind, instanceSkuKind)
 
-	// TODO Export to configuration or create before the test
-	workspaceName := "workspace-1"
+	// TODO Export to configuration
 	skuProvider := "seca"
 	skuTier := "gold"
 
+	// TODO Create before the scenario
+	workspaceName := suite.generateWorkspaceName()
+
 	// Generate scenario data
-	storageSkuName := fmt.Sprintf("sku-%d", rand.Intn(math.MaxInt32))
-	storageSkuRef := fmt.Sprintf(skuRef, storageSkuName)
+	storageSkuName := suite.generateSkuName()
+	storageSkuRef := suite.generateSkuRef(storageSkuName)
 
-	blockStorageName := fmt.Sprintf("disk-%d", rand.Intn(math.MaxInt32))
-	blockStorageResource := fmt.Sprintf(blockStorageResource, suite.tenant, workspaceName, blockStorageName)
-	blockStorageRef := fmt.Sprintf(blockStoragesRef, blockStorageName)
+	blockStorageName := suite.generateBlockStorageName()
+	blockStorageResource := suite.generateBlockStorageResource(workspaceName, blockStorageName)
+	blockStorageRef := suite.generateBlockStorageRef(blockStorageName)
 
-	imageName := fmt.Sprintf("image-%d", rand.Intn(math.MaxInt32))
-	imageResource := fmt.Sprintf(imageResource, suite.tenant, imageName)
+	imageName := suite.generateImageName()
+	imageResource := suite.generateImageResource(imageName)
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
@@ -90,14 +89,14 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 				BlockStorage: mock.BlockStorageParamsV1{
 					Name:          blockStorageName,
 					SkuRef:        storageSkuRef,
-					CreatedSizeGB: blockStorageSizeGB100,
-					UpdatedSizeGB: blockStorageSizeGB200,
+					SizeGBInitial: blockStorageSizeGB100,
+					SizeGBUpdated: blockStorageSizeGB200,
 				},
 				Image: mock.ImageParamsV1{
 					Name:                   imageName,
 					BlockStorageRef:        blockStorageRef,
-					CreatedCpuArchitecture: cpuArchitectureAmd64,
-					UpdatedCpuArchitecture: cpuArchitectureArm64,
+					CpuArchitectureInitial: cpuArchitectureAmd64,
+					CpuArchitectureUpdated: cpuArchitectureArm64,
 				},
 			})
 		if err != nil {

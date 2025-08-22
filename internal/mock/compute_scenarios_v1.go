@@ -154,7 +154,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 			Region:     params.Region,
 		},
 		SkuRef:        params.Instance.SkuRef,
-		Zone:          params.Instance.CreatedZone,
+		Zone:          params.Instance.ZoneInitial,
 		BootDeviceRef: params.Instance.BootDeviceRef,
 	}
 
@@ -198,7 +198,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 	instResponse.Status.State = updatingStatusState
 	instResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	instResponse.Metadata.ResourceVersion = instResponse.Metadata.ResourceVersion + 1
-	instResponse.Zone = params.Instance.UpdatedZone
+	instResponse.Zone = params.Instance.ZoneUpdated
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          instanceUrl,

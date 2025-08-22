@@ -2,10 +2,7 @@ package secatest
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
-	"math"
-	"math/rand"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
@@ -24,8 +21,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	configureTags(t, workspaceV1Provider, workspaceKind)
 
 	// Generate scenario data
-	workspaceName := fmt.Sprintf("workspace-%d", rand.Intn(math.MaxInt32))
-	resource := fmt.Sprintf(workspaceResource, suite.tenant, workspaceName)
+	workspaceName := suite.generateWorkspaceName()
+	resource := suite.generateWorkspaceResource(workspaceName)
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
