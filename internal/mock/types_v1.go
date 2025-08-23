@@ -2,6 +2,34 @@ package mock
 
 // Params
 
+type AuthorizationParamsV1 struct {
+	Params
+	role           RoleParamsV1
+	roleAssignment RoleAssignmentParamsV1
+}
+type RoleAssignmentScopeParamsV1 struct {
+	Tenants    []string
+	Regions    []string
+	Workspaces []string
+}
+type RoleParamsV1 struct {
+	Name        string
+	Permissions []RolePermissionParamsV1
+}
+type RolePermissionParamsV1 struct {
+	Provider  string
+	Resources []string
+	Verbs     []string
+}
+type RoleAssignmentParamsV1 struct {
+	Name   string
+	roles  []string
+	subs   []string
+	scopes []RoleAssignmentScopeParamsV1
+}
+
+func (p AuthorizationParamsV1) getParams() Params { return p.Params }
+
 type WorkspaceParamsV1 struct {
 	Params
 	Name string
@@ -65,6 +93,31 @@ func (p StorageParamsV1) getParams() Params { return p.Params }
 
 // Responses
 
+type rolePermissionResponseV1 struct {
+	Provider  string
+	Resources []string
+	Verbs     []string
+}
+type roleResponseV1 struct {
+	Metadata metadataResponse
+	Status   statusResponse
+
+	Permissions []rolePermissionResponseV1
+}
+type roleAssignmentScopeResponseV1 struct {
+	Tenants    []string
+	Regions    []string
+	Workspaces []string
+}
+type roleAssignmentResponseV1 struct {
+	Metadata metadataResponse
+	Status   statusResponse
+
+	Roles  []string
+	Subs   []string
+	Scopes []roleAssignmentScopeResponseV1
+}
+
 type workspaceResponseV1 struct {
 	Metadata metadataResponse
 	Status   statusResponse
@@ -80,7 +133,6 @@ type instanceSkuResponseV1 struct {
 	RAM          int
 	VCPU         int
 }
-
 type instanceResponseV1 struct {
 	Metadata metadataResponse
 	Status   statusResponse
@@ -100,7 +152,6 @@ type storageSkuResponseV1 struct {
 	StorageType   string
 	MinVolumeSize int
 }
-
 type blockStorageResponseV1 struct {
 	Metadata metadataResponse
 	Status   statusResponse
@@ -108,7 +159,6 @@ type blockStorageResponseV1 struct {
 	SkuRef string
 	SizeGB int
 }
-
 type imageResponseV1 struct {
 	Metadata metadataResponse
 	Status   statusResponse

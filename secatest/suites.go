@@ -1,10 +1,7 @@
 package secatest
 
 import (
-	"fmt"
 	"log/slog"
-	"math"
-	"math/rand"
 	"strings"
 
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
@@ -47,48 +44,4 @@ func (suite *testSuite) resetAllScenarios() {
 			slog.Error("Failed to reset scenarios", "error", err)
 		}
 	}
-}
-
-func (suite *testSuite) generateSkuName() string {
-	return fmt.Sprintf("sku-%d", rand.Intn(math.MaxInt32))
-}
-
-func (suite *testSuite) generateSkuRef(name string) string {
-	return fmt.Sprintf(skuRef, name)
-}
-
-func (suite *testSuite) generateWorkspaceName() string {
-	return fmt.Sprintf("workspace-%d", rand.Intn(math.MaxInt32))
-}
-
-func (suite *testSuite) generateWorkspaceResource(name string) string {
-	return fmt.Sprintf(workspaceResource, suite.tenant, name)
-}
-
-func (suite *testSuite) generateBlockStorageName() string {
-	return fmt.Sprintf("disk-%d", rand.Intn(math.MaxInt32))
-}
-
-func (suite *testSuite) generateBlockStorageResource(workspace string, blockStorage string) string {
-	return fmt.Sprintf(blockStorageResource, suite.tenant, workspace, blockStorage)
-}
-
-func (suite *testSuite) generateBlockStorageRef(blockStorageName string) string {
-	return fmt.Sprintf(blockStoragesRef, blockStorageName)
-}
-
-func (suite *testSuite) generateImageName() string {
-	return fmt.Sprintf("image-%d", rand.Intn(math.MaxInt32))
-}
-
-func (suite *testSuite) generateImageResource(name string) string {
-	return fmt.Sprintf(imageResource, suite.tenant, name)
-}
-
-func (suite *testSuite) generateInstanceName() string {
-	return fmt.Sprintf("instance-%d", rand.Intn(math.MaxInt32))
-}
-
-func (suite *testSuite) generateInstanceResource(workspace string, instance string) string {
-	return fmt.Sprintf(instanceResource, suite.tenant, workspace, instance)
 }

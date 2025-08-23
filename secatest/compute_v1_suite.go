@@ -2,11 +2,11 @@ package secatest
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	"github.com/eu-sovereign-cloud/conformance/secalib"
 	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
 	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
@@ -37,7 +37,7 @@ type verifyInstanceSpecStepParams struct {
 
 func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.Title("Compute Lifecycle Test")
-	configureTags(t, computeV1Provider, instanceSkuKind, instanceSkuKind)
+	configureTags(t, secalib.ComputeV1Provider, secalib.InstanceSkuKind, secalib.InstanceKind)
 
 	// TODO Export to configuration
 	skuProvider := "seca"
@@ -49,20 +49,20 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	storageSkuTier := "gold"
 
 	// TODO Create before the scenario
-	workspaceName := suite.generateWorkspaceName()
+	workspaceName := secalib.GenerateWorkspaceName()
 
 	// Generate scenario data
-	instanceSkuName := suite.generateSkuName()
-	instanceSkuRef := suite.generateSkuRef(instanceSkuName)
+	instanceSkuName := secalib.GenerateSkuName()
+	instanceSkuRef := secalib.GenerateSkuRef(instanceSkuName)
 
-	instanceName := suite.generateInstanceName()
-	instanceResource := suite.generateInstanceResource(workspaceName, instanceName)
+	instanceName := secalib.GenerateInstanceName()
+	instanceResource := secalib.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
 
-	storageSkuName := suite.generateSkuName()
-	storageSkuRef := suite.generateSkuRef(storageSkuName)
+	storageSkuName := secalib.GenerateSkuName()
+	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
 
-	blockStorageName := suite.generateBlockStorageName()
-	blockStorageRef := suite.generateBlockStorageRef(blockStorageName)
+	blockStorageName := secalib.GenerateBlockStorageName()
+	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
@@ -80,7 +80,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 					Provider:      skuProvider,
 					Tier:          storageSkuTier,
 					Iops:          storageSkuIops500,
-					StorageType:   storageTypeLocalEphemeral,
+					StorageType:   secalib.StorageTypeLocalEphemeral,
 					MinVolumeSize: storageSkuMinVolumeSize10,
 				},
 				BlockStorage: mock.BlockStorageParamsV1{
@@ -90,7 +90,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 				},
 				InstanceSku: mock.InstanceSkuParamsV1{
 					Name:         instanceSkuName,
-					Architecture: cpuArchitectureAmd64,
+					Architecture: secalib.CpuArchitectureAmd64,
 					Provider:     skuProvider,
 					Tier:         instanceSkuTier,
 					RAM:          instanceSkuRAM,
@@ -98,7 +98,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 				},
 				Instance: mock.InstanceParamsV1{
 					Name:          instanceName,
-					SkuRef:        fmt.Sprintf(skuRef, instanceSkuName),
+					SkuRef:        instanceSkuRef,
 					ZoneInitial:   instanceZoneA,
 					ZoneUpdated:   instanceZoneB,
 					BootDeviceRef: blockStorageRef,
@@ -176,7 +176,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNotNilResponse(sCtx, blockStorageResp)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: activeStatusState,
+			expectedState: secalib.ActiveStatusState,
 			actualState:   string(*blockStorageResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -203,7 +203,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		)
 
 		verifyLabelsParams := verifyInstanceSkuLabelsStepParams{
-			architecture: cpuArchitectureAmd64,
+			architecture: secalib.CpuArchitectureAmd64,
 			provider:     skuProvider,
 			tier:         instanceSkuTier,
 		}
@@ -218,10 +218,10 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 
 	expectedInstanceMetadata := verifyRegionalMetadataStepParams{
 		name:       instanceName,
-		provider:   computeV1Provider,
+		provider:   secalib.ComputeV1Provider,
 		resource:   instanceResource,
-		apiVersion: version1,
-		kind:       instanceKind,
+		apiVersion: secalib.ApiVersion1,
+		kind:       secalib.InstanceKind,
 		tenant:     suite.tenant,
 		region:     suite.region,
 	}
@@ -262,7 +262,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: creatingStatusState,
+			expectedState: secalib.CreatingStatusState,
 			actualState:   string(*instanceResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -296,7 +296,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: activeStatusState,
+			expectedState: secalib.ActiveStatusState,
 			actualState:   string(*instanceResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -326,7 +326,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: updatingStatusState,
+			expectedState: secalib.UpdatingStatusState,
 			actualState:   string(*instanceResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -360,7 +360,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: activeStatusState,
+			expectedState: secalib.ActiveStatusState,
 			actualState:   string(*instanceResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -406,7 +406,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: suspendedStatusState,
+			expectedState: secalib.SuspendedStatusState,
 			actualState:   string(*instanceResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -452,7 +452,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: activeStatusState,
+			expectedState: secalib.ActiveStatusState,
 			actualState:   string(*instanceResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -498,7 +498,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: activeStatusState,
+			expectedState: secalib.ActiveStatusState,
 			actualState:   string(*instanceResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -557,17 +557,17 @@ func verifyInstanceSkuLabelsStep(ctx provider.StepCtx, expected verifyInstanceSk
 	ctx.WithNewStep("Verify labels", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters(
 			"expected_architecture", expected.architecture,
-			"actual_architecture", labels[architectureLabel],
+			"actual_architecture", labels[secalib.ArchitectureLabel],
 
 			"expected_provider", expected.provider,
-			"actual_provider", labels[providerLabel],
+			"actual_provider", labels[secalib.ProviderLabel],
 
 			"expected_tier", expected.tier,
-			"actual_tier", labels[tierLabel],
+			"actual_tier", labels[secalib.TierLabel],
 		)
-		stepCtx.Require().Equal(expected.architecture, labels[architectureLabel], "Architecture should match expected")
-		stepCtx.Require().Equal(expected.provider, labels[providerLabel], "Provider should match expected")
-		stepCtx.Require().Equal(expected.tier, labels[tierLabel], "Tier should match expected")
+		stepCtx.Require().Equal(expected.architecture, labels[secalib.ArchitectureLabel], "Architecture should match expected")
+		stepCtx.Require().Equal(expected.provider, labels[secalib.ProviderLabel], "Provider should match expected")
+		stepCtx.Require().Equal(expected.tier, labels[secalib.TierLabel], "Tier should match expected")
 	})
 }
 

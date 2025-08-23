@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	"github.com/eu-sovereign-cloud/conformance/secalib"
 	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -18,11 +19,11 @@ type WorkspaceV1TestSuite struct {
 
 func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.Title("Workspace Lifecycle Test")
-	configureTags(t, workspaceV1Provider, workspaceKind)
+	configureTags(t, secalib.WorkspaceV1Provider, secalib.WorkspaceKind)
 
 	// Generate scenario data
-	workspaceName := suite.generateWorkspaceName()
-	resource := suite.generateWorkspaceResource(workspaceName)
+	workspaceName := secalib.GenerateWorkspaceName()
+	resource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
@@ -45,10 +46,10 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 	expectedMetadata := verifyRegionalMetadataStepParams{
 		name:       workspaceName,
-		provider:   workspaceV1Provider,
+		provider:   secalib.WorkspaceV1Provider,
 		resource:   resource,
-		apiVersion: version1,
-		kind:       workspaceKind,
+		apiVersion: secalib.ApiVersion1,
+		kind:       secalib.WorkspaceKind,
 		tenant:     suite.tenant,
 		region:     suite.region,
 	}
@@ -79,7 +80,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: creatingStatusState,
+			expectedState: secalib.CreatingStatusState,
 			actualState:   string(*resp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -105,7 +106,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: activeStatusState,
+			expectedState: secalib.ActiveStatusState,
 			actualState:   string(*resp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -127,7 +128,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: updatingStatusState,
+			expectedState: secalib.UpdatingStatusState,
 			actualState:   string(*resp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -153,7 +154,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: activeStatusState,
+			expectedState: secalib.ActiveStatusState,
 			actualState:   string(*resp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)

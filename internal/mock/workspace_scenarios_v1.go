@@ -1,9 +1,10 @@
 package mock
 
 import (
-	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/eu-sovereign-cloud/conformance/secalib"
 
 	"github.com/wiremock/go-wiremock"
 )
@@ -14,15 +15,16 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 		return nil, err
 	}
 
-	url := fmt.Sprintf(workspaceURLV1, params.Tenant, params.Name)
+	url := secalib.GenerateWorkspaceURL(params.Tenant, params.Name)
+	resource := secalib.GenerateWorkspaceResource(params.Tenant, params.Name)
 
 	response := workspaceResponseV1{
 		Metadata: metadataResponse{
 			Name:       params.Name,
-			Provider:   workspaceProviderV1,
-			Resource:   fmt.Sprintf(workspaceResource, params.Tenant, params.Name),
-			ApiVersion: version1,
-			Kind:       workspaceKind,
+			Provider:   secalib.WorkspaceProviderV1,
+			Resource:   resource,
+			ApiVersion: secalib.ApiVersion1,
+			Kind:       secalib.WorkspaceKind,
 			Tenant:     params.Tenant,
 			Region:     params.Region,
 		},
@@ -30,10 +32,10 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 
 	// Create a workspace
 	response.Metadata.Verb = http.MethodPut
-	response.Status.State = creatingStatusState
 	response.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
 	response.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	response.Metadata.ResourceVersion = 1
+	response.Status.State = secalib.CreatingStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          url,
@@ -49,7 +51,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 
 	// Get created workspace
 	response.Metadata.Verb = http.MethodGet
-	response.Status.State = activeStatusState
+	response.Status.State = secalib.ActiveStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, scenarioConfig{
 		url:          url,
@@ -65,9 +67,9 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 
 	// Update the workspace
 	response.Metadata.Verb = http.MethodPut
-	response.Status.State = updatingStatusState
 	response.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	response.Metadata.ResourceVersion = response.Metadata.ResourceVersion + 1
+	response.Status.State = secalib.UpdatingStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          url,
@@ -83,7 +85,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 
 	// Get updated workspace
 	response.Metadata.Verb = http.MethodGet
-	response.Status.State = activeStatusState
+	response.Status.State = secalib.ActiveStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, scenarioConfig{
 		url:          url,

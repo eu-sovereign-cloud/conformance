@@ -1,6 +1,77 @@
 package mock
 
 const (
+	roleResponseTemplateV1 = `{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "tenant": "[[.Metadata.Tenant]]",
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]"
+      },
+      "spec": {
+        "permissions": [
+		 [[- range $i, $p :=.Permissions]]
+		 [[if $i]],[[end]]
+			{
+			"provider": "[[$p.Provider]]",
+			"resources": "[[$p.Resources]]",
+			"verbs": "[[$p.Verbs]]"
+			}[[- end]]
+		]
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
+
+	roleAssignmentResponseTemplateV1 = `{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "tenant": "[[.Metadata.Tenant]]",
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]"
+      },
+      "spec": {
+        "subs": "[[.Subs]]",
+        "roles": "[[.Roles]]",
+		"scopes": [
+		 [[- range $i, $p :=.Scopes]]
+		 [[if $i]],[[end]]
+			{
+			"tenants": "[[$p.Tenants]]",
+			"regions": "[[$p.Regions]]",
+			"workspaces": "[[$p.Workspaces]]"
+		}[[- end]]
+		]
+		
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
+
 	workspaceResponseTemplateV1 = `
 	{
 		"labels": {},

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	"github.com/eu-sovereign-cloud/conformance/secalib"
 	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -47,25 +48,25 @@ type verifyImageSpecStepParams struct {
 
 func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.Title("Storage Lifecycle Test")
-	configureTags(t, storageV1Provider, storageSkuKind, blockStorageKind, imageKind, instanceSkuKind)
+	configureTags(t, secalib.StorageV1Provider, secalib.StorageSkuKind, secalib.BlockStorageKind, secalib.ImageKind, secalib.InstanceSkuKind)
 
 	// TODO Export to configuration
 	skuProvider := "seca"
 	skuTier := "gold"
 
 	// TODO Create before the scenario
-	workspaceName := suite.generateWorkspaceName()
+	workspaceName := secalib.GenerateWorkspaceName()
 
 	// Generate scenario data
-	storageSkuName := suite.generateSkuName()
-	storageSkuRef := suite.generateSkuRef(storageSkuName)
+	storageSkuName := secalib.GenerateSkuName()
+	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
 
-	blockStorageName := suite.generateBlockStorageName()
-	blockStorageResource := suite.generateBlockStorageResource(workspaceName, blockStorageName)
-	blockStorageRef := suite.generateBlockStorageRef(blockStorageName)
+	blockStorageName := secalib.GenerateBlockStorageName()
+	blockStorageResource := secalib.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
+	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
 
-	imageName := suite.generateImageName()
-	imageResource := suite.generateImageResource(imageName)
+	imageName := secalib.GenerateImageName()
+	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
@@ -83,7 +84,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 					Provider:      skuProvider,
 					Tier:          skuTier,
 					Iops:          storageSkuIops500,
-					StorageType:   storageTypeLocalEphemeral,
+					StorageType:   secalib.StorageTypeLocalEphemeral,
 					MinVolumeSize: storageSkuMinVolumeSize10,
 				},
 				BlockStorage: mock.BlockStorageParamsV1{
@@ -95,8 +96,8 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 				Image: mock.ImageParamsV1{
 					Name:                   imageName,
 					BlockStorageRef:        blockStorageRef,
-					CpuArchitectureInitial: cpuArchitectureAmd64,
-					CpuArchitectureUpdated: cpuArchitectureArm64,
+					CpuArchitectureInitial: secalib.CpuArchitectureAmd64,
+					CpuArchitectureUpdated: secalib.CpuArchitectureArm64,
 				},
 			})
 		if err != nil {
@@ -137,7 +138,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 
 		verifySpecParams := verifyStorageSkuSpecStepParams{
 			iops:          storageSkuIops500,
-			storageType:   storageTypeLocalEphemeral,
+			storageType:   secalib.StorageTypeLocalEphemeral,
 			minVolumeSize: storageSkuMinVolumeSize10,
 		}
 		verifyStorageSkuSpecStep(sCtx, verifySpecParams, skuResp.Spec)
@@ -145,10 +146,10 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 
 	expectedBlockMetadata := verifyRegionalMetadataStepParams{
 		name:       blockStorageName,
-		provider:   storageV1Provider,
+		provider:   secalib.StorageV1Provider,
 		resource:   blockStorageResource,
-		apiVersion: version1,
-		kind:       blockStorageKind,
+		apiVersion: secalib.ApiVersion1,
+		kind:       secalib.BlockStorageKind,
 		tenant:     suite.tenant,
 		region:     suite.region,
 	}
@@ -186,7 +187,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		verifyBlockStorageSpecStep(sCtx, verifySpecParams, blockResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: creatingStatusState,
+			expectedState: secalib.CreatingStatusState,
 			actualState:   string(*blockResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -219,7 +220,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		verifyBlockStorageSpecStep(sCtx, verifySpecParams, blockResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: activeStatusState,
+			expectedState: secalib.ActiveStatusState,
 			actualState:   string(*blockResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -248,7 +249,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		verifyBlockStorageSpecStep(sCtx, verifySpecParams, blockResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: updatingStatusState,
+			expectedState: secalib.UpdatingStatusState,
 			actualState:   string(*blockResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -281,7 +282,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		verifyBlockStorageSpecStep(sCtx, verifySpecParams, blockResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: activeStatusState,
+			expectedState: secalib.ActiveStatusState,
 			actualState:   string(*blockResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -289,10 +290,10 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 
 	expectedImageMetadata := verifyRegionalMetadataStepParams{
 		name:       imageName,
-		provider:   storageV1Provider,
+		provider:   secalib.StorageV1Provider,
 		resource:   imageResource,
-		apiVersion: version1,
-		kind:       imageKind,
+		apiVersion: secalib.ApiVersion1,
+		kind:       secalib.ImageKind,
 		tenant:     suite.tenant,
 		region:     suite.region,
 	}
@@ -312,7 +313,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			},
 			Spec: storage.ImageSpec{
 				BlockStorageRef: blockStorageRef,
-				CpuArchitecture: cpuArchitectureAmd64,
+				CpuArchitecture: secalib.CpuArchitectureAmd64,
 			},
 		}
 		imageResp, err = suite.client.StorageV1.CreateOrUpdateImage(ctx, img)
@@ -324,12 +325,12 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 
 		verifySpecParams := verifyImageSpecStepParams{
 			blockStorageRef: blockStorageRef,
-			cpuArchitecture: cpuArchitectureAmd64,
+			cpuArchitecture: secalib.CpuArchitectureAmd64,
 		}
 		verifyImageSpecStep(sCtx, verifySpecParams, imageResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: creatingStatusState,
+			expectedState: secalib.CreatingStatusState,
 			actualState:   string(*imageResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -355,12 +356,12 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 
 		verifySpecParams := verifyImageSpecStepParams{
 			blockStorageRef: blockStorageRef,
-			cpuArchitecture: cpuArchitectureAmd64,
+			cpuArchitecture: secalib.CpuArchitectureAmd64,
 		}
 		verifyImageSpecStep(sCtx, verifySpecParams, imageResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: activeStatusState,
+			expectedState: secalib.ActiveStatusState,
 			actualState:   string(*imageResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -373,7 +374,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			tenantStepParameter, suite.tenant,
 		)
 
-		imageResp.Spec.CpuArchitecture = cpuArchitectureArm64
+		imageResp.Spec.CpuArchitecture = secalib.CpuArchitectureArm64
 		imageResp, err = suite.client.StorageV1.CreateOrUpdateImage(ctx, imageResp)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, imageResp)
@@ -383,12 +384,12 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 
 		verifySpecParams := verifyImageSpecStepParams{
 			blockStorageRef: blockStorageRef,
-			cpuArchitecture: cpuArchitectureArm64,
+			cpuArchitecture: secalib.CpuArchitectureArm64,
 		}
 		verifyImageSpecStep(sCtx, verifySpecParams, imageResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: updatingStatusState,
+			expectedState: secalib.UpdatingStatusState,
 			actualState:   string(*imageResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -414,12 +415,12 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 
 		verifySpecParams := verifyImageSpecStepParams{
 			blockStorageRef: blockStorageRef,
-			cpuArchitecture: cpuArchitectureArm64,
+			cpuArchitecture: secalib.CpuArchitectureArm64,
 		}
 		verifyImageSpecStep(sCtx, verifySpecParams, imageResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
-			expectedState: activeStatusState,
+			expectedState: secalib.ActiveStatusState,
 			actualState:   string(*imageResp.Status.State),
 		}
 		verifyStatusStep(sCtx, verifyStatusParams)
@@ -519,13 +520,13 @@ func verifyStorageSkuLabelsStep(ctx provider.StepCtx, expected verifyStorageSkuL
 	ctx.WithNewStep("Verify labels", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters(
 			"expected_provider", expected.provider,
-			"actual_provider", labels[providerLabel],
+			"actual_provider", labels[secalib.ProviderLabel],
 
 			"expected_tier", expected.tier,
-			"actual_tier", labels[tierLabel],
+			"actual_tier", labels[secalib.TierLabel],
 		)
-		stepCtx.Require().Equal(expected.provider, labels[providerLabel], "Provider should match expected")
-		stepCtx.Require().Equal(expected.tier, labels[tierLabel], "Tier should match expected")
+		stepCtx.Require().Equal(expected.provider, labels[secalib.ProviderLabel], "Provider should match expected")
+		stepCtx.Require().Equal(expected.tier, labels[secalib.TierLabel], "Tier should match expected")
 	})
 }
 
