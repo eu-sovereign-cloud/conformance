@@ -280,4 +280,230 @@ const (
         ]
       }
     }`
+
+	networkResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "tenant": "[[.Metadata.Tenant]]",
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "workspace": "[[.Metadata.Workspace]]"
+      },
+      "spec": {
+        "cidr": "[[.Cidr]]",
+        "skuRef": "[[.SkuRef]]",
+        "routeTableRef": "[[.RouteTableRef]]"
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
+
+	networkSkuResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]"
+      },
+      "spec": {
+        "bandwidth": "[[.Bandwidth]]",
+        "packets": "[[.Packets]]"
+      }
+    }`
+
+	internetGatewayResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "tenant": "[[.Metadata.Tenant]]",
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "workspace": "[[.Metadata.Workspace]]"
+      },
+      "spec": {
+        "egressOnly": "[[.EgressOnly]]"
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
+
+	nicResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "tenant": "[[.Metadata.Tenant]]",
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "workspace": "[[.Metadata.Workspace]]"
+      },
+      "spec": {
+        "addresses": "[[.Addresses]]",
+        "subnetRef": "[[.SubnetRef]]"
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
+
+	publicIPResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "tenant": "[[.Metadata.Tenant]]",
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "workspace": "[[.Metadata.Workspace]]"
+      },
+      "spec": {
+        "version": "[[.Version]]",
+        "address": "[[.Address]]"
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
+
+	routeTableResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "tenant": "[[.Metadata.Tenant]]",
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "workspace": "[[.Metadata.Workspace]]"
+      },
+      "spec": {
+	  	"localRef": "[[.LocalRef]]",
+        "routes": [
+		 [[- range $i, $r :=.Routes]]
+		 [[if $i]],[[end]]
+			{
+			"destinationCidrBlock": "[[$r.DestinationCidrBlock]]",
+			"targetRef": "[[$r.TargetRef]]"
+		}[[- end]]
+		]
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+	}`
+
+	subnetResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "tenant": "[[.Metadata.Tenant]]",
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "workspace": "[[.Metadata.Workspace]]"
+      },
+      "spec": {
+		"cidr": "[[.Cidr]]",
+		"zone": "[[.Zone]]",
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+	}`
+
+	securityGroupResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "tenant": "[[.Metadata.Tenant]]",
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "workspace": "[[.Metadata.Workspace]]"
+      },
+      "spec": {
+		"rules": [
+			[[- range $i, $r :=.Rules]]
+			[[if $i]],[[end]]
+				{
+				"direction": "[[$r.Direction]]"
+			}[[- end]]
+			]
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+	}`
 )
