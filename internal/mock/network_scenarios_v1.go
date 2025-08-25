@@ -115,7 +115,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	networkResponse.Metadata.Verb = http.MethodGet
 	networkResponse.Status.State = secalib.ActiveStatusState
 	networkResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, scenarioConfig{
 		url:          networkURL,
 		params:       params,
 		response:     networkResponse,
@@ -185,8 +185,8 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		params:       params,
 		response:     internetGatewayResponse,
 		template:     internetGatewayResponseTemplateV1,
-		currentState: "CreateInternet-gateway",
-		nextState:    "GetInternet-gateway",
+		currentState: "CreateInternetGateway",
+		nextState:    "GetInternetGateway",
 		httpStatus:   http.StatusCreated,
 	}); err != nil {
 		return nil, err
@@ -201,8 +201,8 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		params:       params,
 		response:     internetGatewayResponse,
 		template:     internetGatewayResponseTemplateV1,
-		currentState: "GetInternet-gateway",
-		nextState:    "UpdateInternet-gateway",
+		currentState: "GetInternetGateway",
+		nextState:    "UpdateInternetGateway",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
@@ -219,8 +219,8 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		params:       params,
 		response:     internetGatewayResponse,
 		template:     internetGatewayResponseTemplateV1,
-		currentState: "UpdateInternet-gateway",
-		nextState:    "GetInternet-gateway updated",
+		currentState: "UpdateInternetGateway",
+		nextState:    "GetInternetGateway2x",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
@@ -229,12 +229,14 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	// Get internet-gateway after update
 	internetGatewayResponse.Metadata.Verb = http.MethodGet
 	internetGatewayResponse.Status.State = secalib.ActiveStatusState
+	internetGatewayResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, scenarioConfig{
+		url:          internetGatewayURL,
 		params:       params,
 		response:     internetGatewayResponse,
 		template:     internetGatewayResponseTemplateV1,
-		currentState: "GetInternet-gateway2x",
-		nextState:    "CreateRoute-table",
+		currentState: "GetInternetGateway2x",
+		nextState:    "CreateRouteTable",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
@@ -269,13 +271,13 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	routeTableResponse.Metadata.ResourceVersion = 1
 	routeTableResponse.Status.State = secalib.CreatingStatusState
 	routeTableResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePostStub(wm, scenario, scenarioConfig{
+	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          routeTableURL,
 		params:       params,
 		response:     routeTableResponse,
 		template:     routeTableResponseTemplateV1,
-		currentState: "CreateRoute-table",
-		nextState:    "GetRoute-table",
+		currentState: "CreateRouteTable",
+		nextState:    "GetRouteTable",
 		httpStatus:   http.StatusCreated,
 	}); err != nil {
 		return nil, err
@@ -290,8 +292,8 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		params:       params,
 		response:     routeTableResponse,
 		template:     routeTableResponseTemplateV1,
-		currentState: "GetRoute-table",
-		nextState:    "UpdateRoute-table",
+		currentState: "GetRouteTable",
+		nextState:    "UpdateRouteTable",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
@@ -308,8 +310,8 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		params:       params,
 		response:     routeTableResponse,
 		template:     routeTableResponseTemplateV1,
-		currentState: "UpdateRoute-table",
-		nextState:    "GetRoute-tableUpdated",
+		currentState: "UpdateRouteTable",
+		nextState:    "GetRouteTableUpdated",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
@@ -324,7 +326,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		params:       params,
 		response:     routeTableResponse,
 		template:     routeTableResponseTemplateV1,
-		currentState: "GetRoute-tableUpdated",
+		currentState: "GetRouteTableUpdated",
 		nextState:    "CreateSubnet",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
@@ -348,13 +350,13 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	}
 
 	// Create subnet
-	subnetResponse.Metadata.Verb = http.MethodPost
+	subnetResponse.Metadata.Verb = http.MethodPut
 	subnetResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
 	subnetResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	subnetResponse.Metadata.ResourceVersion = 1
 	subnetResponse.Status.State = secalib.CreatingStatusState
 	subnetResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePostStub(wm, scenario, scenarioConfig{
+	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          subnetURL,
 		params:       params,
 		response:     subnetResponse,
@@ -433,14 +435,14 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	}
 
 	// Create public-IP
-	publicIPResponse.Metadata.Verb = http.MethodPost
+	publicIPResponse.Metadata.Verb = http.MethodPut
 	publicIPResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
 	publicIPResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	publicIPResponse.Metadata.ResourceVersion = 1
 	publicIPResponse.Status.State = secalib.CreatingStatusState
 	publicIPResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 
-	if err := configurePostStub(wm, scenario, scenarioConfig{
+	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          publicIPURL,
 		params:       params,
 		response:     publicIPResponse,
@@ -518,13 +520,13 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	}
 
 	// Create NIC
-	nicResponse.Metadata.Verb = http.MethodPost
+	nicResponse.Metadata.Verb = http.MethodPut
 	nicResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
 	nicResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	nicResponse.Metadata.ResourceVersion = 1
 	nicResponse.Status.State = secalib.CreatingStatusState
 	nicResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePostStub(wm, scenario, scenarioConfig{
+	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          nicURL,
 		params:       params,
 		response:     nicResponse,
@@ -539,13 +541,14 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	// Get NIC
 	nicResponse.Metadata.Verb = http.MethodGet
 	nicResponse.Status.State = secalib.ActiveStatusState
+	nicResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, scenarioConfig{
 		url:          nicURL,
 		params:       params,
 		response:     nicResponse,
 		template:     nicResponseTemplateV1,
-		currentState: "GetNic",
-		nextState:    "UpdateNic",
+		currentState: "GetNIC",
+		nextState:    "UpdateNIC",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
@@ -558,11 +561,12 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	nicResponse.Status.State = secalib.UpdatingStatusState
 	nicResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, scenarioConfig{
+		url:          nicURL,
 		params:       params,
 		response:     nicResponse,
 		template:     nicResponseTemplateV1,
-		currentState: "UpdateNic",
-		nextState:    "GetNicUpdated",
+		currentState: "UpdateNIC",
+		nextState:    "GetNICUpdated",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
@@ -577,7 +581,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		params:       params,
 		response:     nicResponse,
 		template:     nicResponseTemplateV1,
-		currentState: "GetNicUpdated",
+		currentState: "GetNICUpdated",
 		nextState:    "CreateSecurityGroup",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
@@ -604,13 +608,13 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		})
 	}
 	// Create Security-group
-	securityGroupResponse.Metadata.Verb = http.MethodPost
+	securityGroupResponse.Metadata.Verb = http.MethodPut
 	securityGroupResponse.Status.State = secalib.CreatingStatusState
 	securityGroupResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
 	securityGroupResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	securityGroupResponse.Metadata.ResourceVersion = 1
 	securityGroupResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePostStub(wm, scenario, scenarioConfig{
+	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          securityGroupURL,
 		params:       params,
 		response:     securityGroupResponse,
