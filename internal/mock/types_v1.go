@@ -2,6 +2,34 @@ package mock
 
 // Params
 
+type AuthorizationParamsV1 struct {
+	Params
+	role           RoleParamsV1
+	roleAssignment RoleAssignmentParamsV1
+}
+type RoleAssignmentScopeParamsV1 struct {
+	Tenants    []string
+	Regions    []string
+	Workspaces []string
+}
+type RoleParamsV1 struct {
+	Name        string
+	Permissions []RolePermissionParamsV1
+}
+type RolePermissionParamsV1 struct {
+	Provider  string
+	Resources []string
+	Verbs     []string
+}
+type RoleAssignmentParamsV1 struct {
+	Name   string
+	roles  []string
+	subs   []string
+	scopes []RoleAssignmentScopeParamsV1
+}
+
+func (p AuthorizationParamsV1) getParams() Params { return p.Params }
+
 type WorkspaceParamsV1 struct {
 	Params
 	Name string
@@ -11,8 +39,10 @@ func (p WorkspaceParamsV1) getParams() Params { return p.Params }
 
 type ComputeParamsV1 struct {
 	Params
-	Sku      InstanceSkuParamsV1
-	Instance InstanceParamsV1
+	StorageSku   StorageSkuParamsV1
+	BlockStorage BlockStorageParamsV1
+	InstanceSku  InstanceSkuParamsV1
+	Instance     InstanceParamsV1
 }
 type InstanceSkuParamsV1 struct {
 	Name         string
@@ -25,19 +55,21 @@ type InstanceSkuParamsV1 struct {
 type InstanceParamsV1 struct {
 	Name          string
 	SkuRef        string
-	Zone          string
+	ZoneInitial   string
+	ZoneUpdated   string
 	BootDeviceRef string
 }
 
 func (p ComputeParamsV1) getParams() Params { return p.Params }
 
-type StorageSkuParamsV1 struct {
+type StorageParamsV1 struct {
 	Params
-	Sku          SkuParamsV1
+	Sku          StorageSkuParamsV1
 	BlockStorage BlockStorageParamsV1
 	Image        ImageParamsV1
 }
-type SkuParamsV1 struct {
+type StorageSkuParamsV1 struct {
+	Name          string
 	Provider      string
 	Tier          string
 	Iops          int
@@ -45,35 +77,19 @@ type SkuParamsV1 struct {
 	MinVolumeSize int
 }
 type BlockStorageParamsV1 struct {
-	SkuRef string
-	SizeGB int
+	Name          string
+	SkuRef        string
+	SizeGBInitial int
+	SizeGBUpdated int
 }
 type ImageParamsV1 struct {
-	BlockStorageRef string
-	CpuArchitecture string
+	Name                   string
+	BlockStorageRef        string
+	CpuArchitectureInitial string
+	CpuArchitectureUpdated string
 }
 
-func (p StorageSkuParamsV1) getParams() Params { return p.Params }
-
-type AuthorizationParamsV1 struct {
-	Params
-	roles          RolesParamsV1
-	roleAssignment RoleAssignmentParamsV1
-}
-
-type RolesParamsV1 struct {
-	Name        string
-	Permissions []PermissionsParamsV1
-}
-
-type RoleAssignmentParamsV1 struct {
-	Name   string
-	roles  []string
-	subs   []string
-	scopes Scopes
-}
-
-func (p AuthorizationParamsV1) getParams() Params { return p.Params }
+func (p StorageParamsV1) getParams() Params { return p.Params }
 
 type NetworkParamsV1 struct {
 	Params
@@ -88,6 +104,7 @@ type NetworkParamsV1 struct {
 	NetworkSku      NetworkSkuParamsV1
 	Instance        InstanceParamsV1
 	InstanceSku     InstanceSkuParamsV1
+	BlockStorage    BlockStorageParamsV1
 }
 type NetworkInstanceParamsV1 struct {
 	Name            string
@@ -98,7 +115,9 @@ type NetworkInstanceParamsV1 struct {
 }
 
 type NetworkSkuParamsV1 struct {
-	Name string
+	Name      string
+	Bandwidth int
+	Packets   int
 }
 
 type InternetGatewayParamsV1 struct {
@@ -128,16 +147,13 @@ type PublicIPParamsV1 struct {
 
 type SecurityGroupParamsV1 struct {
 	Name  string
-	Rules []Rules
+	rules []Rules
 }
 
 type SubnetParamsV1 struct {
-	Name          string
-	Cidr          CIDR
-	Zone          string
-	RouteTableRef string
-	NetworkRef    string
-	SkuRef        string
+	Name string
+	Cidr CIDR
+	Zone string
 }
 
 type CIDR struct {
@@ -151,12 +167,7 @@ type Routes struct {
 }
 
 type Rules struct {
-	Direction  string
-	Version    string
-	Protocol   string
-	Ports      Ports
-	Icmp       Icmp
-	sourceRefs []string
+	Direction string
 }
 type Ports struct {
 	From int
@@ -173,56 +184,78 @@ func (p NetworkParamsV1) getParams() Params { return p.Params }
 
 // Responses
 
+type rolePermissionResponseV1 struct {
+	Provider  string
+	Resources []string
+	Verbs     []string
+}
+type roleResponseV1 struct {
+	Metadata metadataResponse
+	Status   statusResponse
+
+	Permissions []rolePermissionResponseV1
+}
+type roleAssignmentScopeResponseV1 struct {
+	Tenants    []string
+	Regions    []string
+	Workspaces []string
+}
+type roleAssignmentResponseV1 struct {
+	Metadata metadataResponse
+	Status   statusResponse
+
+	Roles  []string
+	Subs   []string
+	Scopes []roleAssignmentScopeResponseV1
+}
+
 type workspaceResponseV1 struct {
 	Metadata metadataResponse
 	Status   statusResponse
 }
 
 type instanceSkuResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	architecture string
-	provider     string
-	tier         string
-	ram          int
-	vCPU         int
+	Architecture string
+	Provider     string
+	Tier         string
+	RAM          int
+	VCPU         int
 }
-
 type instanceResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	skuRef        string
-	zone          string
-	bootDeviceRef string
+	SkuRef        string
+	Zone          string
+	BootDeviceRef string
 }
 
 type storageSkuResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	provider      string
-	tier          string
-	iops          int
-	storageType   string
-	minVolumeSize int
+	Provider      string
+	Tier          string
+	Iops          int
+	StorageType   string
+	MinVolumeSize int
 }
-
 type blockStorageResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	skuRef string
-	sizeGB int
+	SkuRef string
+	SizeGB int
 }
-
 type imageResponseV1 struct {
-	metadata metadataResponse
-	status   statusResponse
+	Metadata metadataResponse
+	Status   statusResponse
 
-	blockStorageRef string
-	cpuArchitecture string
+	BlockStorageRef string
+	CpuArchitecture string
 }
 
 type rolesResponseV1 struct {
@@ -235,15 +268,6 @@ type PermissionsParamsV1 struct {
 	Provider  string
 	Resources []string
 	Verbs     []string
-}
-
-type roleAssignmentResponseV1 struct {
-	Metadata metadataResponse
-	Status   statusResponse
-
-	Roles  []string
-	Subs   []string
-	Scopes []Scopes
 }
 
 type Scopes struct {
@@ -289,10 +313,8 @@ type nicResponseV1 struct {
 	Metadata metadataResponse
 	Status   statusResponse
 
-	Addresses    []string
-	PublicIpRefs []string
-	SkuRef       string
-	SubnetRef    string
+	Addresses []string
+	SubnetRef string
 }
 type publicIPResponseV1 struct {
 	Metadata metadataResponse
@@ -311,9 +333,6 @@ type subnetResponseV1 struct {
 	Metadata metadataResponse
 	Status   statusResponse
 
-	Cidr          CIDR
-	Zone          string
-	RouteTableRef string
-	NetworkRef    string
-	SkuRef        string
+	Cidr CIDR
+	Zone string
 }

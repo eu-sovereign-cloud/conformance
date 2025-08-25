@@ -10,7 +10,12 @@ type verifyRegionalMetadataStepParams struct {
 	apiVersion string
 	kind       string
 	tenant     string
+	workspace  string
 	region     string
+}
+
+type verifySkuMetadataStepParams struct {
+	name string
 }
 
 type verifyStatusStepParams struct {
@@ -42,6 +47,9 @@ func verifyRegionalMetadataStep(ctx provider.StepCtx, expected verifyRegionalMet
 			"expected_tenant", expected.tenant,
 			"actual_tenant", actual.tenant,
 
+			"expected_workspace", expected.workspace,
+			"actual_workspace", actual.workspace,
+
 			"expected_region", expected.region,
 			"actual_region", actual.region,
 		)
@@ -54,6 +62,16 @@ func verifyRegionalMetadataStep(ctx provider.StepCtx, expected verifyRegionalMet
 		stepCtx.Require().Equal(expected.kind, actual.kind, "Kind should match expected")
 		stepCtx.Require().Equal(expected.tenant, actual.tenant, "Tenant should match expected")
 		stepCtx.Require().Equal(expected.region, actual.region, "Region should match expected")
+	})
+}
+
+func verifySkuMetadataStep(ctx provider.StepCtx, expected verifySkuMetadataStepParams, actual verifySkuMetadataStepParams) {
+	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
+		stepCtx.WithNewParameters(
+			"expected_name", expected.name,
+			"actual_name", actual.name,
+		)
+		stepCtx.Require().Equal(expected.name, actual.name, "Name should match expected")
 	})
 }
 

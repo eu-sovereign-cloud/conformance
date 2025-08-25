@@ -59,7 +59,34 @@ func TestSuites(t *testing.T) {
 	}
 
 	// Run test suites
+
 	suite.RunNamedSuite(t, "Workspace V1", &WorkspaceV1TestSuite{
+		regionalTestSuite: regionalTestSuite{
+			testSuite: testSuite{
+				tenant:        config.clientTenant,
+				authToken:     config.clientAuthToken,
+				mockEnabled:   config.mockEnabled,
+				mockServerURL: config.mockServerURL,
+			},
+			region: config.clientRegion,
+			client: regionalClient,
+		},
+	})
+
+	suite.RunNamedSuite(t, "Storage V1", &StorageV1TestSuite{
+		regionalTestSuite: regionalTestSuite{
+			testSuite: testSuite{
+				tenant:        config.clientTenant,
+				authToken:     config.clientAuthToken,
+				mockEnabled:   config.mockEnabled,
+				mockServerURL: config.mockServerURL,
+			},
+			region: config.clientRegion,
+			client: regionalClient,
+		},
+	})
+
+	suite.RunNamedSuite(t, "Compute V1", &ComputeV1TestSuite{
 		regionalTestSuite: regionalTestSuite{
 			testSuite: testSuite{
 				tenant:        config.clientTenant,
