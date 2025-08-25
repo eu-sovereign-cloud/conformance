@@ -64,8 +64,8 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		response:     networkSkuResponse,
 		template:     networkSkuResponseTemplateV1,
 		currentState: startedScenarioState,
-		nextState:    "GetNetwork",
-		httpStatus:   http.StatusCreated,
+		nextState:    "CreateNetwork",
+		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
 	}
@@ -146,7 +146,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	//Get network 2x time
 	networkResponse.Metadata.Verb = http.MethodGet
 	networkResponse.Status.State = secalib.ActiveStatusState
-	if err := configurePutStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, scenarioConfig{
 		url:          networkURL,
 		params:       params,
 		response:     networkResponse,
@@ -244,7 +244,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	routeTableResponse := routeTableResponseV1{
 		Metadata: metadataResponse{
 			Name:       params.RouteTable.Name,
-			Provider:   networkProviderV1,
+			Provider:   secalib.NetworkProviderV1,
 			Resource:   routeTableResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
@@ -335,7 +335,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	subnetResponse := subnetResponseV1{
 		Metadata: metadataResponse{
 			Name:       params.Subnet.Name,
-			Provider:   networkProviderV1,
+			Provider:   secalib.NetworkProviderV1,
 			Resource:   subnetResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
@@ -420,7 +420,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	publicIPResponse := publicIPResponseV1{
 		Metadata: metadataResponse{
 			Name:       params.PublicIP.Name,
-			Provider:   networkProviderV1,
+			Provider:   secalib.NetworkProviderV1,
 			Resource:   publicIPResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
@@ -505,7 +505,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	nicResponse := nicResponseV1{
 		Metadata: metadataResponse{
 			Name:       params.NIC.Name,
-			Provider:   networkProviderV1,
+			Provider:   secalib.NetworkProviderV1,
 			Resource:   nicResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
@@ -588,7 +588,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	securityGroupResponse := securityGroupResponseV1{
 		Metadata: metadataResponse{
 			Name:       params.SecurityGroup.Name,
-			Provider:   networkProviderV1,
+			Provider:   secalib.NetworkProviderV1,
 			Resource:   securityGroupResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
