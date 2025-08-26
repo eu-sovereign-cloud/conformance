@@ -13,14 +13,6 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-const (
-	// Test constants
-	storageSkuMinVolumeSize10 = 10
-	storageSkuIops500         = 500
-	blockStorageSizeGB100     = 100
-	blockStorageSizeGB200     = 200
-)
-
 type StorageV1TestSuite struct {
 	regionalTestSuite
 }
@@ -48,13 +40,13 @@ type verifyImageSpecStepParams struct {
 
 func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.Title("Storage Lifecycle Test")
-	configureTags(t, secalib.StorageV1Provider, secalib.StorageSkuKind, secalib.BlockStorageKind, secalib.ImageKind, secalib.InstanceSkuKind)
+	configureTags(t, secalib.StorageProviderV1, secalib.StorageSkuKind, secalib.BlockStorageKind, secalib.ImageKind, secalib.InstanceSkuKind)
 
-	// TODO Export to configuration
+	// TODO Export to mock configuration
 	skuProvider := "seca"
 	skuTier := "gold"
 
-	// TODO Create before the scenario
+	// TODO Dynamically create before the scenario
 	workspaceName := secalib.GenerateWorkspaceName()
 
 	// Generate scenario data
@@ -67,6 +59,11 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 
 	imageName := secalib.GenerateImageName()
 	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
+
+	storageSkuIops := secalib.GenerateStorageSkuIops()
+	blockStorageSize1 := secalib.GenerateBlockStorageSize()
+	blockStorageSize2 := secalib.GenerateBlockStorageSize()
+	storageSkuMinVolumeSize := secalib.GenerateStorageSkuMinVolumeSize(blockStorageSize1)
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
@@ -83,15 +80,15 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 					Name:          storageSkuName,
 					Provider:      skuProvider,
 					Tier:          skuTier,
-					Iops:          storageSkuIops500,
+					Iops:          storageSkuIops,
 					StorageType:   secalib.StorageTypeLocalEphemeral,
-					MinVolumeSize: storageSkuMinVolumeSize10,
+					MinVolumeSize: storageSkuMinVolumeSize,
 				},
 				BlockStorage: mock.BlockStorageParamsV1{
 					Name:          blockStorageName,
 					SkuRef:        storageSkuRef,
-					SizeGBInitial: blockStorageSizeGB100,
-					SizeGBUpdated: blockStorageSizeGB200,
+					SizeGBInitial: blockStorageSize1,
+					SizeGBUpdated: blockStorageSize2,
 				},
 				Image: mock.ImageParamsV1{
 					Name:                   imageName,
@@ -137,22 +134,24 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		verifyStorageSkuLabelsStep(sCtx, verifyLabelsParams, *skuResp.Labels)
 
 		verifySpecParams := verifyStorageSkuSpecStepParams{
-			iops:          storageSkuIops500,
+			iops:          storageSkuIops,
 			storageType:   secalib.StorageTypeLocalEphemeral,
-			minVolumeSize: storageSkuMinVolumeSize10,
+			minVolumeSize: storageSkuMinVolumeSize,
 		}
 		verifyStorageSkuSpecStep(sCtx, verifySpecParams, skuResp.Spec)
 	})
 
 	expectedBlockMetadata := verifyRegionalMetadataStepParams{
 		name:       blockStorageName,
-		provider:   secalib.StorageV1Provider,
+		provider:   secalib.StorageProviderV1,
 		resource:   blockStorageResource,
 		apiVersion: secalib.ApiVersion1,
 		kind:       secalib.BlockStorageKind,
 		tenant:     suite.tenant,
 		region:     suite.region,
 	}
+
+	var expectedBlockSpec verifyBlockStorageSpecStepParams
 
 	// Step 2
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
@@ -162,29 +161,29 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			workspaceStepParameter, workspaceName,
 		)
 
+		wref := secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      blockStorageName,
+		}
 		bo := &storage.BlockStorage{
-			Metadata: &storage.ZonalResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: &workspaceName,
-				Name:      blockStorageName,
-			},
 			Spec: storage.BlockStorageSpec{
-				SizeGB: blockStorageSizeGB100,
+				SizeGB: blockStorageSize1,
 				SkuRef: storageSkuRef,
 			},
 		}
-		blockResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, bo)
+		blockResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, wref, bo, nil)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
 		expectedBlockMetadata.verb = http.MethodPut
 		verifyStorageZonalMetadataStep(sCtx, expectedBlockMetadata, blockResp.Metadata)
 
-		verifySpecParams := verifyBlockStorageSpecStepParams{
-			sizeGB: blockStorageSizeGB100,
+		expectedBlockSpec = verifyBlockStorageSpecStepParams{
+			sizeGB: blockStorageSize1,
 			skuRef: storageSkuRef,
 		}
-		verifyBlockStorageSpecStep(sCtx, verifySpecParams, blockResp.Spec)
+		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, blockResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.CreatingStatusState,
@@ -213,11 +212,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		expectedBlockMetadata.verb = http.MethodGet
 		verifyStorageZonalMetadataStep(sCtx, expectedBlockMetadata, blockResp.Metadata)
 
-		verifySpecParams := verifyBlockStorageSpecStepParams{
-			sizeGB: blockStorageSizeGB100,
-			skuRef: storageSkuRef,
-		}
-		verifyBlockStorageSpecStep(sCtx, verifySpecParams, blockResp.Spec)
+		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, blockResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.ActiveStatusState,
@@ -234,19 +229,22 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			workspaceStepParameter, workspaceName,
 		)
 
-		blockResp.Spec.SizeGB = blockStorageSizeGB200
-		blockResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, blockResp)
+		blockResp.Spec.SizeGB = blockStorageSize2
+
+		wref := secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      blockStorageName,
+		}
+		blockResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, wref, blockResp, nil)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
 		expectedBlockMetadata.verb = http.MethodPut
 		verifyStorageZonalMetadataStep(sCtx, expectedBlockMetadata, blockResp.Metadata)
 
-		verifySpecParams := verifyBlockStorageSpecStepParams{
-			sizeGB: blockStorageSizeGB200,
-			skuRef: storageSkuRef,
-		}
-		verifyBlockStorageSpecStep(sCtx, verifySpecParams, blockResp.Spec)
+		expectedBlockSpec.sizeGB = blockStorageSize2
+		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, blockResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.UpdatingStatusState,
@@ -276,7 +274,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		verifyStorageZonalMetadataStep(sCtx, expectedBlockMetadata, blockResp.Metadata)
 
 		verifySpecParams := verifyBlockStorageSpecStepParams{
-			sizeGB: blockStorageSizeGB200,
+			sizeGB: blockStorageSize2,
 			skuRef: storageSkuRef,
 		}
 		verifyBlockStorageSpecStep(sCtx, verifySpecParams, blockResp.Spec)
@@ -290,13 +288,15 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 
 	expectedImageMetadata := verifyRegionalMetadataStepParams{
 		name:       imageName,
-		provider:   secalib.StorageV1Provider,
+		provider:   secalib.StorageProviderV1,
 		resource:   imageResource,
 		apiVersion: secalib.ApiVersion1,
 		kind:       secalib.ImageKind,
 		tenant:     suite.tenant,
 		region:     suite.region,
 	}
+
+	var expectedmageSpec verifyImageSpecStepParams
 
 	// Step 6
 	t.WithNewStep("Create image", func(sCtx provider.StepCtx) {
@@ -305,29 +305,28 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			tenantStepParameter, suite.tenant,
 		)
 
+		tref := secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   imageName,
+		}
 		img := &storage.Image{
-			Metadata: &storage.RegionalResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: &workspaceName,
-				Name:      imageName,
-			},
 			Spec: storage.ImageSpec{
 				BlockStorageRef: blockStorageRef,
 				CpuArchitecture: secalib.CpuArchitectureAmd64,
 			},
 		}
-		imageResp, err = suite.client.StorageV1.CreateOrUpdateImage(ctx, img)
+		imageResp, err = suite.client.StorageV1.CreateOrUpdateImage(ctx, tref, img, nil)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, imageResp)
 
 		expectedImageMetadata.verb = http.MethodPut
 		verifyStorageRegionalMetadataStep(sCtx, expectedImageMetadata, imageResp.Metadata)
 
-		verifySpecParams := verifyImageSpecStepParams{
+		expectedmageSpec = verifyImageSpecStepParams{
 			blockStorageRef: blockStorageRef,
 			cpuArchitecture: secalib.CpuArchitectureAmd64,
 		}
-		verifyImageSpecStep(sCtx, verifySpecParams, imageResp.Spec)
+		verifyImageSpecStep(sCtx, expectedmageSpec, imageResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.CreatingStatusState,
@@ -354,11 +353,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		expectedImageMetadata.verb = http.MethodGet
 		verifyStorageRegionalMetadataStep(sCtx, expectedImageMetadata, imageResp.Metadata)
 
-		verifySpecParams := verifyImageSpecStepParams{
-			blockStorageRef: blockStorageRef,
-			cpuArchitecture: secalib.CpuArchitectureAmd64,
-		}
-		verifyImageSpecStep(sCtx, verifySpecParams, imageResp.Spec)
+		verifyImageSpecStep(sCtx, expectedmageSpec, imageResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.ActiveStatusState,
@@ -375,18 +370,20 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		)
 
 		imageResp.Spec.CpuArchitecture = secalib.CpuArchitectureArm64
-		imageResp, err = suite.client.StorageV1.CreateOrUpdateImage(ctx, imageResp)
+
+		tref := secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   imageName,
+		}
+		imageResp, err = suite.client.StorageV1.CreateOrUpdateImage(ctx, tref, imageResp, nil)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, imageResp)
 
 		expectedImageMetadata.verb = http.MethodPut
 		verifyStorageRegionalMetadataStep(sCtx, expectedImageMetadata, imageResp.Metadata)
 
-		verifySpecParams := verifyImageSpecStepParams{
-			blockStorageRef: blockStorageRef,
-			cpuArchitecture: secalib.CpuArchitectureArm64,
-		}
-		verifyImageSpecStep(sCtx, verifySpecParams, imageResp.Spec)
+		expectedmageSpec.cpuArchitecture = secalib.CpuArchitectureArm64
+		verifyImageSpecStep(sCtx, expectedmageSpec, imageResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.UpdatingStatusState,
@@ -413,11 +410,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		expectedImageMetadata.verb = http.MethodGet
 		verifyStorageRegionalMetadataStep(sCtx, expectedImageMetadata, imageResp.Metadata)
 
-		verifySpecParams := verifyImageSpecStepParams{
-			blockStorageRef: blockStorageRef,
-			cpuArchitecture: secalib.CpuArchitectureArm64,
-		}
-		verifyImageSpecStep(sCtx, verifySpecParams, imageResp.Spec)
+		verifyImageSpecStep(sCtx, expectedmageSpec, imageResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.ActiveStatusState,
@@ -433,7 +426,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			tenantStepParameter, suite.tenant,
 		)
 
-		err = suite.client.StorageV1.DeleteImage(ctx, imageResp)
+		err = suite.client.StorageV1.DeleteImage(ctx, imageResp, nil)
 		requireNoError(sCtx, err)
 	})
 
@@ -449,7 +442,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			Tenant: secapi.TenantID(suite.tenant),
 			Name:   imageName,
 		}
-		imageResp, err = suite.client.StorageV1.GetImage(ctx, tref)
+		_, err = suite.client.StorageV1.GetImage(ctx, tref)
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
@@ -460,7 +453,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			tenantStepParameter, suite.tenant,
 		)
 
-		err = suite.client.StorageV1.DeleteBlockStorage(ctx, blockResp)
+		err = suite.client.StorageV1.DeleteBlockStorage(ctx, blockResp, nil)
 		requireNoError(sCtx, err)
 	})
 
@@ -477,7 +470,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			Workspace: secapi.WorkspaceID(workspaceName),
 			Name:      blockStorageName,
 		}
-		blockResp, err = suite.client.StorageV1.GetBlockStorage(ctx, wref)
+		_, err = suite.client.StorageV1.GetBlockStorage(ctx, wref)
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 }

@@ -4,6 +4,7 @@ const (
 	roleResponseTemplateV1 = `{
       "metadata": {
         "name": "[[.Metadata.Name]]",
+		"provider": "[[.Metadata.Provider]]",
         "createdAt": "[[.Metadata.CreatedAt]]",
         "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
         "resourceVersion": [[.Metadata.ResourceVersion]],
@@ -15,13 +16,23 @@ const (
       },
       "spec": {
         "permissions": [
-		 [[- range $i, $p :=.Permissions]]
-		 [[if $i]],[[end]]
-			{
-			"provider": "[[$p.Provider]]",
-			"resources": "[[$p.Resources]]",
-			"verbs": "[[$p.Verbs]]"
-			}[[- end]]
+        [[- range $i, $p :=.Permissions]]
+		  [[if $i]],[[end]]
+          {
+            "provider": "[[$p.Provider]]",
+            "resources": [
+            [[- range $j, $r := $p.Resources]]
+              [[if $j]],[[end]]
+              "[[$r]]"
+            [[- end]]
+            ],
+            "verb": [
+            [[- range $j, $v := $p.Verb]]
+              [[if $j]],[[end]]
+              "[[$v]]"
+            [[- end]]
+            ]
+          }[[- end]]
 		]
       },
       "status": {
@@ -38,6 +49,7 @@ const (
 	roleAssignmentResponseTemplateV1 = `{
       "metadata": {
         "name": "[[.Metadata.Name]]",
+		"provider": "[[.Metadata.Provider]]",
         "createdAt": "[[.Metadata.CreatedAt]]",
         "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
         "resourceVersion": [[.Metadata.ResourceVersion]],
@@ -48,18 +60,42 @@ const (
         "verb": "[[.Metadata.Verb]]"
       },
       "spec": {
-        "subs": "[[.Subs]]",
-        "roles": "[[.Roles]]",
-		"scopes": [
-		 [[- range $i, $p :=.Scopes]]
-		 [[if $i]],[[end]]
-			{
-			"tenants": "[[$p.Tenants]]",
-			"regions": "[[$p.Regions]]",
-			"workspaces": "[[$p.Workspaces]]"
-		}[[- end]]
-		]
-		
+        "subs": [
+        [[- range $i, $s := .Subs]]
+          [[if $i]],[[end]]
+          "[[$s]]"
+        [[- end]]
+		],
+        "roles": [
+        [[- range $i, $r := .Roles]]
+          [[if $i]],[[end]]
+          "[[$r]]"
+        [[- end]]
+		],
+        "scopes": [
+        [[- range $i, $s := .Scopes]]
+		  [[if $i]],[[end]]
+          {
+            "tenants": [
+            [[- range $j, $t := $s.Tenants]]
+              [[if $j]],[[end]]
+              "[[$t]]"
+            [[- end]]
+            ],
+            "regions": [
+            [[- range $j, $r := $s.Regions]]
+              [[if $j]],[[end]]
+              "[[$r]]"
+            [[- end]]
+            ],
+            "workspaces": [
+            [[- range $j, $w := $s.Workspaces]]
+              [[if $j]],[[end]]
+              "[[$w]]"
+            [[- end]]
+            ]
+          }[[- end]]
+        ]
       },
       "status": {
         "state": "[[.Status.State]]",

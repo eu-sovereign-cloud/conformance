@@ -3,7 +3,7 @@ module github.com/eu-sovereign-cloud/conformance
 go 1.24
 
 require (
-	github.com/eu-sovereign-cloud/go-sdk v0.1.3
+	github.com/eu-sovereign-cloud/go-sdk v0.1.6
 	github.com/ozontech/allure-go/pkg/framework v0.7.1
 	github.com/wiremock/go-wiremock v1.13.0
 )

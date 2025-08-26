@@ -2,6 +2,16 @@ package secatest
 
 import "github.com/ozontech/allure-go/pkg/framework/provider"
 
+type verifyGlobalMetadataStepParams struct {
+	name       string
+	provider   string
+	resource   string
+	verb       string
+	apiVersion string
+	kind       string
+	tenant     string
+}
+
 type verifyRegionalMetadataStepParams struct {
 	name       string
 	provider   string
@@ -21,6 +31,40 @@ type verifySkuMetadataStepParams struct {
 type verifyStatusStepParams struct {
 	expectedState string
 	actualState   string
+}
+
+func verifyGlobalMetadataStep(ctx provider.StepCtx, expected verifyGlobalMetadataStepParams, actual verifyGlobalMetadataStepParams) {
+	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
+		stepCtx.WithNewParameters(
+			"expected_name", expected.name,
+			"actual_name", actual.name,
+
+			"expected_provider", expected.provider,
+			"actual_provider", actual.provider,
+
+			"expected_resource", expected.resource,
+			"actual_resource", actual.resource,
+
+			"expected_verb", expected.verb,
+			"actual_verb", actual.verb,
+
+			"expected_apiVersion", expected.apiVersion,
+			"actual_apiVersion", actual.apiVersion,
+
+			"expected_kind", expected.kind,
+			"actual_kind", actual.kind,
+
+			"expected_tenant", expected.tenant,
+			"actual_tenant", actual.tenant,
+		)
+
+		stepCtx.Require().Equal(expected.name, actual.name, "Name should match expected")
+		stepCtx.Require().Equal(expected.provider, actual.provider, "Provider should match expected")
+		stepCtx.Require().Equal(expected.resource, actual.resource, "Resource should match expected")
+		stepCtx.Require().Equal(expected.verb, actual.verb, "Verb should match expected")
+		stepCtx.Require().Equal(expected.apiVersion, actual.apiVersion, "ApiVersion should match expected")
+		stepCtx.Require().Equal(expected.kind, actual.kind, "Kind should match expected")
+	})
 }
 
 func verifyRegionalMetadataStep(ctx provider.StepCtx, expected verifyRegionalMetadataStepParams, actual verifyRegionalMetadataStepParams) {

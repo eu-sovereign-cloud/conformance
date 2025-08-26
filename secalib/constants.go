@@ -4,11 +4,6 @@ const (
 	// API Versions
 	ApiVersion1 = "v1"
 
-	// Providers
-	WorkspaceV1Provider = "seca.workspace/v1"
-	StorageV1Provider   = "seca.storage/v1"
-	ComputeV1Provider   = "seca.compute/v1"
-
 	// Labels
 	ArchitectureLabel = "architecture"
 	ProviderLabel     = "provider"
@@ -48,4 +43,8 @@ const (
 	ActiveStatusState    = "active"
 	UpdatingStatusState  = "updating"
 	SuspendedStatusState = "suspended"
+
+	// Generators
+	maxBlockStorageSize = 1000000 // GB
+	maxStorageSkuIops   = 45000
 )

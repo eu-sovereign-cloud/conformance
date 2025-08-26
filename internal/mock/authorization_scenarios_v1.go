@@ -15,16 +15,16 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params Authorizatio
 		return nil, err
 	}
 
-	roleUrl := secalib.GenerateRoleURL(params.Tenant, params.role.Name)
-	roleAssignmentUrl := secalib.GenerateRoleAssignmentURL(params.Tenant, params.roleAssignment.Name)
+	roleUrl := secalib.GenerateRoleURL(params.Tenant, params.Role.Name)
+	roleAssignmentUrl := secalib.GenerateRoleAssignmentURL(params.Tenant, params.RoleAssignment.Name)
 
-	roleResource := secalib.GenerateRoleResource(params.Tenant, params.role.Name)
-	roleAssignmentResource := secalib.GenerateRoleAssignmentResource(params.Tenant, params.roleAssignment.Name)
+	roleResource := secalib.GenerateRoleResource(params.Tenant, params.Role.Name)
+	roleAssignmentResource := secalib.GenerateRoleAssignmentResource(params.Tenant, params.RoleAssignment.Name)
 
 	// Role
-	response := roleResponseV1{
+	roleResponse := roleResponseV1{
 		Metadata: metadataResponse{
-			Name:       params.role.Name,
+			Name:       params.Role.Name,
 			Provider:   secalib.AuthorizationProviderV1,
 			Resource:   roleResource,
 			ApiVersion: secalib.ApiVersion1,
@@ -32,25 +32,25 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params Authorizatio
 			Tenant:     params.Tenant,
 		},
 	}
-	for _, perm := range params.role.Permissions {
-		response.Permissions = append(response.Permissions, rolePermissionResponseV1{
+	for _, perm := range params.Role.Permissions {
+		roleResponse.Permissions = append(roleResponse.Permissions, rolePermissionResponseV1{
 			Provider:  perm.Provider,
 			Resources: append([]string{}, perm.Resources...),
-			Verbs:     append([]string{}, perm.Verbs...),
+			Verb:      append([]string{}, perm.VerbInitial...),
 		})
 	}
 
 	// Create a role
-	response.Metadata.Verb = http.MethodPut
-	response.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	response.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	response.Metadata.ResourceVersion = 1
-	response.Status.State = secalib.CreatingStatusState
-	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	roleResponse.Metadata.Verb = http.MethodPut
+	roleResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	roleResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	roleResponse.Metadata.ResourceVersion = 1
+	roleResponse.Status.State = secalib.CreatingStatusState
+	roleResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          roleUrl,
 		params:       params,
-		response:     response,
+		response:     roleResponse,
 		template:     roleResponseTemplateV1,
 		currentState: startedScenarioState,
 		nextState:    "GetCreatedRole",
@@ -60,13 +60,13 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params Authorizatio
 	}
 
 	// Get created role
-	response.Metadata.Verb = http.MethodGet
-	response.Status.State = secalib.ActiveStatusState
-	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	roleResponse.Metadata.Verb = http.MethodGet
+	roleResponse.Status.State = secalib.ActiveStatusState
+	roleResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, scenarioConfig{
 		url:          roleUrl,
 		params:       params,
-		response:     response,
+		response:     roleResponse,
 		template:     roleResponseTemplateV1,
 		currentState: "GetCreatedRole",
 		nextState:    "UpdateRole",
@@ -76,15 +76,18 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params Authorizatio
 	}
 
 	// Update the role
-	response.Metadata.Verb = http.MethodPut
-	response.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	response.Metadata.ResourceVersion = response.Metadata.ResourceVersion + 1
-	response.Status.State = secalib.UpdatingStatusState
-	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	roleResponse.Metadata.Verb = http.MethodPut
+	roleResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	roleResponse.Metadata.ResourceVersion = roleResponse.Metadata.ResourceVersion + 1
+	for i, perm := range params.Role.Permissions {
+		roleResponse.Permissions[i].Verb = append([]string{}, perm.VerbUpdated...)
+	}
+	roleResponse.Status.State = secalib.UpdatingStatusState
+	roleResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          roleUrl,
 		params:       params,
-		response:     response,
+		response:     roleResponse,
 		template:     roleResponseTemplateV1,
 		currentState: "UpdateRole",
 		nextState:    "GetUpdatedRole",
@@ -94,79 +97,53 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params Authorizatio
 	}
 
 	// Get updated role
-	response.Metadata.Verb = http.MethodGet
-	response.Status.State = secalib.ActiveStatusState
-	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	roleResponse.Metadata.Verb = http.MethodGet
+	roleResponse.Status.State = secalib.ActiveStatusState
+	roleResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, scenarioConfig{
 		url:          roleUrl,
 		params:       params,
-		response:     response,
+		response:     roleResponse,
 		template:     roleResponseTemplateV1,
 		currentState: "GetUpdatedRole",
-		nextState:    "DeleteRole",
+		nextState:    "CreateRoleAssignment",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
 	}
 
-	// Delete the role
-	response.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, scenarioConfig{
-		url:          roleUrl,
-		params:       params,
-		response:     response,
-		currentState: "DeleteRole",
-		nextState:    "GetDeletedRole",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
-		return nil, err
-	}
-
-	// Get deleted role
-	response.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, scenarioConfig{
-		url:          roleUrl,
-		params:       params,
-		response:     response,
-		currentState: "GetDeletedRole",
-		nextState:    "CreateRoleAssignment",
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
-		return nil, err
-	}
-
 	// Role assignment
-	responseRA := roleAssignmentResponseV1{
+	roleAssignmentResponse := roleAssignmentResponseV1{
 		Metadata: metadataResponse{
-			Name:       params.roleAssignment.Name,
+			Name:       params.RoleAssignment.Name,
 			Provider:   secalib.AuthorizationProviderV1,
 			Resource:   roleAssignmentResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.RoleAssignmentKind,
 			Tenant:     params.Tenant,
 		},
-		Subs:  append([]string{}, params.roleAssignment.subs...),
-		Roles: append([]string{}, params.roleAssignment.roles...),
+		Subs:  params.RoleAssignment.SubsInitial,
+		Roles: params.RoleAssignment.Roles,
 	}
-	for _, scope := range params.roleAssignment.scopes {
-		responseRA.Scopes = append(responseRA.Scopes, roleAssignmentScopeResponseV1{
-			Tenants:    append([]string{}, scope.Tenants...),
-			Regions:    append([]string{}, scope.Regions...),
-			Workspaces: append([]string{}, scope.Workspaces...),
+	for _, scope := range params.RoleAssignment.Scopes {
+		roleAssignmentResponse.Scopes = append(roleAssignmentResponse.Scopes, roleAssignmentScopeResponseV1{
+			Tenants:    scope.Tenants,
+			Regions:    scope.Regions,
+			Workspaces: scope.Workspaces,
 		})
 	}
 
 	// Create a role assignment
-	responseRA.Metadata.Verb = http.MethodPut
-	responseRA.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	responseRA.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	responseRA.Metadata.ResourceVersion = 1
-	responseRA.Status.State = secalib.CreatingStatusState
-	responseRA.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	roleAssignmentResponse.Metadata.Verb = http.MethodPut
+	roleAssignmentResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	roleAssignmentResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	roleAssignmentResponse.Metadata.ResourceVersion = 1
+	roleAssignmentResponse.Status.State = secalib.CreatingStatusState
+	roleAssignmentResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          roleAssignmentUrl,
 		params:       params,
-		response:     responseRA,
+		response:     roleAssignmentResponse,
 		template:     roleAssignmentResponseTemplateV1,
 		currentState: "CreateRoleAssignment",
 		nextState:    "GetCreatedRoleAssignment",
@@ -176,13 +153,13 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params Authorizatio
 	}
 
 	// Get created role assignment
-	responseRA.Metadata.Verb = http.MethodGet
-	responseRA.Status.State = secalib.ActiveStatusState
-	responseRA.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	roleAssignmentResponse.Metadata.Verb = http.MethodGet
+	roleAssignmentResponse.Status.State = secalib.ActiveStatusState
+	roleAssignmentResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, scenarioConfig{
 		url:          roleAssignmentUrl,
 		params:       params,
-		response:     responseRA,
+		response:     roleAssignmentResponse,
 		template:     roleAssignmentResponseTemplateV1,
 		currentState: "GetCreatedRoleAssignment",
 		nextState:    "UpdateRoleAssignment",
@@ -192,15 +169,16 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params Authorizatio
 	}
 
 	// Update the role assignment
-	responseRA.Metadata.Verb = http.MethodPut
-	responseRA.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	responseRA.Metadata.ResourceVersion = responseRA.Metadata.ResourceVersion + 1
-	responseRA.Status.State = secalib.UpdatingStatusState
-	responseRA.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	roleAssignmentResponse.Metadata.Verb = http.MethodPut
+	roleAssignmentResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	roleAssignmentResponse.Metadata.ResourceVersion = roleAssignmentResponse.Metadata.ResourceVersion + 1
+	roleAssignmentResponse.Subs = params.RoleAssignment.SubsUpdated
+	roleAssignmentResponse.Status.State = secalib.UpdatingStatusState
+	roleAssignmentResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, scenarioConfig{
 		url:          roleAssignmentUrl,
 		params:       params,
-		response:     responseRA,
+		response:     roleAssignmentResponse,
 		template:     roleAssignmentResponseTemplateV1,
 		currentState: "UpdateRoleAssignment",
 		nextState:    "GetUpdatedRoleAssignment",
@@ -210,13 +188,13 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params Authorizatio
 	}
 
 	// Get updated role assignment
-	responseRA.Metadata.Verb = http.MethodGet
-	responseRA.Status.State = secalib.ActiveStatusState
-	responseRA.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	roleAssignmentResponse.Metadata.Verb = http.MethodGet
+	roleAssignmentResponse.Status.State = secalib.ActiveStatusState
+	roleAssignmentResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, scenarioConfig{
 		url:          roleAssignmentUrl,
 		params:       params,
-		response:     responseRA,
+		response:     roleAssignmentResponse,
 		template:     roleAssignmentResponseTemplateV1,
 		currentState: "GetUpdatedRoleAssignment",
 		nextState:    "DeleteRoleAssignment",
@@ -226,11 +204,11 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params Authorizatio
 	}
 
 	// Delete the role assignment
-	responseRA.Metadata.Verb = http.MethodDelete
+	roleAssignmentResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, scenarioConfig{
 		url:          roleAssignmentUrl,
 		params:       params,
-		response:     responseRA,
+		response:     roleAssignmentResponse,
 		currentState: "DeleteRoleAssignment",
 		nextState:    "GetDeletedRoleAssignment",
 		httpStatus:   http.StatusAccepted,
@@ -239,12 +217,38 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params Authorizatio
 	}
 
 	// Get deleted role assignment
-	responseRA.Metadata.Verb = http.MethodGet
+	roleAssignmentResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario, scenarioConfig{
 		url:          roleAssignmentUrl,
 		params:       params,
-		response:     responseRA,
+		response:     roleAssignmentResponse,
 		currentState: "GetDeletedRoleAssignment",
+		nextState:    "DeleteRole",
+		httpStatus:   http.StatusNotFound,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Delete the role
+	roleResponse.Metadata.Verb = http.MethodDelete
+	if err := configureDeleteStub(wm, scenario, scenarioConfig{
+		url:          roleUrl,
+		params:       params,
+		response:     roleResponse,
+		currentState: "DeleteRole",
+		nextState:    "GetDeletedRole",
+		httpStatus:   http.StatusAccepted,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Get deleted role
+	roleResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario, scenarioConfig{
+		url:          roleUrl,
+		params:       params,
+		response:     roleResponse,
+		currentState: "GetDeletedRole",
 		nextState:    startedScenarioState,
 		httpStatus:   http.StatusNotFound,
 	}); err != nil {

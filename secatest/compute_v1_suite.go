@@ -3,6 +3,7 @@ package secatest
 import (
 	"context"
 	"log/slog"
+	"math/rand"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
@@ -37,18 +38,23 @@ type verifyInstanceSpecStepParams struct {
 
 func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.Title("Compute Lifecycle Test")
-	configureTags(t, secalib.ComputeV1Provider, secalib.InstanceSkuKind, secalib.InstanceKind)
+	configureTags(t, secalib.ComputeProviderV1, secalib.InstanceSkuKind, secalib.InstanceKind)
 
-	// TODO Export to configuration
+	// TODO Export configuration
+	instanceZones := []string{"zone-a", "zone-b"}
+
+	// TODO Export to mock configuration
 	skuProvider := "seca"
 	instanceSkuTier := "DXS"
 	instanceSkuRAM := 2048
 	instanceSkuVCPU := 2
-	instanceZoneA := "zone-a"
-	instanceZoneB := "zone-b"
 	storageSkuTier := "gold"
 
-	// TODO Create before the scenario
+	// Select zones
+	instanceZone1 := instanceZones[rand.Intn(len(instanceZones))]
+	instanceZone2 := instanceZones[rand.Intn(len(instanceZones))]
+
+	// TODO Dynamically create before the scenario
 	workspaceName := secalib.GenerateWorkspaceName()
 
 	// Generate scenario data
@@ -63,6 +69,10 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 
 	blockStorageName := secalib.GenerateBlockStorageName()
 	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
+
+	storageSkuIops := secalib.GenerateStorageSkuIops()
+	blockStorageSize := secalib.GenerateBlockStorageSize()
+	storageSkuMinVolumeSize := secalib.GenerateStorageSkuMinVolumeSize(blockStorageSize)
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
@@ -79,14 +89,14 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 					Name:          storageSkuName,
 					Provider:      skuProvider,
 					Tier:          storageSkuTier,
-					Iops:          storageSkuIops500,
+					Iops:          storageSkuIops,
 					StorageType:   secalib.StorageTypeLocalEphemeral,
-					MinVolumeSize: storageSkuMinVolumeSize10,
+					MinVolumeSize: storageSkuMinVolumeSize,
 				},
 				BlockStorage: mock.BlockStorageParamsV1{
 					Name:          blockStorageName,
 					SkuRef:        storageSkuRef,
-					SizeGBInitial: blockStorageSizeGB100,
+					SizeGBInitial: blockStorageSize,
 				},
 				InstanceSku: mock.InstanceSkuParamsV1{
 					Name:         instanceSkuName,
@@ -99,8 +109,8 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 				Instance: mock.InstanceParamsV1{
 					Name:          instanceName,
 					SkuRef:        instanceSkuRef,
-					ZoneInitial:   instanceZoneA,
-					ZoneUpdated:   instanceZoneB,
+					ZoneInitial:   instanceZone1,
+					ZoneUpdated:   instanceZone2,
 					BootDeviceRef: blockStorageRef,
 				},
 			})
@@ -142,18 +152,18 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			workspaceStepParameter, workspaceName,
 		)
 
+		wref := secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      blockStorageName,
+		}
 		bo := &storage.BlockStorage{
-			Metadata: &storage.ZonalResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: &workspaceName,
-				Name:      blockStorageName,
-			},
 			Spec: storage.BlockStorageSpec{
-				SizeGB: blockStorageSizeGB100,
+				SizeGB: blockStorageSize,
 				SkuRef: storageSkuRef,
 			},
 		}
-		blockStorageResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, bo)
+		blockStorageResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, wref, bo, nil)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockStorageResp)
 	})
@@ -216,15 +226,8 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		verifyInstanceSkuSpecStep(sCtx, verifySpecParams, instanceSkuResp.Spec)
 	})
 
-	expectedInstanceMetadata := verifyRegionalMetadataStepParams{
-		name:       instanceName,
-		provider:   secalib.ComputeV1Provider,
-		resource:   instanceResource,
-		apiVersion: secalib.ApiVersion1,
-		kind:       secalib.InstanceKind,
-		tenant:     suite.tenant,
-		region:     suite.region,
-	}
+	var expectedMetadata verifyRegionalMetadataStepParams
+	var expectedSpec verifyInstanceSpecStepParams
 
 	// Step 5
 	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
@@ -234,32 +237,41 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			workspaceStepParameter, workspaceName,
 		)
 
+		wref := secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      instanceName,
+		}
 		inst := &compute.Instance{
-			Metadata: &compute.ZonalResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: &workspaceName,
-				Name:      instanceName,
-			},
 			Spec: compute.InstanceSpec{
 				SkuRef: instanceSkuRef,
-				Zone:   instanceZoneA,
+				Zone:   instanceZone1,
 			},
 		}
 		inst.Spec.BootVolume.DeviceRef = blockStorageRef
 
-		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, inst)
+		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, wref, inst, nil)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedInstanceMetadata.verb = http.MethodPut
-		verifyInstanceZonalMetadataStep(sCtx, expectedInstanceMetadata, instanceResp.Metadata)
+		expectedMetadata = verifyRegionalMetadataStepParams{
+			name:       instanceName,
+			provider:   secalib.ComputeProviderV1,
+			resource:   instanceResource,
+			verb:       http.MethodPut,
+			apiVersion: secalib.ApiVersion1,
+			kind:       secalib.InstanceKind,
+			tenant:     suite.tenant,
+			region:     suite.region,
+		}
+		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
 
-		verifySpecParams := verifyInstanceSpecStepParams{
+		expectedSpec = verifyInstanceSpecStepParams{
 			skuRef:        instanceSkuRef,
-			zone:          instanceZoneA,
+			zone:          instanceZone1,
 			bootDeviceRef: blockStorageRef,
 		}
-		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
+		verifyInstanceSpecStep(sCtx, expectedSpec, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.CreatingStatusState,
@@ -285,15 +297,10 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedInstanceMetadata.verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedInstanceMetadata, instanceResp.Metadata)
+		expectedMetadata.verb = http.MethodGet
+		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
 
-		verifySpecParams := verifyInstanceSpecStepParams{
-			skuRef:        instanceSkuRef,
-			zone:          instanceZoneA,
-			bootDeviceRef: blockStorageRef,
-		}
-		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
+		verifyInstanceSpecStep(sCtx, expectedSpec, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.ActiveStatusState,
@@ -310,20 +317,22 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			workspaceStepParameter, workspaceName,
 		)
 
-		instanceResp.Spec.Zone = instanceZoneB
-		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, instanceResp)
+		instanceResp.Spec.Zone = instanceZone2
+
+		wref := secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      instanceName,
+		}
+		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, wref, instanceResp, nil)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedInstanceMetadata.verb = http.MethodPut
-		verifyInstanceZonalMetadataStep(sCtx, expectedInstanceMetadata, instanceResp.Metadata)
+		expectedMetadata.verb = http.MethodPut
+		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
 
-		verifySpecParams := verifyInstanceSpecStepParams{
-			skuRef:        instanceSkuRef,
-			zone:          instanceZoneB,
-			bootDeviceRef: blockStorageRef,
-		}
-		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
+		expectedSpec.zone = instanceZone2
+		verifyInstanceSpecStep(sCtx, expectedSpec, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.UpdatingStatusState,
@@ -349,15 +358,10 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedInstanceMetadata.verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedInstanceMetadata, instanceResp.Metadata)
+		expectedMetadata.verb = http.MethodGet
+		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
 
-		verifySpecParams := verifyInstanceSpecStepParams{
-			skuRef:        instanceSkuRef,
-			zone:          instanceZoneB,
-			bootDeviceRef: blockStorageRef,
-		}
-		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
+		verifyInstanceSpecStep(sCtx, expectedSpec, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.ActiveStatusState,
@@ -374,7 +378,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			workspaceStepParameter, workspaceName,
 		)
 
-		err = suite.client.ComputeV1.StopInstance(ctx, instanceResp)
+		err = suite.client.ComputeV1.StopInstance(ctx, instanceResp, nil)
 		requireNoError(sCtx, err)
 	})
 
@@ -395,15 +399,10 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedInstanceMetadata.verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedInstanceMetadata, instanceResp.Metadata)
+		expectedMetadata.verb = http.MethodGet
+		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
 
-		verifySpecParams := verifyInstanceSpecStepParams{
-			skuRef:        instanceSkuRef,
-			zone:          instanceZoneB,
-			bootDeviceRef: blockStorageRef,
-		}
-		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
+		verifyInstanceSpecStep(sCtx, expectedSpec, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.SuspendedStatusState,
@@ -420,7 +419,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			workspaceStepParameter, workspaceName,
 		)
 
-		err = suite.client.ComputeV1.StartInstance(ctx, instanceResp)
+		err = suite.client.ComputeV1.StartInstance(ctx, instanceResp, nil)
 		requireNoError(sCtx, err)
 	})
 
@@ -441,15 +440,10 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedInstanceMetadata.verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedInstanceMetadata, instanceResp.Metadata)
+		expectedMetadata.verb = http.MethodGet
+		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
 
-		verifySpecParams := verifyInstanceSpecStepParams{
-			skuRef:        instanceSkuRef,
-			zone:          instanceZoneB,
-			bootDeviceRef: blockStorageRef,
-		}
-		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
+		verifyInstanceSpecStep(sCtx, expectedSpec, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.ActiveStatusState,
@@ -466,7 +460,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			workspaceStepParameter, workspaceName,
 		)
 
-		err = suite.client.ComputeV1.RestartInstance(ctx, instanceResp)
+		err = suite.client.ComputeV1.RestartInstance(ctx, instanceResp, nil)
 		requireNoError(sCtx, err)
 	})
 
@@ -487,15 +481,10 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedInstanceMetadata.verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedInstanceMetadata, instanceResp.Metadata)
+		expectedMetadata.verb = http.MethodGet
+		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
 
-		verifySpecParams := verifyInstanceSpecStepParams{
-			skuRef:        instanceSkuRef,
-			zone:          instanceZoneB,
-			bootDeviceRef: blockStorageRef,
-		}
-		verifyInstanceSpecStep(sCtx, verifySpecParams, instanceResp.Spec)
+		verifyInstanceSpecStep(sCtx, expectedSpec, instanceResp.Spec)
 
 		verifyStatusParams := verifyStatusStepParams{
 			expectedState: secalib.ActiveStatusState,
@@ -512,7 +501,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			workspaceStepParameter, workspaceName,
 		)
 
-		err = suite.client.ComputeV1.DeleteInstance(ctx, instanceResp)
+		err = suite.client.ComputeV1.DeleteInstance(ctx, instanceResp, nil)
 		requireNoError(sCtx, err)
 	})
 
@@ -529,7 +518,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			Workspace: secapi.WorkspaceID(workspaceName),
 			Name:      instanceName,
 		}
-		instanceResp, err = suite.client.ComputeV1.GetInstance(ctx, wref)
+		_, err = suite.client.ComputeV1.GetInstance(ctx, wref)
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 }

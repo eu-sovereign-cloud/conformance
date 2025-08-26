@@ -4,28 +4,31 @@ package mock
 
 type AuthorizationParamsV1 struct {
 	Params
-	role           RoleParamsV1
-	roleAssignment RoleAssignmentParamsV1
-}
-type RoleAssignmentScopeParamsV1 struct {
-	Tenants    []string
-	Regions    []string
-	Workspaces []string
+	Role           RoleParamsV1
+	RoleAssignment RoleAssignmentParamsV1
 }
 type RoleParamsV1 struct {
 	Name        string
 	Permissions []RolePermissionParamsV1
 }
 type RolePermissionParamsV1 struct {
-	Provider  string
-	Resources []string
-	Verbs     []string
+	Provider    string
+	Resources   []string
+	VerbInitial []string
+	VerbUpdated []string
 }
+
 type RoleAssignmentParamsV1 struct {
-	Name   string
-	roles  []string
-	subs   []string
-	scopes []RoleAssignmentScopeParamsV1
+	Name        string
+	Roles       []string
+	SubsInitial []string
+	SubsUpdated []string
+	Scopes      []RoleAssignmentScopeParamsV1
+}
+type RoleAssignmentScopeParamsV1 struct {
+	Tenants    []string
+	Regions    []string
+	Workspaces []string
 }
 
 func (p AuthorizationParamsV1) getParams() Params { return p.Params }
@@ -93,21 +96,15 @@ func (p StorageParamsV1) getParams() Params { return p.Params }
 
 // Responses
 
+type roleResponseV1 struct {
+	Metadata    metadataResponse
+	Status      statusResponse
+	Permissions []rolePermissionResponseV1
+}
 type rolePermissionResponseV1 struct {
 	Provider  string
 	Resources []string
-	Verbs     []string
-}
-type roleResponseV1 struct {
-	Metadata metadataResponse
-	Status   statusResponse
-
-	Permissions []rolePermissionResponseV1
-}
-type roleAssignmentScopeResponseV1 struct {
-	Tenants    []string
-	Regions    []string
-	Workspaces []string
+	Verb      []string
 }
 type roleAssignmentResponseV1 struct {
 	Metadata metadataResponse
@@ -116,6 +113,11 @@ type roleAssignmentResponseV1 struct {
 	Roles  []string
 	Subs   []string
 	Scopes []roleAssignmentScopeResponseV1
+}
+type roleAssignmentScopeResponseV1 struct {
+	Tenants    []string
+	Regions    []string
+	Workspaces []string
 }
 
 type workspaceResponseV1 struct {

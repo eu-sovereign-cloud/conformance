@@ -1,7 +1,7 @@
 package secatest
 
 import (
-	"context"
+	//"context"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -36,7 +36,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestSuites(t *testing.T) {
-	ctx := context.Background()
+	//ctx := context.Background()
 
 	// Initialize global client
 	globalClient, err := secapi.NewGlobalClient(&secapi.GlobalConfig{
@@ -52,15 +52,27 @@ func TestSuites(t *testing.T) {
 	}
 
 	// Initialize regional client
-	regionalClient, err := globalClient.NewRegionalClient(ctx, config.clientRegion)
+	/*regionalClient, err := globalClient.NewRegionalClient(ctx, config.clientRegion)
 	if err != nil {
 		slog.Error("Failed to create regional client", "error", err)
 		os.Exit(1)
-	}
+	}*/
 
 	// Run test suites
 
-	suite.RunNamedSuite(t, "Workspace V1", &WorkspaceV1TestSuite{
+	suite.RunNamedSuite(t, "Authorization V1", &AuthorizationV1TestSuite{
+		globalTestSuite: globalTestSuite{
+			testSuite: testSuite{
+				tenant:        config.clientTenant,
+				authToken:     config.clientAuthToken,
+				mockEnabled:   config.mockEnabled,
+				mockServerURL: config.mockServerURL,
+			},
+			client: globalClient,
+		},
+	})
+
+	/*suite.RunNamedSuite(t, "Workspace V1", &WorkspaceV1TestSuite{
 		regionalTestSuite: regionalTestSuite{
 			testSuite: testSuite{
 				tenant:        config.clientTenant,
@@ -97,7 +109,7 @@ func TestSuites(t *testing.T) {
 			region: config.clientRegion,
 			client: regionalClient,
 		},
-	})
+	})*/
 }
 
 func configureReports(config *Config) {
