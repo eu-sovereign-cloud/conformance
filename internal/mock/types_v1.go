@@ -105,6 +105,7 @@ type NetworkParamsV1 struct {
 	Instance        InstanceParamsV1
 	InstanceSku     InstanceSkuParamsV1
 	BlockStorage    BlockStorageParamsV1
+	StorageSku      StorageSkuParamsV1
 }
 type NetworkInstanceParamsV1 struct {
 	Name            string

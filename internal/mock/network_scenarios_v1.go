@@ -26,6 +26,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	instanceSkuURL := secalib.GenerateInstanceSkuURL(params.Tenant, params.InstanceSku.Name)
 	instanceURL := secalib.GenerateInstanceURL(params.Tenant, params.Workspace, params.Instance.Name)
 	blockStorageURL := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace, params.BlockStorage.Name)
+	blockStorageSkuURL := secalib.GenerateStorageSkuURL(params.Tenant, params.StorageSku.Name)
 
 	//GenerateResources
 	networkSkuResource := secalib.GenerateNetworkResource(params.Tenant, params.Workspace, params.NetworkSku.Name)
@@ -39,6 +40,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	instanceSkuResource := secalib.GenerateSkuResource(params.Tenant, params.InstanceSku.Name)
 	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace, params.Instance.Name)
 	blockStorageResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace, params.BlockStorage.Name)
+	storageSkuResource := secalib.GenerateSkuResource(params.Tenant, params.StorageSku.Name)
 
 	// Network Sku
 	networkSkuResponse := networkSkuResponseV1{
@@ -670,6 +672,33 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		response:     securityGroupResponse,
 		template:     securityGroupResponseTemplateV1,
 		currentState: "GetSecurityGroupUpdated",
+		nextState:    "GetStorageSku",
+		httpStatus:   http.StatusOK,
+	}); err != nil {
+		return nil, err
+	}
+
+	//Storage Sku
+	storageSkuResponse := storageSkuResponseV1{
+		Metadata: metadataResponse{
+			Name:       params.StorageSku.Name,
+			Provider:   secalib.StorageProviderV1,
+			Resource:   storageSkuResource,
+			ApiVersion: secalib.ApiVersion1,
+			Kind:       secalib.StorageSkuKind,
+			Tenant:     params.Tenant,
+			Region:     params.Region,
+		},
+	}
+	storageSkuResponse.Metadata.Verb = http.MethodGet
+	storageSkuResponse.Status.State = secalib.ActiveStatusState
+	storageSkuResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configureGetStub(wm, scenario, scenarioConfig{
+		url:          blockStorageSkuURL,
+		params:       params,
+		response:     storageSkuResponse,
+		template:     storageSkuResponseTemplateV1,
+		currentState: "GetStorageSku",
 		nextState:    "CreateBlockStorage",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
@@ -899,7 +928,7 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		url:          routeTableURL,
 		params:       params,
 		response:     routeTableResponse,
-		currentState: "DeleteRoutTeable",
+		currentState: "DeleteRouteTable",
 		nextState:    "DeleteInternetGateway",
 		httpStatus:   http.StatusAccepted,
 	}); err != nil {
