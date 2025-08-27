@@ -6,8 +6,8 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/eu-sovereign-cloud/go-sdk v0.1.2 h1:ThVDyME123cTMi3puP7l3feDQax8XdZwSivDCb7UPms=
-github.com/eu-sovereign-cloud/go-sdk v0.1.2/go.mod h1:82Ej+1KvDJ2jg5EdN+EgY7QByPyWaYv26hYusP2KSj4=
+github.com/eu-sovereign-cloud/go-sdk v0.1.6 h1:awJ4TFMp3ik9SbGMvnNGjij4cSmiOiDZ8/+nSf7SWPE=
+github.com/eu-sovereign-cloud/go-sdk v0.1.6/go.mod h1:82Ej+1KvDJ2jg5EdN+EgY7QByPyWaYv26hYusP2KSj4=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/juju/gnuflag v0.0.0-20171113085948-2ce1bb71843d/go.mod h1:2PavIy+JPciBPrBUjwbNvtwB6RQlve+hkpll6QSNmOE=
