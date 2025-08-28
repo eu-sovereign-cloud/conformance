@@ -16,7 +16,7 @@ const (
       },
       "spec": {
         "permissions": [
-        [[- range $i, $p :=.Permissions]]
+        [[- range $i, $p := .Spec.Permissions]]
 		  [[if $i]],[[end]]
           {
             "provider": "[[$p.Provider]]",
@@ -61,19 +61,19 @@ const (
       },
       "spec": {
         "subs": [
-        [[- range $i, $s := .Subs]]
+        [[- range $i, $s := .Spec.Subs]]
           [[if $i]],[[end]]
           "[[$s]]"
         [[- end]]
 		],
         "roles": [
-        [[- range $i, $r := .Roles]]
+        [[- range $i, $r := .Spec.Roles]]
           [[if $i]],[[end]]
           "[[$r]]"
         [[- end]]
 		],
         "scopes": [
-        [[- range $i, $s := .Scopes]]
+        [[- range $i, $s := .Spec.Scopes]]
 		  [[if $i]],[[end]]
           {
             "tenants": [
@@ -138,43 +138,6 @@ const (
 		}
 	}`
 
-	storageSkuResponseTemplateV1 = `
-	{
-		"labels": {
-			"provider": "[[.Provider]]",
-        	"tier": "[[.Tier]]"
-		},
-		"annotations": {},
-		"extensions": {},	
-		"metadata": {
-			"name": "[[.Metadata.Name]]",
-			"provider": "[[.Metadata.Provider]]",
-			"resource": "[[.Metadata.Resource]]",
-			"verb": "[[.Metadata.Verb]]",
-			"createdAt": "[[.Metadata.CreatedAt]]",
-			"lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-			"resourceVersion": [[.Metadata.ResourceVersion]],
-			"apiVersion": "[[.Metadata.ApiVersion]]",
-			"kind": "[[.Metadata.Kind]]",
-			"tenant": "[[.Metadata.Tenant]]",
-			"region": "[[.Metadata.Region]]"
-		},
-		"spec": {
-			"iops": [[.Iops]],
-			"type": "[[.StorageType]]",
-			"minVolumeSize": [[.MinVolumeSize]]
-		},
-		"status": {
-			"state": "[[.Status.State]]",
-			"conditions": [
-				{
-					"state": "[[.Status.State]]",
-					"lastTransitionAt": "[[.Status.LastTransitionAt]]"
-				}
-			]
-		}
-	}`
-
 	blockStorageResponseTemplateV1 = `
 	{
 		"labels": {},
@@ -195,8 +158,8 @@ const (
 			"region": "[[.Metadata.Region]]"
 		},
 		"spec": {
-			"skuRef": "[[.SkuRef]]",
-			"sizeGB": [[.SizeGB]]
+			"skuRef": "[[.Spec.SkuRef]]",
+			"sizeGB": [[.Spec.SizeGB]]
 		},
 		"status": {
 			"state": "[[.Status.State]]",
@@ -229,45 +192,8 @@ const (
 			"region": "[[.Metadata.Region]]"
 		},
 		"spec": {
-			"blockStorageRef": "[[.BlockStorageRef]]",
-        	"cpuArchitecture": "[[.CpuArchitecture]]"
-		},
-		"status": {
-			"state": "[[.Status.State]]",
-			"conditions": [
-				{
-					"state": "[[.Status.State]]",
-					"lastTransitionAt": "[[.Status.LastTransitionAt]]"
-				}
-			]
-		}
-	}`
-
-	instanceSkuResponseTemplateV1 = `
-	{
-		"labels": {
-			"architecture": "[[.Architecture]]",
-        	"provider": "[[.Provider]]",
-        	"tier": "[[.Tier]]"		
-		},
-		"annotations": {},
-		"extensions": {},	
-		"metadata": {
-			"name": "[[.Metadata.Name]]",
-			"provider": "[[.Metadata.Provider]]",
-			"resource": "[[.Metadata.Resource]]",
-			"verb": "[[.Metadata.Verb]]",
-			"createdAt": "[[.Metadata.CreatedAt]]",
-			"lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-			"resourceVersion": [[.Metadata.ResourceVersion]],
-			"apiVersion": "[[.Metadata.ApiVersion]]",
-			"kind": "[[.Metadata.Kind]]",
-			"tenant": "[[.Metadata.Tenant]]",
-			"region": "[[.Metadata.Region]]"
-		},
-		"spec": {
-			"ram": [[.RAM]],
-			"vCPU": [[.VCPU]]
+			"blockStorageRef": "[[.Spec.BlockStorageRef]]",
+        	"cpuArchitecture": "[[.Spec.CpuArchitecture]]"
 		},
 		"status": {
 			"state": "[[.Status.State]]",
@@ -300,10 +226,10 @@ const (
 			"region": "[[.Metadata.Region]]"
 		},
 		"spec": {
-			"skuRef": "[[.SkuRef]]",
-        	"zone": "[[.Zone]]",
+			"skuRef": "[[.Spec.SkuRef]]",
+        	"zone": "[[.Spec.Zone]]",
         	"bootVolume": {
-				"deviceRef": "[[.BootDeviceRef]]"
+				"deviceRef": "[[.Spec.BootDeviceRef]]"
 			}
 		},
 		"status": {
@@ -315,5 +241,237 @@ const (
 				}
 			]
 		}
+	}`
+
+	networkResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "provider": "[[.Metadata.Provider]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
+      },
+      "spec": {
+        "cidr": {
+          "ipv4": "[[.Spec.Cidr.Ipv4]]",
+          "ipv6": "[[.Spec.Cidr.Ipv6]]"
+        },
+        "skuRef": "[[.Spec.SkuRef]]",
+        "routeTableRef": "[[.Spec.RouteTableRef]]"
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
+
+	internetGatewayResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "provider": "[[.Metadata.Provider]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
+      },
+      "spec": {
+        "egressOnly": "[[.Spec.EgressOnly]]"
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
+
+	nicResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "provider": "[[.Metadata.Provider]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
+      },
+      "spec": {
+        "addresses": "[[.Spec.Addresses]]",
+        "subnetRef": "[[.Spec.SubnetRef]]"
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
+
+	publicIPResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "provider": "[[.Metadata.Provider]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
+      },
+      "spec": {
+        "version": "[[.Spec.Version]]",
+        "address": "[[.Spec.Address]]"
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+    }`
+
+	routeTableResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "provider": "[[.Metadata.Provider]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
+      },
+      "spec": {
+	  	"localRef": "[[.Spec.LocalRef]]",
+      "routes": [
+		  [[- range $i, $r := .Spec.Routes]]
+		  [[if $i]],[[end]]
+			{
+			  "destinationCidrBlock": "[[$r.DestinationCidrBlock]]",
+			  "targetRef": "[[$r.TargetRef]]"
+		  }[[- end]]
+		]
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+	}`
+
+	subnetResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "provider": "[[.Metadata.Provider]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
+      },
+      "spec": {
+		"cidr": "[[.Spec.Cidr]]",
+		"zone": "[[.Spec.Zone]]"
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
+	}`
+
+	securityGroupResponseTemplateV1 = `
+	{
+      "metadata": {
+        "name": "[[.Metadata.Name]]",
+        "provider": "[[.Metadata.Provider]]",
+        "resource": "[[.Metadata.Resource]]",
+        "verb": "[[.Metadata.Verb]]",
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
+      },
+      "spec": {
+		"rules": [
+			[[- range $i, $r := .Spec.Rules]]
+			[[if $i]],[[end]]
+				{
+				"direction": "[[$r.Direction]]"
+			}[[- end]]
+			]
+      },
+      "status": {
+        "state": "[[.Status.State]]",
+        "conditions": [
+          {
+            "state": "[[.Status.State]]",
+            "lastTransitionAt": "[[.Status.LastTransitionAt]]"
+          }
+        ]
+      }
 	}`
 )

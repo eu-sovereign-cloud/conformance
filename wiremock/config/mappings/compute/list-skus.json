@@ -1,0 +1,52 @@
+{
+  "name": "list-skus",
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/providers/seca.compute/v1/tenants/([^/]+)/skus",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer test-token"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "labels": {
+            "architecture": "amd64",
+            "provider": "seca",
+            "tier": "DXS"
+          },
+          "metadata": {
+            "name": "seca.dxs",
+            "provider": "seca.compute/v1",
+            "resource": "seca.compute/v1/skus/seca.dxs",
+            "verb": "get",
+            "createdAt": "2025-01-01T09:00:00Z",
+            "lastModifiedAt": "2025-01-02T10:00:00Z",
+            "resourceVersion": 1,
+            "apiVersion": "v1",
+            "kind": "instance-sku",
+            "tenant": "{{request.pathSegments.[4]}}",
+            "region": "region-1"
+          },
+          "spec": {
+            "ram": 2,
+            "vCPU": 1
+          }
+        }
+      ],
+      "metadata": {
+        "provider": "seca.compute/v1",
+        "resource": "skus",
+        "verb": "list"
+      }
+    }
+  }
+}

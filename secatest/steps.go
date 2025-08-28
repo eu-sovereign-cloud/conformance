@@ -1,130 +1,92 @@
 package secatest
 
-import "github.com/ozontech/allure-go/pkg/framework/provider"
+import (
+	"github.com/eu-sovereign-cloud/conformance/secalib"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+)
 
-type verifyGlobalMetadataStepParams struct {
-	name       string
-	provider   string
-	resource   string
-	verb       string
-	apiVersion string
-	kind       string
-	tenant     string
-}
-
-type verifyRegionalMetadataStepParams struct {
-	name       string
-	provider   string
-	resource   string
-	verb       string
-	apiVersion string
-	kind       string
-	tenant     string
-	workspace  string
-	region     string
-}
-
-type verifySkuMetadataStepParams struct {
-	name string
-}
-
-type verifyStatusStepParams struct {
-	expectedState string
-	actualState   string
-}
-
-func verifyGlobalMetadataStep(ctx provider.StepCtx, expected verifyGlobalMetadataStepParams, actual verifyGlobalMetadataStepParams) {
+func verifyGlobalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, actual *secalib.Metadata) {
 	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters(
-			"expected_name", expected.name,
-			"actual_name", actual.name,
+			"expected_name", expected.Name,
+			"actual_name", actual.Name,
 
-			"expected_provider", expected.provider,
-			"actual_provider", actual.provider,
+			"expected_provider", expected.Provider,
+			"actual_provider", actual.Provider,
 
-			"expected_resource", expected.resource,
-			"actual_resource", actual.resource,
+			"expected_resource", expected.Resource,
+			"actual_resource", actual.Resource,
 
-			"expected_verb", expected.verb,
-			"actual_verb", actual.verb,
+			"expected_verb", expected.Verb,
+			"actual_verb", actual.Verb,
 
-			"expected_apiVersion", expected.apiVersion,
-			"actual_apiVersion", actual.apiVersion,
+			"expected_api_version", expected.ApiVersion,
+			"actual_api_version", actual.ApiVersion,
 
-			"expected_kind", expected.kind,
-			"actual_kind", actual.kind,
+			"expected_kind", expected.Kind,
+			"actual_kind", actual.Kind,
 
-			"expected_tenant", expected.tenant,
-			"actual_tenant", actual.tenant,
+			"expected_tenant", expected.Tenant,
+			"actual_tenant", actual.Tenant,
 		)
 
-		stepCtx.Require().Equal(expected.name, actual.name, "Name should match expected")
-		stepCtx.Require().Equal(expected.provider, actual.provider, "Provider should match expected")
-		stepCtx.Require().Equal(expected.resource, actual.resource, "Resource should match expected")
-		stepCtx.Require().Equal(expected.verb, actual.verb, "Verb should match expected")
-		stepCtx.Require().Equal(expected.apiVersion, actual.apiVersion, "ApiVersion should match expected")
-		stepCtx.Require().Equal(expected.kind, actual.kind, "Kind should match expected")
+		stepCtx.Require().Equal(expected.Name, actual.Name, "Name should match expected")
+		stepCtx.Require().Equal(expected.Provider, actual.Provider, "Provider should match expected")
+		stepCtx.Require().Equal(expected.Resource, actual.Resource, "Resource should match expected")
+		stepCtx.Require().Equal(expected.Verb, actual.Verb, "Verb should match expected")
+		stepCtx.Require().Equal(expected.ApiVersion, actual.ApiVersion, "ApiVersion should match expected")
+		stepCtx.Require().Equal(expected.Kind, actual.Kind, "Kind should match expected")
 	})
 }
 
-func verifyRegionalMetadataStep(ctx provider.StepCtx, expected verifyRegionalMetadataStepParams, actual verifyRegionalMetadataStepParams) {
+func verifyRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, actual *secalib.Metadata) {
 	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters(
-			"expected_name", expected.name,
-			"actual_name", actual.name,
+			"expected_name", expected.Name,
+			"actual_name", actual.Name,
 
-			"expected_provider", expected.provider,
-			"actual_provider", actual.provider,
+			"expected_provider", expected.Provider,
+			"actual_provider", actual.Provider,
 
-			"expected_resource", expected.resource,
-			"actual_resource", actual.resource,
+			"expected_resource", expected.Resource,
+			"actual_resource", actual.Resource,
 
-			"expected_verb", expected.verb,
-			"actual_verb", actual.verb,
+			"expected_verb", expected.Verb,
+			"actual_verb", actual.Verb,
 
-			"expected_apiVersion", expected.apiVersion,
-			"actual_apiVersion", actual.apiVersion,
+			"expected_api_version", expected.ApiVersion,
+			"actual_api_version", actual.ApiVersion,
 
-			"expected_kind", expected.kind,
-			"actual_kind", actual.kind,
+			"expected_kind", expected.Kind,
+			"actual_kind", actual.Kind,
 
-			"expected_tenant", expected.tenant,
-			"actual_tenant", actual.tenant,
+			"expected_tenant", expected.Tenant,
+			"actual_tenant", actual.Tenant,
 
-			"expected_workspace", expected.workspace,
-			"actual_workspace", actual.workspace,
+			"expected_workspace", expected.Workspace,
+			"actual_workspace", actual.Workspace,
 
-			"expected_region", expected.region,
-			"actual_region", actual.region,
+			"expected_region", expected.Region,
+			"actual_region", actual.Region,
 		)
 
-		stepCtx.Require().Equal(expected.name, actual.name, "Name should match expected")
-		stepCtx.Require().Equal(expected.provider, actual.provider, "Provider should match expected")
-		stepCtx.Require().Equal(expected.resource, actual.resource, "Resource should match expected")
-		stepCtx.Require().Equal(expected.verb, actual.verb, "Verb should match expected")
-		stepCtx.Require().Equal(expected.apiVersion, actual.apiVersion, "ApiVersion should match expected")
-		stepCtx.Require().Equal(expected.kind, actual.kind, "Kind should match expected")
-		stepCtx.Require().Equal(expected.tenant, actual.tenant, "Tenant should match expected")
-		stepCtx.Require().Equal(expected.region, actual.region, "Region should match expected")
+		stepCtx.Require().Equal(expected.Name, actual.Name, "Name should match expected")
+		stepCtx.Require().Equal(expected.Provider, actual.Provider, "Provider should match expected")
+		stepCtx.Require().Equal(expected.Resource, actual.Resource, "Resource should match expected")
+		stepCtx.Require().Equal(expected.Verb, actual.Verb, "Verb should match expected")
+		stepCtx.Require().Equal(expected.ApiVersion, actual.ApiVersion, "ApiVersion should match expected")
+		stepCtx.Require().Equal(expected.Kind, actual.Kind, "Kind should match expected")
+		stepCtx.Require().Equal(expected.Tenant, actual.Tenant, "Tenant should match expected")
+		stepCtx.Require().Equal(expected.Region, actual.Region, "Region should match expected")
 	})
 }
 
-func verifySkuMetadataStep(ctx provider.StepCtx, expected verifySkuMetadataStepParams, actual verifySkuMetadataStepParams) {
-	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_name", expected.name,
-			"actual_name", actual.name,
-		)
-		stepCtx.Require().Equal(expected.name, actual.name, "Name should match expected")
-	})
-}
-
-func verifyStatusStep(ctx provider.StepCtx, params verifyStatusStepParams) {
+func verifyStatusStep(ctx provider.StepCtx, expected *secalib.Status, actual *secalib.Status) {
 	ctx.WithNewStep("Verify status", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters(
-			"expected_state", params.expectedState,
-			"actual_state", params.actualState,
+			"expected_state", expected.State,
+			"actual_state", actual.State,
 		)
-		stepCtx.Require().Equal(params.expectedState, params.actualState, "State should match expected")
+		stepCtx.Require().Equal(expected.State, actual.State, "State should match expected")
 	})
 }

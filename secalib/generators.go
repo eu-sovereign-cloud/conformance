@@ -7,10 +7,6 @@ import (
 )
 
 // Names
-func GenerateSkuName() string {
-	return fmt.Sprintf("sku-%d", rand.Intn(math.MaxInt32))
-}
-
 func GenerateRoleName() string {
 	return fmt.Sprintf("role-%d", rand.Intn(math.MaxInt32))
 }
@@ -33,6 +29,34 @@ func GenerateImageName() string {
 
 func GenerateInstanceName() string {
 	return fmt.Sprintf("instance-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateNetworkName() string {
+	return fmt.Sprintf("network-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateInternetGatewayName() string {
+	return fmt.Sprintf("internet-gateway-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateRouteTableName() string {
+	return fmt.Sprintf("route-table-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateSubnetName() string {
+	return fmt.Sprintf("subnet-%d", rand.Intn(math.MaxInt32))
+}
+
+func GeneratePublicIPName() string {
+	return fmt.Sprintf("public-ip-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateNicName() string {
+	return fmt.Sprintf("nic-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateSecurityGroupName() string {
+	return fmt.Sprintf("security-group-%d", rand.Intn(math.MaxInt32))
 }
 
 // Resources
@@ -64,6 +88,34 @@ func GenerateInstanceResource(tenant string, workspace string, instance string) 
 	return fmt.Sprintf(InstanceResource, tenant, workspace, instance)
 }
 
+func GenerateNetworkResource(tenant string, workspace string, network string) string {
+	return fmt.Sprintf(NetworkResource, tenant, workspace, network)
+}
+
+func GenerateInternetGatewayResource(tenant string, workspace string, internetGateway string) string {
+	return fmt.Sprintf(InternetGatewayResource, tenant, workspace, internetGateway)
+}
+
+func GenerateNicResource(tenant string, workspace string, nic string) string {
+	return fmt.Sprintf(NicResource, tenant, workspace, nic)
+}
+
+func GeneratePublicIPResource(tenant string, workspace string, publicIP string) string {
+	return fmt.Sprintf(PublicIPResource, tenant, workspace, publicIP)
+}
+
+func GenerateRouteTableResource(tenant string, workspace string, routeTable string) string {
+	return fmt.Sprintf(RouteTableResource, tenant, workspace, routeTable)
+}
+
+func GenerateSubnetResource(tenant string, workspace string, subnet string) string {
+	return fmt.Sprintf(SubnetResource, tenant, workspace, subnet)
+}
+
+func GenerateSecurityGroupResource(tenant string, workspace string, securityGroup string) string {
+	return fmt.Sprintf(SecurityGroupResource, tenant, workspace, securityGroup)
+}
+
 // References
 func GenerateSkuRef(name string) string {
 	return fmt.Sprintf(SkuRef, name)
@@ -71,6 +123,26 @@ func GenerateSkuRef(name string) string {
 
 func GenerateBlockStorageRef(blockStorageName string) string {
 	return fmt.Sprintf(BlockStorageRef, blockStorageName)
+}
+
+func GenerateInternetGatewayRef(internetGatewayName string) string {
+	return fmt.Sprintf(InternetGatewayRef, internetGatewayName)
+}
+
+func GenerateNetworkRef(networkName string) string {
+	return fmt.Sprintf(NetworkRef, networkName)
+}
+
+func GenerateRouteTableRef(routeTableName string) string {
+	return fmt.Sprintf(RouteTableRef, routeTableName)
+}
+
+func GenerateSubnetRef(subnetName string) string {
+	return fmt.Sprintf(SubnetRef, subnetName)
+}
+
+func GeneratePublicIPRef(publicIPName string) string {
+	return fmt.Sprintf(PublicIPRef, publicIPName)
 }
 
 // URLs
@@ -106,14 +178,39 @@ func GenerateInstanceURL(tenant string, workspace string, instance string) strin
 	return fmt.Sprintf(InstanceURLV1, tenant, workspace, instance)
 }
 
-// Random
+func GenerateNetworkURL(tenant string, workspace string, network string) string {
+	return fmt.Sprintf(NetworkURLV1, tenant, workspace, network)
+}
 
-func GenerateStorageSkuIops() int {
-	return rand.Intn(maxStorageSkuIops)
+func GenerateNetworkSkuURL(tenant string, sku string) string {
+	return fmt.Sprintf(NetworkSkuURLV1, tenant, sku)
 }
-func GenerateStorageSkuMinVolumeSize(maxSize int) int {
-	return rand.Intn(maxSize)
+
+func GenerateInternetGatewayURL(tenant string, workspace string, internetGateway string) string {
+	return fmt.Sprintf(InternetGatewayURLV1, tenant, workspace, internetGateway)
 }
+
+func GenerateNicURL(tenant string, workspace string, nic string) string {
+	return fmt.Sprintf(NicURLV1, tenant, workspace, nic)
+}
+
+func GeneratePublicIPURL(tenant string, workspace string, publicIP string) string {
+	return fmt.Sprintf(PublicIPURLV1, tenant, workspace, publicIP)
+}
+
+func GenerateRouteTableURL(tenant string, workspace string, routeTable string) string {
+	return fmt.Sprintf(RouteTableURLV1, tenant, workspace, routeTable)
+}
+
+func GenerateSubnetURL(tenant string, workspace string, subnet string) string {
+	return fmt.Sprintf(SubnetURLV1, tenant, workspace, subnet)
+}
+
+func GenerateSecurityGroupURL(tenant string, workspace string, securityGroup string) string {
+	return fmt.Sprintf(SecurityGroupURLV1, tenant, workspace, securityGroup)
+}
+
+// Random
 
 func GenerateBlockStorageSize() int {
 	return rand.Intn(maxBlockStorageSize)

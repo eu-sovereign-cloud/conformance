@@ -18,6 +18,8 @@ type WorkspaceV1TestSuite struct {
 }
 
 func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
+	slog.Info("Starting Workspace Lifecycle Test")
+
 	t.Title("Workspace Lifecycle Test")
 	configureTags(t, secalib.WorkspaceProviderV1, secalib.WorkspaceKind)
 
@@ -29,13 +31,16 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	if suite.isMockEnabled() {
 		wm, err := mock.CreateWorkspaceLifecycleScenarioV1("Workspace Lifecycle",
 			mock.WorkspaceParamsV1{
-				Params: mock.Params{
+				Params: &mock.Params{
 					MockURL:   suite.mockServerURL,
 					AuthToken: suite.authToken,
 					Tenant:    suite.tenant,
 					Region:    suite.region,
 				},
-				Name: workspaceName,
+				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
+					Name:        workspaceName,
+					InitialSpec: &secalib.WorkspaceSpecV1{},
+				},
 			})
 		if err != nil {
 			slog.Error("Failed to create workspace scenario", "error", err)
@@ -48,7 +53,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	var resp *workspace.Workspace
 	var err error
 
-	var expectedMetadata verifyRegionalMetadataStepParams
+	var expectedMetadata *secalib.Metadata
 
 	// Step 1
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
@@ -67,23 +72,22 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadata = verifyRegionalMetadataStepParams{
-			name:       workspaceName,
-			provider:   secalib.WorkspaceProviderV1,
-			resource:   resource,
-			verb:       http.MethodPut,
-			apiVersion: secalib.ApiVersion1,
-			kind:       secalib.WorkspaceKind,
-			tenant:     suite.tenant,
-			region:     suite.region,
+		expectedMetadata = &secalib.Metadata{
+			Name:       workspaceName,
+			Provider:   secalib.WorkspaceProviderV1,
+			Resource:   resource,
+			Verb:       http.MethodPut,
+			ApiVersion: secalib.ApiVersion1,
+			Kind:       secalib.WorkspaceKind,
+			Tenant:     suite.tenant,
+			Region:     suite.region,
 		}
 		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
-		verifyStatusParams := verifyStatusStepParams{
-			expectedState: secalib.CreatingStatusState,
-			actualState:   string(*resp.Status.State),
-		}
-		verifyStatusStep(sCtx, verifyStatusParams)
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.CreatingStatusState},
+			&secalib.Status{State: string(*resp.Status.State)},
+		)
 	})
 
 	// Step 2
@@ -102,14 +106,13 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadata.verb = http.MethodGet
+		expectedMetadata.Verb = http.MethodGet
 		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
-		verifyStatusParams := verifyStatusStepParams{
-			expectedState: secalib.ActiveStatusState,
-			actualState:   string(*resp.Status.State),
-		}
-		verifyStatusStep(sCtx, verifyStatusParams)
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.ActiveStatusState},
+			&secalib.Status{State: string(*resp.Status.State)},
+		)
 	})
 
 	// Step 3
@@ -130,14 +133,13 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadata.verb = http.MethodPut
+		expectedMetadata.Verb = http.MethodPut
 		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
-		verifyStatusParams := verifyStatusStepParams{
-			expectedState: secalib.UpdatingStatusState,
-			actualState:   string(*resp.Status.State),
-		}
-		verifyStatusStep(sCtx, verifyStatusParams)
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.UpdatingStatusState},
+			&secalib.Status{State: string(*resp.Status.State)},
+		)
 	})
 
 	// Step 4
@@ -156,14 +158,13 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadata.verb = http.MethodGet
+		expectedMetadata.Verb = http.MethodGet
 		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
 
-		verifyStatusParams := verifyStatusStepParams{
-			expectedState: secalib.ActiveStatusState,
-			actualState:   string(*resp.Status.State),
-		}
-		verifyStatusStep(sCtx, verifyStatusParams)
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.ActiveStatusState},
+			&secalib.Status{State: string(*resp.Status.State)},
+		)
 	})
 
 	// Step 5
@@ -179,18 +180,6 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	})
 
 	// Step 6
-	t.WithNewStep("Re-delete workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
-
-		err = suite.client.WorkspaceV1.DeleteWorkspace(ctx, resp, nil)
-		requireNoError(sCtx, err)
-	})
-
-	// Step 7
 	t.WithNewStep("Get deleted workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetWorkspace",
@@ -205,22 +194,24 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		_, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
+
+	slog.Info("Finishing Workspace Lifecycle Test")
 }
 
 func (suite *WorkspaceV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }
 
-func verifyWorkspaceMetadataStep(ctx provider.StepCtx, expected verifyRegionalMetadataStepParams, metadata *workspace.RegionalResourceMetadata) {
-	actualMetadata := verifyRegionalMetadataStepParams{
-		name:       metadata.Name,
-		provider:   metadata.Provider,
-		verb:       metadata.Verb,
-		resource:   metadata.Resource,
-		apiVersion: metadata.ApiVersion,
-		kind:       string(metadata.Kind),
-		tenant:     metadata.Tenant,
-		region:     metadata.Region,
+func verifyWorkspaceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *workspace.RegionalResourceMetadata) {
+	actualMetadata := &secalib.Metadata{
+		Name:       metadata.Name,
+		Provider:   metadata.Provider,
+		Verb:       metadata.Verb,
+		Resource:   metadata.Resource,
+		ApiVersion: metadata.ApiVersion,
+		Kind:       string(metadata.Kind),
+		Tenant:     metadata.Tenant,
+		Region:     metadata.Region,
 	}
 	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }

@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -10,61 +11,22 @@ import (
 )
 
 func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (*wiremock.Client, error) {
+	slog.Info("Configuring mock to Compute Lifecycle Scenario")
+
 	wm, err := newClient(params.MockURL)
 	if err != nil {
 		return nil, err
 	}
 
-	storageSkuUrl := secalib.GenerateStorageSkuURL(params.Tenant, params.StorageSku.Name)
 	blockStorageUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace, params.BlockStorage.Name)
-	instanceSkuUrl := secalib.GenerateInstanceSkuURL(params.Tenant, params.InstanceSku.Name)
 	instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace, params.Instance.Name)
 
-	storageResource := secalib.GenerateSkuResource(params.Tenant, params.StorageSku.Name)
 	blockStorageResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace, params.BlockStorage.Name)
-	instanceSkuResource := secalib.GenerateSkuResource(params.Tenant, params.InstanceSku.Name)
 	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace, params.Instance.Name)
 
-	// Get storage sku
-	storageSkuResponse := storageSkuResponseV1{
-		Metadata: metadataResponse{
-			Name:            params.StorageSku.Name,
-			Provider:        secalib.StorageProviderV1,
-			Resource:        storageResource,
-			Verb:            http.MethodGet,
-			CreatedAt:       time.Now().Format(time.RFC3339),
-			LastModifiedAt:  time.Now().Format(time.RFC3339),
-			ResourceVersion: 1,
-			ApiVersion:      secalib.ApiVersion1,
-			Kind:            secalib.StorageSkuKind,
-			Tenant:          params.Tenant,
-			Region:          params.Region,
-		},
-		Status: statusResponse{
-			State:            secalib.ActiveStatusState,
-			LastTransitionAt: time.Now().Format(time.RFC3339),
-		},
-		Provider:      params.StorageSku.Provider,
-		Tier:          params.StorageSku.Tier,
-		Iops:          params.StorageSku.Iops,
-		StorageType:   params.StorageSku.StorageType,
-		MinVolumeSize: params.StorageSku.MinVolumeSize,
-	}
-	if err := configureGetStub(wm, scenario, scenarioConfig{
-		url:          storageSkuUrl,
-		params:       params,
-		response:     storageSkuResponse,
-		template:     storageSkuResponseTemplateV1,
-		currentState: startedScenarioState,
-		nextState:    "CreateBlockStorage",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
-		return nil, err
-	}
-
 	// Block storage
-	blockResponse := blockStorageResponseV1{
-		Metadata: metadataResponse{
+	blockResponse := &resourceResponse[secalib.BlockStorageSpecV1]{
+		Metadata: &secalib.Metadata{
 			Name:       params.BlockStorage.Name,
 			Provider:   secalib.StorageProviderV1,
 			Resource:   blockStorageResource,
@@ -73,21 +35,26 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 			Tenant:     params.Tenant,
 			Region:     params.Region,
 		},
+		Status: &secalib.Status{},
+		Spec: &secalib.BlockStorageSpecV1{
+			SkuRef: params.BlockStorage.InitialSpec.SkuRef,
+		},
 	}
 
 	// Create a block storage
 	blockResponse.Metadata.Verb = http.MethodPut
-	blockResponse.Status.State = secalib.CreatingStatusState
 	blockResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
 	blockResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	blockResponse.Metadata.ResourceVersion = 1
+	blockResponse.Spec.SizeGB = params.BlockStorage.InitialSpec.SizeGB
+	blockResponse.Status.State = secalib.CreatingStatusState
 	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, scenarioConfig{
+	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          blockStorageUrl,
 		params:       params,
 		response:     blockResponse,
 		template:     blockStorageResponseTemplateV1,
-		currentState: "CreateBlockStorage",
+		currentState: startedScenarioState,
 		nextState:    "GetCreatedBlockStorage",
 		httpStatus:   http.StatusCreated,
 	}); err != nil {
@@ -98,49 +65,12 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 	blockResponse.Metadata.Verb = http.MethodGet
 	blockResponse.Status.State = secalib.ActiveStatusState
 	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          blockStorageUrl,
 		params:       params,
 		response:     blockResponse,
 		template:     blockStorageResponseTemplateV1,
 		currentState: "GetCreatedBlockStorage",
-		nextState:    "GetInstanceSku",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
-		return nil, err
-	}
-
-	// Get instance sku
-	instSkuResponse := instanceSkuResponseV1{
-		Metadata: metadataResponse{
-			Name:            params.InstanceSku.Name,
-			Provider:        secalib.ComputeProviderV1,
-			Resource:        instanceSkuResource,
-			Verb:            http.MethodGet,
-			CreatedAt:       time.Now().Format(time.RFC3339),
-			LastModifiedAt:  time.Now().Format(time.RFC3339),
-			ResourceVersion: 1,
-			ApiVersion:      secalib.ApiVersion1,
-			Kind:            secalib.InstanceSkuKind,
-			Tenant:          params.Tenant,
-			Region:          params.Region,
-		},
-		Status: statusResponse{
-			State:            secalib.ActiveStatusState,
-			LastTransitionAt: time.Now().Format(time.RFC3339),
-		},
-		Architecture: params.InstanceSku.Architecture,
-		Provider:     params.InstanceSku.Provider,
-		Tier:         params.InstanceSku.Tier,
-		RAM:          params.InstanceSku.RAM,
-		VCPU:         params.InstanceSku.VCPU,
-	}
-	if err := configureGetStub(wm, scenario, scenarioConfig{
-		url:          instanceSkuUrl,
-		params:       params,
-		response:     instSkuResponse,
-		template:     instanceSkuResponseTemplateV1,
-		currentState: "GetInstanceSku",
 		nextState:    "CreateInstance",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
@@ -148,8 +78,8 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 	}
 
 	// Instance
-	instResponse := instanceResponseV1{
-		Metadata: metadataResponse{
+	instResponse := &resourceResponse[secalib.InstanceSpecV1]{
+		Metadata: &secalib.Metadata{
 			Name:       params.Instance.Name,
 			Provider:   secalib.ComputeProviderV1,
 			Resource:   instanceResource,
@@ -159,9 +89,12 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 			Workspace:  params.Workspace,
 			Region:     params.Region,
 		},
-		SkuRef:        params.Instance.SkuRef,
-		Zone:          params.Instance.ZoneInitial,
-		BootDeviceRef: params.Instance.BootDeviceRef,
+		Status: &secalib.Status{},
+		Spec: &secalib.InstanceSpecV1{
+			SkuRef:        params.Instance.InitialSpec.SkuRef,
+			Zone:          params.Instance.InitialSpec.Zone,
+			BootDeviceRef: params.Instance.InitialSpec.BootDeviceRef,
+		},
 	}
 
 	// Create an instance
@@ -171,7 +104,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 	instResponse.Metadata.ResourceVersion = 1
 	instResponse.Status.State = secalib.CreatingStatusState
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, scenarioConfig{
+	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          instanceUrl,
 		params:       params,
 		response:     instResponse,
@@ -187,7 +120,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 	instResponse.Metadata.Verb = http.MethodGet
 	instResponse.Status.State = secalib.ActiveStatusState
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          instanceUrl,
 		params:       params,
 		response:     instResponse,
@@ -203,10 +136,10 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 	instResponse.Metadata.Verb = http.MethodPut
 	instResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	instResponse.Metadata.ResourceVersion = instResponse.Metadata.ResourceVersion + 1
-	instResponse.Zone = params.Instance.ZoneUpdated
+	instResponse.Spec.Zone = params.Instance.UpdatedSpec.Zone
 	instResponse.Status.State = secalib.UpdatingStatusState
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, scenarioConfig{
+	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          instanceUrl,
 		params:       params,
 		response:     instResponse,
@@ -222,7 +155,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 	instResponse.Metadata.Verb = http.MethodGet
 	instResponse.Status.State = secalib.ActiveStatusState
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          instanceUrl,
 		params:       params,
 		response:     instResponse,
@@ -236,7 +169,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 
 	// Stop the instance
 	instResponse.Metadata.Verb = http.MethodPost
-	if err := configurePostStub(wm, scenario, scenarioConfig{
+	if err := configurePostStub(wm, scenario, stubConfig{
 		url:          instanceUrl + "/stop",
 		params:       params,
 		response:     instResponse,
@@ -251,7 +184,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 	instResponse.Metadata.Verb = http.MethodGet
 	instResponse.Status.State = secalib.SuspendedStatusState
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          instanceUrl,
 		params:       params,
 		response:     instResponse,
@@ -265,7 +198,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 
 	// Start the instance
 	instResponse.Metadata.Verb = http.MethodPost
-	if err := configurePostStub(wm, scenario, scenarioConfig{
+	if err := configurePostStub(wm, scenario, stubConfig{
 		url:          instanceUrl + "/start",
 		params:       params,
 		response:     instResponse,
@@ -280,7 +213,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 	instResponse.Metadata.Verb = http.MethodGet
 	instResponse.Status.State = secalib.ActiveStatusState
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          instanceUrl,
 		params:       params,
 		response:     instResponse,
@@ -294,7 +227,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 
 	// Restart the instance
 	instResponse.Metadata.Verb = http.MethodPost
-	if err := configurePostStub(wm, scenario, scenarioConfig{
+	if err := configurePostStub(wm, scenario, stubConfig{
 		url:          instanceUrl + "/restart",
 		params:       params,
 		response:     instResponse,
@@ -309,7 +242,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 	instResponse.Metadata.Verb = http.MethodGet
 	instResponse.Status.State = secalib.ActiveStatusState
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          instanceUrl,
 		params:       params,
 		response:     instResponse,
@@ -323,7 +256,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 
 	// Delete the instance
 	instResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, scenarioConfig{
+	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          instanceUrl,
 		params:       params,
 		response:     instResponse,
@@ -337,7 +270,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 	// Get deleted instance (not found)
 	instResponse.Metadata.Verb = http.MethodGet
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          instanceUrl,
 		params:       params,
 		response:     instResponse,
@@ -348,5 +281,6 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 		return nil, err
 	}
 
+	slog.Info("Configured mock to Compute Lifecycle Scenario")
 	return wm, nil
 }

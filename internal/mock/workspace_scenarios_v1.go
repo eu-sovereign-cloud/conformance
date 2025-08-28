@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -10,17 +11,19 @@ import (
 )
 
 func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV1) (*wiremock.Client, error) {
+	slog.Info("Configuring mock to Workspace Lifecycle Scenario")
+
 	wm, err := newClient(params.MockURL)
 	if err != nil {
 		return nil, err
 	}
 
-	url := secalib.GenerateWorkspaceURL(params.Tenant, params.Name)
-	resource := secalib.GenerateWorkspaceResource(params.Tenant, params.Name)
+	url := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
+	resource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 
-	response := workspaceResponseV1{
-		Metadata: metadataResponse{
-			Name:       params.Name,
+	response := &resourceResponse[secalib.WorkspaceSpecV1]{
+		Metadata: &secalib.Metadata{
+			Name:       params.Workspace.Name,
 			Provider:   secalib.WorkspaceProviderV1,
 			Resource:   resource,
 			ApiVersion: secalib.ApiVersion1,
@@ -28,6 +31,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 			Tenant:     params.Tenant,
 			Region:     params.Region,
 		},
+		Status: &secalib.Status{},
 	}
 
 	// Create a workspace
@@ -37,7 +41,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 	response.Metadata.ResourceVersion = 1
 	response.Status.State = secalib.CreatingStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, scenarioConfig{
+	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          url,
 		params:       params,
 		response:     response,
@@ -53,7 +57,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 	response.Metadata.Verb = http.MethodGet
 	response.Status.State = secalib.ActiveStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          url,
 		params:       params,
 		response:     response,
@@ -71,7 +75,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 	response.Metadata.ResourceVersion = response.Metadata.ResourceVersion + 1
 	response.Status.State = secalib.UpdatingStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, scenarioConfig{
+	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          url,
 		params:       params,
 		response:     response,
@@ -87,7 +91,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 	response.Metadata.Verb = http.MethodGet
 	response.Status.State = secalib.ActiveStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          url,
 		params:       params,
 		response:     response,
@@ -101,24 +105,11 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 
 	// Delete the workspace
 	response.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, scenarioConfig{
+	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          url,
 		params:       params,
 		response:     response,
 		currentState: "DeleteWorkspace",
-		nextState:    "ReDeleteWorkspace",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
-		return nil, err
-	}
-
-	// Re-delete the workspace
-	response.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, scenarioConfig{
-		url:          url,
-		params:       params,
-		response:     response,
-		currentState: "ReDeleteWorkspace",
 		nextState:    "GetDeletedWorkspace",
 		httpStatus:   http.StatusAccepted,
 	}); err != nil {
@@ -127,7 +118,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 
 	// Get deleted workspace (not found)
 	response.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, scenarioConfig{
+	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          url,
 		params:       params,
 		response:     response,
@@ -138,5 +129,6 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 		return nil, err
 	}
 
+	slog.Info("Configured mock to Workspace Lifecycle Scenario")
 	return wm, nil
 }
