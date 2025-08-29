@@ -30,6 +30,33 @@ func GenerateImageName() string {
 func GenerateInstanceName() string {
 	return fmt.Sprintf("instance-%d", rand.Intn(math.MaxInt32))
 }
+func GenerateNetworkName() string {
+	return fmt.Sprintf("network-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateInternetGatewayName() string {
+	return fmt.Sprintf("internet-gateway-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateRouteTableName() string {
+	return fmt.Sprintf("route-table-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateSubnetName() string {
+	return fmt.Sprintf("subnet-%d", rand.Intn(math.MaxInt32))
+}
+
+func GeneratePublicIPName() string {
+	return fmt.Sprintf("public-ip-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateNicName() string {
+	return fmt.Sprintf("nic-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateSecurityGroupName() string {
+	return fmt.Sprintf("security-group-%d", rand.Intn(math.MaxInt32))
+}
 
 // Resources
 func GenerateSkuResource(tenant string, sku string) string {

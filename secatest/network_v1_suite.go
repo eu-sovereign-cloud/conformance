@@ -92,63 +92,85 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	if suite.isMockEnabled() {
 		wm, err := mock.CreateNetworkLifecycleScenarioV1("Network Lifecycle",
 			mock.NetworkParamsV1{
-				Params: mock.Params{
+				Params: &mock.Params{
 					MockURL:   suite.mockServerURL,
 					AuthToken: suite.authToken,
 					Tenant:    suite.tenant,
 					Workspace: workspaceName,
 					Region:    suite.region,
 				},
-				BlockStorage: mock.BlockStorageParamsV1{
-					Name:          blockStorageName,
-					SkuRef:        storageSkuRef,
-					SizeGBInitial: blockStorageSize,
+				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
+					Name: blockStorageName,
+					InitialSpec: &secalib.BlockStorageSpecV1{
+						SkuRef: storageSkuRef,
+						SizeGB: blockStorageSize,
+					},
 				},
-				Instance: mock.InstanceParamsV1{
-					Name:          instanceName,
-					SkuRef:        instanceSkuRef,
-					ZoneInitial:   zone,
-					BootDeviceRef: blockStorageRef,
+				Instance: &mock.ResourceParams[secalib.InstanceSpecV1]{
+					Name: instanceName,
+					InitialSpec: &secalib.InstanceSpecV1{
+						SkuRef:        instanceSkuRef,
+						Zone:          zone,
+						BootDeviceRef: blockStorageRef,
+					},
 				},
-				Network: mock.NetworkInstanceParamsV1{
-					Name:          networkName,
-					Cidr:          mock.CIDR{Ipv4: networkCIDR},
-					SkuRef:        networkSkuRef,
-					RouteTableRef: routeTableRef,
+				Network: &mock.ResourceParams[secalib.NetworkSpecV1]{
+					Name: networkName,
+					InitialSpec: &secalib.NetworkSpecV1{
+						Cidr: &secalib.NetworkSpecCIDRV1{
+							Ipv4: networkCIDR},
+						SkuRef:        networkSkuRef,
+						RouteTableRef: routeTableRef,
+					},
 				},
-				InternetGateway: mock.InternetGatewayParamsV1{
-					Name:       internetGatewayName,
-					EgressOnly: false,
+				InternetGateway: &mock.ResourceParams[secalib.InternetGatewaySpecV1]{
+					Name: internetGatewayName,
+					InitialSpec: &secalib.InternetGatewaySpecV1{
+						EgressOnly: false,
+					},
 				},
-				RouteTable: mock.RouteTableParamsV1{
-					Name:     routeTableName,
-					LocalRef: networkRef,
-					Routes: []mock.RouteTableRoute{
-						{
-							DestinationCidrBlock: routeTableDefaultDestination,
-							TargetRef:            internetGatewayRef,
+				RouteTable: &mock.ResourceParams[secalib.RouteTableSpecV1]{
+					Name: routeTableName,
+					InitialSpec: &secalib.RouteTableSpecV1{
+						LocalRef: networkRef,
+						Routes: []*secalib.RouteTableRouteV1{
+							{
+								DestinationCidrBlock: routeTableDefaultDestination,
+								TargetRef:            internetGatewayRef,
+							},
 						},
 					},
 				},
-				Subnet: mock.SubnetParamsV1{
+				Subnet: &mock.ResourceParams[secalib.SubnetSpecV1]{
 					Name: subnetName,
-					Cidr: mock.CIDR{Ipv4: subnetCIDR},
-					Zone: zone,
+					InitialSpec: &secalib.SubnetSpecV1{
+						Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCIDR},
+						Zone: zone,
+					},
 				},
-				NIC: mock.NICParamsV1{
-					Name:         nicName,
-					Addresses:    []string{nicAddress},
-					PublicIpRefs: []string{publicIPRef},
-					SubnetRef:    subnetRef,
+				NIC: &mock.ResourceParams[secalib.NICSpecV1]{
+					Name: nicName,
+					InitialSpec: &secalib.NICSpecV1{
+						Addresses:    []string{nicAddress},
+						PublicIpRefs: []string{publicIPRef},
+						SubnetRef:    subnetRef,
+					},
 				},
-				PublicIP: mock.PublicIPParamsV1{
-					Name:    publicIPName,
-					Version: secalib.IPVersion4,
-					Address: publicIPAddress,
+				PublicIP: &mock.ResourceParams[secalib.PublicIPSpecV1]{
+					Name: publicIPName,
+					InitialSpec: &secalib.PublicIPSpecV1{
+						Version: secalib.IPVersion4,
+						Address: publicIPAddress,
+					},
 				},
-				SecurityGroup: mock.SecurityGroupParamsV1{
-					Name:  securityGroupName,
-					Rules: []mock.SecurityGroupRule{{Direction: secalib.SecurityRuleDirectionIngress}},
+				SecurityGroup: &mock.ResourceParams[secalib.SecurityGroupSpecV1]{
+					Name: securityGroupName,
+					InitialSpec: &secalib.SecurityGroupSpecV1{
+						Rules: []*secalib.SecurityGroupRule{
+							{
+								Direction: secalib.SecurityRuleDirectionIngress},
+						},
+					},
 				},
 			})
 		if err != nil {
@@ -163,32 +185,32 @@ func (suite *NetworkV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }
 
-func verifyNetworkZonalMetadataStep(ctx provider.StepCtx, expected verifyRegionalMetadataStepParams, metadata *network.ZonalResourceMetadata) {
-	actualMetadata := verifyRegionalMetadataStepParams{
-		name:       metadata.Name,
-		provider:   metadata.Provider,
-		verb:       metadata.Verb,
-		resource:   metadata.Resource,
-		apiVersion: metadata.ApiVersion,
-		kind:       string(metadata.Kind),
-		tenant:     metadata.Tenant,
-		workspace:  *metadata.Workspace,
-		region:     metadata.Region,
+func verifyNetworkZonalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *network.ZonalResourceMetadata) {
+	actualMetadata := &secalib.Metadata{
+		Name:       metadata.Name,
+		Provider:   metadata.Provider,
+		Verb:       metadata.Verb,
+		Resource:   metadata.Resource,
+		ApiVersion: metadata.ApiVersion,
+		Kind:       string(metadata.Kind),
+		Tenant:     metadata.Tenant,
+		Workspace:  *metadata.Workspace,
+		Region:     metadata.Region,
 	}
 	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }
 
-func verifyNetworkRegionalMetadataStep(ctx provider.StepCtx, expected verifyRegionalMetadataStepParams, metadata *network.RegionalResourceMetadata) {
-	actualMetadata := verifyRegionalMetadataStepParams{
-		name:       metadata.Name,
-		provider:   metadata.Provider,
-		verb:       metadata.Verb,
-		resource:   metadata.Resource,
-		apiVersion: metadata.ApiVersion,
-		kind:       string(metadata.Kind),
-		tenant:     metadata.Tenant,
-		workspace:  *metadata.Workspace,
-		region:     metadata.Region,
+func verifyNetworkRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *network.RegionalResourceMetadata) {
+	actualMetadata := &secalib.Metadata{
+		Name:       metadata.Name,
+		Provider:   metadata.Provider,
+		Verb:       metadata.Verb,
+		Resource:   metadata.Resource,
+		ApiVersion: metadata.ApiVersion,
+		Kind:       string(metadata.Kind),
+		Tenant:     metadata.Tenant,
+		Workspace:  *metadata.Workspace,
+		Region:     metadata.Region,
 	}
 	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }
