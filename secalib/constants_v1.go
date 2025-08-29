@@ -17,8 +17,8 @@ const (
 	StorageSkuURLV1      = "/providers/" + StorageProviderV1 + "/" + SkuResource
 	BlockStorageURLV1    = "/providers/" + StorageProviderV1 + "/" + BlockStorageResource
 	ImageURLV1           = "/providers/" + StorageProviderV1 + "/" + ImageResource
+	NetworkSkuURLV1      = "/providers/" + NetworkProviderV1 + "/" + SkuResource
 	NetworkURLV1         = "/providers/" + NetworkProviderV1 + "/" + NetworkResource
-	NetworkSkuURLV1      = "/providers/" + NetworkProviderV1 + "/" + NetworkSkuResource
 	InternetGatewayURLV1 = "/providers/" + NetworkProviderV1 + "/" + InternetGatewayResource
 	NicURLV1             = "/providers/" + NetworkProviderV1 + "/" + NicResource
 	PublicIPURLV1        = "/providers/" + NetworkProviderV1 + "/" + PublicIPResource

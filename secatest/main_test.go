@@ -38,6 +38,8 @@ func TestMain(m *testing.M) {
 func TestSuites(t *testing.T) {
 	ctx := context.Background()
 
+	setupLogger()
+
 	// Initialize global client
 	globalClient, err := secapi.NewGlobalClient(&secapi.GlobalConfig{
 		AuthToken: config.clientAuthToken,
@@ -58,7 +60,41 @@ func TestSuites(t *testing.T) {
 		os.Exit(1)
 	}
 
+	// Load region available zones
+	regionResp, err := globalClient.RegionV1.GetRegion(ctx, config.clientRegion)
+	if err != nil {
+		slog.Error("Failed to get region", "error", err)
+		os.Exit(1)
+	}
+	availableZones := regionResp.Spec.AvailableZones
+
+	// Load available instance skus
+	instanceSkus, err := loadInstanceSkus(ctx, regionalClient)
+	if err != nil {
+		slog.Error("Failed to list instance skus", "error", err)
+		os.Exit(1)
+	}
+
+	// Load available storage skus
+	storageSkus, err := loadStorageSkus(ctx, regionalClient)
+	if err != nil {
+		slog.Error("Failed to list storage skus", "error", err)
+		os.Exit(1)
+	}
+
 	// Run test suites
+
+	suite.RunNamedSuite(t, "Authorization V1", &AuthorizationV1TestSuite{
+		globalTestSuite: globalTestSuite{
+			testSuite: testSuite{
+				tenant:        config.clientTenant,
+				authToken:     config.clientAuthToken,
+				mockEnabled:   config.mockEnabled,
+				mockServerURL: config.mockServerURL,
+			},
+			client: globalClient,
+		},
+	})
 
 	suite.RunNamedSuite(t, "Workspace V1", &WorkspaceV1TestSuite{
 		regionalTestSuite: regionalTestSuite{
@@ -84,6 +120,7 @@ func TestSuites(t *testing.T) {
 			region: config.clientRegion,
 			client: regionalClient,
 		},
+		storageSkus: storageSkus,
 	})
 
 	suite.RunNamedSuite(t, "Compute V1", &ComputeV1TestSuite{
@@ -97,7 +134,18 @@ func TestSuites(t *testing.T) {
 			region: config.clientRegion,
 			client: regionalClient,
 		},
+		availableZones: availableZones,
+		instanceSkus:   instanceSkus,
+		storageSkus:    storageSkus,
 	})
+}
+
+func setupLogger() {
+	// TODO Configure json or text handler and log level via env variables
+	opts := &slog.HandlerOptions{Level: slog.LevelInfo}
+	logger := slog.New(slog.NewTextHandler(os.Stdout, opts))
+
+	slog.SetDefault(logger)
 }
 
 func configureReports(config *Config) {
@@ -113,3 +161,45 @@ func configureReports(config *Config) {
 		slog.Error("Failed to configure reports", "error", err)
 	}
 }
+
+// TODO Convert these load skus functions to a generic one
+func loadInstanceSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
+
+	resp, err := regionalClient.ComputeV1.ListSkus(ctx, secapi.TenantID(config.clientTenant))
+	if err != nil {
+		return nil, err
+	}
+
+	skus, err := resp.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var available []string
+	for _, sku := range skus {
+		available = append(available, sku.Metadata.Name)
+	}
+
+	return available, nil
+}
+
+func loadStorageSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
+
+	resp, err := regionalClient.StorageV1.ListSkus(ctx, secapi.TenantID(config.clientTenant))
+	if err != nil {
+		return nil, err
+	}
+
+	skus, err := resp.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var available []string
+	for _, sku := range skus {
+		available = append(available, sku.Metadata.Name)
+	}
+
+	return available, nil
+}
+

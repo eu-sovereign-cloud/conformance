@@ -25,6 +25,11 @@ func (suite *testSuite) isMockEnabled() bool {
 	return suite.mockEnabled == "true"
 }
 
+type globalTestSuite struct {
+	testSuite
+	client *secapi.GlobalClient
+}
+
 type regionalTestSuite struct {
 	testSuite
 	region string

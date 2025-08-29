@@ -1,5 +1,8 @@
 package mock
 
+import "github.com/eu-sovereign-cloud/conformance/secalib"
+
+// TODO Find a better name
 type Params struct {
 	MockURL   string
 	AuthToken string
@@ -10,10 +13,17 @@ type Params struct {
 }
 
 type HasParams interface {
-	getParams() Params
+	getParams() *Params
 }
 
-type scenarioConfig struct {
+// TODO Find a better name
+type ResourceParams[T any] struct {
+	Name        string
+	InitialSpec *T
+	UpdatedSpec *T
+}
+
+type stubConfig struct {
 	url          string
 	params       HasParams
 	response     any
@@ -24,22 +34,9 @@ type scenarioConfig struct {
 	priority     int
 }
 
-type metadataResponse struct {
-	Name            string
-	Provider        string
-	Resource        string
-	Verb            string
-	CreatedAt       string
-	LastModifiedAt  string
-	ResourceVersion int
-	ApiVersion      string
-	Kind            string
-	Tenant          string
-	Workspace       string
-	Region          string
-}
-
-type statusResponse struct {
-	State            string
-	LastTransitionAt string
+// TODO Find a better name
+type resourceResponse[T any] struct {
+	Metadata *secalib.Metadata
+	Status   *secalib.Status
+	Spec     *T
 }

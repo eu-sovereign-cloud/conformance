@@ -10,7 +10,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func configureStub(wm *wiremock.Client, method string, name string, config scenarioConfig) error {
+func configureStub(wm *wiremock.Client, method string, name string, config stubConfig) error {
 	// Build the response
 	response := wiremock.NewResponse().WithStatus(int64(config.httpStatus))
 	if config.template != "" {
@@ -61,19 +61,19 @@ func configureStub(wm *wiremock.Client, method string, name string, config scena
 	return nil
 }
 
-func configurePutStub(wm *wiremock.Client, scenarioName string, scenarioConfig scenarioConfig) error {
+func configurePutStub(wm *wiremock.Client, scenarioName string, scenarioConfig stubConfig) error {
 	return configureStub(wm, http.MethodPut, scenarioName, scenarioConfig)
 }
 
-func configurePostStub(wm *wiremock.Client, scenarioName string, scenarioConfig scenarioConfig) error {
+func configurePostStub(wm *wiremock.Client, scenarioName string, scenarioConfig stubConfig) error {
 	return configureStub(wm, http.MethodPost, scenarioName, scenarioConfig)
 }
 
-func configureGetStub(wm *wiremock.Client, scenarioName string, scenarioConfig scenarioConfig) error {
+func configureGetStub(wm *wiremock.Client, scenarioName string, scenarioConfig stubConfig) error {
 	return configureStub(wm, http.MethodGet, scenarioName, scenarioConfig)
 }
 
-func configureDeleteStub(wm *wiremock.Client, scenarioName string, scenarioConfig scenarioConfig) error {
+func configureDeleteStub(wm *wiremock.Client, scenarioName string, scenarioConfig stubConfig) error {
 	return configureStub(wm, http.MethodDelete, scenarioName, scenarioConfig)
 }
 

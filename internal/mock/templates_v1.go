@@ -4,6 +4,7 @@ const (
 	roleResponseTemplateV1 = `{
       "metadata": {
         "name": "[[.Metadata.Name]]",
+		"provider": "[[.Metadata.Provider]]",
         "createdAt": "[[.Metadata.CreatedAt]]",
         "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
         "resourceVersion": "[[.Metadata.ResourceVersion]]",
@@ -15,13 +16,23 @@ const (
       },
       "spec": {
         "permissions": [
-		 [[- range $i, $p :=.Permissions]]
-		 [[if $i]],[[end]]
-			{
-			"provider": "[[$p.Provider]]",
-			"resources": "[[$p.Resources]]",
-			"verbs": "[[$p.Verbs]]"
-			}[[- end]]
+        [[- range $i, $p := .Spec.Permissions]]
+		  [[if $i]],[[end]]
+          {
+            "provider": "[[$p.Provider]]",
+            "resources": [
+            [[- range $j, $r := $p.Resources]]
+              [[if $j]],[[end]]
+              "[[$r]]"
+            [[- end]]
+            ],
+            "verb": [
+            [[- range $j, $v := $p.Verb]]
+              [[if $j]],[[end]]
+              "[[$v]]"
+            [[- end]]
+            ]
+          }[[- end]]
 		]
       },
       "status": {
@@ -38,6 +49,7 @@ const (
 	roleAssignmentResponseTemplateV1 = `{
       "metadata": {
         "name": "[[.Metadata.Name]]",
+		"provider": "[[.Metadata.Provider]]",
         "createdAt": "[[.Metadata.CreatedAt]]",
         "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
         "resourceVersion": "[[.Metadata.ResourceVersion]]",
@@ -48,18 +60,42 @@ const (
         "verb": "[[.Metadata.Verb]]"
       },
       "spec": {
-        "subs": "[[.Subs]]",
-        "roles": "[[.Roles]]",
-		"scopes": [
-		 [[- range $i, $p :=.Scopes]]
-		 [[if $i]],[[end]]
-			{
-			"tenants": "[[$p.Tenants]]",
-			"regions": "[[$p.Regions]]",
-			"workspaces": "[[$p.Workspaces]]"
-		}[[- end]]
-		]
-		
+        "subs": [
+        [[- range $i, $s := .Spec.Subs]]
+          [[if $i]],[[end]]
+          "[[$s]]"
+        [[- end]]
+		],
+        "roles": [
+        [[- range $i, $r := .Spec.Roles]]
+          [[if $i]],[[end]]
+          "[[$r]]"
+        [[- end]]
+		],
+        "scopes": [
+        [[- range $i, $s := .Spec.Scopes]]
+		  [[if $i]],[[end]]
+          {
+            "tenants": [
+            [[- range $j, $t := $s.Tenants]]
+              [[if $j]],[[end]]
+              "[[$t]]"
+            [[- end]]
+            ],
+            "regions": [
+            [[- range $j, $r := $s.Regions]]
+              [[if $j]],[[end]]
+              "[[$r]]"
+            [[- end]]
+            ],
+            "workspaces": [
+            [[- range $j, $w := $s.Workspaces]]
+              [[if $j]],[[end]]
+              "[[$w]]"
+            [[- end]]
+            ]
+          }[[- end]]
+        ]
       },
       "status": {
         "state": "[[.Status.State]]",
@@ -102,43 +138,6 @@ const (
 		}
 	}`
 
-	storageSkuResponseTemplateV1 = `
-	{
-		"labels": {
-			"provider": "[[.Provider]]",
-        	"tier": "[[.Tier]]"
-		},
-		"annotations": {},
-		"extensions": {},	
-		"metadata": {
-			"name": "[[.Metadata.Name]]",
-			"provider": "[[.Metadata.Provider]]",
-			"resource": "[[.Metadata.Resource]]",
-			"verb": "[[.Metadata.Verb]]",
-			"createdAt": "[[.Metadata.CreatedAt]]",
-			"lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-			"resourceVersion": "[[.Metadata.ResourceVersion]]",
-			"apiVersion": "[[.Metadata.ApiVersion]]",
-			"kind": "[[.Metadata.Kind]]",
-			"tenant": "[[.Metadata.Tenant]]",
-			"region": "[[.Metadata.Region]]"
-		},
-		"spec": {
-			"iops": [[.Iops]],
-			"type": "[[.StorageType]]",
-			"minVolumeSize": [[.MinVolumeSize]]
-		},
-		"status": {
-			"state": "[[.Status.State]]",
-			"conditions": [
-				{
-					"state": "[[.Status.State]]",
-					"lastTransitionAt": "[[.Status.LastTransitionAt]]"
-				}
-			]
-		}
-	}`
-
 	blockStorageResponseTemplateV1 = `
 	{
 		"labels": {},
@@ -159,8 +158,8 @@ const (
 			"region": "[[.Metadata.Region]]"
 		},
 		"spec": {
-			"skuRef": "[[.SkuRef]]",
-			"sizeGB": [[.SizeGB]]
+			"skuRef": "[[.Spec.SkuRef]]",
+			"sizeGB": [[.Spec.SizeGB]]
 		},
 		"status": {
 			"state": "[[.Status.State]]",
@@ -193,45 +192,8 @@ const (
 			"region": "[[.Metadata.Region]]"
 		},
 		"spec": {
-			"blockStorageRef": "[[.BlockStorageRef]]",
-        	"cpuArchitecture": "[[.CpuArchitecture]]"
-		},
-		"status": {
-			"state": "[[.Status.State]]",
-			"conditions": [
-				{
-					"state": "[[.Status.State]]",
-					"lastTransitionAt": "[[.Status.LastTransitionAt]]"
-				}
-			]
-		}
-	}`
-
-	instanceSkuResponseTemplateV1 = `
-	{
-		"labels": {
-			"architecture": "[[.Architecture]]",
-        	"provider": "[[.Provider]]",
-        	"tier": "[[.Tier]]"		
-		},
-		"annotations": {},
-		"extensions": {},	
-		"metadata": {
-			"name": "[[.Metadata.Name]]",
-			"provider": "[[.Metadata.Provider]]",
-			"resource": "[[.Metadata.Resource]]",
-			"verb": "[[.Metadata.Verb]]",
-			"createdAt": "[[.Metadata.CreatedAt]]",
-			"lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-			"resourceVersion": "[[.Metadata.ResourceVersion]]",
-			"apiVersion": "[[.Metadata.ApiVersion]]",
-			"kind": "[[.Metadata.Kind]]",
-			"tenant": "[[.Metadata.Tenant]]",
-			"region": "[[.Metadata.Region]]"
-		},
-		"spec": {
-			"ram": [[.RAM]],
-			"vCPU": [[.VCPU]]
+			"blockStorageRef": "[[.Spec.BlockStorageRef]]",
+        	"cpuArchitecture": "[[.Spec.CpuArchitecture]]"
 		},
 		"status": {
 			"state": "[[.Status.State]]",
@@ -264,10 +226,10 @@ const (
 			"region": "[[.Metadata.Region]]"
 		},
 		"spec": {
-			"skuRef": "[[.SkuRef]]",
-        	"zone": "[[.Zone]]",
+			"skuRef": "[[.Spec.SkuRef]]",
+        	"zone": "[[.Spec.Zone]]",
         	"bootVolume": {
-				"deviceRef": "[[.BootDeviceRef]]"
+				"deviceRef": "[[.Spec.BootDeviceRef]]"
 			}
 		},
 		"status": {
@@ -285,20 +247,25 @@ const (
 	{
       "metadata": {
         "name": "[[.Metadata.Name]]",
-        "createdAt": "[[.Metadata.CreatedAt]]",
-        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-        "resourceVersion": "[[.Metadata.ResourceVersion]]",
-        "tenant": "[[.Metadata.Tenant]]",
-        "apiVersion": "[[.Metadata.ApiVersion]]",
-        "kind": "[[.Metadata.Kind]]",
+        "provider": "[[.Metadata.Provider]]",
         "resource": "[[.Metadata.Resource]]",
         "verb": "[[.Metadata.Verb]]",
-        "workspace": "[[.Metadata.Workspace]]"
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
       },
       "spec": {
-        "cidr": "[[.Cidr]]",
-        "skuRef": "[[.SkuRef]]",
-        "routeTableRef": "[[.RouteTableRef]]"
+        "cidr": {
+          "ipv4": "[[.Spec.Cidr.Ipv4]]",
+          "ipv6": "[[.Spec.Cidr.Ipv6]]"
+        },
+        "skuRef": "[[.Spec.SkuRef]]",
+        "routeTableRef": "[[.Spec.RouteTableRef]]"
       },
       "status": {
         "state": "[[.Status.State]]",
@@ -311,45 +278,24 @@ const (
       }
     }`
 
-	networkSkuResponseTemplateV1 = `
-	{
-		"annotations": {},
-		"extensions": {},	
-		"metadata": {
-			"name": "[[.Metadata.Name]]",
-			"provider": "[[.Metadata.Provider]]",
-			"resource": "[[.Metadata.Resource]]",
-			"verb": "[[.Metadata.Verb]]",
-			"createdAt": "[[.Metadata.CreatedAt]]",
-			"lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-			"resourceVersion": "[[.Metadata.ResourceVersion]]",
-			"apiVersion": "[[.Metadata.ApiVersion]]",
-			"kind": "[[.Metadata.Kind]]",
-			"tenant": "[[.Metadata.Tenant]]",
-			"region": "[[.Metadata.Region]]"
-		},
-      "spec": {
-        "bandwidth": "[[.Bandwidth]]",
-        "packets": "[[.Packets]]"
-      }
-    }`
-
 	internetGatewayResponseTemplateV1 = `
 	{
       "metadata": {
         "name": "[[.Metadata.Name]]",
-        "createdAt": "[[.Metadata.CreatedAt]]",
-        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-        "resourceVersion": "[[.Metadata.ResourceVersion]]",
-        "tenant": "[[.Metadata.Tenant]]",
-        "apiVersion": "[[.Metadata.ApiVersion]]",
-        "kind": "[[.Metadata.Kind]]",
+        "provider": "[[.Metadata.Provider]]",
         "resource": "[[.Metadata.Resource]]",
         "verb": "[[.Metadata.Verb]]",
-        "workspace": "[[.Metadata.Workspace]]"
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
       },
       "spec": {
-        "egressOnly": "[[.EgressOnly]]"
+        "egressOnly": "[[.Spec.EgressOnly]]"
       },
       "status": {
         "state": "[[.Status.State]]",
@@ -366,19 +312,21 @@ const (
 	{
       "metadata": {
         "name": "[[.Metadata.Name]]",
-        "createdAt": "[[.Metadata.CreatedAt]]",
-        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-        "resourceVersion": "[[.Metadata.ResourceVersion]]",
-        "tenant": "[[.Metadata.Tenant]]",
-        "apiVersion": "[[.Metadata.ApiVersion]]",
-        "kind": "[[.Metadata.Kind]]",
+        "provider": "[[.Metadata.Provider]]",
         "resource": "[[.Metadata.Resource]]",
         "verb": "[[.Metadata.Verb]]",
-        "workspace": "[[.Metadata.Workspace]]"
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
       },
       "spec": {
-        "addresses": "[[.Addresses]]",
-        "subnetRef": "[[.SubnetRef]]"
+        "addresses": "[[.Spec.Addresses]]",
+        "subnetRef": "[[.Spec.SubnetRef]]"
       },
       "status": {
         "state": "[[.Status.State]]",
@@ -395,19 +343,21 @@ const (
 	{
       "metadata": {
         "name": "[[.Metadata.Name]]",
-        "createdAt": "[[.Metadata.CreatedAt]]",
-        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-        "resourceVersion": "[[.Metadata.ResourceVersion]]",
-        "tenant": "[[.Metadata.Tenant]]",
-        "apiVersion": "[[.Metadata.ApiVersion]]",
-        "kind": "[[.Metadata.Kind]]",
+        "provider": "[[.Metadata.Provider]]",
         "resource": "[[.Metadata.Resource]]",
         "verb": "[[.Metadata.Verb]]",
-        "workspace": "[[.Metadata.Workspace]]"
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
       },
       "spec": {
-        "version": "[[.Version]]",
-        "address": "[[.Address]]"
+        "version": "[[.Spec.Version]]",
+        "address": "[[.Spec.Address]]"
       },
       "status": {
         "state": "[[.Status.State]]",
@@ -424,25 +374,27 @@ const (
 	{
       "metadata": {
         "name": "[[.Metadata.Name]]",
-        "createdAt": "[[.Metadata.CreatedAt]]",
-        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-        "resourceVersion": "[[.Metadata.ResourceVersion]]",
-        "tenant": "[[.Metadata.Tenant]]",
-        "apiVersion": "[[.Metadata.ApiVersion]]",
-        "kind": "[[.Metadata.Kind]]",
+        "provider": "[[.Metadata.Provider]]",
         "resource": "[[.Metadata.Resource]]",
         "verb": "[[.Metadata.Verb]]",
-        "workspace": "[[.Metadata.Workspace]]"
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
       },
       "spec": {
-	  	"localRef": "[[.LocalRef]]",
-        "routes": [
-		 [[- range $i, $r :=.Routes]]
-		 [[if $i]],[[end]]
+	  	"localRef": "[[.Spec.LocalRef]]",
+      "routes": [
+		  [[- range $i, $r := .Spec.Routes]]
+		  [[if $i]],[[end]]
 			{
-			"destinationCidrBlock": "[[$r.DestinationCidrBlock]]",
-			"targetRef": "[[$r.TargetRef]]"
-		}[[- end]]
+			  "destinationCidrBlock": "[[$r.DestinationCidrBlock]]",
+			  "targetRef": "[[$r.TargetRef]]"
+		  }[[- end]]
 		]
       },
       "status": {
@@ -460,19 +412,21 @@ const (
 	{
       "metadata": {
         "name": "[[.Metadata.Name]]",
-        "createdAt": "[[.Metadata.CreatedAt]]",
-        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-        "resourceVersion": "[[.Metadata.ResourceVersion]]",
-        "tenant": "[[.Metadata.Tenant]]",
-        "apiVersion": "[[.Metadata.ApiVersion]]",
-        "kind": "[[.Metadata.Kind]]",
+        "provider": "[[.Metadata.Provider]]",
         "resource": "[[.Metadata.Resource]]",
         "verb": "[[.Metadata.Verb]]",
-        "workspace": "[[.Metadata.Workspace]]"
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
       },
       "spec": {
-		"cidr": "[[.Cidr]]",
-		"zone": "[[.Zone]]"
+		"cidr": "[[.Spec.Cidr]]",
+		"zone": "[[.Spec.Zone]]"
       },
       "status": {
         "state": "[[.Status.State]]",
@@ -489,19 +443,21 @@ const (
 	{
       "metadata": {
         "name": "[[.Metadata.Name]]",
-        "createdAt": "[[.Metadata.CreatedAt]]",
-        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
-        "resourceVersion": "[[.Metadata.ResourceVersion]]",
-        "tenant": "[[.Metadata.Tenant]]",
-        "apiVersion": "[[.Metadata.ApiVersion]]",
-        "kind": "[[.Metadata.Kind]]",
+        "provider": "[[.Metadata.Provider]]",
         "resource": "[[.Metadata.Resource]]",
         "verb": "[[.Metadata.Verb]]",
-        "workspace": "[[.Metadata.Workspace]]"
+        "createdAt": "[[.Metadata.CreatedAt]]",
+        "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+        "resourceVersion": [[.Metadata.ResourceVersion]],
+        "apiVersion": "[[.Metadata.ApiVersion]]",
+        "kind": "[[.Metadata.Kind]]",
+        "tenant": "[[.Metadata.Tenant]]",
+        "workspace": "[[.Metadata.Workspace]]",
+        "region": "[[.Metadata.Region]]"
       },
       "spec": {
 		"rules": [
-			[[- range $i, $r :=.Rules]]
+			[[- range $i, $r := .Spec.Rules]]
 			[[if $i]],[[end]]
 				{
 				"direction": "[[$r.Direction]]"
