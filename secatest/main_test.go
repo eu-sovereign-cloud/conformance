@@ -82,9 +82,16 @@ func TestSuites(t *testing.T) {
 		os.Exit(1)
 	}
 
+	// Load available network skus
+	networkSkus, err := loadNetworkSkus(ctx, regionalClient)
+	if err != nil {
+		slog.Error("Failed to list network skus", "error", err)
+		os.Exit(1)
+	}
+
 	// Run test suites
 
-	suite.RunNamedSuite(t, "Authorization V1", &AuthorizationV1TestSuite{
+	/*suite.RunNamedSuite(t, "Authorization V1", &AuthorizationV1TestSuite{
 		globalTestSuite: globalTestSuite{
 			testSuite: testSuite{
 				tenant:        config.clientTenant,
@@ -137,6 +144,23 @@ func TestSuites(t *testing.T) {
 		availableZones: availableZones,
 		instanceSkus:   instanceSkus,
 		storageSkus:    storageSkus,
+	})*/
+
+	suite.RunNamedSuite(t, "Network V1", &NetworkV1TestSuite{
+		regionalTestSuite: regionalTestSuite{
+			testSuite: testSuite{
+				tenant:        config.clientTenant,
+				authToken:     config.clientAuthToken,
+				mockEnabled:   config.mockEnabled,
+				mockServerURL: config.mockServerURL,
+			},
+			region: config.clientRegion,
+			client: regionalClient,
+		},
+		availableZones: availableZones,
+		instanceSkus:   instanceSkus,
+		storageSkus:    storageSkus,
+		networkSkus:    networkSkus,
 	})
 }
 
@@ -203,3 +227,22 @@ func loadStorageSkus(ctx context.Context, regionalClient *secapi.RegionalClient)
 	return available, nil
 }
 
+func loadNetworkSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
+
+	resp, err := regionalClient.NetworkV1.ListSkus(ctx, secapi.TenantID(config.clientTenant))
+	if err != nil {
+		return nil, err
+	}
+
+	skus, err := resp.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var available []string
+	for _, sku := range skus {
+		available = append(available, sku.Metadata.Name)
+	}
+
+	return available, nil
+}

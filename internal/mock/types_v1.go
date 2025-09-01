@@ -45,7 +45,7 @@ type NetworkParamsV1 struct {
 	RouteTable      *ResourceParams[secalib.RouteTableSpecV1]
 	Subnet          *ResourceParams[secalib.SubnetSpecV1]
 	NIC             *ResourceParams[secalib.NICSpecV1]
-	PublicIP        *ResourceParams[secalib.PublicIPSpecV1]
+	PublicIP        *ResourceParams[secalib.PublicIpSpecV1]
 	SecurityGroup   *ResourceParams[secalib.SecurityGroupSpecV1]
 }
 

@@ -214,7 +214,7 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 		return nil, err
 	}
 
-	// Get deleted image (not found)
+	// Get deleted image
 	imageResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          imageUrl,
@@ -240,7 +240,7 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 		return nil, err
 	}
 
-	// Get deleted block storage (not found)
+	// Get deleted block storage
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          blockStorageUrl,

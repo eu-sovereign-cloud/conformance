@@ -267,7 +267,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 		return nil, err
 	}
 
-	// Get deleted instance (not found)
+	// Get deleted instance
 	instResponse.Metadata.Verb = http.MethodGet
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{

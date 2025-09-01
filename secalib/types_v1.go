@@ -76,18 +76,16 @@ type NICSpecV1 struct {
 	SubnetRef    string
 }
 
-type PublicIPSpecV1 struct {
+type PublicIpSpecV1 struct {
 	Version string
 	Address string
 }
 
 type SecurityGroupSpecV1 struct {
-	Rules []*SecurityGroupRule
+	Rules []*SecurityGroupRuleV1
 }
-type SecurityGroupRule struct {
+type SecurityGroupRuleV1 struct {
 	Direction string
-	Protocol  string
-	Port      int
 }
 
 type SubnetSpecV1 struct {

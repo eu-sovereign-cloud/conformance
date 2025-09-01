@@ -485,7 +485,7 @@ func verifyRoleAssignmentSpecStep(ctx provider.StepCtx, expected *secalib.RoleAs
 		stepCtx.Require().Equal(expected.Subs, actual.Subs,
 			"Subs should match expected")
 		stepCtx.Require().Equal(len(expected.Scopes), len(actual.Scopes),
-			"Scopes list length should match expected")
+			"Scope list length should match expected")
 
 		for i := 0; i < len(expected.Scopes); i++ {
 			expectedScope := expected.Scopes[i]
