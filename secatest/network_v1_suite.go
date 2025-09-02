@@ -41,31 +41,31 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		secalib.SubnetKind, secalib.SecurityGroupKind)
 
 	// Generate the subnet cidr
-	subnetCidr, err := generateSubnetCidr(suite.networkCidr, 8, 1)
+	subnetCidr, err := secalib.GenerateSubnetCidr(suite.networkCidr, 8, 1)
 	if err != nil {
 		slog.Error("Failed to generate subnet cidr", "error", err)
 		return
 	}
 
 	// Generate the nic addresses
-	nicAddress1, err := generateNicAddress(subnetCidr, 1)
+	nicAddress1, err := secalib.GenerateNicAddress(subnetCidr, 1)
 	if err != nil {
 		slog.Error("Failed to generate nic address", "error", err)
 		return
 	}
-	nicAddress2, err := generateNicAddress(subnetCidr, 2)
+	nicAddress2, err := secalib.GenerateNicAddress(subnetCidr, 2)
 	if err != nil {
 		slog.Error("Failed to generate nic address", "error", err)
 		return
 	}
 
 	// Generate the public ips
-	publicIpAddress1, err := generatePublicIp(suite.publicIpsRange, 1)
+	publicIpAddress1, err := secalib.GeneratePublicIp(suite.publicIpsRange, 1)
 	if err != nil {
 		slog.Error("Failed to generate public ip", "error", err)
 		return
 	}
-	publicIpAddress2, err := generatePublicIp(suite.publicIpsRange, 2)
+	publicIpAddress2, err := secalib.GeneratePublicIp(suite.publicIpsRange, 2)
 	if err != nil {
 		slog.Error("Failed to generate public ip", "error", err)
 		return
