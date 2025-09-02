@@ -9,6 +9,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
+	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -29,10 +30,9 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	// Select sku
 	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
 
-	// TODO Dynamically create before the scenario
+	// Generate scenario data
 	workspaceName := secalib.GenerateWorkspaceName()
 
-	// Generate scenario data
 	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
 
 	blockStorageName := secalib.GenerateBlockStorageName()
@@ -53,8 +53,10 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 					MockURL:   suite.mockServerURL,
 					AuthToken: suite.authToken,
 					Tenant:    suite.tenant,
-					Workspace: workspaceName,
 					Region:    suite.region,
+				},
+				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
+					Name: workspaceName,
 				},
 				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
 					Name: blockStorageName,
@@ -87,14 +89,58 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	}
 
 	ctx := context.Background()
+	var workResp *workspace.Workspace
 	var blockResp *storage.BlockStorage
 	var imageResp *storage.Image
 	var err error
 
-	var expectedBlockMetadata *secalib.Metadata
+	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "CreateOrUpdateWorkspace",
+			tenantStepParameter, suite.tenant,
+			workspaceStepParameter, workspaceName,
+		)
+
+		tref := secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   workspaceName,
+		}
+		ws := &workspace.Workspace{}
+		workResp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, tref, ws, nil)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, workResp)
+
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.CreatingStatusState},
+			&secalib.Status{State: string(*workResp.Status.State)},
+		)
+	})
+
+	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "GetWorkspace",
+			tenantStepParameter, suite.tenant,
+			workspaceStepParameter, workspaceName,
+		)
+
+		tref := secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   workspaceName,
+		}
+		workResp, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, workResp)
+
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.ActiveStatusState},
+			&secalib.Status{State: string(*workResp.Status.State)},
+		)
+	})
+
+	// Block storage
+	var expectedBlockMeta *secalib.Metadata
 	var expectedBlockSpec *secalib.BlockStorageSpecV1
 
-	// Step 1
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateBlockStorage",
@@ -117,7 +163,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
-		expectedBlockMetadata = &secalib.Metadata{
+		expectedBlockMeta = &secalib.Metadata{
 			Name:       blockStorageName,
 			Provider:   secalib.StorageProviderV1,
 			Resource:   blockStorageResource,
@@ -128,7 +174,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			Region:     suite.region,
 		}
 
-		verifyStorageZonalMetadataStep(sCtx, expectedBlockMetadata, blockResp.Metadata)
+		verifyStorageZonalMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
 		expectedBlockSpec = &secalib.BlockStorageSpecV1{
 			SizeGB: initialStorageSize,
@@ -142,7 +188,6 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		)
 	})
 
-	// Step 2
 	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetBlockStorage",
@@ -159,8 +204,8 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
-		expectedBlockMetadata.Verb = http.MethodGet
-		verifyStorageZonalMetadataStep(sCtx, expectedBlockMetadata, blockResp.Metadata)
+		expectedBlockMeta.Verb = http.MethodGet
+		verifyStorageZonalMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
 		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, blockResp.Spec)
 
@@ -170,7 +215,6 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		)
 	})
 
-	// Step 3
 	t.WithNewStep("Update block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateBlockStorage",
@@ -187,8 +231,8 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
-		expectedBlockMetadata.Verb = http.MethodPut
-		verifyStorageZonalMetadataStep(sCtx, expectedBlockMetadata, blockResp.Metadata)
+		expectedBlockMeta.Verb = http.MethodPut
+		verifyStorageZonalMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
 		expectedBlockSpec.SizeGB = updatedStorageSize
 		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, blockResp.Spec)
@@ -199,7 +243,6 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		)
 	})
 
-	// Step 4
 	t.WithNewStep("Get updated block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetBlockStorage",
@@ -216,8 +259,8 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
-		expectedBlockMetadata.Verb = http.MethodGet
-		verifyStorageZonalMetadataStep(sCtx, expectedBlockMetadata, blockResp.Metadata)
+		expectedBlockMeta.Verb = http.MethodGet
+		verifyStorageZonalMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
 		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, blockResp.Spec)
 
@@ -227,10 +270,10 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		)
 	})
 
-	var expectedImageMetadata *secalib.Metadata
+	// Image
+	var expectedImageMeta *secalib.Metadata
 	var expectedImageSpec *secalib.ImageSpecV1
 
-	// Step 5
 	t.WithNewStep("Create image", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateImage",
@@ -251,7 +294,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, imageResp)
 
-		expectedImageMetadata = &secalib.Metadata{
+		expectedImageMeta = &secalib.Metadata{
 			Name:       imageName,
 			Provider:   secalib.StorageProviderV1,
 			Resource:   imageResource,
@@ -261,7 +304,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			Tenant:     suite.tenant,
 			Region:     suite.region,
 		}
-		verifyStorageRegionalMetadataStep(sCtx, expectedImageMetadata, imageResp.Metadata)
+		verifyStorageRegionalMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
 
 		expectedImageSpec = &secalib.ImageSpecV1{
 			BlockStorageRef: blockStorageRef,
@@ -275,7 +318,6 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		)
 	})
 
-	// Step 6
 	t.WithNewStep("Get created image", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetImage",
@@ -290,8 +332,8 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, imageResp)
 
-		expectedImageMetadata.Verb = http.MethodGet
-		verifyStorageRegionalMetadataStep(sCtx, expectedImageMetadata, imageResp.Metadata)
+		expectedImageMeta.Verb = http.MethodGet
+		verifyStorageRegionalMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
 
 		verifyImageSpecStep(sCtx, expectedImageSpec, imageResp.Spec)
 
@@ -301,7 +343,6 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		)
 	})
 
-	// Step 7
 	t.WithNewStep("Update image", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateImage",
@@ -316,8 +357,8 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, imageResp)
 
-		expectedImageMetadata.Verb = http.MethodPut
-		verifyStorageRegionalMetadataStep(sCtx, expectedImageMetadata, imageResp.Metadata)
+		expectedImageMeta.Verb = http.MethodPut
+		verifyStorageRegionalMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
 
 		expectedImageSpec.CpuArchitecture = secalib.CpuArchitectureArm64
 		verifyImageSpecStep(sCtx, expectedImageSpec, imageResp.Spec)
@@ -328,7 +369,6 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		)
 	})
 
-	// Step 8
 	t.WithNewStep("Get updated image", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetImage",
@@ -343,8 +383,8 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, imageResp)
 
-		expectedImageMetadata.Verb = http.MethodGet
-		verifyStorageRegionalMetadataStep(sCtx, expectedImageMetadata, imageResp.Metadata)
+		expectedImageMeta.Verb = http.MethodGet
+		verifyStorageRegionalMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
 
 		verifyImageSpecStep(sCtx, expectedImageSpec, imageResp.Spec)
 
@@ -354,7 +394,6 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		)
 	})
 
-	// Step 9
 	t.WithNewStep("Delete image", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteImage",
@@ -365,7 +404,6 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 10
 	t.WithNewStep("Get deleted image", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetImage",
@@ -381,7 +419,6 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	// Step 11
 	t.WithNewStep("Delete block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteBlockStorage",
@@ -392,7 +429,6 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 12
 	t.WithNewStep("Get deleted block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetBlockStorage",

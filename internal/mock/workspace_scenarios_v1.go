@@ -129,6 +129,5 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 		return nil, err
 	}
 
-	slog.Info("Configured mock to Workspace Lifecycle Scenario")
 	return wm, nil
 }

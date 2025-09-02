@@ -10,6 +10,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
 	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
+	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -37,10 +38,9 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	initialInstanceZone := suite.availableZones[rand.Intn(len(suite.availableZones))]
 	updatedInstanceZone := suite.availableZones[rand.Intn(len(suite.availableZones))]
 
-	// TODO Dynamically create before the scenario
+	// Generate scenario data
 	workspaceName := secalib.GenerateWorkspaceName()
 
-	// Generate scenario data
 	instanceSkuRef := secalib.GenerateSkuRef(instanceSkuName)
 
 	instanceName := secalib.GenerateInstanceName()
@@ -61,8 +61,10 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 					MockURL:   suite.mockServerURL,
 					AuthToken: suite.authToken,
 					Tenant:    suite.tenant,
-					Workspace: workspaceName,
 					Region:    suite.region,
+				},
+				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
+					Name: workspaceName,
 				},
 				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
 					Name: blockStorageName,
@@ -93,11 +95,54 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	}
 
 	ctx := context.Background()
+	var workResp *workspace.Workspace
 	var blockStorageResp *storage.BlockStorage
 	var instanceResp *compute.Instance
 	var err error
 
-	// Step 1
+	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "CreateOrUpdateWorkspace",
+			tenantStepParameter, suite.tenant,
+			workspaceStepParameter, workspaceName,
+		)
+
+		tref := secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   workspaceName,
+		}
+		ws := &workspace.Workspace{}
+		workResp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, tref, ws, nil)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, workResp)
+
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.CreatingStatusState},
+			&secalib.Status{State: string(*workResp.Status.State)},
+		)
+	})
+
+	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "GetWorkspace",
+			tenantStepParameter, suite.tenant,
+			workspaceStepParameter, workspaceName,
+		)
+
+		tref := secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   workspaceName,
+		}
+		workResp, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, workResp)
+
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.ActiveStatusState},
+			&secalib.Status{State: string(*workResp.Status.State)},
+		)
+	})
+
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateBlockStorage",
@@ -121,7 +166,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNotNilResponse(sCtx, blockStorageResp)
 	})
 
-	// Step 2
 	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetBlockStorage",
@@ -144,10 +188,9 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		)
 	})
 
-	var expectedMetadata *secalib.Metadata
+	var expectedMeta *secalib.Metadata
 	var expectedSpec *secalib.InstanceSpecV1
 
-	// Step 3
 	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateInstance",
@@ -172,7 +215,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedMetadata = &secalib.Metadata{
+		expectedMeta = &secalib.Metadata{
 			Name:       instanceName,
 			Provider:   secalib.ComputeProviderV1,
 			Resource:   instanceResource,
@@ -182,7 +225,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			Tenant:     suite.tenant,
 			Region:     suite.region,
 		}
-		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
+		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		expectedSpec = &secalib.InstanceSpecV1{
 			SkuRef:        instanceSkuRef,
@@ -197,7 +240,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		)
 	})
 
-	// Step 4
 	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetInstance",
@@ -214,8 +256,8 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedMetadata.Verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
+		expectedMeta.Verb = http.MethodGet
+		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
@@ -225,7 +267,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		)
 	})
 
-	// Step 5
 	t.WithNewStep("Update instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateInstance",
@@ -242,8 +283,8 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedMetadata.Verb = http.MethodPut
-		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
+		expectedMeta.Verb = http.MethodPut
+		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		expectedSpec.Zone = updatedInstanceZone
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
@@ -254,7 +295,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		)
 	})
 
-	// Step 6
 	t.WithNewStep("Get updated instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetInstance",
@@ -271,8 +311,8 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedMetadata.Verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
+		expectedMeta.Verb = http.MethodGet
+		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
@@ -282,7 +322,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		)
 	})
 
-	// Step 7
 	t.WithNewStep("Stop instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "StopInstance",
@@ -294,7 +333,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 8
 	t.WithNewStep("Get stopped instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetInstance",
@@ -311,8 +349,8 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedMetadata.Verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
+		expectedMeta.Verb = http.MethodGet
+		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
@@ -322,7 +360,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		)
 	})
 
-	// Step 9
 	t.WithNewStep("Start instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "StartInstance",
@@ -334,7 +371,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 10
 	t.WithNewStep("Get started instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetInstance",
@@ -351,8 +387,8 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedMetadata.Verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
+		expectedMeta.Verb = http.MethodGet
+		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
@@ -362,7 +398,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		)
 	})
 
-	// Step 11
 	t.WithNewStep("Restart instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "Restart",
@@ -374,7 +409,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 12
 	t.WithNewStep("Get restarted instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetInstance",
@@ -391,8 +425,8 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		expectedMetadata.Verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedMetadata, instanceResp.Metadata)
+		expectedMeta.Verb = http.MethodGet
+		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
@@ -402,7 +436,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		)
 	})
 
-	// Step 13
 	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteInstance",
@@ -414,7 +447,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 14
 	t.WithNewStep("Get deleted instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetInstance",

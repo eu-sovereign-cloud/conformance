@@ -121,6 +121,10 @@ func GenerateSkuRef(name string) string {
 	return fmt.Sprintf(SkuRef, name)
 }
 
+func GenerateInstanceRef(instanceName string) string {
+	return fmt.Sprintf(InstanceRef, instanceName)
+}
+
 func GenerateBlockStorageRef(blockStorageName string) string {
 	return fmt.Sprintf(BlockStorageRef, blockStorageName)
 }

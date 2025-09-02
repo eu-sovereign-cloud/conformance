@@ -27,6 +27,7 @@ const (
 
 	// Resource References
 	SkuRef             = "skus/%s"
+	InstanceRef        = "instances/%s"
 	BlockStorageRef    = "block-storages/%s"
 	InternetGatewayRef = "internet-gateways/%s"
 	NetworkRef         = "networks/%s"

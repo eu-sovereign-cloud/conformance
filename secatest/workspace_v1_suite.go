@@ -53,9 +53,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	var resp *workspace.Workspace
 	var err error
 
-	var expectedMetadata *secalib.Metadata
+	var expectedMeta *secalib.Metadata
 
-	// Step 1
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateWorkspace",
@@ -72,7 +71,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadata = &secalib.Metadata{
+		expectedMeta = &secalib.Metadata{
 			Name:       workspaceName,
 			Provider:   secalib.WorkspaceProviderV1,
 			Resource:   resource,
@@ -82,7 +81,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 			Tenant:     suite.tenant,
 			Region:     suite.region,
 		}
-		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
+		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.CreatingStatusState},
@@ -90,7 +89,6 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		)
 	})
 
-	// Step 2
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetWorkspace",
@@ -106,8 +104,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadata.Verb = http.MethodGet
-		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
+		expectedMeta.Verb = http.MethodGet
+		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
@@ -115,7 +113,6 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		)
 	})
 
-	// Step 3
 	t.WithNewStep("Update workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateWorkspace",
@@ -123,7 +120,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 			workspaceStepParameter, workspaceName,
 		)
 
-		// TODO Find a attribute to update
+		// TODO Update a workspace label to test update
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -133,8 +130,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadata.Verb = http.MethodPut
-		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
+		expectedMeta.Verb = http.MethodPut
+		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.UpdatingStatusState},
@@ -142,7 +139,6 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		)
 	})
 
-	// Step 4
 	t.WithNewStep("Get updated workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetWorkspace",
@@ -158,8 +154,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMetadata.Verb = http.MethodGet
-		verifyWorkspaceMetadataStep(sCtx, expectedMetadata, resp.Metadata)
+		expectedMeta.Verb = http.MethodGet
+		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
@@ -167,7 +163,6 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		)
 	})
 
-	// Step 5
 	t.WithNewStep("Delete workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteWorkspace",
@@ -179,7 +174,6 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 6
 	t.WithNewStep("Get deleted workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetWorkspace",

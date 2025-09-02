@@ -12,6 +12,7 @@ import (
 	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
 	network "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.network.v1"
 	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
+	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -24,7 +25,9 @@ const (
 type NetworkV1TestSuite struct {
 	regionalTestSuite
 
-	availableZones []string
+	networkCidr    string
+	publicIpsRange string
+	regionZones    []string
 	storageSkus    []string
 	instanceSkus   []string
 	networkSkus    []string
@@ -37,31 +40,35 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	configureTags(t, secalib.NetworkProviderV1, secalib.NetworkKind, secalib.InternetGatewayKind, secalib.NicKind, secalib.PublicIPKind, secalib.RouteTableKind,
 		secalib.SubnetKind, secalib.SecurityGroupKind)
 
-	// TODO Receive via configuration the network cidr ranges and calculate the cidr
-	networkCIDR1 := "10.1.0.0/16"
-	networkCIDR2 := "10.2.0.0/16"
+	subnetCidr, _ := generateSubnet(suite.networkCidr, 24)
 
-	// TODO Calculate the subnet cidr from network cidr
-	subnetCIDR := "10.1.0.0/24"
+	// TODO Calculate the nic address from subnet cidr
+	nicAddress1, _ := generateIPAddress(subnetCidr, 1)
+	nicAddress2, _ := generateIPAddress(subnetCidr, 2)
 
-	// TODO Calculate the nic cidr from subnet cidr
-	nicAddress := "10.1.0.1"
+	// TODO Calculate the cidr from nic address
+	nicAddress1Cidr := "10.1.0.1/32"
 
 	// TODO Receive via configuration the public ip address range and calculate an ip address
-	publicIPAddress := "192.168.0.1"
+	//publicIp1, _, _ := net.ParseCIDR(suite.publicIpsRange)
+	publicIpAddress1 := "" //publicIp1.String()
 
-	// Select zone
-	zone := suite.availableZones[rand.Intn(len(suite.availableZones))]
+	//publicIp2, _, _ := net.ParseCIDR(suite.publicIpsRange)
+	publicIpAddress2 := "" //publicIp2.String()
+
+	// Select zones
+	zone1 := suite.regionZones[rand.Intn(len(suite.regionZones))]
+	zone2 := suite.regionZones[rand.Intn(len(suite.regionZones))]
 
 	// Select skus
 	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
 	instanceSkuName := suite.instanceSkus[rand.Intn(len(suite.instanceSkus))]
-	networkSkuName := suite.networkSkus[rand.Intn(len(suite.networkSkus))]
-
-	// TODO Dynamically create before the scenario
-	workspaceName := secalib.GenerateWorkspaceName()
+	networkSkuName1 := suite.networkSkus[rand.Intn(len(suite.networkSkus))]
+	networkSkuName2 := suite.networkSkus[rand.Intn(len(suite.networkSkus))]
 
 	// Generate scenario data
+	workspaceName := secalib.GenerateWorkspaceName()
+
 	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
 
 	blockStorageName := secalib.GenerateBlockStorageName()
@@ -69,8 +76,11 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 
 	instanceSkuRef := secalib.GenerateSkuRef(instanceSkuName)
 	instanceName := secalib.GenerateInstanceName()
+	instanceRef := secalib.GenerateInstanceRef(instanceName)
 
-	networkSkuRef := secalib.GenerateSkuRef(networkSkuName)
+	networkSkuRef1 := secalib.GenerateSkuRef(networkSkuName1)
+	networkSkuRef2 := secalib.GenerateSkuRef(networkSkuName2)
+
 	networkName := secalib.GenerateNetworkName()
 	networkRef := secalib.GenerateNetworkRef(networkName)
 	networkResource := secalib.GenerateNetworkResource(suite.tenant, workspaceName, networkName)
@@ -107,8 +117,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 					MockURL:   suite.mockServerURL,
 					AuthToken: suite.authToken,
 					Tenant:    suite.tenant,
-					Workspace: workspaceName,
 					Region:    suite.region,
+				},
+				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
+					Name: workspaceName,
 				},
 				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
 					Name: blockStorageName,
@@ -121,26 +133,27 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 					Name: instanceName,
 					InitialSpec: &secalib.InstanceSpecV1{
 						SkuRef:        instanceSkuRef,
-						Zone:          zone,
+						Zone:          zone1,
 						BootDeviceRef: blockStorageRef,
 					},
 				},
 				Network: &mock.ResourceParams[secalib.NetworkSpecV1]{
 					Name: networkName,
 					InitialSpec: &secalib.NetworkSpecV1{
-						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: networkCIDR1},
-						SkuRef:        networkSkuRef,
+						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
+						SkuRef:        networkSkuRef1,
 						RouteTableRef: routeTableRef,
 					},
 					UpdatedSpec: &secalib.NetworkSpecV1{
-						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: networkCIDR2},
-						SkuRef:        networkSkuRef,
+						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
+						SkuRef:        networkSkuRef2,
 						RouteTableRef: routeTableRef,
 					},
 				},
 				InternetGateway: &mock.ResourceParams[secalib.InternetGatewaySpecV1]{
 					Name:        internetGatewayName,
 					InitialSpec: &secalib.InternetGatewaySpecV1{EgressOnly: false},
+					UpdatedSpec: &secalib.InternetGatewaySpecV1{EgressOnly: true},
 				},
 				RouteTable: &mock.ResourceParams[secalib.RouteTableSpecV1]{
 					Name: routeTableName,
@@ -150,18 +163,34 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: internetGatewayRef},
 						},
 					},
+					UpdatedSpec: &secalib.RouteTableSpecV1{
+						LocalRef: networkRef,
+						Routes: []*secalib.RouteTableRouteV1{
+							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: internetGatewayRef},
+							{DestinationCidrBlock: nicAddress1Cidr, TargetRef: instanceRef},
+						},
+					},
 				},
 				Subnet: &mock.ResourceParams[secalib.SubnetSpecV1]{
 					Name: subnetName,
 					InitialSpec: &secalib.SubnetSpecV1{
-						Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCIDR},
-						Zone: zone,
+						Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
+						Zone: zone1,
+					},
+					UpdatedSpec: &secalib.SubnetSpecV1{
+						Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
+						Zone: zone2,
 					},
 				},
 				NIC: &mock.ResourceParams[secalib.NICSpecV1]{
 					Name: nicName,
 					InitialSpec: &secalib.NICSpecV1{
-						Addresses:    []string{nicAddress},
+						Addresses:    []string{nicAddress1},
+						PublicIpRefs: []string{publicIPRef},
+						SubnetRef:    subnetRef,
+					},
+					UpdatedSpec: &secalib.NICSpecV1{
+						Addresses:    []string{nicAddress2},
 						PublicIpRefs: []string{publicIPRef},
 						SubnetRef:    subnetRef,
 					},
@@ -170,13 +199,20 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 					Name: publicIPName,
 					InitialSpec: &secalib.PublicIpSpecV1{
 						Version: secalib.IPVersion4,
-						Address: publicIPAddress,
+						Address: publicIpAddress1,
+					},
+					UpdatedSpec: &secalib.PublicIpSpecV1{
+						Version: secalib.IPVersion4,
+						Address: publicIpAddress2,
 					},
 				},
 				SecurityGroup: &mock.ResourceParams[secalib.SecurityGroupSpecV1]{
 					Name: securityGroupName,
 					InitialSpec: &secalib.SecurityGroupSpecV1{
 						Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionIngress}},
+					},
+					UpdatedSpec: &secalib.SecurityGroupSpecV1{
+						Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionEgress}},
 					},
 				},
 			})
@@ -188,25 +224,68 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	}
 
 	ctx := context.Background()
-
+	var workResp *workspace.Workspace
 	var networkResp *network.Network
 	var gatewayResp *network.InternetGateway
 	var routeResp *network.RouteTable
 	var subnetResp *network.Subnet
 	var publicIpResp *network.PublicIp
 	var nicResp *network.Nic
-	var secGroupResp *network.SecurityGroup
+	var groupResp *network.SecurityGroup
 	var blockResp *storage.BlockStorage
 	var instanceResp *compute.Instance
-
 	var err error
 
-	var expectedNetworkMetadata *secalib.Metadata
+	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "CreateOrUpdateWorkspace",
+			tenantStepParameter, suite.tenant,
+			workspaceStepParameter, workspaceName,
+		)
+
+		tref := secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   workspaceName,
+		}
+		ws := &workspace.Workspace{}
+		workResp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, tref, ws, nil)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, workResp)
+
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.CreatingStatusState},
+			&secalib.Status{State: string(*workResp.Status.State)},
+		)
+	})
+
+	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "GetWorkspace",
+			tenantStepParameter, suite.tenant,
+			workspaceStepParameter, workspaceName,
+		)
+
+		tref := secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   workspaceName,
+		}
+		workResp, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, workResp)
+
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.ActiveStatusState},
+			&secalib.Status{State: string(*workResp.Status.State)},
+		)
+	})
+
+	// Network
+	var expectedNetworkMeta *secalib.Metadata
 	var expectedNetworkSpec *secalib.NetworkSpecV1
 
-	// Step 1
 	t.WithNewStep("Create network", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
+			// TODO Create a method to define the step parameters
 			// TODO Add the provider prefix in each operation
 			operationStepParameter, "CreateOrUpdateNetwork",
 			tenantStepParameter, suite.tenant,
@@ -220,8 +299,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		}
 		net := &network.Network{
 			Spec: network.NetworkSpec{
-				Cidr:          network.Cidr{Ipv4: &networkCIDR1},
-				SkuRef:        networkSkuRef,
+				Cidr:          network.Cidr{Ipv4: &suite.networkCidr},
+				SkuRef:        networkSkuRef1,
 				RouteTableRef: routeTableRef,
 			},
 		}
@@ -229,7 +308,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, networkResp)
 
-		expectedNetworkMetadata = &secalib.Metadata{
+		expectedNetworkMeta = &secalib.Metadata{
 			Name:       networkName,
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   networkResource,
@@ -239,11 +318,11 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			Tenant:     suite.tenant,
 			Region:     suite.region,
 		}
-		verifyNetworkRegionalMetadataStep(sCtx, expectedNetworkMetadata, networkResp.Metadata)
+		verifyNetworkRegionalMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
 
 		expectedNetworkSpec = &secalib.NetworkSpecV1{
-			Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: networkCIDR1},
-			SkuRef:        networkSkuRef,
+			Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
+			SkuRef:        networkSkuRef1,
 			RouteTableRef: routeTableRef,
 		}
 		verifyNetworkSpecStep(sCtx, expectedNetworkSpec, networkResp.Spec)
@@ -254,7 +333,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 2
 	t.WithNewStep("Get created network", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetNetwork",
@@ -271,8 +349,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, networkResp)
 
-		expectedNetworkMetadata.Verb = http.MethodGet
-		verifyNetworkRegionalMetadataStep(sCtx, expectedNetworkMetadata, networkResp.Metadata)
+		expectedNetworkMeta.Verb = http.MethodGet
+		verifyNetworkRegionalMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
 
 		verifyNetworkSpecStep(sCtx, expectedNetworkSpec, networkResp.Spec)
 
@@ -282,7 +360,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 3
 	t.WithNewStep("Update network", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateNetwork",
@@ -299,10 +376,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, networkResp)
 
-		expectedNetworkMetadata.Verb = http.MethodPut
-		verifyNetworkRegionalMetadataStep(sCtx, expectedNetworkMetadata, networkResp.Metadata)
+		expectedNetworkMeta.Verb = http.MethodPut
+		verifyNetworkRegionalMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
 
-		expectedNetworkSpec.Cidr.Ipv4 = networkCIDR2
+		expectedNetworkSpec.SkuRef = networkSkuRef2
 		verifyNetworkSpecStep(sCtx, expectedNetworkSpec, networkResp.Spec)
 
 		verifyStatusStep(sCtx,
@@ -311,7 +388,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 4
 	t.WithNewStep("Get updated network", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetNetwork",
@@ -328,8 +404,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, networkResp)
 
-		expectedNetworkMetadata.Verb = http.MethodGet
-		verifyNetworkRegionalMetadataStep(sCtx, expectedNetworkMetadata, networkResp.Metadata)
+		expectedNetworkMeta.Verb = http.MethodGet
+		verifyNetworkRegionalMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
 
 		verifyNetworkSpecStep(sCtx, expectedNetworkSpec, networkResp.Spec)
 
@@ -339,10 +415,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	var expectedGatewayMetadata *secalib.Metadata
+	// Internet gateway
+	var expectedGatewayMeta *secalib.Metadata
 	var expectedGatewaySpec *secalib.InternetGatewaySpecV1
 
-	// Step 5
 	t.WithNewStep("Create internet gateway", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateInternetGateway",
@@ -360,7 +436,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, gatewayResp)
 
-		expectedGatewayMetadata = &secalib.Metadata{
+		expectedGatewayMeta = &secalib.Metadata{
 			Name:       internetGatewayName,
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   internetGatewayResource,
@@ -370,7 +446,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			Tenant:     suite.tenant,
 			Region:     suite.region,
 		}
-		verifyNetworkRegionalMetadataStep(sCtx, expectedGatewayMetadata, gatewayResp.Metadata)
+		verifyNetworkRegionalMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
 
 		expectedGatewaySpec = &secalib.InternetGatewaySpecV1{
 			EgressOnly: false,
@@ -383,7 +459,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 6
 	t.WithNewStep("Get created internet gateway", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetInternetGateway",
@@ -400,8 +475,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, gatewayResp)
 
-		expectedGatewayMetadata.Verb = http.MethodGet
-		verifyNetworkRegionalMetadataStep(sCtx, expectedGatewayMetadata, gatewayResp.Metadata)
+		expectedGatewayMeta.Verb = http.MethodGet
+		verifyNetworkRegionalMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
 
 		verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, gatewayResp.Spec)
 
@@ -411,7 +486,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 7
 	t.WithNewStep("Update internet gateway", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateInternetGateway",
@@ -428,10 +502,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, gatewayResp)
 
-		expectedGatewayMetadata.Verb = http.MethodPut
-		verifyNetworkRegionalMetadataStep(sCtx, expectedGatewayMetadata, gatewayResp.Metadata)
+		expectedGatewayMeta.Verb = http.MethodPut
+		verifyNetworkRegionalMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
 
-		//expectedNetworkSpec.Cidr.Ipv4 = networkCIDR2
+		expectedGatewaySpec.EgressOnly = true
 		verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, gatewayResp.Spec)
 
 		verifyStatusStep(sCtx,
@@ -440,7 +514,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 8
 	t.WithNewStep("Get updated internet gateway", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetInternetGateway",
@@ -457,8 +530,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, gatewayResp)
 
-		expectedGatewayMetadata.Verb = http.MethodGet
-		verifyNetworkRegionalMetadataStep(sCtx, expectedGatewayMetadata, gatewayResp.Metadata)
+		expectedGatewayMeta.Verb = http.MethodGet
+		verifyNetworkRegionalMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
 
 		verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, gatewayResp.Spec)
 
@@ -468,10 +541,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	var expectedRouteMetadata *secalib.Metadata
+	// Route table
+	var expectedRouteMeta *secalib.Metadata
 	var expectedRouteSpec *secalib.RouteTableSpecV1
 
-	// Step 9
 	t.WithNewStep("Create route table", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateRouteTable",
@@ -489,7 +562,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, routeResp)
 
-		expectedRouteMetadata = &secalib.Metadata{
+		expectedRouteMeta = &secalib.Metadata{
 			Name:       routeTableName,
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   routeTableResource,
@@ -499,7 +572,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			Tenant:     suite.tenant,
 			Region:     suite.region,
 		}
-		verifyNetworkRegionalMetadataStep(sCtx, expectedRouteMetadata, routeResp.Metadata)
+		verifyNetworkRegionalMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
 
 		expectedRouteSpec = &secalib.RouteTableSpecV1{
 			LocalRef: networkRef,
@@ -515,7 +588,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 10
 	t.WithNewStep("Get created route table", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetRouteTable",
@@ -532,8 +604,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, routeResp)
 
-		expectedRouteMetadata.Verb = http.MethodGet
-		verifyNetworkRegionalMetadataStep(sCtx, expectedRouteMetadata, routeResp.Metadata)
+		expectedRouteMeta.Verb = http.MethodGet
+		verifyNetworkRegionalMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
 
 		verifyRouteTableSpecStep(sCtx, expectedRouteSpec, routeResp.Spec)
 
@@ -543,7 +615,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 11
 	t.WithNewStep("Update route table", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateRouteTable",
@@ -560,10 +631,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, routeResp)
 
-		expectedRouteMetadata.Verb = http.MethodPut
-		verifyNetworkRegionalMetadataStep(sCtx, expectedRouteMetadata, routeResp.Metadata)
+		expectedRouteMeta.Verb = http.MethodPut
+		verifyNetworkRegionalMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
 
-		//expectedRouteSpec.Cidr.Ipv4 = networkCIDR2
+		expectedRouteSpec.Routes = append(expectedRouteSpec.Routes, &secalib.RouteTableRouteV1{DestinationCidrBlock: nicAddress1Cidr, TargetRef: instanceRef})
 		verifyRouteTableSpecStep(sCtx, expectedRouteSpec, routeResp.Spec)
 
 		verifyStatusStep(sCtx,
@@ -572,7 +643,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 12
 	t.WithNewStep("Get updated route table", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetRouteTable",
@@ -589,8 +659,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, routeResp)
 
-		expectedRouteMetadata.Verb = http.MethodGet
-		verifyNetworkRegionalMetadataStep(sCtx, expectedRouteMetadata, routeResp.Metadata)
+		expectedRouteMeta.Verb = http.MethodGet
+		verifyNetworkRegionalMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
 
 		verifyRouteTableSpecStep(sCtx, expectedRouteSpec, routeResp.Spec)
 
@@ -600,10 +670,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	var expectedSubnetMetadata *secalib.Metadata
+	// Subnet
+	var expectedSubnetMeta *secalib.Metadata
 	var expectedSubnetSpec *secalib.SubnetSpecV1
 
-	// Step 13
 	t.WithNewStep("Create subnet", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateSubnet",
@@ -618,15 +688,15 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		}
 		sub := &network.Subnet{
 			Spec: network.SubnetSpec{
-				Cidr: network.Cidr{Ipv4: &subnetCIDR},
-				Zone: zone,
+				Cidr: network.Cidr{Ipv4: &subnetCidr},
+				Zone: zone1,
 			},
 		}
 		subnetResp, err = suite.client.NetworkV1.CreateOrUpdateSubnet(ctx, wref, sub, nil)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, subnetResp)
 
-		expectedSubnetMetadata = &secalib.Metadata{
+		expectedSubnetMeta = &secalib.Metadata{
 			Name:       subnetName,
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   subnetResource,
@@ -636,11 +706,11 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			Tenant:     suite.tenant,
 			Region:     suite.region,
 		}
-		verifyNetworkZonalMetadataStep(sCtx, expectedSubnetMetadata, subnetResp.Metadata)
+		verifyNetworkZonalMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
 
 		expectedSubnetSpec = &secalib.SubnetSpecV1{
-			Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCIDR},
-			Zone: zone,
+			Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
+			Zone: zone1,
 		}
 		verifySubNetSpecStep(sCtx, expectedSubnetSpec, subnetResp.Spec)
 
@@ -650,7 +720,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 14
 	t.WithNewStep("Get created subnet", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetNetwork",
@@ -667,8 +736,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, subnetResp)
 
-		expectedSubnetMetadata.Verb = http.MethodGet
-		verifyNetworkZonalMetadataStep(sCtx, expectedSubnetMetadata, subnetResp.Metadata)
+		expectedSubnetMeta.Verb = http.MethodGet
+		verifyNetworkZonalMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
 
 		verifySubNetSpecStep(sCtx, expectedSubnetSpec, subnetResp.Spec)
 
@@ -678,7 +747,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 15
 	t.WithNewStep("Update subnet", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateSubnet",
@@ -695,10 +763,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, subnetResp)
 
-		expectedSubnetMetadata.Verb = http.MethodPut
-		verifyNetworkZonalMetadataStep(sCtx, expectedSubnetMetadata, subnetResp.Metadata)
+		expectedSubnetMeta.Verb = http.MethodPut
+		verifyNetworkZonalMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
 
-		//subnetResp.Cidr.Ipv4 = networkCIDR2
+		expectedSubnetSpec.Zone = zone2
 		verifySubNetSpecStep(sCtx, expectedSubnetSpec, subnetResp.Spec)
 
 		verifyStatusStep(sCtx,
@@ -707,7 +775,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 16
 	t.WithNewStep("Get updated subnet", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetSubnet",
@@ -724,8 +791,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, subnetResp)
 
-		expectedSubnetMetadata.Verb = http.MethodGet
-		verifyNetworkZonalMetadataStep(sCtx, expectedSubnetMetadata, subnetResp.Metadata)
+		expectedSubnetMeta.Verb = http.MethodGet
+		verifyNetworkZonalMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
 
 		verifySubNetSpecStep(sCtx, expectedSubnetSpec, subnetResp.Spec)
 
@@ -735,10 +802,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	var expectedIpMetadata *secalib.Metadata
+	// Public ip
+	var expectedIpMeta *secalib.Metadata
 	var expectedIpSpec *secalib.PublicIpSpecV1
 
-	// Step 17
 	t.WithNewStep("Create public ip", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdatePublicIp",
@@ -753,7 +820,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		}
 		ip := &network.PublicIp{
 			Spec: network.PublicIpSpec{
-				Address: &publicIPAddress,
+				Address: &publicIpAddress1,
 				Version: secalib.IPVersion4,
 			},
 		}
@@ -761,7 +828,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, publicIpResp)
 
-		expectedIpMetadata = &secalib.Metadata{
+		expectedIpMeta = &secalib.Metadata{
 			Name:       publicIPName,
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   publicIPResource,
@@ -771,11 +838,11 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			Tenant:     suite.tenant,
 			Region:     suite.region,
 		}
-		verifyNetworkRegionalMetadataStep(sCtx, expectedIpMetadata, publicIpResp.Metadata)
+		verifyNetworkRegionalMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
 
 		expectedIpSpec = &secalib.PublicIpSpecV1{
 			Version: secalib.IPVersion4,
-			Address: publicIPAddress,
+			Address: publicIpAddress1,
 		}
 		verifyPublicIpSpecStep(sCtx, expectedIpSpec, publicIpResp.Spec)
 
@@ -785,7 +852,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 18
 	t.WithNewStep("Get created public ip", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetPublicIP",
@@ -802,8 +868,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, publicIpResp)
 
-		expectedIpMetadata.Verb = http.MethodGet
-		verifyNetworkRegionalMetadataStep(sCtx, expectedIpMetadata, publicIpResp.Metadata)
+		expectedIpMeta.Verb = http.MethodGet
+		verifyNetworkRegionalMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
 
 		verifyPublicIpSpecStep(sCtx, expectedIpSpec, publicIpResp.Spec)
 
@@ -813,7 +879,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 19
 	t.WithNewStep("Update public ip", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdatePublicIp",
@@ -830,10 +895,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, publicIpResp)
 
-		expectedIpMetadata.Verb = http.MethodPut
-		verifyNetworkRegionalMetadataStep(sCtx, expectedIpMetadata, publicIpResp.Metadata)
+		expectedIpMeta.Verb = http.MethodPut
+		verifyNetworkRegionalMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
 
-		//expectedIpSpec.Cidr.Ipv4 = networkCIDR2
+		expectedIpSpec.Address = publicIpAddress2
 		verifyPublicIpSpecStep(sCtx, expectedIpSpec, publicIpResp.Spec)
 
 		verifyStatusStep(sCtx,
@@ -842,7 +907,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 20
 	t.WithNewStep("Get updated public ip", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetPublicIp",
@@ -859,8 +923,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, publicIpResp)
 
-		expectedIpMetadata.Verb = http.MethodGet
-		verifyNetworkRegionalMetadataStep(sCtx, expectedIpMetadata, publicIpResp.Metadata)
+		expectedIpMeta.Verb = http.MethodGet
+		verifyNetworkRegionalMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
 
 		verifyPublicIpSpecStep(sCtx, expectedIpSpec, publicIpResp.Spec)
 
@@ -870,10 +934,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	var expectedNicMetadata *secalib.Metadata
+	// Nic
+	var expectedNicMeta *secalib.Metadata
 	var expectedNicSpec *secalib.NICSpecV1
 
-	// Step 21
 	t.WithNewStep("Create nic", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateNic",
@@ -888,7 +952,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		}
 		nic := &network.Nic{
 			Spec: network.NicSpec{
-				Addresses:    []string{nicAddress},
+				Addresses:    []string{nicAddress1},
 				PublicIpRefs: &[]interface{}{publicIPRef},
 				SubnetRef:    subnetRef,
 			},
@@ -897,7 +961,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, nicResp)
 
-		expectedNicMetadata = &secalib.Metadata{
+		expectedNicMeta = &secalib.Metadata{
 			Name:       nicName,
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   nicResource,
@@ -907,10 +971,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			Tenant:     suite.tenant,
 			Region:     suite.region,
 		}
-		verifyNetworkZonalMetadataStep(sCtx, expectedNicMetadata, nicResp.Metadata)
+		verifyNetworkZonalMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
 
 		expectedNicSpec = &secalib.NICSpecV1{
-			Addresses:    []string{nicAddress},
+			Addresses:    []string{nicAddress1},
 			PublicIpRefs: []string{publicIPRef},
 			SubnetRef:    subnetRef,
 		}
@@ -922,7 +986,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 22
 	t.WithNewStep("Get created nic", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetNic",
@@ -939,8 +1002,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, nicResp)
 
-		expectedNicMetadata.Verb = http.MethodGet
-		verifyNetworkZonalMetadataStep(sCtx, expectedNicMetadata, nicResp.Metadata)
+		expectedNicMeta.Verb = http.MethodGet
+		verifyNetworkZonalMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
 
 		verifyNicSpecStep(sCtx, expectedNicSpec, nicResp.Spec)
 
@@ -950,7 +1013,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 23
 	t.WithNewStep("Update nic", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateNic",
@@ -967,10 +1029,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, nicResp)
 
-		expectedNicMetadata.Verb = http.MethodPut
-		verifyNetworkZonalMetadataStep(sCtx, expectedNicMetadata, nicResp.Metadata)
+		expectedNicMeta.Verb = http.MethodPut
+		verifyNetworkZonalMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
 
-		//expectedNicSpec.Cidr.Ipv4 = networkCIDR2
+		expectedNicSpec.Addresses = []string{nicAddress2}
 		verifyNicSpecStep(sCtx, expectedNicSpec, nicResp.Spec)
 
 		verifyStatusStep(sCtx,
@@ -979,7 +1041,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 24
 	t.WithNewStep("Get updated nic", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetNic",
@@ -996,8 +1057,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, nicResp)
 
-		expectedNicMetadata.Verb = http.MethodGet
-		verifyNetworkZonalMetadataStep(sCtx, expectedNicMetadata, nicResp.Metadata)
+		expectedNicMeta.Verb = http.MethodGet
+		verifyNetworkZonalMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
 
 		verifyNicSpecStep(sCtx, expectedNicSpec, nicResp.Spec)
 
@@ -1007,10 +1068,10 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	var expectedSecGroupMetadata *secalib.Metadata
-	var expectedSecGroupSpec *secalib.SecurityGroupSpecV1
+	// Security Group
+	var expectedGroupMeta *secalib.Metadata
+	var expectedGroupSpec *secalib.SecurityGroupSpecV1
 
-	// Step 25
 	t.WithNewStep("Create security group", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateSecurityGroup",
@@ -1023,7 +1084,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			Workspace: secapi.WorkspaceID(workspaceName),
 			Name:      securityGroupName,
 		}
-		secGroup := &network.SecurityGroup{
+		group := &network.SecurityGroup{
 			Spec: network.SecurityGroupSpec{
 				Rules: []network.SecurityGroupRuleSpec{
 					{
@@ -1032,11 +1093,11 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 				},
 			},
 		}
-		secGroupResp, err = suite.client.NetworkV1.CreateOrUpdateSecurityGroup(ctx, wref, secGroup, nil)
+		groupResp, err = suite.client.NetworkV1.CreateOrUpdateSecurityGroup(ctx, wref, group, nil)
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, secGroupResp)
+		requireNotNilResponse(sCtx, groupResp)
 
-		expectedSecGroupMetadata = &secalib.Metadata{
+		expectedGroupMeta = &secalib.Metadata{
 			Name:       securityGroupName,
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   securityGroupResource,
@@ -1046,20 +1107,19 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			Tenant:     suite.tenant,
 			Region:     suite.region,
 		}
-		verifyNetworkRegionalMetadataStep(sCtx, expectedSecGroupMetadata, secGroupResp.Metadata)
+		verifyNetworkRegionalMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
 
-		expectedSecGroupSpec = &secalib.SecurityGroupSpecV1{
+		expectedGroupSpec = &secalib.SecurityGroupSpecV1{
 			Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionIngress}},
 		}
-		verifySecurityGroupSpecStep(sCtx, expectedSecGroupSpec, secGroupResp.Spec)
+		verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, groupResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.CreatingStatusState},
-			&secalib.Status{State: string(*secGroupResp.Status.State)},
+			&secalib.Status{State: string(*groupResp.Status.State)},
 		)
 	})
 
-	// Step 26
 	t.WithNewStep("Get created security group", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetSecurityGroup",
@@ -1072,22 +1132,21 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			Workspace: secapi.WorkspaceID(workspaceName),
 			Name:      securityGroupName,
 		}
-		secGroupResp, err = suite.client.NetworkV1.GetSecurityGroup(ctx, wref)
+		groupResp, err = suite.client.NetworkV1.GetSecurityGroup(ctx, wref)
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, secGroupResp)
+		requireNotNilResponse(sCtx, groupResp)
 
-		expectedSecGroupMetadata.Verb = http.MethodGet
-		verifyNetworkRegionalMetadataStep(sCtx, expectedSecGroupMetadata, secGroupResp.Metadata)
+		expectedGroupMeta.Verb = http.MethodGet
+		verifyNetworkRegionalMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
 
-		verifySecurityGroupSpecStep(sCtx, expectedSecGroupSpec, secGroupResp.Spec)
+		verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, groupResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
-			&secalib.Status{State: string(*secGroupResp.Status.State)},
+			&secalib.Status{State: string(*groupResp.Status.State)},
 		)
 	})
 
-	// Step 27
 	t.WithNewStep("Update security group", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateSecurityGroup",
@@ -1100,23 +1159,22 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			Workspace: secapi.WorkspaceID(workspaceName),
 			Name:      securityGroupName,
 		}
-		secGroupResp, err = suite.client.NetworkV1.CreateOrUpdateSecurityGroup(ctx, wref, secGroupResp, nil)
+		groupResp, err = suite.client.NetworkV1.CreateOrUpdateSecurityGroup(ctx, wref, groupResp, nil)
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, secGroupResp)
+		requireNotNilResponse(sCtx, groupResp)
 
-		expectedSecGroupMetadata.Verb = http.MethodPut
-		verifyNetworkRegionalMetadataStep(sCtx, expectedSecGroupMetadata, secGroupResp.Metadata)
+		expectedGroupMeta.Verb = http.MethodPut
+		verifyNetworkRegionalMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
 
-		//expectedSecGroupSpec.Cidr.Ipv4 = networkCIDR2
-		verifySecurityGroupSpecStep(sCtx, expectedSecGroupSpec, secGroupResp.Spec)
+		expectedGroupSpec.Rules[0] = &secalib.SecurityGroupRuleV1{Direction: secalib.SecurityRuleDirectionEgress}
+		verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, groupResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.UpdatingStatusState},
-			&secalib.Status{State: string(*secGroupResp.Status.State)},
+			&secalib.Status{State: string(*groupResp.Status.State)},
 		)
 	})
 
-	// Step 28
 	t.WithNewStep("Get updated security group", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetSecurityGroup",
@@ -1129,22 +1187,21 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			Workspace: secapi.WorkspaceID(workspaceName),
 			Name:      securityGroupName,
 		}
-		secGroupResp, err = suite.client.NetworkV1.GetSecurityGroup(ctx, wref)
+		groupResp, err = suite.client.NetworkV1.GetSecurityGroup(ctx, wref)
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, secGroupResp)
+		requireNotNilResponse(sCtx, groupResp)
 
-		expectedSecGroupMetadata.Verb = http.MethodGet
-		verifyNetworkRegionalMetadataStep(sCtx, expectedSecGroupMetadata, secGroupResp.Metadata)
+		expectedGroupMeta.Verb = http.MethodGet
+		verifyNetworkRegionalMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
 
-		verifySecurityGroupSpecStep(sCtx, expectedSecGroupSpec, secGroupResp.Spec)
+		verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, groupResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
-			&secalib.Status{State: string(*secGroupResp.Status.State)},
+			&secalib.Status{State: string(*groupResp.Status.State)},
 		)
 	})
 
-	// Step 29
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateBlockStorage",
@@ -1173,7 +1230,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 30
 	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetBlockStorage",
@@ -1196,7 +1252,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 31
 	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateInstance",
@@ -1212,7 +1267,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		inst := &compute.Instance{
 			Spec: compute.InstanceSpec{
 				SkuRef: instanceSkuRef,
-				Zone:   zone,
+				Zone:   zone1,
 			},
 		}
 		inst.Spec.BootVolume.DeviceRef = blockStorageRef
@@ -1227,7 +1282,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 32
 	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetInstance",
@@ -1250,7 +1304,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		)
 	})
 
-	// Step 33
 	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteInstance",
@@ -1261,7 +1314,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 34
 	t.WithNewStep("Get deleted instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetInstance",
@@ -1278,7 +1330,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	// Step 35
 	t.WithNewStep("Delete block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteBlockStorage",
@@ -1289,7 +1340,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 36
 	t.WithNewStep("Get deleted block storage", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetBlockStorage",
@@ -1306,18 +1356,16 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	// Step 37
 	t.WithNewStep("Delete security group", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteSecurityGroup",
 			tenantStepParameter, suite.tenant,
 		)
 
-		err = suite.client.NetworkV1.DeleteSecurityGroup(ctx, secGroupResp, nil)
+		err = suite.client.NetworkV1.DeleteSecurityGroup(ctx, groupResp, nil)
 		requireNoError(sCtx, err)
 	})
 
-	// Step 38
 	t.WithNewStep("Get deleted security group", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetSecurityGroup",
@@ -1334,7 +1382,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	// Step 39
 	t.WithNewStep("Delete nic", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteNic",
@@ -1345,7 +1392,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 40
 	t.WithNewStep("Get deleted nic", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetNic",
@@ -1362,7 +1408,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	// Step 41
 	t.WithNewStep("Delete public ip", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeletePublicIP",
@@ -1373,7 +1418,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 42
 	t.WithNewStep("Get deleted public ip", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetPublicIP",
@@ -1390,7 +1434,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	// Step 43
 	t.WithNewStep("Delete subnet", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteSubnet",
@@ -1401,7 +1444,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 44
 	t.WithNewStep("Get deleted subnet", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetSubnet",
@@ -1418,7 +1460,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	// Step 45
 	t.WithNewStep("Delete route table", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteRouteTable",
@@ -1429,7 +1470,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 46
 	t.WithNewStep("Get deleted route table", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetRouteTable",
@@ -1446,7 +1486,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	// Step 47
 	t.WithNewStep("Delete internet gateway", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteInternetGateway",
@@ -1457,7 +1496,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 48
 	t.WithNewStep("Get deleted internet gateway", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetInternetGateway",
@@ -1474,7 +1512,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	// Step 49
 	t.WithNewStep("Delete network", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteNetwork",
@@ -1485,7 +1522,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 50
 	t.WithNewStep("Get deleted network", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetNetwork",

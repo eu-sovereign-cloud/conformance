@@ -17,6 +17,8 @@ import (
 
 type AuthorizationV1TestSuite struct {
 	globalTestSuite
+
+	users []string
 }
 
 func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
@@ -25,12 +27,9 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	t.Title("Authorization Lifecycle Test")
 	configureTags(t, secalib.AuthorizationProviderV1, secalib.RoleKind, secalib.RoleAssignmentKind)
 
-	// TODO Export to configuration
-	roleAssignmentSubs := []string{"user1@secalib.com", "user2@secalib.com"}
-
 	// Select subs
-	roleAssignmentSub1 := roleAssignmentSubs[rand.Intn(len(roleAssignmentSubs))]
-	roleAssignmentSub2 := roleAssignmentSubs[rand.Intn(len(roleAssignmentSubs))]
+	roleAssignmentSub1 := suite.users[rand.Intn(len(suite.users))]
+	roleAssignmentSub2 := suite.users[rand.Intn(len(suite.users))]
 
 	// Generate scenario data
 	roleName := secalib.GenerateRoleName()
@@ -98,10 +97,10 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	var assignResp *authorization.RoleAssignment
 	var err error
 
-	var expectedRoleMetadata *secalib.Metadata
+	// Role
+	var expectedRoleMeta *secalib.Metadata
 	var expectedRoleSpec *secalib.RoleSpecV1
 
-	// Step 1
 	t.WithNewStep("Create role", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateRole",
@@ -127,7 +126,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, roleResp)
 
-		expectedRoleMetadata = &secalib.Metadata{
+		expectedRoleMeta = &secalib.Metadata{
 			Name:       roleName,
 			Provider:   secalib.AuthorizationProviderV1,
 			Resource:   roleResource,
@@ -136,7 +135,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 			Kind:       secalib.RoleKind,
 			Tenant:     suite.tenant,
 		}
-		verifyAuthorizationMetadataStep(sCtx, expectedRoleMetadata, roleResp.Metadata)
+		verifyAuthorizationMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
 
 		expectedRoleSpec = &secalib.RoleSpecV1{
 			Permissions: []*secalib.RoleSpecPermissionV1{
@@ -155,7 +154,6 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		)
 	})
 
-	// Step 2
 	t.WithNewStep("Get created role", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetRole",
@@ -170,8 +168,8 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, roleResp)
 
-		expectedRoleMetadata.Verb = http.MethodGet
-		verifyAuthorizationMetadataStep(sCtx, expectedRoleMetadata, roleResp.Metadata)
+		expectedRoleMeta.Verb = http.MethodGet
+		verifyAuthorizationMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
 
 		verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
 
@@ -181,7 +179,6 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		)
 	})
 
-	// Step 3
 	t.WithNewStep("Update role", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateRole",
@@ -196,8 +193,8 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, roleResp)
 
-		expectedRoleMetadata.Verb = http.MethodPut
-		verifyAuthorizationMetadataStep(sCtx, expectedRoleMetadata, roleResp.Metadata)
+		expectedRoleMeta.Verb = http.MethodPut
+		verifyAuthorizationMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
 
 		expectedRoleSpec.Permissions[0].Verb = []string{http.MethodGet, http.MethodPut}
 		verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
@@ -208,7 +205,6 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		)
 	})
 
-	// Step 4
 	t.WithNewStep("Get updated role", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetRole",
@@ -223,8 +219,8 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, roleResp)
 
-		expectedRoleMetadata.Verb = http.MethodGet
-		verifyAuthorizationMetadataStep(sCtx, expectedRoleMetadata, roleResp.Metadata)
+		expectedRoleMeta.Verb = http.MethodGet
+		verifyAuthorizationMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
 
 		verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
 
@@ -234,10 +230,10 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		)
 	})
 
-	var expectedRoleAssignmentMetadata *secalib.Metadata
-	var expectedRoleAssignmentSpec *secalib.RoleAssignmentSpecV1
+	// Role assignment
+	var expectedAssignMeta *secalib.Metadata
+	var expectedAssignSpec *secalib.RoleAssignmentSpecV1
 
-	// Step 5
 	t.WithNewStep("Create role assignment", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateRoleAssignment",
@@ -259,7 +255,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, assignResp)
 
-		expectedRoleAssignmentMetadata = &secalib.Metadata{
+		expectedAssignMeta = &secalib.Metadata{
 			Name:       roleAssignmentName,
 			Provider:   secalib.AuthorizationProviderV1,
 			Resource:   roleAssignmentResource,
@@ -268,14 +264,14 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 			Kind:       secalib.RoleAssignmentKind,
 			Tenant:     suite.tenant,
 		}
-		verifyAuthorizationMetadataStep(sCtx, expectedRoleAssignmentMetadata, assignResp.Metadata)
+		verifyAuthorizationMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
 
-		expectedRoleAssignmentSpec = &secalib.RoleAssignmentSpecV1{
+		expectedAssignSpec = &secalib.RoleAssignmentSpecV1{
 			Roles:  []string{roleName},
 			Subs:   []string{roleAssignmentSub1},
 			Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
 		}
-		verifyRoleAssignmentSpecStep(sCtx, expectedRoleAssignmentSpec, &assignResp.Spec)
+		verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.CreatingStatusState},
@@ -283,7 +279,6 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		)
 	})
 
-	// Step 6
 	t.WithNewStep("Get created role assignment", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetRoleAssignment",
@@ -298,10 +293,10 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, assignResp)
 
-		expectedRoleAssignmentMetadata.Verb = http.MethodGet
-		verifyAuthorizationMetadataStep(sCtx, expectedRoleAssignmentMetadata, assignResp.Metadata)
+		expectedAssignMeta.Verb = http.MethodGet
+		verifyAuthorizationMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
 
-		verifyRoleAssignmentSpecStep(sCtx, expectedRoleAssignmentSpec, &assignResp.Spec)
+		verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
@@ -309,7 +304,6 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		)
 	})
 
-	// Step 7
 	t.WithNewStep("Update role assignment", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateRoleAssignment",
@@ -324,11 +318,11 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, assignResp)
 
-		expectedRoleAssignmentMetadata.Verb = http.MethodPut
-		verifyAuthorizationMetadataStep(sCtx, expectedRoleAssignmentMetadata, assignResp.Metadata)
+		expectedAssignMeta.Verb = http.MethodPut
+		verifyAuthorizationMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
 
-		expectedRoleAssignmentSpec.Subs = []string{roleAssignmentSub1, roleAssignmentSub2}
-		verifyRoleAssignmentSpecStep(sCtx, expectedRoleAssignmentSpec, &assignResp.Spec)
+		expectedAssignSpec.Subs = []string{roleAssignmentSub1, roleAssignmentSub2}
+		verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.UpdatingStatusState},
@@ -336,7 +330,6 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		)
 	})
 
-	// Step 8
 	t.WithNewStep("Get updated role assignment", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetRoleAssignment",
@@ -351,10 +344,10 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, assignResp)
 
-		expectedRoleAssignmentMetadata.Verb = http.MethodGet
-		verifyAuthorizationMetadataStep(sCtx, expectedRoleAssignmentMetadata, assignResp.Metadata)
+		expectedAssignMeta.Verb = http.MethodGet
+		verifyAuthorizationMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
 
-		verifyRoleAssignmentSpecStep(sCtx, expectedRoleAssignmentSpec, &assignResp.Spec)
+		verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
@@ -362,7 +355,6 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		)
 	})
 
-	// Step 9
 	t.WithNewStep("Delete role assignment", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteRoleAssignment",
@@ -373,7 +365,6 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 10
 	t.WithNewStep("Get deleted role assignment", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetRoleAssignment",
@@ -388,7 +379,6 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	// Step 11
 	t.WithNewStep("Delete role", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "DeleteRole",
@@ -399,7 +389,6 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Step 12
 	t.WithNewStep("Get deleted role", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "GetRole",

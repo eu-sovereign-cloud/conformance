@@ -66,7 +66,7 @@ func TestSuites(t *testing.T) {
 		slog.Error("Failed to get region", "error", err)
 		os.Exit(1)
 	}
-	availableZones := regionResp.Spec.AvailableZones
+	regionZones := regionResp.Spec.AvailableZones
 
 	// Load available instance skus
 	instanceSkus, err := loadInstanceSkus(ctx, regionalClient)
@@ -91,7 +91,7 @@ func TestSuites(t *testing.T) {
 
 	// Run test suites
 
-	/*suite.RunNamedSuite(t, "Authorization V1", &AuthorizationV1TestSuite{
+	suite.RunNamedSuite(t, "Authorization V1", &AuthorizationV1TestSuite{
 		globalTestSuite: globalTestSuite{
 			testSuite: testSuite{
 				tenant:        config.clientTenant,
@@ -101,6 +101,7 @@ func TestSuites(t *testing.T) {
 			},
 			client: globalClient,
 		},
+		users: config.scenarioUsers,
 	})
 
 	suite.RunNamedSuite(t, "Workspace V1", &WorkspaceV1TestSuite{
@@ -141,10 +142,10 @@ func TestSuites(t *testing.T) {
 			region: config.clientRegion,
 			client: regionalClient,
 		},
-		availableZones: availableZones,
+		availableZones: regionZones,
 		instanceSkus:   instanceSkus,
 		storageSkus:    storageSkus,
-	})*/
+	})
 
 	suite.RunNamedSuite(t, "Network V1", &NetworkV1TestSuite{
 		regionalTestSuite: regionalTestSuite{
@@ -157,7 +158,9 @@ func TestSuites(t *testing.T) {
 			region: config.clientRegion,
 			client: regionalClient,
 		},
-		availableZones: availableZones,
+		networkCidr:    config.scenarioCidr,
+		publicIpsRange: config.scenarioPublicIps,
+		regionZones:    regionZones,
 		instanceSkus:   instanceSkus,
 		storageSkus:    storageSkus,
 		networkSkus:    networkSkus,
@@ -165,7 +168,7 @@ func TestSuites(t *testing.T) {
 }
 
 func setupLogger() {
-	// TODO Configure json or text handler and log level via env variables
+	// TODO Configure handler type and log level via env variables
 	opts := &slog.HandlerOptions{Level: slog.LevelInfo}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, opts))
 
