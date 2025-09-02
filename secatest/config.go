@@ -3,6 +3,7 @@ package secatest
 import (
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"strings"
 )
@@ -97,10 +98,18 @@ func loadConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, _, err = net.ParseCIDR(scenarioCidr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid CIDR format for %s: %v", scenarioCidrConfig, err)
+	}
 
 	scenarioPublicIps, err := readFlagOrEnv(scenarioPublicIpsFlag, scenarioPublicIpsConfig)
 	if err != nil {
 		return nil, err
+	}
+	_, _, err = net.ParseCIDR(scenarioPublicIps)
+	if err != nil {
+		return nil, fmt.Errorf("invalid CIDR format for %s: %v", scenarioPublicIpsConfig, err)
 	}
 
 	reportResultsPath, err := readFlagOrEnv(reportResultsPathFlag, reportResultsPathConfig)

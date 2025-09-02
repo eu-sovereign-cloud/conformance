@@ -40,21 +40,36 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	configureTags(t, secalib.NetworkProviderV1, secalib.NetworkKind, secalib.InternetGatewayKind, secalib.NicKind, secalib.PublicIPKind, secalib.RouteTableKind,
 		secalib.SubnetKind, secalib.SecurityGroupKind)
 
-	subnetCidr, _ := generateSubnet(suite.networkCidr, 24)
+	// Generate the subnet cidr
+	subnetCidr, err := generateSubnetCidr(suite.networkCidr, 8, 1)
+	if err != nil {
+		slog.Error("Failed to generate subnet cidr", "error", err)
+		return
+	}
 
-	// TODO Calculate the nic address from subnet cidr
-	nicAddress1, _ := generateIPAddress(subnetCidr, 1)
-	nicAddress2, _ := generateIPAddress(subnetCidr, 2)
+	// Generate the nic addresses
+	nicAddress1, err := generateNicAddress(subnetCidr, 1)
+	if err != nil {
+		slog.Error("Failed to generate nic address", "error", err)
+		return
+	}
+	nicAddress2, err := generateNicAddress(subnetCidr, 2)
+	if err != nil {
+		slog.Error("Failed to generate nic address", "error", err)
+		return
+	}
 
-	// TODO Calculate the cidr from nic address
-	nicAddress1Cidr := "10.1.0.1/32"
-
-	// TODO Receive via configuration the public ip address range and calculate an ip address
-	//publicIp1, _, _ := net.ParseCIDR(suite.publicIpsRange)
-	publicIpAddress1 := "" //publicIp1.String()
-
-	//publicIp2, _, _ := net.ParseCIDR(suite.publicIpsRange)
-	publicIpAddress2 := "" //publicIp2.String()
+	// Generate the public ips
+	publicIpAddress1, err := generatePublicIp(suite.publicIpsRange, 1)
+	if err != nil {
+		slog.Error("Failed to generate public ip", "error", err)
+		return
+	}
+	publicIpAddress2, err := generatePublicIp(suite.publicIpsRange, 2)
+	if err != nil {
+		slog.Error("Failed to generate public ip", "error", err)
+		return
+	}
 
 	// Select zones
 	zone1 := suite.regionZones[rand.Intn(len(suite.regionZones))]
@@ -166,8 +181,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 					UpdatedSpec: &secalib.RouteTableSpecV1{
 						LocalRef: networkRef,
 						Routes: []*secalib.RouteTableRouteV1{
-							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: internetGatewayRef},
-							{DestinationCidrBlock: nicAddress1Cidr, TargetRef: instanceRef},
+							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: instanceRef},
 						},
 					},
 				},
@@ -234,7 +248,6 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	var groupResp *network.SecurityGroup
 	var blockResp *storage.BlockStorage
 	var instanceResp *compute.Instance
-	var err error
 
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
@@ -634,7 +647,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		expectedRouteMeta.Verb = http.MethodPut
 		verifyNetworkRegionalMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
 
-		expectedRouteSpec.Routes = append(expectedRouteSpec.Routes, &secalib.RouteTableRouteV1{DestinationCidrBlock: nicAddress1Cidr, TargetRef: instanceRef})
+		expectedRouteSpec.Routes = []*secalib.RouteTableRouteV1{{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: instanceRef}}
 		verifyRouteTableSpecStep(sCtx, expectedRouteSpec, routeResp.Spec)
 
 		verifyStatusStep(sCtx,
