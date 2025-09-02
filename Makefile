@@ -42,6 +42,9 @@ run:
 	  -seca.client.authtoken=test-token \
 	  -seca.client.region=region-1 \
 	  -seca.client.tenant=tenant-1 \
+	  -seca.scenario.users=user1,user2 \
+	  -seca.scenario.cidr="10.1.0.0/16" \
+	  -seca.scenario.publicips="52.93.126.235/32" \
 	  -seca.report.resultspath=$(RESULTS_PATH) \
 	  -seca.mock.enabled=true \
 	  -seca.mock.serverurl=http://localhost:8080
@@ -60,6 +63,9 @@ test:
 	  -seca.client.authtoken=test-token \
 	  -seca.client.region=region-1 \
 	  -seca.client.tenant=tenant-1 \
+	  -seca.scenario.users=user1,user2 \
+	  -seca.scenario.cidr="10.1.0.0/16" \
+	  -seca.scenario.publicips="52.93.126.235/32" \
 	  -seca.report.resultspath=$(RESULTS_PATH) \
 	  -seca.mock.enabled=true \
 	  -seca.mock.serverurl=http://localhost:8080
