@@ -22,22 +22,22 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	roleAssignmentUrl := secalib.GenerateRoleAssignmentURL(paramsUsage.Tenant, paramsUsage.Authorization.RoleAssignment.Name)
 
 	//workspace
-	workspaceURL := secalib.GenerateWorkspaceURL(paramsUsage.Tenant, paramsUsage.Params.Workspace)
+	workspaceURL := secalib.GenerateWorkspaceURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name)
 
 	//Storage
-	blockStorageURL := secalib.GenerateBlockStorageURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Storage.BlockStorage.Name)
+	blockStorageURL := secalib.GenerateBlockStorageURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Storage.BlockStorage.Name)
 	imageURL := secalib.GenerateImageURL(paramsUsage.Tenant, paramsUsage.Storage.Image.Name)
 	//Compute
-	instanceURL := secalib.GenerateInstanceURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Compute.Instance.Name)
+	instanceURL := secalib.GenerateInstanceURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Compute.Instance.Name)
 
 	//Network
-	networkURL := secalib.GenerateNetworkURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.Network.Name)
-	internetGatewayURL := secalib.GenerateInternetGatewayURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.InternetGateway.Name)
-	nicURL := secalib.GenerateNicURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.NIC.Name)
-	publicIPURL := secalib.GeneratePublicIPURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.PublicIP.Name)
-	routeTableURL := secalib.GenerateRouteTableURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.RouteTable.Name)
-	subnetURL := secalib.GenerateSubnetURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.Subnet.Name)
-	securityGroupURL := secalib.GenerateSecurityGroupURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.SecurityGroup.Name)
+	networkURL := secalib.GenerateNetworkURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Network.Name)
+	internetGatewayURL := secalib.GenerateInternetGatewayURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.InternetGateway.Name)
+	nicURL := secalib.GenerateNicURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.NIC.Name)
+	publicIPURL := secalib.GeneratePublicIPURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.PublicIP.Name)
+	routeTableURL := secalib.GenerateRouteTableURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.RouteTable.Name)
+	subnetURL := secalib.GenerateSubnetURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Subnet.Name)
+	securityGroupURL := secalib.GenerateSecurityGroupURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.SecurityGroup.Name)
 
 	// GenerateResources
 	// Authorization
@@ -46,22 +46,22 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 
 	//Workspace
 
-	workspaceResource := secalib.GenerateWorkspaceResource(paramsUsage.Tenant, paramsUsage.Params.Workspace)
+	workspaceResource := secalib.GenerateWorkspaceResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name)
 
 	//Storage
-	blockStorageResource := secalib.GenerateBlockStorageResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Storage.BlockStorage.Name)
+	blockStorageResource := secalib.GenerateBlockStorageResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Storage.BlockStorage.Name)
 	imageResource := secalib.GenerateImageResource(paramsUsage.Tenant, paramsUsage.Storage.Image.Name)
 	// Compute
-	instanceResource := secalib.GenerateInstanceResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Compute.Instance.Name)
+	instanceResource := secalib.GenerateInstanceResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Compute.Instance.Name)
 
 	//Network
-	networkResource := secalib.GenerateNetworkResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.Network.Name)
-	internetGatewayResource := secalib.GenerateInternetGatewayResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.InternetGateway.Name)
-	nicResource := secalib.GenerateNicResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.NIC.Name)
-	publicIPResource := secalib.GeneratePublicIPResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.PublicIP.Name)
-	routeTableResource := secalib.GenerateRouteTableResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.RouteTable.Name)
-	subnetResource := secalib.GenerateSubnetResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.Subnet.Name)
-	securityGroupResource := secalib.GenerateSecurityGroupResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.SecurityGroup.Name)
+	networkResource := secalib.GenerateNetworkResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Network.Name)
+	internetGatewayResource := secalib.GenerateInternetGatewayResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.InternetGateway.Name)
+	nicResource := secalib.GenerateNicResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.NIC.Name)
+	publicIPResource := secalib.GeneratePublicIPResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.PublicIP.Name)
+	routeTableResource := secalib.GenerateRouteTableResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.RouteTable.Name)
+	subnetResource := secalib.GenerateSubnetResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Subnet.Name)
+	securityGroupResource := secalib.GenerateSecurityGroupResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.SecurityGroup.Name)
 
 	//Authorization
 	roleResponse := &resourceResponse[secalib.RoleSpecV1]{
@@ -181,7 +181,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	//Workspace
 	workspaceResponse := &resourceResponse[secalib.WorkspaceSpecV1]{
 		Metadata: &secalib.Metadata{
-			Name:       paramsUsage.Params.Workspace,
+			Name:       paramsUsage.Workspace.Workspace.Name,
 			Provider:   secalib.WorkspaceProviderV1,
 			Resource:   workspaceResource,
 			ApiVersion: secalib.ApiVersion1,
@@ -292,7 +292,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.BlockStorageKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Params.Workspace,
+			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
@@ -406,7 +406,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Params.Workspace,
+			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
@@ -459,7 +459,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Params.Workspace,
+			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
@@ -519,7 +519,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Params.Workspace,
+			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
@@ -573,7 +573,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Params.Workspace,
+			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
@@ -581,7 +581,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	}
 
 	for _, rules := range paramsUsage.Network.SecurityGroup.InitialSpec.Rules {
-		securityGroupResponse.Spec.Rules = append(securityGroupResponse.Spec.Rules, &secalib.SecurityGroupRule{
+		securityGroupResponse.Spec.Rules = append(securityGroupResponse.Spec.Rules, &secalib.SecurityGroupRuleV1{
 			Direction: rules.Direction,
 		})
 	}
@@ -622,7 +622,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	}
 
 	// Public-IP
-	publicIPResponse := &resourceResponse[secalib.PublicIPSpecV1]{
+	publicIPResponse := &resourceResponse[secalib.PublicIpSpecV1]{
 		Metadata: &secalib.Metadata{
 			Name:       paramsUsage.Network.PublicIP.Name,
 			Provider:   secalib.NetworkProviderV1,
@@ -630,11 +630,11 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Params.Workspace,
+			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
-		Spec: &secalib.PublicIPSpecV1{
+		Spec: &secalib.PublicIpSpecV1{
 			Version: paramsUsage.Network.PublicIP.InitialSpec.Version,
 			Address: paramsUsage.Network.PublicIP.InitialSpec.Address,
 		},
@@ -685,7 +685,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Params.Workspace,
+			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
@@ -738,7 +738,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Params.Workspace,
+			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
