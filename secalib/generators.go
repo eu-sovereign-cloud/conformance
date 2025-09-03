@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"net"
+
+	"github.com/apparentlymart/go-cidr/cidr"
 )
 
 // Names
@@ -113,6 +116,10 @@ func GenerateSkuRef(name string) string {
 	return fmt.Sprintf(SkuRef, name)
 }
 
+func GenerateInstanceRef(instanceName string) string {
+	return fmt.Sprintf(InstanceRef, instanceName)
+}
+
 func GenerateBlockStorageRef(blockStorageName string) string {
 	return fmt.Sprintf(BlockStorageRef, blockStorageName)
 }
@@ -206,4 +213,48 @@ func GenerateSecurityGroupURL(tenant string, workspace string, securityGroup str
 
 func GenerateBlockStorageSize() int {
 	return rand.Intn(maxBlockStorageSize)
+}
+
+// Network
+
+func GenerateSubnetCidr(networkCidr string, size int, netNum int) (string, error) {
+	_, network, err := net.ParseCIDR(networkCidr)
+	if err != nil {
+		return "", err
+	}
+
+	subnet, err := cidr.Subnet(network, size, netNum)
+	if err != nil {
+		return "", err
+	}
+
+	return subnet.String(), nil
+}
+
+func GenerateNicAddress(subnetCidr string, hostNum int) (string, error) {
+	_, network, err := net.ParseCIDR(subnetCidr)
+	if err != nil {
+		return "", err
+	}
+
+	ip, err := cidr.Host(network, hostNum)
+	if err != nil {
+		return "", err
+	}
+
+	return ip.String(), nil
+}
+
+func GeneratePublicIp(publicIpRange string, hostNum int) (string, error) {
+	_, network, err := net.ParseCIDR(publicIpRange)
+	if err != nil {
+		return "", err
+	}
+
+	ip, err := cidr.Host(network, hostNum)
+	if err != nil {
+		return "", err
+	}
+
+	return ip.String(), nil
 }

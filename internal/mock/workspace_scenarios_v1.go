@@ -116,7 +116,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 		return nil, err
 	}
 
-	// Get deleted workspace (not found)
+	// Get deleted workspace
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          url,
@@ -129,6 +129,5 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 		return nil, err
 	}
 
-	slog.Info("Configured mock to Workspace Lifecycle Scenario")
 	return wm, nil
 }

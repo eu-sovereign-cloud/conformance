@@ -66,7 +66,7 @@ func TestSuites(t *testing.T) {
 		slog.Error("Failed to get region", "error", err)
 		os.Exit(1)
 	}
-	availableZones := regionResp.Spec.AvailableZones
+	regionZones := regionResp.Spec.AvailableZones
 
 	// Load available instance skus
 	instanceSkus, err := loadInstanceSkus(ctx, regionalClient)
@@ -82,6 +82,13 @@ func TestSuites(t *testing.T) {
 		os.Exit(1)
 	}
 
+	// Load available network skus
+	networkSkus, err := loadNetworkSkus(ctx, regionalClient)
+	if err != nil {
+		slog.Error("Failed to list network skus", "error", err)
+		os.Exit(1)
+	}
+
 	// Run test suites
 
 	suite.RunNamedSuite(t, "Authorization V1", &AuthorizationV1TestSuite{
@@ -94,6 +101,7 @@ func TestSuites(t *testing.T) {
 			},
 			client: globalClient,
 		},
+		users: config.scenarioUsers,
 	})
 
 	suite.RunNamedSuite(t, "Workspace V1", &WorkspaceV1TestSuite{
@@ -134,14 +142,33 @@ func TestSuites(t *testing.T) {
 			region: config.clientRegion,
 			client: regionalClient,
 		},
-		availableZones: availableZones,
+		availableZones: regionZones,
 		instanceSkus:   instanceSkus,
 		storageSkus:    storageSkus,
+	})
+
+	suite.RunNamedSuite(t, "Network V1", &NetworkV1TestSuite{
+		regionalTestSuite: regionalTestSuite{
+			testSuite: testSuite{
+				tenant:        config.clientTenant,
+				authToken:     config.clientAuthToken,
+				mockEnabled:   config.mockEnabled,
+				mockServerURL: config.mockServerURL,
+			},
+			region: config.clientRegion,
+			client: regionalClient,
+		},
+		networkCidr:    config.scenarioCidr,
+		publicIpsRange: config.scenarioPublicIps,
+		regionZones:    regionZones,
+		instanceSkus:   instanceSkus,
+		storageSkus:    storageSkus,
+		networkSkus:    networkSkus,
 	})
 }
 
 func setupLogger() {
-	// TODO Configure json or text handler and log level via env variables
+	// TODO Configure handler type and log level via env variables
 	opts := &slog.HandlerOptions{Level: slog.LevelInfo}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, opts))
 
@@ -203,3 +230,22 @@ func loadStorageSkus(ctx context.Context, regionalClient *secapi.RegionalClient)
 	return available, nil
 }
 
+func loadNetworkSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
+
+	resp, err := regionalClient.NetworkV1.ListSkus(ctx, secapi.TenantID(config.clientTenant))
+	if err != nil {
+		return nil, err
+	}
+
+	skus, err := resp.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var available []string
+	for _, sku := range skus {
+		available = append(available, sku.Metadata.Name)
+	}
+
+	return available, nil
+}

@@ -7,9 +7,8 @@ type Params struct {
 	MockURL   string
 	AuthToken string
 
-	Tenant    string
-	Workspace string
-	Region    string
+	Tenant string
+	Region string
 }
 
 type HasParams interface {

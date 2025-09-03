@@ -65,16 +65,16 @@ const (
           [[if $i]],[[end]]
           "[[$s]]"
         [[- end]]
-		],
+		    ],
         "roles": [
         [[- range $i, $r := .Spec.Roles]]
           [[if $i]],[[end]]
           "[[$r]]"
         [[- end]]
-		],
+		    ],
         "scopes": [
         [[- range $i, $s := .Spec.Scopes]]
-		  [[if $i]],[[end]]
+		      [[if $i]],[[end]]
           {
             "tenants": [
             [[- range $j, $t := $s.Tenants]]
@@ -295,7 +295,7 @@ const (
         "region": "[[.Metadata.Region]]"
       },
       "spec": {
-        "egressOnly": "[[.Spec.EgressOnly]]"
+        "egressOnly": [[.Spec.EgressOnly]]
       },
       "status": {
         "state": "[[.Status.State]]",
@@ -325,7 +325,12 @@ const (
         "region": "[[.Metadata.Region]]"
       },
       "spec": {
-        "addresses": "[[.Spec.Addresses]]",
+        "addresses": [
+        [[- range $i, $a := .Spec.Addresses]]
+          [[if $i]],[[end]]
+          "[[$a]]"
+        [[- end]]
+		    ],
         "subnetRef": "[[.Spec.SubnetRef]]"
       },
       "status": {
@@ -425,8 +430,10 @@ const (
         "region": "[[.Metadata.Region]]"
       },
       "spec": {
-		"cidr": "[[.Spec.Cidr]]",
-		"zone": "[[.Spec.Zone]]"
+        "cidr": {
+          "ipv4": "[[.Spec.Cidr.Ipv4]]"
+        },
+		    "zone": "[[.Spec.Zone]]"
       },
       "status": {
         "state": "[[.Status.State]]",
