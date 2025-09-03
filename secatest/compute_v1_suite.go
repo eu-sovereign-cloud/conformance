@@ -88,8 +88,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 				},
 			})
 		if err != nil {
-			slog.Error("Failed to create compute scenario", "error", err)
-			return
+			t.Fatalf("Failed to create compute scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}

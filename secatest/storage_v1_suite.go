@@ -82,8 +82,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 				},
 			})
 		if err != nil {
-			slog.Error("Failed to create storage scenario", "error", err)
-			return
+			t.Fatalf("Failed to create storage scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
