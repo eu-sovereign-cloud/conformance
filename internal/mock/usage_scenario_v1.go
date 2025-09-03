@@ -8,7 +8,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Client, error) {
+func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Client, error) {
 
 	wm, err := newClient(paramsUsage.MockURL)
 	if err != nil {
