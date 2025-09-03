@@ -10,7 +10,7 @@ import (
 
 func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Client, error) {
 
-	wm, err := newClient(paramsUsage.Workspace.MockURL)
+	wm, err := newClient(paramsUsage.MockURL)
 	if err != nil {
 		return nil, err
 	}
@@ -18,50 +18,50 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	// Generate URLs
 
 	// Authorization
-	roleUrl := secalib.GenerateRoleURL(paramsUsage.Authorization.Tenant, paramsUsage.Authorization.Role.Name)
-	roleAssignmentUrl := secalib.GenerateRoleAssignmentURL(paramsUsage.Authorization.Tenant, paramsUsage.Authorization.RoleAssignment.Name)
+	roleUrl := secalib.GenerateRoleURL(paramsUsage.Tenant, paramsUsage.Authorization.Role.Name)
+	roleAssignmentUrl := secalib.GenerateRoleAssignmentURL(paramsUsage.Tenant, paramsUsage.Authorization.RoleAssignment.Name)
 
 	//workspace
-	workspaceURL := secalib.GenerateWorkspaceURL(paramsUsage.Workspace.Tenant, paramsUsage.Workspace.Workspace.Name)
+	workspaceURL := secalib.GenerateWorkspaceURL(paramsUsage.Tenant, paramsUsage.Params.Workspace)
 
 	//Storage
-	blockStorageURL := secalib.GenerateBlockStorageURL(paramsUsage.Storage.Tenant, paramsUsage.Storage.Workspace, paramsUsage.Storage.BlockStorage.Name)
-	imageURL := secalib.GenerateImageURL(paramsUsage.Storage.Tenant, paramsUsage.Storage.Image.Name)
+	blockStorageURL := secalib.GenerateBlockStorageURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Storage.BlockStorage.Name)
+	imageURL := secalib.GenerateImageURL(paramsUsage.Tenant, paramsUsage.Storage.Image.Name)
 	//Compute
-	instanceURL := secalib.GenerateInstanceURL(paramsUsage.Compute.Tenant, paramsUsage.Compute.Workspace, paramsUsage.Compute.Instance.Name)
+	instanceURL := secalib.GenerateInstanceURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Compute.Instance.Name)
 
 	//Network
-	networkURL := secalib.GenerateNetworkURL(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.Network.Name)
-	internetGatewayURL := secalib.GenerateInternetGatewayURL(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.InternetGateway.Name)
-	nicURL := secalib.GenerateNicURL(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.NIC.Name)
-	publicIPURL := secalib.GeneratePublicIPURL(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.PublicIP.Name)
-	routeTableURL := secalib.GenerateRouteTableURL(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.RouteTable.Name)
-	subnetURL := secalib.GenerateSubnetURL(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.Subnet.Name)
-	securityGroupURL := secalib.GenerateSecurityGroupURL(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.SecurityGroup.Name)
+	networkURL := secalib.GenerateNetworkURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.Network.Name)
+	internetGatewayURL := secalib.GenerateInternetGatewayURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.InternetGateway.Name)
+	nicURL := secalib.GenerateNicURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.NIC.Name)
+	publicIPURL := secalib.GeneratePublicIPURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.PublicIP.Name)
+	routeTableURL := secalib.GenerateRouteTableURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.RouteTable.Name)
+	subnetURL := secalib.GenerateSubnetURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.Subnet.Name)
+	securityGroupURL := secalib.GenerateSecurityGroupURL(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.SecurityGroup.Name)
 
 	// GenerateResources
 	// Authorization
-	roleResource := secalib.GenerateRoleResource(paramsUsage.Authorization.Tenant, paramsUsage.Authorization.Role.Name)
-	roleAssignmentResource := secalib.GenerateRoleAssignmentResource(paramsUsage.Authorization.Tenant, paramsUsage.Authorization.RoleAssignment.Name)
+	roleResource := secalib.GenerateRoleResource(paramsUsage.Tenant, paramsUsage.Authorization.Role.Name)
+	roleAssignmentResource := secalib.GenerateRoleAssignmentResource(paramsUsage.Tenant, paramsUsage.Authorization.RoleAssignment.Name)
 
 	//Workspace
 
-	workspaceResource := secalib.GenerateWorkspaceResource(paramsUsage.Workspace.Tenant, paramsUsage.Workspace.Workspace.Name)
+	workspaceResource := secalib.GenerateWorkspaceResource(paramsUsage.Tenant, paramsUsage.Params.Workspace)
 
 	//Storage
-	blockStorageResource := secalib.GenerateBlockStorageResource(paramsUsage.Storage.Tenant, paramsUsage.Storage.Workspace, paramsUsage.Storage.BlockStorage.Name)
-	imageResource := secalib.GenerateImageResource(paramsUsage.Storage.Tenant, paramsUsage.Storage.Image.Name)
+	blockStorageResource := secalib.GenerateBlockStorageResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Storage.BlockStorage.Name)
+	imageResource := secalib.GenerateImageResource(paramsUsage.Tenant, paramsUsage.Storage.Image.Name)
 	// Compute
-	instanceResource := secalib.GenerateInstanceResource(paramsUsage.Compute.Tenant, paramsUsage.Compute.Workspace, paramsUsage.Compute.Instance.Name)
+	instanceResource := secalib.GenerateInstanceResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Compute.Instance.Name)
 
 	//Network
-	networkResource := secalib.GenerateNetworkResource(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.Network.Name)
-	internetGatewayResource := secalib.GenerateInternetGatewayResource(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.InternetGateway.Name)
-	nicResource := secalib.GenerateNicResource(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.NIC.Name)
-	publicIPResource := secalib.GeneratePublicIPResource(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.PublicIP.Name)
-	routeTableResource := secalib.GenerateRouteTableResource(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.RouteTable.Name)
-	subnetResource := secalib.GenerateSubnetResource(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.Subnet.Name)
-	securityGroupResource := secalib.GenerateSecurityGroupResource(paramsUsage.Network.Tenant, paramsUsage.Network.Workspace, paramsUsage.Network.SecurityGroup.Name)
+	networkResource := secalib.GenerateNetworkResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.Network.Name)
+	internetGatewayResource := secalib.GenerateInternetGatewayResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.InternetGateway.Name)
+	nicResource := secalib.GenerateNicResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.NIC.Name)
+	publicIPResource := secalib.GeneratePublicIPResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.PublicIP.Name)
+	routeTableResource := secalib.GenerateRouteTableResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.RouteTable.Name)
+	subnetResource := secalib.GenerateSubnetResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.Subnet.Name)
+	securityGroupResource := secalib.GenerateSecurityGroupResource(paramsUsage.Tenant, paramsUsage.Params.Workspace, paramsUsage.Network.SecurityGroup.Name)
 
 	//Authorization
 	roleResponse := &resourceResponse[secalib.RoleSpecV1]{
@@ -71,7 +71,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			Resource:   roleResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.RoleKind,
-			Tenant:     paramsUsage.Authorization.Tenant,
+			Tenant:     paramsUsage.Tenant,
 		},
 		Status: &secalib.Status{},
 		Spec:   &secalib.RoleSpecV1{},
@@ -93,7 +93,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	roleResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          roleUrl,
-		params:       paramsUsage.Authorization,
+		params:       paramsUsage,
 		response:     roleResponse,
 		template:     roleResponseTemplateV1,
 		currentState: startedScenarioState,
@@ -109,47 +109,10 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	roleResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          roleUrl,
-		params:       paramsUsage.Authorization,
+		params:       paramsUsage,
 		response:     roleResponse,
 		template:     roleResponseTemplateV1,
 		currentState: "GetCreatedRole",
-		nextState:    "UpdateRole",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
-		return nil, err
-	}
-
-	// Update the role
-	roleResponse.Metadata.Verb = http.MethodPut
-	roleResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	roleResponse.Metadata.ResourceVersion = roleResponse.Metadata.ResourceVersion + 1
-	for i, perm := range paramsUsage.Authorization.Role.UpdatedSpec.Permissions {
-		roleResponse.Spec.Permissions[i].Verb = append([]string{}, perm.Verb...)
-	}
-	roleResponse.Status.State = secalib.UpdatingStatusState
-	roleResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          roleUrl,
-		params:       paramsUsage.Authorization,
-		response:     roleResponse,
-		template:     roleResponseTemplateV1,
-		currentState: "UpdateRole",
-		nextState:    "GetUpdatedRole",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
-		return nil, err
-	}
-
-	// Get updated role
-	roleResponse.Metadata.Verb = http.MethodGet
-	roleResponse.Status.State = secalib.ActiveStatusState
-	roleResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          roleUrl,
-		params:       paramsUsage.Authorization,
-		response:     roleResponse,
-		template:     roleResponseTemplateV1,
-		currentState: "GetUpdatedRole",
 		nextState:    "CreateRoleAssignment",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
@@ -164,7 +127,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			Resource:   roleAssignmentResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.RoleAssignmentKind,
-			Tenant:     paramsUsage.Authorization.Tenant,
+			Tenant:     paramsUsage.Tenant,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.RoleAssignmentSpecV1{
@@ -189,7 +152,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	roleAssignmentResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          roleAssignmentUrl,
-		params:       paramsUsage.Authorization,
+		params:       paramsUsage,
 		response:     roleAssignmentResponse,
 		template:     roleAssignmentResponseTemplateV1,
 		currentState: "CreateRoleAssignment",
@@ -205,7 +168,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	roleAssignmentResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          roleAssignmentUrl,
-		params:       paramsUsage.Authorization,
+		params:       paramsUsage,
 		response:     roleAssignmentResponse,
 		template:     roleAssignmentResponseTemplateV1,
 		currentState: "GetCreatedRoleAssignment",
@@ -218,13 +181,13 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	//Workspace
 	workspaceResponse := &resourceResponse[secalib.WorkspaceSpecV1]{
 		Metadata: &secalib.Metadata{
-			Name:       paramsUsage.Workspace.Workspace.Name,
+			Name:       paramsUsage.Params.Workspace,
 			Provider:   secalib.WorkspaceProviderV1,
 			Resource:   workspaceResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.WorkspaceKind,
-			Tenant:     paramsUsage.Workspace.Tenant,
-			Region:     paramsUsage.Workspace.Region,
+			Tenant:     paramsUsage.Tenant,
+			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 	}
@@ -238,7 +201,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	workspaceResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          workspaceURL,
-		params:       paramsUsage.Workspace,
+		params:       paramsUsage,
 		response:     workspaceResponse,
 		template:     workspaceResponseTemplateV1,
 		currentState: "CreateWorkspace",
@@ -254,11 +217,11 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	workspaceResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          workspaceURL,
-		params:       paramsUsage.Workspace,
+		params:       paramsUsage,
 		response:     workspaceResponse,
 		template:     workspaceResponseTemplateV1,
 		currentState: "GetCreatedWorkspace",
-		nextState:    "CreateBlockStorage",
+		nextState:    "CreateImage",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
@@ -267,58 +230,6 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	//Skus
 
 	//Storage
-	blockResponse := &resourceResponse[secalib.BlockStorageSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       paramsUsage.Storage.BlockStorage.Name,
-			Provider:   secalib.StorageProviderV1,
-			Resource:   blockStorageResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.BlockStorageKind,
-			Tenant:     paramsUsage.Storage.Tenant,
-			Workspace:  paramsUsage.Storage.Workspace,
-			Region:     paramsUsage.Storage.Region,
-		},
-		Status: &secalib.Status{},
-		Spec: &secalib.BlockStorageSpecV1{
-			SkuRef: paramsUsage.Storage.BlockStorage.InitialSpec.SkuRef,
-		},
-	}
-
-	// Create a block storage
-	blockResponse.Metadata.Verb = http.MethodPut
-	blockResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	blockResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	blockResponse.Metadata.ResourceVersion = 1
-	blockResponse.Spec.SizeGB = paramsUsage.Storage.BlockStorage.InitialSpec.SizeGB
-	blockResponse.Status.State = secalib.CreatingStatusState
-	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          blockStorageURL,
-		params:       paramsUsage.Storage,
-		response:     blockResponse,
-		template:     blockStorageResponseTemplateV1,
-		currentState: "CreateBlockStorage",
-		nextState:    "GetCreatedBlockStorage",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
-		return nil, err
-	}
-
-	// Get created block storage
-	blockResponse.Metadata.Verb = http.MethodGet
-	blockResponse.Status.State = secalib.ActiveStatusState
-	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          blockStorageURL,
-		params:       paramsUsage.Storage,
-		response:     blockResponse,
-		template:     blockStorageResponseTemplateV1,
-		currentState: "GetCreatedBlockStorage",
-		nextState:    "UpdateBlockStorage",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
-		return nil, err
-	}
 
 	// image
 	imageResponse := &resourceResponse[secalib.ImageSpecV1]{
@@ -328,8 +239,8 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			Resource:   imageResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.ImageKind,
-			Tenant:     paramsUsage.Storage.Tenant,
-			Region:     paramsUsage.Storage.Region,
+			Tenant:     paramsUsage.Tenant,
+			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.ImageSpecV1{
@@ -347,7 +258,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	imageResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          imageURL,
-		params:       paramsUsage.Storage,
+		params:       paramsUsage,
 		response:     imageResponse,
 		template:     imageResponseTemplateV1,
 		currentState: "CreateImage",
@@ -363,10 +274,63 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	imageResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          imageURL,
-		params:       paramsUsage.Storage,
+		params:       paramsUsage,
 		response:     imageResponse,
 		template:     imageResponseTemplateV1,
 		currentState: "GetCreatedImage",
+		nextState:    "CreateBlockStorage",
+		httpStatus:   http.StatusOK,
+	}); err != nil {
+		return nil, err
+	}
+
+	blockResponse := &resourceResponse[secalib.BlockStorageSpecV1]{
+		Metadata: &secalib.Metadata{
+			Name:       paramsUsage.Storage.BlockStorage.Name,
+			Provider:   secalib.StorageProviderV1,
+			Resource:   blockStorageResource,
+			ApiVersion: secalib.ApiVersion1,
+			Kind:       secalib.BlockStorageKind,
+			Tenant:     paramsUsage.Tenant,
+			Workspace:  paramsUsage.Params.Workspace,
+			Region:     paramsUsage.Region,
+		},
+		Status: &secalib.Status{},
+		Spec: &secalib.BlockStorageSpecV1{
+			SkuRef: paramsUsage.Storage.BlockStorage.InitialSpec.SkuRef,
+		},
+	}
+
+	// Create a block storage
+	blockResponse.Metadata.Verb = http.MethodPut
+	blockResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	blockResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	blockResponse.Metadata.ResourceVersion = 1
+	blockResponse.Spec.SizeGB = paramsUsage.Storage.BlockStorage.InitialSpec.SizeGB
+	blockResponse.Status.State = secalib.CreatingStatusState
+	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configurePutStub(wm, scenario, stubConfig{
+		url:          blockStorageURL,
+		params:       paramsUsage,
+		response:     blockResponse,
+		template:     blockStorageResponseTemplateV1,
+		currentState: "CreateBlockStorage",
+		nextState:    "GetCreatedBlockStorage",
+		httpStatus:   http.StatusCreated,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Get created block storage
+	blockResponse.Metadata.Verb = http.MethodGet
+	blockResponse.Status.State = secalib.ActiveStatusState
+	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configureGetStub(wm, scenario, stubConfig{
+		url:          blockStorageURL,
+		params:       paramsUsage,
+		response:     blockResponse,
+		template:     blockStorageResponseTemplateV1,
+		currentState: "GetCreatedBlockStorage",
 		nextState:    "CreateNetwork",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
@@ -385,8 +349,8 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			ResourceVersion: 1,
 			ApiVersion:      secalib.ApiVersion1,
 			Kind:            secalib.NetworkKind,
-			Tenant:          paramsUsage.Network.Tenant,
-			Region:          paramsUsage.Network.Region,
+			Tenant:          paramsUsage.Tenant,
+			Region:          paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.NetworkSpecV1{
@@ -407,7 +371,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	networkResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          networkURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     networkResponse,
 		template:     networkResponseTemplateV1,
 		currentState: "CreateNetwork",
@@ -423,7 +387,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	networkResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          networkURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     networkResponse,
 		template:     networkResponseTemplateV1,
 		currentState: "GetNetwork",
@@ -441,9 +405,9 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			Resource:   internetGatewayResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
-			Tenant:     paramsUsage.Network.Tenant,
-			Workspace:  paramsUsage.Network.Workspace,
-			Region:     paramsUsage.Network.Region,
+			Tenant:     paramsUsage.Tenant,
+			Workspace:  paramsUsage.Params.Workspace,
+			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.InternetGatewaySpecV1{
@@ -460,7 +424,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	internetGatewayResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          internetGatewayURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     internetGatewayResponse,
 		template:     internetGatewayResponseTemplateV1,
 		currentState: "CreateInternetGateway",
@@ -476,7 +440,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	internetGatewayResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          internetGatewayURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     internetGatewayResponse,
 		template:     internetGatewayResponseTemplateV1,
 		currentState: "GetInternetGateway",
@@ -494,9 +458,9 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			Resource:   routeTableResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
-			Tenant:     paramsUsage.Network.Tenant,
-			Workspace:  paramsUsage.Network.Workspace,
-			Region:     paramsUsage.Network.Region,
+			Tenant:     paramsUsage.Tenant,
+			Workspace:  paramsUsage.Params.Workspace,
+			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.RouteTableSpecV1{
@@ -520,7 +484,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	routeTableResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          routeTableURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     routeTableResponse,
 		template:     routeTableResponseTemplateV1,
 		currentState: "CreateRouteTable",
@@ -536,7 +500,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	routeTableResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          routeTableURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     routeTableResponse,
 		template:     routeTableResponseTemplateV1,
 		currentState: "GetRouteTable",
@@ -554,9 +518,9 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			Resource:   subnetResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
-			Tenant:     paramsUsage.Network.Tenant,
-			Workspace:  paramsUsage.Network.Workspace,
-			Region:     paramsUsage.Network.Region,
+			Tenant:     paramsUsage.Tenant,
+			Workspace:  paramsUsage.Params.Workspace,
+			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.SubnetSpecV1{
@@ -574,7 +538,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	subnetResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          subnetURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     subnetResponse,
 		template:     subnetResponseTemplateV1,
 		currentState: "CreateSubnet",
@@ -590,11 +554,68 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	subnetResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          subnetURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     subnetResponse,
 		template:     subnetResponseTemplateV1,
 		currentState: "GetSubnet",
-		nextState:    "UpdateSubnet",
+		nextState:    "CreateSecurityGroup",
+		httpStatus:   http.StatusOK,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Security-group
+	securityGroupResponse := &resourceResponse[secalib.SecurityGroupSpecV1]{
+		Metadata: &secalib.Metadata{
+			Name:       paramsUsage.Network.SecurityGroup.Name,
+			Provider:   secalib.NetworkProviderV1,
+			Resource:   securityGroupResource,
+			ApiVersion: secalib.ApiVersion1,
+			Kind:       secalib.InstanceKind,
+			Tenant:     paramsUsage.Tenant,
+			Workspace:  paramsUsage.Params.Workspace,
+			Region:     paramsUsage.Region,
+		},
+		Status: &secalib.Status{},
+		Spec:   &secalib.SecurityGroupSpecV1{},
+	}
+
+	for _, rules := range paramsUsage.Network.SecurityGroup.InitialSpec.Rules {
+		securityGroupResponse.Spec.Rules = append(securityGroupResponse.Spec.Rules, &secalib.SecurityGroupRule{
+			Direction: rules.Direction,
+		})
+	}
+
+	// Create Security-group
+	securityGroupResponse.Metadata.Verb = http.MethodPut
+	securityGroupResponse.Status.State = secalib.CreatingStatusState
+	securityGroupResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
+	securityGroupResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
+	securityGroupResponse.Metadata.ResourceVersion = 1
+	securityGroupResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configurePutStub(wm, scenario, stubConfig{
+		url:          securityGroupURL,
+		params:       paramsUsage,
+		response:     securityGroupResponse,
+		template:     securityGroupResponseTemplateV1,
+		currentState: "CreateSecurityGroup",
+		nextState:    "GetSecurityGroup",
+		httpStatus:   http.StatusCreated,
+	}); err != nil {
+		return nil, err
+	}
+
+	// Get Security-group
+	securityGroupResponse.Metadata.Verb = http.MethodGet
+	securityGroupResponse.Status.State = secalib.ActiveStatusState
+	securityGroupResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
+	if err := configureGetStub(wm, scenario, stubConfig{
+		url:          securityGroupURL,
+		params:       paramsUsage,
+		response:     securityGroupResponse,
+		template:     securityGroupResponseTemplateV1,
+		currentState: "GetSecurityGroup",
+		nextState:    "CreatePublicIP",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
@@ -608,9 +629,9 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			Resource:   publicIPResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
-			Tenant:     paramsUsage.Network.Tenant,
-			Workspace:  paramsUsage.Network.Workspace,
-			Region:     paramsUsage.Network.Region,
+			Tenant:     paramsUsage.Tenant,
+			Workspace:  paramsUsage.Params.Workspace,
+			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.PublicIPSpecV1{
@@ -629,7 +650,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 
 	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          publicIPURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     publicIPResponse,
 		template:     publicIPResponseTemplateV1,
 		currentState: "CreatePublicIP",
@@ -645,11 +666,11 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	publicIPResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          publicIPURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     publicIPResponse,
 		template:     publicIPResponseTemplateV1,
 		currentState: "GetPublicIP",
-		nextState:    "UpdatePublicIP",
+		nextState:    "CreateNIC",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
 		return nil, err
@@ -663,9 +684,9 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			Resource:   nicResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
-			Tenant:     paramsUsage.Network.Tenant,
-			Workspace:  paramsUsage.Network.Workspace,
-			Region:     paramsUsage.Network.Region,
+			Tenant:     paramsUsage.Tenant,
+			Workspace:  paramsUsage.Params.Workspace,
+			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.NICSpecV1{
@@ -673,7 +694,6 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			SubnetRef: paramsUsage.Network.NIC.InitialSpec.SubnetRef,
 		},
 	}
-
 	// Create NIC
 	nicResponse.Metadata.Verb = http.MethodPut
 	nicResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
@@ -683,7 +703,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	nicResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          nicURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     nicResponse,
 		template:     nicResponseTemplateV1,
 		currentState: "CreateNIC",
@@ -699,66 +719,10 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	nicResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          nicURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     nicResponse,
 		template:     nicResponseTemplateV1,
 		currentState: "GetNIC",
-		nextState:    "CreateSecurityGroup",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
-		return nil, err
-	}
-
-	// Security-group
-	securityGroupResponse := &resourceResponse[secalib.SecurityGroupSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       paramsUsage.Network.SecurityGroup.Name,
-			Provider:   secalib.NetworkProviderV1,
-			Resource:   securityGroupResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.InstanceKind,
-			Tenant:     paramsUsage.Network.Tenant,
-			Workspace:  paramsUsage.Network.Workspace,
-			Region:     paramsUsage.Network.Region,
-		},
-		Status: &secalib.Status{},
-		Spec:   &secalib.SecurityGroupSpecV1{},
-	}
-
-	for _, rules := range paramsUsage.Network.SecurityGroup.InitialSpec.Rules {
-		securityGroupResponse.Spec.Rules = append(securityGroupResponse.Spec.Rules, &secalib.SecurityGroupRule{
-			Direction: rules.Direction,
-		})
-	}
-	// Create Security-group
-	securityGroupResponse.Metadata.Verb = http.MethodPut
-	securityGroupResponse.Status.State = secalib.CreatingStatusState
-	securityGroupResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	securityGroupResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	securityGroupResponse.Metadata.ResourceVersion = 1
-	securityGroupResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          securityGroupURL,
-		params:       paramsUsage.Network,
-		response:     securityGroupResponse,
-		template:     securityGroupResponseTemplateV1,
-		currentState: "CreateSecurityGroup",
-		nextState:    "GetSecurityGroup",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
-		return nil, err
-	}
-
-	// Get Security-group
-	securityGroupResponse.Metadata.Verb = http.MethodGet
-	securityGroupResponse.Status.State = secalib.ActiveStatusState
-	securityGroupResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          securityGroupURL,
-		params:       paramsUsage.Network,
-		response:     securityGroupResponse,
-		template:     securityGroupResponseTemplateV1,
-		currentState: "GetSecurityGroup",
 		nextState:    "CreateInstance",
 		httpStatus:   http.StatusOK,
 	}); err != nil {
@@ -773,9 +737,9 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 			Resource:   instanceResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
-			Tenant:     paramsUsage.Compute.Tenant,
-			Workspace:  paramsUsage.Compute.Workspace,
-			Region:     paramsUsage.Compute.Region,
+			Tenant:     paramsUsage.Tenant,
+			Workspace:  paramsUsage.Params.Workspace,
+			Region:     paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.InstanceSpecV1{
@@ -794,7 +758,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, scenario, stubConfig{
 		url:          instanceURL,
-		params:       paramsUsage.Compute,
+		params:       paramsUsage,
 		response:     instResponse,
 		template:     instanceResponseTemplateV1,
 		currentState: "CreateInstance",
@@ -810,7 +774,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configureGetStub(wm, scenario, stubConfig{
 		url:          instanceURL,
-		params:       paramsUsage.Compute,
+		params:       paramsUsage,
 		response:     instResponse,
 		template:     instanceResponseTemplateV1,
 		currentState: "GetCreatedInstance",
@@ -826,7 +790,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	instResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          instanceURL,
-		params:       paramsUsage.Compute,
+		params:       paramsUsage,
 		response:     instResponse,
 		currentState: "DeleteInstance",
 		nextState:    "DeleteSecurityGroup",
@@ -839,7 +803,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	securityGroupResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          securityGroupURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     securityGroupResponse,
 		currentState: "DeleteSecurityGroup",
 		nextState:    "DeleteNic",
@@ -852,7 +816,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	nicResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          nicURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     nicResponse,
 		currentState: "DeleteNic",
 		nextState:    "DeletePublicIP",
@@ -865,7 +829,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	publicIPResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          publicIPURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     publicIPResponse,
 		currentState: "DeletePublicIP",
 		nextState:    "DeleteSubnet",
@@ -878,7 +842,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	subnetResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          subnetURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     subnetResponse,
 		currentState: "DeleteSubnet",
 		nextState:    "DeleteRouteTable",
@@ -891,7 +855,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	routeTableResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          routeTableURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     routeTableResponse,
 		currentState: "DeleteRouteTable",
 		nextState:    "DeleteInternetGateway",
@@ -904,7 +868,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	internetGatewayResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          internetGatewayURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     internetGatewayResponse,
 		currentState: "DeleteInternetGateway",
 		nextState:    "DeleteNetwork",
@@ -917,7 +881,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	networkResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          networkURL,
-		params:       paramsUsage.Network,
+		params:       paramsUsage,
 		response:     networkResponse,
 		currentState: "DeleteNetwork",
 		nextState:    "DeleteBlockStorage",
@@ -929,7 +893,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	blockResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          blockStorageURL,
-		params:       paramsUsage.Storage,
+		params:       paramsUsage,
 		response:     blockResponse,
 		currentState: "DeleteBlockStorage",
 		nextState:    "DeleteImage",
@@ -940,7 +904,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	imageResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          imageURL,
-		params:       paramsUsage.Storage,
+		params:       paramsUsage,
 		response:     imageResponse,
 		currentState: "DeleteImage",
 		nextState:    "DeleteWorkspace",
@@ -951,7 +915,7 @@ func TestUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Cl
 	workspaceResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          workspaceURL,
-		params:       paramsUsage.Workspace,
+		params:       paramsUsage,
 		response:     workspaceResponse,
 		currentState: "DeleteWorkspace",
 		httpStatus:   http.StatusAccepted,
