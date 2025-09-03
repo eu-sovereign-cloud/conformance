@@ -191,7 +191,6 @@ func configureReports(config *Config) {
 
 // TODO Convert these load skus functions to a generic one
 func loadInstanceSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
-
 	resp, err := regionalClient.ComputeV1.ListSkus(ctx, secapi.TenantID(config.clientTenant))
 	if err != nil {
 		return nil, err
@@ -211,7 +210,6 @@ func loadInstanceSkus(ctx context.Context, regionalClient *secapi.RegionalClient
 }
 
 func loadStorageSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
-
 	resp, err := regionalClient.StorageV1.ListSkus(ctx, secapi.TenantID(config.clientTenant))
 	if err != nil {
 		return nil, err
@@ -231,7 +229,6 @@ func loadStorageSkus(ctx context.Context, regionalClient *secapi.RegionalClient)
 }
 
 func loadNetworkSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
-
 	resp, err := regionalClient.NetworkV1.ListSkus(ctx, secapi.TenantID(config.clientTenant))
 	if err != nil {
 		return nil, err

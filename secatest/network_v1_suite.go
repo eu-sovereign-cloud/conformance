@@ -1721,6 +1721,5 @@ func verifySecurityGroupSpecStep(ctx provider.StepCtx, expected *secalib.Securit
 			)
 			stepCtx.Require().Equal(expectedRule.Direction, string(actualRule.Direction), fmt.Sprintf("Rule [%d] Direction should match expected", i))
 		}
-
 	})
 }
