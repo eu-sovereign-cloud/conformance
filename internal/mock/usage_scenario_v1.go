@@ -783,7 +783,6 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 	}); err != nil {
 		return nil, err
 	}
-	//Access
 
 	//Delete all
 	// Delete Instance
