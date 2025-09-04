@@ -9,7 +9,6 @@ import (
 )
 
 func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.Client, error) {
-
 	wm, err := newClient(paramsUsage.MockURL)
 	if err != nil {
 		return nil, err
@@ -21,16 +20,16 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 	roleUrl := secalib.GenerateRoleURL(paramsUsage.Tenant, paramsUsage.Authorization.Role.Name)
 	roleAssignmentUrl := secalib.GenerateRoleAssignmentURL(paramsUsage.Tenant, paramsUsage.Authorization.RoleAssignment.Name)
 
-	//workspace
+	// workspace
 	workspaceURL := secalib.GenerateWorkspaceURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name)
 
-	//Storage
+	// Storage
 	blockStorageURL := secalib.GenerateBlockStorageURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Storage.BlockStorage.Name)
 	imageURL := secalib.GenerateImageURL(paramsUsage.Tenant, paramsUsage.Storage.Image.Name)
-	//Compute
+	// Compute
 	instanceURL := secalib.GenerateInstanceURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Compute.Instance.Name)
 
-	//Network
+	// Network
 	networkURL := secalib.GenerateNetworkURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Network.Name)
 	internetGatewayURL := secalib.GenerateInternetGatewayURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.InternetGateway.Name)
 	nicURL := secalib.GenerateNicURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.NIC.Name)
@@ -44,17 +43,17 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 	roleResource := secalib.GenerateRoleResource(paramsUsage.Tenant, paramsUsage.Authorization.Role.Name)
 	roleAssignmentResource := secalib.GenerateRoleAssignmentResource(paramsUsage.Tenant, paramsUsage.Authorization.RoleAssignment.Name)
 
-	//Workspace
+	// Workspace
 
 	workspaceResource := secalib.GenerateWorkspaceResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name)
 
-	//Storage
+	// Storage
 	blockStorageResource := secalib.GenerateBlockStorageResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Storage.BlockStorage.Name)
 	imageResource := secalib.GenerateImageResource(paramsUsage.Tenant, paramsUsage.Storage.Image.Name)
 	// Compute
 	instanceResource := secalib.GenerateInstanceResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Compute.Instance.Name)
 
-	//Network
+	// Network
 	networkResource := secalib.GenerateNetworkResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Network.Name)
 	internetGatewayResource := secalib.GenerateInternetGatewayResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.InternetGateway.Name)
 	nicResource := secalib.GenerateNicResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.NIC.Name)
@@ -63,7 +62,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 	subnetResource := secalib.GenerateSubnetResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Subnet.Name)
 	securityGroupResource := secalib.GenerateSecurityGroupResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.SecurityGroup.Name)
 
-	//Authorization
+	// Authorization
 	roleResponse := &resourceResponse[secalib.RoleSpecV1]{
 		Metadata: &secalib.Metadata{
 			Name:       paramsUsage.Authorization.Role.Name,
@@ -84,7 +83,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 		})
 	}
 
-	//Create Role
+	// Create Role
 	roleResponse.Metadata.Verb = http.MethodPut
 	roleResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
 	roleResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
@@ -178,7 +177,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 		return nil, err
 	}
 
-	//Workspace
+	// Workspace
 	workspaceResponse := &resourceResponse[secalib.WorkspaceSpecV1]{
 		Metadata: &secalib.Metadata{
 			Name:       paramsUsage.Workspace.Workspace.Name,
@@ -227,9 +226,9 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 		return nil, err
 	}
 
-	//Skus
+	// Skus
 
-	//Storage
+	// Storage
 
 	// image
 	imageResponse := &resourceResponse[secalib.ImageSpecV1]{
@@ -337,7 +336,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 		return nil, err
 	}
 
-	//Network
+	// Network
 	networkResponse := &resourceResponse[secalib.NetworkSpecV1]{
 		Metadata: &secalib.Metadata{
 			Name:            paramsUsage.Network.Network.Name,
@@ -729,7 +728,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 		return nil, err
 	}
 
-	//Compute
+	// Compute
 	instResponse := &resourceResponse[secalib.InstanceSpecV1]{
 		Metadata: &secalib.Metadata{
 			Name:       paramsUsage.Compute.Instance.Name,
@@ -784,7 +783,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 		return nil, err
 	}
 
-	//Delete all
+	// Delete all
 	// Delete Instance
 	instResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{

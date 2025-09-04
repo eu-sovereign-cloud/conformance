@@ -186,7 +186,6 @@ func TestSuites(t *testing.T) {
 		storageSkus:    storageSkus,
 		networkSkus:    networkSkus,
 	})
-
 }
 
 func setupLogger() {

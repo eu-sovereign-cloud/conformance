@@ -33,6 +33,7 @@ func GenerateImageName() string {
 func GenerateInstanceName() string {
 	return fmt.Sprintf("instance-%d", rand.Intn(math.MaxInt32))
 }
+
 func GenerateNetworkName() string {
 	return fmt.Sprintf("network-%d", rand.Intn(math.MaxInt32))
 }
@@ -89,24 +90,31 @@ func GenerateImageResource(tenant string, image string) string {
 func GenerateInstanceResource(tenant string, workspace string, instance string) string {
 	return fmt.Sprintf(InstanceResource, tenant, workspace, instance)
 }
+
 func GenerateNetworkResource(tenant string, workspace string, network string) string {
 	return fmt.Sprintf(NetworkResource, tenant, workspace, network)
 }
+
 func GenerateInternetGatewayResource(tenant string, workspace string, internetGateway string) string {
 	return fmt.Sprintf(InternetGatewayResource, tenant, workspace, internetGateway)
 }
+
 func GenerateNicResource(tenant string, workspace string, nic string) string {
 	return fmt.Sprintf(NicResource, tenant, workspace, nic)
 }
+
 func GeneratePublicIPResource(tenant string, workspace string, publicIP string) string {
 	return fmt.Sprintf(PublicIPResource, tenant, workspace, publicIP)
 }
+
 func GenerateRouteTableResource(tenant string, workspace string, routeTable string) string {
 	return fmt.Sprintf(RouteTableResource, tenant, workspace, routeTable)
 }
+
 func GenerateSubnetResource(tenant string, workspace string, subnet string) string {
 	return fmt.Sprintf(SubnetResource, tenant, workspace, subnet)
 }
+
 func GenerateSecurityGroupResource(tenant string, workspace string, securityGroup string) string {
 	return fmt.Sprintf(SecurityGroupResource, tenant, workspace, securityGroup)
 }

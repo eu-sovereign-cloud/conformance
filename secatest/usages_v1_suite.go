@@ -480,7 +480,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 		)
 	})
 
-	//Storage
+	// Storage
 
 	// Image
 	var imageResp *storage.Image
