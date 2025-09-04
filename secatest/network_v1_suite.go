@@ -43,32 +43,27 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	// Generate the subnet cidr
 	subnetCidr, err := secalib.GenerateSubnetCidr(suite.networkCidr, 8, 1)
 	if err != nil {
-		slog.Error("Failed to generate subnet cidr", "error", err)
-		return
+		t.Fatalf("Failed to generate subnet cidr: %v", err)
 	}
 
 	// Generate the nic addresses
 	nicAddress1, err := secalib.GenerateNicAddress(subnetCidr, 1)
 	if err != nil {
-		slog.Error("Failed to generate nic address", "error", err)
-		return
+		t.Fatalf("Failed to generate nic address: %v", err)
 	}
 	nicAddress2, err := secalib.GenerateNicAddress(subnetCidr, 2)
 	if err != nil {
-		slog.Error("Failed to generate nic address", "error", err)
-		return
+		t.Fatalf("Failed to generate nic address: %v", err)
 	}
 
 	// Generate the public ips
 	publicIpAddress1, err := secalib.GeneratePublicIp(suite.publicIpsRange, 1)
 	if err != nil {
-		slog.Error("Failed to generate public ip", "error", err)
-		return
+		t.Fatalf("Failed to generate public ip: %v", err)
 	}
 	publicIpAddress2, err := secalib.GeneratePublicIp(suite.publicIpsRange, 2)
 	if err != nil {
-		slog.Error("Failed to generate public ip", "error", err)
-		return
+		t.Fatalf("Failed to generate public ip: %v", err)
 	}
 
 	// Select zones
@@ -231,8 +226,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 				},
 			})
 		if err != nil {
-			slog.Error("Failed to create network scenario", "error", err)
-			return
+			t.Fatalf("Failed to create network scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
@@ -1721,6 +1715,5 @@ func verifySecurityGroupSpecStep(ctx provider.StepCtx, expected *secalib.Securit
 			)
 			stepCtx.Require().Equal(expectedRule.Direction, string(actualRule.Direction), fmt.Sprintf("Rule [%d] Direction should match expected", i))
 		}
-
 	})
 }
