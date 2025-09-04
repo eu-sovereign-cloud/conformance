@@ -165,6 +165,28 @@ func TestSuites(t *testing.T) {
 		storageSkus:    storageSkus,
 		networkSkus:    networkSkus,
 	})
+
+	suite.RunNamedSuite(t, "Usages V1", &UsagesV1TestSuite{
+		complexTestSuite: complexTestSuite{
+			testSuite: testSuite{
+				tenant:        config.clientTenant,
+				authToken:     config.clientAuthToken,
+				mockEnabled:   config.mockEnabled,
+				mockServerURL: config.mockServerURL,
+			},
+			globalClient:   globalClient,
+			regionalClient: regionalClient,
+			region:         config.clientRegion,
+		},
+		users:          config.scenarioUsers,
+		networkCidr:    config.scenarioCidr,
+		publicIpsRange: config.scenarioPublicIps,
+		regionZones:    regionZones,
+		instanceSkus:   instanceSkus,
+		storageSkus:    storageSkus,
+		networkSkus:    networkSkus,
+	})
+
 }
 
 func setupLogger() {

@@ -364,7 +364,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 
 	// Create  Network
 	networkResponse.Metadata.Verb = http.MethodPut
-	networkResponse.Status.State = secalib.ActiveStatusState
+	networkResponse.Status.State = secalib.CreatingStatusState
 	networkResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
 	networkResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	networkResponse.Metadata.ResourceVersion = 1
@@ -404,7 +404,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   internetGatewayResource,
 			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.InstanceKind,
+			Kind:       secalib.InternetGatewayKind,
 			Tenant:     paramsUsage.Tenant,
 			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
@@ -457,7 +457,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   routeTableResource,
 			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.InstanceKind,
+			Kind:       secalib.RouteTableKind,
 			Tenant:     paramsUsage.Tenant,
 			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
@@ -517,7 +517,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   subnetResource,
 			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.InstanceKind,
+			Kind:       secalib.SubnetKind,
 			Tenant:     paramsUsage.Tenant,
 			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
@@ -571,7 +571,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   securityGroupResource,
 			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.InstanceKind,
+			Kind:       secalib.SecurityGroupKind,
 			Tenant:     paramsUsage.Tenant,
 			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
@@ -628,7 +628,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   publicIPResource,
 			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.InstanceKind,
+			Kind:       secalib.PublicIPKind,
 			Tenant:     paramsUsage.Tenant,
 			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
@@ -683,7 +683,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   nicResource,
 			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.InstanceKind,
+			Kind:       secalib.NicKind,
 			Tenant:     paramsUsage.Tenant,
 			Workspace:  paramsUsage.Workspace.Workspace.Name,
 			Region:     paramsUsage.Region,
@@ -890,6 +890,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 		return nil, err
 	}
 
+	// Delete BlockStorage
 	blockResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          blockStorageURL,
@@ -901,6 +902,8 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 	}); err != nil {
 		return nil, err
 	}
+
+	// Delete Image
 	imageResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          imageURL,
@@ -912,12 +915,38 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 	}); err != nil {
 		return nil, err
 	}
+
+	// Delete Workspace
 	workspaceResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario, stubConfig{
 		url:          workspaceURL,
 		params:       paramsUsage,
 		response:     workspaceResponse,
 		currentState: "DeleteWorkspace",
+		nextState:    "DeleteRoleAssignment",
+		httpStatus:   http.StatusAccepted,
+	}); err != nil {
+		return nil, err
+	}
+	// Delete Role assignment
+	roleAssignmentResponse.Metadata.Verb = http.MethodDelete
+	if err := configureDeleteStub(wm, scenario, stubConfig{
+		url:          roleAssignmentUrl,
+		params:       paramsUsage,
+		response:     roleAssignmentResponse,
+		currentState: "DeleteRoleAssignment",
+		nextState:    "DeleteRole",
+		httpStatus:   http.StatusAccepted,
+	}); err != nil {
+		return nil, err
+	}
+	// Delete Role
+	roleResponse.Metadata.Verb = http.MethodDelete
+	if err := configureDeleteStub(wm, scenario, stubConfig{
+		url:          roleUrl,
+		params:       paramsUsage,
+		response:     roleResponse,
+		currentState: "DeleteRole",
 		httpStatus:   http.StatusAccepted,
 	}); err != nil {
 		return nil, err

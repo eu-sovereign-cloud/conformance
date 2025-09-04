@@ -10,6 +10,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	authorization "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.authorization.v1"
+	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
 	network "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.network.v1"
 	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
 	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
@@ -34,8 +35,13 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	slog.Info("Starting Usages V1 Test")
 
 	t.Title("Usages Lifecycle Test")
-	configureTags(t, secalib.NetworkProviderV1, secalib.NetworkKind, secalib.InternetGatewayKind, secalib.NicKind, secalib.PublicIPKind, secalib.RouteTableKind,
-		secalib.SubnetKind, secalib.SecurityGroupKind)
+	configureTags(t,
+		secalib.AuthorizationProviderV1, secalib.RoleKind, secalib.RoleAssignmentKind,
+		secalib.WorkspaceProviderV1, secalib.WorkspaceKind,
+		secalib.StorageProviderV1, secalib.BlockStorageKind, secalib.ImageKind,
+		secalib.NetworkProviderV1, secalib.NetworkKind, secalib.InternetGatewayKind, secalib.NicKind, secalib.PublicIPKind, secalib.RouteTableKind, secalib.SubnetKind, secalib.SecurityGroupKind,
+		secalib.ComputeProviderV1, secalib.InstanceKind,
+	)
 
 	// Generate the subnet cidr
 	subnetCidr, err := secalib.GenerateSubnetCidr(suite.networkCidr, 8, 1)
@@ -90,6 +96,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	instanceSkuRef := secalib.GenerateSkuRef(instanceSkuName)
 	instanceName := secalib.GenerateInstanceName()
+	instanceResource := secalib.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
 
 	networkSkuRef1 := secalib.GenerateSkuRef(networkSkuName1)
 	networkSkuRef2 := secalib.GenerateSkuRef(networkSkuName2)
@@ -144,6 +151,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 							{
 								Provider:  secalib.StorageProviderV1,
 								Resources: []string{imageResource},
+								Verb:      []string{http.MethodGet},
 							},
 						},
 					},
@@ -412,7 +420,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	// Workspace
-	var resp *workspace.Workspace
+	var workspaceResp *workspace.Workspace
 	var expectedMeta *secalib.Metadata
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
@@ -426,9 +434,9 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 			Name:   workspaceName,
 		}
 		ws := &workspace.Workspace{}
-		resp, err = suite.regionalClient.WorkspaceV1.CreateOrUpdateWorkspace(ctx, tref, ws, nil)
+		workspaceResp, err = suite.regionalClient.WorkspaceV1.CreateOrUpdateWorkspace(ctx, tref, ws, nil)
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+		requireNotNilResponse(sCtx, workspaceResp)
 
 		expectedMeta = &secalib.Metadata{
 			Name:       workspaceName,
@@ -440,11 +448,11 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 			Tenant:     suite.tenant,
 			Region:     suite.region,
 		}
-		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+		verifyWorkspaceMetadataStep(sCtx, expectedMeta, workspaceResp.Metadata)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.CreatingStatusState},
-			&secalib.Status{State: string(*resp.Status.State)},
+			&secalib.Status{State: string(*workspaceResp.Status.State)},
 		)
 	})
 
@@ -459,16 +467,16 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 			Tenant: secapi.TenantID(suite.tenant),
 			Name:   workspaceName,
 		}
-		resp, err = suite.regionalClient.WorkspaceV1.GetWorkspace(ctx, tref)
+		workspaceResp, err = suite.regionalClient.WorkspaceV1.GetWorkspace(ctx, tref)
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+		requireNotNilResponse(sCtx, workspaceResp)
 
 		expectedMeta.Verb = http.MethodGet
-		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+		verifyWorkspaceMetadataStep(sCtx, expectedMeta, workspaceResp.Metadata)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
-			&secalib.Status{State: string(*resp.Status.State)},
+			&secalib.Status{State: string(*workspaceResp.Status.State)},
 		)
 	})
 
@@ -1170,6 +1178,230 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 			&secalib.Status{State: string(*nicResp.Status.State)},
 		)
 	})
+
+	// Instance
+	var instanceResp *compute.Instance
+	var expectedSpec *secalib.InstanceSpecV1
+
+	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "CreateOrUpdateInstance",
+			tenantStepParameter, suite.tenant,
+			workspaceStepParameter, workspaceName,
+		)
+
+		wref := secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      instanceName,
+		}
+		inst := &compute.Instance{
+			Spec: compute.InstanceSpec{
+				SkuRef: instanceSkuRef,
+				Zone:   zone1,
+			},
+		}
+		inst.Spec.BootVolume.DeviceRef = blockStorageRef
+
+		instanceResp, err = suite.regionalClient.ComputeV1.CreateOrUpdateInstance(ctx, wref, inst, nil)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, instanceResp)
+
+		expectedMeta = &secalib.Metadata{
+			Name:       instanceName,
+			Provider:   secalib.ComputeProviderV1,
+			Resource:   instanceResource,
+			Verb:       http.MethodPut,
+			ApiVersion: secalib.ApiVersion1,
+			Kind:       secalib.InstanceKind,
+			Tenant:     suite.tenant,
+			Region:     suite.region,
+		}
+		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+
+		expectedSpec = &secalib.InstanceSpecV1{
+			SkuRef:        instanceSkuRef,
+			Zone:          zone1,
+			BootDeviceRef: blockStorageRef,
+		}
+		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
+
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.CreatingStatusState},
+			&secalib.Status{State: string(*instanceResp.Status.State)},
+		)
+	})
+
+	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "GetInstance",
+			tenantStepParameter, suite.tenant,
+			workspaceStepParameter, workspaceName,
+		)
+
+		wref := secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      instanceName,
+		}
+		instanceResp, err = suite.regionalClient.ComputeV1.GetInstance(ctx, wref)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, instanceResp)
+
+		expectedMeta.Verb = http.MethodGet
+		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+
+		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
+
+		verifyStatusStep(sCtx,
+			&secalib.Status{State: secalib.ActiveStatusState},
+			&secalib.Status{State: string(*instanceResp.Status.State)},
+		)
+	})
+
+	// DELETE ALL
+	// Delete instance
+	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteInstance",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.regionalClient.ComputeV1.DeleteInstance(ctx, instanceResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete security group
+	t.WithNewStep("Delete security group", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteSecurityGroup",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.regionalClient.NetworkV1.DeleteSecurityGroup(ctx, groupResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete Nic
+	t.WithNewStep("Delete Nic", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteNic",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.regionalClient.NetworkV1.DeleteNic(ctx, nicResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete PublicIP
+	t.WithNewStep("Delete Public ip", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeletePublicIp",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.regionalClient.NetworkV1.DeletePublicIp(ctx, publicIpResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete subnet
+	t.WithNewStep("Delete Subnet", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteSubnet",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.regionalClient.NetworkV1.DeleteSubnet(ctx, subnetResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete Route-table
+	t.WithNewStep("Delete Route-table", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteRouteTable",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.regionalClient.NetworkV1.DeleteRouteTable(ctx, routeResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete Internet-gateway
+	t.WithNewStep("Delete Internet-gateway", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteInternetGateway",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.regionalClient.NetworkV1.DeleteInternetGateway(ctx, gatewayResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete Network
+	t.WithNewStep("Delete Network", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteNetwork",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.regionalClient.NetworkV1.DeleteNetwork(ctx, networkResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete BlockStorage
+	t.WithNewStep("Delete BlockStorage", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteBlockStorage",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.regionalClient.StorageV1.DeleteBlockStorage(ctx, blockResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete Image
+	t.WithNewStep("Delete Image", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteImage",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.regionalClient.StorageV1.DeleteImage(ctx, imageResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete Workspace
+	t.WithNewStep("Delete Workspace", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteWorkspace",
+			tenantStepParameter, suite.tenant,
+		)
+		err = suite.regionalClient.WorkspaceV1.DeleteWorkspace(ctx, workspaceResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete Role Assignment
+	t.WithNewStep("Delete Role Assignment", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteRoleAssignment",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.globalClient.AuthorizationV1.DeleteRoleAssignment(ctx, assignResp, nil)
+		requireNoError(sCtx, err)
+	})
+
+	// Delete Role
+	t.WithNewStep("Delete Role", func(sCtx provider.StepCtx) {
+		sCtx.WithNewParameters(
+			operationStepParameter, "DeleteRole",
+			tenantStepParameter, suite.tenant,
+		)
+
+		err = suite.globalClient.AuthorizationV1.DeleteRole(ctx, roleResp, nil)
+		requireNoError(sCtx, err)
+	})
+
 	slog.Info("Finishing Usages Lifecycle Test")
 }
 
