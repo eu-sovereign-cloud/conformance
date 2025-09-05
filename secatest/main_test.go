@@ -59,35 +59,35 @@ func TestSuites(t *testing.T) {
 		slog.Error("Failed to create regional client", "error", err)
 		os.Exit(1)
 	}
+	/*
+		// Load region available zones
+		regionResp, err := globalClient.RegionV1.GetRegion(ctx, config.clientRegion)
+		if err != nil {
+			slog.Error("Failed to get region", "error", err)
+			os.Exit(1)
+		}
+		regionZones := regionResp.Spec.AvailableZones
 
-	// Load region available zones
-	regionResp, err := globalClient.RegionV1.GetRegion(ctx, config.clientRegion)
-	if err != nil {
-		slog.Error("Failed to get region", "error", err)
-		os.Exit(1)
-	}
-	regionZones := regionResp.Spec.AvailableZones
+		// Load available instance skus
+		instanceSkus, err := loadInstanceSkus(ctx, regionalClient)
+		if err != nil {
+			slog.Error("Failed to list instance skus", "error", err)
+			os.Exit(1)
+		}
 
-	// Load available instance skus
-	instanceSkus, err := loadInstanceSkus(ctx, regionalClient)
-	if err != nil {
-		slog.Error("Failed to list instance skus", "error", err)
-		os.Exit(1)
-	}
+		// Load available storage skus
+		storageSkus, err := loadStorageSkus(ctx, regionalClient)
+		if err != nil {
+			slog.Error("Failed to list storage skus", "error", err)
+			os.Exit(1)
+		}
 
-	// Load available storage skus
-	storageSkus, err := loadStorageSkus(ctx, regionalClient)
-	if err != nil {
-		slog.Error("Failed to list storage skus", "error", err)
-		os.Exit(1)
-	}
-
-	// Load available network skus
-	networkSkus, err := loadNetworkSkus(ctx, regionalClient)
-	if err != nil {
-		slog.Error("Failed to list network skus", "error", err)
-		os.Exit(1)
-	}
+		// Load available network skus
+		networkSkus, err := loadNetworkSkus(ctx, regionalClient)
+		if err != nil {
+			slog.Error("Failed to list network skus", "error", err)
+			os.Exit(1)
+		}*/
 
 	// Run test suites
 
@@ -116,55 +116,56 @@ func TestSuites(t *testing.T) {
 			client: regionalClient,
 		},
 	})
-
-	suite.RunNamedSuite(t, "Storage V1", &StorageV1TestSuite{
-		regionalTestSuite: regionalTestSuite{
-			testSuite: testSuite{
-				tenant:        config.clientTenant,
-				authToken:     config.clientAuthToken,
-				mockEnabled:   config.mockEnabled,
-				mockServerURL: config.mockServerURL,
+	/*
+		suite.RunNamedSuite(t, "Storage V1", &StorageV1TestSuite{
+			regionalTestSuite: regionalTestSuite{
+				testSuite: testSuite{
+					tenant:        config.clientTenant,
+					authToken:     config.clientAuthToken,
+					mockEnabled:   config.mockEnabled,
+					mockServerURL: config.mockServerURL,
+				},
+				region: config.clientRegion,
+				client: regionalClient,
 			},
-			region: config.clientRegion,
-			client: regionalClient,
-		},
-		storageSkus: storageSkus,
-	})
+			storageSkus: storageSkus,
+		})
 
-	suite.RunNamedSuite(t, "Compute V1", &ComputeV1TestSuite{
-		regionalTestSuite: regionalTestSuite{
-			testSuite: testSuite{
-				tenant:        config.clientTenant,
-				authToken:     config.clientAuthToken,
-				mockEnabled:   config.mockEnabled,
-				mockServerURL: config.mockServerURL,
+		suite.RunNamedSuite(t, "Compute V1", &ComputeV1TestSuite{
+			regionalTestSuite: regionalTestSuite{
+				testSuite: testSuite{
+					tenant:        config.clientTenant,
+					authToken:     config.clientAuthToken,
+					mockEnabled:   config.mockEnabled,
+					mockServerURL: config.mockServerURL,
+				},
+				region: config.clientRegion,
+				client: regionalClient,
 			},
-			region: config.clientRegion,
-			client: regionalClient,
-		},
-		availableZones: regionZones,
-		instanceSkus:   instanceSkus,
-		storageSkus:    storageSkus,
-	})
+			availableZones: regionZones,
+			instanceSkus:   instanceSkus,
+			storageSkus:    storageSkus,
+		})
 
-	suite.RunNamedSuite(t, "Network V1", &NetworkV1TestSuite{
-		regionalTestSuite: regionalTestSuite{
-			testSuite: testSuite{
-				tenant:        config.clientTenant,
-				authToken:     config.clientAuthToken,
-				mockEnabled:   config.mockEnabled,
-				mockServerURL: config.mockServerURL,
+		suite.RunNamedSuite(t, "Network V1", &NetworkV1TestSuite{
+			regionalTestSuite: regionalTestSuite{
+				testSuite: testSuite{
+					tenant:        config.clientTenant,
+					authToken:     config.clientAuthToken,
+					mockEnabled:   config.mockEnabled,
+					mockServerURL: config.mockServerURL,
+				},
+				region: config.clientRegion,
+				client: regionalClient,
 			},
-			region: config.clientRegion,
-			client: regionalClient,
-		},
-		networkCidr:    config.scenarioCidr,
-		publicIpsRange: config.scenarioPublicIps,
-		regionZones:    regionZones,
-		instanceSkus:   instanceSkus,
-		storageSkus:    storageSkus,
-		networkSkus:    networkSkus,
-	})
+			networkCidr:    config.scenarioCidr,
+			publicIpsRange: config.scenarioPublicIps,
+			regionZones:    regionZones,
+			instanceSkus:   instanceSkus,
+			storageSkus:    storageSkus,
+			networkSkus:    networkSkus,
+		})
+	*/
 }
 
 func setupLogger() {

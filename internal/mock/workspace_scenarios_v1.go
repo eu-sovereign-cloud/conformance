@@ -32,8 +32,15 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 			Region:     params.Region,
 		},
 		Status: &secalib.Status{},
+		Labels: &[]secalib.Label{},
 	}
 
+	for _, labels := range *params.Workspace.InitialSpec.Label {
+		*response.Labels = append(*response.Labels, secalib.Label{
+			Name:  labels.Name,
+			Value: labels.Value,
+		})
+	}
 	// Create a workspace
 	response.Metadata.Verb = http.MethodPut
 	response.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
@@ -70,6 +77,13 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 	}
 
 	// Update the workspace
+
+	for _, labels := range *params.Workspace.UpdatedSpec.Label {
+		*response.Labels = append(*response.Labels, secalib.Label{
+			Name:  labels.Name,
+			Value: labels.Value,
+		})
+	}
 	response.Metadata.Verb = http.MethodPut
 	response.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	response.Metadata.ResourceVersion = response.Metadata.ResourceVersion + 1

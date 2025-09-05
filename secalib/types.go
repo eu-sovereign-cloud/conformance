@@ -19,3 +19,8 @@ type Status struct {
 	State            string
 	LastTransitionAt string
 }
+
+type Label struct {
+	Name  string
+	Value string
+}

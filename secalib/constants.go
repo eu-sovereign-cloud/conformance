@@ -8,6 +8,7 @@ const (
 	ArchitectureLabel = "architecture"
 	ProviderLabel     = "provider"
 	TierLabel         = "tier"
+	LabelName         = "env"
 
 	// Resource URLs
 	SkuResource             = "tenants/%s/skus/%s"

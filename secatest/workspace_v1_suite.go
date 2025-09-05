@@ -23,6 +23,9 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.Title("Workspace Lifecycle Test")
 	configureTags(t, secalib.WorkspaceProviderV1, secalib.WorkspaceKind)
 
+	labelValue1 := "development"
+	labelValue2 := "production"
+
 	// Generate scenario data
 	workspaceName := secalib.GenerateWorkspaceName()
 	resource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
@@ -38,8 +41,23 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 					Region:    suite.region,
 				},
 				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
-					Name:        workspaceName,
-					InitialSpec: &secalib.WorkspaceSpecV1{},
+					Name: workspaceName,
+					InitialSpec: &secalib.WorkspaceSpecV1{
+						Label: &[]secalib.Label{
+							{
+								Name:  secalib.LabelName,
+								Value: labelValue1,
+							},
+						},
+					},
+					UpdatedSpec: &secalib.WorkspaceSpecV1{
+						Label: &[]secalib.Label{
+							{
+								Name:  secalib.LabelName,
+								Value: labelValue2,
+							},
+						},
+					},
 				},
 			})
 		if err != nil {
@@ -54,7 +72,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	var err error
 
 	var expectedMeta *secalib.Metadata
-
+	var expectedLabel *[]secalib.Label
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
 			operationStepParameter, "CreateOrUpdateWorkspace",
@@ -82,7 +100,6 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 			Region:     suite.region,
 		}
 		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.CreatingStatusState},
 			&secalib.Status{State: string(*resp.Status.State)},
@@ -106,6 +123,22 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 		expectedMeta.Verb = http.MethodGet
 		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+		expectedLabel = &[]secalib.Label{
+			{
+				Name:  secalib.LabelName,
+				Value: labelValue1,
+			},
+		}
+		// Convert *map[string]string to *[]secalib.Label
+		var actualLabels *[]secalib.Label
+		if resp.Labels != nil {
+			labels := make([]secalib.Label, 0, len(*resp.Labels))
+			for k, v := range *resp.Labels {
+				labels = append(labels, secalib.Label{Name: k, Value: v})
+			}
+			actualLabels = &labels
+		}
+		verifyLabelStep(sCtx, expectedLabel, actualLabels)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
@@ -156,6 +189,22 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 		expectedMeta.Verb = http.MethodGet
 		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+
+		expectedLabel = &[]secalib.Label{
+			{
+				Name:  secalib.LabelName,
+				Value: labelValue2,
+			},
+		}
+		var actualLabels *[]secalib.Label
+		if resp.Labels != nil {
+			labels := make([]secalib.Label, 0, len(*resp.Labels))
+			for k, v := range *resp.Labels {
+				labels = append(labels, secalib.Label{Name: k, Value: v})
+			}
+			actualLabels = &labels
+		}
+		verifyLabelStep(sCtx, expectedLabel, actualLabels)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},

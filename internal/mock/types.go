@@ -37,5 +37,6 @@ type stubConfig struct {
 type resourceResponse[T any] struct {
 	Metadata *secalib.Metadata
 	Status   *secalib.Status
+	Labels   *[]secalib.Label
 	Spec     *T
 }
