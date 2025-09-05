@@ -129,7 +129,6 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 				Value: labelValue1,
 			},
 		}
-		// Convert *map[string]string to *[]secalib.Label
 		var actualLabels *[]secalib.Label
 		if resp.Labels != nil {
 			labels := make([]secalib.Label, 0, len(*resp.Labels))
@@ -152,8 +151,6 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 			tenantStepParameter, suite.tenant,
 			workspaceStepParameter, workspaceName,
 		)
-
-		// TODO Update a workspace label to test update
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
