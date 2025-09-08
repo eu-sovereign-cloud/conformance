@@ -399,7 +399,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 
 	t.WithNewStep("Restart instance", func(sCtx provider.StepCtx) {
 		sCtx.WithNewParameters(
-			operationStepParameter, "Restart",
+			operationStepParameter, "RestartInstance",
 			tenantStepParameter, suite.tenant,
 			workspaceStepParameter, workspaceName,
 		)
@@ -486,16 +486,6 @@ func verifyInstanceZonalMetadataStep(ctx provider.StepCtx, expected *secalib.Met
 
 func verifyInstanceSpecStep(ctx provider.StepCtx, expected *secalib.InstanceSpecV1, actual *compute.InstanceSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_sizeGB", expected.SkuRef,
-			"actual_sizeGB", actual.SkuRef,
-
-			"expected_skuRef", expected.Zone,
-			"actual_skuRef", actual.Zone,
-
-			"expected_skuRef", expected.BootDeviceRef,
-			"actual_skuRef", actual.BootVolume.DeviceRef,
-		)
 		stepCtx.Require().Equal(expected.SkuRef, actual.SkuRef, "SkuRef should match expected")
 		stepCtx.Require().Equal(expected.Zone, actual.Zone, "Zone should match expected")
 		stepCtx.Require().Equal(expected.BootDeviceRef, actual.BootVolume.DeviceRef, "BootVolume.DeviceRef should match expected")
