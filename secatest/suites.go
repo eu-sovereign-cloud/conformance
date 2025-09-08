@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -58,4 +59,55 @@ func (suite *testSuite) resetAllScenarios() {
 			slog.Error("Failed to reset scenarios", "error", err)
 		}
 	}
+}
+
+func (suite *testSuite) setAuthorizationV1StepParams(sctx provider.StepCtx, operation string) {
+	sctx.WithNewParameters(
+		providerStepParameter, secalib.AuthorizationProviderV1,
+		operationStepParameter, operation,
+		tenantStepParameter, suite.tenant,
+	)
+}
+
+func (suite *testSuite) setWorkspaceV1StepParams(sctx provider.StepCtx, operation string) {
+	sctx.WithNewParameters(
+		providerStepParameter, secalib.WorkspaceProviderV1,
+		operationStepParameter, operation,
+		tenantStepParameter, suite.tenant,
+	)
+}
+
+func (suite *testSuite) setStorageV1StepParams(sctx provider.StepCtx, operation string, workspace string) {
+	if workspace != "" {
+		sctx.WithNewParameters(
+			providerStepParameter, secalib.StorageProviderV1,
+			operationStepParameter, operation,
+			tenantStepParameter, suite.tenant,
+			workspaceStepParameter, workspace,
+		)
+	} else {
+		sctx.WithNewParameters(
+			providerStepParameter, secalib.StorageProviderV1,
+			operationStepParameter, operation,
+			tenantStepParameter, suite.tenant,
+		)
+	}
+}
+
+func (suite *testSuite) setComputeV1StepParams(sctx provider.StepCtx, operation string, workspace string) {
+	sctx.WithNewParameters(
+		providerStepParameter, secalib.ComputeProviderV1,
+		operationStepParameter, operation,
+		tenantStepParameter, suite.tenant,
+		workspaceStepParameter, workspace,
+	)
+}
+
+func (suite *testSuite) setNetworkV1StepParams(sctx provider.StepCtx, operation string, workspace string) {
+	sctx.WithNewParameters(
+		providerStepParameter, secalib.NetworkProviderV1,
+		operationStepParameter, operation,
+		tenantStepParameter, suite.tenant,
+		workspaceStepParameter, workspace,
+	)
 }
