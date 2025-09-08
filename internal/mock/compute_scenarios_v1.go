@@ -39,6 +39,14 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 			Region:     params.Region,
 		},
 		Status: &secalib.Status{},
+		Labels: &[]secalib.Label{},
+	}
+
+	for _, labels := range *params.Workspace.InitialSpec.Label {
+		*workResponse.Labels = append(*workResponse.Labels, secalib.Label{
+			Name:  labels.Name,
+			Value: labels.Value,
+		})
 	}
 
 	// Create a workspace

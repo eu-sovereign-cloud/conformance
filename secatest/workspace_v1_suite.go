@@ -23,9 +23,6 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.Title("Workspace Lifecycle Test")
 	configureTags(t, secalib.WorkspaceProviderV1, secalib.WorkspaceKind)
 
-	labelValue1 := "development"
-	labelValue2 := "production"
-
 	// Generate scenario data
 	workspaceName := secalib.GenerateWorkspaceName()
 	resource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
@@ -46,7 +43,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 						Label: &[]secalib.Label{
 							{
 								Name:  secalib.LabelName,
-								Value: labelValue1,
+								Value: secalib.WorkspaceDevelopment,
 							},
 						},
 					},
@@ -54,7 +51,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 						Label: &[]secalib.Label{
 							{
 								Name:  secalib.LabelName,
-								Value: labelValue2,
+								Value: secalib.WorkspaceProduction,
 							},
 						},
 					},
@@ -126,7 +123,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		expectedLabel = &[]secalib.Label{
 			{
 				Name:  secalib.LabelName,
-				Value: labelValue1,
+				Value: secalib.WorkspaceDevelopment,
 			},
 		}
 		var actualLabels *[]secalib.Label
@@ -190,7 +187,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		expectedLabel = &[]secalib.Label{
 			{
 				Name:  secalib.LabelName,
-				Value: labelValue2,
+				Value: secalib.WorkspaceProduction,
 			},
 		}
 		var actualLabels *[]secalib.Label

@@ -65,6 +65,14 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 				},
 				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
 					Name: workspaceName,
+					InitialSpec: &secalib.WorkspaceSpecV1{
+						Label: &[]secalib.Label{
+							{
+								Name:  secalib.LabelName,
+								Value: secalib.WorkspaceDevelopment,
+							},
+						},
+					},
 				},
 				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
 					Name: blockStorageName,
