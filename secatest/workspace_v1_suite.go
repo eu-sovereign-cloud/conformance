@@ -25,7 +25,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 	// Generate scenario data
 	workspaceName := secalib.GenerateWorkspaceName()
-	resource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
+	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
@@ -56,11 +56,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	var expectedMeta *secalib.Metadata
 
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -74,7 +70,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		expectedMeta = &secalib.Metadata{
 			Name:       workspaceName,
 			Provider:   secalib.WorkspaceProviderV1,
-			Resource:   resource,
+			Resource:   workspaceResource,
 			Verb:       http.MethodPut,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.WorkspaceKind,
@@ -90,11 +86,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -114,11 +106,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	})
 
 	t.WithNewStep("Update workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
 		// TODO Update a workspace label to test update
 
@@ -140,11 +128,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get updated workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -164,22 +148,14 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	})
 
 	t.WithNewStep("Delete workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "DeleteWorkspace")
 
 		err = suite.client.WorkspaceV1.DeleteWorkspace(ctx, resp, nil)
 		requireNoError(sCtx, err)
 	})
 
 	t.WithNewStep("Get deleted workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),

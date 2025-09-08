@@ -100,11 +100,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	var err error
 
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -122,11 +118,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -143,11 +135,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	})
 
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateBlockStorage",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setStorageV1StepParams(sCtx, "CreateBlockStorage", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -166,11 +154,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetBlockStorage",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setStorageV1StepParams(sCtx, "GetBlockStorage", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -191,11 +175,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	var expectedSpec *secalib.InstanceSpecV1
 
 	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -240,11 +220,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -267,11 +243,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	})
 
 	t.WithNewStep("Update instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -295,11 +267,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get updated instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -322,22 +290,14 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	})
 
 	t.WithNewStep("Stop instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "StopInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "StopInstance", workspaceName)
 
 		err = suite.client.ComputeV1.StopInstance(ctx, instanceResp, nil)
 		requireNoError(sCtx, err)
 	})
 
 	t.WithNewStep("Get stopped instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -360,22 +320,15 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	})
 
 	t.WithNewStep("Start instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "StartInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "StartInstance", workspaceName)
 
 		err = suite.client.ComputeV1.StartInstance(ctx, instanceResp, nil)
 		requireNoError(sCtx, err)
 	})
 
 	t.WithNewStep("Get started instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
+
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -398,22 +351,14 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	})
 
 	t.WithNewStep("Restart instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "RestartInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "RestartInstance", workspaceName)
 
 		err = suite.client.ComputeV1.RestartInstance(ctx, instanceResp, nil)
 		requireNoError(sCtx, err)
 	})
 
 	t.WithNewStep("Get restarted instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -436,22 +381,14 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	})
 
 	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "DeleteInstance", workspaceName)
 
 		err = suite.client.ComputeV1.DeleteInstance(ctx, instanceResp, nil)
 		requireNoError(sCtx, err)
 	})
 
 	t.WithNewStep("Get deleted instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),

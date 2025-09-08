@@ -94,11 +94,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	var err error
 
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -116,11 +112,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -141,11 +133,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	var expectedBlockSpec *secalib.BlockStorageSpecV1
 
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateBlockStorage",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateBlockStorage", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -188,11 +176,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetBlockStorage",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setStorageV1StepParams(sCtx, "GetBlockStorage", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -215,11 +199,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	})
 
 	t.WithNewStep("Update block storage", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateBlockStorage",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateBlockStorage", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -243,11 +223,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get updated block storage", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetBlockStorage",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setStorageV1StepParams(sCtx, "GetBlockStorage", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -274,10 +250,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	var expectedImageSpec *secalib.ImageSpecV1
 
 	t.WithNewStep("Create image", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateImage",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateImage", "")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -318,10 +291,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created image", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetImage",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setStorageV1StepParams(sCtx, "GetImage", "")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -343,10 +313,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	})
 
 	t.WithNewStep("Update image", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateImage",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateImage", "")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -369,10 +336,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get updated image", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetImage",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setStorageV1StepParams(sCtx, "GetImage", "")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -394,21 +358,14 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	})
 
 	t.WithNewStep("Delete image", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteImage",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setStorageV1StepParams(sCtx, "DeleteImage", "")
 
 		err = suite.client.StorageV1.DeleteImage(ctx, imageResp, nil)
 		requireNoError(sCtx, err)
 	})
 
 	t.WithNewStep("Get deleted image", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetImage",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setStorageV1StepParams(sCtx, "GetImage", "")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -419,21 +376,14 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	})
 
 	t.WithNewStep("Delete block storage", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteBlockStorage",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setStorageV1StepParams(sCtx, "DeleteBlockStorage", workspaceName)
 
 		err = suite.client.StorageV1.DeleteBlockStorage(ctx, blockResp, nil)
 		requireNoError(sCtx, err)
 	})
 
 	t.WithNewStep("Get deleted block storage", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetBlockStorage",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setStorageV1StepParams(sCtx, "GetBlockStorage", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),

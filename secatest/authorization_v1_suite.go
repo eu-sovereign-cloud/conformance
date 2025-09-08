@@ -101,10 +101,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	var expectedRoleSpec *secalib.RoleSpecV1
 
 	t.WithNewStep("Create role", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateRole",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -154,10 +151,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created role", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetRole",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -179,10 +173,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	})
 
 	t.WithNewStep("Update role", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateRole",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -205,10 +196,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get updated role", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetRole",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -234,10 +222,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	var expectedAssignSpec *secalib.RoleAssignmentSpecV1
 
 	t.WithNewStep("Create role assignment", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateRoleAssignment",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -279,10 +264,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created role assignment", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetRoleAssignment",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -304,10 +286,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	})
 
 	t.WithNewStep("Update role assignment", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateRoleAssignment",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -330,10 +309,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get updated role assignment", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetRoleAssignment",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -355,20 +331,14 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	})
 
 	t.WithNewStep("Delete role assignment", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteRoleAssignment",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "DeleteRoleAssignment")
 
 		err = suite.client.AuthorizationV1.DeleteRoleAssignment(ctx, assignResp, nil)
 		requireNoError(sCtx, err)
 	})
 
 	t.WithNewStep("Get deleted role assignment", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetRoleAssignment",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -379,20 +349,14 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	})
 
 	t.WithNewStep("Delete role", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteRole",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "DeleteRole")
 
 		err = suite.client.AuthorizationV1.DeleteRole(ctx, roleResp, nil)
 		requireNoError(sCtx, err)
 	})
 
 	t.WithNewStep("Get deleted role", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetRole",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
