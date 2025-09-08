@@ -56,12 +56,6 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 		Labels: &[]secalib.Label{},
 	}
 
-	for _, labels := range *params.Workspace.InitialSpec.Labels {
-		*workResponse.Labels = append(*workResponse.Labels, secalib.Label{
-			Name:  labels.Name,
-			Value: labels.Value,
-		})
-	}
 	// Create a workspace
 	workResponse.Metadata.Verb = http.MethodPut
 	workResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
