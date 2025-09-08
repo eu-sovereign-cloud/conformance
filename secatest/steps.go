@@ -1,6 +1,8 @@
 package secatest
 
 import (
+	"fmt"
+
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -32,5 +34,30 @@ func verifyRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata
 func verifyStatusStep(ctx provider.StepCtx, expected *secalib.Status, actual *secalib.Status) {
 	ctx.WithNewStep("Verify status", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(expected.State, actual.State, "State should match expected")
+	})
+}
+
+func verifyLabelStep(ctx provider.StepCtx, expected *[]secalib.Label, actual *[]secalib.Label) {
+	ctx.WithNewStep("Verify label", func(stepCtx provider.StepCtx) {
+		stepCtx.WithNewParameters(
+			"expected_labels", expected,
+			"actual_labels", actual,
+		)
+
+		for i := 0; i < len(*expected); i++ {
+			expectedValue := (*expected)[i].Value
+			found := false
+			for _, label := range *actual {
+				if label.Value == expectedValue {
+					found = true
+					break
+				}
+			}
+
+			stepCtx.Require().True(
+				found,
+				fmt.Sprintf("Expected label with value '%s' not found in actual labels.", expectedValue),
+			)
+		}
 	})
 }

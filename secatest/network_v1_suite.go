@@ -131,6 +131,14 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 				},
 				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
 					Name: workspaceName,
+					InitialSpec: &secalib.WorkspaceSpecV1{
+						Labels: &[]secalib.Label{
+							{
+								Name:  secalib.EnvLabel,
+								Value: secalib.EnvDevelopmentLabel,
+							},
+						},
+					},
 				},
 				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
 					Name: blockStorageName,

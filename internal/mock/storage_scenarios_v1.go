@@ -39,6 +39,7 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 			Region:     params.Region,
 		},
 		Status: &secalib.Status{},
+		Labels: &[]secalib.Label{},
 	}
 
 	// Create a workspace
