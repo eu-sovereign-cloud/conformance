@@ -42,7 +42,7 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 		Labels: &[]secalib.Label{},
 	}
 
-	for _, labels := range *params.Workspace.InitialSpec.Label {
+	for _, labels := range *params.Workspace.InitialSpec.Labels {
 		*workResponse.Labels = append(*workResponse.Labels, secalib.Label{
 			Name:  labels.Name,
 			Value: labels.Value,

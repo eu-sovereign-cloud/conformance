@@ -109,12 +109,12 @@ const (
     }`
 
 	workspaceResponseTemplateV1 = `
-	{
+  {
 		"labels": {
     [[- range $j, $w := $.Labels]]
-              [[if $j]],[[end]]
-            "[[$w.Name]]":  "[[$w.Value]]"
-            [[- end]]
+      [[if $j]],[[end]]
+      "[[$w.Name]]":  "[[$w.Value]]"
+    [[- end]]
     },
 		"annotations": {},
 		"extensions": {},

@@ -25,7 +25,7 @@ type RoleAssignmentSpecScopeV1 struct {
 // Workspace
 
 type WorkspaceSpecV1 struct {
-	Label *[]Label
+	Labels *[]Label
 }
 
 // Compute

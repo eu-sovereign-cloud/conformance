@@ -58,10 +58,10 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
 					Name: workspaceName,
 					InitialSpec: &secalib.WorkspaceSpecV1{
-						Label: &[]secalib.Label{
+						Labels: &[]secalib.Label{
 							{
-								Name:  secalib.LabelName,
-								Value: secalib.WorkspaceDevelopment,
+								Name:  secalib.EnvLabel,
+								Value: secalib.EnvDevelopmentLabel,
 							},
 						},
 					},

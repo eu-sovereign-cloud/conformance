@@ -5,12 +5,12 @@ const (
 	ApiVersion1 = "v1"
 
 	// Labels
-	ArchitectureLabel    = "architecture"
-	ProviderLabel        = "provider"
-	TierLabel            = "tier"
-	LabelName            = "env"
-	WorkspaceDevelopment = "development"
-	WorkspaceProduction  = "production"
+	ArchitectureLabel   = "architecture"
+	ProviderLabel       = "provider"
+	TierLabel           = "tier"
+	EnvLabel            = "env"
+	EnvDevelopmentLabel = "development"
+	EnvProductionLabel  = "production"
 
 	// Resource URLs
 	SkuResource             = "tenants/%s/skus/%s"

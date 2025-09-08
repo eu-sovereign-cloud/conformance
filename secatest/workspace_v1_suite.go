@@ -40,18 +40,18 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
 					Name: workspaceName,
 					InitialSpec: &secalib.WorkspaceSpecV1{
-						Label: &[]secalib.Label{
+						Labels: &[]secalib.Label{
 							{
-								Name:  secalib.LabelName,
-								Value: secalib.WorkspaceDevelopment,
+								Name:  secalib.EnvLabel,
+								Value: secalib.EnvDevelopmentLabel,
 							},
 						},
 					},
 					UpdatedSpec: &secalib.WorkspaceSpecV1{
-						Label: &[]secalib.Label{
+						Labels: &[]secalib.Label{
 							{
-								Name:  secalib.LabelName,
-								Value: secalib.WorkspaceProduction,
+								Name:  secalib.EnvLabel,
+								Value: secalib.EnvProductionLabel,
 							},
 						},
 					},
@@ -122,8 +122,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 		expectedLabel = &[]secalib.Label{
 			{
-				Name:  secalib.LabelName,
-				Value: secalib.WorkspaceDevelopment,
+				Name:  secalib.EnvLabel,
+				Value: secalib.EnvDevelopmentLabel,
 			},
 		}
 		var actualLabels *[]secalib.Label
@@ -186,8 +186,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 		expectedLabel = &[]secalib.Label{
 			{
-				Name:  secalib.LabelName,
-				Value: secalib.WorkspaceProduction,
+				Name:  secalib.EnvLabel,
+				Value: secalib.EnvProductionLabel,
 			},
 		}
 		var actualLabels *[]secalib.Label

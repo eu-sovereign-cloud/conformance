@@ -35,7 +35,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 		Labels: &[]secalib.Label{},
 	}
 
-	for _, labels := range *params.Workspace.InitialSpec.Label {
+	for _, labels := range *params.Workspace.InitialSpec.Labels {
 		*response.Labels = append(*response.Labels, secalib.Label{
 			Name:  labels.Name,
 			Value: labels.Value,
@@ -78,7 +78,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 
 	// Update the workspace
 
-	for _, labels := range *params.Workspace.UpdatedSpec.Label {
+	for _, labels := range *params.Workspace.UpdatedSpec.Labels {
 		*response.Labels = append(*response.Labels, secalib.Label{
 			Name:  labels.Name,
 			Value: labels.Value,
