@@ -269,10 +269,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedRoleSpec *secalib.RoleSpecV1
 
 	t.WithNewStep("Create role", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateRole",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -322,10 +319,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created role", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetRole",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -350,10 +344,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedAssignSpec *secalib.RoleAssignmentSpecV1
 
 	t.WithNewStep("Create role assignment", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateRoleAssignment",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -395,10 +386,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created role assignment", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetRoleAssignment",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -423,11 +411,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var workspaceResp *workspace.Workspace
 	var expectedMeta *secalib.Metadata
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -457,11 +441,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetWorkspace",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -488,10 +468,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedImageSpec *secalib.ImageSpecV1
 
 	t.WithNewStep("Create image", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateImage",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateImage", "")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -532,10 +509,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created image", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetImage",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setStorageV1StepParams(sCtx, "GetImage", "")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
@@ -562,11 +536,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedBlockSpec *secalib.BlockStorageSpecV1
 
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateBlockStorage",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateBlockStorage", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -609,11 +579,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetBlockStorage",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setStorageV1StepParams(sCtx, "GetBlockStorage", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -640,13 +606,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedNetworkSpec *secalib.NetworkSpecV1
 
 	t.WithNewStep("Create network", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			// TODO Create a method to define the step parameters
-			// TODO Add the provider prefix in each operation
-			operationStepParameter, "CreateOrUpdateNetwork",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNetwork", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -690,11 +650,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created network", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetNetwork",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "GetNetwork", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -722,11 +678,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedGatewaySpec *secalib.InternetGatewaySpecV1
 
 	t.WithNewStep("Create internet gateway", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateInternetGateway",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateInternetGateway", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -762,11 +714,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created internet gateway", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetInternetGateway",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "GetInternetGateway", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -794,11 +742,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedRouteSpec *secalib.RouteTableSpecV1
 
 	t.WithNewStep("Create route table", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateRouteTable",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateRouteTable", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -837,11 +781,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created route table", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetRouteTable",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "GetRouteTable", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -869,11 +809,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedSubnetSpec *secalib.SubnetSpecV1
 
 	t.WithNewStep("Create subnet", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateSubnet",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateSubnet", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -915,11 +851,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created subnet", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetNetwork",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "GetNetwork", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -947,11 +879,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedGroupSpec *secalib.SecurityGroupSpecV1
 
 	t.WithNewStep("Create security group", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateSecurityGroup",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateSecurityGroup", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -995,11 +923,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created security group", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetSecurityGroup",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "GetSecurityGroup", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -1027,11 +951,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedIpSpec *secalib.PublicIpSpecV1
 
 	t.WithNewStep("Create public ip", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdatePublicIp",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdatePublicIp", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -1073,11 +993,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created public ip", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetPublicIP",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "GetPublicIp", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -1105,11 +1021,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedNicSpec *secalib.NICSpecV1
 
 	t.WithNewStep("Create nic", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateNic",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNic", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -1153,11 +1065,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created nic", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetNic",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setNetworkV1StepParams(sCtx, "GetNic", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -1184,11 +1092,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	var expectedSpec *secalib.InstanceSpecV1
 
 	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "CreateOrUpdateInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -1233,11 +1137,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	})
 
 	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "GetInstance",
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspaceName,
-		)
+		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
 
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
@@ -1262,10 +1162,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	// DELETE ALL
 	// Delete instance
 	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteInstance",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setComputeV1StepParams(sCtx, "DeleteInstance", workspaceName)
 
 		err = suite.regionalClient.ComputeV1.DeleteInstance(ctx, instanceResp, nil)
 		requireNoError(sCtx, err)
@@ -1273,10 +1170,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Delete security group
 	t.WithNewStep("Delete security group", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteSecurityGroup",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setNetworkV1StepParams(sCtx, "DeleteSecurityGroup", workspaceName)
 
 		err = suite.regionalClient.NetworkV1.DeleteSecurityGroup(ctx, groupResp, nil)
 		requireNoError(sCtx, err)
@@ -1284,10 +1178,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Delete Nic
 	t.WithNewStep("Delete Nic", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteNic",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setNetworkV1StepParams(sCtx, "DeleteNic", workspaceName)
 
 		err = suite.regionalClient.NetworkV1.DeleteNic(ctx, nicResp, nil)
 		requireNoError(sCtx, err)
@@ -1295,10 +1186,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Delete PublicIP
 	t.WithNewStep("Delete Public ip", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeletePublicIp",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setNetworkV1StepParams(sCtx, "DeletePublicIp", workspaceName)
 
 		err = suite.regionalClient.NetworkV1.DeletePublicIp(ctx, publicIpResp, nil)
 		requireNoError(sCtx, err)
@@ -1306,10 +1194,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Delete subnet
 	t.WithNewStep("Delete Subnet", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteSubnet",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setNetworkV1StepParams(sCtx, "DeleteSubnet", workspaceName)
 
 		err = suite.regionalClient.NetworkV1.DeleteSubnet(ctx, subnetResp, nil)
 		requireNoError(sCtx, err)
@@ -1317,10 +1202,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Delete Route-table
 	t.WithNewStep("Delete Route-table", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteRouteTable",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setNetworkV1StepParams(sCtx, "DeleteRouteTable", workspaceName)
 
 		err = suite.regionalClient.NetworkV1.DeleteRouteTable(ctx, routeResp, nil)
 		requireNoError(sCtx, err)
@@ -1328,10 +1210,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Delete Internet-gateway
 	t.WithNewStep("Delete Internet-gateway", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteInternetGateway",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setNetworkV1StepParams(sCtx, "DeleteInternetGateway", workspaceName)
 
 		err = suite.regionalClient.NetworkV1.DeleteInternetGateway(ctx, gatewayResp, nil)
 		requireNoError(sCtx, err)
@@ -1339,10 +1218,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Delete Network
 	t.WithNewStep("Delete Network", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteNetwork",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setNetworkV1StepParams(sCtx, "DeleteNetwork", workspaceName)
 
 		err = suite.regionalClient.NetworkV1.DeleteNetwork(ctx, networkResp, nil)
 		requireNoError(sCtx, err)
@@ -1350,10 +1226,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Delete BlockStorage
 	t.WithNewStep("Delete BlockStorage", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteBlockStorage",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setStorageV1StepParams(sCtx, "DeleteBlockStorage", workspaceName)
 
 		err = suite.regionalClient.StorageV1.DeleteBlockStorage(ctx, blockResp, nil)
 		requireNoError(sCtx, err)
@@ -1361,10 +1234,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Delete Image
 	t.WithNewStep("Delete Image", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteImage",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setStorageV1StepParams(sCtx, "DeleteImage", "")
 
 		err = suite.regionalClient.StorageV1.DeleteImage(ctx, imageResp, nil)
 		requireNoError(sCtx, err)
@@ -1372,20 +1242,15 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Delete Workspace
 	t.WithNewStep("Delete Workspace", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteWorkspace",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setWorkspaceV1StepParams(sCtx, "DeleteWorkspace")
+
 		err = suite.regionalClient.WorkspaceV1.DeleteWorkspace(ctx, workspaceResp, nil)
 		requireNoError(sCtx, err)
 	})
 
 	// Delete Role Assignment
 	t.WithNewStep("Delete Role Assignment", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteRoleAssignment",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "DeleteRoleAssignment")
 
 		err = suite.globalClient.AuthorizationV1.DeleteRoleAssignment(ctx, assignResp, nil)
 		requireNoError(sCtx, err)
@@ -1393,10 +1258,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Delete Role
 	t.WithNewStep("Delete Role", func(sCtx provider.StepCtx) {
-		sCtx.WithNewParameters(
-			operationStepParameter, "DeleteRole",
-			tenantStepParameter, suite.tenant,
-		)
+		suite.setAuthorizationV1StepParams(sCtx, "DeleteRole")
 
 		err = suite.globalClient.AuthorizationV1.DeleteRole(ctx, roleResp, nil)
 		requireNoError(sCtx, err)
