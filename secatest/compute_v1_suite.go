@@ -329,7 +329,6 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.WithNewStep("Get started instance", func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
 
-
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
 			Workspace: secapi.WorkspaceID(workspaceName),

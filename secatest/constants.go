@@ -2,7 +2,7 @@ package secatest
 
 const (
 	// Step Parameters
-	providerStepParameter = "provider"
+	providerStepParameter  = "provider"
 	operationStepParameter = "operation"
 	tenantStepParameter    = "tenant"
 	workspaceStepParameter = "workspace"
