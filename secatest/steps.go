@@ -95,6 +95,11 @@ func verifyStatusStep(ctx provider.StepCtx, expected *secalib.Status, actual *se
 
 func verifyLabelStep(ctx provider.StepCtx, expected *[]secalib.Label, actual *[]secalib.Label) {
 	ctx.WithNewStep("Verify label", func(stepCtx provider.StepCtx) {
+		stepCtx.WithNewParameters(
+			"expected_labels", expected,
+			"actual_labels", actual,
+		)
+
 		for i := 0; i < len(*expected); i++ {
 			expectedValue := (*expected)[i].Value
 			found := false
@@ -104,15 +109,11 @@ func verifyLabelStep(ctx provider.StepCtx, expected *[]secalib.Label, actual *[]
 					break
 				}
 			}
-			stepCtx.WithNewParameters(
-				"expected_labels", expected,
-				"actual_labels", actual,
-			)
+
 			stepCtx.Require().True(
 				found,
 				fmt.Sprintf("Expected label with value '%s' not found in actual labels.", expectedValue),
 			)
 		}
-
 	})
 }
