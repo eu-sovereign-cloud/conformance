@@ -426,26 +426,12 @@ func verifyAuthorizationMetadataStep(ctx provider.StepCtx, expected *secalib.Met
 // TODO Create a helper to perform these asserts using reflection
 func verifyRoleSpecStep(ctx provider.StepCtx, expected *secalib.RoleSpecV1, actual *authorization.RoleSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_permissions_length", len(expected.Permissions),
-			"actual_permissions_length", len(actual.Permissions),
-		)
 		stepCtx.Require().Equal(len(expected.Permissions), len(actual.Permissions),
 			"Permissions list length should match expected")
 
 		for i := 0; i < len(expected.Permissions); i++ {
 			expectedPerm := expected.Permissions[i]
 			actualPerm := actual.Permissions[i]
-			stepCtx.WithNewParameters(
-				fmt.Sprintf("expected_permission[%d]_provider", i), expectedPerm.Provider,
-				fmt.Sprintf("actual_permission[%d]_provider", i), actualPerm.Provider,
-
-				fmt.Sprintf("expected_permission[%d]_resources", i), expectedPerm.Resources,
-				fmt.Sprintf("actual_permission[%d]_resources", i), actualPerm.Resources,
-
-				fmt.Sprintf("expected_permission[%d]_verb", i), expectedPerm.Verb,
-				fmt.Sprintf("actual_permission[%d]_verb", i), actualPerm.Verb,
-			)
 			stepCtx.Require().Equal(expectedPerm.Provider, actualPerm.Provider,
 				fmt.Sprintf("Permission [%d] provider should match expected", i))
 			stepCtx.Require().Equal(expectedPerm.Resources, actualPerm.Resources,
@@ -458,16 +444,6 @@ func verifyRoleSpecStep(ctx provider.StepCtx, expected *secalib.RoleSpecV1, actu
 
 func verifyRoleAssignmentSpecStep(ctx provider.StepCtx, expected *secalib.RoleAssignmentSpecV1, actual *authorization.RoleAssignmentSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_roles", expected.Roles,
-			"actual_roles", actual.Roles,
-
-			"expected_subs", expected.Subs,
-			"actual_subs", actual.Subs,
-
-			"expected_scopes_length", len(expected.Scopes),
-			"actual_scopes_length", len(actual.Scopes),
-		)
 		stepCtx.Require().Equal(expected.Roles, actual.Roles,
 			"Roles provider should match expected")
 		stepCtx.Require().Equal(expected.Subs, actual.Subs,
@@ -478,16 +454,7 @@ func verifyRoleAssignmentSpecStep(ctx provider.StepCtx, expected *secalib.RoleAs
 		for i := 0; i < len(expected.Scopes); i++ {
 			expectedScope := expected.Scopes[i]
 			actualScope := actual.Scopes[i]
-			stepCtx.WithNewParameters(
-				fmt.Sprintf("expected_scope[%d]_tenants", i), expectedScope.Tenants,
-				fmt.Sprintf("actual_scope[%d]_tenants", i), actualScope.Tenants,
 
-				fmt.Sprintf("expected_scope[%d]_regions", i), expectedScope.Regions,
-				fmt.Sprintf("actual_scope[%d]_regions", i), actualScope.Regions,
-
-				fmt.Sprintf("expected_scope[%d]_workspaces", i), expectedScope.Workspaces,
-				fmt.Sprintf("actual_scope[%d]_workspaces", i), actualScope.Workspaces,
-			)
 			if len(*actualScope.Tenants) > 0 {
 				stepCtx.Require().Equal(expectedScope.Tenants, *actualScope.Tenants,
 					fmt.Sprintf("Scope [%d] tenants should match expected", i))

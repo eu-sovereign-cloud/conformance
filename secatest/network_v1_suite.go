@@ -1584,19 +1584,6 @@ func verifyNetworkRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.M
 
 func verifyNetworkSpecStep(ctx provider.StepCtx, expected *secalib.NetworkSpecV1, actual network.NetworkSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_cidr_ipv4", expected.Cidr.Ipv4,
-			"actual_cidr_ipv4", actual.Cidr.Ipv4,
-
-			"expected_cidr_ipv6", expected.Cidr.Ipv6,
-			"actual_cidr_ipv6", actual.Cidr.Ipv6,
-
-			"expected_sku_ref", expected.SkuRef,
-			"actual_sku_ref", actual.SkuRef,
-
-			"expected_route_table_ref", expected.RouteTableRef,
-			"actual_route_table_ref", actual.RouteTableRef,
-		)
 		if actual.Cidr.Ipv4 != nil {
 			stepCtx.Require().Equal(expected.Cidr.Ipv4, *actual.Cidr.Ipv4, "Cidr.Ipv4 should match expected")
 		}
@@ -1610,10 +1597,6 @@ func verifyNetworkSpecStep(ctx provider.StepCtx, expected *secalib.NetworkSpecV1
 
 func verifyInternetGatewaySpecStep(ctx provider.StepCtx, expected *secalib.InternetGatewaySpecV1, actual network.InternetGatewaySpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_egress_only", expected.EgressOnly,
-			"actual_egress_only", *actual.EgressOnly,
-		)
 		if actual.EgressOnly != nil {
 			stepCtx.Require().Equal(expected.EgressOnly, *actual.EgressOnly, "EgressOnly should match expected")
 		}
@@ -1622,23 +1605,12 @@ func verifyInternetGatewaySpecStep(ctx provider.StepCtx, expected *secalib.Inter
 
 func verifyRouteTableSpecStep(ctx provider.StepCtx, expected *secalib.RouteTableSpecV1, actual network.RouteTableSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_local_ref", expected.LocalRef,
-			"actual_local_ref", actual.LocalRef,
-		)
 		stepCtx.Require().Equal(expected.LocalRef, actual.LocalRef, "LocalRef should match expected")
 
 		stepCtx.Require().Equal(len(expected.Routes), len(actual.Routes), "Route list length should match expected")
 		for i := 0; i < len(expected.Routes); i++ {
 			expectedRoute := expected.Routes[i]
 			actualRoute := actual.Routes[i]
-			stepCtx.WithNewParameters(
-				fmt.Sprintf("expected_route[%d]_destination_cidr_block", i), expectedRoute.DestinationCidrBlock,
-				fmt.Sprintf("actual_route[%d]_destination_cidr_block", i), actualRoute.DestinationCidrBlock,
-
-				fmt.Sprintf("expected_route[%d]_target_ref", i), expectedRoute.TargetRef,
-				fmt.Sprintf("actual_route[%d]_target_ref", i), actualRoute.TargetRef,
-			)
 			stepCtx.Require().Equal(expectedRoute.DestinationCidrBlock, actualRoute.DestinationCidrBlock, fmt.Sprintf("Route [%d] DestinationCidrBlock should match expected", i))
 			stepCtx.Require().Equal(expectedRoute.TargetRef, actualRoute.TargetRef, fmt.Sprintf("Route [%d] TargetRef should match expected", i))
 		}
@@ -1647,16 +1619,6 @@ func verifyRouteTableSpecStep(ctx provider.StepCtx, expected *secalib.RouteTable
 
 func verifySubNetSpecStep(ctx provider.StepCtx, expected *secalib.SubnetSpecV1, actual network.SubnetSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_cidr_ipv4", expected.Cidr.Ipv4,
-			"actual_cidr_ipv4", actual.Cidr.Ipv4,
-
-			"expected_cidr_ipv6", expected.Cidr.Ipv6,
-			"actual_cidr_ipv6", actual.Cidr.Ipv6,
-
-			"expected_zone", expected.Zone,
-			"actual_zone", actual.Zone,
-		)
 		if actual.Cidr.Ipv4 != nil {
 			stepCtx.Require().Equal(expected.Cidr.Ipv4, *actual.Cidr.Ipv4, "Cidr.Ipv4 should match expected")
 		}
@@ -1669,13 +1631,6 @@ func verifySubNetSpecStep(ctx provider.StepCtx, expected *secalib.SubnetSpecV1, 
 
 func verifyPublicIpSpecStep(ctx provider.StepCtx, expected *secalib.PublicIpSpecV1, actual network.PublicIpSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_version", expected.Version,
-			"actual_version", actual.Version,
-
-			"expected_address", expected.Address,
-			"actual_address", actual.Address,
-		)
 		stepCtx.Require().Equal(expected.Version, string(actual.Version), "Version should match expected")
 		if actual.Address != nil {
 			stepCtx.Require().Equal(expected.Address, *actual.Address, "Address should match expected")
@@ -1685,16 +1640,6 @@ func verifyPublicIpSpecStep(ctx provider.StepCtx, expected *secalib.PublicIpSpec
 
 func verifyNicSpecStep(ctx provider.StepCtx, expected *secalib.NICSpecV1, actual network.NicSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_addresses", expected.Addresses,
-			"actual_addresses", actual.Addresses,
-
-			"expected_public_ip_refs", expected.PublicIpRefs,
-			"actual_public_ip_refs", actual.PublicIpRefs,
-
-			"expected_subnet_ref", expected.SubnetRef,
-			"actual_subnet_ref", actual.SubnetRef,
-		)
 		stepCtx.Require().Equal(expected.Addresses, actual.Addresses, "Addresses should match expected")
 		if actual.PublicIpRefs != nil {
 			stepCtx.Require().Equal(expected.PublicIpRefs, *actual.PublicIpRefs, "PublicIpRefs should match expected")
@@ -1709,10 +1654,6 @@ func verifySecurityGroupSpecStep(ctx provider.StepCtx, expected *secalib.Securit
 		for i := 0; i < len(expected.Rules); i++ {
 			expectedRule := expected.Rules[i]
 			actualRule := actual.Rules[i]
-			stepCtx.WithNewParameters(
-				fmt.Sprintf("expected_rule[%d]_direction", i), expectedRule.Direction,
-				fmt.Sprintf("actual_rule[%d]_direction", i), actualRule.Direction,
-			)
 			stepCtx.Require().Equal(expectedRule.Direction, string(actualRule.Direction), fmt.Sprintf("Rule [%d] Direction should match expected", i))
 		}
 	})

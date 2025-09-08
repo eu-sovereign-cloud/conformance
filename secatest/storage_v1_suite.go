@@ -483,13 +483,6 @@ func verifyStorageRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.M
 
 func verifyBlockStorageSpecStep(ctx provider.StepCtx, expected *secalib.BlockStorageSpecV1, actual storage.BlockStorageSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_sizeGB", expected.SizeGB,
-			"actual_sizeGB", actual.SizeGB,
-
-			"expected_skuRef", expected.SkuRef,
-			"actual_skuRef", actual.SkuRef,
-		)
 		stepCtx.Require().Equal(expected.SizeGB, actual.SizeGB, "SizeGB should match expected")
 		stepCtx.Require().Equal(expected.SkuRef, actual.SkuRef, "SkuRef should match expected")
 	})
@@ -497,13 +490,6 @@ func verifyBlockStorageSpecStep(ctx provider.StepCtx, expected *secalib.BlockSto
 
 func verifyImageSpecStep(ctx provider.StepCtx, expected *secalib.ImageSpecV1, actual storage.ImageSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters(
-			"expected_blockStorageRef", expected.BlockStorageRef,
-			"actual_blockStorageRef", actual.BlockStorageRef,
-
-			"expected_cpuArchitecture", expected.CpuArchitecture,
-			"actual_cpuArchitecture", actual.CpuArchitecture,
-		)
 		stepCtx.Require().Equal(expected.BlockStorageRef, actual.BlockStorageRef, "BlockStorageRef should match expected")
 		stepCtx.Require().Equal(expected.CpuArchitecture, string(actual.CpuArchitecture), "CpuArchitecture should match expected")
 	})
