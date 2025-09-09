@@ -4,6 +4,11 @@ const (
 	// API Versions
 	ApiVersion1 = "v1"
 
+	// Providers
+	WorkspaceV1Provider = "seca.workspace/v1"
+	StorageV1Provider   = "seca.storage/v1"
+	ComputeV1Provider   = "seca.compute/v1"
+	NetworkV1Provider   = "seca.network/v1"
 	// Labels
 	ArchitectureLabel   = "architecture"
 	ProviderLabel       = "provider"
@@ -42,10 +47,13 @@ const (
 	RoleKind            = "role"
 	RoleAssignmentKind  = "role-assignment"
 	WorkspaceKind       = "workspace"
+	StorageSkuKind      = "storage-sku"
 	BlockStorageKind    = "block-storage"
 	ImageKind           = "image"
+	InstanceSkuKind     = "instance-sku"
 	InstanceKind        = "instance"
 	NetworkKind         = "network"
+	NetworkSkuKind      = "network-sku"
 	InternetGatewayKind = "internet-gateway"
 	NicKind             = "nic"
 	PublicIPKind        = "public-ip"

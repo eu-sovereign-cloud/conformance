@@ -1,0 +1,71 @@
+{
+  "name": "get-skus",
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/skus",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "spec": {
+            "provider": "SECA",
+            "tier": "seca.1000",
+            "bandwidth": "1 Gbit/s",
+            "description": "1G-bandwidth network tier"
+          },
+          "metadata": {
+            "name": "seca.1000",
+            "createdAt": "2025-07-25T08:00:00Z",
+            "lastModifiedAt": "2025-07-25T08:00:00Z",
+            "resourceVersion": 1,
+            "tenant": "{{request.pathSegments.[4]}}",
+            "region": "eu-central-1",
+            "apiVersion": "v1",
+            "kind": "network-sku",
+            "scope": "network-sku/{{request.pathSegments.[4]}}",
+            "resource": "seca.network/skus/seca.1000",
+            "verb": "get"
+          }
+        },
+        {
+          "spec": {
+            "provider": "SECA",
+            "tier": "seca.5000",
+            "bandwidth": "5 Gbit/s",
+            "description": "5G-bandwidth network tier"
+          },
+          "metadata": {
+            "name": "seca.5000",
+            "createdAt": "2025-07-25T08:05:00Z",
+            "lastModifiedAt": "2025-07-25T08:05:00Z",
+            "resourceVersion": 1,
+            "tenant": "{{request.pathSegments.[4]}}",
+            "region": "eu-central-1",
+            "apiVersion": "v1",
+            "kind": "network-sku",
+            "scope": "network-sku/{{request.pathSegments.[4]}}",
+            "resource": "seca.network/skus/seca.5000",
+            "verb": "get"
+          }
+        }
+      ],
+      "metadata": {
+        "skipToken": "false",
+        "scope": "network-sku/{{request.pathSegments.[4]}}",
+        "resource": "seca.network/skus",
+        "verb": "list"
+      }
+    }
+  }
+}
