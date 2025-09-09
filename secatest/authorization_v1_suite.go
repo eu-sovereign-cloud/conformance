@@ -11,6 +11,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	authorization "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.authorization.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/google/uuid"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -43,50 +44,47 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
-		wm, err := mock.CreateAuthorizationLifecycleScenarioV1("Authorization Lifecycle",
-			mock.AuthorizationParamsV1{
-				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-				},
-				Role: &mock.ResourceParams[secalib.RoleSpecV1]{
-					Name: roleName,
-					InitialSpec: &secalib.RoleSpecV1{
-						Permissions: []*secalib.RoleSpecPermissionV1{
-							{
-								Provider:  secalib.StorageProviderV1,
-								Resources: []string{imageResource},
-								Verb:      []string{http.MethodGet},
-							},
-						},
-					},
-					UpdatedSpec: &secalib.RoleSpecV1{
-						Permissions: []*secalib.RoleSpecPermissionV1{
-							{
-								Provider:  secalib.StorageProviderV1,
-								Resources: []string{imageResource},
-								Verb:      []string{http.MethodGet, http.MethodPut},
-							},
+		scenarios := mock.NewAuthorizationV1Scenarios(suite.authToken, suite.tenant, suite.mockServerURL)
+
+		id := uuid.New().String()
+		wm, err := scenarios.ConfigureLifecycleScenario(id, mock.AuthorizationParamsV1{
+			Role: &secalib.ResourceParams[secalib.RoleSpecV1]{
+				Name: roleName,
+				InitialSpec: &secalib.RoleSpecV1{
+					Permissions: []*secalib.RoleSpecPermissionV1{
+						{
+							Provider:  secalib.StorageProviderV1,
+							Resources: []string{imageResource},
+							Verb:      []string{http.MethodGet},
 						},
 					},
 				},
-				RoleAssignment: &mock.ResourceParams[secalib.RoleAssignmentSpecV1]{
-					Name: roleAssignmentName,
-					InitialSpec: &secalib.RoleAssignmentSpecV1{
-						Roles:  []string{roleName},
-						Subs:   []string{roleAssignmentSub1},
-						Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
-					},
-					UpdatedSpec: &secalib.RoleAssignmentSpecV1{
-						Roles:  []string{roleName},
-						Subs:   []string{roleAssignmentSub1, roleAssignmentSub2},
-						Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
+				UpdatedSpec: &secalib.RoleSpecV1{
+					Permissions: []*secalib.RoleSpecPermissionV1{
+						{
+							Provider:  secalib.StorageProviderV1,
+							Resources: []string{imageResource},
+							Verb:      []string{http.MethodGet, http.MethodPut},
+						},
 					},
 				},
-			})
+			},
+			RoleAssignment: &secalib.ResourceParams[secalib.RoleAssignmentSpecV1]{
+				Name: roleAssignmentName,
+				InitialSpec: &secalib.RoleAssignmentSpecV1{
+					Roles:  []string{roleName},
+					Subs:   []string{roleAssignmentSub1},
+					Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
+				},
+				UpdatedSpec: &secalib.RoleAssignmentSpecV1{
+					Roles:  []string{roleName},
+					Subs:   []string{roleAssignmentSub1, roleAssignmentSub2},
+					Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
+				},
+			},
+		})
 		if err != nil {
-			t.Fatalf("Failed to create storage scenario: %v", err)
+			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}

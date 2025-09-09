@@ -9,6 +9,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/google/uuid"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -29,37 +30,32 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
-		wm, err := mock.CreateWorkspaceLifecycleScenarioV1("Workspace Lifecycle",
-			mock.WorkspaceParamsV1{
-				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-					Region:    suite.region,
-				},
-				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
-					Name: workspaceName,
-					InitialSpec: &secalib.WorkspaceSpecV1{
-						Labels: &[]secalib.Label{
-							{
-								Name:  secalib.EnvLabel,
-								Value: secalib.EnvDevelopmentLabel,
-							},
-						},
-					},
-					UpdatedSpec: &secalib.WorkspaceSpecV1{
-						Labels: &[]secalib.Label{
-							{
-								Name:  secalib.EnvLabel,
-								Value: secalib.EnvProductionLabel,
-							},
+		scenarios := mock.NewWorkspaceV1Scenarios(suite.authToken, suite.tenant, suite.region, suite.mockServerURL)
+
+		id := uuid.New().String()
+		wm, err := scenarios.ConfigureLifecycleScenario(id, mock.WorkspaceParamsV1{
+			Workspace: &secalib.ResourceParams[secalib.WorkspaceSpecV1]{
+				Name: workspaceName,
+				InitialSpec: &secalib.WorkspaceSpecV1{
+					Labels: &[]secalib.Label{
+						{
+							Name:  secalib.EnvLabel,
+							Value: secalib.EnvDevelopmentLabel,
 						},
 					},
 				},
-			})
+				UpdatedSpec: &secalib.WorkspaceSpecV1{
+					Labels: &[]secalib.Label{
+						{
+							Name:  secalib.EnvLabel,
+							Value: secalib.EnvProductionLabel,
+						},
+					},
+				},
+			},
+		})
 		if err != nil {
-			slog.Error("Failed to create workspace scenario", "error", err)
-			return
+			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}

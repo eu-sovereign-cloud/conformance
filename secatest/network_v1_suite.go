@@ -14,6 +14,7 @@ import (
 	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
 	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/google/uuid"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -121,120 +122,116 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
-		wm, err := mock.CreateNetworkLifecycleScenarioV1("Network Lifecycle",
-			mock.NetworkParamsV1{
-				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-					Region:    suite.region,
-				},
-				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
-					Name: workspaceName,
-					InitialSpec: &secalib.WorkspaceSpecV1{
-						Labels: &[]secalib.Label{
-							{
-								Name:  secalib.EnvLabel,
-								Value: secalib.EnvDevelopmentLabel,
-							},
+		scenarios := mock.NewNetworkV1Scenarios(suite.authToken, suite.tenant, suite.region, suite.mockServerURL)
+
+		id := uuid.New().String()
+		wm, err := scenarios.ConfigureLifecycleScenario(id, mock.NetworkParamsV1{
+			Workspace: &secalib.ResourceParams[secalib.WorkspaceSpecV1]{
+				Name: workspaceName,
+				InitialSpec: &secalib.WorkspaceSpecV1{
+					Labels: &[]secalib.Label{
+						{
+							Name:  secalib.EnvLabel,
+							Value: secalib.EnvDevelopmentLabel,
 						},
 					},
 				},
-				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
-					Name: blockStorageName,
-					InitialSpec: &secalib.BlockStorageSpecV1{
-						SkuRef: storageSkuRef,
-						SizeGB: blockStorageSize,
+			},
+			BlockStorage: &secalib.ResourceParams[secalib.BlockStorageSpecV1]{
+				Name: blockStorageName,
+				InitialSpec: &secalib.BlockStorageSpecV1{
+					SkuRef: storageSkuRef,
+					SizeGB: blockStorageSize,
+				},
+			},
+			Instance: &secalib.ResourceParams[secalib.InstanceSpecV1]{
+				Name: instanceName,
+				InitialSpec: &secalib.InstanceSpecV1{
+					SkuRef:        instanceSkuRef,
+					Zone:          zone1,
+					BootDeviceRef: blockStorageRef,
+				},
+			},
+			Network: &secalib.ResourceParams[secalib.NetworkSpecV1]{
+				Name: networkName,
+				InitialSpec: &secalib.NetworkSpecV1{
+					Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
+					SkuRef:        networkSkuRef1,
+					RouteTableRef: routeTableRef,
+				},
+				UpdatedSpec: &secalib.NetworkSpecV1{
+					Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
+					SkuRef:        networkSkuRef2,
+					RouteTableRef: routeTableRef,
+				},
+			},
+			InternetGateway: &secalib.ResourceParams[secalib.InternetGatewaySpecV1]{
+				Name:        internetGatewayName,
+				InitialSpec: &secalib.InternetGatewaySpecV1{EgressOnly: false},
+				UpdatedSpec: &secalib.InternetGatewaySpecV1{EgressOnly: true},
+			},
+			RouteTable: &secalib.ResourceParams[secalib.RouteTableSpecV1]{
+				Name: routeTableName,
+				InitialSpec: &secalib.RouteTableSpecV1{
+					LocalRef: networkRef,
+					Routes: []*secalib.RouteTableRouteV1{
+						{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: internetGatewayRef},
 					},
 				},
-				Instance: &mock.ResourceParams[secalib.InstanceSpecV1]{
-					Name: instanceName,
-					InitialSpec: &secalib.InstanceSpecV1{
-						SkuRef:        instanceSkuRef,
-						Zone:          zone1,
-						BootDeviceRef: blockStorageRef,
+				UpdatedSpec: &secalib.RouteTableSpecV1{
+					LocalRef: networkRef,
+					Routes: []*secalib.RouteTableRouteV1{
+						{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: instanceRef},
 					},
 				},
-				Network: &mock.ResourceParams[secalib.NetworkSpecV1]{
-					Name: networkName,
-					InitialSpec: &secalib.NetworkSpecV1{
-						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
-						SkuRef:        networkSkuRef1,
-						RouteTableRef: routeTableRef,
-					},
-					UpdatedSpec: &secalib.NetworkSpecV1{
-						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
-						SkuRef:        networkSkuRef2,
-						RouteTableRef: routeTableRef,
-					},
+			},
+			Subnet: &secalib.ResourceParams[secalib.SubnetSpecV1]{
+				Name: subnetName,
+				InitialSpec: &secalib.SubnetSpecV1{
+					Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
+					Zone: zone1,
 				},
-				InternetGateway: &mock.ResourceParams[secalib.InternetGatewaySpecV1]{
-					Name:        internetGatewayName,
-					InitialSpec: &secalib.InternetGatewaySpecV1{EgressOnly: false},
-					UpdatedSpec: &secalib.InternetGatewaySpecV1{EgressOnly: true},
+				UpdatedSpec: &secalib.SubnetSpecV1{
+					Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
+					Zone: zone2,
 				},
-				RouteTable: &mock.ResourceParams[secalib.RouteTableSpecV1]{
-					Name: routeTableName,
-					InitialSpec: &secalib.RouteTableSpecV1{
-						LocalRef: networkRef,
-						Routes: []*secalib.RouteTableRouteV1{
-							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: internetGatewayRef},
-						},
-					},
-					UpdatedSpec: &secalib.RouteTableSpecV1{
-						LocalRef: networkRef,
-						Routes: []*secalib.RouteTableRouteV1{
-							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: instanceRef},
-						},
-					},
+			},
+			NIC: &secalib.ResourceParams[secalib.NICSpecV1]{
+				Name: nicName,
+				InitialSpec: &secalib.NICSpecV1{
+					Addresses:    []string{nicAddress1},
+					PublicIpRefs: []string{publicIPRef},
+					SubnetRef:    subnetRef,
 				},
-				Subnet: &mock.ResourceParams[secalib.SubnetSpecV1]{
-					Name: subnetName,
-					InitialSpec: &secalib.SubnetSpecV1{
-						Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
-						Zone: zone1,
-					},
-					UpdatedSpec: &secalib.SubnetSpecV1{
-						Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
-						Zone: zone2,
-					},
+				UpdatedSpec: &secalib.NICSpecV1{
+					Addresses:    []string{nicAddress2},
+					PublicIpRefs: []string{publicIPRef},
+					SubnetRef:    subnetRef,
 				},
-				NIC: &mock.ResourceParams[secalib.NICSpecV1]{
-					Name: nicName,
-					InitialSpec: &secalib.NICSpecV1{
-						Addresses:    []string{nicAddress1},
-						PublicIpRefs: []string{publicIPRef},
-						SubnetRef:    subnetRef,
-					},
-					UpdatedSpec: &secalib.NICSpecV1{
-						Addresses:    []string{nicAddress2},
-						PublicIpRefs: []string{publicIPRef},
-						SubnetRef:    subnetRef,
-					},
+			},
+			PublicIP: &secalib.ResourceParams[secalib.PublicIpSpecV1]{
+				Name: publicIPName,
+				InitialSpec: &secalib.PublicIpSpecV1{
+					Version: secalib.IPVersion4,
+					Address: publicIpAddress1,
 				},
-				PublicIP: &mock.ResourceParams[secalib.PublicIpSpecV1]{
-					Name: publicIPName,
-					InitialSpec: &secalib.PublicIpSpecV1{
-						Version: secalib.IPVersion4,
-						Address: publicIpAddress1,
-					},
-					UpdatedSpec: &secalib.PublicIpSpecV1{
-						Version: secalib.IPVersion4,
-						Address: publicIpAddress2,
-					},
+				UpdatedSpec: &secalib.PublicIpSpecV1{
+					Version: secalib.IPVersion4,
+					Address: publicIpAddress2,
 				},
-				SecurityGroup: &mock.ResourceParams[secalib.SecurityGroupSpecV1]{
-					Name: securityGroupName,
-					InitialSpec: &secalib.SecurityGroupSpecV1{
-						Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionIngress}},
-					},
-					UpdatedSpec: &secalib.SecurityGroupSpecV1{
-						Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionEgress}},
-					},
+			},
+			SecurityGroup: &secalib.ResourceParams[secalib.SecurityGroupSpecV1]{
+				Name: securityGroupName,
+				InitialSpec: &secalib.SecurityGroupSpecV1{
+					Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionIngress}},
 				},
-			})
+				UpdatedSpec: &secalib.SecurityGroupSpecV1{
+					Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionEgress}},
+				},
+			},
+		})
 		if err != nil {
-			t.Fatalf("Failed to create network scenario: %v", err)
+			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}

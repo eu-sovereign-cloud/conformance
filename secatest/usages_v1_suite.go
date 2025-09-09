@@ -2,7 +2,6 @@ package secatest
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"math/rand"
 	"net/http"
@@ -15,6 +14,7 @@ import (
 	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
 	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/google/uuid"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -131,131 +131,116 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
-		wm, err := mock.CreateUsageScenario(fmt.Sprintf("Usages V1 Test %d", rand.Intn(100)), mock.UsageParamsV1{
-			Params: &mock.Params{
-				MockURL:   suite.mockServerURL,
-				AuthToken: suite.authToken,
-				Tenant:    suite.tenant,
-				Region:    suite.region,
-			},
-			Authorization: &mock.AuthorizationParamsV1{
-				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-				},
-				Role: &mock.ResourceParams[secalib.RoleSpecV1]{
-					Name: roleName,
-					InitialSpec: &secalib.RoleSpecV1{
-						Permissions: []*secalib.RoleSpecPermissionV1{
-							{
-								Provider:  secalib.StorageProviderV1,
-								Resources: []string{imageResource},
-								Verb:      []string{http.MethodGet},
-							},
+		scenarios := mock.NewUsageV1Scenarios(suite.authToken, suite.tenant, suite.region, suite.mockServerURL)
+
+		id := uuid.New().String()
+
+		wm, err := scenarios.CreateUsageScenario(id, mock.UsageParamsV1{
+			Role: &secalib.ResourceParams[secalib.RoleSpecV1]{
+				Name: roleName,
+				InitialSpec: &secalib.RoleSpecV1{
+					Permissions: []*secalib.RoleSpecPermissionV1{
+						{
+							Provider:  secalib.StorageProviderV1,
+							Resources: []string{imageResource},
+							Verb:      []string{http.MethodGet},
 						},
 					},
 				},
-				RoleAssignment: &mock.ResourceParams[secalib.RoleAssignmentSpecV1]{
-					Name: roleAssignmentName,
-					InitialSpec: &secalib.RoleAssignmentSpecV1{
-						Roles:  []string{roleName},
-						Subs:   []string{roleAssignmentSub1},
-						Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
+			},
+			RoleAssignment: &secalib.ResourceParams[secalib.RoleAssignmentSpecV1]{
+				Name: roleAssignmentName,
+				InitialSpec: &secalib.RoleAssignmentSpecV1{
+					Roles:  []string{roleName},
+					Subs:   []string{roleAssignmentSub1},
+					Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
+				},
+			},
+			Workspace: &secalib.ResourceParams[secalib.WorkspaceSpecV1]{
+				Name: workspaceName,
+				InitialSpec: &secalib.WorkspaceSpecV1{
+					Labels: &[]secalib.Label{},
+				},
+			},
+			BlockStorage: &secalib.ResourceParams[secalib.BlockStorageSpecV1]{
+				Name: blockStorageName,
+				InitialSpec: &secalib.BlockStorageSpecV1{
+					SkuRef: storageSkuRef,
+					SizeGB: blockStorageSize,
+				},
+			},
+			Image: &secalib.ResourceParams[secalib.ImageSpecV1]{
+				Name: imageName,
+				InitialSpec: &secalib.ImageSpecV1{
+					BlockStorageRef: blockStorageRef,
+					CpuArchitecture: secalib.CpuArchitectureAmd64,
+				},
+			},
+			Network: &secalib.ResourceParams[secalib.NetworkSpecV1]{
+				Name: networkName,
+				InitialSpec: &secalib.NetworkSpecV1{
+					Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
+					SkuRef:        networkSkuRef1,
+					RouteTableRef: routeTableRef,
+				},
+				UpdatedSpec: &secalib.NetworkSpecV1{
+					Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
+					SkuRef:        networkSkuRef2,
+					RouteTableRef: routeTableRef,
+				},
+			},
+			InternetGateway: &secalib.ResourceParams[secalib.InternetGatewaySpecV1]{
+				Name:        internetGatewayName,
+				InitialSpec: &secalib.InternetGatewaySpecV1{EgressOnly: false},
+			},
+			RouteTable: &secalib.ResourceParams[secalib.RouteTableSpecV1]{
+				Name: routeTableName,
+				InitialSpec: &secalib.RouteTableSpecV1{
+					LocalRef: networkRef,
+					Routes: []*secalib.RouteTableRouteV1{
+						{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: internetGatewayRef},
 					},
 				},
 			},
-			Workspace: &mock.WorkspaceParamsV1{
-				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
-					Name: workspaceName,
+			Subnet: &secalib.ResourceParams[secalib.SubnetSpecV1]{
+				Name: subnetName,
+				InitialSpec: &secalib.SubnetSpecV1{
+					Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
+					Zone: zone1,
 				},
 			},
-			Storage: &mock.StorageParamsV1{
-				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
-					Name: blockStorageName,
-					InitialSpec: &secalib.BlockStorageSpecV1{
-						SkuRef: storageSkuRef,
-						SizeGB: blockStorageSize,
-					},
-				},
-				Image: &mock.ResourceParams[secalib.ImageSpecV1]{
-					Name: imageName,
-					InitialSpec: &secalib.ImageSpecV1{
-						BlockStorageRef: blockStorageRef,
-						CpuArchitecture: secalib.CpuArchitectureAmd64,
-					},
+			NIC: &secalib.ResourceParams[secalib.NICSpecV1]{
+				Name: nicName,
+				InitialSpec: &secalib.NICSpecV1{
+					Addresses:    []string{nicAddress1},
+					PublicIpRefs: []string{publicIPRef},
+					SubnetRef:    subnetRef,
 				},
 			},
-			Network: &mock.NetworkParamsV1{
-				Network: &mock.ResourceParams[secalib.NetworkSpecV1]{
-					Name: networkName,
-					InitialSpec: &secalib.NetworkSpecV1{
-						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
-						SkuRef:        networkSkuRef1,
-						RouteTableRef: routeTableRef,
-					},
-					UpdatedSpec: &secalib.NetworkSpecV1{
-						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
-						SkuRef:        networkSkuRef2,
-						RouteTableRef: routeTableRef,
-					},
-				},
-				InternetGateway: &mock.ResourceParams[secalib.InternetGatewaySpecV1]{
-					Name:        internetGatewayName,
-					InitialSpec: &secalib.InternetGatewaySpecV1{EgressOnly: false},
-				},
-				RouteTable: &mock.ResourceParams[secalib.RouteTableSpecV1]{
-					Name: routeTableName,
-					InitialSpec: &secalib.RouteTableSpecV1{
-						LocalRef: networkRef,
-						Routes: []*secalib.RouteTableRouteV1{
-							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: internetGatewayRef},
-						},
-					},
-				},
-				Subnet: &mock.ResourceParams[secalib.SubnetSpecV1]{
-					Name: subnetName,
-					InitialSpec: &secalib.SubnetSpecV1{
-						Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
-						Zone: zone1,
-					},
-				},
-				NIC: &mock.ResourceParams[secalib.NICSpecV1]{
-					Name: nicName,
-					InitialSpec: &secalib.NICSpecV1{
-						Addresses:    []string{nicAddress1},
-						PublicIpRefs: []string{publicIPRef},
-						SubnetRef:    subnetRef,
-					},
-				},
-				PublicIP: &mock.ResourceParams[secalib.PublicIpSpecV1]{
-					Name: publicIPName,
-					InitialSpec: &secalib.PublicIpSpecV1{
-						Version: secalib.IPVersion4,
-						Address: publicIpAddress1,
-					},
-				},
-				SecurityGroup: &mock.ResourceParams[secalib.SecurityGroupSpecV1]{
-					Name: securityGroupName,
-					InitialSpec: &secalib.SecurityGroupSpecV1{
-						Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionIngress}},
-					},
+			PublicIP: &secalib.ResourceParams[secalib.PublicIpSpecV1]{
+				Name: publicIPName,
+				InitialSpec: &secalib.PublicIpSpecV1{
+					Version: secalib.IPVersion4,
+					Address: publicIpAddress1,
 				},
 			},
-			Compute: &mock.ComputeParamsV1{
-				Instance: &mock.ResourceParams[secalib.InstanceSpecV1]{
-					Name: instanceName,
-					InitialSpec: &secalib.InstanceSpecV1{
-						SkuRef:        instanceSkuRef,
-						Zone:          zone1,
-						BootDeviceRef: blockStorageRef,
-					},
+			SecurityGroup: &secalib.ResourceParams[secalib.SecurityGroupSpecV1]{
+				Name: securityGroupName,
+				InitialSpec: &secalib.SecurityGroupSpecV1{
+					Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionIngress}},
+				},
+			},
+			Instance: &secalib.ResourceParams[secalib.InstanceSpecV1]{
+				Name: instanceName,
+				InitialSpec: &secalib.InstanceSpecV1{
+					SkuRef:        instanceSkuRef,
+					Zone:          zone1,
+					BootDeviceRef: blockStorageRef,
 				},
 			},
 		})
 		if err != nil {
-			slog.Error("Failed to create wiremock scenario", "error", err)
-			return
+			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 
 		suite.mockClient = wm

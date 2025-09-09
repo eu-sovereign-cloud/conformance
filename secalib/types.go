@@ -1,5 +1,17 @@
 package secalib
 
+type GeneralParams struct {
+	AuthToken string
+	Tenant    string
+	Region    string
+}
+
+type ResourceParams[T any] struct {
+	Name        string
+	InitialSpec *T
+	UpdatedSpec *T
+}
+
 type Metadata struct {
 	Name            string
 	Provider        string

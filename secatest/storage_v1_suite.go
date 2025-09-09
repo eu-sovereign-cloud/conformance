@@ -11,6 +11,7 @@ import (
 	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
 	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/google/uuid"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -47,50 +48,46 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
-		wm, err := mock.CreateStorageLifecycleScenarioV1("Storage Lifecycle",
-			mock.StorageParamsV1{
-				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-					Region:    suite.region,
-				},
-				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
-					Name: workspaceName,
-					InitialSpec: &secalib.WorkspaceSpecV1{
-						Labels: &[]secalib.Label{
-							{
-								Name:  secalib.EnvLabel,
-								Value: secalib.EnvDevelopmentLabel,
-							},
+		scenarios := mock.NewStorageV1Scenarios(suite.authToken, suite.tenant, suite.region, suite.mockServerURL)
+
+		id := uuid.New().String()
+		wm, err := scenarios.ConfigureLifecycleScenario(id, mock.StorageParamsV1{
+			Workspace: &secalib.ResourceParams[secalib.WorkspaceSpecV1]{
+				Name: workspaceName,
+				InitialSpec: &secalib.WorkspaceSpecV1{
+					Labels: &[]secalib.Label{
+						{
+							Name:  secalib.EnvLabel,
+							Value: secalib.EnvDevelopmentLabel,
 						},
 					},
 				},
-				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
-					Name: blockStorageName,
-					InitialSpec: &secalib.BlockStorageSpecV1{
-						SkuRef: storageSkuRef,
-						SizeGB: initialStorageSize,
-					},
-					UpdatedSpec: &secalib.BlockStorageSpecV1{
-						SkuRef: storageSkuRef,
-						SizeGB: updatedStorageSize,
-					},
+			},
+			BlockStorage: &secalib.ResourceParams[secalib.BlockStorageSpecV1]{
+				Name: blockStorageName,
+				InitialSpec: &secalib.BlockStorageSpecV1{
+					SkuRef: storageSkuRef,
+					SizeGB: initialStorageSize,
 				},
-				Image: &mock.ResourceParams[secalib.ImageSpecV1]{
-					Name: imageName,
-					InitialSpec: &secalib.ImageSpecV1{
-						BlockStorageRef: blockStorageRef,
-						CpuArchitecture: secalib.CpuArchitectureAmd64,
-					},
-					UpdatedSpec: &secalib.ImageSpecV1{
-						BlockStorageRef: blockStorageRef,
-						CpuArchitecture: secalib.CpuArchitectureArm64,
-					},
+				UpdatedSpec: &secalib.BlockStorageSpecV1{
+					SkuRef: storageSkuRef,
+					SizeGB: updatedStorageSize,
 				},
-			})
+			},
+			Image: &secalib.ResourceParams[secalib.ImageSpecV1]{
+				Name: imageName,
+				InitialSpec: &secalib.ImageSpecV1{
+					BlockStorageRef: blockStorageRef,
+					CpuArchitecture: secalib.CpuArchitectureAmd64,
+				},
+				UpdatedSpec: &secalib.ImageSpecV1{
+					BlockStorageRef: blockStorageRef,
+					CpuArchitecture: secalib.CpuArchitectureArm64,
+				},
+			},
+		})
 		if err != nil {
-			t.Fatalf("Failed to create storage scenario: %v", err)
+			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}

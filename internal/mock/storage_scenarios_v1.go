@@ -10,22 +10,41 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (*wiremock.Client, error) {
+type StorageV1Scenarios struct {
+	Scenarios
+}
+
+func NewStorageV1Scenarios(authToken string, tenant string, region string, mockURL string) *StorageV1Scenarios {
+	return &StorageV1Scenarios{
+		Scenarios: Scenarios{
+			params: secalib.GeneralParams{
+				AuthToken: authToken,
+				Tenant:    tenant,
+				Region:    region,
+			},
+			mockURL: mockURL,
+		},
+	}
+}
+
+func (scenarios *StorageV1Scenarios) ConfigureLifecycleScenario(id string, params StorageParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to Storage Lifecycle Scenario")
 
-	wm, err := newClient(params.MockURL)
+	name := "StorageV1Lifecycle_" + id
+
+	wm, err := scenarios.newClient()
 	if err != nil {
 		return nil, err
 	}
 
-	workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
-	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
+	workspaceUrl := secalib.GenerateWorkspaceURL(scenarios.params.Tenant, params.Workspace.Name)
+	workspaceResource := secalib.GenerateWorkspaceResource(scenarios.params.Tenant, params.Workspace.Name)
 
-	blockStorageUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	imageUrl := secalib.GenerateImageURL(params.Tenant, params.Image.Name)
+	blockStorageUrl := secalib.GenerateBlockStorageURL(scenarios.params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	imageUrl := secalib.GenerateImageURL(scenarios.params.Tenant, params.Image.Name)
 
-	blockStorageResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	imageResource := secalib.GenerateImageResource(params.Tenant, params.Image.Name)
+	blockStorageResource := secalib.GenerateBlockStorageResource(scenarios.params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	imageResource := secalib.GenerateImageResource(scenarios.params.Tenant, params.Image.Name)
 
 	// Workspace
 	workResponse := &resourceResponse[secalib.WorkspaceSpecV1]{
@@ -35,8 +54,8 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 			Resource:   workspaceResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.WorkspaceKind,
-			Tenant:     params.Tenant,
-			Region:     params.Region,
+			Tenant:     scenarios.params.Tenant,
+			Region:     scenarios.params.Region,
 		},
 		Status: &secalib.Status{},
 		Labels: &[]secalib.Label{},
@@ -49,9 +68,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	workResponse.Metadata.ResourceVersion = 1
 	workResponse.Status.State = secalib.CreatingStatusState
 	workResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
+	if err := configurePutStub(wm, name, stubConfig{
 		url:          workspaceUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     workResponse,
 		template:     workspaceResponseTemplateV1,
 		currentState: startedScenarioState,
@@ -65,9 +84,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	workResponse.Metadata.Verb = http.MethodGet
 	workResponse.Status.State = secalib.ActiveStatusState
 	workResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
+	if err := configureGetStub(wm, name, stubConfig{
 		url:          workspaceUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     workResponse,
 		template:     workspaceResponseTemplateV1,
 		currentState: "GetCreatedWorkspace",
@@ -85,9 +104,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 			Resource:   blockStorageResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.BlockStorageKind,
-			Tenant:     params.Tenant,
+			Tenant:     scenarios.params.Tenant,
 			Workspace:  params.Workspace.Name,
-			Region:     params.Region,
+			Region:     scenarios.params.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.BlockStorageSpecV1{
@@ -103,9 +122,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	blockResponse.Spec.SizeGB = params.BlockStorage.InitialSpec.SizeGB
 	blockResponse.Status.State = secalib.CreatingStatusState
 	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
+	if err := configurePutStub(wm, name, stubConfig{
 		url:          blockStorageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     blockResponse,
 		template:     blockStorageResponseTemplateV1,
 		currentState: "CreateBlockStorage",
@@ -119,9 +138,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	blockResponse.Metadata.Verb = http.MethodGet
 	blockResponse.Status.State = secalib.ActiveStatusState
 	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
+	if err := configureGetStub(wm, name, stubConfig{
 		url:          blockStorageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     blockResponse,
 		template:     blockStorageResponseTemplateV1,
 		currentState: "GetCreatedBlockStorage",
@@ -138,9 +157,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	blockResponse.Spec = params.BlockStorage.UpdatedSpec
 	blockResponse.Status.State = secalib.UpdatingStatusState
 	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
+	if err := configurePutStub(wm, name, stubConfig{
 		url:          blockStorageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     blockResponse,
 		template:     blockStorageResponseTemplateV1,
 		currentState: "UpdateBlockStorage",
@@ -154,9 +173,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	blockResponse.Metadata.Verb = http.MethodGet
 	blockResponse.Status.State = secalib.ActiveStatusState
 	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
+	if err := configureGetStub(wm, name, stubConfig{
 		url:          blockStorageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     blockResponse,
 		template:     blockStorageResponseTemplateV1,
 		currentState: "GetUpdatedBlockStorage",
@@ -174,8 +193,8 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 			Resource:   imageResource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.ImageKind,
-			Tenant:     params.Tenant,
-			Region:     params.Region,
+			Tenant:     scenarios.params.Tenant,
+			Region:     scenarios.params.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.ImageSpecV1{
@@ -191,9 +210,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	imageResponse.Metadata.ResourceVersion = 1
 	imageResponse.Status.State = secalib.CreatingStatusState
 	imageResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
+	if err := configurePutStub(wm, name, stubConfig{
 		url:          imageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     imageResponse,
 		template:     imageResponseTemplateV1,
 		currentState: "CreateImage",
@@ -207,9 +226,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	imageResponse.Metadata.Verb = http.MethodGet
 	imageResponse.Status.State = secalib.ActiveStatusState
 	imageResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
+	if err := configureGetStub(wm, name, stubConfig{
 		url:          imageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     imageResponse,
 		template:     imageResponseTemplateV1,
 		currentState: "GetCreatedImage",
@@ -226,9 +245,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	imageResponse.Spec = params.Image.UpdatedSpec
 	imageResponse.Status.State = secalib.UpdatingStatusState
 	imageResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
+	if err := configurePutStub(wm, name, stubConfig{
 		url:          imageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     imageResponse,
 		template:     imageResponseTemplateV1,
 		currentState: "UpdateImage",
@@ -242,9 +261,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 	imageResponse.Metadata.Verb = http.MethodGet
 	imageResponse.Status.State = secalib.ActiveStatusState
 	imageResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
+	if err := configureGetStub(wm, name, stubConfig{
 		url:          imageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     imageResponse,
 		template:     imageResponseTemplateV1,
 		currentState: "GetUpdatedImage",
@@ -256,9 +275,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 
 	// Delete the image
 	imageResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
+	if err := configureDeleteStub(wm, name, stubConfig{
 		url:          imageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     imageResponse,
 		currentState: "DeleteImage",
 		nextState:    "GetDeletedImage",
@@ -269,9 +288,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 
 	// Get deleted image
 	imageResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
+	if err := configureGetStub(wm, name, stubConfig{
 		url:          imageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     imageResponse,
 		currentState: "GetDeletedImage",
 		nextState:    "DeleteBlockStorage",
@@ -282,9 +301,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 
 	// Delete the block storage
 	blockResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
+	if err := configureDeleteStub(wm, name, stubConfig{
 		url:          blockStorageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     blockResponse,
 		currentState: "DeleteBlockStorage",
 		nextState:    "GetDeletedBlockStorage",
@@ -295,9 +314,9 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 
 	// Get deleted block storage
 	blockResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
+	if err := configureGetStub(wm, name, stubConfig{
 		url:          blockStorageUrl,
-		params:       params,
+		params:       scenarios.params,
 		response:     blockResponse,
 		currentState: "GetDeletedBlockStorage",
 		nextState:    startedScenarioState,

@@ -24,11 +24,9 @@ func configureStub(wm *wiremock.Client, method string, name string, config stubC
 			WithJSONBody(processTemplate)
 	}
 
-	params := config.params.getParams()
-
 	// Request matchers
 	urlMatcher := wiremock.URLPathMatching(config.url)
-	headerMatcher := wiremock.Matching(authorizationHttpHeaderValuePrefix + params.AuthToken)
+	headerMatcher := wiremock.Matching(authorizationHttpHeaderValuePrefix + config.params.AuthToken)
 
 	// Configure the stub
 	var stubRule *wiremock.StubRule

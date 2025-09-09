@@ -10,16 +10,35 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV1) (*wiremock.Client, error) {
+type WorkspaceV1Scenarios struct {
+	Scenarios
+}
+
+func NewWorkspaceV1Scenarios(authToken string, tenant string, region string, mockURL string) *WorkspaceV1Scenarios {
+	return &WorkspaceV1Scenarios{
+		Scenarios: Scenarios{
+			params: secalib.GeneralParams{
+				AuthToken: authToken,
+				Tenant:    tenant,
+				Region:    region,
+			},
+			mockURL: mockURL,
+		},
+	}
+}
+
+func (scenarios *WorkspaceV1Scenarios) ConfigureLifecycleScenario(id string, params WorkspaceParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to Workspace Lifecycle Scenario")
 
-	wm, err := newClient(params.MockURL)
+	name := "WorkspaceV1Lifecycle_" + id
+
+	wm, err := scenarios.newClient()
 	if err != nil {
 		return nil, err
 	}
 
-	url := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
-	resource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
+	url := secalib.GenerateWorkspaceURL(scenarios.params.Tenant, params.Workspace.Name)
+	resource := secalib.GenerateWorkspaceResource(scenarios.params.Tenant, params.Workspace.Name)
 
 	response := &resourceResponse[secalib.WorkspaceSpecV1]{
 		Metadata: &secalib.Metadata{
@@ -28,8 +47,8 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 			Resource:   resource,
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.WorkspaceKind,
-			Tenant:     params.Tenant,
-			Region:     params.Region,
+			Tenant:     scenarios.params.Tenant,
+			Region:     scenarios.params.Region,
 		},
 		Status: &secalib.Status{},
 		Labels: &[]secalib.Label{},
@@ -48,9 +67,9 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 	response.Metadata.ResourceVersion = 1
 	response.Status.State = secalib.CreatingStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
+	if err := configurePutStub(wm, name, stubConfig{
 		url:          url,
-		params:       params,
+		params:       scenarios.params,
 		response:     response,
 		template:     workspaceResponseTemplateV1,
 		currentState: startedScenarioState,
@@ -64,9 +83,9 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 	response.Metadata.Verb = http.MethodGet
 	response.Status.State = secalib.ActiveStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
+	if err := configureGetStub(wm, name, stubConfig{
 		url:          url,
-		params:       params,
+		params:       scenarios.params,
 		response:     response,
 		template:     workspaceResponseTemplateV1,
 		currentState: "GetCreatedWorkspace",
@@ -89,9 +108,9 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 	response.Metadata.ResourceVersion = response.Metadata.ResourceVersion + 1
 	response.Status.State = secalib.UpdatingStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
+	if err := configurePutStub(wm, name, stubConfig{
 		url:          url,
-		params:       params,
+		params:       scenarios.params,
 		response:     response,
 		template:     workspaceResponseTemplateV1,
 		currentState: "UpdateWorkspace",
@@ -105,9 +124,9 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 	response.Metadata.Verb = http.MethodGet
 	response.Status.State = secalib.ActiveStatusState
 	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
+	if err := configureGetStub(wm, name, stubConfig{
 		url:          url,
-		params:       params,
+		params:       scenarios.params,
 		response:     response,
 		template:     workspaceResponseTemplateV1,
 		currentState: "GetUpdatedWorkspace",
@@ -119,9 +138,9 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 
 	// Delete the workspace
 	response.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
+	if err := configureDeleteStub(wm, name, stubConfig{
 		url:          url,
-		params:       params,
+		params:       scenarios.params,
 		response:     response,
 		currentState: "DeleteWorkspace",
 		nextState:    "GetDeletedWorkspace",
@@ -132,9 +151,9 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 
 	// Get deleted workspace
 	response.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
+	if err := configureGetStub(wm, name, stubConfig{
 		url:          url,
-		params:       params,
+		params:       scenarios.params,
 		response:     response,
 		currentState: "GetDeletedWorkspace",
 		nextState:    startedScenarioState,

@@ -12,6 +12,7 @@ import (
 	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
 	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/google/uuid"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -55,48 +56,44 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
-		wm, err := mock.CreateComputeLifecycleScenarioV1("Compute Lifecycle",
-			mock.ComputeParamsV1{
-				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-					Region:    suite.region,
-				},
-				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
-					Name: workspaceName,
-					InitialSpec: &secalib.WorkspaceSpecV1{
-						Labels: &[]secalib.Label{
-							{
-								Name:  secalib.EnvLabel,
-								Value: secalib.EnvDevelopmentLabel,
-							},
+		scenarios := mock.NewComputeV1Scenarios(suite.authToken, suite.tenant, suite.region, suite.mockServerURL)
+
+		id := uuid.New().String()
+		wm, err := scenarios.ConfigureLifecycleScenario(id, mock.ComputeParamsV1{
+			Workspace: &secalib.ResourceParams[secalib.WorkspaceSpecV1]{
+				Name: workspaceName,
+				InitialSpec: &secalib.WorkspaceSpecV1{
+					Labels: &[]secalib.Label{
+						{
+							Name:  secalib.EnvLabel,
+							Value: secalib.EnvDevelopmentLabel,
 						},
 					},
 				},
-				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
-					Name: blockStorageName,
-					InitialSpec: &secalib.BlockStorageSpecV1{
-						SkuRef: storageSkuRef,
-						SizeGB: blockStorageSize,
-					},
+			},
+			BlockStorage: &secalib.ResourceParams[secalib.BlockStorageSpecV1]{
+				Name: blockStorageName,
+				InitialSpec: &secalib.BlockStorageSpecV1{
+					SkuRef: storageSkuRef,
+					SizeGB: blockStorageSize,
 				},
-				Instance: &mock.ResourceParams[secalib.InstanceSpecV1]{
-					Name: instanceName,
-					InitialSpec: &secalib.InstanceSpecV1{
-						SkuRef:        instanceSkuRef,
-						Zone:          initialInstanceZone,
-						BootDeviceRef: blockStorageRef,
-					},
-					UpdatedSpec: &secalib.InstanceSpecV1{
-						SkuRef:        instanceSkuRef,
-						Zone:          updatedInstanceZone,
-						BootDeviceRef: blockStorageRef,
-					},
+			},
+			Instance: &secalib.ResourceParams[secalib.InstanceSpecV1]{
+				Name: instanceName,
+				InitialSpec: &secalib.InstanceSpecV1{
+					SkuRef:        instanceSkuRef,
+					Zone:          initialInstanceZone,
+					BootDeviceRef: blockStorageRef,
 				},
-			})
+				UpdatedSpec: &secalib.InstanceSpecV1{
+					SkuRef:        instanceSkuRef,
+					Zone:          updatedInstanceZone,
+					BootDeviceRef: blockStorageRef,
+				},
+			},
+		})
 		if err != nil {
-			t.Fatalf("Failed to create compute scenario: %v", err)
+			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
