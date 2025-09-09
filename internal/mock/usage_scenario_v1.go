@@ -207,6 +207,7 @@ func (scenarios *UsageV1Scenarios) CreateUsageScenario(id string, params UsagePa
 			Tenant:     scenarios.params.Tenant,
 			Region:     scenarios.params.Region,
 		},
+		Labels: &[]secalib.Label{},
 		Status: &secalib.Status{},
 	}
 
