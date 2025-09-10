@@ -10,12 +10,12 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-type StorageV1Scenarios struct {
+type StorageScenariosV1 struct {
 	Scenarios
 }
 
-func NewStorageV1Scenarios(authToken string, tenant string, region string, mockURL string) *StorageV1Scenarios {
-	return &StorageV1Scenarios{
+func NewStorageScenariosV1(authToken string, tenant string, region string, mockURL string) *StorageScenariosV1 {
+	return &StorageScenariosV1{
 		Scenarios: Scenarios{
 			params: secalib.GeneralParams{
 				AuthToken: authToken,
@@ -27,10 +27,10 @@ func NewStorageV1Scenarios(authToken string, tenant string, region string, mockU
 	}
 }
 
-func (scenarios *StorageV1Scenarios) ConfigureLifecycleScenario(id string, params StorageParamsV1) (*wiremock.Client, error) {
+func (scenarios *StorageScenariosV1) ConfigureLifecycleScenario(id string, params *secalib.StorageLifeCycleParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to Storage Lifecycle Scenario")
 
-	name := "StorageV1Lifecycle_" + id
+	name := "StorageLifecycleV1_" + id
 
 	wm, err := scenarios.newClient()
 	if err != nil {

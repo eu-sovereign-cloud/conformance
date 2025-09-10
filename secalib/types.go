@@ -1,9 +1,9 @@
 package secalib
 
 type GeneralParams struct {
-	AuthToken string
-	Tenant    string
-	Region    string
+	AuthToken string `yaml:"authToken"`
+	Tenant    string `yaml:"tenant"`
+	Region    string `yaml:"region"`
 }
 
 type ResourceParams[T any] struct {

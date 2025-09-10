@@ -18,42 +18,47 @@ type WorkspaceV1TestSuite struct {
 	regionalTestSuite
 }
 
-func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
+func (suite *WorkspaceV1TestSuite) generateLifecycleParams() *secalib.WorkspaceLifeCycleParamsV1 {
+	workspaceName := secalib.GenerateWorkspaceName()
+
+	return &secalib.WorkspaceLifeCycleParamsV1{
+		Workspace: &secalib.ResourceParams[secalib.WorkspaceSpecV1]{
+			Name: workspaceName,
+			InitialSpec: &secalib.WorkspaceSpecV1{
+				Labels: &[]secalib.Label{
+					{
+						Name:  secalib.EnvLabel,
+						Value: secalib.EnvDevelopmentLabel,
+					},
+				},
+			},
+			UpdatedSpec: &secalib.WorkspaceSpecV1{
+				Labels: &[]secalib.Label{
+					{
+						Name:  secalib.EnvLabel,
+						Value: secalib.EnvProductionLabel,
+					},
+				},
+			},
+		},
+	}
+}
+
+func (suite *WorkspaceV1TestSuite) TestWorkspaceLifeCycleV1(t provider.T) {
 	slog.Info("Starting Workspace Lifecycle Test")
 
 	t.Title("Workspace Lifecycle Test")
 	configureTags(t, secalib.WorkspaceProviderV1, secalib.WorkspaceKind)
 
-	// Generate scenario data
-	workspaceName := secalib.GenerateWorkspaceName()
-	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
+	params := suite.generateLifecycleParams()
+	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, params.Workspace.Name)
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
-		scenarios := mock.NewWorkspaceV1Scenarios(suite.authToken, suite.tenant, suite.region, suite.mockServerURL)
+		scenarios := mock.NewWorkspaceScenariosV1(suite.authToken, suite.tenant, suite.region, suite.mockServerURL)
 
 		id := uuid.New().String()
-		wm, err := scenarios.ConfigureLifecycleScenario(id, mock.WorkspaceParamsV1{
-			Workspace: &secalib.ResourceParams[secalib.WorkspaceSpecV1]{
-				Name: workspaceName,
-				InitialSpec: &secalib.WorkspaceSpecV1{
-					Labels: &[]secalib.Label{
-						{
-							Name:  secalib.EnvLabel,
-							Value: secalib.EnvDevelopmentLabel,
-						},
-					},
-				},
-				UpdatedSpec: &secalib.WorkspaceSpecV1{
-					Labels: &[]secalib.Label{
-						{
-							Name:  secalib.EnvLabel,
-							Value: secalib.EnvProductionLabel,
-						},
-					},
-				},
-			},
-		})
+		wm, err := scenarios.ConfigureLifecycleScenario(id, params)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -65,13 +70,14 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	var err error
 
 	var expectedMeta *secalib.Metadata
-	var expectedLabel *[]secalib.Label
+	var expectedLabels *[]secalib.Label
+
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   workspaceName,
+			Name:   params.Workspace.Name,
 		}
 		ws := &workspace.Workspace{}
 		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, tref, ws, nil)
@@ -79,7 +85,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireNotNilResponse(sCtx, resp)
 
 		expectedMeta = &secalib.Metadata{
-			Name:       workspaceName,
+			Name:       params.Workspace.Name,
 			Provider:   secalib.WorkspaceProviderV1,
 			Resource:   workspaceResource,
 			Verb:       http.MethodPut,
@@ -89,6 +95,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 			Region:     suite.region,
 		}
 		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+		
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.CreatingStatusState},
 			&secalib.Status{State: string(*resp.Status.State)},
@@ -100,7 +107,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   workspaceName,
+			Name:   params.Workspace.Name,
 		}
 		resp, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
 		requireNoError(sCtx, err)
@@ -108,7 +115,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 		expectedMeta.Verb = http.MethodGet
 		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		expectedLabel = &[]secalib.Label{
+		expectedLabels = &[]secalib.Label{
 			{
 				Name:  secalib.EnvLabel,
 				Value: secalib.EnvDevelopmentLabel,
@@ -122,7 +129,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 			}
 			actualLabels = &labels
 		}
-		verifyLabelStep(sCtx, expectedLabel, actualLabels)
+		verifyLabelStep(sCtx, expectedLabels, actualLabels)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
@@ -135,7 +142,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   workspaceName,
+			Name:   params.Workspace.Name,
 		}
 		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, tref, resp, nil)
 		requireNoError(sCtx, err)
@@ -155,7 +162,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   workspaceName,
+			Name:   params.Workspace.Name,
 		}
 		resp, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
 		requireNoError(sCtx, err)
@@ -164,7 +171,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		expectedMeta.Verb = http.MethodGet
 		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		expectedLabel = &[]secalib.Label{
+		expectedLabels = &[]secalib.Label{
 			{
 				Name:  secalib.EnvLabel,
 				Value: secalib.EnvProductionLabel,
@@ -178,7 +185,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 			}
 			actualLabels = &labels
 		}
-		verifyLabelStep(sCtx, expectedLabel, actualLabels)
+		verifyLabelStep(sCtx, expectedLabels, actualLabels)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
@@ -198,7 +205,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   workspaceName,
+			Name:   params.Workspace.Name,
 		}
 		_, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
 		requireError(sCtx, err, secapi.ErrResourceNotFound)

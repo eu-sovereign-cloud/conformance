@@ -9,12 +9,12 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-type NetworkV1Scenarios struct {
+type NetworkScenariosV1 struct {
 	Scenarios
 }
 
-func NewNetworkV1Scenarios(authToken string, tenant string, region string, mockURL string) *NetworkV1Scenarios {
-	return &NetworkV1Scenarios{
+func NewNetworkScenariosV1(authToken string, tenant string, region string, mockURL string) *NetworkScenariosV1 {
+	return &NetworkScenariosV1{
 		Scenarios: Scenarios{
 			params: secalib.GeneralParams{
 				AuthToken: authToken,
@@ -26,10 +26,10 @@ func NewNetworkV1Scenarios(authToken string, tenant string, region string, mockU
 	}
 }
 
-func (scenarios *NetworkV1Scenarios) ConfigureLifecycleScenario(id string, params NetworkParamsV1) (*wiremock.Client, error) {
+func (scenarios *NetworkScenariosV1) ConfigureLifecycleScenario(id string, params *secalib.NetworkLifeCycleParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to Network Lifecycle Scenario")
 
-	name := "NetworkV1Lifecycle_" + id
+	name := "NetworkLifecycleV1_" + id
 
 	wm, err := scenarios.newClient()
 	if err != nil {
@@ -42,8 +42,8 @@ func (scenarios *NetworkV1Scenarios) ConfigureLifecycleScenario(id string, param
 	instanceUrl := secalib.GenerateInstanceURL(scenarios.params.Tenant, params.Workspace.Name, params.Instance.Name)
 	networkUrl := secalib.GenerateNetworkURL(scenarios.params.Tenant, params.Workspace.Name, params.Network.Name)
 	internetGatewayUrl := secalib.GenerateInternetGatewayURL(scenarios.params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicUrl := secalib.GenerateNicURL(scenarios.params.Tenant, params.Workspace.Name, params.NIC.Name)
-	publicIPUrl := secalib.GeneratePublicIPURL(scenarios.params.Tenant, params.Workspace.Name, params.PublicIP.Name)
+	nicUrl := secalib.GenerateNicURL(scenarios.params.Tenant, params.Workspace.Name, params.Nic.Name)
+	publicIPUrl := secalib.GeneratePublicIPURL(scenarios.params.Tenant, params.Workspace.Name, params.PublicIp.Name)
 	routeTableUrl := secalib.GenerateRouteTableURL(scenarios.params.Tenant, params.Workspace.Name, params.RouteTable.Name)
 	subnetUrl := secalib.GenerateSubnetURL(scenarios.params.Tenant, params.Workspace.Name, params.Subnet.Name)
 	securityGroupUrl := secalib.GenerateSecurityGroupURL(scenarios.params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
@@ -54,8 +54,8 @@ func (scenarios *NetworkV1Scenarios) ConfigureLifecycleScenario(id string, param
 	instanceResource := secalib.GenerateInstanceResource(scenarios.params.Tenant, params.Workspace.Name, params.Instance.Name)
 	networkResource := secalib.GenerateNetworkResource(scenarios.params.Tenant, params.Workspace.Name, params.Network.Name)
 	internetGatewayResource := secalib.GenerateInternetGatewayResource(scenarios.params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicResource := secalib.GenerateNicResource(scenarios.params.Tenant, params.Workspace.Name, params.NIC.Name)
-	publicIPResource := secalib.GeneratePublicIPResource(scenarios.params.Tenant, params.Workspace.Name, params.PublicIP.Name)
+	nicResource := secalib.GenerateNicResource(scenarios.params.Tenant, params.Workspace.Name, params.Nic.Name)
+	publicIPResource := secalib.GeneratePublicIPResource(scenarios.params.Tenant, params.Workspace.Name, params.PublicIp.Name)
 	routeTableResource := secalib.GenerateRouteTableResource(scenarios.params.Tenant, params.Workspace.Name, params.RouteTable.Name)
 	subnetResource := secalib.GenerateSubnetResource(scenarios.params.Tenant, params.Workspace.Name, params.Subnet.Name)
 	securityGroupResource := secalib.GenerateSecurityGroupResource(scenarios.params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
@@ -474,7 +474,7 @@ func (scenarios *NetworkV1Scenarios) ConfigureLifecycleScenario(id string, param
 	// Public ip
 	publicIPResponse := &resourceResponse[secalib.PublicIpSpecV1]{
 		Metadata: &secalib.Metadata{
-			Name:       params.PublicIP.Name,
+			Name:       params.PublicIp.Name,
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   publicIPResource,
 			ApiVersion: secalib.ApiVersion1,
@@ -485,8 +485,8 @@ func (scenarios *NetworkV1Scenarios) ConfigureLifecycleScenario(id string, param
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.PublicIpSpecV1{
-			Version: params.PublicIP.InitialSpec.Version,
-			Address: params.PublicIP.InitialSpec.Address,
+			Version: params.PublicIp.InitialSpec.Version,
+			Address: params.PublicIp.InitialSpec.Address,
 		},
 	}
 
@@ -529,7 +529,7 @@ func (scenarios *NetworkV1Scenarios) ConfigureLifecycleScenario(id string, param
 	publicIPResponse.Metadata.Verb = http.MethodPut
 	publicIPResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	publicIPResponse.Metadata.ResourceVersion = publicIPResponse.Metadata.ResourceVersion + 1
-	publicIPResponse.Spec = params.PublicIP.UpdatedSpec
+	publicIPResponse.Spec = params.PublicIp.UpdatedSpec
 	publicIPResponse.Status.State = secalib.UpdatingStatusState
 	if err := configurePutStub(wm, name, stubConfig{
 		url:          publicIPUrl,
@@ -562,7 +562,7 @@ func (scenarios *NetworkV1Scenarios) ConfigureLifecycleScenario(id string, param
 	// NIC
 	nicResponse := &resourceResponse[secalib.NICSpecV1]{
 		Metadata: &secalib.Metadata{
-			Name:       params.NIC.Name,
+			Name:       params.Nic.Name,
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   nicResource,
 			ApiVersion: secalib.ApiVersion1,
@@ -573,8 +573,8 @@ func (scenarios *NetworkV1Scenarios) ConfigureLifecycleScenario(id string, param
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.NICSpecV1{
-			Addresses: params.NIC.InitialSpec.Addresses,
-			SubnetRef: params.NIC.InitialSpec.SubnetRef,
+			Addresses: params.Nic.InitialSpec.Addresses,
+			SubnetRef: params.Nic.InitialSpec.SubnetRef,
 		},
 	}
 
@@ -617,7 +617,7 @@ func (scenarios *NetworkV1Scenarios) ConfigureLifecycleScenario(id string, param
 	nicResponse.Metadata.Verb = http.MethodPut
 	nicResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
 	nicResponse.Metadata.ResourceVersion = nicResponse.Metadata.ResourceVersion + 1
-	nicResponse.Spec = params.NIC.UpdatedSpec
+	nicResponse.Spec = params.Nic.UpdatedSpec
 	nicResponse.Status.State = secalib.UpdatingStatusState
 	nicResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
 	if err := configurePutStub(wm, name, stubConfig{

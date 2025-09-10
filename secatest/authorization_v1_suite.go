@@ -22,92 +22,22 @@ type AuthorizationV1TestSuite struct {
 	users []string
 }
 
-func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
-	slog.Info("Starting Authorization Lifecycle Test")
+func (suite *AuthorizationV1TestSuite) generateLifecycleParams() *secalib.AuthorizationLifeCycleParamsV1 {
+	roleName := secalib.GenerateRoleName()
+	roleAssignmentName := secalib.GenerateRoleAssignmentName()
+	imageName := secalib.GenerateImageName()
 
-	t.Title("Authorization Lifecycle Test")
-	configureTags(t, secalib.AuthorizationProviderV1, secalib.RoleKind, secalib.RoleAssignmentKind)
+	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
 
-	// Select subs
+	// Random data
 	roleAssignmentSub1 := suite.users[rand.Intn(len(suite.users))]
 	roleAssignmentSub2 := suite.users[rand.Intn(len(suite.users))]
 
-	// Generate scenario data
-	roleName := secalib.GenerateRoleName()
-	roleResource := secalib.GenerateRoleResource(suite.tenant, roleName)
-
-	roleAssignmentName := secalib.GenerateRoleAssignmentName()
-	roleAssignmentResource := secalib.GenerateRoleAssignmentResource(suite.tenant, roleAssignmentName)
-
-	imageName := secalib.GenerateImageName()
-	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
-
-	// Setup mock, if configured to use
-	if suite.isMockEnabled() {
-		scenarios := mock.NewAuthorizationV1Scenarios(suite.authToken, suite.tenant, suite.mockServerURL)
-
-		id := uuid.New().String()
-		wm, err := scenarios.ConfigureLifecycleScenario(id, mock.AuthorizationParamsV1{
-			Role: &secalib.ResourceParams[secalib.RoleSpecV1]{
-				Name: roleName,
-				InitialSpec: &secalib.RoleSpecV1{
-					Permissions: []*secalib.RoleSpecPermissionV1{
-						{
-							Provider:  secalib.StorageProviderV1,
-							Resources: []string{imageResource},
-							Verb:      []string{http.MethodGet},
-						},
-					},
-				},
-				UpdatedSpec: &secalib.RoleSpecV1{
-					Permissions: []*secalib.RoleSpecPermissionV1{
-						{
-							Provider:  secalib.StorageProviderV1,
-							Resources: []string{imageResource},
-							Verb:      []string{http.MethodGet, http.MethodPut},
-						},
-					},
-				},
-			},
-			RoleAssignment: &secalib.ResourceParams[secalib.RoleAssignmentSpecV1]{
-				Name: roleAssignmentName,
-				InitialSpec: &secalib.RoleAssignmentSpecV1{
-					Roles:  []string{roleName},
-					Subs:   []string{roleAssignmentSub1},
-					Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
-				},
-				UpdatedSpec: &secalib.RoleAssignmentSpecV1{
-					Roles:  []string{roleName},
-					Subs:   []string{roleAssignmentSub1, roleAssignmentSub2},
-					Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
-				},
-			},
-		})
-		if err != nil {
-			t.Fatalf("Failed to configure mock scenario: %v", err)
-		}
-		suite.mockClient = wm
-	}
-
-	ctx := context.Background()
-	var roleResp *authorization.Role
-	var assignResp *authorization.RoleAssignment
-	var err error
-
-	// Role
-	var expectedRoleMeta *secalib.Metadata
-	var expectedRoleSpec *secalib.RoleSpecV1
-
-	t.WithNewStep("Create role", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleName,
-		}
-		role := &authorization.Role{
-			Spec: authorization.RoleSpec{
-				Permissions: []authorization.Permission{
+	return &secalib.AuthorizationLifeCycleParamsV1{
+		Role: &secalib.ResourceParams[secalib.RoleSpecV1]{
+			Name: roleName,
+			InitialSpec: &secalib.RoleSpecV1{
+				Permissions: []*secalib.RoleSpecPermissionV1{
 					{
 						Provider:  secalib.StorageProviderV1,
 						Resources: []string{imageResource},
@@ -115,13 +45,86 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 					},
 				},
 			},
+			UpdatedSpec: &secalib.RoleSpecV1{
+				Permissions: []*secalib.RoleSpecPermissionV1{
+					{
+						Provider:  secalib.StorageProviderV1,
+						Resources: []string{imageResource},
+						Verb:      []string{http.MethodGet, http.MethodPut},
+					},
+				},
+			},
+		},
+		RoleAssignment: &secalib.ResourceParams[secalib.RoleAssignmentSpecV1]{
+			Name: roleAssignmentName,
+			InitialSpec: &secalib.RoleAssignmentSpecV1{
+				Roles:  []string{roleName},
+				Subs:   []string{roleAssignmentSub1},
+				Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
+			},
+			UpdatedSpec: &secalib.RoleAssignmentSpecV1{
+				Roles:  []string{roleName},
+				Subs:   []string{roleAssignmentSub1, roleAssignmentSub2},
+				Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
+			},
+		},
+	}
+}
+
+func (suite *AuthorizationV1TestSuite) TestAuthorizationLifeCycleV1(t provider.T) {
+	slog.Info("Starting Authorization Lifecycle Test")
+
+	t.Title("Authorization Lifecycle Test")
+	configureTags(t, secalib.AuthorizationProviderV1, secalib.RoleKind, secalib.RoleAssignmentKind)
+
+	params := suite.generateLifecycleParams()
+	roleResource := secalib.GenerateRoleResource(suite.tenant, params.Role.Name)
+	roleAssignmentResource := secalib.GenerateRoleAssignmentResource(suite.tenant, params.RoleAssignment.Name)
+
+	// Setup mock, if configured to use
+	if suite.isMockEnabled() {
+		scenarios := mock.NewAuthorizationScenariosV1(suite.authToken, suite.tenant, suite.mockServerURL)
+
+		id := uuid.New().String()
+		wm, err := scenarios.ConfigureLifecycleScenario(id, params)
+		if err != nil {
+			t.Fatalf("Failed to configure mock scenario: %v", err)
+		}
+		suite.mockClient = wm
+	}
+
+	ctx := context.Background()
+	var err error
+
+	// Role
+	var roleResp *authorization.Role
+	var expectedRoleMeta *secalib.Metadata
+
+	t.WithNewStep("Create role", func(sCtx provider.StepCtx) {
+		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
+
+		tref := secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   params.Role.Name,
+		}
+		role := &authorization.Role{
+			Spec: authorization.RoleSpec{
+				Permissions: []authorization.Permission{},
+			},
+		}
+		for _, perm := range params.Role.InitialSpec.Permissions {
+			role.Spec.Permissions = append(role.Spec.Permissions, authorization.Permission{
+				Provider:  perm.Provider,
+				Resources: perm.Resources,
+				Verb:      perm.Verb,
+			})
 		}
 		roleResp, err = suite.client.AuthorizationV1.CreateOrUpdateRole(ctx, tref, role, nil)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, roleResp)
 
 		expectedRoleMeta = &secalib.Metadata{
-			Name:       roleName,
+			Name:       params.Role.Name,
 			Provider:   secalib.AuthorizationProviderV1,
 			Resource:   roleResource,
 			Verb:       http.MethodPut,
@@ -131,16 +134,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		}
 		verifyAuthorizationMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
 
-		expectedRoleSpec = &secalib.RoleSpecV1{
-			Permissions: []*secalib.RoleSpecPermissionV1{
-				{
-					Provider:  secalib.StorageProviderV1,
-					Resources: []string{imageResource},
-					Verb:      []string{http.MethodGet},
-				},
-			},
-		}
-		verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
+		verifyRoleSpecStep(sCtx, params.Role.InitialSpec, &roleResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.CreatingStatusState},
@@ -153,7 +147,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleName,
+			Name:   params.Role.Name,
 		}
 		roleResp, err = suite.client.AuthorizationV1.GetRole(ctx, tref)
 		requireNoError(sCtx, err)
@@ -162,7 +156,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		expectedRoleMeta.Verb = http.MethodGet
 		verifyAuthorizationMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
 
-		verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
+		verifyRoleSpecStep(sCtx, params.Role.InitialSpec, &roleResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
@@ -175,7 +169,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleName,
+			Name:   params.Role.Name,
 		}
 		roleResp, err = suite.client.AuthorizationV1.CreateOrUpdateRole(ctx, tref, roleResp, nil)
 		requireNoError(sCtx, err)
@@ -184,8 +178,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		expectedRoleMeta.Verb = http.MethodPut
 		verifyAuthorizationMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
 
-		expectedRoleSpec.Permissions[0].Verb = []string{http.MethodGet, http.MethodPut}
-		verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
+		verifyRoleSpecStep(sCtx, params.Role.UpdatedSpec, &roleResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.UpdatingStatusState},
@@ -198,7 +191,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleName,
+			Name:   params.Role.Name,
 		}
 		roleResp, err = suite.client.AuthorizationV1.GetRole(ctx, tref)
 		requireNoError(sCtx, err)
@@ -207,7 +200,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		expectedRoleMeta.Verb = http.MethodGet
 		verifyAuthorizationMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
 
-		verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
+		verifyRoleSpecStep(sCtx, params.Role.UpdatedSpec, &roleResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
@@ -216,29 +209,35 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	})
 
 	// Role assignment
+	var assignResp *authorization.RoleAssignment
 	var expectedAssignMeta *secalib.Metadata
-	var expectedAssignSpec *secalib.RoleAssignmentSpecV1
 
 	t.WithNewStep("Create role assignment", func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
+			Name:   params.RoleAssignment.Name,
 		}
 		assign := &authorization.RoleAssignment{
 			Spec: authorization.RoleAssignmentSpec{
-				Roles:  []string{roleName},
-				Subs:   []string{roleAssignmentSub1},
-				Scopes: []authorization.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
+				Roles:  params.RoleAssignment.InitialSpec.Roles,
+				Subs:   params.RoleAssignment.InitialSpec.Subs,
 			},
+		}
+		for _, scope := range params.RoleAssignment.InitialSpec.Scopes {
+			assign.Spec.Scopes = append(assign.Spec.Scopes, authorization.RoleAssignmentScope{
+				Tenants:    &scope.Tenants,
+				Workspaces: &scope.Workspaces,
+				Regions:    &scope.Regions,
+			})
 		}
 		assignResp, err = suite.client.AuthorizationV1.CreateOrUpdateRoleAssignment(ctx, tref, assign, nil)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, assignResp)
 
 		expectedAssignMeta = &secalib.Metadata{
-			Name:       roleAssignmentName,
+			Name:       params.RoleAssignment.Name,
 			Provider:   secalib.AuthorizationProviderV1,
 			Resource:   roleAssignmentResource,
 			Verb:       http.MethodPut,
@@ -248,12 +247,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		}
 		verifyAuthorizationMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
 
-		expectedAssignSpec = &secalib.RoleAssignmentSpecV1{
-			Roles:  []string{roleName},
-			Subs:   []string{roleAssignmentSub1},
-			Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
-		}
-		verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
+		verifyRoleAssignmentSpecStep(sCtx, params.RoleAssignment.InitialSpec, &assignResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.CreatingStatusState},
@@ -266,7 +260,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
+			Name:   params.RoleAssignment.Name,
 		}
 		assignResp, err = suite.client.AuthorizationV1.GetRoleAssignment(ctx, tref)
 		requireNoError(sCtx, err)
@@ -275,7 +269,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		expectedAssignMeta.Verb = http.MethodGet
 		verifyAuthorizationMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
 
-		verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
+		verifyRoleAssignmentSpecStep(sCtx, params.RoleAssignment.InitialSpec, &assignResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
@@ -288,7 +282,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
+			Name:   params.RoleAssignment.Name,
 		}
 		assignResp, err = suite.client.AuthorizationV1.CreateOrUpdateRoleAssignment(ctx, tref, assignResp, nil)
 		requireNoError(sCtx, err)
@@ -297,8 +291,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		expectedAssignMeta.Verb = http.MethodPut
 		verifyAuthorizationMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
 
-		expectedAssignSpec.Subs = []string{roleAssignmentSub1, roleAssignmentSub2}
-		verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
+		verifyRoleAssignmentSpecStep(sCtx, params.RoleAssignment.UpdatedSpec, &assignResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.UpdatingStatusState},
@@ -311,7 +304,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
+			Name:   params.RoleAssignment.Name,
 		}
 		assignResp, err = suite.client.AuthorizationV1.GetRoleAssignment(ctx, tref)
 		requireNoError(sCtx, err)
@@ -320,7 +313,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		expectedAssignMeta.Verb = http.MethodGet
 		verifyAuthorizationMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
 
-		verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
+		verifyRoleAssignmentSpecStep(sCtx, params.RoleAssignment.UpdatedSpec, &assignResp.Spec)
 
 		verifyStatusStep(sCtx,
 			&secalib.Status{State: secalib.ActiveStatusState},
@@ -340,7 +333,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
+			Name:   params.RoleAssignment.Name,
 		}
 		_, err = suite.client.AuthorizationV1.GetRoleAssignment(ctx, tref)
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
@@ -358,7 +351,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 
 		tref := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
+			Name:   params.RoleAssignment.Name,
 		}
 		_, err = suite.client.AuthorizationV1.GetRole(ctx, tref)
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
@@ -394,10 +387,13 @@ func verifyRoleSpecStep(ctx provider.StepCtx, expected *secalib.RoleSpecV1, actu
 		for i := 0; i < len(expected.Permissions); i++ {
 			expectedPerm := expected.Permissions[i]
 			actualPerm := actual.Permissions[i]
+
 			stepCtx.Require().Equal(expectedPerm.Provider, actualPerm.Provider,
 				fmt.Sprintf("Permission [%d] provider should match expected", i))
+
 			stepCtx.Require().Equal(expectedPerm.Resources, actualPerm.Resources,
 				fmt.Sprintf("Permission [%d] resources should match expected", i))
+
 			stepCtx.Require().Equal(expectedPerm.Verb, actualPerm.Verb,
 				fmt.Sprintf("Permission [%d] verb should match expected", i))
 		}

@@ -10,12 +10,12 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-type ComputeV1Scenarios struct {
+type ComputeScenariosV1 struct {
 	Scenarios
 }
 
-func NewComputeV1Scenarios(authToken string, tenant string, region string, mockURL string) *ComputeV1Scenarios {
-	return &ComputeV1Scenarios{
+func NewComputeScenariosV1(authToken string, tenant string, region string, mockURL string) *ComputeScenariosV1 {
+	return &ComputeScenariosV1{
 		Scenarios: Scenarios{
 			params: secalib.GeneralParams{
 				AuthToken: authToken,
@@ -27,10 +27,10 @@ func NewComputeV1Scenarios(authToken string, tenant string, region string, mockU
 	}
 }
 
-func (scenarios *ComputeV1Scenarios) ConfigureLifecycleScenario(id string, params ComputeParamsV1) (*wiremock.Client, error) {
+func (scenarios *ComputeScenariosV1) ConfigureLifecycleScenario(id string, params *secalib.ComputeLifeCycleParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to Compute Lifecycle Scenario")
 
-	name := "ComputeV1Lifecycle_" + id
+	name := "ComputeLifecycleV1_" + id
 
 	wm, err := scenarios.newClient()
 	if err != nil {

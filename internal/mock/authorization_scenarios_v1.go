@@ -10,12 +10,12 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-type AuthorizationV1Scenarios struct {
+type AuthorizationScenariosV1 struct {
 	Scenarios
 }
 
-func NewAuthorizationV1Scenarios(authToken string, tenant string, mockURL string) *AuthorizationV1Scenarios {
-	return &AuthorizationV1Scenarios{
+func NewAuthorizationScenariosV1(authToken string, tenant string, mockURL string) *AuthorizationScenariosV1 {
+	return &AuthorizationScenariosV1{
 		Scenarios: Scenarios{
 			params: secalib.GeneralParams{
 				AuthToken: authToken,
@@ -26,10 +26,10 @@ func NewAuthorizationV1Scenarios(authToken string, tenant string, mockURL string
 	}
 }
 
-func (scenarios *AuthorizationV1Scenarios) ConfigureLifecycleScenario(id string, params AuthorizationParamsV1) (*wiremock.Client, error) {
+func (scenarios *AuthorizationScenariosV1) ConfigureLifecycleScenario(id string, params *secalib.AuthorizationLifeCycleParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to Authorization Lifecycle Scenario")
 
-	name := "AuthorizationV1Lifecycle_" + id
+	name := "AuthorizationLifecycleV1_" + id
 
 	wm, err := scenarios.newClient()
 	if err != nil {

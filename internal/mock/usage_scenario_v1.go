@@ -8,12 +8,12 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-type UsageV1Scenarios struct {
+type UsageScenariosV1 struct {
 	Scenarios
 }
 
-func NewUsageV1Scenarios(authToken string, tenant string, region string, mockURL string) *UsageV1Scenarios {
-	return &UsageV1Scenarios{
+func NewUsageScenariosV1(authToken string, tenant string, region string, mockURL string) *UsageScenariosV1 {
+	return &UsageScenariosV1{
 		Scenarios: Scenarios{
 			params: secalib.GeneralParams{
 				AuthToken: authToken,
@@ -25,7 +25,7 @@ func NewUsageV1Scenarios(authToken string, tenant string, region string, mockURL
 	}
 }
 
-func (scenarios *UsageV1Scenarios) CreateUsageScenario(id string, params UsageParamsV1) (*wiremock.Client, error) {
+func (scenarios *UsageScenariosV1) ConfigureUsageScenario(id string, params *secalib.UsageParamsV1) (*wiremock.Client, error) {
 	wm, err := scenarios.newClient()
 	if err != nil {
 		return nil, err
@@ -51,8 +51,8 @@ func (scenarios *UsageV1Scenarios) CreateUsageScenario(id string, params UsagePa
 	// Network
 	networkURL := secalib.GenerateNetworkURL(scenarios.params.Tenant, params.Workspace.Name, params.Network.Name)
 	internetGatewayURL := secalib.GenerateInternetGatewayURL(scenarios.params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicURL := secalib.GenerateNicURL(scenarios.params.Tenant, params.Workspace.Name, params.NIC.Name)
-	publicIPURL := secalib.GeneratePublicIPURL(scenarios.params.Tenant, params.Workspace.Name, params.PublicIP.Name)
+	nicURL := secalib.GenerateNicURL(scenarios.params.Tenant, params.Workspace.Name, params.Nic.Name)
+	publicIPURL := secalib.GeneratePublicIPURL(scenarios.params.Tenant, params.Workspace.Name, params.PublicIp.Name)
 	routeTableURL := secalib.GenerateRouteTableURL(scenarios.params.Tenant, params.Workspace.Name, params.RouteTable.Name)
 	subnetURL := secalib.GenerateSubnetURL(scenarios.params.Tenant, params.Workspace.Name, params.Subnet.Name)
 	securityGroupURL := secalib.GenerateSecurityGroupURL(scenarios.params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
@@ -75,8 +75,8 @@ func (scenarios *UsageV1Scenarios) CreateUsageScenario(id string, params UsagePa
 	// Network
 	networkResource := secalib.GenerateNetworkResource(scenarios.params.Tenant, params.Workspace.Name, params.Network.Name)
 	internetGatewayResource := secalib.GenerateInternetGatewayResource(scenarios.params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicResource := secalib.GenerateNicResource(scenarios.params.Tenant, params.Workspace.Name, params.NIC.Name)
-	publicIPResource := secalib.GeneratePublicIPResource(scenarios.params.Tenant, params.Workspace.Name, params.PublicIP.Name)
+	nicResource := secalib.GenerateNicResource(scenarios.params.Tenant, params.Workspace.Name, params.Nic.Name)
+	publicIPResource := secalib.GeneratePublicIPResource(scenarios.params.Tenant, params.Workspace.Name, params.PublicIp.Name)
 	routeTableResource := secalib.GenerateRouteTableResource(scenarios.params.Tenant, params.Workspace.Name, params.RouteTable.Name)
 	subnetResource := secalib.GenerateSubnetResource(scenarios.params.Tenant, params.Workspace.Name, params.Subnet.Name)
 	securityGroupResource := secalib.GenerateSecurityGroupResource(scenarios.params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
@@ -643,7 +643,7 @@ func (scenarios *UsageV1Scenarios) CreateUsageScenario(id string, params UsagePa
 	// Public-IP
 	publicIPResponse := &resourceResponse[secalib.PublicIpSpecV1]{
 		Metadata: &secalib.Metadata{
-			Name:       params.PublicIP.Name,
+			Name:       params.PublicIp.Name,
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   publicIPResource,
 			ApiVersion: secalib.ApiVersion1,
@@ -654,8 +654,8 @@ func (scenarios *UsageV1Scenarios) CreateUsageScenario(id string, params UsagePa
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.PublicIpSpecV1{
-			Version: params.PublicIP.InitialSpec.Version,
-			Address: params.PublicIP.InitialSpec.Address,
+			Version: params.PublicIp.InitialSpec.Version,
+			Address: params.PublicIp.InitialSpec.Address,
 		},
 	}
 
@@ -698,7 +698,7 @@ func (scenarios *UsageV1Scenarios) CreateUsageScenario(id string, params UsagePa
 	// NIC
 	nicResponse := &resourceResponse[secalib.NICSpecV1]{
 		Metadata: &secalib.Metadata{
-			Name:       params.NIC.Name,
+			Name:       params.Nic.Name,
 			Provider:   secalib.NetworkProviderV1,
 			Resource:   nicResource,
 			ApiVersion: secalib.ApiVersion1,
@@ -709,8 +709,8 @@ func (scenarios *UsageV1Scenarios) CreateUsageScenario(id string, params UsagePa
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.NICSpecV1{
-			Addresses: params.NIC.InitialSpec.Addresses,
-			SubnetRef: params.NIC.InitialSpec.SubnetRef,
+			Addresses: params.Nic.InitialSpec.Addresses,
+			SubnetRef: params.Nic.InitialSpec.SubnetRef,
 		},
 	}
 	// Create NIC
