@@ -25,8 +25,8 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	internetGatewayUrl := secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
 	nicUrl := secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, params.NIC.Name)
 	publicIPUrl := secalib.GeneratePublicIPURL(params.Tenant, params.Workspace.Name, params.PublicIP.Name)
-	routeTableUrl := secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, params.RouteTable.Name)
-	subnetUrl := secalib.GenerateSubnetURL(params.Tenant, params.Workspace.Name, params.Subnet.Name)
+	routeTableUrl := secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
+	subnetUrl := secalib.GenerateSubnetURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
 	securityGroupUrl := secalib.GenerateSecurityGroupURL(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
 
 	// Generate resources
@@ -37,8 +37,8 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params NetworkParamsV1) (
 	internetGatewayResource := secalib.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
 	nicResource := secalib.GenerateNicResource(params.Tenant, params.Workspace.Name, params.NIC.Name)
 	publicIPResource := secalib.GeneratePublicIPResource(params.Tenant, params.Workspace.Name, params.PublicIP.Name)
-	routeTableResource := secalib.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, params.RouteTable.Name)
-	subnetResource := secalib.GenerateSubnetResource(params.Tenant, params.Workspace.Name, params.Subnet.Name)
+	routeTableResource := secalib.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
+	subnetResource := secalib.GenerateSubnetResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
 	securityGroupResource := secalib.GenerateSecurityGroupResource(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
 
 	// Workspace

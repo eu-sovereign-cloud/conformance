@@ -101,11 +101,11 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 
 	routeTableName := secalib.GenerateRouteTableName()
 	routeTableRef := secalib.GenerateRouteTableRef(routeTableName)
-	routeTableResource := secalib.GenerateRouteTableResource(suite.tenant, workspaceName, routeTableName)
+	routeTableResource := secalib.GenerateRouteTableResource(suite.tenant, workspaceName, networkName, routeTableName)
 
 	subnetName := secalib.GenerateSubnetName()
 	subnetRef := secalib.GenerateSubnetRef(subnetName)
-	subnetResource := secalib.GenerateSubnetResource(suite.tenant, workspaceName, subnetName)
+	subnetResource := secalib.GenerateSubnetResource(suite.tenant, workspaceName, networkName, subnetName)
 
 	nicName := secalib.GenerateNicName()
 	nicResource := secalib.GenerateNicResource(suite.tenant, workspaceName, nicName)

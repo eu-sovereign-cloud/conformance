@@ -24,8 +24,8 @@ const (
 	InternetGatewayResource = "tenants/%s/workspaces/%s/internet-gateways/%s"
 	NicResource             = "tenants/%s/workspaces/%s/nics/%s"
 	PublicIPResource        = "tenants/%s/workspaces/%s/public-ips/%s"
-	RouteTableResource      = "tenants/%s/workspaces/%s/route-tables/%s"
-	SubnetResource          = "tenants/%s/workspaces/%s/subnets/%s"
+	RouteTableResource      = "tenants/%s/workspaces/%s/networks/%s/route-tables/%s"
+	SubnetResource          = "tenants/%s/workspaces/%s/networks/%s/subnets/%s"
 	SecurityGroupResource   = "tenants/%s/workspaces/%s/security-groups/%s"
 
 	// Resource References

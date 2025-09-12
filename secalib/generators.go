@@ -107,12 +107,12 @@ func GeneratePublicIPResource(tenant string, workspace string, publicIP string) 
 	return fmt.Sprintf(PublicIPResource, tenant, workspace, publicIP)
 }
 
-func GenerateRouteTableResource(tenant string, workspace string, routeTable string) string {
-	return fmt.Sprintf(RouteTableResource, tenant, workspace, routeTable)
+func GenerateRouteTableResource(tenant string, workspace string, network string, routeTable string) string {
+	return fmt.Sprintf(RouteTableResource, tenant, workspace, network, routeTable)
 }
 
-func GenerateSubnetResource(tenant string, workspace string, subnet string) string {
-	return fmt.Sprintf(SubnetResource, tenant, workspace, subnet)
+func GenerateSubnetResource(tenant string, workspace string, network string, subnet string) string {
+	return fmt.Sprintf(SubnetResource, tenant, workspace, network, subnet)
 }
 
 func GenerateSecurityGroupResource(tenant string, workspace string, securityGroup string) string {
@@ -205,12 +205,12 @@ func GeneratePublicIPURL(tenant string, workspace string, publicIP string) strin
 	return fmt.Sprintf(PublicIPURLV1, tenant, workspace, publicIP)
 }
 
-func GenerateRouteTableURL(tenant string, workspace string, routeTable string) string {
-	return fmt.Sprintf(RouteTableURLV1, tenant, workspace, routeTable)
+func GenerateRouteTableURL(tenant string, workspace string, network string, routeTable string) string {
+	return fmt.Sprintf(RouteTableURLV1, tenant, workspace, network, routeTable)
 }
 
-func GenerateSubnetURL(tenant string, workspace string, subnet string) string {
-	return fmt.Sprintf(SubnetURLV1, tenant, workspace, subnet)
+func GenerateSubnetURL(tenant string, workspace string, network string, subnet string) string {
+	return fmt.Sprintf(SubnetURLV1, tenant, workspace, network, subnet)
 }
 
 func GenerateSecurityGroupURL(tenant string, workspace string, securityGroup string) string {
