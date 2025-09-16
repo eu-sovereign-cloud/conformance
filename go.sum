@@ -21,8 +21,8 @@ github.com/oapi-codegen/runtime v1.1.1 h1:EXLHh0DXIJnWhdRPN2w4MXAzFyE4CskzhNLUmt
 github.com/oapi-codegen/runtime v1.1.1/go.mod h1:SK9X900oXmPWilYR5/WKPzt3Kqxn/uS/+lbpREv+eCg=
 github.com/ozontech/allure-go/pkg/allure v0.6.14 h1:lDamtSF+WtHQLg2+qQYijtC4Fk3KLGb6txNxxTZwUGc=
 github.com/ozontech/allure-go/pkg/allure v0.6.14/go.mod h1:4oEG2yq+DGOzJS/ZjPc87C/mx3tAnlYpYonk77Ru/vQ=
-github.com/ozontech/allure-go/pkg/framework v0.7.2 h1:K25krsCZi4qwYVGs97EYHPgfzWyJabMMTDg4w+vbvuI=
-github.com/ozontech/allure-go/pkg/framework v0.7.2/go.mod h1:Xc0Ywvykh+IukU+4+y94qpEsmBtcMF82N48OrLJg88Q=
+github.com/ozontech/allure-go/pkg/framework v0.7.3 h1:nT5BwyX20196IkLLE4Vxvq+Jrle70Ie1s9pZMYAFizs=
+github.com/ozontech/allure-go/pkg/framework v0.7.3/go.mod h1:Xc0Ywvykh+IukU+4+y94qpEsmBtcMF82N48OrLJg88Q=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
