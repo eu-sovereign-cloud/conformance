@@ -442,7 +442,6 @@ func verifyInstanceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata
 
 func verifyInstanceSpecStep(ctx provider.StepCtx, expected *secalib.InstanceSpecV1, actual *compute.InstanceSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-
 		skuRef, err := asComputeReferenceURN(actual.SkuRef)
 		if err != nil {
 			ctx.Error(err)

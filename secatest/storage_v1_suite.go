@@ -455,7 +455,6 @@ func verifyBlockStorageSpecStep(ctx provider.StepCtx, expected *secalib.BlockSto
 
 func verifyImageSpecStep(ctx provider.StepCtx, expected *secalib.ImageSpecV1, actual storage.ImageSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-
 		blockStorageRef, err := asStorageReferenceURN(actual.BlockStorageRef)
 		if err != nil {
 			ctx.Error(err)
