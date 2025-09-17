@@ -36,7 +36,7 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.WorkspaceKind,
 			Tenant:     params.Tenant,
-			Region:     params.Region,
+			Region:     &params.Region,
 		},
 		Status: &secalib.Status{},
 		Labels: &[]secalib.Label{},
@@ -86,8 +86,8 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.BlockStorageKind,
 			Tenant:     params.Tenant,
-			Workspace:  params.Workspace.Name,
-			Region:     params.Region,
+			Workspace:  &params.Workspace.Name,
+			Region:     &params.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.BlockStorageSpecV1{
@@ -175,7 +175,7 @@ func CreateStorageLifecycleScenarioV1(scenario string, params StorageParamsV1) (
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.ImageKind,
 			Tenant:     params.Tenant,
-			Region:     params.Region,
+			Region:     &params.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.ImageSpecV1{

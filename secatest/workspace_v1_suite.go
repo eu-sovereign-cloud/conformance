@@ -58,8 +58,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 				},
 			})
 		if err != nil {
-			slog.Error("Failed to create workspace scenario", "error", err)
-			return
+			t.Fatalf("Failed to create workspace scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
@@ -73,12 +72,13 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   workspaceName,
+		ws := &workspace.Workspace{
+			Metadata: &workspace.RegionalResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   workspaceName,
+			},
 		}
-		ws := &workspace.Workspace{}
-		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, tref, ws, nil)
+		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
@@ -90,7 +90,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.WorkspaceKind,
 			Tenant:     suite.tenant,
-			Region:     suite.region,
+			Region:     &suite.region,
 		}
 		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 		verifyStatusStep(sCtx,
@@ -137,11 +137,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.WithNewStep("Update workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   workspaceName,
-		}
-		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, tref, resp, nil)
+		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, resp)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
@@ -193,7 +189,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.WithNewStep("Delete workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "DeleteWorkspace")
 
-		err = suite.client.WorkspaceV1.DeleteWorkspace(ctx, resp, nil)
+		err = suite.client.WorkspaceV1.DeleteWorkspace(ctx, resp)
 		requireNoError(sCtx, err)
 	})
 
@@ -224,7 +220,7 @@ func verifyWorkspaceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadat
 		ApiVersion: metadata.ApiVersion,
 		Kind:       string(metadata.Kind),
 		Tenant:     metadata.Tenant,
-		Region:     metadata.Region,
+		Region:     &metadata.Region,
 	}
 	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }

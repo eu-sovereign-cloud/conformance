@@ -9,7 +9,7 @@
         "equalTo": "application/json"
       },
       "Authorization": {
-        "matches": "Bearer .+"
+        "matches": "Bearer test-token"
       }
     }
   },

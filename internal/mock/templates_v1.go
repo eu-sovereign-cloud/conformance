@@ -394,17 +394,18 @@ const (
         "kind": "[[.Metadata.Kind]]",
         "tenant": "[[.Metadata.Tenant]]",
         "workspace": "[[.Metadata.Workspace]]",
+        "network": "[[.Metadata.Network]]",
         "region": "[[.Metadata.Region]]"
       },
       "spec": {
-	  	"localRef": "[[.Spec.LocalRef]]",
-      "routes": [
-		  [[- range $i, $r := .Spec.Routes]]
-		  [[if $i]],[[end]]
-			{
-			  "destinationCidrBlock": "[[$r.DestinationCidrBlock]]",
-			  "targetRef": "[[$r.TargetRef]]"
-		  }[[- end]]
+	  	  "localRef": "[[.Spec.LocalRef]]",
+        "routes": [
+		    [[- range $i, $r := .Spec.Routes]]
+		    [[if $i]],[[end]]
+			  {
+			    "destinationCidrBlock": "[[$r.DestinationCidrBlock]]",
+			    "targetRef": "[[$r.TargetRef]]"
+		    }[[- end]]
 		]
       },
       "status": {
@@ -432,6 +433,7 @@ const (
         "kind": "[[.Metadata.Kind]]",
         "tenant": "[[.Metadata.Tenant]]",
         "workspace": "[[.Metadata.Workspace]]",
+        "network": "[[.Metadata.Network]]",
         "region": "[[.Metadata.Region]]"
       },
       "spec": {

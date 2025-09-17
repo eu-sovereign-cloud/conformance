@@ -2,6 +2,7 @@ package secatest
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"math/rand"
 	"net/http"
@@ -104,12 +105,13 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   workspaceName,
+		ws := &workspace.Workspace{
+			Metadata: &workspace.RegionalResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   workspaceName,
+			},
 		}
-		ws := &workspace.Workspace{}
-		workResp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, tref, ws, nil)
+		workResp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workResp)
 
@@ -143,18 +145,23 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateBlockStorage", workspaceName)
 
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      blockStorageName,
+		storageSkuURN, err := suite.client.StorageV1.BuildReferenceURN(storageSkuRef)
+		if err != nil {
+			t.Fatal(err)
 		}
+
 		bo := &storage.BlockStorage{
+			Metadata: &storage.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      blockStorageName,
+			},
 			Spec: storage.BlockStorageSpec{
 				SizeGB: initialStorageSize,
-				SkuRef: storageSkuRef,
+				SkuRef: *storageSkuURN,
 			},
 		}
-		blockResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, wref, bo, nil)
+		blockResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, bo)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
@@ -166,10 +173,10 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.BlockStorageKind,
 			Tenant:     suite.tenant,
-			Region:     suite.region,
+			Region:     &suite.region,
 		}
 
-		verifyStorageZonalMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
+		verifyStorageWorkspaceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
 		expectedBlockSpec = &secalib.BlockStorageSpecV1{
 			SizeGB: initialStorageSize,
@@ -196,7 +203,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNotNilResponse(sCtx, blockResp)
 
 		expectedBlockMeta.Verb = http.MethodGet
-		verifyStorageZonalMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
+		verifyStorageWorkspaceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
 		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, blockResp.Spec)
 
@@ -209,17 +216,12 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.WithNewStep("Update block storage", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateBlockStorage", workspaceName)
 
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      blockStorageName,
-		}
-		blockResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, wref, blockResp, nil)
+		blockResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, blockResp)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
 		expectedBlockMeta.Verb = http.MethodPut
-		verifyStorageZonalMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
+		verifyStorageWorkspaceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
 		expectedBlockSpec.SizeGB = updatedStorageSize
 		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, blockResp.Spec)
@@ -243,7 +245,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireNotNilResponse(sCtx, blockResp)
 
 		expectedBlockMeta.Verb = http.MethodGet
-		verifyStorageZonalMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
+		verifyStorageWorkspaceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
 		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, blockResp.Spec)
 
@@ -260,17 +262,22 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.WithNewStep("Create image", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateImage", "")
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   imageName,
+		blockStorageURN, err := suite.client.StorageV1.BuildReferenceURN(blockStorageRef)
+		if err != nil {
+			t.Fatal(err)
 		}
+
 		img := &storage.Image{
+			Metadata: &storage.RegionalResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   imageName,
+			},
 			Spec: storage.ImageSpec{
-				BlockStorageRef: blockStorageRef,
+				BlockStorageRef: *blockStorageURN,
 				CpuArchitecture: secalib.CpuArchitectureAmd64,
 			},
 		}
-		imageResp, err = suite.client.StorageV1.CreateOrUpdateImage(ctx, tref, img, nil)
+		imageResp, err = suite.client.StorageV1.CreateOrUpdateImage(ctx, img)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, imageResp)
 
@@ -282,7 +289,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.ImageKind,
 			Tenant:     suite.tenant,
-			Region:     suite.region,
+			Region:     &suite.region,
 		}
 		verifyStorageRegionalMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
 
@@ -323,11 +330,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.WithNewStep("Update image", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateImage", "")
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   imageName,
-		}
-		imageResp, err = suite.client.StorageV1.CreateOrUpdateImage(ctx, tref, imageResp, nil)
+		imageResp, err = suite.client.StorageV1.CreateOrUpdateImage(ctx, imageResp)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, imageResp)
 
@@ -368,7 +371,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.WithNewStep("Delete image", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "DeleteImage", "")
 
-		err = suite.client.StorageV1.DeleteImage(ctx, imageResp, nil)
+		err = suite.client.StorageV1.DeleteImage(ctx, imageResp)
 		requireNoError(sCtx, err)
 	})
 
@@ -386,7 +389,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.WithNewStep("Delete block storage", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "DeleteBlockStorage", workspaceName)
 
-		err = suite.client.StorageV1.DeleteBlockStorage(ctx, blockResp, nil)
+		err = suite.client.StorageV1.DeleteBlockStorage(ctx, blockResp)
 		requireNoError(sCtx, err)
 	})
 
@@ -409,21 +412,6 @@ func (suite *StorageV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }
 
-func verifyStorageZonalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *storage.ZonalResourceMetadata) {
-	actualMetadata := &secalib.Metadata{
-		Name:       metadata.Name,
-		Provider:   metadata.Provider,
-		Verb:       metadata.Verb,
-		Resource:   metadata.Resource,
-		ApiVersion: metadata.ApiVersion,
-		Kind:       string(metadata.Kind),
-		Tenant:     metadata.Tenant,
-		Workspace:  *metadata.Workspace,
-		Region:     metadata.Region,
-	}
-	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
-}
-
 func verifyStorageRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *storage.RegionalResourceMetadata) {
 	actualMetadata := &secalib.Metadata{
 		Name:       metadata.Name,
@@ -433,8 +421,22 @@ func verifyStorageRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.M
 		ApiVersion: metadata.ApiVersion,
 		Kind:       string(metadata.Kind),
 		Tenant:     metadata.Tenant,
-		Workspace:  *metadata.Workspace,
-		Region:     metadata.Region,
+		Region:     &metadata.Region,
+	}
+	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
+}
+
+func verifyStorageWorkspaceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *storage.RegionalWorkspaceResourceMetadata) {
+	actualMetadata := &secalib.Metadata{
+		Name:       metadata.Name,
+		Provider:   metadata.Provider,
+		Verb:       metadata.Verb,
+		Resource:   metadata.Resource,
+		ApiVersion: metadata.ApiVersion,
+		Kind:       string(metadata.Kind),
+		Tenant:     metadata.Tenant,
+		Workspace:  &metadata.Workspace,
+		Region:     &metadata.Region,
 	}
 	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }
@@ -442,13 +444,32 @@ func verifyStorageRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.M
 func verifyBlockStorageSpecStep(ctx provider.StepCtx, expected *secalib.BlockStorageSpecV1, actual storage.BlockStorageSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(expected.SizeGB, actual.SizeGB, "SizeGB should match expected")
-		stepCtx.Require().Equal(expected.SkuRef, actual.SkuRef, "SkuRef should match expected")
+
+		skuRef, err := asStorageReferenceURN(actual.SkuRef)
+		if err != nil {
+			ctx.Error(err)
+		}
+		stepCtx.Require().Equal(expected.SkuRef, skuRef, "SkuRef should match expected")
 	})
 }
 
 func verifyImageSpecStep(ctx provider.StepCtx, expected *secalib.ImageSpecV1, actual storage.ImageSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.Require().Equal(expected.BlockStorageRef, actual.BlockStorageRef, "BlockStorageRef should match expected")
+
+		blockStorageRef, err := asStorageReferenceURN(actual.BlockStorageRef)
+		if err != nil {
+			ctx.Error(err)
+		}
+		stepCtx.Require().Equal(expected.BlockStorageRef, blockStorageRef, "BlockStorageRef should match expected")
+
 		stepCtx.Require().Equal(expected.CpuArchitecture, string(actual.CpuArchitecture), "CpuArchitecture should match expected")
 	})
+}
+
+func asStorageReferenceURN(ref storage.Reference) (string, error) {
+	urn, err := ref.AsReferenceURN()
+	if err != nil {
+		return "", fmt.Errorf("error extracting URN from reference: %w", err)
+	}
+	return string(urn), nil
 }

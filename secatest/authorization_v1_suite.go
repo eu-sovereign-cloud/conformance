@@ -103,11 +103,11 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	t.WithNewStep("Create role", func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleName,
-		}
 		role := &authorization.Role{
+			Metadata: &authorization.GlobalResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   roleName,
+			},
 			Spec: authorization.RoleSpec{
 				Permissions: []authorization.Permission{
 					{
@@ -118,7 +118,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 				},
 			},
 		}
-		roleResp, err = suite.client.AuthorizationV1.CreateOrUpdateRole(ctx, tref, role, nil)
+		roleResp, err = suite.client.AuthorizationV1.CreateOrUpdateRole(ctx, role)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, roleResp)
 
@@ -175,11 +175,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	t.WithNewStep("Update role", func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleName,
-		}
-		roleResp, err = suite.client.AuthorizationV1.CreateOrUpdateRole(ctx, tref, roleResp, nil)
+		roleResp, err = suite.client.AuthorizationV1.CreateOrUpdateRole(ctx, roleResp)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, roleResp)
 
@@ -224,18 +220,18 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	t.WithNewStep("Create role assignment", func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
-		}
 		assign := &authorization.RoleAssignment{
+			Metadata: &authorization.GlobalResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   roleAssignmentName,
+			},
 			Spec: authorization.RoleAssignmentSpec{
 				Roles:  []string{roleName},
 				Subs:   []string{roleAssignmentSub1},
 				Scopes: []authorization.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
 			},
 		}
-		assignResp, err = suite.client.AuthorizationV1.CreateOrUpdateRoleAssignment(ctx, tref, assign, nil)
+		assignResp, err = suite.client.AuthorizationV1.CreateOrUpdateRoleAssignment(ctx, assign)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, assignResp)
 
@@ -288,11 +284,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	t.WithNewStep("Update role assignment", func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
-		}
-		assignResp, err = suite.client.AuthorizationV1.CreateOrUpdateRoleAssignment(ctx, tref, assignResp, nil)
+		assignResp, err = suite.client.AuthorizationV1.CreateOrUpdateRoleAssignment(ctx, assignResp)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, assignResp)
 
@@ -333,7 +325,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	t.WithNewStep("Delete role assignment", func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "DeleteRoleAssignment")
 
-		err = suite.client.AuthorizationV1.DeleteRoleAssignment(ctx, assignResp, nil)
+		err = suite.client.AuthorizationV1.DeleteRoleAssignment(ctx, assignResp)
 		requireNoError(sCtx, err)
 	})
 
@@ -351,7 +343,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	t.WithNewStep("Delete role", func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "DeleteRole")
 
-		err = suite.client.AuthorizationV1.DeleteRole(ctx, roleResp, nil)
+		err = suite.client.AuthorizationV1.DeleteRole(ctx, roleResp)
 		requireNoError(sCtx, err)
 	})
 

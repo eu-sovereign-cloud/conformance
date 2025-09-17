@@ -29,7 +29,7 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params WorkspaceParamsV
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.WorkspaceKind,
 			Tenant:     params.Tenant,
-			Region:     params.Region,
+			Region:     &params.Region,
 		},
 		Status: &secalib.Status{},
 		Labels: &[]secalib.Label{},

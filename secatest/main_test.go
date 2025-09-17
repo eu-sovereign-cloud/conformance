@@ -167,7 +167,7 @@ func TestSuites(t *testing.T) {
 	})
 
 	suite.RunNamedSuite(t, "Usages V1", &UsagesV1TestSuite{
-		complexTestSuite: complexTestSuite{
+		mixedTestSuite: mixedTestSuite{
 			testSuite: testSuite{
 				tenant:        config.clientTenant,
 				authToken:     config.clientAuthToken,

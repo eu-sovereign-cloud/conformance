@@ -26,7 +26,7 @@ func (suite *testSuite) isMockEnabled() bool {
 	return suite.mockEnabled == "true"
 }
 
-type complexTestSuite struct {
+type mixedTestSuite struct {
 	testSuite
 
 	globalClient *secapi.GlobalClient

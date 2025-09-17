@@ -18,6 +18,7 @@ func verifyGlobalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, 
 	})
 }
 
+// TODO Create verify Zonal Metadata step
 func verifyRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, actual *secalib.Metadata) {
 	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(expected.Name, actual.Name, "Name should match expected")

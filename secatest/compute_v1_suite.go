@@ -2,6 +2,7 @@ package secatest
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"math/rand"
 	"net/http"
@@ -110,12 +111,13 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   workspaceName,
+		ws := &workspace.Workspace{
+			Metadata: &workspace.RegionalResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   workspaceName,
+			},
 		}
-		ws := &workspace.Workspace{}
-		workResp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, tref, ws, nil)
+		workResp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workResp)
 
@@ -145,18 +147,23 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateBlockStorage", workspaceName)
 
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      blockStorageName,
+		storageSkuURN, err := suite.client.StorageV1.BuildReferenceURN(storageSkuRef)
+		if err != nil {
+			t.Fatal(err)
 		}
+
 		bo := &storage.BlockStorage{
+			Metadata: &storage.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      blockStorageName,
+			},
 			Spec: storage.BlockStorageSpec{
 				SizeGB: blockStorageSize,
-				SkuRef: storageSkuRef,
+				SkuRef: *storageSkuURN,
 			},
 		}
-		blockStorageResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, wref, bo, nil)
+		blockStorageResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, bo)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockStorageResp)
 	})
@@ -185,20 +192,30 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
 
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
+		instanceSkuURN, err := suite.client.ComputeV1.BuildReferenceURN(instanceSkuRef)
+		if err != nil {
+			t.Fatal(err)
 		}
+
+		deviceRef, err := suite.client.ComputeV1.BuildReferenceURN(blockStorageRef)
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		inst := &compute.Instance{
+			Metadata: &compute.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      instanceName,
+			},
 			Spec: compute.InstanceSpec{
-				SkuRef: instanceSkuRef,
+				SkuRef: *instanceSkuURN,
 				Zone:   initialInstanceZone,
 			},
 		}
-		inst.Spec.BootVolume.DeviceRef = blockStorageRef
+		inst.Spec.BootVolume.DeviceRef = *deviceRef
 
-		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, wref, inst, nil)
+		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, inst)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
@@ -210,9 +227,9 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
 			Tenant:     suite.tenant,
-			Region:     suite.region,
+			Region:     &suite.region,
 		}
-		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		expectedSpec = &secalib.InstanceSpecV1{
 			SkuRef:        instanceSkuRef,
@@ -240,7 +257,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNotNilResponse(sCtx, instanceResp)
 
 		expectedMeta.Verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
@@ -253,17 +270,12 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.WithNewStep("Update instance", func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
 
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, wref, instanceResp, nil)
+		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, instanceResp)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
 		expectedMeta.Verb = http.MethodPut
-		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		expectedSpec.Zone = updatedInstanceZone
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
@@ -287,7 +299,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNotNilResponse(sCtx, instanceResp)
 
 		expectedMeta.Verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
@@ -300,7 +312,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.WithNewStep("Stop instance", func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "StopInstance", workspaceName)
 
-		err = suite.client.ComputeV1.StopInstance(ctx, instanceResp, nil)
+		err = suite.client.ComputeV1.StopInstance(ctx, instanceResp)
 		requireNoError(sCtx, err)
 	})
 
@@ -317,7 +329,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNotNilResponse(sCtx, instanceResp)
 
 		expectedMeta.Verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
@@ -330,7 +342,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.WithNewStep("Start instance", func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "StartInstance", workspaceName)
 
-		err = suite.client.ComputeV1.StartInstance(ctx, instanceResp, nil)
+		err = suite.client.ComputeV1.StartInstance(ctx, instanceResp)
 		requireNoError(sCtx, err)
 	})
 
@@ -347,7 +359,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNotNilResponse(sCtx, instanceResp)
 
 		expectedMeta.Verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
@@ -360,7 +372,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.WithNewStep("Restart instance", func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "RestartInstance", workspaceName)
 
-		err = suite.client.ComputeV1.RestartInstance(ctx, instanceResp, nil)
+		err = suite.client.ComputeV1.RestartInstance(ctx, instanceResp)
 		requireNoError(sCtx, err)
 	})
 
@@ -377,7 +389,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		requireNotNilResponse(sCtx, instanceResp)
 
 		expectedMeta.Verb = http.MethodGet
-		verifyInstanceZonalMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
 
 		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
@@ -390,7 +402,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "DeleteInstance", workspaceName)
 
-		err = suite.client.ComputeV1.DeleteInstance(ctx, instanceResp, nil)
+		err = suite.client.ComputeV1.DeleteInstance(ctx, instanceResp)
 		requireNoError(sCtx, err)
 	})
 
@@ -413,7 +425,7 @@ func (suite *ComputeV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }
 
-func verifyInstanceZonalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *compute.ZonalResourceMetadata) {
+func verifyInstanceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *compute.RegionalWorkspaceResourceMetadata) {
 	actualMetadata := &secalib.Metadata{
 		Name:       metadata.Name,
 		Provider:   metadata.Provider,
@@ -422,16 +434,36 @@ func verifyInstanceZonalMetadataStep(ctx provider.StepCtx, expected *secalib.Met
 		ApiVersion: metadata.ApiVersion,
 		Kind:       string(metadata.Kind),
 		Tenant:     metadata.Tenant,
-		Workspace:  *metadata.Workspace,
-		Region:     metadata.Region,
+		Workspace:  &metadata.Workspace,
+		Region:     &metadata.Region,
 	}
 	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }
 
 func verifyInstanceSpecStep(ctx provider.StepCtx, expected *secalib.InstanceSpecV1, actual *compute.InstanceSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		stepCtx.Require().Equal(expected.SkuRef, actual.SkuRef, "SkuRef should match expected")
+
+		skuRef, err := asComputeReferenceURN(actual.SkuRef)
+		if err != nil {
+			ctx.Error(err)
+		}
+		stepCtx.Require().Equal(expected.SkuRef, skuRef, "SkuRef should match expected")
+
 		stepCtx.Require().Equal(expected.Zone, actual.Zone, "Zone should match expected")
-		stepCtx.Require().Equal(expected.BootDeviceRef, actual.BootVolume.DeviceRef, "BootVolume.DeviceRef should match expected")
+
+		bootDeviceRef, err := asComputeReferenceURN(actual.BootVolume.DeviceRef)
+		if err != nil {
+			ctx.Error(err)
+		}
+		stepCtx.Require().Equal(expected.BootDeviceRef, bootDeviceRef, "BootVolume.DeviceRef should match expected")
 	})
+}
+
+// TODO Convert this to a generic method
+func asComputeReferenceURN(ref compute.Reference) (string, error) {
+	urn, err := ref.AsReferenceURN()
+	if err != nil {
+		return "", fmt.Errorf("error extracting URN from reference: %w", err)
+	}
+	return string(urn), nil
 }

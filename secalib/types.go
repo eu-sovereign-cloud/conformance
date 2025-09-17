@@ -11,8 +11,9 @@ type Metadata struct {
 	ApiVersion      string
 	Kind            string
 	Tenant          string
-	Workspace       string
-	Region          string
+	Workspace       *string
+	Network         *string
+	Region          *string
 }
 
 type Status struct {

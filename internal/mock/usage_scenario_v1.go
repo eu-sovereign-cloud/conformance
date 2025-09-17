@@ -34,8 +34,8 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 	internetGatewayURL := secalib.GenerateInternetGatewayURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.InternetGateway.Name)
 	nicURL := secalib.GenerateNicURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.NIC.Name)
 	publicIPURL := secalib.GeneratePublicIPURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.PublicIP.Name)
-	routeTableURL := secalib.GenerateRouteTableURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.RouteTable.Name)
-	subnetURL := secalib.GenerateSubnetURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Subnet.Name)
+	routeTableURL := secalib.GenerateRouteTableURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Network.Name, paramsUsage.Network.RouteTable.Name)
+	subnetURL := secalib.GenerateSubnetURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Network.Name, paramsUsage.Network.Subnet.Name)
 	securityGroupURL := secalib.GenerateSecurityGroupURL(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.SecurityGroup.Name)
 
 	// GenerateResources
@@ -58,8 +58,8 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 	internetGatewayResource := secalib.GenerateInternetGatewayResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.InternetGateway.Name)
 	nicResource := secalib.GenerateNicResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.NIC.Name)
 	publicIPResource := secalib.GeneratePublicIPResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.PublicIP.Name)
-	routeTableResource := secalib.GenerateRouteTableResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.RouteTable.Name)
-	subnetResource := secalib.GenerateSubnetResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Subnet.Name)
+	routeTableResource := secalib.GenerateRouteTableResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Network.Name, paramsUsage.Network.RouteTable.Name)
+	subnetResource := secalib.GenerateSubnetResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.Network.Name, paramsUsage.Network.Subnet.Name)
 	securityGroupResource := secalib.GenerateSecurityGroupResource(paramsUsage.Tenant, paramsUsage.Workspace.Workspace.Name, paramsUsage.Network.SecurityGroup.Name)
 
 	// Authorization
@@ -186,8 +186,9 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.WorkspaceKind,
 			Tenant:     paramsUsage.Tenant,
-			Region:     paramsUsage.Region,
+			Region:     &paramsUsage.Region,
 		},
+		Labels: &[]secalib.Label{},
 		Status: &secalib.Status{},
 	}
 
@@ -239,7 +240,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.ImageKind,
 			Tenant:     paramsUsage.Tenant,
-			Region:     paramsUsage.Region,
+			Region:     &paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.ImageSpecV1{
@@ -291,8 +292,8 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.BlockStorageKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Workspace.Workspace.Name,
-			Region:     paramsUsage.Region,
+			Workspace:  &paramsUsage.Workspace.Workspace.Name,
+			Region:     &paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.BlockStorageSpecV1{
@@ -349,7 +350,7 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			ApiVersion:      secalib.ApiVersion1,
 			Kind:            secalib.NetworkKind,
 			Tenant:          paramsUsage.Tenant,
-			Region:          paramsUsage.Region,
+			Region:          &paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.NetworkSpecV1{
@@ -405,8 +406,8 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InternetGatewayKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Workspace.Workspace.Name,
-			Region:     paramsUsage.Region,
+			Workspace:  &paramsUsage.Workspace.Workspace.Name,
+			Region:     &paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.InternetGatewaySpecV1{
@@ -458,8 +459,8 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.RouteTableKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Workspace.Workspace.Name,
-			Region:     paramsUsage.Region,
+			Workspace:  &paramsUsage.Workspace.Workspace.Name,
+			Region:     &paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.RouteTableSpecV1{
@@ -518,8 +519,8 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.SubnetKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Workspace.Workspace.Name,
-			Region:     paramsUsage.Region,
+			Workspace:  &paramsUsage.Workspace.Workspace.Name,
+			Region:     &paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.SubnetSpecV1{
@@ -572,8 +573,8 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.SecurityGroupKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Workspace.Workspace.Name,
-			Region:     paramsUsage.Region,
+			Workspace:  &paramsUsage.Workspace.Workspace.Name,
+			Region:     &paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec:   &secalib.SecurityGroupSpecV1{},
@@ -629,8 +630,8 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.PublicIPKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Workspace.Workspace.Name,
-			Region:     paramsUsage.Region,
+			Workspace:  &paramsUsage.Workspace.Workspace.Name,
+			Region:     &paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.PublicIpSpecV1{
@@ -684,8 +685,8 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.NicKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Workspace.Workspace.Name,
-			Region:     paramsUsage.Region,
+			Workspace:  &paramsUsage.Workspace.Workspace.Name,
+			Region:     &paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.NICSpecV1{
@@ -737,8 +738,8 @@ func CreateUsageScenario(scenario string, paramsUsage UsageParamsV1) (*wiremock.
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
 			Tenant:     paramsUsage.Tenant,
-			Workspace:  paramsUsage.Workspace.Workspace.Name,
-			Region:     paramsUsage.Region,
+			Workspace:  &paramsUsage.Workspace.Workspace.Name,
+			Region:     &paramsUsage.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.InstanceSpecV1{

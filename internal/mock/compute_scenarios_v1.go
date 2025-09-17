@@ -36,7 +36,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.WorkspaceKind,
 			Tenant:     params.Tenant,
-			Region:     params.Region,
+			Region:     &params.Region,
 		},
 		Status: &secalib.Status{},
 		Labels: &[]secalib.Label{},
@@ -86,7 +86,7 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.BlockStorageKind,
 			Tenant:     params.Tenant,
-			Region:     params.Region,
+			Region:     &params.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.BlockStorageSpecV1{
@@ -139,8 +139,8 @@ func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.InstanceKind,
 			Tenant:     params.Tenant,
-			Workspace:  params.Workspace.Name,
-			Region:     params.Region,
+			Workspace:  &params.Workspace.Name,
+			Region:     &params.Region,
 		},
 		Status: &secalib.Status{},
 		Spec: &secalib.InstanceSpecV1{
