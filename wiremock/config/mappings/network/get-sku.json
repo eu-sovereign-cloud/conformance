@@ -1,0 +1,42 @@
+{
+  "name": "get-skus",
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/providers/seca.network/v1/tenants/([^/]+)/skus/([^/]+)",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer test-token"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "labels": {
+        "provider": "seca",
+        "tier": "N1K"
+      },
+      "metadata": {
+        "name": "seca.n1k",
+        "provider": "seca.network/v1",
+        "resource": "seca.network/v1/skus/seca.n1k",
+        "verb": "get",
+        "createdAt": "2025-01-01T09:00:00Z",
+        "lastModifiedAt": "2025-01-02T10:00:00Z",
+        "resourceVersion": 1,
+        "apiVersion": "v1",
+        "kind": "network-sku",
+        "tenant": "{{request.pathSegments.[4]}}",
+        "region": "region-1"
+      },
+      "spec": {
+        "bandwidth": 1000,
+        "packets": 10000
+      }
+    }
+  }
+}

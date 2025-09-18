@@ -1,0 +1,35 @@
+{
+  "name": "get-skus",
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/providers/seca.compute/v1/tenants/([^/]+)/skus/([^/]+)",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "matches": "Bearer test-token"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "spec": {
+        "benchmarkPoints": 3000,
+        "cpuType": "amd64",
+        "provider": "SECA",
+        "ramGB": 4,
+        "tier": "{{request.pathSegments.[6]}}",
+        "vCPU": 2
+      },
+      "metadata": {
+        "name": "{{request.pathSegments.[6]}}"
+      }
+    }
+  }
+}

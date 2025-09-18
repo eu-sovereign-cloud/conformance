@@ -3,11 +3,8 @@
     "method": "GET",
     "urlPathPattern": "/providers/seca.region/v1/regions/([^/]+)",
     "headers": {
-      "Accept": {
-        "equalTo": "application/json"
-      },
       "Authorization": {
-        "matches": "Bearer .+"
+        "matches": "Bearer test-token"
       }
     }
   },
@@ -19,20 +16,20 @@
     "jsonBody": {
       "metadata": {
         "name": "{{request.pathSegments.[4]}}",
-        "createdAt": "2025-07-23T08:10:00Z",
-        "lastModifiedAt": "2025-07-23T08:10:00Z",
-        "resourceVersion": 1,
-        "resource": "seca.region/regions/{{request.pathSegments.[4]}}",
         "provider": "seca.region/v1",
+        "resource": "seca.region/v1/regions/{{request.pathSegments.[4]}}",
         "verb": "get",
+        "createdAt": "2025-01-01T09:00:00Z",
+        "lastModifiedAt": "2025-01-02T10:00:00Z",
+        "resourceVersion": 1,
         "apiVersion": "v1",
-        "kind": "region",
-        "tenant": "global"
+        "kind": "region"
       },
       "spec": {
         "availableZones": [
           "a",
-          "b"
+          "b",
+          "c"
         ],
         "providers": [
           {

@@ -1,0 +1,73 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/providers/seca.region/v1/regions",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer test-token"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "metadata": {
+            "name": "region-1",
+            "provider": "seca.region/v1",
+            "resource": "seca.region/v1/regions/region-1",
+            "verb": "get",
+            "createdAt": "2025-01-01T09:00:00Z",
+            "lastModifiedAt": "2025-01-02T10:00:00Z",
+            "resourceVersion": 1,
+            "apiVersion": "v1",
+            "kind": "region"
+          },
+          "spec": {
+            "availableZones": [
+              "a",
+              "b",
+              "c"
+            ],
+            "providers": [
+              {
+                "name": "seca.autorization",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.authorization"
+              },
+              {
+                "name": "seca.compute",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.compute"
+              },
+              {
+                "name": "seca.network",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.network"
+              },
+              {
+                "name": "seca.storage",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.storage"
+              },
+              {
+                "name": "seca.workspace",
+                "version": "v1",
+                "url": "{{request.scheme}}://{{request.host}}:{{request.port}}/providers/seca.workspace"
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "provider": "seca.region/v1",
+        "resource": "regions",
+        "verb": "list"
+      }
+    }
+  }
+}
