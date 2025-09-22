@@ -23,7 +23,7 @@ type Config struct {
 	reportResultsPath string
 
 	mockEnabled   string
-	mockServerURL string
+	mockServerURL *string
 }
 
 const (
@@ -63,38 +63,38 @@ func loadConfig() (*Config, error) {
 
 	flag.Parse()
 
-	providerRegionV1, err := readFlagOrEnv(providerRegionV1Flag, providerRegionV1Config)
+	providerRegionV1, err := readRequiredFlagOrEnv(providerRegionV1Flag, providerRegionV1Config)
 	if err != nil {
 		return nil, err
 	}
 
-	providerAuthorizationV1, err := readFlagOrEnv(providerAuthorizationV1Flag, providerAuthorizationV1Config)
+	providerAuthorizationV1, err := readRequiredFlagOrEnv(providerAuthorizationV1Flag, providerAuthorizationV1Config)
 	if err != nil {
 		return nil, err
 	}
 
-	clientAuthToken, err := readFlagOrEnv(clientAuthTokenFlag, clientAuthTokenConfig)
+	clientAuthToken, err := readRequiredFlagOrEnv(clientAuthTokenFlag, clientAuthTokenConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	clientRegion, err := readFlagOrEnv(clientRegionFlag, clientRegionConfig)
+	clientRegion, err := readRequiredFlagOrEnv(clientRegionFlag, clientRegionConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	clientTenant, err := readFlagOrEnv(clientTenantFlag, clientTenantConfig)
+	clientTenant, err := readRequiredFlagOrEnv(clientTenantFlag, clientTenantConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	scenarioUsers, err := readFlagOrEnv(scenarioUsersFlag, scenarioUsersConfig)
+	scenarioUsers, err := readRequiredFlagOrEnv(scenarioUsersFlag, scenarioUsersConfig)
 	if err != nil {
 		return nil, err
 	}
 	scenarioUsersList := strings.Split(scenarioUsers, ",")
 
-	scenarioCidr, err := readFlagOrEnv(scenarioCidrFlag, scenarioCidrConfig)
+	scenarioCidr, err := readRequiredFlagOrEnv(scenarioCidrFlag, scenarioCidrConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func loadConfig() (*Config, error) {
 		return nil, fmt.Errorf("invalid CIDR format for %s: %v", scenarioCidrConfig, err)
 	}
 
-	scenarioPublicIps, err := readFlagOrEnv(scenarioPublicIpsFlag, scenarioPublicIpsConfig)
+	scenarioPublicIps, err := readRequiredFlagOrEnv(scenarioPublicIpsFlag, scenarioPublicIpsConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -112,20 +112,11 @@ func loadConfig() (*Config, error) {
 		return nil, fmt.Errorf("invalid CIDR format for %s: %v", scenarioPublicIpsConfig, err)
 	}
 
-	reportResultsPath, err := readFlagOrEnv(reportResultsPathFlag, reportResultsPathConfig)
-	if err != nil {
-		return nil, err
-	}
+	reportResultsPath := readFlagOrEnvOrDefault(reportResultsPathFlag, reportResultsPathConfig, "./reports/results")
 
-	mockEnabled, err := readFlagOrEnv(mockEnabledFlag, mockEnabledConfig)
-	if err != nil {
-		return nil, err
-	}
+	mockEnabled := readFlagOrEnvOrDefault(mockEnabledFlag, mockEnabledConfig, "false")
 
-	mockServerURL, err := readFlagOrEnv(mockServerURLFlag, mockServerURLConfig)
-	if err != nil {
-		return nil, err
-	}
+	mockServerURL := readNoRequiredFlagOrEnv(mockServerURLFlag, mockServerURLConfig)
 
 	return &Config{
 		providerRegionV1:        providerRegionV1,
@@ -142,12 +133,15 @@ func loadConfig() (*Config, error) {
 	}, nil
 }
 
-func readFlagOrEnv(flag *string, param string) (string, error) {
+func convertFlagToEnvName(param string) string {
+	return strings.ToUpper(strings.ReplaceAll(param, ".", "_"))
+}
+
+func readRequiredFlagOrEnv(flag *string, param string) (string, error) {
 	value := *flag
 
 	if value == "" {
-		// Convert flag to environment variable name format
-		env := strings.ToUpper(strings.ReplaceAll(param, ".", "_"))
+		env := convertFlagToEnvName(param)
 
 		value = os.Getenv(env)
 		if value == "" {
@@ -156,4 +150,34 @@ func readFlagOrEnv(flag *string, param string) (string, error) {
 	}
 
 	return value, nil
+}
+
+func readFlagOrEnvOrDefault(flag *string, param string, defaultValue string) string {
+	value := *flag
+
+	if value == "" {
+		env := convertFlagToEnvName(param)
+
+		value = os.Getenv(env)
+		if value == "" {
+			return defaultValue
+		}
+	}
+
+	return value
+}
+
+func readNoRequiredFlagOrEnv(flag *string, param string) *string {
+	value := *flag
+
+	if value == "" {
+		env := convertFlagToEnvName(param)
+
+		value = os.Getenv(env)
+		if value == "" {
+			return nil
+		}
+	}
+
+	return &value
 }

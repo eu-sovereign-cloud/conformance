@@ -32,7 +32,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		wm, err := mock.CreateWorkspaceLifecycleScenarioV1("Workspace Lifecycle",
 			mock.WorkspaceParamsV1{
 				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
+					MockURL:   *suite.mockServerURL,
 					AuthToken: suite.authToken,
 					Tenant:    suite.tenant,
 					Region:    suite.region,

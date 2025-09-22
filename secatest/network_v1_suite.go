@@ -124,7 +124,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		wm, err := mock.CreateNetworkLifecycleScenarioV1("Network Lifecycle",
 			mock.NetworkParamsV1{
 				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
+					MockURL:   *suite.mockServerURL,
 					AuthToken: suite.authToken,
 					Tenant:    suite.tenant,
 					Region:    suite.region,

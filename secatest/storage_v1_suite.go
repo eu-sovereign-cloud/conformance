@@ -51,7 +51,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		wm, err := mock.CreateStorageLifecycleScenarioV1("Storage Lifecycle",
 			mock.StorageParamsV1{
 				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
+					MockURL:   *suite.mockServerURL,
 					AuthToken: suite.authToken,
 					Tenant:    suite.tenant,
 					Region:    suite.region,

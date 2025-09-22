@@ -46,7 +46,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		wm, err := mock.CreateAuthorizationLifecycleScenarioV1("Authorization Lifecycle",
 			mock.AuthorizationParamsV1{
 				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
+					MockURL:   *suite.mockServerURL,
 					AuthToken: suite.authToken,
 					Tenant:    suite.tenant,
 				},

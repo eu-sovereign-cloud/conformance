@@ -17,7 +17,7 @@ type testSuite struct {
 	tenant        string
 	authToken     string
 	mockEnabled   string
-	mockServerURL string
+	mockServerURL *string
 
 	mockClient *wiremock.Client
 }

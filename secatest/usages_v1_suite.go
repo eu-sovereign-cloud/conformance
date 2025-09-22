@@ -135,17 +135,12 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 	if suite.isMockEnabled() {
 		wm, err := mock.CreateUsageScenario(fmt.Sprintf("Usages V1 Test %d", rand.Intn(100)), mock.UsageParamsV1{
 			Params: &mock.Params{
-				MockURL:   suite.mockServerURL,
+				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
 				Region:    suite.region,
 			},
 			Authorization: &mock.AuthorizationParamsV1{
-				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-				},
 				Role: &mock.ResourceParams[secalib.RoleSpecV1]{
 					Name: roleName,
 					InitialSpec: &secalib.RoleSpecV1{

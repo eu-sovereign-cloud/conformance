@@ -59,7 +59,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 		wm, err := mock.CreateComputeLifecycleScenarioV1("Compute Lifecycle",
 			mock.ComputeParamsV1{
 				Params: &mock.Params{
-					MockURL:   suite.mockServerURL,
+					MockURL:   *suite.mockServerURL,
 					AuthToken: suite.authToken,
 					Tenant:    suite.tenant,
 					Region:    suite.region,
