@@ -13,14 +13,15 @@ func requireNoError(sCtx provider.StepCtx, err error) {
 	})
 }
 
-func requireNilResponse(sCtx provider.StepCtx, resp interface{}) {
-	sCtx.WithNewStep("Verify nil response", func(stepCtx provider.StepCtx) {
-		stepCtx.WithNewParameters("response", fmt.Sprintf("%v", resp))
-		stepCtx.Require().Nil(resp, "Should be nil")
+func requireError(sCtx provider.StepCtx, err error, expected error) {
+	sCtx.WithNewStep("Verify error", func(stepCtx provider.StepCtx) {
+		stepCtx.WithNewParameters("error", fmt.Sprintf("%v", err))
+		stepCtx.Require().Error(err, "Should return an error")
+		stepCtx.Require().EqualError(err, expected.Error(), "Should return the expected error")
 	})
 }
 
-func requireNotNilResponse(sCtx provider.StepCtx, resp interface{}) {
+func requireNotNilResponse(sCtx provider.StepCtx, resp any) {
 	sCtx.WithNewStep("Verify not nil response", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters("response", fmt.Sprintf("%v", resp))
 		stepCtx.Require().NotNil(resp, "Should be not nil")

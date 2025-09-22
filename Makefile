@@ -17,10 +17,20 @@ $(DIST_BIN):
 	@echo "Building test code..."
 	$(GO) test -c -o $(DIST_BIN) ./secatest
 
-.PHONY: mock
-mock:
+.PHONY: mock-run
+mock-run:
 	@echo "Running mock..."
+	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance up
+
+.PHONY: mock-start
+mock-start:
+	@echo "Starting mock..."
 	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance up -d
+
+.PHONY: mock-stop
+mock-stop:
+	@echo "Stopping mock..."
+	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance down
 
 .PHONY: run
 run:
@@ -32,6 +42,9 @@ run:
 	  -seca.client.authtoken=test-token \
 	  -seca.client.region=region-1 \
 	  -seca.client.tenant=tenant-1 \
+	  -seca.scenario.users=user1@secapi.com,user2@secapi.com \
+	  -seca.scenario.cidr=10.1.0.0/16 \
+	  -seca.scenario.publicips=52.93.126.1/26 \
 	  -seca.report.resultspath=$(RESULTS_PATH) \
 	  -seca.mock.enabled=true \
 	  -seca.mock.serverurl=http://localhost:8080
@@ -50,6 +63,9 @@ test:
 	  -seca.client.authtoken=test-token \
 	  -seca.client.region=region-1 \
 	  -seca.client.tenant=tenant-1 \
+	  -seca.scenario.users=user1@secapi.com,user2@secapi.com \
+	  -seca.scenario.cidr=10.1.0.0/16 \
+	  -seca.scenario.publicips=52.93.126.1/26 \
 	  -seca.report.resultspath=$(RESULTS_PATH) \
 	  -seca.mock.enabled=true \
 	  -seca.mock.serverurl=http://localhost:8080
@@ -63,8 +79,8 @@ fmt:
       jq '.' "$$file" > "$$file.tmp" && mv "$$file.tmp" "$$file"; \
 	done
 
-.PHONY: lint
-lint:
+.PHONY: golint
+golint:
 	@echo "Linting code..."
 	$(GO_TOOL) github.com/golangci/golangci-lint/v2/cmd/golangci-lint run --timeout 5m
 
@@ -78,8 +94,8 @@ sec:
 	@echo "Running gosec..."
 	$(GO_TOOL) github.com/securego/gosec/v2/cmd/gosec -exclude=G101,G404 ./...
 
-.PHONY: dev
-dev: fmt lint vet sec
+.PHONY: lint
+lint: fmt golint vet sec
 
 .PHONY: clean
 clean:
