@@ -1,4 +1,3 @@
-# conformance
 # SECA Conformance Tests
 
 A comprehensive conformance testing tool to validate a Cloud Service Provider (CSP) of the [SECA API specification](https://spec.secapi.cloud).
@@ -9,16 +8,19 @@ SECA Conformance ensure that CSP implementations comply with the standardized AP
 
 ## Requirements
 
-- Go 1.24 or higher;
-- [Allure Report](https://allurereport.org/docs/install/);
-- Linux base SO or Linux compatible shell.
+- POSIX compatible environment;
+- Make Build Tool;
+- Git SCM;
+- [Go](https://go.dev/doc/install) 1.24 or higher;
+- [Allure Report](https://allurereport.org/docs/install/).
 
 ### Installation
 
 ```bash
 git clone https://github.com/eu-sovereign-cloud/conformance
 cd conformance
-make ./dist/secatest
+make
+make install
 ```
 
 ## Configuration
@@ -41,7 +43,8 @@ The following configurations are required to run the tool. These configurations 
 
 To run the conformance tests, set the [configuration](#configuration) variables and run the following command:
 ```bash
-./dist/secatest -seca.provider.region.v1=#REGION_API \
+secatest run \
+  -seca.provider.region.v1=#REGION_API \
   -seca.provider.authorization.v1=#AUTHORIZATION_API \
   -seca.client.authtoken=#TOKEN \
   -seca.client.region=#REGION \
@@ -52,9 +55,10 @@ To run the conformance tests, set the [configuration](#configuration) variables 
 ```
 
 ## Viewing Result
+
 To see the the result report run the following command:
 ```bash
-make report
+secatest report
 ```
 
 Your default browser will be opened, with the Allure Report viewer:

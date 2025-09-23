@@ -12,10 +12,18 @@ RESULTS_PATH := $(REPORTS_PATH)/$(RESULTS_DIR)
 DIST_DIR := ./dist
 DIST_BIN := $(DIST_DIR)/secatest
 
+.PHONY: default
+default: $(DIST_BIN)
+
 .PHONY: $(DIST_BIN)
 $(DIST_BIN):
-	@echo "Building test code..."
+	@echo "Building conformance tool..."
 	$(GO) test -c -o $(DIST_BIN) ./secatest
+
+.PHONY: install
+install:
+	@echo "Installing conformance tool..."
+	sudo cp $(DIST_BIN) /usr/local/bin
 
 .PHONY: mock-run
 mock-run:
@@ -34,7 +42,7 @@ mock-stop:
 
 .PHONY: run
 run:
-	@echo "Running test tool..."
+	@echo "Running conformance tool..."
 	rm -rf $(RESULTS_PATH)
 	mkdir -p $(RESULTS_PATH)
 	$(DIST_BIN) -seca.provider.region.v1=http://localhost:8080/providers/seca.region \
@@ -56,7 +64,7 @@ report:
 
 .PHONY: test
 test:
-	@echo "Running tests suites..."
+	@echo "Running tests..."
 	$(GO) test -count=1 -v ./secatest \
 	  -seca.provider.region.v1=http://localhost:8080/providers/seca.region \
 	  -seca.provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
