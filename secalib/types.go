@@ -25,3 +25,9 @@ type Label struct {
 	Name  string
 	Value string
 }
+
+type Providers struct {
+	Name    string
+	Version string
+	URL     string
+}

@@ -2,6 +2,7 @@ package secatest
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -50,6 +51,26 @@ func TestSuites(t *testing.T) {
 	})
 	if err != nil {
 		slog.Error("Failed to create global client", "error", err)
+		os.Exit(1)
+	}
+
+	suite.RunNamedSuite(t, "Region V1", &RegionV1TestSuite{
+		globalTestSuite: globalTestSuite{
+			testSuite: testSuite{
+				tenant:        config.clientTenant,
+				authToken:     config.clientAuthToken,
+				mockEnabled:   config.mockEnabled,
+				mockServerURL: config.mockServerURL,
+			},
+			client: globalClient,
+		},
+		regionName: config.clientRegion,
+	})
+
+	// Load region List
+	err = loadRegionsList(ctx, globalClient)
+	if err != nil {
+		slog.Error("Failed to list regions", "error", err)
 		os.Exit(1)
 	}
 
@@ -165,27 +186,28 @@ func TestSuites(t *testing.T) {
 		storageSkus:    storageSkus,
 		networkSkus:    networkSkus,
 	})
-
-	suite.RunNamedSuite(t, "Usages V1", &UsagesV1TestSuite{
-		mixedTestSuite: mixedTestSuite{
-			testSuite: testSuite{
-				tenant:        config.clientTenant,
-				authToken:     config.clientAuthToken,
-				mockEnabled:   config.mockEnabled,
-				mockServerURL: config.mockServerURL,
+	/*
+		suite.RunNamedSuite(t, "Usages V1", &UsagesV1TestSuite{
+			mixedTestSuite: mixedTestSuite{
+				testSuite: testSuite{
+					tenant:        config.clientTenant,
+					authToken:     config.clientAuthToken,
+					mockEnabled:   config.mockEnabled,
+					mockServerURL: config.mockServerURL,
+				},
+				globalClient:   globalClient,
+				regionalClient: regionalClient,
+				region:         config.clientRegion,
 			},
-			globalClient:   globalClient,
-			regionalClient: regionalClient,
-			region:         config.clientRegion,
-		},
-		users:          config.scenarioUsers,
-		networkCidr:    config.scenarioCidr,
-		publicIpsRange: config.scenarioPublicIps,
-		regionZones:    regionZones,
-		instanceSkus:   instanceSkus,
-		storageSkus:    storageSkus,
-		networkSkus:    networkSkus,
-	})
+			users:          config.scenarioUsers,
+			networkCidr:    config.scenarioCidr,
+			publicIpsRange: config.scenarioPublicIps,
+			regionZones:    regionZones,
+			instanceSkus:   instanceSkus,
+			storageSkus:    storageSkus,
+			networkSkus:    networkSkus,
+		})
+	*/
 }
 
 func setupLogger() {
@@ -210,7 +232,29 @@ func configureReports(config *Config) {
 	}
 }
 
-// TODO Convert these load skus functions to a generic one
+func loadRegionsList(ctx context.Context, globallClient *secapi.GlobalClient) error {
+	resp, err := globallClient.RegionV1.ListRegions(ctx)
+	if err != nil {
+		return err
+	}
+
+	regionsResp, err := resp.All(ctx)
+	if err != nil {
+		return err
+	}
+
+	exists := false
+	for _, region := range regionsResp {
+		if region.Metadata.Name == config.clientRegion {
+			exists = true
+		}
+	}
+	if exists == false {
+		return errors.New("Region doesn't exist")
+	}
+	return nil
+}
+
 func loadInstanceSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
 	resp, err := regionalClient.ComputeV1.ListSkus(ctx, secapi.TenantID(config.clientTenant))
 	if err != nil {

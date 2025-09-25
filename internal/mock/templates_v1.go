@@ -49,7 +49,7 @@ const (
 	roleAssignmentResponseTemplateV1 = `{
       "metadata": {
         "name": "[[.Metadata.Name]]",
-		"provider": "[[.Metadata.Provider]]",
+		    "provider": "[[.Metadata.Provider]]",
         "createdAt": "[[.Metadata.CreatedAt]]",
         "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
         "resourceVersion": [[.Metadata.ResourceVersion]],
@@ -107,6 +107,75 @@ const (
         ]
       }
     }`
+
+	regionListResponseTemplateV1 = `
+  {
+      "items": [
+      [[- range $i, $r := .]]
+        [[if $i]],[[end]]
+        {
+        "metadata": {
+          "name": "[[$r.Metadata.Name]]",
+          "provider": "[[$r.Metadata.Provider]]",
+          "createdAt": "[[$r.Metadata.CreatedAt]]",
+          "lastModifiedAt": "[[$r.Metadata.LastModifiedAt]]",
+          "resourceVersion": [[$r.Metadata.ResourceVersion]],
+          "tenant": "[[$r.Metadata.Tenant]]",
+          "apiVersion": "[[$r.Metadata.ApiVersion]]",
+          "kind": "[[$r.Metadata.Kind]]",
+          "resource": "[[.Metadata.Resource]]",
+          "verb": "[[$r.Metadata.Verb]]"
+        },
+          "spec": {
+            "availableZones": [
+              [[- range $i, $az := .Spec.AvailableZones]]
+              [[if $i]],[[end]]"[[ $az ]]"
+              [[- end]]
+            ],
+            "providers": [
+              [[- range $i, $p := .Spec.Providers]]
+                [[if $i]],[[end]]
+                    {
+                      "name": "[[$p.Name]]",
+                      "version": "[[$p.Version]]",
+                      "url": "[[$p.URL]]"
+                    }[[- end]]
+              ]
+        }
+        } [[- end]]
+    ]
+  }`
+	regionResponseTemplateV1 = `
+  {
+        "metadata": {
+          "name": "[[.Metadata.Name]]",
+          "provider": "[[.Metadata.Provider]]",
+          "createdAt": "[[.Metadata.CreatedAt]]",
+          "lastModifiedAt": "[[.Metadata.LastModifiedAt]]",
+          "resourceVersion": [[.Metadata.ResourceVersion]],
+          "tenant": "[[.Metadata.Tenant]]",
+          "apiVersion": "[[.Metadata.ApiVersion]]",
+          "kind": "[[.Metadata.Kind]]",
+          "resource": "[[.Metadata.Resource]]",
+          "verb": "[[.Metadata.Verb]]"
+        },
+        "spec": {
+            "availableZones": [
+              [[- range $i, $az := .Spec.AvailableZones]]
+              [[if $i]],[[end]]"[[ $az ]]"
+              [[- end]]
+            ],
+            "providers": [
+              [[- range $i, $p := .Spec.Providers]]
+                [[if $i]],[[end]]
+                    {
+                      "name": "[[$p.Name]]",
+                      "version": "[[$p.Version]]",
+                      "url": "[[$p.URL]]"
+                    }[[- end]]
+              ]
+        }
+  }`
 
 	workspaceResponseTemplateV1 = `
   {
@@ -400,11 +469,11 @@ const (
       "spec": {
 	  	  "localRef": "[[.Spec.LocalRef]]",
         "routes": [
-		    [[- range $i, $r := .Spec.Routes]]
+		    [[- range $i,  := .Spec.Routes]]
 		    [[if $i]],[[end]]
 			  {
-			    "destinationCidrBlock": "[[$r.DestinationCidrBlock]]",
-			    "targetRef": "[[$r.TargetRef]]"
+			    "destinationCidrBlock": "[[.DestinationCidrBlock]]",
+			    "targetRef": "[[.TargetRef]]"
 		    }[[- end]]
 		]
       },

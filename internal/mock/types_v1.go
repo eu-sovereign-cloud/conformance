@@ -12,6 +12,13 @@ type AuthorizationParamsV1 struct {
 
 func (p AuthorizationParamsV1) getParams() *Params { return p.Params }
 
+type RegionParamsV1 struct {
+	*Params
+	Regions []ResourceParams[secalib.RegionSpecV1]
+}
+
+func (p RegionParamsV1) getParams() *Params { return p.Params }
+
 type WorkspaceParamsV1 struct {
 	*Params
 	Workspace *ResourceParams[secalib.WorkspaceSpecV1]

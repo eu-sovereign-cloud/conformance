@@ -69,6 +69,14 @@ func (suite *testSuite) setAuthorizationV1StepParams(sctx provider.StepCtx, oper
 	)
 }
 
+func (suite *testSuite) setRegionV1StepParams(sctx provider.StepCtx, operation string) {
+	sctx.WithNewParameters(
+		providerStepParameter, secalib.RegionProviderV1,
+		operationStepParameter, operation,
+		tenantStepParameter, suite.tenant,
+	)
+}
+
 func (suite *testSuite) setWorkspaceV1StepParams(sctx provider.StepCtx, operation string) {
 	sctx.WithNewParameters(
 		providerStepParameter, secalib.WorkspaceProviderV1,

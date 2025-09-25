@@ -5,10 +5,12 @@ const (
 	ApiVersion1 = "v1"
 
 	// Providers
-	WorkspaceV1Provider = "seca.workspace/v1"
-	StorageV1Provider   = "seca.storage/v1"
-	ComputeV1Provider   = "seca.compute/v1"
-	NetworkV1Provider   = "seca.network/v1"
+	AuthorizationProvider = "seca.authorization"
+	WorkspaceProvider     = "seca.workspace"
+	StorageProvider       = "seca.storage"
+	ComputeProvider       = "seca.compute"
+	NetworkProvider       = "seca.network"
+
 	// Labels
 	ArchitectureLabel   = "architecture"
 	ProviderLabel       = "provider"
@@ -24,6 +26,7 @@ const (
 	SkuResource             = resourceTenantsPrefix + "/skus/%s"
 	RoleResource            = resourceTenantsPrefix + "/roles/%s"
 	RoleAssignmentResource  = resourceTenantsPrefix + "/role-assignments/%s"
+	RegionResource          = "regions/%s"
 	WorkspaceResource       = resourceTenantsPrefix + "/workspaces/%s"
 	BlockStorageResource    = resourceWorkspacesPrefix + "/block-storages/%s"
 	ImageResource           = resourceTenantsPrefix + "/images/%s"
@@ -49,6 +52,7 @@ const (
 	// Resource Kinds
 	RoleKind            = "role"
 	RoleAssignmentKind  = "role-assignment"
+	RegionKind          = "region"
 	WorkspaceKind       = "workspace"
 	StorageSkuKind      = "storage-sku"
 	BlockStorageKind    = "block-storage"

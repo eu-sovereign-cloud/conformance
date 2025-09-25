@@ -18,6 +18,10 @@ func GenerateRoleAssignmentName() string {
 	return fmt.Sprintf("role-assignment-%d", rand.Intn(math.MaxInt32))
 }
 
+func GenerateRegionName() string {
+	return fmt.Sprintf("region-%d", rand.Intn(math.MaxInt32))
+}
+
 func GenerateWorkspaceName() string {
 	return fmt.Sprintf("workspace-%d", rand.Intn(math.MaxInt32))
 }
@@ -62,6 +66,10 @@ func GenerateSecurityGroupName() string {
 	return fmt.Sprintf("security-group-%d", rand.Intn(math.MaxInt32))
 }
 
+func GenerateRegionProviderUrl(provider string) string {
+	return fmt.Sprintf("{{request.scheme}}://{{request.host}}:{{request.port}}%s%s", urlProvidersPrefixV1, provider)
+}
+
 // Resources
 func GenerateSkuResource(tenant string, sku string) string {
 	return fmt.Sprintf(SkuResource, tenant, sku)
@@ -73,6 +81,10 @@ func GenerateRoleResource(tenant string, role string) string {
 
 func GenerateRoleAssignmentResource(tenant string, roleAssignment string) string {
 	return fmt.Sprintf(RoleAssignmentResource, tenant, roleAssignment)
+}
+
+func GenerateRegionResource(region string) string {
+	return fmt.Sprintf(RegionResource, region)
 }
 
 func GenerateWorkspaceResource(tenant string, workspace string) string {
@@ -159,6 +171,10 @@ func GenerateRoleURL(tenant string, role string) string {
 
 func GenerateRoleAssignmentURL(tenant string, roleAssignment string) string {
 	return fmt.Sprintf(RoleAssignmentURLV1, tenant, roleAssignment)
+}
+
+func GenerateRegionURL(region string) string {
+	return fmt.Sprintf(RegionURLV1, region)
 }
 
 func GenerateWorkspaceURL(tenant string, workspace string) string {
