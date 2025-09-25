@@ -11,7 +11,6 @@ import (
 )
 
 func TestGlobalSuites(t *testing.T) {
-
 	// Initialize global client
 	globalClient, err := secapi.NewGlobalClient(&secapi.GlobalConfig{
 		AuthToken: config.clientAuthToken,
