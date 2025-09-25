@@ -1,6 +1,6 @@
 services:
   wiremock:
-    image: wiremock/wiremock:latest 
+    image: ghcr.io/wiremock/wiremock:latest
     command: --verbose --global-response-templating 
     ports:
       - '8080:8080'

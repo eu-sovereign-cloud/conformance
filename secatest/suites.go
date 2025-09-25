@@ -16,14 +16,14 @@ type testSuite struct {
 	suite.Suite
 	tenant        string
 	authToken     string
-	mockEnabled   string
+	mockEnabled   bool
 	mockServerURL *string
 
 	mockClient *wiremock.Client
 }
 
 func (suite *testSuite) isMockEnabled() bool {
-	return suite.mockEnabled == "true"
+	return suite.mockEnabled
 }
 
 type mixedTestSuite struct {
