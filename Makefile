@@ -12,10 +12,18 @@ RESULTS_PATH := $(REPORTS_PATH)/$(RESULTS_DIR)
 DIST_DIR := ./dist
 DIST_BIN := $(DIST_DIR)/secatest
 
+.PHONY: default
+default: $(DIST_BIN)
+
 .PHONY: $(DIST_BIN)
 $(DIST_BIN):
-	@echo "Building test code..."
+	@echo "Building conformance tool..."
 	$(GO) test -c -o $(DIST_BIN) ./secatest
+
+.PHONY: install
+install:
+	@echo "Installing conformance tool..."
+	sudo cp $(DIST_BIN) /usr/local/bin
 
 .PHONY: mock-run
 mock-run:
@@ -34,41 +42,26 @@ mock-stop:
 
 .PHONY: run
 run:
-	@echo "Running test tool..."
+	@echo "Running conformance tests..."
 	rm -rf $(RESULTS_PATH)
 	mkdir -p $(RESULTS_PATH)
-	$(DIST_BIN) -seca.provider.region.v1=http://localhost:8080/providers/seca.region \
-	  -seca.provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
-	  -seca.client.authtoken=test-token \
-	  -seca.client.region=region-1 \
-	  -seca.client.tenant=tenant-1 \
-	  -seca.scenario.users=user1@secapi.com,user2@secapi.com \
-	  -seca.scenario.cidr=10.1.0.0/16 \
-	  -seca.scenario.publicips=52.93.126.1/26 \
-	  -seca.report.resultspath=$(RESULTS_PATH) \
-	  -seca.mock.enabled=true \
-	  -seca.mock.serverurl=http://localhost:8080
+	$(DIST_BIN) run \
+	  --provider.region.v1=http://localhost:8080/providers/seca.region \
+	  --provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
+	  --client.authtoken=test-token \
+	  --client.region=region-1 \
+	  --client.tenant=tenant-1 \
+	  --scenario.users=user1@secapi.com,user2@secapi.com \
+	  --scenario.cidr=10.1.0.0/16 \
+	  --scenario.publicips=52.93.126.1/26 \
+	  --report.resultspath=$(RESULTS_PATH) \
+	  --mock.enabled=true \
+	  --mock.serverurl=http://localhost:8080
 
 .PHONY: report
 report:
-	@echo "Running report..."
-	allure serve $(RESULTS_PATH)
-
-.PHONY: test
-test:
-	@echo "Running tests suites..."
-	$(GO) test -count=1 -v ./secatest \
-	  -seca.provider.region.v1=http://localhost:8080/providers/seca.region \
-	  -seca.provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
-	  -seca.client.authtoken=test-token \
-	  -seca.client.region=region-1 \
-	  -seca.client.tenant=tenant-1 \
-	  -seca.scenario.users=user1@secapi.com,user2@secapi.com \
-	  -seca.scenario.cidr=10.1.0.0/16 \
-	  -seca.scenario.publicips=52.93.126.1/26 \
-	  -seca.report.resultspath=$(RESULTS_PATH) \
-	  -seca.mock.enabled=true \
-	  -seca.mock.serverurl=http://localhost:8080
+	@echo "Viewing report..."
+	$(DIST_BIN) report $(RESULTS_PATH)
 
 .PHONY: fmt
 fmt:
