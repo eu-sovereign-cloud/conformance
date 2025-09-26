@@ -9,7 +9,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	authorization "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.authorization.v1"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -92,8 +92,8 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	}
 
 	ctx := context.Background()
-	var roleResp *authorization.Role
-	var assignResp *authorization.RoleAssignment
+	var roleResp *schema.Role
+	var assignResp *schema.RoleAssignment
 	var err error
 
 	// Role
@@ -103,13 +103,13 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	t.WithNewStep("Create role", func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
 
-		role := &authorization.Role{
-			Metadata: &authorization.GlobalResourceMetadata{
+		role := &schema.Role{
+			Metadata: &schema.GlobalResourceMetadata{
 				Tenant: suite.tenant,
 				Name:   roleName,
 			},
-			Spec: authorization.RoleSpec{
-				Permissions: []authorization.Permission{
+			Spec: schema.RoleSpec{
+				Permissions: []schema.Permission{
 					{
 						Provider:  secalib.StorageProviderV1,
 						Resources: []string{imageResource},
@@ -220,15 +220,15 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	t.WithNewStep("Create role assignment", func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
 
-		assign := &authorization.RoleAssignment{
-			Metadata: &authorization.GlobalResourceMetadata{
+		assign := &schema.RoleAssignment{
+			Metadata: &schema.GlobalResourceMetadata{
 				Tenant: suite.tenant,
 				Name:   roleAssignmentName,
 			},
-			Spec: authorization.RoleAssignmentSpec{
+			Spec: schema.RoleAssignmentSpec{
 				Roles:  []string{roleName},
 				Subs:   []string{roleAssignmentSub1},
-				Scopes: []authorization.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
+				Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
 			},
 		}
 		assignResp, err = suite.client.AuthorizationV1.CreateOrUpdateRoleAssignment(ctx, assign)
@@ -366,7 +366,7 @@ func (suite *AuthorizationV1TestSuite) AfterEach(t provider.T) {
 }
 
 // TODO Create a helper to perform this copy using reflection
-func verifyAuthorizationMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, actual *authorization.GlobalResourceMetadata) {
+func verifyAuthorizationMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, actual *schema.GlobalResourceMetadata) {
 	actualMetadata := &secalib.Metadata{
 		Name:       actual.Name,
 		Provider:   actual.Provider,
@@ -380,7 +380,7 @@ func verifyAuthorizationMetadataStep(ctx provider.StepCtx, expected *secalib.Met
 }
 
 // TODO Create a helper to perform these asserts using reflection
-func verifyRoleSpecStep(ctx provider.StepCtx, expected *secalib.RoleSpecV1, actual *authorization.RoleSpec) {
+func verifyRoleSpecStep(ctx provider.StepCtx, expected *secalib.RoleSpecV1, actual *schema.RoleSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(len(expected.Permissions), len(actual.Permissions),
 			"Permissions list length should match expected")
@@ -398,7 +398,7 @@ func verifyRoleSpecStep(ctx provider.StepCtx, expected *secalib.RoleSpecV1, actu
 	})
 }
 
-func verifyRoleAssignmentSpecStep(ctx provider.StepCtx, expected *secalib.RoleAssignmentSpecV1, actual *authorization.RoleAssignmentSpec) {
+func verifyRoleAssignmentSpecStep(ctx provider.StepCtx, expected *secalib.RoleAssignmentSpecV1, actual *schema.RoleAssignmentSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(expected.Roles, actual.Roles,
 			"Roles provider should match expected")

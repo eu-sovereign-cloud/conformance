@@ -7,7 +7,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -64,7 +64,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	}
 
 	ctx := context.Background()
-	var resp *workspace.Workspace
+	var resp *schema.Workspace
 	var err error
 
 	var expectedMeta *secalib.Metadata
@@ -72,8 +72,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
-		ws := &workspace.Workspace{
-			Metadata: &workspace.RegionalResourceMetadata{
+		ws := &schema.Workspace{
+			Metadata: &schema.RegionalResourceMetadata{
 				Tenant: suite.tenant,
 				Name:   workspaceName,
 			},
@@ -120,8 +120,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		}
 		var actualLabels *[]secalib.Label
 		if resp.Labels != nil {
-			labels := make([]secalib.Label, 0, len(*resp.Labels))
-			for k, v := range *resp.Labels {
+			labels := make([]secalib.Label, 0, len(resp.Labels))
+			for k, v := range resp.Labels {
 				labels = append(labels, secalib.Label{Name: k, Value: v})
 			}
 			actualLabels = &labels
@@ -172,8 +172,8 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		}
 		var actualLabels *[]secalib.Label
 		if resp.Labels != nil {
-			labels := make([]secalib.Label, 0, len(*resp.Labels))
-			for k, v := range *resp.Labels {
+			labels := make([]secalib.Label, 0, len(resp.Labels))
+			for k, v := range resp.Labels {
 				labels = append(labels, secalib.Label{Name: k, Value: v})
 			}
 			actualLabels = &labels
@@ -211,7 +211,7 @@ func (suite *WorkspaceV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }
 
-func verifyWorkspaceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *workspace.RegionalResourceMetadata) {
+func verifyWorkspaceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *schema.RegionalResourceMetadata) {
 	actualMetadata := &secalib.Metadata{
 		Name:       metadata.Name,
 		Provider:   metadata.Provider,
