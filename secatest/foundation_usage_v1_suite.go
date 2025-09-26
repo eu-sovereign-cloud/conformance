@@ -2,7 +2,6 @@ package secatest
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"math/rand"
 	"net/http"
@@ -19,7 +18,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type UsagesV1TestSuite struct {
+type FoundationUsageV1TestSuite struct {
 	mixedTestSuite
 
 	users          []string
@@ -33,10 +32,10 @@ type UsagesV1TestSuite struct {
 	networkTestSuite *NetworkV1TestSuite
 }
 
-func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
-	slog.Info("Starting Usages V1 Test")
+func (suite *FoundationUsageV1TestSuite) TestFoundationUsageV1(t provider.T) {
+	slog.Info("Starting Foundation Usage Test")
 
-	t.Title("Usages Lifecycle Test")
+	t.Title("Foundation Usage Test")
 	configureTags(t,
 		secalib.AuthorizationProviderV1, secalib.RoleKind, secalib.RoleAssignmentKind,
 		secalib.WorkspaceProviderV1, secalib.WorkspaceKind,
@@ -133,7 +132,7 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.isMockEnabled() {
-		wm, err := mock.CreateUsageScenario(fmt.Sprintf("Usages V1 Test %d", rand.Intn(100)), mock.UsageParamsV1{
+		wm, err := mock.CreateFoundationUsageScenario("Foundation Usage Test", mock.FoundationUsageParamsV1{
 			Params: &mock.Params{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
@@ -1307,9 +1306,9 @@ func (suite *UsagesV1TestSuite) TestUsagesV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	slog.Info("Finishing Usages Lifecycle Test")
+	slog.Info("Finishing Foundation Usage Test")
 }
 
-func (suite *UsagesV1TestSuite) AfterEach(t provider.T) {
+func (suite *FoundationUsageV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }

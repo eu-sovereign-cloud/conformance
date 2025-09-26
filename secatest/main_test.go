@@ -1,6 +1,7 @@
 package secatest
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -17,7 +18,8 @@ func TestMain(m *testing.M) {
 
 	rootCmd := initCommands(m)
 
-	if err := rootCmd.Execute(); err != nil {
+	ctx := context.Background()
+	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		slog.Error("Error executing command", "error", err)
 		os.Exit(1)
 	}
@@ -35,6 +37,13 @@ func newRootCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "secatest",
 		Short: "SECA Conformance Tests",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			// Initialize the clients
+			if err := initClients(cmd.Context()); err != nil {
+				return err
+			}
+			return nil
+		},
 	}
 }
 
@@ -43,6 +52,7 @@ func newRunCmd(m *testing.M) *cobra.Command {
 		Use:   "run",
 		Short: "Run Command",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Configure allure report
 			configureReports()
 
 			// Run the test suites
@@ -54,7 +64,7 @@ func newRunCmd(m *testing.M) *cobra.Command {
 	}
 }
 
-func newReportCmd(m *testing.M) *cobra.Command {
+func newReportCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "report",
 		Short: "Report Command",
@@ -64,7 +74,7 @@ func newReportCmd(m *testing.M) *cobra.Command {
 			if len(args) >= 1 {
 				path = args[0]
 			} else {
-				path = reportResultsPathDefault
+				path = "./reports/results"
 			}
 
 			// Run allure report
@@ -82,20 +92,20 @@ func initCommands(m *testing.M) *cobra.Command {
 	rootCmd := newRootCmd()
 
 	runCmd := newRunCmd(m)
-	runCmd.Flags().StringVar(&config.providerRegionV1, providerRegionV1Config, "", "Region V1 Provider Base URL")
-	runCmd.Flags().StringVar(&config.providerAuthorizationV1, providerAuthorizationV1Config, "", "Authorization V1 Provider Base URL")
-	runCmd.Flags().StringVar(&config.clientAuthToken, clientAuthTokenConfig, "", "Client Authentication Token")
-	runCmd.Flags().StringVar(&config.clientRegion, clientRegionConfig, "", "Client Region Name")
-	runCmd.Flags().StringVar(&config.clientTenant, clientTenantConfig, "", "Client Tenant Name")
-	runCmd.Flags().StringSliceVar(&config.scenarioUsers, scenarioUsersConfig, nil, "Scenario Available Users")
-	runCmd.Flags().StringVar(&config.scenarioCidr, scenarioCidrConfig, "", "Scenario Available Network CIDR")
-	runCmd.Flags().StringVar(&config.scenarioPublicIps, scenarioPublicIpsConfig, "", "Scenario Public IPs Range")
-	runCmd.Flags().StringVar(&config.reportResultsPath, reportResultsPathConfig, "", "Report Results Path")
-	runCmd.Flags().BoolVar(&config.mockEnabled, mockEnabledConfig, false, "Enable Mock Usage")
-	runCmd.Flags().StringVar(&config.mockServerURL, mockServerURLConfig, "", "Mock Server URL")
+	runCmd.Flags().StringVar(&config.providerRegionV1, "provider.region.v1", "", "Region V1 Provider Base URL")
+	runCmd.Flags().StringVar(&config.providerAuthorizationV1, "provider.authorization.v1", "", "Authorization V1 Provider Base URL")
+	runCmd.Flags().StringVar(&config.clientAuthToken, "client.authtoken", "", "Client Authentication Token")
+	runCmd.Flags().StringVar(&config.clientRegion, "client.region", "", "Client Region Name")
+	runCmd.Flags().StringVar(&config.clientTenant, "client.tenant", "", "Client Tenant Name")
+	runCmd.Flags().StringSliceVar(&config.scenarioUsers, "scenario.users", nil, "Scenario Available Users")
+	runCmd.Flags().StringVar(&config.scenarioCidr, "scenario.cidr", "", "Scenario Available Network CIDR")
+	runCmd.Flags().StringVar(&config.scenarioPublicIps, "scenario.publicips", "", "Scenario Public IPs Range")
+	runCmd.Flags().StringVar(&config.reportResultsPath, "report.resultspath", "", "Report Results Path")
+	runCmd.Flags().BoolVar(&config.mockEnabled, "mock.enabled", false, "Enable Mock Usage")
+	runCmd.Flags().StringVar(&config.mockServerURL, "mock.serverurl", "", "Mock Server URL")
 	rootCmd.AddCommand(runCmd)
 
-	reportCmd := newReportCmd(m)
+	reportCmd := newReportCmd()
 	rootCmd.AddCommand(reportCmd)
 
 	return rootCmd
