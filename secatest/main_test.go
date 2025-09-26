@@ -54,7 +54,7 @@ func newRunCmd(m *testing.M) *cobra.Command {
 	}
 }
 
-func newReportCmd(m *testing.M) *cobra.Command {
+func newReportCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "report",
 		Short: "Report Command",
@@ -95,7 +95,7 @@ func initCommands(m *testing.M) *cobra.Command {
 	runCmd.Flags().StringVar(&config.mockServerURL, mockServerURLConfig, "", "Mock Server URL")
 	rootCmd.AddCommand(runCmd)
 
-	reportCmd := newReportCmd(m)
+	reportCmd := newReportCmd()
 	rootCmd.AddCommand(reportCmd)
 
 	return rootCmd
