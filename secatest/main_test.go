@@ -114,34 +114,23 @@ func initCommands(m *testing.M) *cobra.Command {
 	runCmd := newRunCmd(m)
 
 	runCmd.Flags().StringVar(&config.providerRegionV1, "provider.region.v1", "", "Region V1 Provider Base URL")
-	runCmd.MarkFlagRequired("provider.region.v1")
-
 	runCmd.Flags().StringVar(&config.providerAuthorizationV1, "provider.authorization.v1", "", "Authorization V1 Provider Base URL")
-	runCmd.MarkFlagRequired("provider.authorization.v1")
 
 	runCmd.Flags().StringVar(&config.clientAuthToken, "client.auth.token", "", "Client Authentication Token")
-	runCmd.MarkFlagRequired("client.auth.token")
-
 	runCmd.Flags().StringVar(&config.clientRegion, "client.region", "", "Client Region Name")
-	runCmd.MarkFlagRequired("client.region")
-
 	runCmd.Flags().StringVar(&config.clientTenant, "client.tenant", "", "Client Tenant Name")
-	runCmd.MarkFlagRequired("client.tenant")
 
 	runCmd.Flags().StringVar(&config.scenariosFilter, "scenarios.filter", "", "Regular expression to filter scenarios to run")
-
 	runCmd.Flags().StringSliceVar(&config.scenariosUsers, "scenarios.users", nil, "Scenario Available Users")
-	runCmd.MarkFlagRequired("scenarios.users")
-
 	runCmd.Flags().StringVar(&config.scenariosCidr, "scenarios.cidr", "", "Scenario Available Network CIDR")
-	runCmd.MarkFlagRequired("scenarios.cidr")
-
 	runCmd.Flags().StringVar(&config.scenariosPublicIps, "scenarios.public.ips", "", "Scenario Public IPs Range")
-	runCmd.MarkFlagRequired("scenarios.public.ips")
 
 	runCmd.Flags().StringVar(&config.reportResultsPath, "report.results.path", "", "Report Results Path")
+
 	runCmd.Flags().BoolVar(&config.mockEnabled, "mock.enabled", false, "Enable Mock Usage")
 	runCmd.Flags().StringVar(&config.mockServerURL, "mock.server.url", "", "Mock Server URL")
+
+	runCmd.MarkFlagsRequiredTogether("provider.region.v1", "provider.authorization.v1", "client.auth.token", "client.region", "client.tenant", "scenarios.users", "scenarios.cidr", "scenarios.public.ips")
 
 	rootCmd.AddCommand(runCmd)
 
