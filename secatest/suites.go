@@ -2,6 +2,7 @@ package secatest
 
 import (
 	"log/slog"
+	"regexp"
 	"strings"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
@@ -19,11 +20,16 @@ type testSuite struct {
 	mockEnabled   bool
 	mockServerURL *string
 
-	mockClient *wiremock.Client
+	mockClient   *wiremock.Client
+	scenarioName string
 }
 
-func (suite *testSuite) isMockEnabled() bool {
-	return suite.mockEnabled
+func (suite *testSuite) canRun(regexp *regexp.Regexp) bool {
+	if regexp == nil {
+		return true
+	} else {
+		return regexp.MatchString(suite.scenarioName)
+	}
 }
 
 type mixedTestSuite struct {

@@ -10,8 +10,8 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func CreateComputeLifecycleScenarioV1(scenario string, params ComputeParamsV1) (*wiremock.Client, error) {
-	slog.Info("Configuring mock to Compute Lifecycle Scenario")
+func CreateComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) (*wiremock.Client, error) {
+	slog.Info("Configuring mock to scenario " + scenario)
 
 	wm, err := newClient(params.MockURL)
 	if err != nil {
