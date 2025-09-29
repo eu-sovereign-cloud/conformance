@@ -28,7 +28,7 @@ jobs:
         run: make mock-start
 
       - name: Build
-        run: make ./dist/secatest
+        run: make
 
       - name: Run
         run: make run
