@@ -137,18 +137,12 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 		}
 		suite.mockClient = wm
 	}
+
 	ctx := context.Background()
 	var regionResp *region.Region
 
 	t.WithNewStep("List Region", func(sCtx provider.StepCtx) {
 		suite.setRegionV1StepParams(sCtx, "")
-
-		/*rg := &region.Region{
-			Metadata: &region.GlobalResourceMetadata{
-				Name:   secalib.GenerateRegionName(),
-				Tenant: suite.tenant,
-			},
-		}*/
 
 		iter, err := suite.client.RegionV1.ListRegions(ctx)
 		requireNoError(sCtx, err)
@@ -162,6 +156,7 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 				sCtx.Error("No regions found")
 			} else {
 				regionResp = firstRegion
+
 				requireNotNilResponse(sCtx, regionResp)
 				expectedMetadata := &secalib.Metadata{
 					Name:       regionResp.Metadata.Name,
@@ -172,10 +167,71 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 					Tenant:     regionResp.Metadata.Tenant,
 				}
 				verifyRegionMetadataStep(sCtx, expectedMetadata, regionResp.Metadata)
+
+				regions, err := iter.All(ctx)
+				requireNoError(sCtx, err)
+
+				verifyRegionExists(sCtx, suite.regionName, regions)
+
 			}
 		} else {
 			sCtx.Error("No regions found")
 		}
+	})
+
+	t.WithNewStep("List Region skip-token", func(sCtx provider.StepCtx) {
+		
+		suite.setRegionV1StepParams(sCtx, "")
+		iter, err := suite.client.RegionV1.ListRegions(ctx)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, iter)
+
+		if iter != nil {
+			firstRegion, err := iter.Next(ctx)
+			if err != nil {
+				sCtx.Error("Failed to get next region: %v", err)
+			} else {
+				regionResp = firstRegion
+
+				requireNotNilResponse(sCtx, regionResp)
+				expectedMetadata := &secalib.Metadata{
+					Name:       regionResp.Metadata.Name,
+					Verb:       regionResp.Metadata.Verb,
+					Resource:   regionResp.Metadata.Resource,
+					ApiVersion: regionResp.Metadata.ApiVersion,
+					Kind:       string(regionResp.Metadata.Kind),
+					Tenant:     regionResp.Metadata.Tenant,
+				}
+				verifyRegionMetadataStep(sCtx, expectedMetadata, regionResp.Metadata)
+
+				regions, err := iter.All(ctx)
+				requireNoError(sCtx, err)
+
+				verifyRegionExists(sCtx, suite.regionName, regions)
+
+			}
+		} else {
+			sCtx.Error("No regions found")
+		}
+	})
+
+
+	t.WithNewStep("Get Region", func(sCtx provider.StepCtx) {
+		suite.setRegionV1StepParams(sCtx, "")
+
+		regionResp, err := suite.client.RegionV1.GetRegion(ctx, suite.regionName)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, regionResp)
+
+		expectedMetadata := &secalib.Metadata{
+			Name:       regionResp.Metadata.Name,
+			Verb:       regionResp.Metadata.Verb,
+			Resource:   regionResp.Metadata.Resource,
+			ApiVersion: regionResp.Metadata.ApiVersion,
+			Kind:       string(regionResp.Metadata.Kind),
+			Tenant:     regionResp.Metadata.Tenant,
+		}
+		verifyRegionMetadataStep(sCtx, expectedMetadata, regionResp.Metadata)
 	})
 }
 
@@ -189,4 +245,17 @@ func verifyRegionMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, 
 		Tenant:     actual.Tenant,
 	}
 	verifyGlobalMetadataStep(ctx, expected, actualMetadata)
+}
+
+func verifyRegionExists(ctx provider.StepCtx, expectedRegion string, actualRegions []*region.Region) {
+
+	for _, region := range actualRegions {
+		if region.Metadata.Name == config.clientRegion {
+			ctx.WithNewStep("Verify status", func(stepCtx provider.StepCtx) {
+				stepCtx.Require().Equal(expectedRegion, region.Metadata.Name, "State should match expected")
+
+			})
+		}
+	}
+
 }
