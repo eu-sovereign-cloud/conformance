@@ -9,8 +9,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
-	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -97,16 +96,16 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	}
 
 	ctx := context.Background()
-	var workResp *workspace.Workspace
-	var blockResp *storage.BlockStorage
-	var imageResp *storage.Image
+	var workResp *schema.Workspace
+	var blockResp *schema.BlockStorage
+	var imageResp *schema.Image
 	var err error
 
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
-		ws := &workspace.Workspace{
-			Metadata: &workspace.RegionalResourceMetadata{
+		ws := &schema.Workspace{
+			Metadata: &schema.RegionalResourceMetadata{
 				Tenant: suite.tenant,
 				Name:   workspaceName,
 			},
@@ -150,13 +149,13 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			t.Fatal(err)
 		}
 
-		bo := &storage.BlockStorage{
-			Metadata: &storage.RegionalWorkspaceResourceMetadata{
+		bo := &schema.BlockStorage{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Name:      blockStorageName,
 			},
-			Spec: storage.BlockStorageSpec{
+			Spec: schema.BlockStorageSpec{
 				SizeGB: initialStorageSize,
 				SkuRef: *storageSkuURN,
 			},
@@ -267,12 +266,12 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 			t.Fatal(err)
 		}
 
-		img := &storage.Image{
-			Metadata: &storage.RegionalResourceMetadata{
+		img := &schema.Image{
+			Metadata: &schema.RegionalResourceMetadata{
 				Tenant: suite.tenant,
 				Name:   imageName,
 			},
-			Spec: storage.ImageSpec{
+			Spec: schema.ImageSpec{
 				BlockStorageRef: *blockStorageURN,
 				CpuArchitecture: secalib.CpuArchitectureAmd64,
 			},
@@ -412,7 +411,7 @@ func (suite *StorageV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }
 
-func verifyStorageRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *storage.RegionalResourceMetadata) {
+func verifyStorageRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *schema.RegionalResourceMetadata) {
 	actualMetadata := &secalib.Metadata{
 		Name:       metadata.Name,
 		Provider:   metadata.Provider,
@@ -426,7 +425,7 @@ func verifyStorageRegionalMetadataStep(ctx provider.StepCtx, expected *secalib.M
 	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }
 
-func verifyStorageWorkspaceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *storage.RegionalWorkspaceResourceMetadata) {
+func verifyStorageWorkspaceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *schema.RegionalWorkspaceResourceMetadata) {
 	actualMetadata := &secalib.Metadata{
 		Name:       metadata.Name,
 		Provider:   metadata.Provider,
@@ -441,7 +440,7 @@ func verifyStorageWorkspaceMetadataStep(ctx provider.StepCtx, expected *secalib.
 	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }
 
-func verifyBlockStorageSpecStep(ctx provider.StepCtx, expected *secalib.BlockStorageSpecV1, actual storage.BlockStorageSpec) {
+func verifyBlockStorageSpecStep(ctx provider.StepCtx, expected *secalib.BlockStorageSpecV1, actual schema.BlockStorageSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(expected.SizeGB, actual.SizeGB, "SizeGB should match expected")
 
@@ -453,7 +452,7 @@ func verifyBlockStorageSpecStep(ctx provider.StepCtx, expected *secalib.BlockSto
 	})
 }
 
-func verifyImageSpecStep(ctx provider.StepCtx, expected *secalib.ImageSpecV1, actual storage.ImageSpec) {
+func verifyImageSpecStep(ctx provider.StepCtx, expected *secalib.ImageSpecV1, actual schema.ImageSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		blockStorageRef, err := asStorageReferenceURN(actual.BlockStorageRef)
 		if err != nil {
@@ -465,7 +464,7 @@ func verifyImageSpecStep(ctx provider.StepCtx, expected *secalib.ImageSpecV1, ac
 	})
 }
 
-func asStorageReferenceURN(ref storage.Reference) (string, error) {
+func asStorageReferenceURN(ref schema.Reference) (string, error) {
 	urn, err := ref.AsReferenceURN()
 	if err != nil {
 		return "", fmt.Errorf("error extracting URN from reference: %w", err)
