@@ -7,7 +7,7 @@ require (
 	github.com/eu-sovereign-cloud/go-sdk v0.2.0
 	github.com/ozontech/allure-go/pkg/framework v0.7.3
 	github.com/spf13/cobra v1.10.1
-	github.com/wiremock/go-wiremock v1.13.0
+	github.com/wiremock/go-wiremock v1.14.0
 )
 
 require (
