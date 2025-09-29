@@ -1,6 +1,10 @@
 package secatest
 
-import "sync"
+import (
+	"fmt"
+	"regexp"
+	"sync"
+)
 
 type ConfigHolder struct {
 	providerRegionV1        string
@@ -10,9 +14,12 @@ type ConfigHolder struct {
 	clientRegion    string
 	clientTenant    string
 
-	scenarioUsers     []string
-	scenarioCidr      string
-	scenarioPublicIps string
+	scenariosFilter string
+	scenariosRegexp *regexp.Regexp
+
+	scenariosUsers     []string
+	scenariosCidr      string
+	scenariosPublicIps string
 
 	reportResultsPath string
 
@@ -34,4 +41,19 @@ func initConfig() {
 	}
 
 	config = &ConfigHolder{}
+}
+
+func processConfig() error {
+	configLock.Lock()
+	defer configLock.Unlock()
+
+	if config.scenariosFilter != "" {
+		re, err := regexp.Compile(config.scenariosFilter)
+		if err != nil {
+			return fmt.Errorf("invalid scenarios.filter expression: %w", err)
+		}
+		config.scenariosRegexp = re
+	}
+
+	return nil
 }

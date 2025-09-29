@@ -28,10 +28,10 @@ type FoundationUsageV1TestSuite struct {
 	networkTestSuite *NetworkV1TestSuite
 }
 
-func (suite *FoundationUsageV1TestSuite) TestFoundationUsageV1(t provider.T) {
-	slog.Info("Starting Foundation Usage Test")
+func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
+	slog.Info("Starting " + suite.scenarioName)
 
-	t.Title("Foundation Usage Test")
+	t.Title(suite.scenarioName)
 	configureTags(t,
 		secalib.AuthorizationProviderV1, secalib.RoleKind, secalib.RoleAssignmentKind,
 		secalib.WorkspaceProviderV1, secalib.WorkspaceKind,
@@ -127,8 +127,8 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageV1(t provider.T) {
 	blockStorageSize := secalib.GenerateBlockStorageSize()
 
 	// Setup mock, if configured to use
-	if suite.isMockEnabled() {
-		wm, err := mock.CreateFoundationUsageScenario("Foundation Usage Test", mock.FoundationUsageParamsV1{
+	if suite.mockEnabled {
+		wm, err := mock.CreateFoundationUsageScenario(suite.scenarioName, &mock.FoundationUsageParamsV1{
 			Params: &mock.Params{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
@@ -1302,7 +1302,7 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageV1(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	slog.Info("Finishing Foundation Usage Test")
+	slog.Info("Finishing " + suite.scenarioName)
 }
 
 func (suite *FoundationUsageV1TestSuite) AfterEach(t provider.T) {

@@ -7,17 +7,22 @@ import (
 )
 
 func TestStorageV1Suite(t *testing.T) {
-	suite.RunNamedSuite(t, "Storage V1", &StorageV1TestSuite{
+	testSuite := &StorageV1TestSuite{
 		regionalTestSuite: regionalTestSuite{
 			testSuite: testSuite{
 				tenant:        config.clientTenant,
 				authToken:     config.clientAuthToken,
 				mockEnabled:   config.mockEnabled,
 				mockServerURL: &config.mockServerURL,
+				scenarioName:  storageV1LifeCycleSuiteName,
 			},
 			region: config.clientRegion,
 			client: clients.regionalClient,
 		},
 		storageSkus: clients.storageSkus,
-	})
+	}
+
+	if testSuite.canRun(config.scenariosRegexp) {
+		suite.RunSuite(t, testSuite)
+	}
 }

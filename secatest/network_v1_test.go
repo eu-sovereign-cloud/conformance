@@ -7,22 +7,27 @@ import (
 )
 
 func TestNetworkV1Suite(t *testing.T) {
-	suite.RunNamedSuite(t, "Network V1", &NetworkV1TestSuite{
+	testSuite := &NetworkV1TestSuite{
 		regionalTestSuite: regionalTestSuite{
 			testSuite: testSuite{
 				tenant:        config.clientTenant,
 				authToken:     config.clientAuthToken,
 				mockEnabled:   config.mockEnabled,
 				mockServerURL: &config.mockServerURL,
+				scenarioName:  networkV1LifeCycleSuiteName,
 			},
 			region: config.clientRegion,
 			client: clients.regionalClient,
 		},
-		networkCidr:    config.scenarioCidr,
-		publicIpsRange: config.scenarioPublicIps,
+		networkCidr:    config.scenariosCidr,
+		publicIpsRange: config.scenariosPublicIps,
 		regionZones:    clients.regionZones,
 		instanceSkus:   clients.instanceSkus,
 		storageSkus:    clients.storageSkus,
 		networkSkus:    clients.networkSkus,
-	})
+	}
+
+	if testSuite.canRun(config.scenariosRegexp) {
+		suite.RunSuite(t, testSuite)
+	}
 }
