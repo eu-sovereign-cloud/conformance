@@ -11,6 +11,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/eu-sovereign-cloud/go-sdk v0.2.0 h1:TR3EBIC0EaZVnFIpoHkLNgse8urgUHTdm7AGcM4TrA8=
 github.com/eu-sovereign-cloud/go-sdk v0.2.0/go.mod h1:Rmhw98zOA5tNaDf4yyfnGwmTGGwLEGRf8B0f64GL2ZM=
+github.com/goccy/go-json v0.10.5 h1:Fq85nIqj+gXn/S5ahsiTlK3TmC85qgirsdTP/+DeaC4=
+github.com/goccy/go-json v0.10.5/go.mod h1:oq7eo15ShAhp70Anwd5lgX2pLfOS3QCiwU/PULtXL6M=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
@@ -24,8 +26,8 @@ github.com/oapi-codegen/runtime v1.1.2 h1:P2+CubHq8fO4Q6fV1tqDBZHCwpVpvPg7oKiYzQ
 github.com/oapi-codegen/runtime v1.1.2/go.mod h1:SK9X900oXmPWilYR5/WKPzt3Kqxn/uS/+lbpREv+eCg=
 github.com/ozontech/allure-go/pkg/allure v0.6.14 h1:lDamtSF+WtHQLg2+qQYijtC4Fk3KLGb6txNxxTZwUGc=
 github.com/ozontech/allure-go/pkg/allure v0.6.14/go.mod h1:4oEG2yq+DGOzJS/ZjPc87C/mx3tAnlYpYonk77Ru/vQ=
-github.com/ozontech/allure-go/pkg/framework v0.7.3 h1:nT5BwyX20196IkLLE4Vxvq+Jrle70Ie1s9pZMYAFizs=
-github.com/ozontech/allure-go/pkg/framework v0.7.3/go.mod h1:Xc0Ywvykh+IukU+4+y94qpEsmBtcMF82N48OrLJg88Q=
+github.com/ozontech/allure-go/pkg/framework v0.7.4 h1:GjW8NN2qY4P1KoQ1Teh+IEfBsTf4RijAVtmorwHRep8=
+github.com/ozontech/allure-go/pkg/framework v0.7.4/go.mod h1:6BqD6m6ch2PQb6SjxTlfbtftndV/upv6cOeQH8/RMX8=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
