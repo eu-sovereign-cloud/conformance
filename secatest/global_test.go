@@ -24,6 +24,19 @@ func TestGlobalSuites(t *testing.T) {
 		os.Exit(1)
 	}
 
+	suite.RunNamedSuite(t, "Region V1", &RegionV1TestSuite{
+		globalTestSuite: globalTestSuite{
+			testSuite: testSuite{
+				tenant:        config.clientTenant,
+				authToken:     config.clientAuthToken,
+				mockEnabled:   config.mockEnabled,
+				mockServerURL: &config.mockServerURL,
+			},
+			client: globalClient,
+		},
+		regionName: config.clientRegion,
+	})
+
 	// Run test suites
 	suite.RunNamedSuite(t, "Authorization V1", &AuthorizationV1TestSuite{
 		globalTestSuite: globalTestSuite{
@@ -37,4 +50,5 @@ func TestGlobalSuites(t *testing.T) {
 		},
 		users: config.scenarioUsers,
 	})
+
 }

@@ -9,10 +9,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
-	network "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.network.v1"
-	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
-	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -240,22 +237,22 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	}
 
 	ctx := context.Background()
-	var workResp *workspace.Workspace
-	var networkResp *network.Network
-	var gatewayResp *network.InternetGateway
-	var routeResp *network.RouteTable
-	var subnetResp *network.Subnet
-	var publicIpResp *network.PublicIp
-	var nicResp *network.Nic
-	var groupResp *network.SecurityGroup
-	var blockResp *storage.BlockStorage
-	var instanceResp *compute.Instance
+	var workResp *schema.Workspace
+	var networkResp *schema.Network
+	var gatewayResp *schema.InternetGateway
+	var routeResp *schema.RouteTable
+	var subnetResp *schema.Subnet
+	var publicIpResp *schema.PublicIp
+	var nicResp *schema.Nic
+	var groupResp *schema.SecurityGroup
+	var blockResp *schema.BlockStorage
+	var instanceResp *schema.Instance
 
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
-		ws := &workspace.Workspace{
-			Metadata: &workspace.RegionalResourceMetadata{
+		ws := &schema.Workspace{
+			Metadata: &schema.RegionalResourceMetadata{
 				Tenant: suite.tenant,
 				Name:   workspaceName,
 			},
@@ -304,14 +301,14 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			t.Fatal(err)
 		}
 
-		net := &network.Network{
-			Metadata: &network.RegionalWorkspaceResourceMetadata{
+		net := &schema.Network{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Name:      networkName,
 			},
-			Spec: network.NetworkSpec{
-				Cidr:          network.Cidr{Ipv4: &suite.networkCidr},
+			Spec: schema.NetworkSpec{
+				Cidr:          schema.Cidr{Ipv4: &suite.networkCidr},
 				SkuRef:        *networkSkuURN,
 				RouteTableRef: *routeTableURN,
 			},
@@ -418,8 +415,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	t.WithNewStep("Create internet gateway", func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateInternetGateway", workspaceName)
 
-		gtw := &network.InternetGateway{
-			Metadata: &network.RegionalWorkspaceResourceMetadata{
+		gtw := &schema.InternetGateway{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Name:      internetGatewayName,
@@ -524,8 +521,8 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	t.WithNewStep("Create route table", func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateRouteTable", workspaceName)
 
-		route := &network.RouteTable{
-			Metadata: &network.RegionalNetworkResourceMetadata{
+		route := &schema.RouteTable{
+			Metadata: &schema.RegionalNetworkResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Network:   networkName,
@@ -637,15 +634,15 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	t.WithNewStep("Create subnet", func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateSubnet", workspaceName)
 
-		sub := &network.Subnet{
-			Metadata: &network.RegionalNetworkResourceMetadata{
+		sub := &schema.Subnet{
+			Metadata: &schema.RegionalNetworkResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Network:   networkName,
 				Name:      subnetName,
 			},
-			Spec: network.SubnetSpec{
-				Cidr: network.Cidr{Ipv4: &subnetCidr},
+			Spec: schema.SubnetSpec{
+				Cidr: schema.Cidr{Ipv4: &subnetCidr},
 				Zone: zone1,
 			},
 		}
@@ -751,13 +748,13 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	t.WithNewStep("Create public ip", func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdatePublicIp", workspaceName)
 
-		ip := &network.PublicIp{
-			Metadata: &network.RegionalWorkspaceResourceMetadata{
+		ip := &schema.PublicIp{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Name:      publicIPName,
 			},
-			Spec: network.PublicIpSpec{
+			Spec: schema.PublicIpSpec{
 				Address: &publicIpAddress1,
 				Version: secalib.IPVersion4,
 			},
@@ -872,15 +869,15 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			t.Fatal(err)
 		}
 
-		nic := &network.Nic{
-			Metadata: &network.RegionalWorkspaceResourceMetadata{
+		nic := &schema.Nic{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Name:      nicName,
 			},
-			Spec: network.NicSpec{
+			Spec: schema.NicSpec{
 				Addresses:    []string{nicAddress1},
-				PublicIpRefs: &[]network.Reference{*publicIPURN},
+				PublicIpRefs: &[]schema.Reference{*publicIPURN},
 				SubnetRef:    *subnetURN,
 			},
 		}
@@ -985,14 +982,14 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	t.WithNewStep("Create security group", func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateSecurityGroup", workspaceName)
 
-		group := &network.SecurityGroup{
-			Metadata: &network.RegionalWorkspaceResourceMetadata{
+		group := &schema.SecurityGroup{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Name:      securityGroupName,
 			},
-			Spec: network.SecurityGroupSpec{
-				Rules: []network.SecurityGroupRuleSpec{
+			Spec: schema.SecurityGroupSpec{
+				Rules: []schema.SecurityGroupRuleSpec{
 					{
 						Direction: secalib.SecurityRuleDirectionIngress,
 					},
@@ -1099,13 +1096,13 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			t.Fatal(err)
 		}
 
-		block := &storage.BlockStorage{
-			Metadata: &storage.RegionalWorkspaceResourceMetadata{
+		block := &schema.BlockStorage{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Name:      blockStorageName,
 			},
-			Spec: storage.BlockStorageSpec{
+			Spec: schema.BlockStorageSpec{
 				SizeGB: blockStorageSize,
 				SkuRef: *storageSkuURN,
 			},
@@ -1151,13 +1148,13 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 			t.Fatal(err)
 		}
 
-		inst := &compute.Instance{
-			Metadata: &compute.RegionalWorkspaceResourceMetadata{
+		inst := &schema.Instance{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Name:      instanceName,
 			},
-			Spec: compute.InstanceSpec{
+			Spec: schema.InstanceSpec{
 				SkuRef: *instanceSkuURN,
 				Zone:   zone1,
 			},
@@ -1372,7 +1369,7 @@ func (suite *NetworkV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }
 
-func (suite *NetworkV1TestSuite) verifyNetworkMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *network.RegionalNetworkResourceMetadata) {
+func (suite *NetworkV1TestSuite) verifyNetworkMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *schema.RegionalNetworkResourceMetadata) {
 	actualMetadata := &secalib.Metadata{
 		Name:       metadata.Name,
 		Provider:   metadata.Provider,
@@ -1388,7 +1385,7 @@ func (suite *NetworkV1TestSuite) verifyNetworkMetadataStep(ctx provider.StepCtx,
 	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }
 
-func (suite *NetworkV1TestSuite) verifyWorkspaceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *network.RegionalWorkspaceResourceMetadata) {
+func (suite *NetworkV1TestSuite) verifyWorkspaceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *schema.RegionalWorkspaceResourceMetadata) {
 	actualMetadata := &secalib.Metadata{
 		Name:       metadata.Name,
 		Provider:   metadata.Provider,
@@ -1403,7 +1400,7 @@ func (suite *NetworkV1TestSuite) verifyWorkspaceMetadataStep(ctx provider.StepCt
 	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }
 
-func (suite *NetworkV1TestSuite) verifyNetworkSpecStep(ctx provider.StepCtx, expected *secalib.NetworkSpecV1, actual network.NetworkSpec) {
+func (suite *NetworkV1TestSuite) verifyNetworkSpecStep(ctx provider.StepCtx, expected *secalib.NetworkSpecV1, actual schema.NetworkSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		if actual.Cidr.Ipv4 != nil {
 			stepCtx.Require().Equal(expected.Cidr.Ipv4, *actual.Cidr.Ipv4, "Cidr.Ipv4 should match expected")
@@ -1427,7 +1424,7 @@ func (suite *NetworkV1TestSuite) verifyNetworkSpecStep(ctx provider.StepCtx, exp
 	})
 }
 
-func (suite *NetworkV1TestSuite) verifyInternetGatewaySpecStep(ctx provider.StepCtx, expected *secalib.InternetGatewaySpecV1, actual network.InternetGatewaySpec) {
+func (suite *NetworkV1TestSuite) verifyInternetGatewaySpecStep(ctx provider.StepCtx, expected *secalib.InternetGatewaySpecV1, actual schema.InternetGatewaySpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		if actual.EgressOnly != nil {
 			stepCtx.Require().Equal(expected.EgressOnly, *actual.EgressOnly, "EgressOnly should match expected")
@@ -1435,7 +1432,7 @@ func (suite *NetworkV1TestSuite) verifyInternetGatewaySpecStep(ctx provider.Step
 	})
 }
 
-func (suite *NetworkV1TestSuite) verifyRouteTableSpecStep(ctx provider.StepCtx, expected *secalib.RouteTableSpecV1, actual network.RouteTableSpec) {
+func (suite *NetworkV1TestSuite) verifyRouteTableSpecStep(ctx provider.StepCtx, expected *secalib.RouteTableSpecV1, actual schema.RouteTableSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(len(expected.Routes), len(actual.Routes), "Route list length should match expected")
 		for i := 0; i < len(expected.Routes); i++ {
@@ -1452,7 +1449,7 @@ func (suite *NetworkV1TestSuite) verifyRouteTableSpecStep(ctx provider.StepCtx, 
 	})
 }
 
-func (suite *NetworkV1TestSuite) verifySubNetSpecStep(ctx provider.StepCtx, expected *secalib.SubnetSpecV1, actual network.SubnetSpec) {
+func (suite *NetworkV1TestSuite) verifySubNetSpecStep(ctx provider.StepCtx, expected *secalib.SubnetSpecV1, actual schema.SubnetSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		if actual.Cidr.Ipv4 != nil {
 			stepCtx.Require().Equal(expected.Cidr.Ipv4, *actual.Cidr.Ipv4, "Cidr.Ipv4 should match expected")
@@ -1464,7 +1461,7 @@ func (suite *NetworkV1TestSuite) verifySubNetSpecStep(ctx provider.StepCtx, expe
 	})
 }
 
-func (suite *NetworkV1TestSuite) verifyPublicIpSpecStep(ctx provider.StepCtx, expected *secalib.PublicIpSpecV1, actual network.PublicIpSpec) {
+func (suite *NetworkV1TestSuite) verifyPublicIpSpecStep(ctx provider.StepCtx, expected *secalib.PublicIpSpecV1, actual schema.PublicIpSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(expected.Version, string(actual.Version), "Version should match expected")
 		if actual.Address != nil {
@@ -1473,7 +1470,7 @@ func (suite *NetworkV1TestSuite) verifyPublicIpSpecStep(ctx provider.StepCtx, ex
 	})
 }
 
-func (suite *NetworkV1TestSuite) verifyNicSpecStep(ctx provider.StepCtx, expected *secalib.NICSpecV1, actual network.NicSpec) {
+func (suite *NetworkV1TestSuite) verifyNicSpecStep(ctx provider.StepCtx, expected *secalib.NICSpecV1, actual schema.NicSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(expected.Addresses, actual.Addresses, "Addresses should match expected")
 		if actual.PublicIpRefs != nil {
@@ -1488,7 +1485,7 @@ func (suite *NetworkV1TestSuite) verifyNicSpecStep(ctx provider.StepCtx, expecte
 	})
 }
 
-func (suite *NetworkV1TestSuite) verifySecurityGroupSpecStep(ctx provider.StepCtx, expected *secalib.SecurityGroupSpecV1, actual network.SecurityGroupSpec) {
+func (suite *NetworkV1TestSuite) verifySecurityGroupSpecStep(ctx provider.StepCtx, expected *secalib.SecurityGroupSpecV1, actual schema.SecurityGroupSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(len(expected.Rules), len(actual.Rules), "Rule list length should match expected")
 		for i := 0; i < len(expected.Rules); i++ {
@@ -1499,7 +1496,7 @@ func (suite *NetworkV1TestSuite) verifySecurityGroupSpecStep(ctx provider.StepCt
 	})
 }
 
-func asNetworkReferenceURN(ref network.Reference) (string, error) {
+func asNetworkReferenceURN(ref schema.Reference) (string, error) {
 	urn, err := ref.AsReferenceURN()
 	if err != nil {
 		return "", fmt.Errorf("error extracting URN from reference: %w", err)

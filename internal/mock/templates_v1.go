@@ -469,11 +469,11 @@ const (
       "spec": {
 	  	  "localRef": "[[.Spec.LocalRef]]",
         "routes": [
-		    [[- range $i,  := .Spec.Routes]]
+		    [[- range $i, $r := .Spec.Routes]]
 		    [[if $i]],[[end]]
 			  {
-			    "destinationCidrBlock": "[[.DestinationCidrBlock]]",
-			    "targetRef": "[[.TargetRef]]"
+			    "destinationCidrBlock": "[[$r.DestinationCidrBlock]]",
+			    "targetRef": "[[$r.TargetRef]]"
 		    }[[- end]]
 		]
       },

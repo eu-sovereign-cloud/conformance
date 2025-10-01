@@ -9,9 +9,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
-	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
-	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -103,16 +101,16 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	}
 
 	ctx := context.Background()
-	var workResp *workspace.Workspace
-	var blockStorageResp *storage.BlockStorage
-	var instanceResp *compute.Instance
+	var workResp *schema.Workspace
+	var blockStorageResp *schema.BlockStorage
+	var instanceResp *schema.Instance
 	var err error
 
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
-		ws := &workspace.Workspace{
-			Metadata: &workspace.RegionalResourceMetadata{
+		ws := &schema.Workspace{
+			Metadata: &schema.RegionalResourceMetadata{
 				Tenant: suite.tenant,
 				Name:   workspaceName,
 			},
@@ -152,13 +150,13 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			t.Fatal(err)
 		}
 
-		bo := &storage.BlockStorage{
-			Metadata: &storage.RegionalWorkspaceResourceMetadata{
+		bo := &schema.BlockStorage{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Name:      blockStorageName,
 			},
-			Spec: storage.BlockStorageSpec{
+			Spec: schema.BlockStorageSpec{
 				SizeGB: blockStorageSize,
 				SkuRef: *storageSkuURN,
 			},
@@ -202,13 +200,13 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 			t.Fatal(err)
 		}
 
-		inst := &compute.Instance{
-			Metadata: &compute.RegionalWorkspaceResourceMetadata{
+		inst := &schema.Instance{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
 				Name:      instanceName,
 			},
-			Spec: compute.InstanceSpec{
+			Spec: schema.InstanceSpec{
 				SkuRef: *instanceSkuURN,
 				Zone:   initialInstanceZone,
 			},
@@ -425,7 +423,7 @@ func (suite *ComputeV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }
 
-func verifyInstanceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *compute.RegionalWorkspaceResourceMetadata) {
+func verifyInstanceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *schema.RegionalWorkspaceResourceMetadata) {
 	actualMetadata := &secalib.Metadata{
 		Name:       metadata.Name,
 		Provider:   metadata.Provider,
@@ -440,7 +438,7 @@ func verifyInstanceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata
 	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }
 
-func verifyInstanceSpecStep(ctx provider.StepCtx, expected *secalib.InstanceSpecV1, actual *compute.InstanceSpec) {
+func verifyInstanceSpecStep(ctx provider.StepCtx, expected *secalib.InstanceSpecV1, actual *schema.InstanceSpec) {
 	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
 		skuRef, err := asComputeReferenceURN(actual.SkuRef)
 		if err != nil {
@@ -459,7 +457,7 @@ func verifyInstanceSpecStep(ctx provider.StepCtx, expected *secalib.InstanceSpec
 }
 
 // TODO Convert this to a generic method
-func asComputeReferenceURN(ref compute.Reference) (string, error) {
+func asComputeReferenceURN(ref schema.Reference) (string, error) {
 	urn, err := ref.AsReferenceURN()
 	if err != nil {
 		return "", fmt.Errorf("error extracting URN from reference: %w", err)

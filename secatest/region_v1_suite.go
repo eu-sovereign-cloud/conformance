@@ -2,12 +2,15 @@ package secatest
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	region "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.region.v1"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"k8s.io/utils/ptr"
 )
 
 type RegionV1TestSuite struct {
@@ -139,7 +142,7 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 	}
 
 	ctx := context.Background()
-	var regionResp *region.Region
+	var regionResp *schema.Region
 
 	t.WithNewStep("List Region", func(sCtx provider.StepCtx) {
 		suite.setRegionV1StepParams(sCtx, "")
@@ -179,10 +182,14 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 		}
 	})
 
-	t.WithNewStep("List Region skip-token", func(sCtx provider.StepCtx) {
-		
+	t.WithNewStep("List Region with params", func(sCtx provider.StepCtx) {
 		suite.setRegionV1StepParams(sCtx, "")
-		iter, err := suite.client.RegionV1.ListRegions(ctx)
+		limit := 1
+		labels := builders.NewLabelsBuilder().
+			Equals("env", "test").
+			Build()
+
+		iter, err := suite.client.RegionV1.ListRegionsWithFilters(ctx, ptr.To(limit), ptr.To(labels))
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, iter)
 
@@ -190,6 +197,8 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 			firstRegion, err := iter.Next(ctx)
 			if err != nil {
 				sCtx.Error("Failed to get next region: %v", err)
+			} else if firstRegion == nil {
+				sCtx.Error("No regions found")
 			} else {
 				regionResp = firstRegion
 
@@ -215,7 +224,6 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 		}
 	})
 
-
 	t.WithNewStep("Get Region", func(sCtx provider.StepCtx) {
 		suite.setRegionV1StepParams(sCtx, "")
 
@@ -233,9 +241,18 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 		}
 		verifyRegionMetadataStep(sCtx, expectedMetadata, regionResp.Metadata)
 	})
+
+	t.WithNewStep("Not Exist Region", func(sCtx provider.StepCtx) {
+		suite.setRegionV1StepParams(sCtx, "")
+
+		_, err := suite.client.RegionV1.GetRegion(ctx, secalib.GenerateRegionName())
+		expectedError := errors.New("resource not found")
+		requireError(sCtx, err, expectedError)
+	})
+
 }
 
-func verifyRegionMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, actual *region.GlobalResourceMetadata) {
+func verifyRegionMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, actual *schema.GlobalResourceMetadata) {
 	actualMetadata := &secalib.Metadata{
 		Name:       actual.Name,
 		Verb:       actual.Verb,
@@ -247,7 +264,7 @@ func verifyRegionMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, 
 	verifyGlobalMetadataStep(ctx, expected, actualMetadata)
 }
 
-func verifyRegionExists(ctx provider.StepCtx, expectedRegion string, actualRegions []*region.Region) {
+func verifyRegionExists(ctx provider.StepCtx, expectedRegion string, actualRegions []*schema.Region) {
 
 	for _, region := range actualRegions {
 		if region.Metadata.Name == config.clientRegion {
