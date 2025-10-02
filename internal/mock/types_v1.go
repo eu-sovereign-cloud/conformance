@@ -61,7 +61,7 @@ type NetworkParamsV1 struct {
 
 func (p NetworkParamsV1) getParams() *Params { return p.Params }
 
-type UsageParamsV1 struct {
+type FoundationUsageParamsV1 struct {
 	*Params
 	Workspace     *WorkspaceParamsV1
 	Storage       *StorageParamsV1
@@ -70,4 +70,4 @@ type UsageParamsV1 struct {
 	Authorization *AuthorizationParamsV1
 }
 
-func (p UsageParamsV1) getParams() *Params { return p.Params }
+func (p FoundationUsageParamsV1) getParams() *Params { return p.Params }

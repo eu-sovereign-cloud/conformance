@@ -17,10 +17,10 @@ type WorkspaceV1TestSuite struct {
 	regionalTestSuite
 }
 
-func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
-	slog.Info("Starting Workspace Lifecycle Test")
+func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
+	slog.Info("Starting " + suite.scenarioName)
 
-	t.Title("Workspace Lifecycle Test")
+	t.Title(suite.scenarioName)
 	configureTags(t, secalib.WorkspaceProviderV1, secalib.WorkspaceKind)
 
 	// Generate scenario data
@@ -28,37 +28,36 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
 
 	// Setup mock, if configured to use
-	if suite.isMockEnabled() {
-		wm, err := mock.CreateWorkspaceLifecycleScenarioV1("Workspace Lifecycle",
-			mock.WorkspaceParamsV1{
-				Params: &mock.Params{
-					MockURL:   *suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-					Region:    suite.region,
-				},
-				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
-					Name: workspaceName,
-					InitialSpec: &secalib.WorkspaceSpecV1{
-						Labels: &[]secalib.Label{
-							{
-								Name:  secalib.EnvLabel,
-								Value: secalib.EnvDevelopmentLabel,
-							},
-						},
-					},
-					UpdatedSpec: &secalib.WorkspaceSpecV1{
-						Labels: &[]secalib.Label{
-							{
-								Name:  secalib.EnvLabel,
-								Value: secalib.EnvProductionLabel,
-							},
+	if suite.mockEnabled {
+		wm, err := mock.CreateWorkspaceLifecycleScenarioV1(suite.scenarioName, &mock.WorkspaceParamsV1{
+			Params: &mock.Params{
+				MockURL:   *suite.mockServerURL,
+				AuthToken: suite.authToken,
+				Tenant:    suite.tenant,
+				Region:    suite.region,
+			},
+			Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
+				Name: workspaceName,
+				InitialSpec: &secalib.WorkspaceSpecV1{
+					Labels: &[]secalib.Label{
+						{
+							Name:  secalib.EnvLabel,
+							Value: secalib.EnvDevelopmentLabel,
 						},
 					},
 				},
-			})
+				UpdatedSpec: &secalib.WorkspaceSpecV1{
+					Labels: &[]secalib.Label{
+						{
+							Name:  secalib.EnvLabel,
+							Value: secalib.EnvProductionLabel,
+						},
+					},
+				},
+			},
+		})
 		if err != nil {
-			t.Fatalf("Failed to create workspace scenario: %v", err)
+			t.Fatalf("Failed to create wiremock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
@@ -205,7 +204,7 @@ func (suite *WorkspaceV1TestSuite) TestWorkspaceV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	slog.Info("Finishing Workspace Lifecycle Test")
+	slog.Info("Finishing " + suite.scenarioName)
 }
 
 func (suite *WorkspaceV1TestSuite) AfterEach(t provider.T) {
