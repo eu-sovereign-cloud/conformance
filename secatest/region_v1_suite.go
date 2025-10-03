@@ -249,7 +249,6 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 		expectedError := errors.New("resource not found")
 		requireError(sCtx, err, expectedError)
 	})
-
 }
 
 func verifyRegionMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, actual *schema.GlobalResourceMetadata) {
@@ -265,14 +264,11 @@ func verifyRegionMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, 
 }
 
 func verifyRegionExists(ctx provider.StepCtx, expectedRegion string, actualRegions []*schema.Region) {
-
 	for _, region := range actualRegions {
 		if region.Metadata.Name == config.clientRegion {
 			ctx.WithNewStep("Verify status", func(stepCtx provider.StepCtx) {
 				stepCtx.Require().Equal(expectedRegion, region.Metadata.Name, "State should match expected")
-
 			})
 		}
 	}
-
 }
