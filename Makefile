@@ -48,20 +48,41 @@ run:
 	$(DIST_BIN) run \
 	  --provider.region.v1=http://localhost:8080/providers/seca.region \
 	  --provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
-	  --client.authtoken=test-token \
+	  --client.auth.token=test-token \
 	  --client.region=region-1 \
 	  --client.tenant=tenant-1 \
-	  --scenario.users=user1@secapi.com,user2@secapi.com \
-	  --scenario.cidr=10.1.0.0/16 \
-	  --scenario.publicips=52.93.126.1/26 \
-	  --report.resultspath=$(RESULTS_PATH) \
+	  --scenarios.users=user1@secapi.com,user2@secapi.com \
+	  --scenarios.cidr=10.1.0.0/16 \
+	  --scenarios.public.ips=52.93.126.1/26 \
+	  --report.results.path=$(RESULTS_PATH) \
 	  --mock.enabled=true \
-	  --mock.serverurl=http://localhost:8080
+	  --mock.server.url=http://localhost:8080
 
 .PHONY: report
 report:
 	@echo "Viewing report..."
 	$(DIST_BIN) report $(RESULTS_PATH)
+
+.PHONY: list
+list:
+	@echo "Listing scenarios..."
+	$(DIST_BIN) list
+
+.PHONY: test
+test:
+	@echo "Running tests..."
+	$(GO) test -count=1 -v ./secatest -args run \
+	  --provider.region.v1=http://localhost:8080/providers/seca.region \
+	  --provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
+	  --client.auth.token=test-token \
+	  --client.region=region-1 \
+	  --client.tenant=tenant-1 \
+	  --scenarios.users=user1@secapi.com,user2@secapi.com \
+	  --scenarios.cidr=10.1.0.0/16 \
+	  --scenarios.public.ips=52.93.126.1/26 \
+	  --report.results.path=$(RESULTS_PATH) \
+	  --mock.enabled=true \
+	  --mock.server.url=http://localhost:8080
 
 .PHONY: fmt
 fmt:

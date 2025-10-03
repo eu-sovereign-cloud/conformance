@@ -21,10 +21,10 @@ type StorageV1TestSuite struct {
 	storageSkus []string
 }
 
-func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
-	slog.Info("Starting Storage Lifecycle Test")
+func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
+	slog.Info("Starting " + suite.scenarioName)
 
-	t.Title("Storage Lifecycle Test")
+	t.Title(suite.scenarioName)
 	configureTags(t, secalib.StorageProviderV1, secalib.BlockStorageKind, secalib.ImageKind)
 
 	// Select sku
@@ -46,51 +46,50 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	updatedStorageSize := secalib.GenerateBlockStorageSize()
 
 	// Setup mock, if configured to use
-	if suite.isMockEnabled() {
-		wm, err := mock.CreateStorageLifecycleScenarioV1("Storage Lifecycle",
-			mock.StorageParamsV1{
-				Params: &mock.Params{
-					MockURL:   *suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-					Region:    suite.region,
-				},
-				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
-					Name: workspaceName,
-					InitialSpec: &secalib.WorkspaceSpecV1{
-						Labels: &[]secalib.Label{
-							{
-								Name:  secalib.EnvLabel,
-								Value: secalib.EnvDevelopmentLabel,
-							},
+	if suite.mockEnabled {
+		wm, err := mock.CreateStorageLifecycleScenarioV1(suite.scenarioName, &mock.StorageParamsV1{
+			Params: &mock.Params{
+				MockURL:   *suite.mockServerURL,
+				AuthToken: suite.authToken,
+				Tenant:    suite.tenant,
+				Region:    suite.region,
+			},
+			Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
+				Name: workspaceName,
+				InitialSpec: &secalib.WorkspaceSpecV1{
+					Labels: &[]secalib.Label{
+						{
+							Name:  secalib.EnvLabel,
+							Value: secalib.EnvDevelopmentLabel,
 						},
 					},
 				},
-				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
-					Name: blockStorageName,
-					InitialSpec: &secalib.BlockStorageSpecV1{
-						SkuRef: storageSkuRef,
-						SizeGB: initialStorageSize,
-					},
-					UpdatedSpec: &secalib.BlockStorageSpecV1{
-						SkuRef: storageSkuRef,
-						SizeGB: updatedStorageSize,
-					},
+			},
+			BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
+				Name: blockStorageName,
+				InitialSpec: &secalib.BlockStorageSpecV1{
+					SkuRef: storageSkuRef,
+					SizeGB: initialStorageSize,
 				},
-				Image: &mock.ResourceParams[secalib.ImageSpecV1]{
-					Name: imageName,
-					InitialSpec: &secalib.ImageSpecV1{
-						BlockStorageRef: blockStorageRef,
-						CpuArchitecture: secalib.CpuArchitectureAmd64,
-					},
-					UpdatedSpec: &secalib.ImageSpecV1{
-						BlockStorageRef: blockStorageRef,
-						CpuArchitecture: secalib.CpuArchitectureArm64,
-					},
+				UpdatedSpec: &secalib.BlockStorageSpecV1{
+					SkuRef: storageSkuRef,
+					SizeGB: updatedStorageSize,
 				},
-			})
+			},
+			Image: &mock.ResourceParams[secalib.ImageSpecV1]{
+				Name: imageName,
+				InitialSpec: &secalib.ImageSpecV1{
+					BlockStorageRef: blockStorageRef,
+					CpuArchitecture: secalib.CpuArchitectureAmd64,
+				},
+				UpdatedSpec: &secalib.ImageSpecV1{
+					BlockStorageRef: blockStorageRef,
+					CpuArchitecture: secalib.CpuArchitectureArm64,
+				},
+			},
+		})
 		if err != nil {
-			t.Fatalf("Failed to create storage scenario: %v", err)
+			t.Fatalf("Failed to create wiremock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
@@ -404,7 +403,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	slog.Info("Finishing Storage Lifecycle Test")
+	slog.Info("Finishing " + suite.scenarioName)
 }
 
 func (suite *StorageV1TestSuite) AfterEach(t provider.T) {

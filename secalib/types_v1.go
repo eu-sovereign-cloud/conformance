@@ -22,6 +22,13 @@ type RoleAssignmentSpecScopeV1 struct {
 	Workspaces []string
 }
 
+// Region
+
+type RegionSpecV1 struct {
+	AvailableZones []string
+	Providers      []Providers
+}
+
 // Workspace
 
 type WorkspaceSpecV1 struct {
