@@ -3,10 +3,12 @@ on:
     branches: ["main"]
     paths-ignore:
       - "*.md"
+      - "docs/**"
   pull_request:
     branches: ["*"]
     paths-ignore:
       - "*.md"
+      - "docs/**"
 
 name: Tests
 jobs:
