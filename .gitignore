@@ -7,3 +7,7 @@ dist/
 
 ## Allure
 reports/
+
+## Sonar
+.scannerwork/
+.sonarlint/
