@@ -30,10 +30,10 @@ type NetworkV1TestSuite struct {
 	networkSkus    []string
 }
 
-func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
-	slog.Info("Starting Network Lifecycle Test")
+func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
+	slog.Info("Starting " + suite.scenarioName)
 
-	t.Title("Network Lifecycle Test")
+	t.Title(suite.scenarioName)
 	configureTags(t, secalib.NetworkProviderV1, secalib.NetworkKind, secalib.InternetGatewayKind, secalib.NicKind, secalib.PublicIPKind, secalib.RouteTableKind,
 		secalib.SubnetKind, secalib.SecurityGroupKind)
 
@@ -117,121 +117,120 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	blockStorageSize := secalib.GenerateBlockStorageSize()
 
 	// Setup mock, if configured to use
-	if suite.isMockEnabled() {
-		wm, err := mock.CreateNetworkLifecycleScenarioV1("Network Lifecycle",
-			mock.NetworkParamsV1{
-				Params: &mock.Params{
-					MockURL:   *suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-					Region:    suite.region,
-				},
-				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
-					Name: workspaceName,
-					InitialSpec: &secalib.WorkspaceSpecV1{
-						Labels: &[]secalib.Label{
-							{
-								Name:  secalib.EnvLabel,
-								Value: secalib.EnvDevelopmentLabel,
-							},
+	if suite.mockEnabled {
+		wm, err := mock.CreateNetworkLifecycleScenarioV1(suite.scenarioName, &mock.NetworkParamsV1{
+			Params: &mock.Params{
+				MockURL:   *suite.mockServerURL,
+				AuthToken: suite.authToken,
+				Tenant:    suite.tenant,
+				Region:    suite.region,
+			},
+			Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
+				Name: workspaceName,
+				InitialSpec: &secalib.WorkspaceSpecV1{
+					Labels: &[]secalib.Label{
+						{
+							Name:  secalib.EnvLabel,
+							Value: secalib.EnvDevelopmentLabel,
 						},
 					},
 				},
-				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
-					Name: blockStorageName,
-					InitialSpec: &secalib.BlockStorageSpecV1{
-						SkuRef: storageSkuRef,
-						SizeGB: blockStorageSize,
+			},
+			BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
+				Name: blockStorageName,
+				InitialSpec: &secalib.BlockStorageSpecV1{
+					SkuRef: storageSkuRef,
+					SizeGB: blockStorageSize,
+				},
+			},
+			Instance: &mock.ResourceParams[secalib.InstanceSpecV1]{
+				Name: instanceName,
+				InitialSpec: &secalib.InstanceSpecV1{
+					SkuRef:        instanceSkuRef,
+					Zone:          zone1,
+					BootDeviceRef: blockStorageRef,
+				},
+			},
+			Network: &mock.ResourceParams[secalib.NetworkSpecV1]{
+				Name: networkName,
+				InitialSpec: &secalib.NetworkSpecV1{
+					Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
+					SkuRef:        networkSkuRef1,
+					RouteTableRef: routeTableRef,
+				},
+				UpdatedSpec: &secalib.NetworkSpecV1{
+					Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
+					SkuRef:        networkSkuRef2,
+					RouteTableRef: routeTableRef,
+				},
+			},
+			InternetGateway: &mock.ResourceParams[secalib.InternetGatewaySpecV1]{
+				Name:        internetGatewayName,
+				InitialSpec: &secalib.InternetGatewaySpecV1{EgressOnly: false},
+				UpdatedSpec: &secalib.InternetGatewaySpecV1{EgressOnly: true},
+			},
+			RouteTable: &mock.ResourceParams[secalib.RouteTableSpecV1]{
+				Name: routeTableName,
+				InitialSpec: &secalib.RouteTableSpecV1{
+					LocalRef: networkRef,
+					Routes: []*secalib.RouteTableRouteV1{
+						{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: internetGatewayRef},
 					},
 				},
-				Instance: &mock.ResourceParams[secalib.InstanceSpecV1]{
-					Name: instanceName,
-					InitialSpec: &secalib.InstanceSpecV1{
-						SkuRef:        instanceSkuRef,
-						Zone:          zone1,
-						BootDeviceRef: blockStorageRef,
+				UpdatedSpec: &secalib.RouteTableSpecV1{
+					LocalRef: networkRef,
+					Routes: []*secalib.RouteTableRouteV1{
+						{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: instanceRef},
 					},
 				},
-				Network: &mock.ResourceParams[secalib.NetworkSpecV1]{
-					Name: networkName,
-					InitialSpec: &secalib.NetworkSpecV1{
-						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
-						SkuRef:        networkSkuRef1,
-						RouteTableRef: routeTableRef,
-					},
-					UpdatedSpec: &secalib.NetworkSpecV1{
-						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
-						SkuRef:        networkSkuRef2,
-						RouteTableRef: routeTableRef,
-					},
+			},
+			Subnet: &mock.ResourceParams[secalib.SubnetSpecV1]{
+				Name: subnetName,
+				InitialSpec: &secalib.SubnetSpecV1{
+					Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
+					Zone: zone1,
 				},
-				InternetGateway: &mock.ResourceParams[secalib.InternetGatewaySpecV1]{
-					Name:        internetGatewayName,
-					InitialSpec: &secalib.InternetGatewaySpecV1{EgressOnly: false},
-					UpdatedSpec: &secalib.InternetGatewaySpecV1{EgressOnly: true},
+				UpdatedSpec: &secalib.SubnetSpecV1{
+					Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
+					Zone: zone2,
 				},
-				RouteTable: &mock.ResourceParams[secalib.RouteTableSpecV1]{
-					Name: routeTableName,
-					InitialSpec: &secalib.RouteTableSpecV1{
-						LocalRef: networkRef,
-						Routes: []*secalib.RouteTableRouteV1{
-							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: internetGatewayRef},
-						},
-					},
-					UpdatedSpec: &secalib.RouteTableSpecV1{
-						LocalRef: networkRef,
-						Routes: []*secalib.RouteTableRouteV1{
-							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: instanceRef},
-						},
-					},
+			},
+			NIC: &mock.ResourceParams[secalib.NICSpecV1]{
+				Name: nicName,
+				InitialSpec: &secalib.NICSpecV1{
+					Addresses:    []string{nicAddress1},
+					PublicIpRefs: []string{publicIPRef},
+					SubnetRef:    subnetRef,
 				},
-				Subnet: &mock.ResourceParams[secalib.SubnetSpecV1]{
-					Name: subnetName,
-					InitialSpec: &secalib.SubnetSpecV1{
-						Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
-						Zone: zone1,
-					},
-					UpdatedSpec: &secalib.SubnetSpecV1{
-						Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
-						Zone: zone2,
-					},
+				UpdatedSpec: &secalib.NICSpecV1{
+					Addresses:    []string{nicAddress2},
+					PublicIpRefs: []string{publicIPRef},
+					SubnetRef:    subnetRef,
 				},
-				NIC: &mock.ResourceParams[secalib.NICSpecV1]{
-					Name: nicName,
-					InitialSpec: &secalib.NICSpecV1{
-						Addresses:    []string{nicAddress1},
-						PublicIpRefs: []string{publicIPRef},
-						SubnetRef:    subnetRef,
-					},
-					UpdatedSpec: &secalib.NICSpecV1{
-						Addresses:    []string{nicAddress2},
-						PublicIpRefs: []string{publicIPRef},
-						SubnetRef:    subnetRef,
-					},
+			},
+			PublicIP: &mock.ResourceParams[secalib.PublicIpSpecV1]{
+				Name: publicIPName,
+				InitialSpec: &secalib.PublicIpSpecV1{
+					Version: secalib.IPVersion4,
+					Address: publicIpAddress1,
 				},
-				PublicIP: &mock.ResourceParams[secalib.PublicIpSpecV1]{
-					Name: publicIPName,
-					InitialSpec: &secalib.PublicIpSpecV1{
-						Version: secalib.IPVersion4,
-						Address: publicIpAddress1,
-					},
-					UpdatedSpec: &secalib.PublicIpSpecV1{
-						Version: secalib.IPVersion4,
-						Address: publicIpAddress2,
-					},
+				UpdatedSpec: &secalib.PublicIpSpecV1{
+					Version: secalib.IPVersion4,
+					Address: publicIpAddress2,
 				},
-				SecurityGroup: &mock.ResourceParams[secalib.SecurityGroupSpecV1]{
-					Name: securityGroupName,
-					InitialSpec: &secalib.SecurityGroupSpecV1{
-						Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionIngress}},
-					},
-					UpdatedSpec: &secalib.SecurityGroupSpecV1{
-						Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionEgress}},
-					},
+			},
+			SecurityGroup: &mock.ResourceParams[secalib.SecurityGroupSpecV1]{
+				Name: securityGroupName,
+				InitialSpec: &secalib.SecurityGroupSpecV1{
+					Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionIngress}},
 				},
-			})
+				UpdatedSpec: &secalib.SecurityGroupSpecV1{
+					Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionEgress}},
+				},
+			},
+		})
 		if err != nil {
-			t.Fatalf("Failed to create network scenario: %v", err)
+			t.Fatalf("Failed to create wiremock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
@@ -1362,7 +1361,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	slog.Info("Finishing Network Lifecycle Test")
+	slog.Info("Finishing " + suite.scenarioName)
 }
 
 func (suite *NetworkV1TestSuite) AfterEach(t provider.T) {
