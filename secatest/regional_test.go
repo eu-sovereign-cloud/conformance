@@ -11,7 +11,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
-func TestRegionalSuites(t *testing.T) {
+func RegionalSuites(t *testing.T) {
 	ctx := context.Background()
 
 	// Initialize global client

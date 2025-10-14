@@ -104,7 +104,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
 
 		role := &schema.Role{
-			Metadata: &schema.GlobalResourceMetadata{
+			Metadata: &schema.GlobalTenantResourceMetadata{
 				Tenant: suite.tenant,
 				Name:   roleName,
 			},
@@ -221,7 +221,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
 
 		assign := &schema.RoleAssignment{
-			Metadata: &schema.GlobalResourceMetadata{
+			Metadata: &schema.GlobalTenantResourceMetadata{
 				Tenant: suite.tenant,
 				Name:   roleAssignmentName,
 			},
@@ -366,7 +366,7 @@ func (suite *AuthorizationV1TestSuite) AfterEach(t provider.T) {
 }
 
 // TODO Create a helper to perform this copy using reflection
-func verifyAuthorizationMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, actual *schema.GlobalResourceMetadata) {
+func verifyAuthorizationMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, actual *schema.GlobalTenantResourceMetadata) {
 	actualMetadata := &secalib.Metadata{
 		Name:       actual.Name,
 		Provider:   actual.Provider,

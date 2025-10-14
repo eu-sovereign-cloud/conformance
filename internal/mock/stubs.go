@@ -1,11 +1,9 @@
 package mock
 
 import (
-	"bytes"
 	"encoding/json"
 	"log/slog"
 	"net/http"
-	"text/template"
 
 	"github.com/wiremock/go-wiremock"
 )
@@ -13,15 +11,17 @@ import (
 func configureStub(wm *wiremock.Client, method string, name string, config stubConfig) error {
 	// Build the response
 	response := wiremock.NewResponse().WithStatus(int64(config.httpStatus))
-	if config.template != "" {
-		// Response with body
-		processTemplate, err := processTemplate(config.template, config.response)
+
+	// Response with body
+	if config.response != nil {
+		body, err := json.Marshal(config.response)
 		if err != nil {
+			slog.Error("Error parsing response to JSON", "error", err)
 			return err
 		}
 		response = response.
 			WithHeader(contentTypeHttpHeaderKey, contentTypeHttpHeaderValue).
-			WithJSONBody(processTemplate)
+			WithJSONBody(body)
 	}
 
 	params := config.params.getParams()
@@ -75,20 +75,4 @@ func configureGetStub(wm *wiremock.Client, scenarioName string, scenarioConfig s
 
 func configureDeleteStub(wm *wiremock.Client, scenarioName string, scenarioConfig stubConfig) error {
 	return configureStub(wm, http.MethodDelete, scenarioName, scenarioConfig)
-}
-
-func processTemplate(templ string, data any) (any, error) {
-	tmpl := template.Must(template.New("response").Delims("[[", "]]").Parse(templ))
-
-	var buffer bytes.Buffer
-	if err := tmpl.Execute(&buffer, data); err != nil {
-		return nil, err
-	}
-	var dataJsonMap any
-	err := json.Unmarshal(buffer.Bytes(), &dataJsonMap)
-	if err != nil {
-		return nil, err
-	}
-
-	return dataJsonMap, nil
 }

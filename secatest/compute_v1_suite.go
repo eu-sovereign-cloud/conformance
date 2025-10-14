@@ -145,7 +145,7 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateBlockStorage", workspaceName)
 
-		storageSkuURN, err := suite.client.StorageV1.BuildReferenceURN(storageSkuRef)
+		storageSkuURN, err := secapi.BuildReferenceFromURN(storageSkuRef)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -190,12 +190,12 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
 
-		instanceSkuURN, err := suite.client.ComputeV1.BuildReferenceURN(instanceSkuRef)
+		instanceSkuURN, err := secapi.BuildReferenceFromURN(instanceSkuRef)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		deviceRef, err := suite.client.ComputeV1.BuildReferenceURN(blockStorageRef)
+		deviceRef, err := secapi.BuildReferenceFromURN(blockStorageRef)
 		if err != nil {
 			t.Fatal(err)
 		}

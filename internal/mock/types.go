@@ -26,7 +26,6 @@ type stubConfig struct {
 	url          string
 	params       HasParams
 	response     any
-	template     string
 	currentState string
 	nextState    string
 	httpStatus   int

@@ -291,12 +291,12 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	t.WithNewStep("Create network", func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNetwork", workspaceName)
 
-		networkSkuURN, err := suite.client.NetworkV1.BuildReferenceURN(networkSkuRef1)
+		networkSkuURN, err := secapi.BuildReferenceFromURN(networkSkuRef1)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		routeTableURN, err := suite.client.NetworkV1.BuildReferenceURN(routeTableRef)
+		routeTableURN, err := secapi.BuildReferenceFromURN(routeTableRef)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -859,12 +859,12 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	t.WithNewStep("Create nic", func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNic", workspaceName)
 
-		publicIPURN, err := suite.client.NetworkV1.BuildReferenceURN(publicIPRef)
+		publicIPURN, err := secapi.BuildReferenceFromURN(publicIPRef)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		subnetURN, err := suite.client.NetworkV1.BuildReferenceURN(subnetRef)
+		subnetURN, err := secapi.BuildReferenceFromURN(subnetRef)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1091,7 +1091,7 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateBlockStorage", workspaceName)
 
-		storageSkuURN, err := suite.client.StorageV1.BuildReferenceURN(storageSkuRef)
+		storageSkuURN, err := secapi.BuildReferenceFromURN(storageSkuRef)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1138,12 +1138,12 @@ func (suite *NetworkV1TestSuite) TestNetworkV1(t provider.T) {
 	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
 
-		instanceSkuURN, err := suite.client.ComputeV1.BuildReferenceURN(instanceSkuRef)
+		instanceSkuURN, err := secapi.BuildReferenceFromURN(instanceSkuRef)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		blockStorageURN, err := suite.client.ComputeV1.BuildReferenceURN(blockStorageRef)
+		blockStorageURN, err := secapi.BuildReferenceFromURN(blockStorageRef)
 		if err != nil {
 			t.Fatal(err)
 		}

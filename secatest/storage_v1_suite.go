@@ -144,7 +144,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateBlockStorage", workspaceName)
 
-		storageSkuURN, err := suite.client.StorageV1.BuildReferenceURN(storageSkuRef)
+		storageSkuURN, err := secapi.BuildReferenceFromURN(storageSkuRef)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -261,7 +261,7 @@ func (suite *StorageV1TestSuite) TestStorageV1(t provider.T) {
 	t.WithNewStep("Create image", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateImage", "")
 
-		blockStorageURN, err := suite.client.StorageV1.BuildReferenceURN(blockStorageRef)
+		blockStorageURN, err := secapi.BuildReferenceFromURN(blockStorageRef)
 		if err != nil {
 			t.Fatal(err)
 		}
