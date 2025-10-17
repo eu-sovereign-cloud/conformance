@@ -50,7 +50,7 @@ func GenerateSubnetName() string {
 	return fmt.Sprintf("subnet-%d", rand.Intn(math.MaxInt32))
 }
 
-func GeneratePublicIPName() string {
+func GeneratePublicIpName() string {
 	return fmt.Sprintf("public-ip-%d", rand.Intn(math.MaxInt32))
 }
 
@@ -103,8 +103,8 @@ func GenerateNicResource(tenant string, workspace string, nic string) string {
 	return fmt.Sprintf(NicResource, tenant, workspace, nic)
 }
 
-func GeneratePublicIPResource(tenant string, workspace string, publicIP string) string {
-	return fmt.Sprintf(PublicIPResource, tenant, workspace, publicIP)
+func GeneratePublicIpResource(tenant string, workspace string, publicIp string) string {
+	return fmt.Sprintf(PublicIpResource, tenant, workspace, publicIp)
 }
 
 func GenerateRouteTableResource(tenant string, workspace string, network string, routeTable string) string {
@@ -148,8 +148,8 @@ func GenerateSubnetRef(subnetName string) string {
 	return fmt.Sprintf(SubnetRef, subnetName)
 }
 
-func GeneratePublicIPRef(publicIPName string) string {
-	return fmt.Sprintf(PublicIPRef, publicIPName)
+func GeneratePublicIpRef(publicIpName string) string {
+	return fmt.Sprintf(PublicIpRef, publicIpName)
 }
 
 // URLs
@@ -201,8 +201,8 @@ func GenerateNicURL(tenant string, workspace string, nic string) string {
 	return fmt.Sprintf(NicURLV1, tenant, workspace, nic)
 }
 
-func GeneratePublicIPURL(tenant string, workspace string, publicIP string) string {
-	return fmt.Sprintf(PublicIPURLV1, tenant, workspace, publicIP)
+func GeneratePublicIpURL(tenant string, workspace string, publicIp string) string {
+	return fmt.Sprintf(PublicIpURLV1, tenant, workspace, publicIp)
 }
 
 func GenerateRouteTableURL(tenant string, workspace string, network string, routeTable string) string {

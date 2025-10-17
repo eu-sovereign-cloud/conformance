@@ -18,6 +18,8 @@ type WorkspaceV1TestSuite struct {
 }
 
 func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
+	ctx := context.Background()
+	var err error
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
@@ -36,23 +38,13 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 				Tenant:    suite.tenant,
 				Region:    suite.region,
 			},
-			Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
+			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
-				InitialSpec: &secalib.WorkspaceSpecV1{
-					Labels: &[]secalib.Label{
-						{
-							Name:  secalib.EnvLabel,
-							Value: secalib.EnvDevelopmentLabel,
-						},
-					},
+				InitialLabels: schema.Labels{
+					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
 				},
-				UpdatedSpec: &secalib.WorkspaceSpecV1{
-					Labels: &[]secalib.Label{
-						{
-							Name:  secalib.EnvLabel,
-							Value: secalib.EnvProductionLabel,
-						},
-					},
+				UpdatedLabels: schema.Labels{
+					secalib.EnvLabel: secalib.EnvProductionLabel,
 				},
 			},
 		})
@@ -62,15 +54,14 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		suite.mockClient = wm
 	}
 
-	ctx := context.Background()
 	var resp *schema.Workspace
-	var err error
+	var expectedMeta *schema.RegionalResourceMetadata
+	var expectedLabels schema.Labels
 
-	var expectedMeta *secalib.Metadata
-	var expectedLabel *[]secalib.Label
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
+		// TODO Create a builder to help to create this object to use on the client
 		ws := &schema.Workspace{
 			Metadata: &schema.RegionalResourceMetadata{
 				Tenant: suite.tenant,
@@ -81,7 +72,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMeta = &secalib.Metadata{
+		expectedMeta = &schema.RegionalResourceMetadata{
 			Name:       workspaceName,
 			Provider:   secalib.WorkspaceProviderV1,
 			Resource:   workspaceResource,
@@ -89,13 +80,11 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 			ApiVersion: secalib.ApiVersion1,
 			Kind:       secalib.WorkspaceKind,
 			Tenant:     suite.tenant,
-			Region:     &suite.region,
+			Region:     suite.region,
 		}
-		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.CreatingStatusState},
-			&secalib.Status{State: string(*resp.Status.State)},
-		)
+		verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+
+		verifyStatusStep(sCtx, secalib.CreatingStatusState, *resp.Status.State)
 	})
 
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
@@ -110,27 +99,14 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, resp)
 
 		expectedMeta.Verb = http.MethodGet
-		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		expectedLabel = &[]secalib.Label{
-			{
-				Name:  secalib.EnvLabel,
-				Value: secalib.EnvDevelopmentLabel,
-			},
-		}
-		var actualLabels *[]secalib.Label
-		if resp.Labels != nil {
-			labels := make([]secalib.Label, 0, len(resp.Labels))
-			for k, v := range resp.Labels {
-				labels = append(labels, secalib.Label{Name: k, Value: v})
-			}
-			actualLabels = &labels
-		}
-		verifyLabelStep(sCtx, expectedLabel, actualLabels)
+		verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.ActiveStatusState},
-			&secalib.Status{State: string(*resp.Status.State)},
-		)
+		expectedLabels = schema.Labels{
+			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+		}
+		verifyLabelStep(sCtx, expectedLabels, resp.Labels)
+
+		verifyStatusStep(sCtx, secalib.ActiveStatusState, *resp.Status.State)
 	})
 
 	t.WithNewStep("Update workspace", func(sCtx provider.StepCtx) {
@@ -141,12 +117,9 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, resp)
 
 		expectedMeta.Verb = http.MethodPut
-		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+		verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.UpdatingStatusState},
-			&secalib.Status{State: string(*resp.Status.State)},
-		)
+		verifyStatusStep(sCtx, secalib.UpdatingStatusState, *resp.Status.State)
 	})
 
 	t.WithNewStep("Get updated workspace", func(sCtx provider.StepCtx) {
@@ -161,28 +134,14 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, resp)
 
 		expectedMeta.Verb = http.MethodGet
-		verifyWorkspaceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+		verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		expectedLabel = &[]secalib.Label{
-			{
-				Name:  secalib.EnvLabel,
-				Value: secalib.EnvProductionLabel,
-			},
+		expectedLabels = schema.Labels{
+			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
 		}
-		var actualLabels *[]secalib.Label
-		if resp.Labels != nil {
-			labels := make([]secalib.Label, 0, len(resp.Labels))
-			for k, v := range resp.Labels {
-				labels = append(labels, secalib.Label{Name: k, Value: v})
-			}
-			actualLabels = &labels
-		}
-		verifyLabelStep(sCtx, expectedLabel, actualLabels)
+		verifyLabelStep(sCtx, expectedLabels, resp.Labels)
 
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.ActiveStatusState},
-			&secalib.Status{State: string(*resp.Status.State)},
-		)
+		verifyStatusStep(sCtx, secalib.ActiveStatusState, *resp.Status.State)
 	})
 
 	t.WithNewStep("Delete workspace", func(sCtx provider.StepCtx) {
@@ -208,18 +167,4 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 
 func (suite *WorkspaceV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
-}
-
-func verifyWorkspaceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *schema.RegionalResourceMetadata) {
-	actualMetadata := &secalib.Metadata{
-		Name:       metadata.Name,
-		Provider:   metadata.Provider,
-		Verb:       metadata.Verb,
-		Resource:   metadata.Resource,
-		ApiVersion: metadata.ApiVersion,
-		Kind:       string(metadata.Kind),
-		Tenant:     metadata.Tenant,
-		Region:     &metadata.Region,
-	}
-	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
 }

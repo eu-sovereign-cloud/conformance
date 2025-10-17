@@ -3,7 +3,6 @@ package mock
 import (
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 
@@ -21,121 +20,56 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	url := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
 	resource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 
-	response := &resourceResponse[secalib.WorkspaceSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.Workspace.Name,
-			Provider:   secalib.WorkspaceProviderV1,
-			Resource:   resource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.WorkspaceKind,
-			Tenant:     params.Tenant,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Labels: &[]secalib.Label{},
-	}
+	response := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, resource, secalib.ApiVersion1,
+		params.Tenant, params.Region,
+		params.Workspace.InitialLabels)
 
-	for _, labels := range *params.Workspace.InitialSpec.Labels {
-		*response.Labels = append(*response.Labels, secalib.Label{
-			Name:  labels.Name,
-			Value: labels.Value,
-		})
-	}
 	// Create a workspace
+	setCreatedRegionalResourceMetadata(response.Metadata)
+	response.Status = newWorkspaceStatus(secalib.CreatingStatusState)
 	response.Metadata.Verb = http.MethodPut
-	response.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	response.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	response.Metadata.ResourceVersion = 1
-	response.Status.State = secalib.CreatingStatusState
-	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          url,
-		params:       params,
-		response:     response,
-		currentState: startedScenarioState,
-		nextState:    "GetCreatedWorkspace",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: url, params: params, response: response, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Get created workspace
+	setWorkspaceStatusState(response.Status, secalib.ActiveStatusState)
 	response.Metadata.Verb = http.MethodGet
-	response.Status.State = secalib.ActiveStatusState
-	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          url,
-		params:       params,
-		response:     response,
-		currentState: "GetCreatedWorkspace",
-		nextState:    "UpdateWorkspace",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: url, params: params, response: response, currentState: "GetCreatedWorkspace", nextState: "UpdateWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Update the workspace
-
-	for _, labels := range *params.Workspace.UpdatedSpec.Labels {
-		*response.Labels = append(*response.Labels, secalib.Label{
-			Name:  labels.Name,
-			Value: labels.Value,
-		})
-	}
+	setModifiedRegionalResourceMetadata(response.Metadata)
+	setWorkspaceStatusState(response.Status, secalib.UpdatingStatusState)
+	response.Labels = params.Workspace.UpdatedLabels
 	response.Metadata.Verb = http.MethodPut
-	response.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	response.Metadata.ResourceVersion = response.Metadata.ResourceVersion + 1
-	response.Status.State = secalib.UpdatingStatusState
-	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          url,
-		params:       params,
-		response:     response,
-		currentState: "UpdateWorkspace",
-		nextState:    "GetUpdatedWorkspace",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: url, params: params, response: response, currentState: "UpdateWorkspace", nextState: "GetUpdatedWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Get updated workspace
+	setWorkspaceStatusState(response.Status, secalib.ActiveStatusState)
 	response.Metadata.Verb = http.MethodGet
-	response.Status.State = secalib.ActiveStatusState
-	response.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          url,
-		params:       params,
-		response:     response,
-		currentState: "GetUpdatedWorkspace",
-		nextState:    "DeleteWorkspace",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: url, params: params, response: response, currentState: "GetUpdatedWorkspace", nextState: "DeleteWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
 	response.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
-		url:          url,
-		params:       params,
-		response:     response,
-		currentState: "DeleteWorkspace",
-		nextState:    "GetDeletedWorkspace",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	if err := configureDeleteSuccessStub(wm, scenario,
+		&stubConfig{url: url, params: params, response: response, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted workspace
 	response.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          url,
-		params:       params,
-		response:     response,
-		currentState: "GetDeletedWorkspace",
-		nextState:    startedScenarioState,
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
+	if err := configureGetStub(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: url, params: params, response: response, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 

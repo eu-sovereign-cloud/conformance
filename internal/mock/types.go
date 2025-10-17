@@ -1,6 +1,6 @@
 package mock
 
-import "github.com/eu-sovereign-cloud/conformance/secalib"
+import "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 
 // TODO Find a better name
 type Params struct {
@@ -10,16 +10,17 @@ type Params struct {
 	Tenant string
 	Region string
 }
-
 type HasParams interface {
 	getParams() *Params
 }
 
 // TODO Find a better name
 type ResourceParams[T any] struct {
-	Name        string
-	InitialSpec *T
-	UpdatedSpec *T
+	Name          string
+	InitialLabels schema.Labels
+	UpdatedLabels schema.Labels
+	InitialSpec   *T
+	UpdatedSpec   *T
 }
 
 type stubConfig struct {
@@ -28,14 +29,5 @@ type stubConfig struct {
 	response     any
 	currentState string
 	nextState    string
-	httpStatus   int
 	priority     int
-}
-
-// TODO Find a better name
-type resourceResponse[T any] struct {
-	Metadata *secalib.Metadata
-	Status   *secalib.Status
-	Labels   *[]secalib.Label
-	Spec     *T
 }

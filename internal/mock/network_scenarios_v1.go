@@ -3,7 +3,6 @@ package mock
 import (
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/wiremock/go-wiremock"
@@ -19,1006 +18,496 @@ func CreateNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Generate URLs
 	workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
-	blockStorageUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	blockUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
 	instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, params.Instance.Name)
 	networkUrl := secalib.GenerateNetworkURL(params.Tenant, params.Workspace.Name, params.Network.Name)
-	internetGatewayUrl := secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
+	gatewayUrl := secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
 	nicUrl := secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, params.NIC.Name)
-	publicIPUrl := secalib.GeneratePublicIPURL(params.Tenant, params.Workspace.Name, params.PublicIP.Name)
-	routeTableUrl := secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
+	publicIpUrl := secalib.GeneratePublicIpURL(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
+	routeUrl := secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
 	subnetUrl := secalib.GenerateSubnetURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
-	securityGroupUrl := secalib.GenerateSecurityGroupURL(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
+	groupUrl := secalib.GenerateSecurityGroupURL(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
 
 	// Generate resources
 	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
-	blockStorageResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	blockResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
 	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
 	networkResource := secalib.GenerateNetworkResource(params.Tenant, params.Workspace.Name, params.Network.Name)
-	internetGatewayResource := secalib.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
+	gatewayResource := secalib.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
 	nicResource := secalib.GenerateNicResource(params.Tenant, params.Workspace.Name, params.NIC.Name)
-	publicIPResource := secalib.GeneratePublicIPResource(params.Tenant, params.Workspace.Name, params.PublicIP.Name)
-	routeTableResource := secalib.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
+	publicIpResource := secalib.GeneratePublicIpResource(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
+	routeResource := secalib.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
 	subnetResource := secalib.GenerateSubnetResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
-	securityGroupResource := secalib.GenerateSecurityGroupResource(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
+	groupResource := secalib.GenerateSecurityGroupResource(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
 
 	// Workspace
-	workResponse := &resourceResponse[secalib.WorkspaceSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.Workspace.Name,
-			Provider:   secalib.WorkspaceProviderV1,
-			Resource:   workspaceResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.WorkspaceKind,
-			Tenant:     params.Tenant,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Labels: &[]secalib.Label{},
-	}
+	workResponse := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1, params.Tenant, params.Region,
+		params.Workspace.InitialLabels)
 
 	// Create a workspace
+	setCreatedRegionalResourceMetadata(workResponse.Metadata)
+	workResponse.Status = newWorkspaceStatus(secalib.CreatingStatusState)
 	workResponse.Metadata.Verb = http.MethodPut
-	workResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	workResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	workResponse.Metadata.ResourceVersion = 1
-	workResponse.Status.State = secalib.CreatingStatusState
-	workResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          workspaceUrl,
-		params:       params,
-		response:     workResponse,
-		currentState: startedScenarioState,
-		nextState:    "GetCreatedWorkspace",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, response: workResponse, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Get created workspace
+	setWorkspaceStatusState(workResponse.Status, secalib.ActiveStatusState)
 	workResponse.Metadata.Verb = http.MethodGet
-	workResponse.Status.State = secalib.ActiveStatusState
-	workResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          workspaceUrl,
-		params:       params,
-		response:     workResponse,
-		currentState: "GetCreatedWorkspace",
-		nextState:    "CreateNetwork",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, response: workResponse, currentState: "GetCreatedWorkspace", nextState: "CreateBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Network
-	networkResponse := &resourceResponse[secalib.NetworkSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.Network.Name,
-			Provider:   secalib.NetworkProviderV1,
-			Resource:   networkResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.NetworkKind,
-			Tenant:     params.Tenant,
-			Workspace:  &params.Workspace.Name,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Spec: &secalib.NetworkSpecV1{
-			Cidr: &secalib.NetworkSpecCIDRV1{
-				Ipv4: params.Network.InitialSpec.Cidr.Ipv4,
-				Ipv6: params.Network.InitialSpec.Cidr.Ipv6,
-			},
-			SkuRef:        params.Network.InitialSpec.SkuRef,
-			RouteTableRef: params.Network.InitialSpec.RouteTableRef,
-		},
-	}
+	networkResponse := newNetworkResponse(params.Network.Name, secalib.NetworkProviderV1, networkResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region,
+		params.Network.InitialSpec)
 
 	// Create a network
+	setCreatedRegionalWorkspaceResourceMetadata(networkResponse.Metadata)
+	networkResponse.Status = newNetworkStatus(secalib.CreatingStatusState)
 	networkResponse.Metadata.Verb = http.MethodPut
-	networkResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	networkResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	networkResponse.Metadata.ResourceVersion = 1
-	networkResponse.Status.State = secalib.CreatingStatusState
-	networkResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          networkUrl,
-		params:       params,
-		response:     networkResponse,
-		currentState: "CreateNetwork",
-		nextState:    "GetNetwork",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: networkUrl, params: params, response: networkResponse, currentState: "CreateNetwork", nextState: "GetNetwork"}); err != nil {
 		return nil, err
 	}
 
 	// Get the created network
+	setNetworkStatusState(networkResponse.Status, secalib.ActiveStatusState)
 	networkResponse.Metadata.Verb = http.MethodGet
-	networkResponse.Status.State = secalib.ActiveStatusState
-	networkResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          networkUrl,
-		params:       params,
-		response:     networkResponse,
-		currentState: "GetNetwork",
-		nextState:    "UpdateNetwork",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: networkUrl, params: params, response: networkResponse, currentState: "GetNetwork", nextState: "UpdateNetwork"}); err != nil {
 		return nil, err
 	}
 
 	// Update the network
+	setNetworkStatusState(networkResponse.Status, secalib.UpdatingStatusState)
+	networkResponse.Spec = *params.Network.UpdatedSpec
 	networkResponse.Metadata.Verb = http.MethodPut
-	networkResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	networkResponse.Spec = params.Network.UpdatedSpec
-	networkResponse.Status.State = secalib.UpdatingStatusState
-	networkResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          networkUrl,
-		params:       params,
-		response:     networkResponse,
-		currentState: "UpdateNetwork",
-		nextState:    "GetNetwork2x",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: networkUrl, params: params, response: networkResponse, currentState: "UpdateNetwork", nextState: "GetNetwork2x"}); err != nil {
 		return nil, err
 	}
 
 	// Get the updated network
+	setNetworkStatusState(networkResponse.Status, secalib.ActiveStatusState)
 	networkResponse.Metadata.Verb = http.MethodGet
-	networkResponse.Status.State = secalib.ActiveStatusState
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          networkUrl,
-		params:       params,
-		response:     networkResponse,
-		currentState: "GetNetwork2x",
-		nextState:    "CreateInternetGateway",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: networkUrl, params: params, response: networkResponse, currentState: "GetNetwork2x", nextState: "CreateInternetGateway"}); err != nil {
 		return nil, err
 	}
 
 	// Internet gateway
-	internetGatewayResponse := &resourceResponse[secalib.InternetGatewaySpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.InternetGateway.Name,
-			Provider:   secalib.NetworkProviderV1,
-			Resource:   internetGatewayResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.InternetGatewayKind,
-			Tenant:     params.Tenant,
-			Workspace:  &params.Workspace.Name,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Spec: &secalib.InternetGatewaySpecV1{
-			EgressOnly: params.InternetGateway.InitialSpec.EgressOnly,
-		},
-	}
+	gatewayResponse := newInternetGatewayResponse(params.InternetGateway.Name, secalib.NetworkProviderV1, gatewayResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region,
+		params.InternetGateway.InitialSpec)
 
 	// Create an internet gateway
-	internetGatewayResponse.Metadata.Verb = http.MethodPut
-	internetGatewayResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	internetGatewayResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	internetGatewayResponse.Metadata.ResourceVersion = 1
-	internetGatewayResponse.Status.State = secalib.CreatingStatusState
-	internetGatewayResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          internetGatewayUrl,
-		params:       params,
-		response:     internetGatewayResponse,
-		currentState: "CreateInternetGateway",
-		nextState:    "GetInternetGateway",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	setCreatedRegionalWorkspaceResourceMetadata(gatewayResponse.Metadata)
+	gatewayResponse.Status = newStatus(secalib.CreatingStatusState)
+	gatewayResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: gatewayUrl, params: params, response: gatewayResponse, currentState: "CreateInternetGateway", nextState: "GetInternetGateway"}); err != nil {
 		return nil, err
 	}
 
 	// Get the created internet gateway
-	internetGatewayResponse.Metadata.Verb = http.MethodGet
-	internetGatewayResponse.Status.State = secalib.ActiveStatusState
-	internetGatewayResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          internetGatewayUrl,
-		params:       params,
-		response:     internetGatewayResponse,
-		currentState: "GetInternetGateway",
-		nextState:    "UpdateInternetGateway",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setStatusState(gatewayResponse.Status, secalib.ActiveStatusState)
+	gatewayResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: gatewayUrl, params: params, response: gatewayResponse, currentState: "GetInternetGateway", nextState: "UpdateInternetGateway"}); err != nil {
 		return nil, err
 	}
 
 	// Update the internet gateway
-	internetGatewayResponse.Metadata.Verb = http.MethodPut
-	internetGatewayResponse.Status.State = secalib.UpdatingStatusState
-	internetGatewayResponse.Metadata.ResourceVersion = internetGatewayResponse.Metadata.ResourceVersion + 1
-	internetGatewayResponse.Spec = params.InternetGateway.UpdatedSpec
-	internetGatewayResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	internetGatewayResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          internetGatewayUrl,
-		params:       params,
-		response:     internetGatewayResponse,
-		currentState: "UpdateInternetGateway",
-		nextState:    "GetInternetGateway2x",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setModifiedRegionalWorkspaceResourceMetadata(gatewayResponse.Metadata)
+	setStatusState(gatewayResponse.Status, secalib.UpdatingStatusState)
+	gatewayResponse.Spec = *params.InternetGateway.UpdatedSpec
+	gatewayResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: gatewayUrl, params: params, response: gatewayResponse, currentState: "UpdateInternetGateway", nextState: "GetInternetGateway2x"}); err != nil {
 		return nil, err
 	}
 
 	// Get the updated internet gateway
-	internetGatewayResponse.Metadata.Verb = http.MethodGet
-	internetGatewayResponse.Status.State = secalib.ActiveStatusState
-	internetGatewayResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          internetGatewayUrl,
-		params:       params,
-		response:     internetGatewayResponse,
-		currentState: "GetInternetGateway2x",
-		nextState:    "CreateRouteTable",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setStatusState(gatewayResponse.Status, secalib.ActiveStatusState)
+	gatewayResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: gatewayUrl, params: params, response: gatewayResponse, currentState: "GetInternetGateway2x", nextState: "CreateRouteTable"}); err != nil {
 		return nil, err
 	}
 
 	// Route table
-	routeTableResponse := &resourceResponse[secalib.RouteTableSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.RouteTable.Name,
-			Provider:   secalib.NetworkProviderV1,
-			Resource:   routeTableResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.RouteTableKind,
-			Tenant:     params.Tenant,
-			Workspace:  &params.Workspace.Name,
-			Network:    &params.Network.Name,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Spec: &secalib.RouteTableSpecV1{
-			LocalRef: params.RouteTable.InitialSpec.LocalRef,
-		},
-	}
-	for _, routes := range params.RouteTable.InitialSpec.Routes {
-		routeTableResponse.Spec.Routes = append(routeTableResponse.Spec.Routes, &secalib.RouteTableRouteV1{
-			DestinationCidrBlock: routes.DestinationCidrBlock,
-			TargetRef:            routes.TargetRef,
-		})
-	}
+	routeResponse := newRouteTableResponse(params.RouteTable.Name, secalib.NetworkProviderV1, routeResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region,
+		params.RouteTable.InitialSpec)
 
 	// Create a route table
-	routeTableResponse.Metadata.Verb = http.MethodPut
-	routeTableResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	routeTableResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	routeTableResponse.Metadata.ResourceVersion = 1
-	routeTableResponse.Status.State = secalib.CreatingStatusState
-	routeTableResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          routeTableUrl,
-		params:       params,
-		response:     routeTableResponse,
-		currentState: "CreateRouteTable",
-		nextState:    "GetRouteTable",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	setCreatedRegionalNetworkResourceMetadata(routeResponse.Metadata)
+	routeResponse.Status = newRouteTableStatus(secalib.CreatingStatusState)
+	routeResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: routeUrl, params: params, response: routeResponse, currentState: "CreateRouteTable", nextState: "GetRouteTable"}); err != nil {
 		return nil, err
 	}
 
 	// Get the created route table
-	routeTableResponse.Metadata.Verb = http.MethodGet
-	routeTableResponse.Status.State = secalib.ActiveStatusState
-	routeTableResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          routeTableUrl,
-		params:       params,
-		response:     routeTableResponse,
-		currentState: "GetRouteTable",
-		nextState:    "UpdateRouteTable",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setRouteTableStatusState(routeResponse.Status, secalib.ActiveStatusState)
+	routeResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: routeUrl, params: params, response: routeResponse, currentState: "GetRouteTable", nextState: "UpdateRouteTable"}); err != nil {
 		return nil, err
 	}
 
 	// Update the route table
-	routeTableResponse.Metadata.Verb = http.MethodPut
-	routeTableResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	routeTableResponse.Metadata.ResourceVersion = routeTableResponse.Metadata.ResourceVersion + 1
-	routeTableResponse.Spec = params.RouteTable.UpdatedSpec
-	routeTableResponse.Status.State = secalib.UpdatingStatusState
-	routeTableResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          routeTableUrl,
-		params:       params,
-		response:     routeTableResponse,
-		currentState: "UpdateRouteTable",
-		nextState:    "GetRouteTableUpdated",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setModifiedRegionalNetworkResourceMetadata(routeResponse.Metadata)
+	setRouteTableStatusState(routeResponse.Status, secalib.UpdatingStatusState)
+	routeResponse.Spec = *params.RouteTable.UpdatedSpec
+	routeResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: routeUrl, params: params, response: routeResponse, currentState: "UpdateRouteTable", nextState: "GetRouteTableUpdated"}); err != nil {
 		return nil, err
 	}
 
 	// Get the updated route table
-	routeTableResponse.Metadata.Verb = http.MethodGet
-	routeTableResponse.Status.State = secalib.ActiveStatusState
-	routeTableResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          routeTableUrl,
-		params:       params,
-		response:     routeTableResponse,
-		currentState: "GetRouteTableUpdated",
-		nextState:    "CreateSubnet",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setRouteTableStatusState(routeResponse.Status, secalib.ActiveStatusState)
+	routeResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: routeUrl, params: params, response: routeResponse, currentState: "GetRouteTableUpdated", nextState: "CreateSubnet"}); err != nil {
 		return nil, err
 	}
 
 	// Subnet
-	subnetResponse := &resourceResponse[secalib.SubnetSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.Subnet.Name,
-			Provider:   secalib.NetworkProviderV1,
-			Resource:   subnetResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.SubnetKind,
-			Tenant:     params.Tenant,
-			Workspace:  &params.Workspace.Name,
-			Network:    &params.Network.Name,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Spec: &secalib.SubnetSpecV1{
-			Cidr: params.Subnet.InitialSpec.Cidr,
-			Zone: params.Subnet.InitialSpec.Zone,
-		},
-	}
+	subnetResponse := newSubnetResponse(params.Subnet.Name, secalib.NetworkProviderV1, subnetResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region,
+		params.Subnet.InitialSpec)
 
 	// Create a subnet
+	setCreatedRegionalNetworkResourceMetadata(subnetResponse.Metadata)
+	subnetResponse.Status = newSubnetStatus(secalib.CreatingStatusState)
 	subnetResponse.Metadata.Verb = http.MethodPut
-	subnetResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	subnetResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	subnetResponse.Metadata.ResourceVersion = 1
-	subnetResponse.Status.State = secalib.CreatingStatusState
-	subnetResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          subnetUrl,
-		params:       params,
-		response:     subnetResponse,
-		currentState: "CreateSubnet",
-		nextState:    "GetSubnet",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: subnetUrl, params: params, response: subnetResponse, currentState: "CreateSubnet", nextState: "GetSubnet"}); err != nil {
 		return nil, err
 	}
 
 	// Get the created subnet
+	setSubnetStatusState(subnetResponse.Status, secalib.ActiveStatusState)
 	subnetResponse.Metadata.Verb = http.MethodGet
-	subnetResponse.Status.State = secalib.ActiveStatusState
-	subnetResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          subnetUrl,
-		params:       params,
-		response:     subnetResponse,
-		currentState: "GetSubnet",
-		nextState:    "UpdateSubnet",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: subnetUrl, params: params, response: subnetResponse, currentState: "GetSubnet", nextState: "UpdateSubnet"}); err != nil {
 		return nil, err
 	}
 
 	// Update the subnet
+	setModifiedRegionalNetworkResourceMetadata(subnetResponse.Metadata)
+	setSubnetStatusState(subnetResponse.Status, secalib.UpdatingStatusState)
+	subnetResponse.Spec = *params.Subnet.UpdatedSpec
 	subnetResponse.Metadata.Verb = http.MethodPut
-	subnetResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	subnetResponse.Metadata.ResourceVersion = subnetResponse.Metadata.ResourceVersion + 1
-	subnetResponse.Spec = params.Subnet.UpdatedSpec
-	subnetResponse.Status.State = secalib.UpdatingStatusState
-	subnetResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          subnetUrl,
-		params:       params,
-		response:     subnetResponse,
-		currentState: "UpdateSubnet",
-		nextState:    "GetSubnetUpdated",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: subnetUrl, params: params, response: subnetResponse, currentState: "UpdateSubnet", nextState: "GetSubnetUpdated"}); err != nil {
 		return nil, err
 	}
 
 	// Get the updated subnet
+	setSubnetStatusState(subnetResponse.Status, secalib.ActiveStatusState)
 	subnetResponse.Metadata.Verb = http.MethodGet
-	subnetResponse.Status.State = secalib.ActiveStatusState
-	subnetResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          subnetUrl,
-		params:       params,
-		response:     subnetResponse,
-		currentState: "GetSubnetUpdated",
-		nextState:    "CreatePublicIP",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: subnetUrl, params: params, response: subnetResponse, currentState: "GetSubnetUpdated", nextState: "CreatePublicIp"}); err != nil {
 		return nil, err
 	}
 
 	// Public ip
-	publicIPResponse := &resourceResponse[secalib.PublicIpSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.PublicIP.Name,
-			Provider:   secalib.NetworkProviderV1,
-			Resource:   publicIPResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.PublicIPKind,
-			Tenant:     params.Tenant,
-			Workspace:  &params.Workspace.Name,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Spec: &secalib.PublicIpSpecV1{
-			Version: params.PublicIP.InitialSpec.Version,
-			Address: params.PublicIP.InitialSpec.Address,
-		},
-	}
+	publicIpResponse := newPublicIpResponse(params.PublicIp.Name, secalib.NetworkProviderV1, publicIpResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region,
+		params.PublicIp.InitialSpec)
 
 	// Create a public ip
-	publicIPResponse.Metadata.Verb = http.MethodPut
-	publicIPResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	publicIPResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	publicIPResponse.Metadata.ResourceVersion = 1
-	publicIPResponse.Status.State = secalib.CreatingStatusState
-	publicIPResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          publicIPUrl,
-		params:       params,
-		response:     publicIPResponse,
-		currentState: "CreatePublicIP",
-		nextState:    "GetPublicIP",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	setCreatedRegionalWorkspaceResourceMetadata(publicIpResponse.Metadata)
+	publicIpResponse.Status = newPublicIpStatus(secalib.CreatingStatusState)
+	publicIpResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: publicIpUrl, params: params, response: publicIpResponse, currentState: "CreatePublicIp", nextState: "GetPublicIp"}); err != nil {
 		return nil, err
 	}
 
 	// Get the created public ip
-	publicIPResponse.Metadata.Verb = http.MethodGet
-	publicIPResponse.Status.State = secalib.ActiveStatusState
-	publicIPResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          publicIPUrl,
-		params:       params,
-		response:     publicIPResponse,
-		currentState: "GetPublicIP",
-		nextState:    "UpdatePublicIP",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setPublicIpStatusState(publicIpResponse.Status, secalib.ActiveStatusState)
+	publicIpResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: publicIpUrl, params: params, response: publicIpResponse, currentState: "GetPublicIp", nextState: "UpdatePublicIp"}); err != nil {
 		return nil, err
 	}
 
 	// Update the public ip
-	publicIPResponse.Metadata.Verb = http.MethodPut
-	publicIPResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	publicIPResponse.Metadata.ResourceVersion = publicIPResponse.Metadata.ResourceVersion + 1
-	publicIPResponse.Spec = params.PublicIP.UpdatedSpec
-	publicIPResponse.Status.State = secalib.UpdatingStatusState
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          publicIPUrl,
-		params:       params,
-		response:     publicIPResponse,
-		currentState: "UpdatePublicIP",
-		nextState:    "GetPublicIPUpdated",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setModifiedRegionalWorkspaceResourceMetadata(publicIpResponse.Metadata)
+	setPublicIpStatusState(publicIpResponse.Status, secalib.UpdatingStatusState)
+	publicIpResponse.Spec = *params.PublicIp.UpdatedSpec
+	publicIpResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: publicIpUrl, params: params, response: publicIpResponse, currentState: "UpdatePublicIp", nextState: "GetPublicIpUpdated"}); err != nil {
 		return nil, err
 	}
 
 	// Get the updated public ip
-	publicIPResponse.Metadata.Verb = http.MethodGet
-	publicIPResponse.Status.State = secalib.ActiveStatusState
-	publicIPResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          publicIPUrl,
-		params:       params,
-		response:     publicIPResponse,
-		currentState: "GetPublicIPUpdated",
-		nextState:    "CreateNIC",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setPublicIpStatusState(publicIpResponse.Status, secalib.ActiveStatusState)
+	publicIpResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: publicIpUrl, params: params, response: publicIpResponse, currentState: "GetPublicIpUpdated", nextState: "CreateNIC"}); err != nil {
 		return nil, err
 	}
 
 	// NIC
-	nicResponse := &resourceResponse[secalib.NICSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.NIC.Name,
-			Provider:   secalib.NetworkProviderV1,
-			Resource:   nicResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.NicKind,
-			Tenant:     params.Tenant,
-			Workspace:  &params.Workspace.Name,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Spec: &secalib.NICSpecV1{
-			Addresses: params.NIC.InitialSpec.Addresses,
-			SubnetRef: params.NIC.InitialSpec.SubnetRef,
-		},
-	}
+	nicResponse := newNicResponse(params.NIC.Name, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region,
+		params.NIC.InitialSpec)
 
 	// Create a nic
+	setCreatedRegionalWorkspaceResourceMetadata(nicResponse.Metadata)
+	nicResponse.Status = newNicStatus(secalib.CreatingStatusState)
 	nicResponse.Metadata.Verb = http.MethodPut
-	nicResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	nicResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	nicResponse.Metadata.ResourceVersion = 1
-	nicResponse.Status.State = secalib.CreatingStatusState
-	nicResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          nicUrl,
-		params:       params,
-		response:     nicResponse,
-		currentState: "CreateNIC",
-		nextState:    "GetNIC",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: nicUrl, params: params, response: nicResponse, currentState: "CreateNIC", nextState: "GetNIC"}); err != nil {
 		return nil, err
 	}
 
 	// Get the created nic
+	setNicStatusState(nicResponse.Status, secalib.ActiveStatusState)
 	nicResponse.Metadata.Verb = http.MethodGet
-	nicResponse.Status.State = secalib.ActiveStatusState
-	nicResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          nicUrl,
-		params:       params,
-		response:     nicResponse,
-		currentState: "GetNIC",
-		nextState:    "UpdateNIC",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: nicUrl, params: params, response: nicResponse, currentState: "GetNIC", nextState: "UpdateNIC"}); err != nil {
 		return nil, err
 	}
 
 	// Update the nic
+	setModifiedRegionalWorkspaceResourceMetadata(nicResponse.Metadata)
+	setNicStatusState(nicResponse.Status, secalib.UpdatingStatusState)
+	nicResponse.Spec = *params.NIC.UpdatedSpec
 	nicResponse.Metadata.Verb = http.MethodPut
-	nicResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	nicResponse.Metadata.ResourceVersion = nicResponse.Metadata.ResourceVersion + 1
-	nicResponse.Spec = params.NIC.UpdatedSpec
-	nicResponse.Status.State = secalib.UpdatingStatusState
-	nicResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          nicUrl,
-		params:       params,
-		response:     nicResponse,
-		currentState: "UpdateNIC",
-		nextState:    "GetNICUpdated",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: nicUrl, params: params, response: nicResponse, currentState: "UpdateNIC", nextState: "GetNICUpdated"}); err != nil {
 		return nil, err
 	}
 
 	// Get the updated nic
+	setNicStatusState(nicResponse.Status, secalib.ActiveStatusState)
 	nicResponse.Metadata.Verb = http.MethodGet
-	nicResponse.Status.State = secalib.ActiveStatusState
-	nicResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          nicUrl,
-		params:       params,
-		response:     nicResponse,
-		currentState: "GetNICUpdated",
-		nextState:    "CreateSecurityGroup",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: nicUrl, params: params, response: nicResponse, currentState: "GetNICUpdated", nextState: "CreateSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
 	// Security group
-	securityGroupResponse := &resourceResponse[secalib.SecurityGroupSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.SecurityGroup.Name,
-			Provider:   secalib.NetworkProviderV1,
-			Resource:   securityGroupResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.SecurityGroupKind,
-			Tenant:     params.Tenant,
-			Workspace:  &params.Workspace.Name,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Spec:   &secalib.SecurityGroupSpecV1{},
-	}
-	for _, rules := range params.SecurityGroup.InitialSpec.Rules {
-		securityGroupResponse.Spec.Rules = append(securityGroupResponse.Spec.Rules, &secalib.SecurityGroupRuleV1{
-			Direction: rules.Direction,
-		})
-	}
+	groupResponse := newSecurityGroupResponse(params.SecurityGroup.Name, secalib.NetworkProviderV1, secalib.ApiVersion1, groupResource,
+		params.Tenant, params.Workspace.Name, params.Region,
+		params.SecurityGroup.InitialSpec)
 
 	// Create a security group
-	securityGroupResponse.Metadata.Verb = http.MethodPut
-	securityGroupResponse.Status.State = secalib.CreatingStatusState
-	securityGroupResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	securityGroupResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	securityGroupResponse.Metadata.ResourceVersion = 1
-	securityGroupResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          securityGroupUrl,
-		params:       params,
-		response:     securityGroupResponse,
-		currentState: "CreateSecurityGroup",
-		nextState:    "GetSecurityGroup",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	setCreatedRegionalWorkspaceResourceMetadata(groupResponse.Metadata)
+	groupResponse.Status = newSecurityGroupStatus(secalib.CreatingStatusState)
+	groupResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: groupUrl, params: params, response: groupResponse, currentState: "CreateSecurityGroup", nextState: "GetSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
 	// Get the created security group
-	securityGroupResponse.Metadata.Verb = http.MethodGet
-	securityGroupResponse.Status.State = secalib.ActiveStatusState
-	securityGroupResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          securityGroupUrl,
-		params:       params,
-		response:     securityGroupResponse,
-		currentState: "GetSecurityGroup",
-		nextState:    "UpdateSecurityGroup",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setSecurityGroupStatusState(groupResponse.Status, secalib.ActiveStatusState)
+	groupResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: groupUrl, params: params, response: groupResponse, currentState: "GetSecurityGroup", nextState: "UpdateSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
 	// Update the security group
-	securityGroupResponse.Metadata.Verb = http.MethodPut
-	securityGroupResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	securityGroupResponse.Metadata.ResourceVersion = securityGroupResponse.Metadata.ResourceVersion + 1
-	securityGroupResponse.Spec = params.SecurityGroup.UpdatedSpec
-	securityGroupResponse.Status.State = secalib.UpdatingStatusState
-	securityGroupResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          securityGroupUrl,
-		params:       params,
-		response:     securityGroupResponse,
-		currentState: "UpdateSecurityGroup",
-		nextState:    "GetSecurityGroupUpdated",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setModifiedRegionalWorkspaceResourceMetadata(groupResponse.Metadata)
+	setSecurityGroupStatusState(groupResponse.Status, secalib.UpdatingStatusState)
+	groupResponse.Spec = *params.SecurityGroup.UpdatedSpec
+	groupResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: groupUrl, params: params, response: groupResponse, currentState: "UpdateSecurityGroup", nextState: "GetSecurityGroupUpdated"}); err != nil {
 		return nil, err
 	}
 
 	// Get the updated security group
-	securityGroupResponse.Metadata.Verb = http.MethodGet
-	securityGroupResponse.Status.State = secalib.ActiveStatusState
-	securityGroupResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          securityGroupUrl,
-		params:       params,
-		response:     securityGroupResponse,
-		currentState: "GetSecurityGroupUpdated",
-		nextState:    "CreateBlockStorage",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setSecurityGroupStatusState(groupResponse.Status, secalib.ActiveStatusState)
+	groupResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: groupUrl, params: params, response: groupResponse, currentState: "GetSecurityGroupUpdated", nextState: "CreateBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Block storage
-	blockResponse := &resourceResponse[secalib.BlockStorageSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.BlockStorage.Name,
-			Provider:   secalib.StorageProviderV1,
-			Resource:   blockStorageResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.BlockStorageKind,
-			Tenant:     params.Tenant,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Spec: &secalib.BlockStorageSpecV1{
-			SkuRef: params.BlockStorage.InitialSpec.SkuRef,
-		},
-	}
+	blockResponse := newBlockStorageResponse(params.BlockStorage.Name, secalib.ComputeProviderV1, blockResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region,
+		params.BlockStorage.InitialSpec)
 
 	// Create a block storage
-	blockResponse.Metadata.Verb = http.MethodPut
-	blockResponse.Status.State = secalib.CreatingStatusState
-	blockResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	blockResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	blockResponse.Metadata.ResourceVersion = 1
+	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
+	blockResponse.Status = newBlockStorageStatus(secalib.CreatingStatusState)
 	blockResponse.Spec.SizeGB = params.BlockStorage.InitialSpec.SizeGB
-	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          blockStorageUrl,
-		params:       params,
-		response:     blockResponse,
-		currentState: "CreateBlockStorage",
-		nextState:    "GetCreatedBlockStorage",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	blockResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: blockUrl, params: params, response: blockResponse, currentState: "CreateBlockStorage", nextState: "GetCreatedBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Get created block storage
+	setBlockStorageStatusState(blockResponse.Status, secalib.ActiveStatusState)
 	blockResponse.Metadata.Verb = http.MethodGet
-	blockResponse.Status.State = secalib.ActiveStatusState
-	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          blockStorageUrl,
-		params:       params,
-		response:     blockResponse,
-		currentState: "GetCreatedBlockStorage",
-		nextState:    "CreateInstance",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: blockUrl, params: params, response: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "CreateInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Instance
-	instResponse := &resourceResponse[secalib.InstanceSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.Instance.Name,
-			Provider:   secalib.ComputeProviderV1,
-			Resource:   instanceResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.InstanceKind,
-			Tenant:     params.Tenant,
-			Workspace:  &params.Workspace.Name,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Spec: &secalib.InstanceSpecV1{
-			SkuRef:        params.Instance.InitialSpec.SkuRef,
-			Zone:          params.Instance.InitialSpec.Zone,
-			BootDeviceRef: params.Instance.InitialSpec.BootDeviceRef,
-		},
-	}
+	instanceResponse := newInstanceResponse(params.Instance.Name, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region,
+		params.Instance.InitialSpec)
 
 	// Create an instance
-	instResponse.Metadata.Verb = http.MethodPut
-	instResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	instResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	instResponse.Metadata.ResourceVersion = 1
-	instResponse.Status.State = secalib.CreatingStatusState
-	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		currentState: "CreateInstance",
-		nextState:    "GetCreatedInstance",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
+	instanceResponse.Status = newInstanceStatus(secalib.CreatingStatusState)
+	instanceResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutSuccessStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, response: instanceResponse, currentState: "CreateInstance", nextState: "GetCreatedInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Get created instance
-	instResponse.Metadata.Verb = http.MethodGet
-	instResponse.Status.State = secalib.ActiveStatusState
-	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		currentState: "GetCreatedInstance",
-		nextState:    "DeleteInstance",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setInstanceStatusState(instanceResponse.Status, secalib.ActiveStatusState)
+	instanceResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetSuccessStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, response: instanceResponse, currentState: "GetCreatedInstance", nextState: "DeleteInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the instance
-	instResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		currentState: "DeleteInstance",
-		nextState:    "GetDeletedInstance",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	instanceResponse.Metadata.Verb = http.MethodDelete
+	if err := configureDeleteSuccessStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, response: instanceResponse, currentState: "DeleteInstance", nextState: "GetDeletedInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted instance
-	instResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		currentState: "GetDeletedInstance",
-		nextState:    "DeleteBlockStorage",
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
+	instanceResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: instanceUrl, params: params, currentState: "GetDeletedInstance", nextState: "DeleteBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the block storage
 	blockResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
-		url:          blockStorageUrl,
-		params:       params,
-		response:     instResponse,
-		currentState: "DeleteBlockStorage",
-		nextState:    "GetDeletedBlockStorage",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	if err := configureDeleteSuccessStub(wm, scenario,
+		&stubConfig{url: blockUrl, params: params, response: instanceResponse, currentState: "DeleteBlockStorage", nextState: "GetDeletedBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted block storage
 	blockResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          blockStorageUrl,
-		params:       params,
-		currentState: "GetDeletedBlockStorage",
-		nextState:    "DeleteSecurityGroup",
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
+	if err := configureGetStub(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: blockUrl, params: params, currentState: "GetDeletedBlockStorage", nextState: "DeleteSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the security group
-	securityGroupResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
-		url:          securityGroupUrl,
-		params:       params,
-		response:     securityGroupResponse,
-		currentState: "DeleteSecurityGroup",
-		nextState:    "GetDeletedSecurityGroup",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	groupResponse.Metadata.Verb = http.MethodDelete
+	if err := configureDeleteSuccessStub(wm, scenario,
+		&stubConfig{url: groupUrl, params: params, response: groupResponse, currentState: "DeleteSecurityGroup", nextState: "GetDeletedSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted security group
-	securityGroupResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          securityGroupUrl,
-		params:       params,
-		currentState: "GetDeletedSecurityGroup",
-		nextState:    "DeleteNic",
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
+	groupResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: groupUrl, params: params, currentState: "GetDeletedSecurityGroup", nextState: "DeleteNic"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the nic
 	nicResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
-		url:          nicUrl,
-		params:       params,
-		response:     nicResponse,
-		currentState: "DeleteNic",
-		nextState:    "GetDeletedNic",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	if err := configureDeleteSuccessStub(wm, scenario,
+		&stubConfig{url: nicUrl, params: params, response: nicResponse, currentState: "DeleteNic", nextState: "GetDeletedNic"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted nic
 	nicResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          nicUrl,
-		params:       params,
-		currentState: "GetDeletedNic",
-		nextState:    "DeletePublicIP",
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
+	if err := configureGetStub(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: nicUrl, params: params, currentState: "GetDeletedNic", nextState: "DeletePublicIp"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the public ip
-	publicIPResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
-		url:          publicIPUrl,
-		params:       params,
-		response:     publicIPResponse,
-		currentState: "DeletePublicIP",
-		nextState:    "GetDeletedPublicIP",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	publicIpResponse.Metadata.Verb = http.MethodDelete
+	if err := configureDeleteSuccessStub(wm, scenario,
+		&stubConfig{url: publicIpUrl, params: params, response: publicIpResponse, currentState: "DeletePublicIp", nextState: "GetDeletedPublicIp"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted public ip
-	publicIPResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          publicIPUrl,
-		params:       params,
-		currentState: "GetDeletedPublicIP",
-		nextState:    "DeleteSubnet",
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
+	publicIpResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: publicIpUrl, params: params, currentState: "GetDeletedPublicIp", nextState: "DeleteSubnet"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the subnet
 	subnetResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
-		url:          subnetUrl,
-		params:       params,
-		response:     subnetResponse,
-		currentState: "DeleteSubnet",
-		nextState:    "GetDeletedSubnet",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	if err := configureDeleteSuccessStub(wm, scenario,
+		&stubConfig{url: subnetUrl, params: params, response: subnetResponse, currentState: "DeleteSubnet", nextState: "GetDeletedSubnet"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted subnet
 	subnetResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          subnetUrl,
-		params:       params,
-		currentState: "GetDeletedSubnet",
-		nextState:    "DeleteRouteTable",
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
+	if err := configureGetStub(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: subnetUrl, params: params, currentState: "GetDeletedSubnet", nextState: "DeleteRouteTable"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the route table
-	routeTableResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
-		url:          routeTableUrl,
-		params:       params,
-		response:     routeTableResponse,
-		currentState: "DeleteRouteTable",
-		nextState:    "GetDeletedRouteTable",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	routeResponse.Metadata.Verb = http.MethodDelete
+	if err := configureDeleteSuccessStub(wm, scenario,
+		&stubConfig{url: routeUrl, params: params, response: routeResponse, currentState: "DeleteRouteTable", nextState: "GetDeletedRouteTable"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted route table
-	routeTableResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          routeTableUrl,
-		params:       params,
-		currentState: "GetDeletedRouteTable",
-		nextState:    "DeleteInternetGateway",
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
+	routeResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: routeUrl, params: params, currentState: "GetDeletedRouteTable", nextState: "DeleteInternetGateway"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the internet gateway
-	internetGatewayResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
-		url:          internetGatewayUrl,
-		params:       params,
-		response:     internetGatewayResponse,
-		currentState: "DeleteInternetGateway",
-		nextState:    "GetDeletedInternetGateway",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	gatewayResponse.Metadata.Verb = http.MethodDelete
+	if err := configureDeleteSuccessStub(wm, scenario,
+		&stubConfig{url: gatewayUrl, params: params, response: gatewayResponse, currentState: "DeleteInternetGateway", nextState: "GetDeletedInternetGateway"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted internet gateway
-	internetGatewayResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          internetGatewayUrl,
-		params:       params,
-		currentState: "GetDeletedInternetGateway",
-		nextState:    "DeleteNetwork",
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
+	gatewayResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: gatewayUrl, params: params, currentState: "GetDeletedInternetGateway", nextState: "DeleteNetwork"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the network
 	networkResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
-		url:          networkUrl,
-		params:       params,
-		response:     networkResponse,
-		currentState: "DeleteNetwork",
-		nextState:    "GetDeletedNetwork",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	if err := configureDeleteSuccessStub(wm, scenario,
+		&stubConfig{url: networkUrl, params: params, response: networkResponse, currentState: "DeleteNetwork", nextState: "GetDeletedNetwork"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted network
 	networkResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          networkUrl,
-		params:       params,
-		currentState: "GetDeletedNetwork",
-		nextState:    startedScenarioState,
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
+	if err := configureGetStub(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: networkUrl, params: params, currentState: "GetDeletedNetwork", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 
