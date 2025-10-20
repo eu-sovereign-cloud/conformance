@@ -26,7 +26,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(response.Metadata)
-	response.Status = secalib.NewWorkspaceStatus(secalib.CreatingStatusState)
+	response.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
 	response.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: url, params: params, responseBody: response, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
@@ -34,7 +34,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Get created workspace
-	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveStatusState)
+	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveResourceState)
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: url, params: params, responseBody: response, currentState: "GetCreatedWorkspace", nextState: "UpdateWorkspace"}); err != nil {
@@ -43,7 +43,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 
 	// Update the workspace
 	setModifiedRegionalResourceMetadata(response.Metadata)
-	secalib.SetWorkspaceStatusState(response.Status, secalib.UpdatingStatusState)
+	secalib.SetWorkspaceStatusState(response.Status, secalib.UpdatingResourceState)
 	response.Labels = params.Workspace.UpdatedLabels
 	response.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -52,7 +52,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Get updated workspace
-	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveStatusState)
+	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveResourceState)
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: url, params: params, responseBody: response, currentState: "GetUpdatedWorkspace", nextState: "DeleteWorkspace"}); err != nil {

@@ -115,7 +115,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workspaceResp)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *workspaceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *workspaceResp.Status.State)
 	})
 
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
@@ -129,7 +129,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workspaceResp)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *workspaceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *workspaceResp.Status.State)
 	})
 
 	// Block storage
@@ -166,7 +166,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *blockResp.Status.State)
 	})
 
 	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
@@ -186,7 +186,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *blockResp.Status.State)
 	})
 
 	t.WithNewStep("Update block storage", func(sCtx provider.StepCtx) {
@@ -202,7 +202,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		expectedBlockSpec.SizeGB = updatedStorageSize
 		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *blockResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated block storage", func(sCtx provider.StepCtx) {
@@ -222,7 +222,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *blockResp.Status.State)
 	})
 
 	// Image
@@ -257,7 +257,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *imageResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *imageResp.Status.State)
 	})
 
 	t.WithNewStep("Get created image", func(sCtx provider.StepCtx) {
@@ -276,7 +276,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *imageResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *imageResp.Status.State)
 	})
 
 	t.WithNewStep("Update image", func(sCtx provider.StepCtx) {
@@ -292,7 +292,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		expectedImageSpec.CpuArchitecture = secalib.CpuArchitectureArm64
 		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *imageResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *imageResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated image", func(sCtx provider.StepCtx) {
@@ -311,7 +311,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *imageResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *imageResp.Status.State)
 	})
 
 	t.WithNewStep("Delete image", func(sCtx provider.StepCtx) {

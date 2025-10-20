@@ -53,13 +53,9 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	ctx := context.Background()
-	var tref *secapi.TenantReference
-	var resp *schema.Workspace
-	var expectedMeta *schema.RegionalResourceMetadata
-	var expectedLabels schema.Labels
 
-	// Create Workspace
-	ws := &schema.Workspace{
+	// Create a workspace
+	workspace := &schema.Workspace{
 		Labels: schema.Labels{
 			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
 		},
@@ -68,33 +64,33 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectedMeta = secalib.NewRegionalResourceMetadata(workspaceName, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1, secalib.WorkspaceKind,
+	expectMeta := secalib.NewRegionalResourceMetadata(workspaceName, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1, secalib.WorkspaceKind,
 		suite.tenant, suite.region)
-	expectedLabels = schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
-	CreateOrUpdateWorkspaceV1Step("Create a Workspace", t, ctx, &suite.testSuite, suite.client.WorkspaceV1, ws, expectedMeta, expectedLabels, secalib.CreatingStatusState)
+	expectLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, expectMeta, expectLabels, secalib.CreatingResourceState)
 
 	// Get the created Workspace
-	tref = &secapi.TenantReference{
+	tref := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.tenant),
 		Name:   workspaceName,
 	}
-	resp = GetWorkspaceV1Step("Get the created Workspace", t, ctx, &suite.testSuite, suite.client.WorkspaceV1, *tref, expectedMeta, expectedLabels, secalib.ActiveStatusState)
+	workspace = suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *tref, expectMeta, expectLabels, secalib.ActiveResourceState)
 
-	// Update the Workspace
-	resp.Labels = schema.Labels{
+	// Update the workspace
+	workspace.Labels = schema.Labels{
 		secalib.EnvLabel: secalib.EnvProductionLabel,
 	}
-	expectedLabels = schema.Labels{secalib.EnvLabel: secalib.EnvProductionLabel}
-	CreateOrUpdateWorkspaceV1Step("Update the Workspace", t, ctx, &suite.testSuite, suite.client.WorkspaceV1, resp, expectedMeta, expectedLabels, secalib.UpdatingStatusState)
+	expectLabels = schema.Labels{secalib.EnvLabel: secalib.EnvProductionLabel}
+	suite.createOrUpdateWorkspaceV1Step("Update the workspace", t, ctx, suite.client.WorkspaceV1, workspace, expectMeta, expectLabels, secalib.UpdatingResourceState)
 
-	// Get the updated Workspace	
-	resp = GetWorkspaceV1Step("Get the updated Workspace", t, ctx, &suite.testSuite, suite.client.WorkspaceV1, *tref, expectedMeta, expectedLabels, secalib.ActiveStatusState)
+	// Get the updated workspace
+	workspace = suite.getWorkspaceV1Step("Get the updated workspace", t, ctx, suite.client.WorkspaceV1, *tref, expectMeta, expectLabels, secalib.ActiveResourceState)
 
-	// Delete the Workspace
-	DeleteWorkspaceV1Step("Delete the Workspace", t, ctx, &suite.testSuite, suite.client.WorkspaceV1, resp)
+	// Delete the workspace
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)
 
-	// Get the deleted Workspace
-	GetWorkspaceWithErrorV1Step("Get the deleted Workspace", t, ctx, &suite.testSuite, suite.client.WorkspaceV1, *tref, secapi.ErrResourceNotFound)
+	// Get the deleted workspace
+	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *tref, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)
 }

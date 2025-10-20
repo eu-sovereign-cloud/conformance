@@ -75,10 +75,10 @@ const (
 	SecurityRuleDirectionEgress  = "egress"
 
 	// Status States
-	CreatingStatusState  = "creating"
-	ActiveStatusState    = "active"
-	UpdatingStatusState  = "updating"
-	SuspendedStatusState = "suspended"
+	CreatingResourceState  = "creating"
+	ActiveResourceState    = "active"
+	UpdatingResourceState  = "updating"
+	SuspendedResourceState = "suspended"
 
 	// Generators
 	maxBlockStorageSize = 1000000 // GB

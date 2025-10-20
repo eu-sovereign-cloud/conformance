@@ -15,13 +15,11 @@ func parseResponseBody(configResponse any) (string, error) {
 		return "", err
 	}
 	return string(responseBytes), nil
-
 }
 
 func configureStub(wm *wiremock.Client, scenarioName string, method string, httpStatus int, stubConfig *stubConfig) error {
-
 	// Build the stubResponse
-	var stubResponse = wiremock.NewResponse().WithStatus(int64(httpStatus))
+	stubResponse := wiremock.NewResponse().WithStatus(int64(httpStatus))
 
 	// Parse the response body
 	if stubConfig.responseBody != nil {
@@ -81,6 +79,7 @@ func configurePostStub(wm *wiremock.Client, scenarioName string, stubConfig *stu
 func configureGetStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
 	return configureStub(wm, scenarioName, http.MethodGet, http.StatusOK, stubConfig)
 }
+
 func configureGetStubWithStatus(wm *wiremock.Client, scenarioName string, httpStatus int, stubConfig *stubConfig) error {
 	return configureStub(wm, scenarioName, http.MethodGet, httpStatus, stubConfig)
 }

@@ -11,10 +11,9 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-// Replicate these step functions on all suites to reduce the code duplication
-
-func CreateOrUpdateWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, suite *testSuite, api *secapi.WorkspaceV1, ws *schema.Workspace,
-	expectedMeta *schema.RegionalResourceMetadata, expectedLabels schema.Labels, expectedStatusState string) *schema.Workspace {
+func (suite *testSuite) createOrUpdateWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.WorkspaceV1, ws *schema.Workspace,
+	expectedMeta *schema.RegionalResourceMetadata, expectedLabels schema.Labels, expectedStatusState string,
+) *schema.Workspace {
 	var resp *schema.Workspace
 	var err error
 
@@ -28,15 +27,18 @@ func CreateOrUpdateWorkspaceV1Step(stepName string, t provider.T, ctx context.Co
 		expectedMeta.Verb = http.MethodPut
 		suite.verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		suite.verifyLabelsStep(sCtx, expectedLabels, resp.Labels)
+		if expectedLabels != nil {
+			suite.verifyLabelsStep(sCtx, expectedLabels, resp.Labels)
+		}
 
 		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
 	return resp
 }
 
-func GetWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, suite *testSuite, api *secapi.WorkspaceV1, tref secapi.TenantReference,
-	expectedMeta *schema.RegionalResourceMetadata, expectedLabels schema.Labels, expectedStatusState string) *schema.Workspace {
+func (suite *testSuite) getWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.WorkspaceV1, tref secapi.TenantReference,
+	expectedMeta *schema.RegionalResourceMetadata, expectedLabels schema.Labels, expectedStatusState string,
+) *schema.Workspace {
 	var resp *schema.Workspace
 	var err error
 
@@ -50,15 +52,18 @@ func GetWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, suit
 		expectedMeta.Verb = http.MethodGet
 		suite.verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		suite.verifyLabelsStep(sCtx, expectedLabels, resp.Labels)
+		if expectedLabels != nil {
+			suite.verifyLabelsStep(sCtx, expectedLabels, resp.Labels)
+		}
 
 		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
 	return resp
 }
 
-func GetWorkspaceWithErrorV1Step(stepName string, t provider.T, ctx context.Context, suite *testSuite, api *secapi.WorkspaceV1, tref secapi.TenantReference,
-	expectedError error) {
+func (suite *testSuite) getWorkspaceWithErrorV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.WorkspaceV1, tref secapi.TenantReference,
+	expectedError error,
+) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
 
@@ -67,7 +72,7 @@ func GetWorkspaceWithErrorV1Step(stepName string, t provider.T, ctx context.Cont
 	})
 }
 
-func DeleteWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, suite *testSuite, api *secapi.WorkspaceV1, ws *schema.Workspace) {
+func (suite *testSuite) deleteWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.WorkspaceV1, ws *schema.Workspace) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "DeleteWorkspace")
 

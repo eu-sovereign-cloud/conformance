@@ -113,7 +113,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	var workspaceResp *schema.Workspace
-	var blockStorageResp *schema.BlockStorage	
+	var blockStorageResp *schema.BlockStorage
 
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
@@ -128,7 +128,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workspaceResp)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *workspaceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *workspaceResp.Status.State)
 	})
 
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
@@ -142,7 +142,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workspaceResp)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *workspaceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *workspaceResp.Status.State)
 	})
 
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
@@ -176,7 +176,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockStorageResp)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *blockStorageResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *blockStorageResp.Status.State)
 	})
 
 	// Instance
@@ -219,7 +219,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
@@ -239,7 +239,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Update instance", func(sCtx provider.StepCtx) {
@@ -255,7 +255,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		expectedSpec.Zone = updatedInstanceZone
 		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated instance", func(sCtx provider.StepCtx) {
@@ -275,7 +275,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Stop instance", func(sCtx provider.StepCtx) {
@@ -302,7 +302,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.SuspendedStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.SuspendedResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Start instance", func(sCtx provider.StepCtx) {
@@ -329,7 +329,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Restart instance", func(sCtx provider.StepCtx) {
@@ -356,7 +356,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {

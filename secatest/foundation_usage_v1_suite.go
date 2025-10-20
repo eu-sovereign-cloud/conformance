@@ -311,7 +311,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *roleResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *roleResp.Status.State)
 	})
 
 	t.WithNewStep("Get created role", func(sCtx provider.StepCtx) {
@@ -330,7 +330,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *roleResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *roleResp.Status.State)
 	})
 
 	// Role assignment
@@ -368,7 +368,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *assignResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *assignResp.Status.State)
 	})
 
 	t.WithNewStep("Get created role assignment", func(sCtx provider.StepCtx) {
@@ -387,7 +387,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *assignResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *assignResp.Status.State)
 	})
 
 	// Workspace
@@ -412,7 +412,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		expectedWorkspaceMeta.Verb = http.MethodPut
 		suite.verifyRegionalResourceMetadataStep(sCtx, expectedWorkspaceMeta, workspaceResp.Metadata)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *workspaceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *workspaceResp.Status.State)
 	})
 
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
@@ -429,7 +429,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		expectedWorkspaceMeta.Verb = http.MethodGet
 		suite.verifyRegionalResourceMetadataStep(sCtx, expectedWorkspaceMeta, workspaceResp.Metadata)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *workspaceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *workspaceResp.Status.State)
 	})
 
 	// Image
@@ -465,7 +465,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *imageResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *imageResp.Status.State)
 	})
 
 	t.WithNewStep("Get created image", func(sCtx provider.StepCtx) {
@@ -484,7 +484,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *imageResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *imageResp.Status.State)
 	})
 
 	// Block storage
@@ -521,7 +521,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *blockResp.Status.State)
 	})
 
 	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
@@ -541,7 +541,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *blockResp.Status.State)
 	})
 
 	// Network
@@ -580,7 +580,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *networkResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *networkResp.Status.State)
 	})
 
 	t.WithNewStep("Get created network", func(sCtx provider.StepCtx) {
@@ -600,7 +600,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *networkResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *networkResp.Status.State)
 	})
 
 	// Internet gateway
@@ -630,7 +630,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		expectedGatewaySpec = &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)}
 		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *gatewayResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *gatewayResp.Status.State)
 	})
 
 	t.WithNewStep("Get created internet gateway", func(sCtx provider.StepCtx) {
@@ -650,7 +650,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *gatewayResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *gatewayResp.Status.State)
 	})
 
 	// Route table
@@ -690,7 +690,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *routeResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *routeResp.Status.State)
 	})
 
 	t.WithNewStep("Get created route table", func(sCtx provider.StepCtx) {
@@ -711,7 +711,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *routeResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *routeResp.Status.State)
 	})
 
 	// Subnet
@@ -749,7 +749,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *subnetResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *subnetResp.Status.State)
 	})
 
 	t.WithNewStep("Get created subnet", func(sCtx provider.StepCtx) {
@@ -770,7 +770,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *subnetResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *subnetResp.Status.State)
 	})
 
 	// Security Group
@@ -809,7 +809,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *groupResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *groupResp.Status.State)
 	})
 
 	t.WithNewStep("Get created security group", func(sCtx provider.StepCtx) {
@@ -829,7 +829,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *groupResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *groupResp.Status.State)
 	})
 
 	// Public ip
@@ -866,7 +866,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *publicIpResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *publicIpResp.Status.State)
 	})
 
 	t.WithNewStep("Get created public ip", func(sCtx provider.StepCtx) {
@@ -886,7 +886,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *publicIpResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *publicIpResp.Status.State)
 	})
 
 	// Nic
@@ -925,7 +925,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *nicResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *nicResp.Status.State)
 	})
 
 	t.WithNewStep("Get created nic", func(sCtx provider.StepCtx) {
@@ -945,7 +945,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *nicResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *nicResp.Status.State)
 	})
 
 	// Instance
@@ -989,7 +989,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyInstanceSpecStep(sCtx, expectedInstanceSpec, &instanceResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
@@ -1009,7 +1009,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyInstanceSpecStep(sCtx, expectedInstanceSpec, &instanceResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
 	})
 
 	// Delete All

@@ -21,8 +21,6 @@ type AuthorizationV1TestSuite struct {
 }
 
 func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
-	ctx := context.Background()
-	var err error
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
@@ -86,40 +84,19 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 		suite.mockClient = wm
-	}	
+	}
+
+	ctx := context.Background()
 
 	// Role
-	var roleResp *schema.Role
-	var expectedRoleMeta *schema.GlobalTenantResourceMetadata
-	var expectedRoleSpec *schema.RoleSpec
 
-	t.WithNewStep("Create role", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
-
-		role := &schema.Role{
-			Metadata: &schema.GlobalTenantResourceMetadata{
-				Tenant: suite.tenant,
-				Name:   roleName,
-			},
-			Spec: schema.RoleSpec{
-				Permissions: []schema.Permission{
-					{
-						Provider:  secalib.StorageProviderV1,
-						Resources: []string{imageResource},
-						Verb:      []string{http.MethodGet},
-					},
-				},
-			},
-		}
-		roleResp, err = suite.client.AuthorizationV1.CreateOrUpdateRole(ctx, role)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, roleResp)
-
-		expectedRoleMeta = secalib.NewGlobalTenantResourceMetadata(roleName, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1, secalib.RoleKind, suite.tenant)
-		expectedRoleMeta.Verb = http.MethodPut
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
-
-		expectedRoleSpec = &schema.RoleSpec{
+	// Create a role
+	role := &schema.Role{
+		Metadata: &schema.GlobalTenantResourceMetadata{
+			Tenant: suite.tenant,
+			Name:   roleName,
+		},
+		Spec: schema.RoleSpec{
 			Permissions: []schema.Permission{
 				{
 					Provider:  secalib.StorageProviderV1,
@@ -127,192 +104,71 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 					Verb:      []string{http.MethodGet},
 				},
 			},
-		}
-		suite.verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
+		},
+	}
+	expectRoleMeta := secalib.NewGlobalTenantResourceMetadata(roleName, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1, secalib.RoleKind, suite.tenant)
+	expectRoleSpec := role.Spec
+	suite.createOrUpdateRoleV1Step("Create a role", t, ctx, suite.client.AuthorizationV1, role, expectRoleMeta, &expectRoleSpec, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *roleResp.Status.State)
-	})
+	// Get the created role
+	roleTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   roleName,
+	}
+	role = suite.getRoleV1Step("Get the created role", t, ctx, suite.client.AuthorizationV1, *roleTRef, expectRoleMeta, &expectRoleSpec, secalib.ActiveResourceState)
 
-	t.WithNewStep("Get created role", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
+	// Update the role
+	role.Spec.Permissions[0].Verb = []string{http.MethodGet, http.MethodPut}
+	expectRoleSpec.Permissions[0] = role.Spec.Permissions[0]
+	suite.createOrUpdateRoleV1Step("Update the role", t, ctx, suite.client.AuthorizationV1, role, expectRoleMeta, &expectRoleSpec, secalib.UpdatingResourceState)
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleName,
-		}
-		roleResp, err = suite.client.AuthorizationV1.GetRole(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, roleResp)
-
-		expectedRoleMeta.Verb = http.MethodGet
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
-
-		suite.verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *roleResp.Status.State)
-	})
-
-	t.WithNewStep("Update role", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
-
-		roleResp, err = suite.client.AuthorizationV1.CreateOrUpdateRole(ctx, roleResp)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, roleResp)
-
-		expectedRoleMeta.Verb = http.MethodPut
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
-
-		expectedRoleSpec.Permissions[0].Verb = []string{http.MethodGet, http.MethodPut}
-		suite.verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *roleResp.Status.State)
-	})
-
-	t.WithNewStep("Get updated role", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleName,
-		}
-		roleResp, err = suite.client.AuthorizationV1.GetRole(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, roleResp)
-
-		expectedRoleMeta.Verb = http.MethodGet
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
-
-		suite.verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *roleResp.Status.State)
-	})
+	// Get the updated role
+	role = suite.getRoleV1Step("Get the updated role", t, ctx, suite.client.AuthorizationV1, *roleTRef, expectRoleMeta, &expectRoleSpec, secalib.ActiveResourceState)
 
 	// Role assignment
-	var assignResp *schema.RoleAssignment
-	var expectedAssignMeta *schema.GlobalTenantResourceMetadata
-	var expectedAssignSpec *schema.RoleAssignmentSpec
 
-	t.WithNewStep("Create role assignment", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
-
-		assign := &schema.RoleAssignment{
-			Metadata: &schema.GlobalTenantResourceMetadata{
-				Tenant: suite.tenant,
-				Name:   roleAssignmentName,
-			},
-			Spec: schema.RoleAssignmentSpec{
-				Roles:  []string{roleName},
-				Subs:   []string{roleAssignmentSub1},
-				Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
-			},
-		}
-		assignResp, err = suite.client.AuthorizationV1.CreateOrUpdateRoleAssignment(ctx, assign)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, assignResp)
-
-		expectedAssignMeta = secalib.NewGlobalTenantResourceMetadata(roleAssignmentName, secalib.AuthorizationProviderV1, roleAssignmentResource, secalib.ApiVersion1, secalib.RoleAssignmentKind, suite.tenant)
-		expectedAssignMeta.Verb = http.MethodPut
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
-
-		expectedAssignSpec = &schema.RoleAssignmentSpec{
+	// Create a role assignment
+	roleAssign := &schema.RoleAssignment{
+		Metadata: &schema.GlobalTenantResourceMetadata{
+			Tenant: suite.tenant,
+			Name:   roleAssignmentName,
+		},
+		Spec: schema.RoleAssignmentSpec{
 			Roles:  []string{roleName},
 			Subs:   []string{roleAssignmentSub1},
 			Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
-		}
-		suite.verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
+		},
+	}
+	expectRoleAssignMeta := secalib.NewGlobalTenantResourceMetadata(roleAssignmentName, secalib.AuthorizationProviderV1, roleAssignmentResource, secalib.ApiVersion1, secalib.RoleAssignmentKind, suite.tenant)
+	expectRoleAssignSpec := roleAssign.Spec
+	suite.createOrUpdateRoleAssignmentV1Step("Create a role assignment", t, ctx, suite.client.AuthorizationV1, roleAssign, expectRoleAssignMeta, &expectRoleAssignSpec, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *assignResp.Status.State)
-	})
+	// Get the created role assignment
+	roleAssignTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   roleAssignmentName,
+	}
+	roleAssign = suite.getRoleAssignmentV1Step("Get the created role assignment", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef, expectRoleAssignMeta, &expectRoleAssignSpec, secalib.ActiveResourceState)
 
-	t.WithNewStep("Get created role assignment", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
+	// Update the role assignment
+	roleAssign.Spec.Subs = []string{roleAssignmentSub1, roleAssignmentSub2}
+	expectRoleAssignSpec.Subs = roleAssign.Spec.Subs
+	roleAssign = suite.createOrUpdateRoleAssignmentV1Step("Update the role assignment", t, ctx, suite.client.AuthorizationV1, roleAssign, expectRoleAssignMeta, &expectRoleAssignSpec, secalib.UpdatingResourceState)
 
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
-		}
-		assignResp, err = suite.client.AuthorizationV1.GetRoleAssignment(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, assignResp)
+	// Get the updated role assignment
+	roleAssign = suite.getRoleAssignmentV1Step("Get the updated role assignment", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef, expectRoleAssignMeta, &expectRoleAssignSpec, secalib.ActiveResourceState)
 
-		expectedAssignMeta.Verb = http.MethodGet
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
+	// Delete the role assignment
+	suite.deleteRoleAssignmentV1Step("Delete the role assignment", t, ctx, suite.client.AuthorizationV1, roleAssign)
 
-		suite.verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
+	// Get the deleted role assignment
+	suite.getRoleAssignmentWithErrorV1Step("Get the deleted role assignment", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef, secapi.ErrResourceNotFound)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *assignResp.Status.State)
-	})
+	// Delete the role
+	suite.deleteRoleV1Step("Delete the role", t, ctx, suite.client.AuthorizationV1, role)
 
-	t.WithNewStep("Update role assignment", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
-
-		assignResp, err = suite.client.AuthorizationV1.CreateOrUpdateRoleAssignment(ctx, assignResp)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, assignResp)
-
-		expectedAssignMeta.Verb = http.MethodPut
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
-
-		expectedAssignSpec.Subs = []string{roleAssignmentSub1, roleAssignmentSub2}
-		suite.verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *assignResp.Status.State)
-	})
-
-	t.WithNewStep("Get updated role assignment", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
-		}
-		assignResp, err = suite.client.AuthorizationV1.GetRoleAssignment(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, assignResp)
-
-		expectedAssignMeta.Verb = http.MethodGet
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
-
-		suite.verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *assignResp.Status.State)
-	})
-
-	t.WithNewStep("Delete role assignment", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "DeleteRoleAssignment")
-
-		err = suite.client.AuthorizationV1.DeleteRoleAssignment(ctx, assignResp)
-		requireNoError(sCtx, err)
-	})
-
-	t.WithNewStep("Get deleted role assignment", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
-		}
-		_, err = suite.client.AuthorizationV1.GetRoleAssignment(ctx, tref)
-		requireError(sCtx, err, secapi.ErrResourceNotFound)
-	})
-
-	t.WithNewStep("Delete role", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "DeleteRole")
-
-		err = suite.client.AuthorizationV1.DeleteRole(ctx, roleResp)
-		requireNoError(sCtx, err)
-	})
-
-	t.WithNewStep("Get deleted role", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleAssignmentName,
-		}
-		_, err = suite.client.AuthorizationV1.GetRole(ctx, tref)
-		requireError(sCtx, err, secapi.ErrResourceNotFound)
-	})
+	// Get the deleted role
+	suite.getRoleWithErrorV1Step("Get the deleted role", t, ctx, suite.client.AuthorizationV1, *roleTRef, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)
 }

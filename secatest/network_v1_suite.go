@@ -289,7 +289,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workResp)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *workResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *workResp.Status.State)
 	})
 
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
@@ -303,7 +303,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workResp)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *workResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *workResp.Status.State)
 	})
 
 	// Network
@@ -342,7 +342,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *networkResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *networkResp.Status.State)
 	})
 
 	t.WithNewStep("Get created network", func(sCtx provider.StepCtx) {
@@ -362,7 +362,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *networkResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *networkResp.Status.State)
 	})
 
 	t.WithNewStep("Update network", func(sCtx provider.StepCtx) {
@@ -378,7 +378,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedNetworkSpec.SkuRef = *networkSkuRef2Obj
 		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *networkResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *networkResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated network", func(sCtx provider.StepCtx) {
@@ -398,7 +398,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *networkResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *networkResp.Status.State)
 	})
 
 	// Internet gateway
@@ -428,7 +428,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedGatewaySpec = &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)}
 		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *gatewayResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *gatewayResp.Status.State)
 	})
 
 	t.WithNewStep("Get created internet gateway", func(sCtx provider.StepCtx) {
@@ -448,7 +448,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *gatewayResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *gatewayResp.Status.State)
 	})
 
 	t.WithNewStep("Update internet gateway", func(sCtx provider.StepCtx) {
@@ -464,7 +464,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedGatewaySpec.EgressOnly = ptr.To(true)
 		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *gatewayResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *gatewayResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated internet gateway", func(sCtx provider.StepCtx) {
@@ -484,7 +484,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *gatewayResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *gatewayResp.Status.State)
 	})
 
 	// Route table
@@ -524,7 +524,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *routeResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *routeResp.Status.State)
 	})
 
 	t.WithNewStep("Get created route table", func(sCtx provider.StepCtx) {
@@ -545,7 +545,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *routeResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *routeResp.Status.State)
 	})
 
 	t.WithNewStep("Update route table", func(sCtx provider.StepCtx) {
@@ -565,7 +565,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *routeResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *routeResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated route table", func(sCtx provider.StepCtx) {
@@ -586,7 +586,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *routeResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *routeResp.Status.State)
 	})
 
 	// Subnet
@@ -624,7 +624,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *subnetResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *subnetResp.Status.State)
 	})
 
 	t.WithNewStep("Get created subnet", func(sCtx provider.StepCtx) {
@@ -645,7 +645,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *subnetResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *subnetResp.Status.State)
 	})
 
 	t.WithNewStep("Update subnet", func(sCtx provider.StepCtx) {
@@ -661,7 +661,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedSubnetSpec.Zone = zone2
 		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *subnetResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *subnetResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated subnet", func(sCtx provider.StepCtx) {
@@ -682,7 +682,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *subnetResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *subnetResp.Status.State)
 	})
 
 	// Public ip
@@ -719,7 +719,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *publicIpResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *publicIpResp.Status.State)
 	})
 
 	t.WithNewStep("Get created public ip", func(sCtx provider.StepCtx) {
@@ -739,7 +739,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *publicIpResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *publicIpResp.Status.State)
 	})
 
 	t.WithNewStep("Update public ip", func(sCtx provider.StepCtx) {
@@ -755,7 +755,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedIpSpec.Address = ptr.To(publicIpAddress2)
 		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *publicIpResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *publicIpResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated public ip", func(sCtx provider.StepCtx) {
@@ -775,7 +775,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *publicIpResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *publicIpResp.Status.State)
 	})
 
 	// Nic
@@ -814,7 +814,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *nicResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *nicResp.Status.State)
 	})
 
 	t.WithNewStep("Get created nic", func(sCtx provider.StepCtx) {
@@ -834,7 +834,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *nicResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *nicResp.Status.State)
 	})
 
 	t.WithNewStep("Update nic", func(sCtx provider.StepCtx) {
@@ -850,7 +850,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedNicSpec.Addresses = []string{nicAddress2}
 		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *nicResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *nicResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated nic", func(sCtx provider.StepCtx) {
@@ -870,7 +870,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *nicResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *nicResp.Status.State)
 	})
 
 	// Security Group
@@ -910,7 +910,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *groupResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *groupResp.Status.State)
 	})
 
 	t.WithNewStep("Get created security group", func(sCtx provider.StepCtx) {
@@ -930,7 +930,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *groupResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *groupResp.Status.State)
 	})
 
 	t.WithNewStep("Update security group", func(sCtx provider.StepCtx) {
@@ -946,7 +946,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedGroupSpec.Rules[0] = schema.SecurityGroupRuleSpec{Direction: secalib.SecurityRuleDirectionEgress}
 		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.UpdatingStatusState, *groupResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *groupResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated security group", func(sCtx provider.StepCtx) {
@@ -966,7 +966,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *groupResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *groupResp.Status.State)
 	})
 
 	// Block storage
@@ -990,7 +990,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *blockResp.Status.State)
 	})
 
 	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
@@ -1005,7 +1005,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *blockResp.Status.State)
 	})
 
 	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
@@ -1028,7 +1028,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
@@ -1043,7 +1043,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {
