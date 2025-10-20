@@ -1,13 +1,15 @@
 package mock
 
-import "github.com/eu-sovereign-cloud/conformance/secalib"
+import (
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+)
 
 // Params
 
 type AuthorizationParamsV1 struct {
 	*Params
-	Role           *ResourceParams[secalib.RoleSpecV1]
-	RoleAssignment *ResourceParams[secalib.RoleAssignmentSpecV1]
+	Role           *ResourceParams[schema.RoleSpec]
+	RoleAssignment *ResourceParams[schema.RoleAssignmentSpec]
 }
 
 func (p AuthorizationParamsV1) getParams() *Params { return p.Params }
@@ -21,25 +23,25 @@ func (p RegionParamsV1) getParams() *Params { return p.Params }
 
 type WorkspaceParamsV1 struct {
 	*Params
-	Workspace *ResourceParams[secalib.WorkspaceSpecV1]
+	Workspace *ResourceParams[schema.WorkspaceSpec]
 }
 
 func (p WorkspaceParamsV1) getParams() *Params { return p.Params }
 
 type ComputeParamsV1 struct {
 	*Params
-	Workspace    *ResourceParams[secalib.WorkspaceSpecV1]
-	BlockStorage *ResourceParams[secalib.BlockStorageSpecV1]
-	Instance     *ResourceParams[secalib.InstanceSpecV1]
+	Workspace    *ResourceParams[schema.WorkspaceSpec]
+	BlockStorage *ResourceParams[schema.BlockStorageSpec]
+	Instance     *ResourceParams[schema.InstanceSpec]
 }
 
 func (p ComputeParamsV1) getParams() *Params { return p.Params }
 
 type StorageParamsV1 struct {
 	*Params
-	Workspace    *ResourceParams[secalib.WorkspaceSpecV1]
-	BlockStorage *ResourceParams[secalib.BlockStorageSpecV1]
-	Image        *ResourceParams[secalib.ImageSpecV1]
+	Workspace    *ResourceParams[schema.WorkspaceSpec]
+	BlockStorage *ResourceParams[schema.BlockStorageSpec]
+	Image        *ResourceParams[schema.ImageSpec]
 }
 
 func (p StorageParamsV1) getParams() *Params { return p.Params }
@@ -47,27 +49,36 @@ func (p StorageParamsV1) getParams() *Params { return p.Params }
 type NetworkParamsV1 struct {
 	*Params
 
-	Workspace       *ResourceParams[secalib.WorkspaceSpecV1]
-	BlockStorage    *ResourceParams[secalib.BlockStorageSpecV1]
-	Instance        *ResourceParams[secalib.InstanceSpecV1]
-	Network         *ResourceParams[secalib.NetworkSpecV1]
-	InternetGateway *ResourceParams[secalib.InternetGatewaySpecV1]
-	RouteTable      *ResourceParams[secalib.RouteTableSpecV1]
-	Subnet          *ResourceParams[secalib.SubnetSpecV1]
-	NIC             *ResourceParams[secalib.NICSpecV1]
-	PublicIP        *ResourceParams[secalib.PublicIpSpecV1]
-	SecurityGroup   *ResourceParams[secalib.SecurityGroupSpecV1]
+	Workspace       *ResourceParams[schema.WorkspaceSpec]
+	BlockStorage    *ResourceParams[schema.BlockStorageSpec]
+	Instance        *ResourceParams[schema.InstanceSpec]
+	Network         *ResourceParams[schema.NetworkSpec]
+	InternetGateway *ResourceParams[schema.InternetGatewaySpec]
+	RouteTable      *ResourceParams[schema.RouteTableSpec]
+	Subnet          *ResourceParams[schema.SubnetSpec]
+	NIC             *ResourceParams[schema.NicSpec]
+	PublicIp        *ResourceParams[schema.PublicIpSpec]
+	SecurityGroup   *ResourceParams[schema.SecurityGroupSpec]
 }
 
 func (p NetworkParamsV1) getParams() *Params { return p.Params }
 
 type FoundationUsageParamsV1 struct {
 	*Params
-	Workspace     *WorkspaceParamsV1
-	Storage       *StorageParamsV1
-	Compute       *ComputeParamsV1
-	Network       *NetworkParamsV1
-	Authorization *AuthorizationParamsV1
+
+	Role            *ResourceParams[schema.RoleSpec]
+	RoleAssignment  *ResourceParams[schema.RoleAssignmentSpec]
+	Workspace       *ResourceParams[schema.WorkspaceSpec]
+	Image           *ResourceParams[schema.ImageSpec]
+	BlockStorage    *ResourceParams[schema.BlockStorageSpec]
+	Network         *ResourceParams[schema.NetworkSpec]
+	InternetGateway *ResourceParams[schema.InternetGatewaySpec]
+	RouteTable      *ResourceParams[schema.RouteTableSpec]
+	Subnet          *ResourceParams[schema.SubnetSpec]
+	SecurityGroup   *ResourceParams[schema.SecurityGroupSpec]
+	PublicIp        *ResourceParams[schema.PublicIpSpec]
+	NIC             *ResourceParams[schema.NicSpec]
+	Instance        *ResourceParams[schema.InstanceSpec]
 }
 
 func (p FoundationUsageParamsV1) getParams() *Params { return p.Params }

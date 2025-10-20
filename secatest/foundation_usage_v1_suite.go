@@ -29,6 +29,8 @@ type FoundationUsageV1TestSuite struct {
 }
 
 func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
+	ctx := context.Background()
+	var err error
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
@@ -36,7 +38,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		secalib.AuthorizationProviderV1, secalib.RoleKind, secalib.RoleAssignmentKind,
 		secalib.WorkspaceProviderV1, secalib.WorkspaceKind,
 		secalib.StorageProviderV1, secalib.BlockStorageKind, secalib.ImageKind,
-		secalib.NetworkProviderV1, secalib.NetworkKind, secalib.InternetGatewayKind, secalib.NicKind, secalib.PublicIPKind, secalib.RouteTableKind, secalib.SubnetKind, secalib.SecurityGroupKind,
+		secalib.NetworkProviderV1, secalib.NetworkKind, secalib.InternetGatewayKind, secalib.NicKind, secalib.PublicIpKind, secalib.RouteTableKind, secalib.SubnetKind, secalib.SecurityGroupKind,
 		secalib.ComputeProviderV1, secalib.InstanceKind,
 	)
 
@@ -83,15 +85,28 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	roleAssignmentResource := secalib.GenerateRoleAssignmentResource(suite.tenant, roleAssignmentName)
 
 	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
+	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	blockStorageName := secalib.GenerateBlockStorageName()
 	blockStorageResource := secalib.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
 	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
+	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	imageName := secalib.GenerateImageName()
 	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
 
 	instanceSkuRef := secalib.GenerateSkuRef(instanceSkuName)
+	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	instanceName := secalib.GenerateInstanceName()
 	instanceResource := secalib.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
 
@@ -117,9 +132,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	nicName := secalib.GenerateNicName()
 	nicResource := secalib.GenerateNicResource(suite.tenant, workspaceName, nicName)
 
-	publicIPName := secalib.GeneratePublicIPName()
-	publicIPResource := secalib.GeneratePublicIPResource(suite.tenant, workspaceName, publicIPName)
-	publicIPRef := secalib.GeneratePublicIPRef(publicIPName)
+	publicIpName := secalib.GeneratePublicIpName()
+	publicIpResource := secalib.GeneratePublicIpResource(suite.tenant, workspaceName, publicIpName)
+	publicIpRef := secalib.GeneratePublicIpRef(publicIpName)
 
 	securityGroupName := secalib.GenerateSecurityGroupName()
 	securityGroupResource := secalib.GenerateSecurityGroupResource(suite.tenant, workspaceName, securityGroupName)
@@ -135,112 +150,102 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 				Tenant:    suite.tenant,
 				Region:    suite.region,
 			},
-			Authorization: &mock.AuthorizationParamsV1{
-				Role: &mock.ResourceParams[secalib.RoleSpecV1]{
-					Name: roleName,
-					InitialSpec: &secalib.RoleSpecV1{
-						Permissions: []*secalib.RoleSpecPermissionV1{
-							{
-								Provider:  secalib.StorageProviderV1,
-								Resources: []string{imageResource},
-								Verb:      []string{http.MethodGet},
-							},
-						},
-					},
-				},
-				RoleAssignment: &mock.ResourceParams[secalib.RoleAssignmentSpecV1]{
-					Name: roleAssignmentName,
-					InitialSpec: &secalib.RoleAssignmentSpecV1{
-						Roles:  []string{roleName},
-						Subs:   []string{roleAssignmentSub1},
-						Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
+			Role: &mock.ResourceParams[schema.RoleSpec]{
+				Name: roleName,
+				InitialSpec: &schema.RoleSpec{
+					Permissions: []schema.Permission{
+						{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 					},
 				},
 			},
-			Workspace: &mock.WorkspaceParamsV1{
-				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
-					Name: workspaceName,
-				},
-			},
-			Storage: &mock.StorageParamsV1{
-				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
-					Name: blockStorageName,
-					InitialSpec: &secalib.BlockStorageSpecV1{
-						SkuRef: storageSkuRef,
-						SizeGB: blockStorageSize,
-					},
-				},
-				Image: &mock.ResourceParams[secalib.ImageSpecV1]{
-					Name: imageName,
-					InitialSpec: &secalib.ImageSpecV1{
-						BlockStorageRef: blockStorageRef,
-						CpuArchitecture: secalib.CpuArchitectureAmd64,
+			RoleAssignment: &mock.ResourceParams[schema.RoleAssignmentSpec]{
+				Name: roleAssignmentName,
+				InitialSpec: &schema.RoleAssignmentSpec{
+					Roles: []string{roleName},
+					Subs:  []string{roleAssignmentSub1},
+					Scopes: []schema.RoleAssignmentScope{
+						{Tenants: &[]string{suite.tenant}},
 					},
 				},
 			},
-			Network: &mock.NetworkParamsV1{
-				Network: &mock.ResourceParams[secalib.NetworkSpecV1]{
-					Name: networkName,
-					InitialSpec: &secalib.NetworkSpecV1{
-						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
-						SkuRef:        networkSkuRef1,
-						RouteTableRef: routeTableRef,
-					},
-					UpdatedSpec: &secalib.NetworkSpecV1{
-						Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
-						SkuRef:        networkSkuRef2,
-						RouteTableRef: routeTableRef,
-					},
+			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
+				Name: workspaceName,
+			},
+			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
+				Name: blockStorageName,
+				InitialSpec: &schema.BlockStorageSpec{
+					SkuRef: *storageSkuRefObj,
+					SizeGB: blockStorageSize,
 				},
-				InternetGateway: &mock.ResourceParams[secalib.InternetGatewaySpecV1]{
-					Name:        internetGatewayName,
-					InitialSpec: &secalib.InternetGatewaySpecV1{EgressOnly: false},
+			},
+			Image: &mock.ResourceParams[schema.ImageSpec]{
+				Name: imageName,
+				InitialSpec: &schema.ImageSpec{
+					BlockStorageRef: *blockStorageRefObj,
+					CpuArchitecture: secalib.CpuArchitectureAmd64,
 				},
-				RouteTable: &mock.ResourceParams[secalib.RouteTableSpecV1]{
-					Name: routeTableName,
-					InitialSpec: &secalib.RouteTableSpecV1{
-						LocalRef: networkRef,
-						Routes: []*secalib.RouteTableRouteV1{
-							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: internetGatewayRef},
-						},
-					},
+			},
+			Network: &mock.ResourceParams[secalib.NetworkSpecV1]{
+				Name: networkName,
+				InitialSpec: &secalib.NetworkSpecV1{
+					Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
+					SkuRef:        networkSkuRef1,
+					RouteTableRef: routeTableRef,
 				},
-				Subnet: &mock.ResourceParams[secalib.SubnetSpecV1]{
-					Name: subnetName,
-					InitialSpec: &secalib.SubnetSpecV1{
-						Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
-						Zone: zone1,
-					},
+				UpdatedSpec: &secalib.NetworkSpecV1{
+					Cidr:          &secalib.NetworkSpecCIDRV1{Ipv4: suite.networkCidr},
+					SkuRef:        networkSkuRef2,
+					RouteTableRef: routeTableRef,
 				},
-				NIC: &mock.ResourceParams[secalib.NICSpecV1]{
-					Name: nicName,
-					InitialSpec: &secalib.NICSpecV1{
-						Addresses:    []string{nicAddress1},
-						PublicIpRefs: []string{publicIPRef},
-						SubnetRef:    subnetRef,
-					},
-				},
-				PublicIP: &mock.ResourceParams[secalib.PublicIpSpecV1]{
-					Name: publicIPName,
-					InitialSpec: &secalib.PublicIpSpecV1{
-						Version: secalib.IPVersion4,
-						Address: publicIpAddress1,
-					},
-				},
-				SecurityGroup: &mock.ResourceParams[secalib.SecurityGroupSpecV1]{
-					Name: securityGroupName,
-					InitialSpec: &secalib.SecurityGroupSpecV1{
-						Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionIngress}},
+			},
+			InternetGateway: &mock.ResourceParams[secalib.InternetGatewaySpecV1]{
+				Name:        internetGatewayName,
+				InitialSpec: &secalib.InternetGatewaySpecV1{EgressOnly: false},
+			},
+			RouteTable: &mock.ResourceParams[secalib.RouteTableSpecV1]{
+				Name: routeTableName,
+				InitialSpec: &secalib.RouteTableSpecV1{
+					LocalRef: networkRef,
+					Routes: []*secalib.RouteTableRouteV1{
+						{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: internetGatewayRef},
 					},
 				},
 			},
-			Compute: &mock.ComputeParamsV1{
-				Instance: &mock.ResourceParams[secalib.InstanceSpecV1]{
-					Name: instanceName,
-					InitialSpec: &secalib.InstanceSpecV1{
-						SkuRef:        instanceSkuRef,
-						Zone:          zone1,
-						BootDeviceRef: blockStorageRef,
+			Subnet: &mock.ResourceParams[secalib.SubnetSpecV1]{
+				Name: subnetName,
+				InitialSpec: &secalib.SubnetSpecV1{
+					Cidr: &secalib.SubnetSpecCIDRV1{Ipv4: subnetCidr},
+					Zone: zone1,
+				},
+			},
+			NIC: &mock.ResourceParams[secalib.NICSpecV1]{
+				Name: nicName,
+				InitialSpec: &secalib.NICSpecV1{
+					Addresses:    []string{nicAddress1},
+					PublicIpRefs: []string{publicIpRef},
+					SubnetRef:    subnetRef,
+				},
+			},
+			PublicIp: &mock.ResourceParams[secalib.PublicIpSpecV1]{
+				Name: publicIpName,
+				InitialSpec: &secalib.PublicIpSpecV1{
+					Version: secalib.IpVersion4,
+					Address: publicIpAddress1,
+				},
+			},
+			SecurityGroup: &mock.ResourceParams[secalib.SecurityGroupSpecV1]{
+				Name: securityGroupName,
+				InitialSpec: &secalib.SecurityGroupSpecV1{
+					Rules: []*secalib.SecurityGroupRuleV1{{Direction: secalib.SecurityRuleDirectionIngress}},
+				},
+			},
+			Instance: &mock.ResourceParams[schema.InstanceSpec]{
+				Name: instanceName,
+				InitialSpec: &schema.InstanceSpec{
+					SkuRef: *instanceSkuRefObj,
+					Zone:   zone1,
+					BootVolume: schema.VolumeReference{
+						DeviceRef: *blockStorageRefObj,
 					},
 				},
 			},
@@ -251,7 +256,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		suite.mockClient = wm
 	}
-	ctx := context.Background()
+
 	var roleResp *schema.Role
 	var assignResp *schema.RoleAssignment
 
@@ -263,7 +268,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
 
 		role := &schema.Role{
-			Metadata: &schema.GlobalResourceMetadata{
+			Metadata: &schema.GlobalTenantResourceMetadata{
 				Tenant: suite.tenant,
 				Name:   roleName,
 			},
@@ -338,7 +343,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
 
 		assign := &schema.RoleAssignment{
-			Metadata: &schema.GlobalResourceMetadata{
+			Metadata: &schema.GlobalTenantResourceMetadata{
 				Tenant: suite.tenant,
 				Name:   roleAssignmentName,
 			},
@@ -462,11 +467,6 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	t.WithNewStep("Create image", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateImage", "")
 
-		blockStorageURN, err := suite.regionalClient.StorageV1.BuildReferenceURN(blockStorageRef)
-		if err != nil {
-			t.Fatal(err)
-		}
-
 		img := &schema.Image{
 			Metadata: &schema.RegionalResourceMetadata{
 				Tenant: suite.tenant,
@@ -534,11 +534,6 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateBlockStorage", workspaceName)
-
-		storageSkuURN, err := suite.regionalClient.StorageV1.BuildReferenceURN(storageSkuRef)
-		if err != nil {
-			t.Fatal(err)
-		}
 
 		bo := &schema.BlockStorage{
 			Metadata: &schema.RegionalWorkspaceResourceMetadata{
@@ -610,12 +605,12 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	t.WithNewStep("Create network", func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNetwork", workspaceName)
 
-		networkSkuURN, err := suite.regionalClient.NetworkV1.BuildReferenceURN(networkSkuRef1)
+		networkSkuURN, err := secapi.BuildReferenceFromURN(networkSkuRef1)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		routeTableURN, err := suite.regionalClient.NetworkV1.BuildReferenceURN(routeTableRef)
+		routeTableURN, err := secapi.BuildReferenceFromURN(routeTableRef)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -975,11 +970,11 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			Metadata: &schema.RegionalWorkspaceResourceMetadata{
 				Tenant:    suite.tenant,
 				Workspace: workspaceName,
-				Name:      publicIPName,
+				Name:      publicIpName,
 			},
 			Spec: schema.PublicIpSpec{
 				Address: &publicIpAddress1,
-				Version: secalib.IPVersion4,
+				Version: secalib.IpVersion4,
 			},
 		}
 		publicIpResp, err = suite.regionalClient.NetworkV1.CreateOrUpdatePublicIp(ctx, ip)
@@ -987,19 +982,19 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, publicIpResp)
 
 		expectedIpMeta = &secalib.Metadata{
-			Name:       publicIPName,
+			Name:       publicIpName,
 			Provider:   secalib.NetworkProviderV1,
-			Resource:   publicIPResource,
+			Resource:   publicIpResource,
 			Verb:       http.MethodPut,
 			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.PublicIPKind,
+			Kind:       secalib.PublicIpKind,
 			Tenant:     suite.tenant,
 			Region:     &suite.region,
 		}
 		suite.networkTestSuite.verifyWorkspaceMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
 
 		expectedIpSpec = &secalib.PublicIpSpecV1{
-			Version: secalib.IPVersion4,
+			Version: secalib.IpVersion4,
 			Address: publicIpAddress1,
 		}
 		suite.networkTestSuite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, publicIpResp.Spec)
@@ -1016,7 +1011,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		wref := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.tenant),
 			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      publicIPName,
+			Name:      publicIpName,
 		}
 		publicIpResp, err = suite.regionalClient.NetworkV1.GetPublicIp(ctx, wref)
 		requireNoError(sCtx, err)
@@ -1041,12 +1036,12 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	t.WithNewStep("Create nic", func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNic", workspaceName)
 
-		publicIPURN, err := suite.regionalClient.NetworkV1.BuildReferenceURN(publicIPRef)
+		publicIpURN, err := secapi.BuildReferenceFromURN(publicIpRef)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		subnetURN, err := suite.regionalClient.NetworkV1.BuildReferenceURN(subnetRef)
+		subnetURN, err := secapi.BuildReferenceFromURN(subnetRef)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1059,7 +1054,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			},
 			Spec: schema.NicSpec{
 				Addresses:    []string{nicAddress1},
-				PublicIpRefs: &[]schema.Reference{*publicIPURN},
+				PublicIpRefs: &[]schema.Reference{*publicIpURN},
 				SubnetRef:    *subnetURN,
 			},
 		}
@@ -1081,7 +1076,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 		expectedNicSpec = &secalib.NICSpecV1{
 			Addresses:    []string{nicAddress1},
-			PublicIpRefs: []string{publicIPRef},
+			PublicIpRefs: []string{publicIpRef},
 			SubnetRef:    subnetRef,
 		}
 		suite.networkTestSuite.verifyNicSpecStep(sCtx, expectedNicSpec, nicResp.Spec)
@@ -1122,12 +1117,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
 
-		instanceSkuURN, err := suite.regionalClient.ComputeV1.BuildReferenceURN(instanceSkuRef)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		blockStorageURN, err := suite.regionalClient.ComputeV1.BuildReferenceURN(blockStorageRef)
+		blockStorageURN, err := secapi.BuildReferenceFromURN(blockStorageRef)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1222,7 +1212,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 	})
 
-	// Delete PublicIP
+	// Delete PublicIp
 	t.WithNewStep("Delete Public ip", func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "DeletePublicIp", workspaceName)
 

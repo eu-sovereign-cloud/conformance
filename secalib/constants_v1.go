@@ -26,7 +26,7 @@ const (
 	NetworkURLV1         = urlProvidersPrefixV1 + NetworkProviderV1 + "/" + NetworkResource
 	InternetGatewayURLV1 = urlProvidersPrefixV1 + NetworkProviderV1 + "/" + InternetGatewayResource
 	NicURLV1             = urlProvidersPrefixV1 + NetworkProviderV1 + "/" + NicResource
-	PublicIPURLV1        = urlProvidersPrefixV1 + NetworkProviderV1 + "/" + PublicIPResource
+	PublicIpURLV1        = urlProvidersPrefixV1 + NetworkProviderV1 + "/" + PublicIpResource
 	RouteTableURLV1      = urlProvidersPrefixV1 + NetworkProviderV1 + "/" + RouteTableResource
 	SubnetURLV1          = urlProvidersPrefixV1 + NetworkProviderV1 + "/" + SubnetResource
 	SecurityGroupURLV1   = urlProvidersPrefixV1 + NetworkProviderV1 + "/" + SecurityGroupResource
