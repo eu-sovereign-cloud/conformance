@@ -86,4 +86,22 @@ const (
 
 	// Generators
 	maxBlockStorageSize = 1000000 // GB
+
+	// Zones
+	ZoneA = "a"
+	ZoneB = "b"
+
+
+	// Labels 
+	LabelKeyTier         = "tier"
+	LabelEnvKey          = "env"
+	LabelEnvValue        = "test"
+	LabelMonitoringValue = "monitoring"
+	LabelAlertLevelValue = "alert-level"
+	LabelHightValue      = "high"
+	LabelTierKey         = "tier"
+	LabelTierValue       = "backend"
+	LabelVersion         = "version"
+	LabelUptime          = "uptime"
+	LabelLoad            = "load"
 )

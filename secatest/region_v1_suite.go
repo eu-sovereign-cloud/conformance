@@ -10,7 +10,6 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"k8s.io/utils/ptr"
 )
 
 type RegionV1TestSuite struct {
@@ -18,15 +17,18 @@ type RegionV1TestSuite struct {
 	regionName string
 }
 
-func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
-	slog.Info("Starting Region Lifecycle Test")
+func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
+	slog.Info("Starting " + suite.scenarioName)
 
-	t.Title("Region Lifecycle Test")
+	t.Title(suite.scenarioName)
 	configureTags(t, secalib.RegionKind)
+
+	// Generate scenario Names
 	RegionNameA := secalib.GenerateRegionName()
 	RegionNameB := secalib.GenerateRegionName()
-	if suite.isMockEnabled() {
-		wm, err := mock.CreateRegionLifecycleScenarioV1("Region Lifecycle",
+
+	if suite.mockEnabled {
+		wm, err := mock.CreateRegionLifecycleScenarioV1(suite.scenarioName,
 			mock.RegionParamsV1{
 				Params: &mock.Params{
 					MockURL:   *suite.mockServerURL,
@@ -37,7 +39,7 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 					{
 						Name: suite.regionName,
 						InitialSpec: &secalib.RegionSpecV1{
-							AvailableZones: []string{"zone-a", "zone-b"},
+							AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
 							Providers: []secalib.Providers{
 								{
 									Name:    secalib.AuthorizationProvider,
@@ -70,7 +72,7 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 					{
 						Name: RegionNameA,
 						InitialSpec: &secalib.RegionSpecV1{
-							AvailableZones: []string{"zone-a", "zone-b"},
+							AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
 							Providers: []secalib.Providers{
 								{
 									Name:    secalib.AuthorizationProvider,
@@ -167,7 +169,6 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 					Resource:   regionResp.Metadata.Resource,
 					ApiVersion: regionResp.Metadata.ApiVersion,
 					Kind:       string(regionResp.Metadata.Kind),
-					Tenant:     regionResp.Metadata.Tenant,
 				}
 				verifyRegionMetadataStep(sCtx, expectedMetadata, regionResp.Metadata)
 
@@ -184,12 +185,13 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 
 	t.WithNewStep("List Region with params", func(sCtx provider.StepCtx) {
 		suite.setRegionV1StepParams(sCtx, "")
-		limit := 1
-		labels := builders.NewLabelsBuilder().
-			Equals("env", "test").
-			Build()
 
-		iter, err := suite.client.RegionV1.ListRegionsWithFilters(ctx, ptr.To(limit), ptr.To(labels))
+		labelsParams := builders.NewLabelsBuilder().
+			Equals(secalib.LabelEnvKey, secalib.LabelEnvValue)
+
+		listOptions := builders.NewListOptions().WithLimit(10).WithLabels(labelsParams)
+
+		iter, err := suite.client.RegionV1.ListRegionsWithFilters(ctx, listOptions)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, iter)
 
@@ -209,7 +211,6 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 					Resource:   regionResp.Metadata.Resource,
 					ApiVersion: regionResp.Metadata.ApiVersion,
 					Kind:       string(regionResp.Metadata.Kind),
-					Tenant:     regionResp.Metadata.Tenant,
 				}
 				verifyRegionMetadataStep(sCtx, expectedMetadata, regionResp.Metadata)
 
@@ -237,7 +238,6 @@ func (suite *RegionV1TestSuite) TestRegionV1(t provider.T) {
 			Resource:   regionResp.Metadata.Resource,
 			ApiVersion: regionResp.Metadata.ApiVersion,
 			Kind:       string(regionResp.Metadata.Kind),
-			Tenant:     regionResp.Metadata.Tenant,
 		}
 		verifyRegionMetadataStep(sCtx, expectedMetadata, regionResp.Metadata)
 	})
@@ -258,7 +258,6 @@ func verifyRegionMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, 
 		Resource:   actual.Resource,
 		ApiVersion: actual.ApiVersion,
 		Kind:       string(actual.Kind),
-		Tenant:     actual.Tenant,
 	}
 	verifyGlobalMetadataStep(ctx, expected, actualMetadata)
 }
