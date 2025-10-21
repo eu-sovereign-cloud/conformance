@@ -130,7 +130,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		Tenant: secapi.TenantID(suite.tenant),
 		Name:   workspaceName,
 	}
-	workspace = suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, nil, nil, secalib.ActiveResourceState)
+	suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, nil, nil, secalib.ActiveResourceState)
 
 	// Block storage
 
@@ -155,7 +155,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      blockStorageName,
 	}
-	block = suite.getBlockStorageV1Step("Get the created block storage", t, ctx, suite.client.StorageV1, blockWRef,
+	suite.getBlockStorageV1Step("Get the created block storage", t, ctx, suite.client.StorageV1, blockWRef,
 		nil, nil, secalib.ActiveResourceState)
 
 	// Instance
