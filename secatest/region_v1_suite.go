@@ -35,102 +35,102 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 					AuthToken: suite.authToken,
 					Tenant:    suite.tenant,
 				},
-				Regions: []mock.ResourceParams[secalib.RegionSpecV1]{
+				Regions: []mock.ResourceParams[schema.RegionSpec]{
 					{
 						Name: suite.regionName,
-						InitialSpec: &secalib.RegionSpecV1{
+						InitialSpec: &schema.RegionSpec{
 							AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
-							Providers: []secalib.Providers{
+							Providers: []schema.Provider{
 								{
 									Name:    secalib.AuthorizationProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProvider),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProvider),
 								},
 								{
 									Name:    secalib.ComputeProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.ComputeProvider),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.ComputeProvider),
 								},
 								{
 									Name:    secalib.NetworkProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.NetworkProvider),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.NetworkProvider),
 								},
 								{
 									Name:    secalib.StorageProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.StorageProvider),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.StorageProvider),
 								},
 								{
 									Name:    secalib.WorkspaceProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProvider),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProvider),
 								},
 							},
 						},
 					},
 					{
 						Name: RegionNameA,
-						InitialSpec: &secalib.RegionSpecV1{
+						InitialSpec: &schema.RegionSpec{
 							AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
-							Providers: []secalib.Providers{
+							Providers: []schema.Provider{
 								{
 									Name:    secalib.AuthorizationProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProviderV1),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProviderV1),
 								},
 								{
 									Name:    secalib.ComputeProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.ComputeProviderV1),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.ComputeProviderV1),
 								},
 								{
 									Name:    secalib.NetworkProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.NetworkProviderV1),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.NetworkProviderV1),
 								},
 								{
 									Name:    secalib.StorageProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.StorageProviderV1),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.StorageProviderV1),
 								},
 								{
 									Name:    secalib.WorkspaceProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProviderV1),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProviderV1),
 								},
 							},
 						},
 					},
 					{
 						Name: RegionNameB,
-						InitialSpec: &secalib.RegionSpecV1{
-							AvailableZones: []string{"zone-a", "zone-b"},
-							Providers: []secalib.Providers{
+						InitialSpec: &schema.RegionSpec{
+							AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+							Providers: []schema.Provider{
 								{
 									Name:    secalib.AuthorizationProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProviderV1),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProviderV1),
 								},
 								{
 									Name:    secalib.ComputeProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.ComputeProviderV1),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.ComputeProviderV1),
 								},
 								{
 									Name:    secalib.NetworkProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.NetworkProviderV1),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.NetworkProviderV1),
 								},
 								{
 									Name:    secalib.StorageProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.StorageProviderV1),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.StorageProviderV1),
 								},
 								{
 									Name:    secalib.WorkspaceProvider,
 									Version: secalib.ApiVersion1,
-									URL:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProviderV1),
+									Url:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProviderV1),
 								},
 							},
 						},
@@ -163,14 +163,14 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 				regionResp = firstRegion
 
 				requireNotNilResponse(sCtx, regionResp)
-				expectedMetadata := &secalib.Metadata{
+				expected := &schema.GlobalResourceMetadata{
 					Name:       regionResp.Metadata.Name,
 					Verb:       regionResp.Metadata.Verb,
 					Resource:   regionResp.Metadata.Resource,
 					ApiVersion: regionResp.Metadata.ApiVersion,
-					Kind:       string(regionResp.Metadata.Kind),
+					Kind:       regionResp.Metadata.Kind,
 				}
-				verifyRegionMetadataStep(sCtx, expectedMetadata, regionResp.Metadata)
+				suite.verifyGlobalResourceMetadataStep(sCtx, expected, regionResp.Metadata)
 
 				regions, err := iter.All(ctx)
 				requireNoError(sCtx, err)
@@ -205,14 +205,14 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 				regionResp = firstRegion
 
 				requireNotNilResponse(sCtx, regionResp)
-				expectedMetadata := &secalib.Metadata{
+				expected := &schema.GlobalResourceMetadata{
 					Name:       regionResp.Metadata.Name,
 					Verb:       regionResp.Metadata.Verb,
 					Resource:   regionResp.Metadata.Resource,
 					ApiVersion: regionResp.Metadata.ApiVersion,
-					Kind:       string(regionResp.Metadata.Kind),
+					Kind:       regionResp.Metadata.Kind,
 				}
-				verifyRegionMetadataStep(sCtx, expectedMetadata, regionResp.Metadata)
+				suite.verifyGlobalResourceMetadataStep(sCtx, expected, regionResp.Metadata)
 
 				regions, err := iter.All(ctx)
 				requireNoError(sCtx, err)
@@ -232,14 +232,14 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, regionResp)
 
-		expectedMetadata := &secalib.Metadata{
+		expected := &schema.GlobalResourceMetadata{
 			Name:       regionResp.Metadata.Name,
 			Verb:       regionResp.Metadata.Verb,
 			Resource:   regionResp.Metadata.Resource,
 			ApiVersion: regionResp.Metadata.ApiVersion,
-			Kind:       string(regionResp.Metadata.Kind),
+			Kind:       regionResp.Metadata.Kind,
 		}
-		verifyRegionMetadataStep(sCtx, expectedMetadata, regionResp.Metadata)
+		suite.verifyGlobalResourceMetadataStep(sCtx, expected, regionResp.Metadata)
 	})
 
 	t.WithNewStep("Not Exist Region", func(sCtx provider.StepCtx) {
@@ -249,17 +249,6 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 		expectedError := errors.New("resource not found")
 		requireError(sCtx, err, expectedError)
 	})
-}
-
-func verifyRegionMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, actual *schema.GlobalResourceMetadata) {
-	actualMetadata := &secalib.Metadata{
-		Name:       actual.Name,
-		Verb:       actual.Verb,
-		Resource:   actual.Resource,
-		ApiVersion: actual.ApiVersion,
-		Kind:       string(actual.Kind),
-	}
-	verifyGlobalMetadataStep(ctx, expected, actualMetadata)
 }
 
 func verifyRegionExists(ctx provider.StepCtx, expectedRegion string, actualRegions []*schema.Region) {
