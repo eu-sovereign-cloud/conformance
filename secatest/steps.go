@@ -241,3 +241,26 @@ func (suite *testSuite) verifySecurityGroupSpecStep(ctx provider.StepCtx, expect
 		}
 	})
 }
+
+// Region Spec
+func (suite *testSuite) verifyRegionSpecStep(ctx provider.StepCtx, expected *schema.RegionSpec, actual *schema.RegionSpec) {
+	ctx.WithNewStep("Verify RegionSpec", func(stepCtx provider.StepCtx) {
+		stepCtx.Require().Equal(len(expected.AvailableZones), len(actual.AvailableZones), "AvailableZones list length should match expected")
+		for i := 0; i < len(expected.AvailableZones); i++ {
+			expectedZone := expected.AvailableZones[i]
+			actualZone := actual.AvailableZones[i]
+			stepCtx.Require().Equal(expectedZone, actualZone, fmt.Sprintf("Zone [%d] should match expected", i))
+		}
+
+		stepCtx.Require().Equal(len(expected.Providers), len(actual.Providers), "Providers list length should match expected")
+		for i := 0; i < len(expected.Providers); i++ {
+			expectedProvider := expected.Providers[i]
+			actualProvider := actual.Providers[i]
+			stepCtx.Require().Equal(expectedProvider.Name, actualProvider.Name, fmt.Sprintf("Provider [%d] Name should match expected", i))
+			stepCtx.Require().Equal(expectedProvider.Version, actualProvider.Version, fmt.Sprintf("Provider [%d] Version should match expected", i))
+			stepCtx.Require().Equal(expectedProvider.Url, actualProvider.Url, fmt.Sprintf("Provider [%d] URL should match expected", i))
+		}
+
+	})
+
+}
