@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"math/rand"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
@@ -112,271 +111,128 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		suite.mockClient = wm
 	}
 
-	var workspaceResp *schema.Workspace
-	var blockStorageResp *schema.BlockStorage
+	// Workspace
 
-	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
-
-		ws := &schema.Workspace{
-			Metadata: &schema.RegionalResourceMetadata{
-				Tenant: suite.tenant,
-				Name:   workspaceName,
-			},
-		}
-		workspaceResp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, workspaceResp)
-
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *workspaceResp.Status.State)
-	})
-
-	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
+	// Create a workspace
+	workspace := &schema.Workspace{
+		Labels: schema.Labels{
+			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+		},
+		Metadata: &schema.RegionalResourceMetadata{
+			Tenant: suite.tenant,
 			Name:   workspaceName,
-		}
-		workspaceResp, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, workspaceResp)
+		},
+	}
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, nil, nil, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *workspaceResp.Status.State)
-	})
+	// Get the created Workspace
+	workspaceTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   workspaceName,
+	}
+	workspace = suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, nil, nil, secalib.ActiveResourceState)
 
-	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
-		suite.setStorageV1StepParams(sCtx, "CreateBlockStorage", workspaceName)
+	// Block storage
 
-		bo := &schema.BlockStorage{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Name:      blockStorageName,
-			},
-			Spec: schema.BlockStorageSpec{
-				SizeGB: blockStorageSize,
-				SkuRef: *storageSkuRefObj,
-			},
-		}
-		blockStorageResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, bo)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, blockStorageResp)
-	})
-
-	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
-		suite.setStorageV1StepParams(sCtx, "GetBlockStorage", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
+	// Create a block storage
+	block := &schema.BlockStorage{
+		Metadata: &schema.RegionalWorkspaceResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
 			Name:      blockStorageName,
-		}
-		blockStorageResp, err = suite.client.StorageV1.GetBlockStorage(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, blockStorageResp)
+		},
+		Spec: schema.BlockStorageSpec{
+			SizeGB: blockStorageSize,
+			SkuRef: *storageSkuRefObj,
+		},
+	}
+	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, ctx, suite.client.StorageV1, block,
+		nil, nil, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *blockStorageResp.Status.State)
-	})
+	// Get the created block storage
+	blockWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      blockStorageName,
+	}
+	block = suite.getBlockStorageV1Step("Get the created block storage", t, ctx, suite.client.StorageV1, blockWRef,
+		nil, nil, secalib.ActiveResourceState)
 
 	// Instance
-	var instanceResp *schema.Instance
-	var expectedMeta *schema.RegionalWorkspaceResourceMetadata
-	var expectedSpec *schema.InstanceSpec
 
-	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
-
-		inst := &schema.Instance{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Name:      instanceName,
-			},
-			Spec: schema.InstanceSpec{
-				SkuRef: *instanceSkuRefObj,
-				Zone:   initialInstanceZone,
-				BootVolume: schema.VolumeReference{
-					DeviceRef: *blockStorageRefObj,
-				},
-			},
-		}
-		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, inst)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
-
-		expectedMeta = secalib.NewRegionalWorkspaceResourceMetadata(instanceName, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1, secalib.InstanceKind,
-			suite.tenant, workspaceName, suite.region)
-		expectedMeta.Verb = http.MethodPut
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
-
-		expectedSpec = &schema.InstanceSpec{
+	// Create an instance
+	instance := &schema.Instance{
+		Metadata: &schema.RegionalWorkspaceResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
+			Name:      instanceName,
+		},
+		Spec: schema.InstanceSpec{
 			SkuRef: *instanceSkuRefObj,
 			Zone:   initialInstanceZone,
 			BootVolume: schema.VolumeReference{
 				DeviceRef: *blockStorageRefObj,
 			},
-		}
-		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
+		},
+	}
+	expectInstanceMeta := secalib.NewRegionalWorkspaceResourceMetadata(instanceName,
+		secalib.ComputeProviderV1,
+		instanceResource,
+		secalib.ApiVersion1,
+		secalib.InstanceKind,
+		suite.tenant,
+		workspaceName,
+		suite.region)
+	expectInstanceSpec := instance.Spec
+	suite.createOrUpdateInstanceV1Step("Create an instance", t, ctx, suite.client.ComputeV1, instance,
+		expectInstanceMeta, &expectInstanceSpec, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *instanceResp.Status.State)
-	})
+	// Get the created instance
+	instanceWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      instanceName,
+	}
+	instance = suite.getInstanceV1Step("Get the created instance", t, ctx, suite.client.ComputeV1, instanceWRef,
+		expectInstanceMeta, &expectInstanceSpec, secalib.ActiveResourceState)
 
-	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
+	// Update the instance
+	instance.Spec.Zone = updatedInstanceZone
+	expectInstanceSpec = instance.Spec
+	suite.createOrUpdateInstanceV1Step("Update the instance", t, ctx, suite.client.ComputeV1, instance,
+		expectInstanceMeta, &expectInstanceSpec, secalib.UpdatingResourceState)
 
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
+	// Get the updated instance
+	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, instanceWRef,
+		expectInstanceMeta, &expectInstanceSpec, secalib.ActiveResourceState)
 
-		expectedMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+	// Stop the instance
+	suite.stopInstanceV1Step("Stop the instance", t, ctx, suite.client.ComputeV1, instance)
 
-		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
+	// Get the stoped instance
+	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, instanceWRef,
+		expectInstanceMeta, &expectInstanceSpec, secalib.SuspendedResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
-	})
+	// Start the instance
+	suite.startInstanceV1Step("Start the instance", t, ctx, suite.client.ComputeV1, instance)
 
-	t.WithNewStep("Update instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
+	// Get the started instance
+	instance = suite.getInstanceV1Step("Get the started instance", t, ctx, suite.client.ComputeV1, instanceWRef,
+		expectInstanceMeta, &expectInstanceSpec, secalib.ActiveResourceState)
 
-		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, instanceResp)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
+	// Restart the instance
+	suite.restartInstanceV1Step("Restart the instance", t, ctx, suite.client.ComputeV1, instance)
 
-		expectedMeta.Verb = http.MethodPut
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+	// Get the restarted instance
+	// TODO Find an away to assert if the instance is restarted
+	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, instanceWRef,
+		expectInstanceMeta, &expectInstanceSpec, secalib.ActiveResourceState)
 
-		expectedSpec.Zone = updatedInstanceZone
-		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
+	// Delete the instance
+	suite.deleteInstanceV1Step("Delete the instance", t, ctx, suite.client.ComputeV1, instance)
 
-		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *instanceResp.Status.State)
-	})
-
-	t.WithNewStep("Get updated instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
-
-		expectedMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
-
-		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
-	})
-
-	t.WithNewStep("Stop instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "StopInstance", workspaceName)
-
-		err = suite.client.ComputeV1.StopInstance(ctx, instanceResp)
-		requireNoError(sCtx, err)
-	})
-
-	t.WithNewStep("Get stopped instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
-
-		expectedMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
-
-		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.SuspendedResourceState, *instanceResp.Status.State)
-	})
-
-	t.WithNewStep("Start instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "StartInstance", workspaceName)
-
-		err = suite.client.ComputeV1.StartInstance(ctx, instanceResp)
-		requireNoError(sCtx, err)
-	})
-
-	t.WithNewStep("Get started instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
-
-		expectedMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
-
-		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
-	})
-
-	t.WithNewStep("Restart instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "RestartInstance", workspaceName)
-
-		err = suite.client.ComputeV1.RestartInstance(ctx, instanceResp)
-		requireNoError(sCtx, err)
-	})
-
-	t.WithNewStep("Get restarted instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
-
-		expectedMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
-
-		suite.verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
-	})
-
-	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "DeleteInstance", workspaceName)
-
-		err = suite.client.ComputeV1.DeleteInstance(ctx, instanceResp)
-		requireNoError(sCtx, err)
-	})
-
-	t.WithNewStep("Get deleted instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		_, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireError(sCtx, err, secapi.ErrResourceNotFound)
-	})
+	// Get the deleted instance
+	suite.getInstanceWithErrorV1Step("Get the deleted instance", t, ctx, suite.client.ComputeV1, instanceWRef, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)
 }

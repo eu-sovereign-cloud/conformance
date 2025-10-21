@@ -15,25 +15,25 @@ import (
 
 func (suite *testSuite) createOrUpdateRoleV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.AuthorizationV1, role *schema.Role,
 	expectedMeta *schema.GlobalTenantResourceMetadata, expectedSpec *schema.RoleSpec, expectedStatusState string,
-) *schema.Role {
-	var resp *schema.Role
-	var err error
-
+) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
 
-		resp, err = api.CreateOrUpdateRole(ctx, role)
+		resp, err := api.CreateOrUpdateRole(ctx, role)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMeta.Verb = http.MethodPut
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+		if expectedMeta != nil {
+			expectedMeta.Verb = http.MethodPut
+			suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+		}
 
-		suite.verifyRoleSpecStep(sCtx, expectedSpec, &resp.Spec)
+		if expectedSpec != nil {
+			suite.verifyRoleSpecStep(sCtx, expectedSpec, &resp.Spec)
+		}
 
 		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
-	return resp
 }
 
 func (suite *testSuite) getRoleV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.AuthorizationV1, tref secapi.TenantReference,
@@ -49,10 +49,14 @@ func (suite *testSuite) getRoleV1Step(stepName string, t provider.T, ctx context
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		expectedMeta.Verb = http.MethodGet
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+		if expectedMeta != nil {
+			expectedMeta.Verb = http.MethodGet
+			suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+		}
 
-		suite.verifyRoleSpecStep(sCtx, expectedSpec, &resp.Spec)
+		if expectedSpec != nil {
+			suite.verifyRoleSpecStep(sCtx, expectedSpec, &resp.Spec)
+		}
 
 		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
@@ -83,14 +87,11 @@ func (suite *testSuite) deleteRoleV1Step(stepName string, t provider.T, ctx cont
 
 func (suite *testSuite) createOrUpdateRoleAssignmentV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.AuthorizationV1, role *schema.RoleAssignment,
 	expectedMeta *schema.GlobalTenantResourceMetadata, expectedSpec *schema.RoleAssignmentSpec, expectedStatusState string,
-) *schema.RoleAssignment {
-	var resp *schema.RoleAssignment
-	var err error
-
+) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
 
-		resp, err = api.CreateOrUpdateRoleAssignment(ctx, role)
+		resp, err := api.CreateOrUpdateRoleAssignment(ctx, role)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
@@ -101,7 +102,6 @@ func (suite *testSuite) createOrUpdateRoleAssignmentV1Step(stepName string, t pr
 
 		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
-	return resp
 }
 
 func (suite *testSuite) getRoleAssignmentV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.AuthorizationV1, tref secapi.TenantReference,

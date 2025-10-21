@@ -106,24 +106,33 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectRoleMeta := secalib.NewGlobalTenantResourceMetadata(roleName, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1, secalib.RoleKind, suite.tenant)
+	expectRoleMeta := secalib.NewGlobalTenantResourceMetadata(roleName,
+		secalib.AuthorizationProviderV1,
+		roleResource,
+		secalib.ApiVersion1,
+		secalib.RoleKind,
+		suite.tenant)
 	expectRoleSpec := role.Spec
-	suite.createOrUpdateRoleV1Step("Create a role", t, ctx, suite.client.AuthorizationV1, role, expectRoleMeta, &expectRoleSpec, secalib.CreatingResourceState)
+	suite.createOrUpdateRoleV1Step("Create a role", t, ctx, suite.client.AuthorizationV1, role,
+		expectRoleMeta, &expectRoleSpec, secalib.CreatingResourceState)
 
 	// Get the created role
 	roleTRef := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.tenant),
 		Name:   roleName,
 	}
-	role = suite.getRoleV1Step("Get the created role", t, ctx, suite.client.AuthorizationV1, *roleTRef, expectRoleMeta, &expectRoleSpec, secalib.ActiveResourceState)
+	role = suite.getRoleV1Step("Get the created role", t, ctx, suite.client.AuthorizationV1, *roleTRef,
+		expectRoleMeta, &expectRoleSpec, secalib.ActiveResourceState)
 
 	// Update the role
 	role.Spec.Permissions[0].Verb = []string{http.MethodGet, http.MethodPut}
-	expectRoleSpec.Permissions[0] = role.Spec.Permissions[0]
-	suite.createOrUpdateRoleV1Step("Update the role", t, ctx, suite.client.AuthorizationV1, role, expectRoleMeta, &expectRoleSpec, secalib.UpdatingResourceState)
+	expectRoleSpec = role.Spec
+	suite.createOrUpdateRoleV1Step("Update the role", t, ctx, suite.client.AuthorizationV1, role,
+		expectRoleMeta, &expectRoleSpec, secalib.UpdatingResourceState)
 
 	// Get the updated role
-	role = suite.getRoleV1Step("Get the updated role", t, ctx, suite.client.AuthorizationV1, *roleTRef, expectRoleMeta, &expectRoleSpec, secalib.ActiveResourceState)
+	role = suite.getRoleV1Step("Get the updated role", t, ctx, suite.client.AuthorizationV1, *roleTRef,
+		expectRoleMeta, &expectRoleSpec, secalib.ActiveResourceState)
 
 	// Role assignment
 
@@ -139,24 +148,35 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 			Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
 		},
 	}
-	expectRoleAssignMeta := secalib.NewGlobalTenantResourceMetadata(roleAssignmentName, secalib.AuthorizationProviderV1, roleAssignmentResource, secalib.ApiVersion1, secalib.RoleAssignmentKind, suite.tenant)
+	expectRoleAssignMeta := secalib.NewGlobalTenantResourceMetadata(roleAssignmentName,
+		secalib.AuthorizationProviderV1,
+		roleAssignmentResource,
+		secalib.ApiVersion1,
+		secalib.RoleAssignmentKind,
+		suite.tenant)
 	expectRoleAssignSpec := roleAssign.Spec
-	suite.createOrUpdateRoleAssignmentV1Step("Create a role assignment", t, ctx, suite.client.AuthorizationV1, roleAssign, expectRoleAssignMeta, &expectRoleAssignSpec, secalib.CreatingResourceState)
+	suite.createOrUpdateRoleAssignmentV1Step("Create a role assignment", t, ctx, suite.client.AuthorizationV1, roleAssign,
+		expectRoleAssignMeta, &expectRoleAssignSpec, secalib.CreatingResourceState)
 
 	// Get the created role assignment
 	roleAssignTRef := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.tenant),
 		Name:   roleAssignmentName,
 	}
-	roleAssign = suite.getRoleAssignmentV1Step("Get the created role assignment", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef, expectRoleAssignMeta, &expectRoleAssignSpec, secalib.ActiveResourceState)
+	roleAssign = suite.getRoleAssignmentV1Step("Get the created role assignment", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef,
+		expectRoleAssignMeta, &expectRoleAssignSpec, secalib.ActiveResourceState)
 
 	// Update the role assignment
 	roleAssign.Spec.Subs = []string{roleAssignmentSub1, roleAssignmentSub2}
-	expectRoleAssignSpec.Subs = roleAssign.Spec.Subs
-	roleAssign = suite.createOrUpdateRoleAssignmentV1Step("Update the role assignment", t, ctx, suite.client.AuthorizationV1, roleAssign, expectRoleAssignMeta, &expectRoleAssignSpec, secalib.UpdatingResourceState)
+	expectRoleAssignSpec = roleAssign.Spec
+	suite.createOrUpdateRoleAssignmentV1Step("Update the role assignment", t, ctx, suite.client.AuthorizationV1, roleAssign,
+		expectRoleAssignMeta, &expectRoleAssignSpec, secalib.UpdatingResourceState)
 
 	// Get the updated role assignment
-	roleAssign = suite.getRoleAssignmentV1Step("Get the updated role assignment", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef, expectRoleAssignMeta, &expectRoleAssignSpec, secalib.ActiveResourceState)
+	roleAssign = suite.getRoleAssignmentV1Step("Get the updated role assignment", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef,
+		expectRoleAssignMeta, &expectRoleAssignSpec, secalib.ActiveResourceState)
+
+	// Resources deletion
 
 	// Delete the role assignment
 	suite.deleteRoleAssignmentV1Step("Delete the role assignment", t, ctx, suite.client.AuthorizationV1, roleAssign)
