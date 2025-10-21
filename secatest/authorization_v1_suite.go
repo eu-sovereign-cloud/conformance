@@ -21,10 +21,10 @@ type AuthorizationV1TestSuite struct {
 	users []string
 }
 
-func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
-	slog.Info("Starting Authorization Lifecycle Test")
+func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
+	slog.Info("Starting " + suite.scenarioName)
 
-	t.Title("Authorization Lifecycle Test")
+	t.Title(suite.scenarioName)
 	configureTags(t, secalib.AuthorizationProviderV1, secalib.RoleKind, secalib.RoleAssignmentKind)
 
 	// Select subs
@@ -42,51 +42,50 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
 
 	// Setup mock, if configured to use
-	if suite.isMockEnabled() {
-		wm, err := mock.CreateAuthorizationLifecycleScenarioV1("Authorization Lifecycle",
-			mock.AuthorizationParamsV1{
-				Params: &mock.Params{
-					MockURL:   *suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-				},
-				Role: &mock.ResourceParams[secalib.RoleSpecV1]{
-					Name: roleName,
-					InitialSpec: &secalib.RoleSpecV1{
-						Permissions: []*secalib.RoleSpecPermissionV1{
-							{
-								Provider:  secalib.StorageProviderV1,
-								Resources: []string{imageResource},
-								Verb:      []string{http.MethodGet},
-							},
-						},
-					},
-					UpdatedSpec: &secalib.RoleSpecV1{
-						Permissions: []*secalib.RoleSpecPermissionV1{
-							{
-								Provider:  secalib.StorageProviderV1,
-								Resources: []string{imageResource},
-								Verb:      []string{http.MethodGet, http.MethodPut},
-							},
+	if suite.mockEnabled {
+		wm, err := mock.CreateAuthorizationLifecycleScenarioV1(suite.scenarioName, &mock.AuthorizationParamsV1{
+			Params: &mock.Params{
+				MockURL:   *suite.mockServerURL,
+				AuthToken: suite.authToken,
+				Tenant:    suite.tenant,
+			},
+			Role: &mock.ResourceParams[secalib.RoleSpecV1]{
+				Name: roleName,
+				InitialSpec: &secalib.RoleSpecV1{
+					Permissions: []*secalib.RoleSpecPermissionV1{
+						{
+							Provider:  secalib.StorageProviderV1,
+							Resources: []string{imageResource},
+							Verb:      []string{http.MethodGet},
 						},
 					},
 				},
-				RoleAssignment: &mock.ResourceParams[secalib.RoleAssignmentSpecV1]{
-					Name: roleAssignmentName,
-					InitialSpec: &secalib.RoleAssignmentSpecV1{
-						Roles:  []string{roleName},
-						Subs:   []string{roleAssignmentSub1},
-						Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
-					},
-					UpdatedSpec: &secalib.RoleAssignmentSpecV1{
-						Roles:  []string{roleName},
-						Subs:   []string{roleAssignmentSub1, roleAssignmentSub2},
-						Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
+				UpdatedSpec: &secalib.RoleSpecV1{
+					Permissions: []*secalib.RoleSpecPermissionV1{
+						{
+							Provider:  secalib.StorageProviderV1,
+							Resources: []string{imageResource},
+							Verb:      []string{http.MethodGet, http.MethodPut},
+						},
 					},
 				},
-			})
+			},
+			RoleAssignment: &mock.ResourceParams[secalib.RoleAssignmentSpecV1]{
+				Name: roleAssignmentName,
+				InitialSpec: &secalib.RoleAssignmentSpecV1{
+					Roles:  []string{roleName},
+					Subs:   []string{roleAssignmentSub1},
+					Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
+				},
+				UpdatedSpec: &secalib.RoleAssignmentSpecV1{
+					Roles:  []string{roleName},
+					Subs:   []string{roleAssignmentSub1, roleAssignmentSub2},
+					Scopes: []*secalib.RoleAssignmentSpecScopeV1{{Tenants: []string{suite.tenant}}},
+				},
+			},
+		})
 		if err != nil {
-			t.Fatalf("Failed to create storage scenario: %v", err)
+			t.Fatalf("Failed to create wiremock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
@@ -358,7 +357,7 @@ func (suite *AuthorizationV1TestSuite) TestAuthorizationV1(t provider.T) {
 		requireError(sCtx, err, secapi.ErrResourceNotFound)
 	})
 
-	slog.Info("Finishing Authorization Lifecycle Test")
+	slog.Info("Finishing " + suite.scenarioName)
 }
 
 func (suite *AuthorizationV1TestSuite) AfterEach(t provider.T) {

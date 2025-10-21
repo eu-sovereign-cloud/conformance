@@ -1,21 +1,12 @@
 package secatest
 
-const (
-	providerRegionV1Config        = "provider.region.v1"
-	providerAuthorizationV1Config = "provider.authorization.v1"
-	clientAuthTokenConfig         = "client.authtoken"
-	clientRegionConfig            = "client.region"
-	clientTenantConfig            = "client.tenant"
-	scenarioUsersConfig           = "scenario.users"
-	scenarioCidrConfig            = "scenario.cidr"
-	scenarioPublicIpsConfig       = "scenario.publicips"
-	reportResultsPathConfig       = "report.resultspath"
-	reportResultsPathDefault      = "./reports/results"
-	mockEnabledConfig             = "mock.enabled"
-	mockServerURLConfig           = "mock.serverurl"
+import (
+	"fmt"
+	"regexp"
+	"sync"
 )
 
-type Config struct {
+type ConfigHolder struct {
 	providerRegionV1        string
 	providerAuthorizationV1 string
 
@@ -23,9 +14,12 @@ type Config struct {
 	clientRegion    string
 	clientTenant    string
 
-	scenarioUsers     []string
-	scenarioCidr      string
-	scenarioPublicIps string
+	scenariosFilter string
+	scenariosRegexp *regexp.Regexp
+
+	scenariosUsers     []string
+	scenariosCidr      string
+	scenariosPublicIps string
 
 	reportResultsPath string
 
@@ -33,8 +27,33 @@ type Config struct {
 	mockServerURL string
 }
 
-var config *Config
+var (
+	config     *ConfigHolder
+	configLock sync.Mutex
+)
 
 func initConfig() {
-	config = &Config{}
+	configLock.Lock()
+	defer configLock.Unlock()
+
+	if config != nil {
+		return
+	}
+
+	config = &ConfigHolder{}
+}
+
+func processConfig() error {
+	configLock.Lock()
+	defer configLock.Unlock()
+
+	if config.scenariosFilter != "" {
+		re, err := regexp.Compile(config.scenariosFilter)
+		if err != nil {
+			return fmt.Errorf("invalid scenarios.filter expression: %w", err)
+		}
+		config.scenariosRegexp = re
+	}
+
+	return nil
 }
