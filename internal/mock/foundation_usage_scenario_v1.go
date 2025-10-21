@@ -8,7 +8,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParamsV1) (*wiremock.Client, error) {
+func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	wm, err := newClient(params.MockURL)
@@ -25,7 +25,7 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, params.Instance.Name)
 	networkUrl := secalib.GenerateNetworkURL(params.Tenant, params.Workspace.Name, params.Network.Name)
 	gatewayUrl := secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicUrl := secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, params.NIC.Name)
+	nicUrl := secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, params.Nic.Name)
 	publicIpUrl := secalib.GeneratePublicIpURL(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
 	routeUrl := secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
 	subnetUrl := secalib.GenerateSubnetURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
@@ -40,7 +40,7 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
 	networkResource := secalib.GenerateNetworkResource(params.Tenant, params.Workspace.Name, params.Network.Name)
 	gatewayResource := secalib.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicResource := secalib.GenerateNicResource(params.Tenant, params.Workspace.Name, params.NIC.Name)
+	nicResource := secalib.GenerateNicResource(params.Tenant, params.Workspace.Name, params.Nic.Name)
 	publicIpResource := secalib.GeneratePublicIpResource(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
 	routeResource := secalib.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
 	subnetResource := secalib.GenerateSubnetResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
@@ -55,18 +55,18 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Create Role
 	setCreatedGlobalTenantResourceMetadata(roleResponse.Metadata)
-	roleResponse.Status = newStatus(secalib.CreatingStatusState)
+	roleResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
 	roleResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, response: roleResponse, currentState: startedScenarioState, nextState: "GetCreatedRole"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: startedScenarioState, nextState: "GetCreatedRole"}); err != nil {
 		return nil, err
 	}
 
 	// Get created role
-	setStatusState(roleResponse.Status, secalib.ActiveStatusState)
+	secalib.SetStatusState(roleResponse.Status, secalib.ActiveResourceState)
 	roleResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, response: roleResponse, currentState: "GetCreatedRole", nextState: "CreateRoleAssignment"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetCreatedRole", nextState: "CreateRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
@@ -77,18 +77,18 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Create a role assignment
 	setCreatedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-	roleAssignResponse.Status = newStatus(secalib.CreatingStatusState)
+	roleAssignResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
 	roleAssignResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, response: roleAssignResponse, currentState: "CreateRoleAssignment", nextState: "GetCreatedRoleAssignment"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "CreateRoleAssignment", nextState: "GetCreatedRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
 	// Get created role assignment
-	setStatusState(roleAssignResponse.Status, secalib.ActiveStatusState)
+	secalib.SetStatusState(roleAssignResponse.Status, secalib.ActiveResourceState)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, response: roleAssignResponse, currentState: "GetCreatedRoleAssignment", nextState: "CreateWorkspace"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetCreatedRoleAssignment", nextState: "CreateWorkspace"}); err != nil {
 		return nil, err
 	}
 
@@ -99,63 +99,63 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
-	workspaceResponse.Status = newWorkspaceStatus(secalib.CreatingStatusState)
+	workspaceResponse.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
 	workspaceResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, response: workspaceResponse, currentState: "CreateWorkspace", nextState: "GetCreatedWorkspace"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "CreateWorkspace", nextState: "GetCreatedWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Get created workspace
-	setWorkspaceStatusState(workspaceResponse.Status, secalib.ActiveStatusState)
+	secalib.SetWorkspaceStatusState(workspaceResponse.Status, secalib.ActiveResourceState)
 	workspaceResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, response: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateImage"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateImage"}); err != nil {
 		return nil, err
 	}
 
 	// Storage
 
 	// Image
-	imageResponse := newImageResponse(params.Image.Name, secalib.ComputeProviderV1, imageResource, secalib.ApiVersion1,
+	imageResponse := newImageResponse(params.Image.Name, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1,
 		params.Tenant, params.Region,
 		params.Image.InitialSpec)
 
 	// Create an image
 	setCreatedRegionalResourceMetadata(imageResponse.Metadata)
-	imageResponse.Status = newImageStatus(secalib.CreatingStatusState)
+	imageResponse.Status = secalib.NewImageStatus(secalib.CreatingResourceState)
 	imageResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, response: imageResponse, currentState: "CreateImage", nextState: "GetCreatedImage"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "CreateImage", nextState: "GetCreatedImage"}); err != nil {
 		return nil, err
 	}
 
 	// Get created image
-	setImageStatusState(imageResponse.Status, secalib.ActiveStatusState)
+	secalib.SetImageStatusState(imageResponse.Status, secalib.ActiveResourceState)
 	imageResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, response: imageResponse, currentState: "GetCreatedImage", nextState: "CreateBlockStorage"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "GetCreatedImage", nextState: "CreateBlockStorage"}); err != nil {
 		return nil, err
 	}
 
-	blockResponse := newBlockStorageResponse(params.BlockStorage.Name, secalib.ComputeProviderV1, blockResource, secalib.ApiVersion1,
+	blockResponse := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
 		params.BlockStorage.InitialSpec)
 
 	// Create a block storage
 	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
-	blockResponse.Status = newBlockStorageStatus(secalib.CreatingStatusState)
+	blockResponse.Status = secalib.NewBlockStorageStatus(secalib.CreatingResourceState)
 	blockResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, response: blockResponse, currentState: "CreateBlockStorage", nextState: "GetCreatedBlockStorage"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "CreateBlockStorage", nextState: "GetCreatedBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Get created block storage
-	setBlockStorageStatusState(blockResponse.Status, secalib.ActiveStatusState)
+	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
 	blockResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, response: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "CreateNetwork"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "CreateNetwork"}); err != nil {
 		return nil, err
 	}
 
@@ -168,17 +168,18 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Create  Network
 	setCreatedRegionalWorkspaceResourceMetadata(networkResponse.Metadata)
-	networkResponse.Status = newNetworkStatus(secalib.CreatingStatusState)
+	networkResponse.Status = secalib.NewNetworkStatus(secalib.CreatingResourceState)
 	networkResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: networkUrl, params: params, response: networkResponse, currentState: "CreateNetwork", nextState: "GetNetwork"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "CreateNetwork", nextState: "GetNetwork"}); err != nil {
 		return nil, err
 	}
 
 	// Get network
-	setNetworkStatusState(networkResponse.Status, secalib.ActiveStatusState)
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: networkUrl, params: params, response: networkResponse, currentState: "GetNetwork", nextState: "CreateInternetGateway"}); err != nil {
+	secalib.SetNetworkStatusState(networkResponse.Status, secalib.ActiveResourceState)
+	networkResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "GetNetwork", nextState: "CreateInternetGateway"}); err != nil {
 		return nil, err
 	}
 
@@ -189,18 +190,18 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Create internet gateway
 	setCreatedRegionalWorkspaceResourceMetadata(gatewayResponse.Metadata)
-	gatewayResponse.Status = newStatus(secalib.CreatingStatusState)
+	gatewayResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
 	gatewayResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: gatewayUrl, params: params, response: gatewayResponse, currentState: "CreateInternetGateway", nextState: "GetInternetGateway"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "CreateInternetGateway", nextState: "GetInternetGateway"}); err != nil {
 		return nil, err
 	}
 
 	// Get internet-gateway
-	setStatusState(gatewayResponse.Status, secalib.ActiveStatusState)
+	secalib.SetStatusState(gatewayResponse.Status, secalib.ActiveResourceState)
 	gatewayResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: gatewayUrl, params: params, response: gatewayResponse, currentState: "GetInternetGateway", nextState: "CreateRouteTable"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "GetInternetGateway", nextState: "CreateRouteTable"}); err != nil {
 		return nil, err
 	}
 
@@ -211,18 +212,18 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Create route-table
 	setCreatedRegionalNetworkResourceMetadata(routeResponse.Metadata)
-	routeResponse.Status = newRouteTableStatus(secalib.CreatingStatusState)
+	routeResponse.Status = secalib.NewRouteTableStatus(secalib.CreatingResourceState)
 	routeResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: routeUrl, params: params, response: routeResponse, currentState: "CreateRouteTable", nextState: "GetRouteTable"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "CreateRouteTable", nextState: "GetRouteTable"}); err != nil {
 		return nil, err
 	}
 
 	// Get route-table
-	setRouteTableStatusState(routeResponse.Status, secalib.ActiveStatusState)
+	secalib.SetRouteTableStatusState(routeResponse.Status, secalib.ActiveResourceState)
 	routeResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: routeUrl, params: params, response: routeResponse, currentState: "GetRouteTable", nextState: "CreateSubnet"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "GetRouteTable", nextState: "CreateSubnet"}); err != nil {
 		return nil, err
 	}
 
@@ -233,40 +234,40 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Create subnet
 	setCreatedRegionalNetworkResourceMetadata(subnetResponse.Metadata)
-	subnetResponse.Status = newSubnetStatus(secalib.CreatingStatusState)
+	subnetResponse.Status = secalib.NewSubnetStatus(secalib.CreatingResourceState)
 	subnetResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: subnetUrl, params: params, response: subnetResponse, currentState: "CreateSubnet", nextState: "GetSubnet"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "CreateSubnet", nextState: "GetSubnet"}); err != nil {
 		return nil, err
 	}
 
 	// Get subnet
-	setSubnetStatusState(subnetResponse.Status, secalib.ActiveStatusState)
+	secalib.SetSubnetStatusState(subnetResponse.Status, secalib.ActiveResourceState)
 	subnetResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: subnetUrl, params: params, response: subnetResponse, currentState: "GetSubnet", nextState: "CreateSecurityGroup"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "GetSubnet", nextState: "CreateSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
 	// Security group
-	groupResponse := newSecurityGroupResponse(params.SecurityGroup.Name, secalib.NetworkProviderV1, secalib.ApiVersion1, groupResource,
+	groupResponse := newSecurityGroupResponse(params.SecurityGroup.Name, secalib.NetworkProviderV1, groupResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
 		params.SecurityGroup.InitialSpec)
 
 	// Create security-group
 	setCreatedRegionalWorkspaceResourceMetadata(groupResponse.Metadata)
-	groupResponse.Status = newSecurityGroupStatus(secalib.CreatingStatusState)
+	groupResponse.Status = secalib.SewSecurityGroupStatus(secalib.CreatingResourceState)
 	groupResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: groupUrl, params: params, response: groupResponse, currentState: "CreateSecurityGroup", nextState: "GetSecurityGroup"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "CreateSecurityGroup", nextState: "GetSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
 	// Get security-group
-	setSecurityGroupStatusState(groupResponse.Status, secalib.ActiveStatusState)
+	secalib.SetSecurityGroupStatusState(groupResponse.Status, secalib.ActiveResourceState)
 	groupResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: groupUrl, params: params, response: groupResponse, currentState: "GetSecurityGroup", nextState: "CreatePublicIp"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "GetSecurityGroup", nextState: "CreatePublicIp"}); err != nil {
 		return nil, err
 	}
 
@@ -277,40 +278,40 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Create public-ip
 	setCreatedRegionalWorkspaceResourceMetadata(publicIpResponse.Metadata)
-	publicIpResponse.Status = newPublicIpStatus(secalib.CreatingStatusState)
+	publicIpResponse.Status = secalib.NewPublicIpStatus(secalib.CreatingResourceState)
 	publicIpResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: publicIpUrl, params: params, response: publicIpResponse, currentState: "CreatePublicIp", nextState: "GetPublicIp"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "CreatePublicIp", nextState: "GetPublicIp"}); err != nil {
 		return nil, err
 	}
 
 	// Get public-ip
-	setPublicIpStatusState(publicIpResponse.Status, secalib.ActiveStatusState)
+	secalib.SetPublicIpStatusState(publicIpResponse.Status, secalib.ActiveResourceState)
 	publicIpResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: publicIpUrl, params: params, response: publicIpResponse, currentState: "GetPublicIp", nextState: "CreateNIC"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "GetPublicIp", nextState: "CreateNIC"}); err != nil {
 		return nil, err
 	}
 
 	// NIC
-	nicResponse := newNicResponse(params.NIC.Name, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1,
+	nicResponse := newNicResponse(params.Nic.Name, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
-		params.NIC.InitialSpec)
+		params.Nic.InitialSpec)
 
 	// Create NIC
 	setCreatedRegionalWorkspaceResourceMetadata(nicResponse.Metadata)
-	nicResponse.Status = newNicStatus(secalib.CreatingStatusState)
+	nicResponse.Status = secalib.NewNicStatus(secalib.CreatingResourceState)
 	nicResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: nicUrl, params: params, response: nicResponse, currentState: "CreateNIC", nextState: "GetNIC"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "CreateNIC", nextState: "GetNIC"}); err != nil {
 		return nil, err
 	}
 
 	// Get NIC
-	setNicStatusState(nicResponse.Status, secalib.ActiveStatusState)
+	secalib.SetNicStatusState(nicResponse.Status, secalib.ActiveResourceState)
 	nicResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: nicUrl, params: params, response: nicResponse, currentState: "GetNIC", nextState: "CreateInstance"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "GetNIC", nextState: "CreateInstance"}); err != nil {
 		return nil, err
 	}
 
@@ -323,18 +324,18 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Create an instance
 	setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-	instanceResponse.Status = newInstanceStatus(secalib.CreatingStatusState)
+	instanceResponse.Status = secalib.NewInstanceStatus(secalib.CreatingResourceState)
 	instanceResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, response: instanceResponse, currentState: "CreateInstance", nextState: "GetCreatedInstance"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "CreateInstance", nextState: "GetCreatedInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Get created instance
-	setInstanceStatusState(instanceResponse.Status, secalib.ActiveStatusState)
+	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
 	instanceResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, response: instanceResponse, currentState: "GetCreatedInstance", nextState: "DeleteInstance"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetCreatedInstance", nextState: "DeleteInstance"}); err != nil {
 		return nil, err
 	}
 
@@ -342,92 +343,92 @@ func CreateFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Delete instance
 	instanceResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, response: instanceResponse, currentState: "DeleteInstance", nextState: "DeleteSecurityGroup"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "DeleteInstance", nextState: "DeleteSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
 	// Delete Security Group
 	groupResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: groupUrl, params: params, response: groupResponse, currentState: "DeleteSecurityGroup", nextState: "DeleteNic"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "DeleteSecurityGroup", nextState: "DeleteNic"}); err != nil {
 		return nil, err
 	}
 
 	// Delete nic
 	nicResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: nicUrl, params: params, response: nicResponse, currentState: "DeleteNic", nextState: "DeletePublicIp"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "DeleteNic", nextState: "DeletePublicIp"}); err != nil {
 		return nil, err
 	}
 
 	// Delete public ip
 	publicIpResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: publicIpUrl, params: params, response: publicIpResponse, currentState: "DeletePublicIp", nextState: "DeleteSubnet"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "DeletePublicIp", nextState: "DeleteSubnet"}); err != nil {
 		return nil, err
 	}
 
 	// Delete subnet
 	subnetResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: subnetUrl, params: params, response: subnetResponse, currentState: "DeleteSubnet", nextState: "DeleteRouteTable"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "DeleteSubnet", nextState: "DeleteRouteTable"}); err != nil {
 		return nil, err
 	}
 
 	// Delete route-table
 	routeResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: routeUrl, params: params, response: routeResponse, currentState: "DeleteRouteTable", nextState: "DeleteInternetGateway"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "DeleteRouteTable", nextState: "DeleteInternetGateway"}); err != nil {
 		return nil, err
 	}
 
 	// Delete internet-gateway
 	gatewayResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: gatewayUrl, params: params, response: gatewayResponse, currentState: "DeleteInternetGateway", nextState: "DeleteNetwork"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "DeleteInternetGateway", nextState: "DeleteNetwork"}); err != nil {
 		return nil, err
 	}
 
 	// Delete network
 	networkResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: networkUrl, params: params, response: networkResponse, currentState: "DeleteNetwork", nextState: "DeleteBlockStorage"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "DeleteNetwork", nextState: "DeleteBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Delete block-storage
 	blockResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, response: blockResponse, currentState: "DeleteBlockStorage", nextState: "DeleteImage"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "DeleteBlockStorage", nextState: "DeleteImage"}); err != nil {
 		return nil, err
 	}
 
 	// Delete image
 	imageResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, response: imageResponse, currentState: "DeleteImage", nextState: "DeleteWorkspace"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "DeleteImage", nextState: "DeleteWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Delete workspace
 	workspaceResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, response: workspaceResponse, currentState: "DeleteWorkspace", nextState: "DeleteRoleAssignment"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "DeleteWorkspace", nextState: "DeleteRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
 	// Delete role assignment
 	roleAssignResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, response: roleAssignResponse, currentState: "DeleteRoleAssignment", nextState: "DeleteRole"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "DeleteRoleAssignment", nextState: "DeleteRole"}); err != nil {
 		return nil, err
 	}
 
 	// Delete role
 	roleResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, response: roleResponse, currentState: "DeleteRole"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "DeleteRole"}); err != nil {
 		return nil, err
 	}
 

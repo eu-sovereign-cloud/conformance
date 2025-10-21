@@ -160,7 +160,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		wm, err := mock.CreateNetworkLifecycleScenarioV1(suite.scenarioName, &mock.NetworkParamsV1{
+		mockParams := &mock.NetworkParamsV1{
 			Params: &mock.Params{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
@@ -265,23 +265,16 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 					Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionEgress}},
 				},
 			},
-		})
+		}
+		wm, err := mock.ConfigNetworkLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
-			t.Fatalf("Failed to create wiremock scenario: %v", err)
+			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
 
+	// Workspace
 	var workResp *schema.Workspace
-	var networkResp *schema.Network
-	var gatewayResp *schema.InternetGateway
-	var routeResp *schema.RouteTable
-	var subnetResp *schema.Subnet
-	var publicIpResp *schema.PublicIp
-	var nicResp *schema.Nic
-	var groupResp *schema.SecurityGroup
-	var blockResp *schema.BlockStorage
-	var instanceResp *schema.Instance
 
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
@@ -296,7 +289,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workResp)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *workResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *workResp.Status.State)
 	})
 
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
@@ -310,10 +303,11 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workResp)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *workResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *workResp.Status.State)
 	})
 
 	// Network
+	var networkResp *schema.Network
 	var expectedNetworkMeta *schema.RegionalWorkspaceResourceMetadata
 	var expectedNetworkSpec *schema.NetworkSpec
 
@@ -339,7 +333,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedNetworkMeta = secalib.NewRegionalWorkspaceResourceMetadata(networkName, secalib.NetworkProviderV1, networkResource, secalib.ApiVersion1, secalib.NetworkKind,
 			suite.tenant, workspaceName, suite.region)
 		expectedNetworkMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
 
 		expectedNetworkSpec = &schema.NetworkSpec{
 			Cidr:          schema.Cidr{Ipv4: &suite.networkCidr},
@@ -348,7 +342,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *networkResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *networkResp.Status.State)
 	})
 
 	t.WithNewStep("Get created network", func(sCtx provider.StepCtx) {
@@ -364,11 +358,11 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, networkResp)
 
 		expectedNetworkMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
 
 		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *networkResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *networkResp.Status.State)
 	})
 
 	t.WithNewStep("Update network", func(sCtx provider.StepCtx) {
@@ -379,12 +373,12 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, networkResp)
 
 		expectedNetworkMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
 
 		expectedNetworkSpec.SkuRef = *networkSkuRef2Obj
 		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.UpdatingStatusState, *networkResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *networkResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated network", func(sCtx provider.StepCtx) {
@@ -400,14 +394,15 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, networkResp)
 
 		expectedNetworkMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
 
 		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *networkResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *networkResp.Status.State)
 	})
 
 	// Internet gateway
+	var gatewayResp *schema.InternetGateway
 	var expectedGatewayMeta *schema.RegionalWorkspaceResourceMetadata
 	var expectedGatewaySpec *schema.InternetGatewaySpec
 
@@ -428,14 +423,12 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedGatewayMeta = secalib.NewRegionalWorkspaceResourceMetadata(internetGatewayName, secalib.NetworkProviderV1, internetGatewayResource, secalib.ApiVersion1, secalib.InternetGatewayKind,
 			suite.tenant, workspaceName, suite.region)
 		expectedGatewayMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
 
-		expectedGatewaySpec = &schema.InternetGatewaySpec{
-			EgressOnly: ptr.To(false),
-		}
+		expectedGatewaySpec = &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)}
 		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *gatewayResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *gatewayResp.Status.State)
 	})
 
 	t.WithNewStep("Get created internet gateway", func(sCtx provider.StepCtx) {
@@ -451,11 +444,11 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, gatewayResp)
 
 		expectedGatewayMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
 
 		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *gatewayResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *gatewayResp.Status.State)
 	})
 
 	t.WithNewStep("Update internet gateway", func(sCtx provider.StepCtx) {
@@ -466,12 +459,12 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, gatewayResp)
 
 		expectedGatewayMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
 
 		expectedGatewaySpec.EgressOnly = ptr.To(true)
 		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.UpdatingStatusState, *gatewayResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *gatewayResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated internet gateway", func(sCtx provider.StepCtx) {
@@ -487,14 +480,15 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, gatewayResp)
 
 		expectedGatewayMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
 
 		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *gatewayResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *gatewayResp.Status.State)
 	})
 
 	// Route table
+	var routeResp *schema.RouteTable
 	var expectedRouteMeta *schema.RegionalNetworkResourceMetadata
 	var expectedRouteSpec *schema.RouteTableSpec
 
@@ -521,16 +515,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedRouteMeta = secalib.NewRegionalNetworkResourceMetadata(routeTableName, secalib.NetworkProviderV1, routeTableResource, secalib.ApiVersion1, secalib.RouteTableKind,
 			suite.tenant, workspaceName, networkName, suite.region)
 		expectedRouteMeta.Verb = http.MethodPut
-		verifyRegionalNetworkResourceMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
-
-		routeResp, err = suite.client.NetworkV1.CreateOrUpdateRouteTable(ctx, route)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, routeResp)
-
-		expectedRouteMeta = secalib.NewRegionalNetworkResourceMetadata(routeTableName, secalib.NetworkProviderV1, routeTableResource, secalib.ApiVersion1, secalib.RouteTableKind,
-			suite.tenant, workspaceName, networkName, suite.region)
-		expectedRouteMeta.Verb = http.MethodPut
-		verifyRegionalNetworkResourceMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
+		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
 
 		expectedRouteSpec = &schema.RouteTableSpec{
 			Routes: []schema.RouteSpec{
@@ -539,7 +524,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *routeResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *routeResp.Status.State)
 	})
 
 	t.WithNewStep("Get created route table", func(sCtx provider.StepCtx) {
@@ -556,11 +541,11 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, routeResp)
 
 		expectedRouteMeta.Verb = http.MethodGet
-		verifyRegionalNetworkResourceMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
+		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
 
 		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *routeResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *routeResp.Status.State)
 	})
 
 	t.WithNewStep("Update route table", func(sCtx provider.StepCtx) {
@@ -571,7 +556,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, routeResp)
 
 		expectedRouteMeta.Verb = http.MethodPut
-		verifyRegionalNetworkResourceMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
+		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
 
 		expectedRouteSpec = &schema.RouteTableSpec{
 			Routes: []schema.RouteSpec{
@@ -580,7 +565,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.UpdatingStatusState, *routeResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *routeResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated route table", func(sCtx provider.StepCtx) {
@@ -597,14 +582,15 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, routeResp)
 
 		expectedRouteMeta.Verb = http.MethodGet
-		verifyRegionalNetworkResourceMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
+		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
 
 		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *routeResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *routeResp.Status.State)
 	})
 
 	// Subnet
+	var subnetResp *schema.Subnet
 	var expectedSubnetMeta *schema.RegionalNetworkResourceMetadata
 	var expectedSubnetSpec *schema.SubnetSpec
 
@@ -630,7 +616,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedSubnetMeta = secalib.NewRegionalNetworkResourceMetadata(subnetName, secalib.NetworkProviderV1, subnetResource, secalib.ApiVersion1, secalib.SubnetKind,
 			suite.tenant, workspaceName, networkName, suite.region)
 		expectedSubnetMeta.Verb = http.MethodPut
-		verifyRegionalNetworkResourceMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
+		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
 
 		expectedSubnetSpec = &schema.SubnetSpec{
 			Cidr: schema.Cidr{Ipv4: &subnetCidr},
@@ -638,7 +624,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *subnetResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *subnetResp.Status.State)
 	})
 
 	t.WithNewStep("Get created subnet", func(sCtx provider.StepCtx) {
@@ -655,11 +641,11 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, subnetResp)
 
 		expectedSubnetMeta.Verb = http.MethodGet
-		verifyRegionalNetworkResourceMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
+		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
 
 		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *subnetResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *subnetResp.Status.State)
 	})
 
 	t.WithNewStep("Update subnet", func(sCtx provider.StepCtx) {
@@ -670,12 +656,12 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, subnetResp)
 
 		expectedSubnetMeta.Verb = http.MethodPut
-		verifyRegionalNetworkResourceMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
+		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
 
 		expectedSubnetSpec.Zone = zone2
 		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.UpdatingStatusState, *subnetResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *subnetResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated subnet", func(sCtx provider.StepCtx) {
@@ -692,14 +678,15 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, subnetResp)
 
 		expectedSubnetMeta.Verb = http.MethodGet
-		verifyRegionalNetworkResourceMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
+		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
 
 		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *subnetResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *subnetResp.Status.State)
 	})
 
 	// Public ip
+	var publicIpResp *schema.PublicIp
 	var expectedIpMeta *schema.RegionalWorkspaceResourceMetadata
 	var expectedIpSpec *schema.PublicIpSpec
 
@@ -724,7 +711,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedIpMeta = secalib.NewRegionalWorkspaceResourceMetadata(publicIpName, secalib.NetworkProviderV1, publicIpResource, secalib.ApiVersion1, secalib.PublicIpKind,
 			suite.tenant, workspaceName, suite.region)
 		expectedIpMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
 
 		expectedIpSpec = &schema.PublicIpSpec{
 			Address: &publicIpAddress1,
@@ -732,7 +719,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *publicIpResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *publicIpResp.Status.State)
 	})
 
 	t.WithNewStep("Get created public ip", func(sCtx provider.StepCtx) {
@@ -748,11 +735,11 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, publicIpResp)
 
 		expectedIpMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
 
 		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *publicIpResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *publicIpResp.Status.State)
 	})
 
 	t.WithNewStep("Update public ip", func(sCtx provider.StepCtx) {
@@ -763,12 +750,12 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, publicIpResp)
 
 		expectedIpMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
 
 		expectedIpSpec.Address = ptr.To(publicIpAddress2)
 		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.UpdatingStatusState, *publicIpResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *publicIpResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated public ip", func(sCtx provider.StepCtx) {
@@ -784,14 +771,15 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, publicIpResp)
 
 		expectedIpMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
 
 		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *publicIpResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *publicIpResp.Status.State)
 	})
 
 	// Nic
+	var nicResp *schema.Nic
 	var expectedNicMeta *schema.RegionalWorkspaceResourceMetadata
 	var expectedNicSpec *schema.NicSpec
 
@@ -817,7 +805,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedNicMeta = secalib.NewRegionalWorkspaceResourceMetadata(nicName, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1, secalib.NicKind,
 			suite.tenant, workspaceName, suite.region)
 		expectedNicMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
 
 		expectedNicSpec = &schema.NicSpec{
 			Addresses:    []string{nicAddress1},
@@ -826,7 +814,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *nicResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *nicResp.Status.State)
 	})
 
 	t.WithNewStep("Get created nic", func(sCtx provider.StepCtx) {
@@ -842,11 +830,11 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, nicResp)
 
 		expectedNicMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
 
 		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *nicResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *nicResp.Status.State)
 	})
 
 	t.WithNewStep("Update nic", func(sCtx provider.StepCtx) {
@@ -857,12 +845,12 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, nicResp)
 
 		expectedNicMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
 
 		expectedNicSpec.Addresses = []string{nicAddress2}
 		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.UpdatingStatusState, *nicResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *nicResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated nic", func(sCtx provider.StepCtx) {
@@ -878,14 +866,16 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, nicResp)
 
 		expectedNicMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
 
 		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *nicResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *nicResp.Status.State)
 	})
 
 	// Security Group
+	var groupResp *schema.SecurityGroup
+	var instanceResp *schema.Instance
 	var expectedGroupMeta *schema.RegionalWorkspaceResourceMetadata
 	var expectedGroupSpec *schema.SecurityGroupSpec
 
@@ -911,7 +901,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		expectedGroupMeta = secalib.NewRegionalWorkspaceResourceMetadata(securityGroupName, secalib.NetworkProviderV1, securityGroupResource, secalib.ApiVersion1, secalib.SecurityGroupKind,
 			suite.tenant, workspaceName, suite.region)
 		expectedGroupMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
 
 		expectedGroupSpec = &schema.SecurityGroupSpec{
 			Rules: []schema.SecurityGroupRuleSpec{
@@ -920,7 +910,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		}
 		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *groupResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *groupResp.Status.State)
 	})
 
 	t.WithNewStep("Get created security group", func(sCtx provider.StepCtx) {
@@ -936,11 +926,11 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, groupResp)
 
 		expectedGroupMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
 
 		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *groupResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *groupResp.Status.State)
 	})
 
 	t.WithNewStep("Update security group", func(sCtx provider.StepCtx) {
@@ -951,12 +941,12 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, groupResp)
 
 		expectedGroupMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
 
 		expectedGroupSpec.Rules[0] = schema.SecurityGroupRuleSpec{Direction: secalib.SecurityRuleDirectionEgress}
 		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.UpdatingStatusState, *groupResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *groupResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated security group", func(sCtx provider.StepCtx) {
@@ -972,12 +962,15 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, groupResp)
 
 		expectedGroupMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
 
 		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *groupResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *groupResp.Status.State)
 	})
+
+	// Block storage
+	var blockResp *schema.BlockStorage
 
 	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateBlockStorage", workspaceName)
@@ -997,7 +990,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *blockResp.Status.State)
 	})
 
 	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
@@ -1012,7 +1005,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, blockResp)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *blockResp.Status.State)
 	})
 
 	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
@@ -1035,7 +1028,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
@@ -1050,7 +1043,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, instanceResp)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *instanceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
 	})
 
 	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {

@@ -24,42 +24,40 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	roleAssignResource := secalib.GenerateRoleAssignmentResource(params.Tenant, params.RoleAssignment.Name)
 
 	// Role
-	roleResponse := newRoleResponse(params.Role.Name, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1,
-		params.Tenant,
-		params.Role.InitialSpec)
+	roleResponse := newRoleResponse(params.Role.Name, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1, params.Tenant, params.Role.InitialSpec)
 
 	// Create a role
 	setCreatedGlobalTenantResourceMetadata(roleResponse.Metadata)
-	roleResponse.Status = newStatus(secalib.CreatingStatusState)
+	roleResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
 	roleResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, response: roleResponse, currentState: startedScenarioState, nextState: "GetCreatedRole"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: startedScenarioState, nextState: "GetCreatedRole"}); err != nil {
 		return nil, err
 	}
 
 	// Get created role
-	setStatusState(roleResponse.Status, secalib.ActiveStatusState)
+	secalib.SetStatusState(roleResponse.Status, secalib.ActiveResourceState)
 	roleResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, response: roleResponse, currentState: "GetCreatedRole", nextState: "UpdateRole"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetCreatedRole", nextState: "UpdateRole"}); err != nil {
 		return nil, err
 	}
 
 	// Update the role
 	setModifiedGlobalTenantResourceMetadata(roleResponse.Metadata)
-	setStatusState(roleResponse.Status, secalib.UpdatingStatusState)
+	secalib.SetStatusState(roleResponse.Status, secalib.UpdatingResourceState)
 	roleResponse.Spec = *params.Role.UpdatedSpec
 	roleResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, response: roleResponse, currentState: "UpdateRole", nextState: "GetUpdatedRole"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "UpdateRole", nextState: "GetUpdatedRole"}); err != nil {
 		return nil, err
 	}
 
 	// Get updated role
-	setStatusState(roleResponse.Status, secalib.ActiveStatusState)
+	secalib.SetStatusState(roleResponse.Status, secalib.ActiveResourceState)
 	roleResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, response: roleResponse, currentState: "GetUpdatedRole", nextState: "CreateRoleAssignment"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetUpdatedRole", nextState: "CreateRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
@@ -70,64 +68,64 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Create a role assignment
 	setCreatedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-	roleAssignResponse.Status = newStatus(secalib.CreatingStatusState)
+	roleAssignResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
 	roleAssignResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, response: roleAssignResponse, currentState: "CreateRoleAssignment", nextState: "GetCreatedRoleAssignment"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "CreateRoleAssignment", nextState: "GetCreatedRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
 	// Get created role assignment
-	setStatusState(roleAssignResponse.Status, secalib.ActiveStatusState)
+	secalib.SetStatusState(roleAssignResponse.Status, secalib.ActiveResourceState)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, response: roleAssignResponse, currentState: "GetCreatedRoleAssignment", nextState: "UpdateRoleAssignment"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetCreatedRoleAssignment", nextState: "UpdateRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
 	// Update the role assignment
 	setModifiedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-	setStatusState(roleAssignResponse.Status, secalib.UpdatingStatusState)
+	secalib.SetStatusState(roleAssignResponse.Status, secalib.UpdatingResourceState)
 	roleAssignResponse.Spec = *params.RoleAssignment.UpdatedSpec
 	roleAssignResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, response: roleAssignResponse, currentState: "UpdateRoleAssignment", nextState: "GetUpdatedRoleAssignment"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "UpdateRoleAssignment", nextState: "GetUpdatedRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
 	// Get updated role assignment
-	setStatusState(roleAssignResponse.Status, secalib.ActiveStatusState)
+	secalib.SetStatusState(roleAssignResponse.Status, secalib.ActiveResourceState)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, response: roleAssignResponse, currentState: "GetUpdatedRoleAssignment", nextState: "DeleteRoleAssignment"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetUpdatedRoleAssignment", nextState: "DeleteRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the role assignment
 	roleAssignResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, response: roleAssignResponse, currentState: "DeleteRoleAssignment", nextState: "GetDeletedRoleAssignment"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "DeleteRoleAssignment", nextState: "GetDeletedRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted role assignment
 	roleAssignResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, http.StatusNotFound,
-		&stubConfig{url: roleAssignUrl, params: params, response: roleAssignResponse, currentState: "GetDeletedRoleAssignment", nextState: "DeleteRole"}); err != nil {
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: roleAssignUrl, params: params, currentState: "GetDeletedRoleAssignment", nextState: "DeleteRole"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the role
 	roleResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, response: roleResponse, currentState: "DeleteRole", nextState: "GetDeletedRole"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "DeleteRole", nextState: "GetDeletedRole"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted role
 	roleResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, http.StatusNotFound,
-		&stubConfig{url: roleUrl, params: params, response: roleResponse, currentState: "GetDeletedRole", nextState: startedScenarioState}); err != nil {
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: roleUrl, params: params, currentState: "GetDeletedRole", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 

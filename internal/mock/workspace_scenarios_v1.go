@@ -9,7 +9,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func CreateWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParamsV1) (*wiremock.Client, error) {
+func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	wm, err := newClient(params.MockURL)
@@ -26,50 +26,50 @@ func CreateWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(response.Metadata)
-	response.Status = newWorkspaceStatus(secalib.CreatingStatusState)
+	response.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
 	response.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: url, params: params, response: response, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: url, params: params, responseBody: response, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Get created workspace
-	setWorkspaceStatusState(response.Status, secalib.ActiveStatusState)
+	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveResourceState)
 	response.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: url, params: params, response: response, currentState: "GetCreatedWorkspace", nextState: "UpdateWorkspace"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: url, params: params, responseBody: response, currentState: "GetCreatedWorkspace", nextState: "UpdateWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Update the workspace
 	setModifiedRegionalResourceMetadata(response.Metadata)
-	setWorkspaceStatusState(response.Status, secalib.UpdatingStatusState)
+	secalib.SetWorkspaceStatusState(response.Status, secalib.UpdatingResourceState)
 	response.Labels = params.Workspace.UpdatedLabels
 	response.Metadata.Verb = http.MethodPut
-	if err := configurePutSuccessStub(wm, scenario,
-		&stubConfig{url: url, params: params, response: response, currentState: "UpdateWorkspace", nextState: "GetUpdatedWorkspace"}); err != nil {
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: url, params: params, responseBody: response, currentState: "UpdateWorkspace", nextState: "GetUpdatedWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Get updated workspace
-	setWorkspaceStatusState(response.Status, secalib.ActiveStatusState)
+	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveResourceState)
 	response.Metadata.Verb = http.MethodGet
-	if err := configureGetSuccessStub(wm, scenario,
-		&stubConfig{url: url, params: params, response: response, currentState: "GetUpdatedWorkspace", nextState: "DeleteWorkspace"}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: url, params: params, responseBody: response, currentState: "GetUpdatedWorkspace", nextState: "DeleteWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
 	response.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteSuccessStub(wm, scenario,
-		&stubConfig{url: url, params: params, response: response, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: url, params: params, responseBody: response, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted workspace
 	response.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario, http.StatusNotFound,
-		&stubConfig{url: url, params: params, response: response, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: url, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 

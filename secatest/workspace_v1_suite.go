@@ -3,7 +3,6 @@ package secatest
 import (
 	"context"
 	"log/slog"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
@@ -18,8 +17,6 @@ type WorkspaceV1TestSuite struct {
 }
 
 func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
-	ctx := context.Background()
-	var err error
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
@@ -31,7 +28,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		wm, err := mock.CreateWorkspaceLifecycleScenarioV1(suite.scenarioName, &mock.WorkspaceParamsV1{
+		mockParams := &mock.WorkspaceParamsV1{
 			Params: &mock.Params{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
@@ -47,120 +44,53 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 					secalib.EnvLabel: secalib.EnvProductionLabel,
 				},
 			},
-		})
+		}
+		wm, err := mock.ConfigWorkspaceLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
-			t.Fatalf("Failed to create wiremock scenario: %v", err)
+			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
 
-	var resp *schema.Workspace
-	var expectedMeta *schema.RegionalResourceMetadata
-	var expectedLabels schema.Labels
+	ctx := context.Background()
 
-	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
-
-		// TODO Create a builder to help to create this object to use on the client
-		ws := &schema.Workspace{
-			Metadata: &schema.RegionalResourceMetadata{
-				Tenant: suite.tenant,
-				Name:   workspaceName,
-			},
-		}
-		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		expectedMeta = &schema.RegionalResourceMetadata{
-			Name:       workspaceName,
-			Provider:   secalib.WorkspaceProviderV1,
-			Resource:   workspaceResource,
-			Verb:       http.MethodPut,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.WorkspaceKind,
-			Tenant:     suite.tenant,
-			Region:     suite.region,
-		}
-		verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *resp.Status.State)
-	})
-
-	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   workspaceName,
-		}
-		resp, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		expectedMeta.Verb = http.MethodGet
-		verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-
-		expectedLabels = schema.Labels{
+	// Create a workspace
+	workspace := &schema.Workspace{
+		Labels: schema.Labels{
 			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
-		}
-		verifyLabelStep(sCtx, expectedLabels, resp.Labels)
-
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *resp.Status.State)
-	})
-
-	t.WithNewStep("Update workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
-
-		resp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, resp)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		expectedMeta.Verb = http.MethodPut
-		verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-
-		verifyStatusStep(sCtx, secalib.UpdatingStatusState, *resp.Status.State)
-	})
-
-	t.WithNewStep("Get updated workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
+		},
+		Metadata: &schema.RegionalResourceMetadata{
+			Tenant: suite.tenant,
 			Name:   workspaceName,
-		}
-		resp, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+		},
+	}
+	expectMeta := secalib.NewRegionalResourceMetadata(workspaceName, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1, secalib.WorkspaceKind,
+		suite.tenant, suite.region)
+	expectLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, expectMeta, expectLabels, secalib.CreatingResourceState)
 
-		expectedMeta.Verb = http.MethodGet
-		verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+	// Get the created Workspace
+	tref := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   workspaceName,
+	}
+	workspace = suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *tref, expectMeta, expectLabels, secalib.ActiveResourceState)
 
-		expectedLabels = schema.Labels{
-			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
-		}
-		verifyLabelStep(sCtx, expectedLabels, resp.Labels)
+	// Update the workspace
+	workspace.Labels = schema.Labels{
+		secalib.EnvLabel: secalib.EnvProductionLabel,
+	}
+	expectLabels = schema.Labels{secalib.EnvLabel: secalib.EnvProductionLabel}
+	suite.createOrUpdateWorkspaceV1Step("Update the workspace", t, ctx, suite.client.WorkspaceV1, workspace, expectMeta, expectLabels, secalib.UpdatingResourceState)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *resp.Status.State)
-	})
+	// Get the updated workspace
+	workspace = suite.getWorkspaceV1Step("Get the updated workspace", t, ctx, suite.client.WorkspaceV1, *tref, expectMeta, expectLabels, secalib.ActiveResourceState)
 
-	t.WithNewStep("Delete workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "DeleteWorkspace")
+	// Delete the workspace
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)
 
-		err = suite.client.WorkspaceV1.DeleteWorkspace(ctx, resp)
-		requireNoError(sCtx, err)
-	})
-
-	t.WithNewStep("Get deleted workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   workspaceName,
-		}
-		_, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
-		requireError(sCtx, err, secapi.ErrResourceNotFound)
-	})
+	// Get the deleted workspace
+	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *tref, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)
 }

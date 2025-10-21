@@ -8,29 +8,34 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func configureStub(wm *wiremock.Client, scenarioName string, method string, httpStatus int, stubConfig *stubConfig) error {
-	// Build the response
-	response := wiremock.NewResponse().WithStatus(int64(httpStatus))
+func parseResponseBody(configResponse any) (string, error) {
+	responseBytes, err := json.Marshal(configResponse)
+	if err != nil {
+		slog.Error("Error parsing response to JSON", "error", err)
+		return "", err
+	}
+	return string(responseBytes), nil
+}
 
-	// Response with body
-	if stubConfig.response != nil {
-		responseBytes, err := json.Marshal(stubConfig.response)
+func configureStub(wm *wiremock.Client, scenarioName string, method string, httpStatus int, stubConfig *stubConfig) error {
+	// Build the stubResponse
+	stubResponse := wiremock.NewResponse().WithStatus(int64(httpStatus))
+
+	// Parse the response body
+	if stubConfig.responseBody != nil {
+		responseBody, err := parseResponseBody(stubConfig.responseBody)
 		if err != nil {
-			slog.Error("Error parsing response to JSON", "error", err)
 			return err
 		}
-		responseJSON := string(responseBytes)
 
-		response = response.
+		stubResponse = stubResponse.
 			WithHeader(contentTypeHttpHeaderKey, contentTypeHttpHeaderValue).
-			WithJSONBody(responseJSON)
+			WithBody(responseBody)
 	}
-
-	params := stubConfig.params.getParams()
 
 	// Request matchers
 	urlMatcher := wiremock.URLPathMatching(stubConfig.url)
-	headerMatcher := wiremock.Matching(authorizationHttpHeaderValuePrefix + params.AuthToken)
+	headerMatcher := wiremock.Matching(authorizationHttpHeaderValuePrefix + stubConfig.params.getParams().AuthToken)
 
 	// Configure the stub
 	var stubRule *wiremock.StubRule
@@ -55,7 +60,7 @@ func configureStub(wm *wiremock.Client, scenarioName string, method string, http
 		InScenario(scenarioName).
 		WhenScenarioStateIs(stubConfig.currentState).
 		WillSetStateTo(stubConfig.nextState).
-		WillReturnResponse(response).
+		WillReturnResponse(stubResponse).
 		AtPriority(int64(priority))); err != nil {
 		slog.Error("Error configuring stub", "method", method, "error", err)
 		return err
@@ -63,34 +68,22 @@ func configureStub(wm *wiremock.Client, scenarioName string, method string, http
 	return nil
 }
 
-func configurePutStub(wm *wiremock.Client, scenarioName string, httpStatus int, stubConfig *stubConfig) error {
-	return configureStub(wm, scenarioName, http.MethodPut, httpStatus, stubConfig)
-}
-
-func configurePutSuccessStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
+func configurePutStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
 	return configureStub(wm, scenarioName, http.MethodPut, http.StatusCreated, stubConfig)
 }
 
-func configurePostStub(wm *wiremock.Client, scenarioName string, httpStatus int, stubConfig *stubConfig) error {
-	return configureStub(wm, scenarioName, http.MethodPost, httpStatus, stubConfig)
-}
-
-func configurePostSuccessStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
+func configurePostStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
 	return configureStub(wm, scenarioName, http.MethodPost, http.StatusAccepted, stubConfig)
 }
 
-func configureGetStub(wm *wiremock.Client, scenarioName string, httpStatus int, stubConfig *stubConfig) error {
-	return configureStub(wm, scenarioName, http.MethodGet, httpStatus, stubConfig)
-}
-
-func configureGetSuccessStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
+func configureGetStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
 	return configureStub(wm, scenarioName, http.MethodGet, http.StatusOK, stubConfig)
 }
 
-func configureDeleteStub(wm *wiremock.Client, scenarioName string, httpStatus int, stubConfig *stubConfig) error {
-	return configureStub(wm, scenarioName, http.MethodDelete, httpStatus, stubConfig)
+func configureGetStubWithStatus(wm *wiremock.Client, scenarioName string, httpStatus int, stubConfig *stubConfig) error {
+	return configureStub(wm, scenarioName, http.MethodGet, httpStatus, stubConfig)
 }
 
-func configureDeleteSuccessStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
+func configureDeleteStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
 	return configureStub(wm, scenarioName, http.MethodDelete, http.StatusAccepted, stubConfig)
 }

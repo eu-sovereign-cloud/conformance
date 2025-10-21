@@ -56,7 +56,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		wm, err := mock.CreateStorageLifecycleScenarioV1(suite.scenarioName, &mock.StorageParamsV1{
+		mockParams := &mock.StorageParamsV1{
 			Params: &mock.Params{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
@@ -91,16 +91,16 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 					CpuArchitecture: secalib.CpuArchitectureArm64,
 				},
 			},
-		})
+		}
+		wm, err := mock.ConfigStorageLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
-			t.Fatalf("Failed to create wiremock scenario: %v", err)
+			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
 
+	// Workspace
 	var workspaceResp *schema.Workspace
-	var blockResp *schema.BlockStorage
-	var imageResp *schema.Image
 
 	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
@@ -115,7 +115,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workspaceResp)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *workspaceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *workspaceResp.Status.State)
 	})
 
 	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
@@ -129,10 +129,11 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, workspaceResp)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *workspaceResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *workspaceResp.Status.State)
 	})
 
 	// Block storage
+	var blockResp *schema.BlockStorage
 	var expectedBlockMeta *schema.RegionalWorkspaceResourceMetadata
 	var expectedBlockSpec *schema.BlockStorageSpec
 
@@ -157,15 +158,15 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		expectedBlockMeta = secalib.NewRegionalWorkspaceResourceMetadata(blockStorageName, secalib.StorageProviderV1, blockStorageResource, secalib.ApiVersion1, secalib.BlockStorageKind,
 			suite.tenant, workspaceName, suite.region)
 		expectedBlockMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
 		expectedBlockSpec = &schema.BlockStorageSpec{
 			SizeGB: initialStorageSize,
 			SkuRef: *storageSkuRefObj,
 		}
-		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
+		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *blockResp.Status.State)
 	})
 
 	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
@@ -181,11 +182,11 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, blockResp)
 
 		expectedBlockMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
-		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
+		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *blockResp.Status.State)
 	})
 
 	t.WithNewStep("Update block storage", func(sCtx provider.StepCtx) {
@@ -196,12 +197,12 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, blockResp)
 
 		expectedBlockMeta.Verb = http.MethodPut
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
 		expectedBlockSpec.SizeGB = updatedStorageSize
-		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
+		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.UpdatingStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *blockResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated block storage", func(sCtx provider.StepCtx) {
@@ -217,14 +218,15 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, blockResp)
 
 		expectedBlockMeta.Verb = http.MethodGet
-		verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
+		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
 
-		verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
+		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *blockResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *blockResp.Status.State)
 	})
 
 	// Image
+	var imageResp *schema.Image
 	var expectedImageMeta *schema.RegionalResourceMetadata
 	var expectedImageSpec *schema.ImageSpec
 
@@ -247,15 +249,15 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 
 		expectedImageMeta = secalib.NewRegionalResourceMetadata(imageName, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1, secalib.ImageKind, suite.tenant, suite.region)
 		expectedImageMeta.Verb = http.MethodPut
-		verifyRegionalResourceMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
+		suite.verifyRegionalResourceMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
 
 		expectedImageSpec = &schema.ImageSpec{
 			BlockStorageRef: *blockStorageRefObj,
 			CpuArchitecture: secalib.CpuArchitectureAmd64,
 		}
-		verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
+		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.CreatingStatusState, *imageResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *imageResp.Status.State)
 	})
 
 	t.WithNewStep("Get created image", func(sCtx provider.StepCtx) {
@@ -270,11 +272,11 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, imageResp)
 
 		expectedImageMeta.Verb = http.MethodGet
-		verifyRegionalResourceMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
+		suite.verifyRegionalResourceMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
 
-		verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
+		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *imageResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *imageResp.Status.State)
 	})
 
 	t.WithNewStep("Update image", func(sCtx provider.StepCtx) {
@@ -285,12 +287,12 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, imageResp)
 
 		expectedImageMeta.Verb = http.MethodPut
-		verifyRegionalResourceMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
+		suite.verifyRegionalResourceMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
 
 		expectedImageSpec.CpuArchitecture = secalib.CpuArchitectureArm64
-		verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
+		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.UpdatingStatusState, *imageResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.UpdatingResourceState, *imageResp.Status.State)
 	})
 
 	t.WithNewStep("Get updated image", func(sCtx provider.StepCtx) {
@@ -305,11 +307,11 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		requireNotNilResponse(sCtx, imageResp)
 
 		expectedImageMeta.Verb = http.MethodGet
-		verifyRegionalResourceMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
+		suite.verifyRegionalResourceMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
 
-		verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
+		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
 
-		verifyStatusStep(sCtx, secalib.ActiveStatusState, *imageResp.Status.State)
+		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *imageResp.Status.State)
 	})
 
 	t.WithNewStep("Delete image", func(sCtx provider.StepCtx) {
