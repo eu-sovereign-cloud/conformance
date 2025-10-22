@@ -18,7 +18,7 @@ func (suite *testSuite) createOrUpdateRoleV1Step(
 	t provider.T,
 	ctx context.Context,
 	api *secapi.AuthorizationV1,
-	role *schema.Role,
+	resource *schema.Role,
 	expectedMeta *schema.GlobalTenantResourceMetadata,
 	expectedSpec *schema.RoleSpec,
 	expectedStatusState string,
@@ -26,7 +26,7 @@ func (suite *testSuite) createOrUpdateRoleV1Step(
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
 
-		resp, err := api.CreateOrUpdateRole(ctx, role)
+		resp, err := api.CreateOrUpdateRole(ctx, resource)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
@@ -92,11 +92,11 @@ func (suite *testSuite) getRoleWithErrorV1Step(stepName string,
 	})
 }
 
-func (suite *testSuite) deleteRoleV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.AuthorizationV1, role *schema.Role) {
+func (suite *testSuite) deleteRoleV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.AuthorizationV1, resource *schema.Role) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "DeleteRole")
 
-		err := api.DeleteRole(ctx, role)
+		err := api.DeleteRole(ctx, resource)
 		requireNoError(sCtx, err)
 	})
 }
@@ -108,7 +108,7 @@ func (suite *testSuite) createOrUpdateRoleAssignmentV1Step(
 	t provider.T,
 	ctx context.Context,
 	api *secapi.AuthorizationV1,
-	role *schema.RoleAssignment,
+	resource *schema.RoleAssignment,
 	expectedMeta *schema.GlobalTenantResourceMetadata,
 	expectedSpec *schema.RoleAssignmentSpec,
 	expectedStatusState string,
@@ -116,7 +116,7 @@ func (suite *testSuite) createOrUpdateRoleAssignmentV1Step(
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
 
-		resp, err := api.CreateOrUpdateRoleAssignment(ctx, role)
+		resp, err := api.CreateOrUpdateRoleAssignment(ctx, resource)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
@@ -175,11 +175,11 @@ func (suite *testSuite) getRoleAssignmentWithErrorV1Step(
 	})
 }
 
-func (suite *testSuite) deleteRoleAssignmentV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.AuthorizationV1, role *schema.RoleAssignment) {
+func (suite *testSuite) deleteRoleAssignmentV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.AuthorizationV1, resource *schema.RoleAssignment) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "DeleteRoleAssignment")
 
-		err := api.DeleteRoleAssignment(ctx, role)
+		err := api.DeleteRoleAssignment(ctx, resource)
 		requireNoError(sCtx, err)
 	})
 }

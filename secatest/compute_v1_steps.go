@@ -18,15 +18,15 @@ func (suite *testSuite) createOrUpdateInstanceV1Step(
 	t provider.T,
 	ctx context.Context,
 	api *secapi.ComputeV1,
-	instance *schema.Instance,
+	resource *schema.Instance,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.InstanceSpec,
 	expectedStatusState string,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateInstance")
+		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", resource.Metadata.Workspace)
 
-		resp, err := api.CreateOrUpdateInstance(ctx, instance)
+		resp, err := api.CreateOrUpdateInstance(ctx, resource)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
@@ -57,7 +57,7 @@ func (suite *testSuite) getInstanceV1Step(
 	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetInstance")
+		suite.setComputeV1StepParams(sCtx, "GetInstance", string(wref.Workspace))
 
 		resp, err = api.GetInstance(ctx, wref)
 		requireNoError(sCtx, err)
@@ -86,51 +86,51 @@ func (suite *testSuite) getInstanceWithErrorV1Step(
 	expectedError error,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetInstance")
+		suite.setComputeV1StepParams(sCtx, "GetInstance", string(wref.Workspace))
 
 		_, err := api.GetInstance(ctx, wref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) startInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, instance *schema.Instance) {
+func (suite *testSuite) startInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, resource *schema.Instance) {
 	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "StartInstance")
+		suite.setComputeV1StepParams(sCtx, "StartInstance", resource.Metadata.Workspace)
 
-		err = api.StartInstance(ctx, instance)
+		err = api.StartInstance(ctx, resource)
 		requireNoError(sCtx, err)
 	})
 }
 
-func (suite *testSuite) stopInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, instance *schema.Instance) {
+func (suite *testSuite) stopInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, resource *schema.Instance) {
 	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "StopInstance")
+		suite.setComputeV1StepParams(sCtx, "StopInstance", string(resource.Metadata.Workspace))
 
-		err = api.StopInstance(ctx, instance)
+		err = api.StopInstance(ctx, resource)
 		requireNoError(sCtx, err)
 	})
 }
 
-func (suite *testSuite) restartInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, instance *schema.Instance) {
+func (suite *testSuite) restartInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, resource *schema.Instance) {
 	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "RestartInstance")
+		suite.setComputeV1StepParams(sCtx, "RestartInstance", resource.Metadata.Workspace)
 
-		err = api.RestartInstance(ctx, instance)
+		err = api.RestartInstance(ctx, resource)
 		requireNoError(sCtx, err)
 	})
 }
 
-func (suite *testSuite) deleteInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, instance *schema.Instance) {
+func (suite *testSuite) deleteInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, resource *schema.Instance) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "DeleteInstance")
+		suite.setComputeV1StepParams(sCtx, "DeleteInstance", resource.Metadata.Workspace)
 
-		err := api.DeleteInstance(ctx, instance)
+		err := api.DeleteInstance(ctx, resource)
 		requireNoError(sCtx, err)
 	})
 }
