@@ -16,7 +16,7 @@ func (suite *testSuite) createOrUpdateWorkspaceV1Step(
 	t provider.T,
 	ctx context.Context,
 	api *secapi.WorkspaceV1,
-	ws *schema.Workspace,
+	resource *schema.Workspace,
 	expectedMeta *schema.RegionalResourceMetadata,
 	expectedLabels schema.Labels,
 	expectedStatusState string,
@@ -24,7 +24,7 @@ func (suite *testSuite) createOrUpdateWorkspaceV1Step(
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
 
-		resp, err := api.CreateOrUpdateWorkspace(ctx, ws)
+		resp, err := api.CreateOrUpdateWorkspace(ctx, resource)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
@@ -91,11 +91,11 @@ func (suite *testSuite) getWorkspaceWithErrorV1Step(
 	})
 }
 
-func (suite *testSuite) deleteWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.WorkspaceV1, ws *schema.Workspace) {
+func (suite *testSuite) deleteWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.WorkspaceV1, resource *schema.Workspace) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "DeleteWorkspace")
 
-		err := api.DeleteWorkspace(ctx, ws)
+		err := api.DeleteWorkspace(ctx, resource)
 		requireNoError(sCtx, err)
 	})
 }

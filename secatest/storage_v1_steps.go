@@ -18,15 +18,15 @@ func (suite *testSuite) createOrUpdateBlockStorageV1Step(
 	t provider.T,
 	ctx context.Context,
 	api *secapi.StorageV1,
-	role *schema.BlockStorage,
+	resource *schema.BlockStorage,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.BlockStorageSpec,
 	expectedStatusState string,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateBlockStorage")
+		suite.setStorageWorkspaceV1StepParams(sCtx, "CreateOrUpdateBlockStorage", resource.Metadata.Workspace)
 
-		resp, err := api.CreateOrUpdateBlockStorage(ctx, role)
+		resp, err := api.CreateOrUpdateBlockStorage(ctx, resource)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
@@ -57,7 +57,7 @@ func (suite *testSuite) getBlockStorageV1Step(
 	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetBlockStorage")
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetBlockStorage", string(wref.Workspace))
 
 		resp, err = api.GetBlockStorage(ctx, wref)
 		requireNoError(sCtx, err)
@@ -86,18 +86,18 @@ func (suite *testSuite) getBlockStorageWithErrorV1Step(
 	expectedError error,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetBlockStorage")
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetBlockStorage", string(wref.Workspace))
 
 		_, err := api.GetBlockStorage(ctx, wref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deleteBlockStorageV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, role *schema.BlockStorage) {
+func (suite *testSuite) deleteBlockStorageV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, resource *schema.BlockStorage) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "DeleteBlockStorage")
+		suite.setStorageWorkspaceV1StepParams(sCtx, "DeleteBlockStorage", resource.Metadata.Workspace)
 
-		err := api.DeleteBlockStorage(ctx, role)
+		err := api.DeleteBlockStorage(ctx, resource)
 		requireNoError(sCtx, err)
 	})
 }
@@ -109,15 +109,15 @@ func (suite *testSuite) createOrUpdateImageV1Step(
 	t provider.T,
 	ctx context.Context,
 	api *secapi.StorageV1,
-	role *schema.Image,
+	resource *schema.Image,
 	expectedMeta *schema.RegionalResourceMetadata,
 	expectedSpec *schema.ImageSpec,
 	expectedStatusState string,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateImage")
+		suite.setStorageTenantV1StepParams(sCtx, "CreateOrUpdateImage")
 
-		resp, err := api.CreateOrUpdateImage(ctx, role)
+		resp, err := api.CreateOrUpdateImage(ctx, resource)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
@@ -142,7 +142,7 @@ func (suite *testSuite) getImageV1Step(
 	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetImage")
+		suite.setStorageTenantV1StepParams(sCtx, "GetImage")
 
 		resp, err = api.GetImage(ctx, tref)
 		requireNoError(sCtx, err)
@@ -167,18 +167,18 @@ func (suite *testSuite) getImageWithErrorV1Step(
 	expectedError error,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetImage")
+		suite.setStorageTenantV1StepParams(sCtx, "GetImage")
 
 		_, err := api.GetImage(ctx, tref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deleteImageV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, role *schema.Image) {
+func (suite *testSuite) deleteImageV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, resource *schema.Image) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "DeleteImage")
+		suite.setStorageTenantV1StepParams(sCtx, "DeleteImage")
 
-		err := api.DeleteImage(ctx, role)
+		err := api.DeleteImage(ctx, resource)
 		requireNoError(sCtx, err)
 	})
 }
