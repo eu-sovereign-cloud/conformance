@@ -13,8 +13,15 @@ import (
 
 // Instance
 
-func (suite *testSuite) createOrUpdateInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, instance *schema.Instance,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata, expectedSpec *schema.InstanceSpec, expectedStatusState string,
+func (suite *testSuite) createOrUpdateInstanceV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.ComputeV1,
+	instance *schema.Instance,
+	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
+	expectedSpec *schema.InstanceSpec,
+	expectedStatusState string,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateInstance")
@@ -36,8 +43,15 @@ func (suite *testSuite) createOrUpdateInstanceV1Step(stepName string, t provider
 	})
 }
 
-func (suite *testSuite) getInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, wref secapi.WorkspaceReference,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata, expectedSpec *schema.InstanceSpec, expectedStatusState string,
+func (suite *testSuite) getInstanceV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.ComputeV1,
+	wref secapi.WorkspaceReference,
+	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
+	expectedSpec *schema.InstanceSpec,
+	expectedStatusState string,
 ) *schema.Instance {
 	var resp *schema.Instance
 	var err error
@@ -63,7 +77,12 @@ func (suite *testSuite) getInstanceV1Step(stepName string, t provider.T, ctx con
 	return resp
 }
 
-func (suite *testSuite) getInstanceWithErrorV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, wref secapi.WorkspaceReference,
+func (suite *testSuite) getInstanceWithErrorV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.ComputeV1,
+	wref secapi.WorkspaceReference,
 	expectedError error,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {

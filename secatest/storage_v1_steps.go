@@ -13,8 +13,15 @@ import (
 
 // BlockStorage
 
-func (suite *testSuite) createOrUpdateBlockStorageV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, role *schema.BlockStorage,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata, expectedSpec *schema.BlockStorageSpec, expectedStatusState string,
+func (suite *testSuite) createOrUpdateBlockStorageV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.StorageV1,
+	role *schema.BlockStorage,
+	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
+	expectedSpec *schema.BlockStorageSpec,
+	expectedStatusState string,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateBlockStorage")
@@ -36,8 +43,15 @@ func (suite *testSuite) createOrUpdateBlockStorageV1Step(stepName string, t prov
 	})
 }
 
-func (suite *testSuite) getBlockStorageV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, wref secapi.WorkspaceReference,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata, expectedSpec *schema.BlockStorageSpec, expectedStatusState string,
+func (suite *testSuite) getBlockStorageV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.StorageV1,
+	wref secapi.WorkspaceReference,
+	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
+	expectedSpec *schema.BlockStorageSpec,
+	expectedStatusState string,
 ) *schema.BlockStorage {
 	var resp *schema.BlockStorage
 	var err error
@@ -63,7 +77,12 @@ func (suite *testSuite) getBlockStorageV1Step(stepName string, t provider.T, ctx
 	return resp
 }
 
-func (suite *testSuite) getBlockStorageWithErrorV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, wref secapi.WorkspaceReference,
+func (suite *testSuite) getBlockStorageWithErrorV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.StorageV1,
+	wref secapi.WorkspaceReference,
 	expectedError error,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
@@ -85,8 +104,15 @@ func (suite *testSuite) deleteBlockStorageV1Step(stepName string, t provider.T, 
 
 // Image
 
-func (suite *testSuite) createOrUpdateImageV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, role *schema.Image,
-	expectedMeta *schema.RegionalResourceMetadata, expectedSpec *schema.ImageSpec, expectedStatusState string,
+func (suite *testSuite) createOrUpdateImageV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.StorageV1,
+	role *schema.Image,
+	expectedMeta *schema.RegionalResourceMetadata,
+	expectedSpec *schema.ImageSpec,
+	expectedStatusState string,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateImage")
@@ -104,7 +130,12 @@ func (suite *testSuite) createOrUpdateImageV1Step(stepName string, t provider.T,
 	})
 }
 
-func (suite *testSuite) getImageV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, tref secapi.TenantReference,
+func (suite *testSuite) getImageV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.StorageV1,
+	tref secapi.TenantReference,
 	expectedMeta *schema.RegionalResourceMetadata, expectedSpec *schema.ImageSpec, expectedStatusState string,
 ) *schema.Image {
 	var resp *schema.Image
@@ -127,7 +158,12 @@ func (suite *testSuite) getImageV1Step(stepName string, t provider.T, ctx contex
 	return resp
 }
 
-func (suite *testSuite) getImageWithErrorV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, tref secapi.TenantReference,
+func (suite *testSuite) getImageWithErrorV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.StorageV1,
+	tref secapi.TenantReference,
 	expectedError error,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {

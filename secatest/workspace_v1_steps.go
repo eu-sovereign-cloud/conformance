@@ -11,8 +11,15 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-func (suite *testSuite) createOrUpdateWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.WorkspaceV1, ws *schema.Workspace,
-	expectedMeta *schema.RegionalResourceMetadata, expectedLabels schema.Labels, expectedStatusState string,
+func (suite *testSuite) createOrUpdateWorkspaceV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.WorkspaceV1,
+	ws *schema.Workspace,
+	expectedMeta *schema.RegionalResourceMetadata,
+	expectedLabels schema.Labels,
+	expectedStatusState string,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
@@ -34,8 +41,15 @@ func (suite *testSuite) createOrUpdateWorkspaceV1Step(stepName string, t provide
 	})
 }
 
-func (suite *testSuite) getWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.WorkspaceV1, tref secapi.TenantReference,
-	expectedMeta *schema.RegionalResourceMetadata, expectedLabels schema.Labels, expectedStatusState string,
+func (suite *testSuite) getWorkspaceV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.WorkspaceV1,
+	tref secapi.TenantReference,
+	expectedMeta *schema.RegionalResourceMetadata,
+	expectedLabels schema.Labels,
+	expectedStatusState string,
 ) *schema.Workspace {
 	var resp *schema.Workspace
 	var err error
@@ -61,7 +75,12 @@ func (suite *testSuite) getWorkspaceV1Step(stepName string, t provider.T, ctx co
 	return resp
 }
 
-func (suite *testSuite) getWorkspaceWithErrorV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.WorkspaceV1, tref secapi.TenantReference,
+func (suite *testSuite) getWorkspaceWithErrorV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.WorkspaceV1,
+	tref secapi.TenantReference,
 	expectedError error,
 ) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {

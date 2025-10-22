@@ -53,7 +53,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 		return nil, err
 	}
 
-	// Get created workspace
+	// Get the created workspace
 	secalib.SetWorkspaceStatusState(workResponse.Status, secalib.ActiveResourceState)
 	workResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -355,7 +355,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 		return nil, err
 	}
 
-	// Get created block storage
+	// Get the created block storage
 	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -377,7 +377,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 		return nil, err
 	}
 
-	// Get created instance
+	// Get the created instance
 	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -386,128 +386,122 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Delete the instance
-	instanceResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "DeleteInstance", nextState: "GetDeletedInstance"}); err != nil {
+		&stubConfig{url: instanceUrl, params: params, currentState: "DeleteInstance", nextState: "GetDeletedInstance"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted instance
-	instanceResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted instance
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: instanceUrl, params: params, currentState: "GetDeletedInstance", nextState: "DeleteBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the block storage
-	blockResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, responseBody: instanceResponse, currentState: "DeleteBlockStorage", nextState: "GetDeletedBlockStorage"}); err != nil {
+		&stubConfig{url: blockUrl, params: params, currentState: "DeleteBlockStorage", nextState: "GetDeletedBlockStorage"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted block storage
-	blockResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted block storage
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: blockUrl, params: params, currentState: "GetDeletedBlockStorage", nextState: "DeleteSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the security group
-	groupResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "DeleteSecurityGroup", nextState: "GetDeletedSecurityGroup"}); err != nil {
+		&stubConfig{url: groupUrl, params: params, currentState: "DeleteSecurityGroup", nextState: "GetDeletedSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted security group
-	groupResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted security group
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: groupUrl, params: params, currentState: "GetDeletedSecurityGroup", nextState: "DeleteNic"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the nic
-	nicResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "DeleteNic", nextState: "GetDeletedNic"}); err != nil {
+		&stubConfig{url: nicUrl, params: params, currentState: "DeleteNic", nextState: "GetDeletedNic"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted nic
-	nicResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted nic
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: nicUrl, params: params, currentState: "GetDeletedNic", nextState: "DeletePublicIp"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the public ip
-	publicIpResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "DeletePublicIp", nextState: "GetDeletedPublicIp"}); err != nil {
+		&stubConfig{url: publicIpUrl, params: params, currentState: "DeletePublicIp", nextState: "GetDeletedPublicIp"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted public ip
-	publicIpResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted public ip
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: publicIpUrl, params: params, currentState: "GetDeletedPublicIp", nextState: "DeleteSubnet"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the subnet
-	subnetResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "DeleteSubnet", nextState: "GetDeletedSubnet"}); err != nil {
+		&stubConfig{url: subnetUrl, params: params, currentState: "DeleteSubnet", nextState: "GetDeletedSubnet"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted subnet
-	subnetResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted subnet
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: subnetUrl, params: params, currentState: "GetDeletedSubnet", nextState: "DeleteRouteTable"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the route table
-	routeResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "DeleteRouteTable", nextState: "GetDeletedRouteTable"}); err != nil {
+		&stubConfig{url: routeUrl, params: params, currentState: "DeleteRouteTable", nextState: "GetDeletedRouteTable"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted route table
-	routeResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted route table
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: routeUrl, params: params, currentState: "GetDeletedRouteTable", nextState: "DeleteInternetGateway"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the internet gateway
-	gatewayResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "DeleteInternetGateway", nextState: "GetDeletedInternetGateway"}); err != nil {
+		&stubConfig{url: gatewayUrl, params: params, currentState: "DeleteInternetGateway", nextState: "GetDeletedInternetGateway"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted internet gateway
-	gatewayResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted internet gateway
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: gatewayUrl, params: params, currentState: "GetDeletedInternetGateway", nextState: "DeleteNetwork"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the network
-	networkResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "DeleteNetwork", nextState: "GetDeletedNetwork"}); err != nil {
+		&stubConfig{url: networkUrl, params: params, currentState: "DeleteNetwork", nextState: "GetDeletedNetwork"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted network
-	networkResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted network
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
-		&stubConfig{url: networkUrl, params: params, currentState: "GetDeletedNetwork", nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: networkUrl, params: params, currentState: "GetDeletedNetwork", nextState: "DeleteWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Delete the workspace
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Get the deleted workspace
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 

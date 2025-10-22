@@ -33,7 +33,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 		return nil, err
 	}
 
-	// Get created workspace
+	// Get the created workspace
 	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveResourceState)
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -51,7 +51,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 		return nil, err
 	}
 
-	// Get updated workspace
+	// Get the updated workspace
 	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveResourceState)
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -60,14 +60,12 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Delete the workspace
-	response.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: url, params: params, responseBody: response, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
+		&stubConfig{url: url, params: params, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted workspace
-	response.Metadata.Verb = http.MethodGet
+	// Get the deleted workspace
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: url, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err

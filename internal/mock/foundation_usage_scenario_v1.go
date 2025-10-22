@@ -62,7 +62,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Get created role
+	// Get the created role
 	secalib.SetStatusState(roleResponse.Status, secalib.ActiveResourceState)
 	roleResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -84,7 +84,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Get created role assignment
+	// Get the created role assignment
 	secalib.SetStatusState(roleAssignResponse.Status, secalib.ActiveResourceState)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -106,7 +106,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Get created workspace
+	// Get the created workspace
 	secalib.SetWorkspaceStatusState(workspaceResponse.Status, secalib.ActiveResourceState)
 	workspaceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -130,7 +130,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Get created image
+	// Get the created image
 	secalib.SetImageStatusState(imageResponse.Status, secalib.ActiveResourceState)
 	imageResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -151,7 +151,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Get created block storage
+	// Get the created block storage
 	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -331,7 +331,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Get created instance
+	// Get the created instance
 	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -342,93 +342,80 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Delete all
 
 	// Delete instance
-	instanceResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "DeleteInstance", nextState: "DeleteSecurityGroup"}); err != nil {
+		&stubConfig{url: instanceUrl, params: params, currentState: "DeleteInstance", nextState: "DeleteSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
 	// Delete Security Group
-	groupResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "DeleteSecurityGroup", nextState: "DeleteNic"}); err != nil {
+		&stubConfig{url: groupUrl, params: params, currentState: "DeleteSecurityGroup", nextState: "DeleteNic"}); err != nil {
 		return nil, err
 	}
 
 	// Delete nic
-	nicResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "DeleteNic", nextState: "DeletePublicIp"}); err != nil {
+		&stubConfig{url: nicUrl, params: params, currentState: "DeleteNic", nextState: "DeletePublicIp"}); err != nil {
 		return nil, err
 	}
 
 	// Delete public ip
-	publicIpResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "DeletePublicIp", nextState: "DeleteSubnet"}); err != nil {
+		&stubConfig{url: publicIpUrl, params: params, currentState: "DeletePublicIp", nextState: "DeleteSubnet"}); err != nil {
 		return nil, err
 	}
 
 	// Delete subnet
-	subnetResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "DeleteSubnet", nextState: "DeleteRouteTable"}); err != nil {
+		&stubConfig{url: subnetUrl, params: params, currentState: "DeleteSubnet", nextState: "DeleteRouteTable"}); err != nil {
 		return nil, err
 	}
 
 	// Delete route-table
-	routeResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "DeleteRouteTable", nextState: "DeleteInternetGateway"}); err != nil {
+		&stubConfig{url: routeUrl, params: params, currentState: "DeleteRouteTable", nextState: "DeleteInternetGateway"}); err != nil {
 		return nil, err
 	}
 
 	// Delete internet-gateway
-	gatewayResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "DeleteInternetGateway", nextState: "DeleteNetwork"}); err != nil {
+		&stubConfig{url: gatewayUrl, params: params, currentState: "DeleteInternetGateway", nextState: "DeleteNetwork"}); err != nil {
 		return nil, err
 	}
 
 	// Delete network
-	networkResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "DeleteNetwork", nextState: "DeleteBlockStorage"}); err != nil {
+		&stubConfig{url: networkUrl, params: params, currentState: "DeleteNetwork", nextState: "DeleteBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Delete block-storage
-	blockResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "DeleteBlockStorage", nextState: "DeleteImage"}); err != nil {
+		&stubConfig{url: blockUrl, params: params, currentState: "DeleteBlockStorage", nextState: "DeleteImage"}); err != nil {
 		return nil, err
 	}
 
 	// Delete image
-	imageResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "DeleteImage", nextState: "DeleteWorkspace"}); err != nil {
+		&stubConfig{url: imageUrl, params: params, currentState: "DeleteImage", nextState: "DeleteWorkspace"}); err != nil {
 		return nil, err
 	}
 
 	// Delete workspace
-	workspaceResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "DeleteWorkspace", nextState: "DeleteRoleAssignment"}); err != nil {
+		&stubConfig{url: workspaceUrl, params: params, currentState: "DeleteWorkspace", nextState: "DeleteRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
 	// Delete role assignment
-	roleAssignResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "DeleteRoleAssignment", nextState: "DeleteRole"}); err != nil {
+		&stubConfig{url: roleAssignUrl, params: params, currentState: "DeleteRoleAssignment", nextState: "DeleteRole"}); err != nil {
 		return nil, err
 	}
 
 	// Delete role
-	roleResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "DeleteRole"}); err != nil {
+		&stubConfig{url: roleUrl, params: params, currentState: "DeleteRole"}); err != nil {
 		return nil, err
 	}
 

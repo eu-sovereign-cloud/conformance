@@ -146,17 +146,16 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 			SkuRef: *storageSkuRefObj,
 		},
 	}
-	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, ctx, suite.client.StorageV1, block,
-		nil, nil, secalib.CreatingResourceState)
+	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, ctx, suite.client.StorageV1, block, nil, nil, secalib.CreatingResourceState)
 
 	// Get the created block storage
-	blockWRef := secapi.WorkspaceReference{
+	blockWRef := &secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(suite.tenant),
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      blockStorageName,
 	}
-	suite.getBlockStorageV1Step("Get the created block storage", t, ctx, suite.client.StorageV1, blockWRef,
-		nil, nil, secalib.ActiveResourceState)
+	// TODO Create a function without expectated metadata and spec
+	suite.getBlockStorageV1Step("Get the created block storage", t, ctx, suite.client.StorageV1, *blockWRef, nil, nil, secalib.ActiveResourceState)
 
 	// Instance
 
@@ -183,56 +182,74 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		suite.tenant,
 		workspaceName,
 		suite.region)
-	expectInstanceSpec := instance.Spec
+	expectInstanceSpec := &schema.InstanceSpec{
+		SkuRef: *instanceSkuRefObj,
+		Zone:   initialInstanceZone,
+		BootVolume: schema.VolumeReference{
+			DeviceRef: *blockStorageRefObj,
+		},
+	}
 	suite.createOrUpdateInstanceV1Step("Create an instance", t, ctx, suite.client.ComputeV1, instance,
-		expectInstanceMeta, &expectInstanceSpec, secalib.CreatingResourceState)
+		expectInstanceMeta, expectInstanceSpec, secalib.CreatingResourceState)
 
 	// Get the created instance
-	instanceWRef := secapi.WorkspaceReference{
+	instanceWRef := &secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(suite.tenant),
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      instanceName,
 	}
-	instance = suite.getInstanceV1Step("Get the created instance", t, ctx, suite.client.ComputeV1, instanceWRef,
-		expectInstanceMeta, &expectInstanceSpec, secalib.ActiveResourceState)
+	instance = suite.getInstanceV1Step("Get the created instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
+		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
 
 	// Update the instance
 	instance.Spec.Zone = updatedInstanceZone
-	expectInstanceSpec = instance.Spec
+	expectInstanceSpec.Zone = instance.Spec.Zone
 	suite.createOrUpdateInstanceV1Step("Update the instance", t, ctx, suite.client.ComputeV1, instance,
-		expectInstanceMeta, &expectInstanceSpec, secalib.UpdatingResourceState)
+		expectInstanceMeta, expectInstanceSpec, secalib.UpdatingResourceState)
 
 	// Get the updated instance
-	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, instanceWRef,
-		expectInstanceMeta, &expectInstanceSpec, secalib.ActiveResourceState)
+	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
+		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
 
 	// Stop the instance
 	suite.stopInstanceV1Step("Stop the instance", t, ctx, suite.client.ComputeV1, instance)
 
 	// Get the stoped instance
-	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, instanceWRef,
-		expectInstanceMeta, &expectInstanceSpec, secalib.SuspendedResourceState)
+	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
+		expectInstanceMeta, expectInstanceSpec, secalib.SuspendedResourceState)
 
 	// Start the instance
 	suite.startInstanceV1Step("Start the instance", t, ctx, suite.client.ComputeV1, instance)
 
 	// Get the started instance
-	instance = suite.getInstanceV1Step("Get the started instance", t, ctx, suite.client.ComputeV1, instanceWRef,
-		expectInstanceMeta, &expectInstanceSpec, secalib.ActiveResourceState)
+	instance = suite.getInstanceV1Step("Get the started instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
+		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
 
 	// Restart the instance
 	suite.restartInstanceV1Step("Restart the instance", t, ctx, suite.client.ComputeV1, instance)
 
 	// Get the restarted instance
 	// TODO Find an away to assert if the instance is restarted
-	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, instanceWRef,
-		expectInstanceMeta, &expectInstanceSpec, secalib.ActiveResourceState)
+	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
+		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
 
 	// Delete the instance
 	suite.deleteInstanceV1Step("Delete the instance", t, ctx, suite.client.ComputeV1, instance)
 
 	// Get the deleted instance
-	suite.getInstanceWithErrorV1Step("Get the deleted instance", t, ctx, suite.client.ComputeV1, instanceWRef, secapi.ErrResourceNotFound)
+	suite.getInstanceWithErrorV1Step("Get the deleted instance", t, ctx, suite.client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
+
+	// Delete the block storage
+	suite.deleteBlockStorageV1Step("Delete the block storage", t, ctx, suite.client.StorageV1, block)
+
+	// Get the deleted block storage
+	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, ctx, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
+
+	// Delete the workspace
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)
+
+	// Get the deleted workspace
+	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)
 }

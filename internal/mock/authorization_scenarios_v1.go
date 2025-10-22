@@ -35,7 +35,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 		return nil, err
 	}
 
-	// Get created role
+	// Get the created role
 	secalib.SetStatusState(roleResponse.Status, secalib.ActiveResourceState)
 	roleResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -53,7 +53,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 		return nil, err
 	}
 
-	// Get updated role
+	// Get the updated role
 	secalib.SetStatusState(roleResponse.Status, secalib.ActiveResourceState)
 	roleResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -75,7 +75,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 		return nil, err
 	}
 
-	// Get created role assignment
+	// Get the created role assignment
 	secalib.SetStatusState(roleAssignResponse.Status, secalib.ActiveResourceState)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -93,7 +93,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 		return nil, err
 	}
 
-	// Get updated role assignment
+	// Get the updated role assignment
 	secalib.SetStatusState(roleAssignResponse.Status, secalib.ActiveResourceState)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -102,28 +102,24 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Delete the role assignment
-	roleAssignResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "DeleteRoleAssignment", nextState: "GetDeletedRoleAssignment"}); err != nil {
+		&stubConfig{url: roleAssignUrl, params: params, currentState: "DeleteRoleAssignment", nextState: "GetDeletedRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted role assignment
-	roleAssignResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted role assignment
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: roleAssignUrl, params: params, currentState: "GetDeletedRoleAssignment", nextState: "DeleteRole"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the role
-	roleResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "DeleteRole", nextState: "GetDeletedRole"}); err != nil {
+		&stubConfig{url: roleUrl, params: params, currentState: "DeleteRole", nextState: "GetDeletedRole"}); err != nil {
 		return nil, err
 	}
 
 	// Get deleted role
-	roleResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: roleUrl, params: params, currentState: "GetDeletedRole", nextState: startedScenarioState}); err != nil {
 		return nil, err

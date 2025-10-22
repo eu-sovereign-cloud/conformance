@@ -747,7 +747,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			Cidr: schema.Cidr{Ipv4: &subnetCidr},
 			Zone: zone1,
 		}
-		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
+		suite.verifySubnetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
 		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *subnetResp.Status.State)
 	})
@@ -768,7 +768,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		expectedSubnetMeta.Verb = http.MethodGet
 		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
 
-		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
+		suite.verifySubnetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
 
 		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *subnetResp.Status.State)
 	})
