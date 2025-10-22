@@ -2,10 +2,8 @@ package secatest
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"math/rand"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
@@ -23,10 +21,12 @@ type ComputeV1TestSuite struct {
 	storageSkus    []string
 }
 
-func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
-	slog.Info("Starting Compute Lifecycle Test")
+func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
+	ctx := context.Background()
+	var err error
+	slog.Info("Starting " + suite.scenarioName)
 
-	t.Title("Compute Lifecycle Test")
+	t.Title(suite.scenarioName)
 	configureTags(t, secalib.ComputeProviderV1, secalib.InstanceKind)
 
 	// Select skus
@@ -41,426 +41,219 @@ func (suite *ComputeV1TestSuite) TestComputeV1(t provider.T) {
 	workspaceName := secalib.GenerateWorkspaceName()
 
 	instanceSkuRef := secalib.GenerateSkuRef(instanceSkuName)
+	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
+	if err != nil {
+		t.Fatalf("Failed to build instanceSkuRef to URN: %v", err)
+	}
 
 	instanceName := secalib.GenerateInstanceName()
 	instanceResource := secalib.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
 
 	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
+	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
+	if err != nil {
+		t.Fatalf("Failed to build storageSkuRef to URN: %v", err)
+	}
 
 	blockStorageName := secalib.GenerateBlockStorageName()
 	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
+	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
+	if err != nil {
+		t.Fatalf("Failed to build blockStorageRef to URN: %v", err)
+	}
 
 	blockStorageSize := secalib.GenerateBlockStorageSize()
 
 	// Setup mock, if configured to use
-	if suite.isMockEnabled() {
-		wm, err := mock.CreateComputeLifecycleScenarioV1("Compute Lifecycle",
-			mock.ComputeParamsV1{
-				Params: &mock.Params{
-					MockURL:   *suite.mockServerURL,
-					AuthToken: suite.authToken,
-					Tenant:    suite.tenant,
-					Region:    suite.region,
+	if suite.mockEnabled {
+		mockParams := &mock.ComputeParamsV1{
+			Params: &mock.Params{
+				MockURL:   *suite.mockServerURL,
+				AuthToken: suite.authToken,
+				Tenant:    suite.tenant,
+				Region:    suite.region,
+			},
+			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
+				Name: workspaceName,
+				InitialLabels: schema.Labels{
+					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
 				},
-				Workspace: &mock.ResourceParams[secalib.WorkspaceSpecV1]{
-					Name: workspaceName,
-					InitialSpec: &secalib.WorkspaceSpecV1{
-						Labels: &[]secalib.Label{
-							{
-								Name:  secalib.EnvLabel,
-								Value: secalib.EnvDevelopmentLabel,
-							},
-						},
+			},
+			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
+				Name: blockStorageName,
+				InitialSpec: &schema.BlockStorageSpec{
+					SkuRef: *storageSkuRefObj,
+					SizeGB: blockStorageSize,
+				},
+			},
+			Instance: &mock.ResourceParams[schema.InstanceSpec]{
+				Name: instanceName,
+				InitialSpec: &schema.InstanceSpec{
+					SkuRef: *instanceSkuRefObj,
+					Zone:   initialInstanceZone,
+					BootVolume: schema.VolumeReference{
+						DeviceRef: *blockStorageRefObj,
 					},
 				},
-				BlockStorage: &mock.ResourceParams[secalib.BlockStorageSpecV1]{
-					Name: blockStorageName,
-					InitialSpec: &secalib.BlockStorageSpecV1{
-						SkuRef: storageSkuRef,
-						SizeGB: blockStorageSize,
+				UpdatedSpec: &schema.InstanceSpec{
+					SkuRef: *instanceSkuRefObj,
+					Zone:   updatedInstanceZone,
+					BootVolume: schema.VolumeReference{
+						DeviceRef: *blockStorageRefObj,
 					},
 				},
-				Instance: &mock.ResourceParams[secalib.InstanceSpecV1]{
-					Name: instanceName,
-					InitialSpec: &secalib.InstanceSpecV1{
-						SkuRef:        instanceSkuRef,
-						Zone:          initialInstanceZone,
-						BootDeviceRef: blockStorageRef,
-					},
-					UpdatedSpec: &secalib.InstanceSpecV1{
-						SkuRef:        instanceSkuRef,
-						Zone:          updatedInstanceZone,
-						BootDeviceRef: blockStorageRef,
-					},
-				},
-			})
+			},
+		}
+		wm, err := mock.ConfigComputeLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
-			t.Fatalf("Failed to create compute scenario: %v", err)
+			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
 
-	ctx := context.Background()
-	var workResp *schema.Workspace
-	var blockStorageResp *schema.BlockStorage
-	var instanceResp *schema.Instance
-	var err error
+	// Workspace
 
-	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
-
-		ws := &schema.Workspace{
-			Metadata: &schema.RegionalResourceMetadata{
-				Tenant: suite.tenant,
-				Name:   workspaceName,
-			},
-		}
-		workResp, err = suite.client.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, workResp)
-
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.CreatingStatusState},
-			&secalib.Status{State: string(*workResp.Status.State)},
-		)
-	})
-
-	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
+	// Create a workspace
+	workspace := &schema.Workspace{
+		Labels: schema.Labels{
+			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+		},
+		Metadata: &schema.RegionalResourceMetadata{
+			Tenant: suite.tenant,
 			Name:   workspaceName,
-		}
-		workResp, err = suite.client.WorkspaceV1.GetWorkspace(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, workResp)
+		},
+	}
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, nil, nil, secalib.CreatingResourceState)
 
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.ActiveStatusState},
-			&secalib.Status{State: string(*workResp.Status.State)},
-		)
-	})
+	// Get the created Workspace
+	workspaceTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   workspaceName,
+	}
+	suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, nil, nil, secalib.ActiveResourceState)
 
-	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
-		suite.setStorageV1StepParams(sCtx, "CreateBlockStorage", workspaceName)
+	// Block storage
 
-		storageSkuURN, err := suite.client.StorageV1.BuildReferenceURN(storageSkuRef)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		bo := &schema.BlockStorage{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Name:      blockStorageName,
-			},
-			Spec: schema.BlockStorageSpec{
-				SizeGB: blockStorageSize,
-				SkuRef: *storageSkuURN,
-			},
-		}
-		blockStorageResp, err = suite.client.StorageV1.CreateOrUpdateBlockStorage(ctx, bo)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, blockStorageResp)
-	})
-
-	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
-		suite.setStorageV1StepParams(sCtx, "GetBlockStorage", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
+	// Create a block storage
+	block := &schema.BlockStorage{
+		Metadata: &schema.RegionalWorkspaceResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
 			Name:      blockStorageName,
-		}
-		blockStorageResp, err = suite.client.StorageV1.GetBlockStorage(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, blockStorageResp)
+		},
+		Spec: schema.BlockStorageSpec{
+			SizeGB: blockStorageSize,
+			SkuRef: *storageSkuRefObj,
+		},
+	}
+	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, ctx, suite.client.StorageV1, block, nil, nil, secalib.CreatingResourceState)
 
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.ActiveStatusState},
-			&secalib.Status{State: string(*blockStorageResp.Status.State)},
-		)
-	})
+	// Get the created block storage
+	blockWRef := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      blockStorageName,
+	}
+	// TODO Create a function without expectated metadata and spec
+	suite.getBlockStorageV1Step("Get the created block storage", t, ctx, suite.client.StorageV1, *blockWRef, nil, nil, secalib.ActiveResourceState)
 
-	var expectedMeta *secalib.Metadata
-	var expectedSpec *secalib.InstanceSpecV1
+	// Instance
 
-	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
-
-		instanceSkuURN, err := suite.client.ComputeV1.BuildReferenceURN(instanceSkuRef)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		deviceRef, err := suite.client.ComputeV1.BuildReferenceURN(blockStorageRef)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		inst := &schema.Instance{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Name:      instanceName,
+	// Create an instance
+	instance := &schema.Instance{
+		Metadata: &schema.RegionalWorkspaceResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
+			Name:      instanceName,
+		},
+		Spec: schema.InstanceSpec{
+			SkuRef: *instanceSkuRefObj,
+			Zone:   initialInstanceZone,
+			BootVolume: schema.VolumeReference{
+				DeviceRef: *blockStorageRefObj,
 			},
-			Spec: schema.InstanceSpec{
-				SkuRef: *instanceSkuURN,
-				Zone:   initialInstanceZone,
-			},
-		}
-		inst.Spec.BootVolume.DeviceRef = *deviceRef
+		},
+	}
+	expectInstanceMeta := secalib.NewRegionalWorkspaceResourceMetadata(instanceName,
+		secalib.ComputeProviderV1,
+		instanceResource,
+		secalib.ApiVersion1,
+		secalib.InstanceKind,
+		suite.tenant,
+		workspaceName,
+		suite.region)
+	expectInstanceSpec := &schema.InstanceSpec{
+		SkuRef: *instanceSkuRefObj,
+		Zone:   initialInstanceZone,
+		BootVolume: schema.VolumeReference{
+			DeviceRef: *blockStorageRefObj,
+		},
+	}
+	suite.createOrUpdateInstanceV1Step("Create an instance", t, ctx, suite.client.ComputeV1, instance,
+		expectInstanceMeta, expectInstanceSpec, secalib.CreatingResourceState)
 
-		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, inst)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
+	// Get the created instance
+	instanceWRef := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      instanceName,
+	}
+	instance = suite.getInstanceV1Step("Get the created instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
+		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
 
-		expectedMeta = &secalib.Metadata{
-			Name:       instanceName,
-			Provider:   secalib.ComputeProviderV1,
-			Resource:   instanceResource,
-			Verb:       http.MethodPut,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.InstanceKind,
-			Tenant:     suite.tenant,
-			Region:     &suite.region,
-		}
-		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+	// Update the instance
+	instance.Spec.Zone = updatedInstanceZone
+	expectInstanceSpec.Zone = instance.Spec.Zone
+	suite.createOrUpdateInstanceV1Step("Update the instance", t, ctx, suite.client.ComputeV1, instance,
+		expectInstanceMeta, expectInstanceSpec, secalib.UpdatingResourceState)
 
-		expectedSpec = &secalib.InstanceSpecV1{
-			SkuRef:        instanceSkuRef,
-			Zone:          initialInstanceZone,
-			BootDeviceRef: blockStorageRef,
-		}
-		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
+	// Get the updated instance
+	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
+		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
 
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.CreatingStatusState},
-			&secalib.Status{State: string(*instanceResp.Status.State)},
-		)
-	})
+	// Stop the instance
+	suite.stopInstanceV1Step("Stop the instance", t, ctx, suite.client.ComputeV1, instance)
 
-	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
+	// Get the stoped instance
+	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
+		expectInstanceMeta, expectInstanceSpec, secalib.SuspendedResourceState)
 
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
+	// Start the instance
+	suite.startInstanceV1Step("Start the instance", t, ctx, suite.client.ComputeV1, instance)
 
-		expectedMeta.Verb = http.MethodGet
-		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+	// Get the started instance
+	instance = suite.getInstanceV1Step("Get the started instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
+		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
 
-		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
+	// Restart the instance
+	suite.restartInstanceV1Step("Restart the instance", t, ctx, suite.client.ComputeV1, instance)
 
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.ActiveStatusState},
-			&secalib.Status{State: string(*instanceResp.Status.State)},
-		)
-	})
+	// Get the restarted instance
+	// TODO Find an away to assert if the instance is restarted
+	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
+		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
 
-	t.WithNewStep("Update instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
+	// Delete the instance
+	suite.deleteInstanceV1Step("Delete the instance", t, ctx, suite.client.ComputeV1, instance)
 
-		instanceResp, err = suite.client.ComputeV1.CreateOrUpdateInstance(ctx, instanceResp)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
+	// Get the deleted instance
+	suite.getInstanceWithErrorV1Step("Get the deleted instance", t, ctx, suite.client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
 
-		expectedMeta.Verb = http.MethodPut
-		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
+	// Delete the block storage
+	suite.deleteBlockStorageV1Step("Delete the block storage", t, ctx, suite.client.StorageV1, block)
 
-		expectedSpec.Zone = updatedInstanceZone
-		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
+	// Get the deleted block storage
+	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, ctx, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
 
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.UpdatingStatusState},
-			&secalib.Status{State: string(*instanceResp.Status.State)},
-		)
-	})
+	// Delete the workspace
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)
 
-	t.WithNewStep("Get updated instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
+	// Get the deleted workspace
+	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
-
-		expectedMeta.Verb = http.MethodGet
-		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
-
-		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
-
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.ActiveStatusState},
-			&secalib.Status{State: string(*instanceResp.Status.State)},
-		)
-	})
-
-	t.WithNewStep("Stop instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "StopInstance", workspaceName)
-
-		err = suite.client.ComputeV1.StopInstance(ctx, instanceResp)
-		requireNoError(sCtx, err)
-	})
-
-	t.WithNewStep("Get stopped instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
-
-		expectedMeta.Verb = http.MethodGet
-		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
-
-		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
-
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.SuspendedStatusState},
-			&secalib.Status{State: string(*instanceResp.Status.State)},
-		)
-	})
-
-	t.WithNewStep("Start instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "StartInstance", workspaceName)
-
-		err = suite.client.ComputeV1.StartInstance(ctx, instanceResp)
-		requireNoError(sCtx, err)
-	})
-
-	t.WithNewStep("Get started instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
-
-		expectedMeta.Verb = http.MethodGet
-		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
-
-		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
-
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.ActiveStatusState},
-			&secalib.Status{State: string(*instanceResp.Status.State)},
-		)
-	})
-
-	t.WithNewStep("Restart instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "RestartInstance", workspaceName)
-
-		err = suite.client.ComputeV1.RestartInstance(ctx, instanceResp)
-		requireNoError(sCtx, err)
-	})
-
-	t.WithNewStep("Get restarted instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
-
-		expectedMeta.Verb = http.MethodGet
-		verifyInstanceMetadataStep(sCtx, expectedMeta, instanceResp.Metadata)
-
-		verifyInstanceSpecStep(sCtx, expectedSpec, &instanceResp.Spec)
-
-		verifyStatusStep(sCtx,
-			&secalib.Status{State: secalib.ActiveStatusState},
-			&secalib.Status{State: string(*instanceResp.Status.State)},
-		)
-	})
-
-	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "DeleteInstance", workspaceName)
-
-		err = suite.client.ComputeV1.DeleteInstance(ctx, instanceResp)
-		requireNoError(sCtx, err)
-	})
-
-	t.WithNewStep("Get deleted instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		_, err = suite.client.ComputeV1.GetInstance(ctx, wref)
-		requireError(sCtx, err, secapi.ErrResourceNotFound)
-	})
-
-	slog.Info("Finishing Compute Lifecycle Test")
+	slog.Info("Finishing " + suite.scenarioName)
 }
 
 func (suite *ComputeV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
-}
-
-func verifyInstanceMetadataStep(ctx provider.StepCtx, expected *secalib.Metadata, metadata *schema.RegionalWorkspaceResourceMetadata) {
-	actualMetadata := &secalib.Metadata{
-		Name:       metadata.Name,
-		Provider:   metadata.Provider,
-		Verb:       metadata.Verb,
-		Resource:   metadata.Resource,
-		ApiVersion: metadata.ApiVersion,
-		Kind:       string(metadata.Kind),
-		Tenant:     metadata.Tenant,
-		Workspace:  &metadata.Workspace,
-		Region:     &metadata.Region,
-	}
-	verifyRegionalMetadataStep(ctx, expected, actualMetadata)
-}
-
-func verifyInstanceSpecStep(ctx provider.StepCtx, expected *secalib.InstanceSpecV1, actual *schema.InstanceSpec) {
-	ctx.WithNewStep("Verify spec", func(stepCtx provider.StepCtx) {
-		skuRef, err := asComputeReferenceURN(actual.SkuRef)
-		if err != nil {
-			ctx.Error(err)
-		}
-		stepCtx.Require().Equal(expected.SkuRef, skuRef, "SkuRef should match expected")
-
-		stepCtx.Require().Equal(expected.Zone, actual.Zone, "Zone should match expected")
-
-		bootDeviceRef, err := asComputeReferenceURN(actual.BootVolume.DeviceRef)
-		if err != nil {
-			ctx.Error(err)
-		}
-		stepCtx.Require().Equal(expected.BootDeviceRef, bootDeviceRef, "BootVolume.DeviceRef should match expected")
-	})
-}
-
-// TODO Convert this to a generic method
-func asComputeReferenceURN(ref schema.Reference) (string, error) {
-	urn, err := ref.AsReferenceURN()
-	if err != nil {
-		return "", fmt.Errorf("error extracting URN from reference: %w", err)
-	}
-	return string(urn), nil
 }

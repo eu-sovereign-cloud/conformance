@@ -8,6 +8,9 @@ dist/
 ## Allure
 reports/
 
+## wiremock
+wiremock/config/mappings/**/*.json.tmp
+
 ## Sonar
 .scannerwork/
 .sonarlint/
