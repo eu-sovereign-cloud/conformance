@@ -111,6 +111,11 @@ sec:
 .PHONY: lint
 lint: fmt golint vet sec
 
+.PHONY: sonar
+sonar:
+	@echo "Running SonarQube scan..."
+	sonar-scanner
+
 .PHONY: clean
 clean:
 	@echo "Cleaning up binaries and reports..."

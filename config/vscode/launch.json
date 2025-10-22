@@ -1,0 +1,179 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/secatest",
+            "args": [
+                "run",
+                "--provider.region.v1=http://localhost:8080/providers/seca.region",
+                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.users=user1,user2",
+                "--scenarios.cidr=10.1.0.0/16",
+                "--scenarios.public.ips=52.93.126.1/26",
+                "--report.results.path=../reports/results",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Authorization",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/secatest",
+            "args": [
+                "run",
+                "--provider.region.v1=http://localhost:8080/providers/seca.region",
+                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Authorization.V1.LifeCycle",
+                "--scenarios.users=user1,user2",
+                "--scenarios.cidr=10.1.0.0/16",
+                "--scenarios.public.ips=52.93.126.1/26",
+                "--report.results.path=../reports/results",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Workspace",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/secatest",
+            "args": [
+                "run",
+                "--provider.region.v1=http://localhost:8080/providers/seca.region",
+                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Workspace.V1.LifeCycle",
+                "--scenarios.users=user1,user2",
+                "--scenarios.cidr=10.1.0.0/16",
+                "--scenarios.public.ips=52.93.126.1/26",
+                "--report.results.path=../reports/results",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Storage",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/secatest",
+            "args": [
+                "run",
+                "--provider.region.v1=http://localhost:8080/providers/seca.region",
+                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Storage.V1.LifeCycle",
+                "--scenarios.users=user1,user2",
+                "--scenarios.cidr=10.1.0.0/16",
+                "--scenarios.public.ips=52.93.126.1/26",
+                "--report.results.path=../reports/results",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Compute",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/secatest",
+            "args": [
+                "run",
+                "--provider.region.v1=http://localhost:8080/providers/seca.region",
+                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Compute.V1.LifeCycle",
+                "--scenarios.users=user1,user2",
+                "--scenarios.cidr=10.1.0.0/16",
+                "--scenarios.public.ips=52.93.126.1/26",
+                "--report.results.path=../reports/results",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Network",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/secatest",
+            "args": [
+                "run",
+                "--provider.region.v1=http://localhost:8080/providers/seca.region",
+                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Network.V1.LifeCycle",
+                "--scenarios.users=user1,user2",
+                "--scenarios.cidr=10.1.0.0/16",
+                "--scenarios.public.ips=52.93.126.1/26",
+                "--report.results.path=../reports/results",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Foundation Usage",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/secatest",
+            "args": [
+                "run",
+                "--provider.region.v1=http://localhost:8080/providers/seca.region",
+                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Foundation.V1.Usage",
+                "--scenarios.users=user1,user2",
+                "--scenarios.cidr=10.1.0.0/16",
+                "--scenarios.public.ips=52.93.126.1/26",
+                "--report.results.path=../reports/results",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Report",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/secatest",
+            "args": [
+                "report",
+                "../reports/results",
+            ]
+        },
+        {
+            "name": "List",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/secatest",
+            "args": [
+                "list",
+            ]
+        },
+    ]
+}

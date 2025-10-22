@@ -3,17 +3,16 @@ on:
     branches: ["main"]
     paths-ignore:
       - "*.md"
+      - docs/**
   pull_request:
     branches: ["*"]
     paths-ignore:
       - "*.md"
+      - docs/**
 
-name: Tests
+name: Mock Tests
 jobs:
-  functional:
-    strategy:
-      matrix:
-        go-version: [1.24.x]
+  mock:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -22,7 +21,16 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version-file: ./go.mod
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
       - name: Mock
         run: make mock-start
