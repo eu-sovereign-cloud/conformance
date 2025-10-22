@@ -4,13 +4,6 @@ const (
 	// API Versions
 	ApiVersion1 = "v1"
 
-	// Providers
-	AuthorizationProvider = "seca.authorization"
-	WorkspaceProvider     = "seca.workspace"
-	StorageProvider       = "seca.storage"
-	ComputeProvider       = "seca.compute"
-	NetworkProvider       = "seca.network"
-
 	// Labels
 	ArchitectureLabel   = "architecture"
 	ProviderLabel       = "provider"
@@ -18,6 +11,9 @@ const (
 	EnvLabel            = "env"
 	EnvDevelopmentLabel = "development"
 	EnvProductionLabel  = "production"
+
+	// URL Prefixes
+	urlProvidersPrefix = "/providers/"
 
 	// Resource URLs
 	resourceTenantsPrefix    = "tenants/%s"
@@ -91,8 +87,7 @@ const (
 	ZoneA = "a"
 	ZoneB = "b"
 
-
-	// Labels 
+	// Labels
 	LabelKeyTier         = "tier"
 	LabelEnvKey          = "env"
 	LabelEnvValue        = "test"

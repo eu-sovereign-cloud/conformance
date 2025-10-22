@@ -40,18 +40,18 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 		return nil, err
 	}
 
-	// Block storage
-	blockResponse := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region,
-		params.BlockStorage.InitialSpec)
-
-	// Get created workspace
+	// Get the created workspace
 	secalib.SetWorkspaceStatusState(workspaceResponse.Status, secalib.ActiveResourceState)
 	workspaceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateBlockStorage"}); err != nil {
 		return nil, err
 	}
+
+	// Block storage
+	blockResponse := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region,
+		params.BlockStorage.InitialSpec)
 
 	// Create a block storage
 	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
@@ -62,7 +62,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 		return nil, err
 	}
 
-	// Get created block storage
+	// Get the created block storage
 	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -80,7 +80,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 		return nil, err
 	}
 
-	// Get updated block storage
+	// Get the updated block storage
 	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -102,7 +102,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 		return nil, err
 	}
 
-	// Get created image
+	// Get the created image
 	secalib.SetImageStatusState(imageResponse.Status, secalib.ActiveResourceState)
 	imageResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -120,7 +120,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 		return nil, err
 	}
 
-	// Get updated image
+	// Get the updated image
 	secalib.SetImageStatusState(imageResponse.Status, secalib.ActiveResourceState)
 	imageResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -129,30 +129,38 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	}
 
 	// Delete the image
-	imageResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "DeleteImage", nextState: "GetDeletedImage"}); err != nil {
+		&stubConfig{url: imageUrl, params: params, currentState: "DeleteImage", nextState: "GetDeletedImage"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted image
-	imageResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted image
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: imageUrl, params: params, currentState: "GetDeletedImage", nextState: "DeleteBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the block storage
-	blockResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "DeleteBlockStorage", nextState: "GetDeletedBlockStorage"}); err != nil {
+		&stubConfig{url: blockUrl, params: params, currentState: "DeleteBlockStorage", nextState: "GetDeletedBlockStorage"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted block storage
-	blockResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted block storage
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
-		&stubConfig{url: blockUrl, params: params, currentState: "GetDeletedBlockStorage", nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: blockUrl, params: params, currentState: "GetDeletedBlockStorage", nextState: "DeleteWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Delete the workspace
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Get the deleted workspace
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 

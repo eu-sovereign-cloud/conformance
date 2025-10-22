@@ -64,27 +64,35 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectMeta := secalib.NewRegionalResourceMetadata(workspaceName, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1, secalib.WorkspaceKind,
+	expectMeta := secalib.NewRegionalResourceMetadata(workspaceName,
+		secalib.WorkspaceProviderV1,
+		workspaceResource,
+		secalib.ApiVersion1,
+		secalib.WorkspaceKind,
 		suite.tenant, suite.region)
 	expectLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
-	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, expectMeta, expectLabels, secalib.CreatingResourceState)
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace,
+		expectMeta, expectLabels, secalib.CreatingResourceState)
 
 	// Get the created Workspace
 	tref := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.tenant),
 		Name:   workspaceName,
 	}
-	workspace = suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *tref, expectMeta, expectLabels, secalib.ActiveResourceState)
+	workspace = suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *tref,
+		expectMeta, expectLabels, secalib.ActiveResourceState)
 
-	// Update the workspace
+	// Update the workspace labels
 	workspace.Labels = schema.Labels{
 		secalib.EnvLabel: secalib.EnvProductionLabel,
 	}
-	expectLabels = schema.Labels{secalib.EnvLabel: secalib.EnvProductionLabel}
-	suite.createOrUpdateWorkspaceV1Step("Update the workspace", t, ctx, suite.client.WorkspaceV1, workspace, expectMeta, expectLabels, secalib.UpdatingResourceState)
+	expectLabels = workspace.Labels
+	suite.createOrUpdateWorkspaceV1Step("Update the workspace", t, ctx, suite.client.WorkspaceV1, workspace,
+		expectMeta, expectLabels, secalib.UpdatingResourceState)
 
 	// Get the updated workspace
-	workspace = suite.getWorkspaceV1Step("Get the updated workspace", t, ctx, suite.client.WorkspaceV1, *tref, expectMeta, expectLabels, secalib.ActiveResourceState)
+	workspace = suite.getWorkspaceV1Step("Get the updated workspace", t, ctx, suite.client.WorkspaceV1, *tref,
+		expectMeta, expectLabels, secalib.ActiveResourceState)
 
 	// Delete the workspace
 	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)

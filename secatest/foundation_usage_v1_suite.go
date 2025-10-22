@@ -47,6 +47,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		slog.Error("Failed to generate subnet cidr", "error", err)
 		return
 	}
+
 	// Generate the nic addresses
 	nicAddress1, err := secalib.GenerateNicAddress(subnetCidr, 1)
 	if err != nil {
@@ -62,10 +63,10 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	// Select zones
-	zone1 := suite.regionZones[rand.Intn(len(suite.regionZones))]
+	zone := suite.regionZones[rand.Intn(len(suite.regionZones))]
 
 	// Select subs
-	roleAssignmentSub1 := suite.users[rand.Intn(len(suite.users))]
+	roleAssignmentSub := suite.users[rand.Intn(len(suite.users))]
 
 	// Select skus
 	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
@@ -95,6 +96,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	initialStorageSize := secalib.GenerateBlockStorageSize()
 
 	imageName := secalib.GenerateImageName()
 	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
@@ -106,10 +108,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	instanceName := secalib.GenerateInstanceName()
-	instanceResource := secalib.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
 
-	networkSkuRef := secalib.GenerateSkuRef(networkSkuName)
-	networkSkuRefObj, err := secapi.BuildReferenceFromURN(networkSkuRef)
+	networkSkuRef1 := secalib.GenerateSkuRef(networkSkuName)
+	networkSkuRefObj, err := secapi.BuildReferenceFromURN(networkSkuRef1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,8 +156,6 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	securityGroupName := secalib.GenerateSecurityGroupName()
 	securityGroupResource := secalib.GenerateSecurityGroupResource(suite.tenant, workspaceName, securityGroupName)
 
-	blockStorageSize := secalib.GenerateBlockStorageSize()
-
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
 		mockParams := &mock.FoundationUsageParamsV1{
@@ -178,7 +177,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 				Name: roleAssignmentName,
 				InitialSpec: &schema.RoleAssignmentSpec{
 					Roles: []string{roleName},
-					Subs:  []string{roleAssignmentSub1},
+					Subs:  []string{roleAssignmentSub},
 					Scopes: []schema.RoleAssignmentScope{
 						{Tenants: &[]string{suite.tenant}},
 					},
@@ -186,12 +185,15 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			},
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
+				InitialLabels: schema.Labels{
+					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+				},
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
 				Name: blockStorageName,
 				InitialSpec: &schema.BlockStorageSpec{
 					SkuRef: *storageSkuRefObj,
-					SizeGB: blockStorageSize,
+					SizeGB: initialStorageSize,
 				},
 			},
 			Image: &mock.ResourceParams[schema.ImageSpec]{
@@ -225,7 +227,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 				Name: subnetName,
 				InitialSpec: &schema.SubnetSpec{
 					Cidr: schema.Cidr{Ipv4: &subnetCidr},
-					Zone: zone1,
+					Zone: zone,
 				},
 			},
 			Nic: &mock.ResourceParams[schema.NicSpec]{
@@ -253,7 +255,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 				Name: instanceName,
 				InitialSpec: &schema.InstanceSpec{
 					SkuRef: *instanceSkuRefObj,
-					Zone:   zone1,
+					Zone:   zone,
 					BootVolume: schema.VolumeReference{
 						DeviceRef: *blockStorageRefObj,
 					},
@@ -269,38 +271,13 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	// Role
-	var roleResp *schema.Role
-	var expectedRoleMeta *schema.GlobalTenantResourceMetadata
-	var expectedRoleSpec *schema.RoleSpec
-
-	t.WithNewStep("Create role", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
-
-		role := &schema.Role{
-			Metadata: &schema.GlobalTenantResourceMetadata{
-				Tenant: suite.tenant,
-				Name:   roleName,
-			},
-			Spec: schema.RoleSpec{
-				Permissions: []schema.Permission{
-					{
-						Provider:  secalib.StorageProviderV1,
-						Resources: []string{imageResource},
-						Verb:      []string{http.MethodGet},
-					},
-				},
-			},
-		}
-		roleResp, err = suite.globalClient.AuthorizationV1.CreateOrUpdateRole(ctx, role)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, roleResp)
-
-		expectedRoleMeta = secalib.NewGlobalTenantResourceMetadata(roleName, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1, secalib.RoleKind,
-			suite.tenant)
-		expectedRoleMeta.Verb = http.MethodPut
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
-
-		expectedRoleSpec = &schema.RoleSpec{
+	// Create a role
+	role := &schema.Role{
+		Metadata: &schema.GlobalTenantResourceMetadata{
+			Tenant: suite.tenant,
+			Name:   roleName,
+		},
+		Spec: schema.RoleSpec{
 			Permissions: []schema.Permission{
 				{
 					Provider:  secalib.StorageProviderV1,
@@ -308,815 +285,510 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 					Verb:      []string{http.MethodGet},
 				},
 			},
-		}
-		suite.verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
+		},
+	}
+	expectRoleMeta := secalib.NewGlobalTenantResourceMetadata(roleName,
+		secalib.AuthorizationProviderV1,
+		roleResource,
+		secalib.ApiVersion1,
+		secalib.RoleKind,
+		suite.tenant)
+	expectRoleSpec := &schema.RoleSpec{
+		Permissions: []schema.Permission{
+			{
+				Provider:  secalib.StorageProviderV1,
+				Resources: []string{imageResource},
+				Verb:      []string{http.MethodGet},
+			},
+		},
+	}
+	suite.createOrUpdateRoleV1Step("Create a role", t, ctx, suite.globalClient.AuthorizationV1, role,
+		expectRoleMeta, expectRoleSpec, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *roleResp.Status.State)
-	})
-
-	t.WithNewStep("Get created role", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   roleName,
-		}
-		roleResp, err = suite.globalClient.AuthorizationV1.GetRole(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, roleResp)
-
-		expectedRoleMeta.Verb = http.MethodGet
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedRoleMeta, roleResp.Metadata)
-
-		suite.verifyRoleSpecStep(sCtx, expectedRoleSpec, &roleResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *roleResp.Status.State)
-	})
+	// Get the created role
+	roleTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   roleName,
+	}
+	role = suite.getRoleV1Step("Get the created role", t, ctx, suite.globalClient.AuthorizationV1, *roleTRef,
+		expectRoleMeta, expectRoleSpec, secalib.ActiveResourceState)
 
 	// Role assignment
-	var assignResp *schema.RoleAssignment
-	var expectedAssignMeta *schema.GlobalTenantResourceMetadata
-	var expectedAssignSpec *schema.RoleAssignmentSpec
-
-	t.WithNewStep("Create role assignment", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
-
-		assign := &schema.RoleAssignment{
-			Metadata: &schema.GlobalTenantResourceMetadata{
-				Tenant: suite.tenant,
-				Name:   roleAssignmentName,
-			},
-			Spec: schema.RoleAssignmentSpec{
-				Roles:  []string{roleName},
-				Subs:   []string{roleAssignmentSub1},
-				Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
-			},
-		}
-		assignResp, err = suite.globalClient.AuthorizationV1.CreateOrUpdateRoleAssignment(ctx, assign)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, assignResp)
-
-		expectedAssignMeta = secalib.NewGlobalTenantResourceMetadata(roleAssignmentName, secalib.AuthorizationProviderV1, roleAssignmentResource, secalib.ApiVersion1, secalib.RoleAssignmentKind,
-			suite.tenant)
-		expectedAssignMeta.Verb = http.MethodPut
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
-
-		expectedAssignSpec = &schema.RoleAssignmentSpec{
-			Roles:  []string{roleName},
-			Subs:   []string{roleAssignmentSub1},
-			Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
-		}
-		suite.verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *assignResp.Status.State)
-	})
-
-	t.WithNewStep("Get created role assignment", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
+	// Create a role assignment
+	roleAssign := &schema.RoleAssignment{
+		Metadata: &schema.GlobalTenantResourceMetadata{
+			Tenant: suite.tenant,
 			Name:   roleAssignmentName,
-		}
-		assignResp, err = suite.globalClient.AuthorizationV1.GetRoleAssignment(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, assignResp)
+		},
+		Spec: schema.RoleAssignmentSpec{
+			Roles:  []string{roleName},
+			Subs:   []string{roleAssignmentSub},
+			Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
+		},
+	}
+	expectRoleAssignMeta := secalib.NewGlobalTenantResourceMetadata(roleAssignmentName,
+		secalib.AuthorizationProviderV1,
+		roleAssignmentResource,
+		secalib.ApiVersion1,
+		secalib.RoleAssignmentKind,
+		suite.tenant)
+	expectRoleAssignSpec := &schema.RoleAssignmentSpec{
+		Roles:  []string{roleName},
+		Subs:   []string{roleAssignmentSub},
+		Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
+	}
+	suite.createOrUpdateRoleAssignmentV1Step("Create a role assignment", t, ctx, suite.globalClient.AuthorizationV1, roleAssign,
+		expectRoleAssignMeta, expectRoleAssignSpec, secalib.CreatingResourceState)
 
-		expectedAssignMeta.Verb = http.MethodGet
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedAssignMeta, assignResp.Metadata)
-
-		suite.verifyRoleAssignmentSpecStep(sCtx, expectedAssignSpec, &assignResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *assignResp.Status.State)
-	})
+	// Get the created role assignment
+	roleAssignTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   roleAssignmentName,
+	}
+	roleAssign = suite.getRoleAssignmentV1Step("Get the created role assignment", t, ctx, suite.globalClient.AuthorizationV1, *roleAssignTRef,
+		expectRoleAssignMeta, expectRoleAssignSpec, secalib.ActiveResourceState)
 
 	// Workspace
-	var workspaceResp *schema.Workspace
-	var expectedWorkspaceMeta *schema.RegionalResourceMetadata
-
-	t.WithNewStep("Create workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
-
-		ws := &schema.Workspace{
-			Metadata: &schema.RegionalResourceMetadata{
-				Tenant: suite.tenant,
-				Name:   workspaceName,
-			},
-		}
-		workspaceResp, err = suite.regionalClient.WorkspaceV1.CreateOrUpdateWorkspace(ctx, ws)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, workspaceResp)
-
-		expectedWorkspaceMeta = secalib.NewRegionalResourceMetadata(workspaceName, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1, secalib.WorkspaceKind,
-			suite.tenant, suite.region)
-		expectedWorkspaceMeta.Verb = http.MethodPut
-		suite.verifyRegionalResourceMetadataStep(sCtx, expectedWorkspaceMeta, workspaceResp.Metadata)
-
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *workspaceResp.Status.State)
-	})
-
-	t.WithNewStep("Get created workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
+	workspace := &schema.Workspace{
+		Labels: schema.Labels{
+			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+		},
+		Metadata: &schema.RegionalResourceMetadata{
+			Tenant: suite.tenant,
 			Name:   workspaceName,
-		}
-		workspaceResp, err = suite.regionalClient.WorkspaceV1.GetWorkspace(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, workspaceResp)
+		},
+	}
+	expectMeta := secalib.NewRegionalResourceMetadata(workspaceName,
+		secalib.WorkspaceProviderV1,
+		workspaceResource,
+		secalib.ApiVersion1,
+		secalib.WorkspaceKind,
+		suite.tenant, suite.region)
+	expectLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.regionalClient.WorkspaceV1, workspace,
+		expectMeta, expectLabels, secalib.CreatingResourceState)
 
-		expectedWorkspaceMeta.Verb = http.MethodGet
-		suite.verifyRegionalResourceMetadataStep(sCtx, expectedWorkspaceMeta, workspaceResp.Metadata)
+	// Get the created Workspace
+	tref := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   workspaceName,
+	}
+	workspace = suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.regionalClient.WorkspaceV1, *tref,
+		expectMeta, expectLabels, secalib.ActiveResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *workspaceResp.Status.State)
-	})
+	// Storage
 
 	// Image
-	var imageResp *schema.Image
-	var expectedImageMeta *schema.RegionalResourceMetadata
-	var expectedImageSpec *schema.ImageSpec
-
-	t.WithNewStep("Create image", func(sCtx provider.StepCtx) {
-		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateImage", "")
-
-		img := &schema.Image{
-			Metadata: &schema.RegionalResourceMetadata{
-				Tenant: suite.tenant,
-				Name:   imageName,
-			},
-			Spec: schema.ImageSpec{
-				BlockStorageRef: *blockStorageRefObj,
-				CpuArchitecture: secalib.CpuArchitectureAmd64,
-			},
-		}
-		imageResp, err = suite.regionalClient.StorageV1.CreateOrUpdateImage(ctx, img)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, imageResp)
-
-		expectedImageMeta = secalib.NewRegionalResourceMetadata(imageName, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1, secalib.ImageKind,
-			suite.tenant, suite.region)
-		expectedImageMeta.Verb = http.MethodPut
-		suite.verifyRegionalResourceMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
-
-		expectedImageSpec = &schema.ImageSpec{
+	image := &schema.Image{
+		Metadata: &schema.RegionalResourceMetadata{
+			Tenant: suite.tenant,
+			Name:   imageName,
+		},
+		Spec: schema.ImageSpec{
 			BlockStorageRef: *blockStorageRefObj,
 			CpuArchitecture: secalib.CpuArchitectureAmd64,
-		}
-		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
+		},
+	}
+	expectedImageMeta := secalib.NewRegionalResourceMetadata(imageName,
+		secalib.StorageProviderV1,
+		imageResource,
+		secalib.ApiVersion1,
+		secalib.ImageKind,
+		suite.tenant,
+		suite.region)
+	expectedImageSpec := &schema.ImageSpec{
+		BlockStorageRef: *blockStorageRefObj,
+		CpuArchitecture: secalib.CpuArchitectureAmd64,
+	}
+	suite.createOrUpdateImageV1Step("Create an image", t, ctx, suite.regionalClient.StorageV1, image,
+		expectedImageMeta, expectedImageSpec, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *imageResp.Status.State)
-	})
-
-	t.WithNewStep("Get created image", func(sCtx provider.StepCtx) {
-		suite.setStorageV1StepParams(sCtx, "GetImage", "")
-
-		tref := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.tenant),
-			Name:   imageName,
-		}
-		imageResp, err = suite.regionalClient.StorageV1.GetImage(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, imageResp)
-
-		expectedImageMeta.Verb = http.MethodGet
-		suite.verifyRegionalResourceMetadataStep(sCtx, expectedImageMeta, imageResp.Metadata)
-
-		suite.verifyImageSpecStep(sCtx, expectedImageSpec, &imageResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *imageResp.Status.State)
-	})
+	// Get the created image
+	imageTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   imageName,
+	}
+	image = suite.getImageV1Step("Get the created image", t, ctx, suite.regionalClient.StorageV1, *imageTRef,
+		expectedImageMeta, expectedImageSpec, secalib.ActiveResourceState)
 
 	// Block storage
-	var blockResp *schema.BlockStorage
-	var expectedBlockMeta *schema.RegionalWorkspaceResourceMetadata
-	var expectedBlockSpec *schema.BlockStorageSpec
-
-	t.WithNewStep("Create block storage", func(sCtx provider.StepCtx) {
-		suite.setStorageV1StepParams(sCtx, "CreateOrUpdateBlockStorage", workspaceName)
-
-		bo := &schema.BlockStorage{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Name:      blockStorageName,
-			},
-			Spec: schema.BlockStorageSpec{
-				SizeGB: blockStorageSize,
-				SkuRef: *storageSkuRefObj,
-			},
-		}
-		blockResp, err = suite.regionalClient.StorageV1.CreateOrUpdateBlockStorage(ctx, bo)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, blockResp)
-
-		expectedBlockMeta = secalib.NewRegionalWorkspaceResourceMetadata(blockStorageName, secalib.StorageProviderV1, blockStorageResource, secalib.ApiVersion1, secalib.BlockStorageKind,
-			suite.tenant, workspaceName, suite.region)
-		expectedBlockMeta.Verb = http.MethodPut
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
-
-		expectedBlockSpec = &schema.BlockStorageSpec{
-			SizeGB: blockStorageSize,
-			SkuRef: *storageSkuRefObj,
-		}
-		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *blockResp.Status.State)
-	})
-
-	t.WithNewStep("Get created block storage", func(sCtx provider.StepCtx) {
-		suite.setStorageV1StepParams(sCtx, "GetBlockStorage", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
+	// Create a block storage
+	block := &schema.BlockStorage{
+		Metadata: &schema.RegionalWorkspaceResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
 			Name:      blockStorageName,
-		}
-		blockResp, err = suite.regionalClient.StorageV1.GetBlockStorage(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, blockResp)
+		},
+		Spec: schema.BlockStorageSpec{
+			SizeGB: initialStorageSize,
+			SkuRef: *storageSkuRefObj,
+		},
+	}
+	expectedBlockMeta := secalib.NewRegionalWorkspaceResourceMetadata(blockStorageName,
+		secalib.StorageProviderV1,
+		blockStorageResource,
+		secalib.ApiVersion1,
+		secalib.BlockStorageKind,
+		suite.tenant,
+		workspaceName,
+		suite.region)
+	expectedBlockSpec := &schema.BlockStorageSpec{
+		SizeGB: initialStorageSize,
+		SkuRef: *storageSkuRefObj,
+	}
+	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, ctx, suite.regionalClient.StorageV1, block,
+		expectedBlockMeta, expectedBlockSpec, secalib.CreatingResourceState)
 
-		expectedBlockMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedBlockMeta, blockResp.Metadata)
-
-		suite.verifyBlockStorageSpecStep(sCtx, expectedBlockSpec, &blockResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *blockResp.Status.State)
-	})
+	// Get the created block storage
+	blockWRef := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      blockStorageName,
+	}
+	block = suite.getBlockStorageV1Step("Get the created block storage", t, ctx, suite.regionalClient.StorageV1, *blockWRef,
+		expectedBlockMeta, expectedBlockSpec, secalib.ActiveResourceState)
 
 	// Network
-	var networkResp *schema.Network
-	var expectedNetworkMeta *schema.RegionalWorkspaceResourceMetadata
-	var expectedNetworkSpec *schema.NetworkSpec
-
-	t.WithNewStep("Create network", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNetwork", workspaceName)
-
-		net := &schema.Network{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Name:      networkName,
-			},
-			Spec: schema.NetworkSpec{
-				Cidr:          schema.Cidr{Ipv4: &suite.networkCidr},
-				SkuRef:        *networkSkuRefObj,
-				RouteTableRef: *routeTableRefObj,
-			},
-		}
-		networkResp, err = suite.regionalClient.NetworkV1.CreateOrUpdateNetwork(ctx, net)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, networkResp)
-
-		expectedNetworkMeta = secalib.NewRegionalWorkspaceResourceMetadata(networkName, secalib.NetworkProviderV1, networkResource, secalib.ApiVersion1, secalib.NetworkKind,
-			suite.tenant, workspaceName, suite.region)
-		expectedNetworkMeta.Verb = http.MethodPut
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
-
-		expectedNetworkSpec = &schema.NetworkSpec{
+	// Create a network
+	network := &schema.Network{
+		Metadata: &schema.RegionalWorkspaceResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
+			Name:      networkName,
+		},
+		Spec: schema.NetworkSpec{
 			Cidr:          schema.Cidr{Ipv4: &suite.networkCidr},
 			SkuRef:        *networkSkuRefObj,
 			RouteTableRef: *routeTableRefObj,
-		}
-		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
+		},
+	}
+	expectNetworkMeta := secalib.NewRegionalWorkspaceResourceMetadata(networkName,
+		secalib.NetworkProviderV1,
+		networkResource,
+		secalib.ApiVersion1,
+		secalib.NetworkKind,
+		suite.tenant,
+		workspaceName,
+		suite.region,
+	)
+	expectNetworkSpec := &schema.NetworkSpec{
+		Cidr:          schema.Cidr{Ipv4: &suite.networkCidr},
+		SkuRef:        *networkSkuRefObj,
+		RouteTableRef: *routeTableRefObj,
+	}
+	suite.createOrUpdateNetworkV1Step("Create a network", t, ctx, suite.regionalClient.NetworkV1, network,
+		expectNetworkMeta, expectNetworkSpec, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *networkResp.Status.State)
-	})
-
-	t.WithNewStep("Get created network", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetNetwork", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      networkName,
-		}
-		networkResp, err = suite.regionalClient.NetworkV1.GetNetwork(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, networkResp)
-
-		expectedNetworkMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNetworkMeta, networkResp.Metadata)
-
-		suite.verifyNetworkSpecStep(sCtx, expectedNetworkSpec, &networkResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *networkResp.Status.State)
-	})
+	// Get the created network
+	networkWRef := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      networkName,
+	}
+	suite.getNetworkV1Step("Get the created network", t, ctx, suite.regionalClient.NetworkV1, *networkWRef,
+		expectNetworkMeta, expectNetworkSpec, secalib.ActiveResourceState)
 
 	// Internet gateway
-	var gatewayResp *schema.InternetGateway
-	var expectedGatewayMeta *schema.RegionalWorkspaceResourceMetadata
-	var expectedGatewaySpec *schema.InternetGatewaySpec
 
-	t.WithNewStep("Create internet gateway", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateInternetGateway", workspaceName)
-
-		gtw := &schema.InternetGateway{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Name:      internetGatewayName,
-			},
-		}
-		gatewayResp, err = suite.regionalClient.NetworkV1.CreateOrUpdateInternetGateway(ctx, gtw)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, gatewayResp)
-
-		expectedGatewayMeta = secalib.NewRegionalWorkspaceResourceMetadata(internetGatewayName, secalib.NetworkProviderV1, internetGatewayResource, secalib.ApiVersion1, secalib.InternetGatewayKind,
-			suite.tenant, workspaceName, suite.region)
-		expectedGatewayMeta.Verb = http.MethodPut
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
-
-		expectedGatewaySpec = &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)}
-		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *gatewayResp.Status.State)
-	})
-
-	t.WithNewStep("Get created internet gateway", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetInternetGateway", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
+	// Create an internet gateway
+	gateway := &schema.InternetGateway{
+		Metadata: &schema.RegionalWorkspaceResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
 			Name:      internetGatewayName,
-		}
-		gatewayResp, err = suite.regionalClient.NetworkV1.GetInternetGateway(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, gatewayResp)
+		},
+	}
+	expectGatewayMeta := secalib.NewRegionalWorkspaceResourceMetadata(internetGatewayName,
+		secalib.NetworkProviderV1,
+		internetGatewayResource,
+		secalib.ApiVersion1,
+		secalib.InternetGatewayKind,
+		suite.tenant,
+		workspaceName,
+		suite.region,
+	)
+	expectGatewaySpec := &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)}
+	suite.createOrUpdateInternetGatewayV1Step("Create a internet gateway", t, ctx, suite.regionalClient.NetworkV1, gateway,
+		expectGatewayMeta, expectGatewaySpec, secalib.CreatingResourceState)
 
-		expectedGatewayMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGatewayMeta, gatewayResp.Metadata)
-
-		suite.verifyInternetGatewaySpecStep(sCtx, expectedGatewaySpec, &gatewayResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *gatewayResp.Status.State)
-	})
+	// Get the created internet gateway
+	gatewayWRef := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      internetGatewayName,
+	}
+	suite.getInternetGatewayV1Step("Get the created internet gateway", t, ctx, suite.regionalClient.NetworkV1, *gatewayWRef,
+		expectGatewayMeta, expectGatewaySpec, secalib.ActiveResourceState)
 
 	// Route table
-	var routeResp *schema.RouteTable
-	var expectedRouteMeta *schema.RegionalNetworkResourceMetadata
-	var expectedRouteSpec *schema.RouteTableSpec
 
-	t.WithNewStep("Create route table", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateRouteTable", workspaceName)
-
-		route := &schema.RouteTable{
-			Metadata: &schema.RegionalNetworkResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Network:   networkName,
-				Name:      routeTableName,
-			},
-			Spec: schema.RouteTableSpec{
-				Routes: []schema.RouteSpec{
-					{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
-				},
-			},
-		}
-		routeResp, err = suite.regionalClient.NetworkV1.CreateOrUpdateRouteTable(ctx, route)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, routeResp)
-
-		expectedRouteMeta = secalib.NewRegionalNetworkResourceMetadata(routeTableName, secalib.NetworkProviderV1, routeTableResource, secalib.ApiVersion1, secalib.RouteTableKind,
-			suite.tenant, workspaceName, networkName, suite.region)
-		expectedRouteMeta.Verb = http.MethodPut
-		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
-
-		expectedRouteSpec = &schema.RouteTableSpec{
+	// Create a route table
+	route := &schema.RouteTable{
+		Metadata: &schema.RegionalNetworkResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
+			Network:   networkName,
+			Name:      routeTableName,
+		},
+		Spec: schema.RouteTableSpec{
 			Routes: []schema.RouteSpec{
 				{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 			},
-		}
-		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
+		},
+	}
+	expectRouteMeta := secalib.NewRegionalNetworkResourceMetadata(routeTableName,
+		secalib.NetworkProviderV1,
+		routeTableResource,
+		secalib.ApiVersion1,
+		secalib.RouteTableKind,
+		suite.tenant,
+		workspaceName,
+		networkName,
+		suite.region)
+	expectRouteSpec := &schema.RouteTableSpec{
+		Routes: []schema.RouteSpec{
+			{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+		},
+	}
+	suite.createOrUpdateRouteTableV1Step("Create a route table", t, ctx, suite.regionalClient.NetworkV1, route,
+		expectRouteMeta, expectRouteSpec, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *routeResp.Status.State)
-	})
-
-	t.WithNewStep("Get created route table", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetRouteTable", workspaceName)
-
-		nref := secapi.NetworkReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Network:   secapi.NetworkID(networkName),
-			Name:      routeTableName,
-		}
-		routeResp, err = suite.regionalClient.NetworkV1.GetRouteTable(ctx, nref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, routeResp)
-
-		expectedRouteMeta.Verb = http.MethodGet
-		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedRouteMeta, routeResp.Metadata)
-
-		suite.verifyRouteTableSpecStep(sCtx, expectedRouteSpec, &routeResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *routeResp.Status.State)
-	})
+	// Get the created route table
+	routeNRef := &secapi.NetworkReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Network:   secapi.NetworkID(networkName),
+		Name:      routeTableName,
+	}
+	suite.getRouteTableV1Step("Get the created route table", t, ctx, suite.regionalClient.NetworkV1, *routeNRef,
+		expectRouteMeta, expectRouteSpec, secalib.ActiveResourceState)
 
 	// Subnet
-	var subnetResp *schema.Subnet
-	var expectedSubnetMeta *schema.RegionalNetworkResourceMetadata
-	var expectedSubnetSpec *schema.SubnetSpec
 
-	t.WithNewStep("Create subnet", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateSubnet", workspaceName)
-
-		sub := &schema.Subnet{
-			Metadata: &schema.RegionalNetworkResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Network:   networkName,
-				Name:      subnetName,
-			},
-			Spec: schema.SubnetSpec{
-				Cidr: schema.Cidr{Ipv4: &subnetCidr},
-				Zone: zone1,
-			},
-		}
-		subnetResp, err = suite.regionalClient.NetworkV1.CreateOrUpdateSubnet(ctx, sub)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, subnetResp)
-
-		expectedSubnetMeta = secalib.NewRegionalNetworkResourceMetadata(subnetName, secalib.NetworkProviderV1, subnetResource, secalib.ApiVersion1, secalib.SubnetKind,
-			suite.tenant, workspaceName, networkName, suite.region)
-		expectedSubnetMeta.Verb = http.MethodPut
-		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
-
-		expectedSubnetSpec = &schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: &subnetCidr},
-			Zone: zone1,
-		}
-		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *subnetResp.Status.State)
-	})
-
-	t.WithNewStep("Get created subnet", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetNetwork", workspaceName)
-
-		wref := secapi.NetworkReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Network:   secapi.NetworkID(networkName),
+	// Create a subnet
+	subnet := &schema.Subnet{
+		Metadata: &schema.RegionalNetworkResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
+			Network:   networkName,
 			Name:      subnetName,
-		}
-		subnetResp, err = suite.regionalClient.NetworkV1.GetSubnet(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, subnetResp)
+		},
+		Spec: schema.SubnetSpec{
+			Cidr: schema.Cidr{Ipv4: &subnetCidr},
+			Zone: zone,
+		},
+	}
+	expectSubnetMeta := secalib.NewRegionalNetworkResourceMetadata(subnetName,
+		secalib.NetworkProviderV1,
+		subnetResource,
+		secalib.ApiVersion1,
+		secalib.SubnetKind,
+		suite.tenant,
+		workspaceName,
+		networkName,
+		suite.region,
+	)
+	expectSubnetSpec := &schema.SubnetSpec{
+		Cidr: schema.Cidr{Ipv4: &subnetCidr},
+		Zone: zone,
+	}
+	suite.createOrUpdateSubnetV1Step("Create a subnet", t, ctx, suite.regionalClient.NetworkV1, subnet,
+		expectSubnetMeta, expectSubnetSpec, secalib.CreatingResourceState)
 
-		expectedSubnetMeta.Verb = http.MethodGet
-		suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedSubnetMeta, subnetResp.Metadata)
-
-		suite.verifySubNetSpecStep(sCtx, expectedSubnetSpec, &subnetResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *subnetResp.Status.State)
-	})
+	// Get the created subnet
+	subnetNRef := &secapi.NetworkReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Network:   secapi.NetworkID(networkName),
+		Name:      subnetName,
+	}
+	suite.getSubnetV1Step("Get the created subnet", t, ctx, suite.regionalClient.NetworkV1, *subnetNRef,
+		expectSubnetMeta, expectSubnetSpec, secalib.ActiveResourceState)
 
 	// Security Group
-	var groupResp *schema.SecurityGroup
-	var expectedGroupMeta *schema.RegionalWorkspaceResourceMetadata
-	var expectedGroupSpec *schema.SecurityGroupSpec
 
-	t.WithNewStep("Create security group", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateSecurityGroup", workspaceName)
-
-		group := &schema.SecurityGroup{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Name:      securityGroupName,
-			},
-			Spec: schema.SecurityGroupSpec{
-				Rules: []schema.SecurityGroupRuleSpec{
-					{Direction: secalib.SecurityRuleDirectionIngress},
-				},
-			},
-		}
-		groupResp, err = suite.regionalClient.NetworkV1.CreateOrUpdateSecurityGroup(ctx, group)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, groupResp)
-
-		expectedGroupMeta = secalib.NewRegionalWorkspaceResourceMetadata(securityGroupName, secalib.NetworkProviderV1, securityGroupResource, secalib.ApiVersion1, secalib.SecurityGroupKind,
-			suite.tenant, workspaceName, suite.region)
-		expectedGroupMeta.Verb = http.MethodPut
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
-
-		expectedGroupSpec = &schema.SecurityGroupSpec{
+	// Create a security group
+	group := &schema.SecurityGroup{
+		Metadata: &schema.RegionalWorkspaceResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
+			Name:      securityGroupName,
+		},
+		Spec: schema.SecurityGroupSpec{
 			Rules: []schema.SecurityGroupRuleSpec{
 				{Direction: secalib.SecurityRuleDirectionIngress},
 			},
-		}
-		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
+		},
+	}
+	expectGroupMeta := secalib.NewRegionalWorkspaceResourceMetadata(securityGroupName,
+		secalib.NetworkProviderV1,
+		securityGroupResource,
+		secalib.ApiVersion1,
+		secalib.SecurityGroupKind,
+		suite.tenant,
+		workspaceName,
+		suite.region,
+	)
+	expectGroupSpec := &schema.SecurityGroupSpec{
+		Rules: []schema.SecurityGroupRuleSpec{
+			{Direction: secalib.SecurityRuleDirectionIngress},
+		},
+	}
+	suite.createOrUpdateSecurityGroupV1Step("Create a security group", t, ctx, suite.regionalClient.NetworkV1, group,
+		expectGroupMeta, expectGroupSpec, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *groupResp.Status.State)
-	})
-
-	t.WithNewStep("Get created security group", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetSecurityGroup", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      securityGroupName,
-		}
-		groupResp, err = suite.regionalClient.NetworkV1.GetSecurityGroup(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, groupResp)
-
-		expectedGroupMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedGroupMeta, groupResp.Metadata)
-
-		suite.verifySecurityGroupSpecStep(sCtx, expectedGroupSpec, &groupResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *groupResp.Status.State)
-	})
+	// Get the created security group
+	groupWRef := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      securityGroupName,
+	}
+	suite.getSecurityGroupV1Step("Get the created security group", t, ctx, suite.regionalClient.NetworkV1, *groupWRef,
+		expectGroupMeta, expectGroupSpec, secalib.ActiveResourceState)
 
 	// Public ip
-	var publicIpResp *schema.PublicIp
-	var expectedIpMeta *schema.RegionalWorkspaceResourceMetadata
-	var expectedIpSpec *schema.PublicIpSpec
 
-	t.WithNewStep("Create public ip", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdatePublicIp", workspaceName)
-
-		ip := &schema.PublicIp{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Name:      publicIpName,
-			},
-			Spec: schema.PublicIpSpec{
-				Address: &publicIpAddress1,
-				Version: secalib.IpVersion4,
-			},
-		}
-		publicIpResp, err = suite.regionalClient.NetworkV1.CreateOrUpdatePublicIp(ctx, ip)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, publicIpResp)
-
-		expectedIpMeta = secalib.NewRegionalWorkspaceResourceMetadata(publicIpName, secalib.NetworkProviderV1, publicIpResource, secalib.ApiVersion1, secalib.PublicIpKind,
-			suite.tenant, workspaceName, suite.region)
-		expectedIpMeta.Verb = http.MethodPut
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
-
-		expectedIpSpec = &schema.PublicIpSpec{
+	// Create a public ip
+	publicIp := &schema.PublicIp{
+		Metadata: &schema.RegionalWorkspaceResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
+			Name:      publicIpName,
+		},
+		Spec: schema.PublicIpSpec{
 			Address: &publicIpAddress1,
 			Version: secalib.IpVersion4,
-		}
-		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
+		},
+	}
+	expectPublicIpMeta := secalib.NewRegionalWorkspaceResourceMetadata(publicIpName,
+		secalib.NetworkProviderV1,
+		publicIpResource,
+		secalib.ApiVersion1,
+		secalib.PublicIpKind,
+		suite.tenant,
+		workspaceName,
+		suite.region,
+	)
+	expectPublicIpSpec := &schema.PublicIpSpec{
+		Address: &publicIpAddress1,
+		Version: secalib.IpVersion4,
+	}
+	suite.createOrUpdatePublicIpV1Step("Create a public ip", t, ctx, suite.regionalClient.NetworkV1, publicIp,
+		expectPublicIpMeta, expectPublicIpSpec, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *publicIpResp.Status.State)
-	})
-
-	t.WithNewStep("Get created public ip", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetPublicIp", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      publicIpName,
-		}
-		publicIpResp, err = suite.regionalClient.NetworkV1.GetPublicIp(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, publicIpResp)
-
-		expectedIpMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedIpMeta, publicIpResp.Metadata)
-
-		suite.verifyPublicIpSpecStep(sCtx, expectedIpSpec, &publicIpResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *publicIpResp.Status.State)
-	})
+	// Get the created public ip
+	publicIpWRef := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      publicIpName,
+	}
+	suite.getPublicIpV1Step("Get the created public ip", t, ctx, suite.regionalClient.NetworkV1, *publicIpWRef,
+		expectPublicIpMeta, expectPublicIpSpec, secalib.ActiveResourceState)
 
 	// Nic
-	var nicResp *schema.Nic
-	var expectedNicMeta *schema.RegionalWorkspaceResourceMetadata
-	var expectedNicSpec *schema.NicSpec
 
-	t.WithNewStep("Create nic", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNic", workspaceName)
-
-		nic := &schema.Nic{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Name:      nicName,
-			},
-			Spec: schema.NicSpec{
-				Addresses:    []string{nicAddress1},
-				PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
-				SubnetRef:    *subnetRefObj,
-			},
-		}
-		nicResp, err = suite.regionalClient.NetworkV1.CreateOrUpdateNic(ctx, nic)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, nicResp)
-
-		expectedNicMeta = secalib.NewRegionalWorkspaceResourceMetadata(nicName, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1, secalib.NicKind,
-			suite.tenant, workspaceName, suite.region)
-		expectedNicMeta.Verb = http.MethodPut
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
-
-		expectedNicSpec = &schema.NicSpec{
+	// Create a nic
+	nic := &schema.Nic{
+		Metadata: &schema.RegionalWorkspaceResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
+			Name:      nicName,
+		},
+		Spec: schema.NicSpec{
 			Addresses:    []string{nicAddress1},
 			PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
 			SubnetRef:    *subnetRefObj,
-		}
-		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
+		},
+	}
+	expectNicMeta := secalib.NewRegionalWorkspaceResourceMetadata(nicName,
+		secalib.NetworkProviderV1,
+		nicResource,
+		secalib.ApiVersion1,
+		secalib.NicKind,
+		suite.tenant, workspaceName, suite.region)
+	expectNicSpec := &schema.NicSpec{
+		Addresses:    []string{nicAddress1},
+		PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+		SubnetRef:    *subnetRefObj,
+	}
+	suite.createOrUpdateNicV1Step("Create a nic", t, ctx, suite.regionalClient.NetworkV1, nic,
+		expectNicMeta, expectNicSpec, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *nicResp.Status.State)
-	})
-
-	t.WithNewStep("Get created nic", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetNic", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      nicName,
-		}
-		nicResp, err = suite.regionalClient.NetworkV1.GetNic(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, nicResp)
-
-		expectedNicMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedNicMeta, nicResp.Metadata)
-
-		suite.verifyNicSpecStep(sCtx, expectedNicSpec, &nicResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *nicResp.Status.State)
-	})
+	// Get the created nic
+	nicWRef := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      nicName,
+	}
+	suite.getNicV1Step("Get the created nic", t, ctx, suite.regionalClient.NetworkV1, *nicWRef,
+		expectNicMeta, expectNicSpec, secalib.ActiveResourceState)
 
 	// Instance
-	var instanceResp *schema.Instance
-	var expectedInstanceMeta *schema.RegionalWorkspaceResourceMetadata
-	var expectedInstanceSpec *schema.InstanceSpec
-
-	t.WithNewStep("Create instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", workspaceName)
-
-		inst := &schema.Instance{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.tenant,
-				Workspace: workspaceName,
-				Name:      instanceName,
-			},
-			Spec: schema.InstanceSpec{
-				SkuRef: *instanceSkuRefObj,
-				Zone:   zone1,
-				BootVolume: schema.VolumeReference{
-					DeviceRef: *blockStorageRefObj,
-				},
-			},
-		}
-
-		instanceResp, err = suite.regionalClient.ComputeV1.CreateOrUpdateInstance(ctx, inst)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
-
-		expectedInstanceMeta = secalib.NewRegionalWorkspaceResourceMetadata(instanceName, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1, secalib.InstanceKind,
-			suite.tenant, workspaceName, suite.region)
-		expectedInstanceMeta.Verb = http.MethodPut
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedInstanceMeta, instanceResp.Metadata)
-
-		expectedInstanceSpec = &schema.InstanceSpec{
+	// Create an instance
+	instance := &schema.Instance{
+		Metadata: &schema.RegionalWorkspaceResourceMetadata{
+			Tenant:    suite.tenant,
+			Workspace: workspaceName,
+			Name:      instanceName,
+		},
+		Spec: schema.InstanceSpec{
 			SkuRef: *instanceSkuRefObj,
-			Zone:   zone1,
+			Zone:   zone,
 			BootVolume: schema.VolumeReference{
 				DeviceRef: *blockStorageRefObj,
 			},
-		}
-		suite.verifyInstanceSpecStep(sCtx, expectedInstanceSpec, &instanceResp.Spec)
+		},
+	}
+	suite.createOrUpdateInstanceV1Step("Create an instance", t, ctx, suite.regionalClient.ComputeV1, instance, nil, nil, secalib.CreatingResourceState)
 
-		suite.verifyStatusStep(sCtx, secalib.CreatingResourceState, *instanceResp.Status.State)
-	})
-
-	t.WithNewStep("Get created instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", workspaceName)
-
-		wref := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Name:      instanceName,
-		}
-		instanceResp, err = suite.regionalClient.ComputeV1.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, instanceResp)
-
-		expectedInstanceMeta.Verb = http.MethodGet
-		suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedInstanceMeta, instanceResp.Metadata)
-
-		suite.verifyInstanceSpecStep(sCtx, expectedInstanceSpec, &instanceResp.Spec)
-
-		suite.verifyStatusStep(sCtx, secalib.ActiveResourceState, *instanceResp.Status.State)
-	})
+	// Get the created instance
+	instanceWRef := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      instanceName,
+	}
+	instance = suite.getInstanceV1Step("Get the created instance", t, ctx, suite.regionalClient.ComputeV1, *instanceWRef, nil, nil, secalib.ActiveResourceState)
 
 	// Delete All
 
 	// Delete instance
-	t.WithNewStep("Delete instance", func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "DeleteInstance", workspaceName)
-
-		err = suite.regionalClient.ComputeV1.DeleteInstance(ctx, instanceResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteInstanceV1Step("Delete the instance", t, ctx, suite.regionalClient.ComputeV1, instance)
 
 	// Delete security group
-	t.WithNewStep("Delete security group", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "DeleteSecurityGroup", workspaceName)
-
-		err = suite.regionalClient.NetworkV1.DeleteSecurityGroup(ctx, groupResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteSecurityGroupV1Step("Delete the security group", t, ctx, suite.regionalClient.NetworkV1, group)
 
 	// Delete Nic
-	t.WithNewStep("Delete Nic", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "DeleteNic", workspaceName)
-
-		err = suite.regionalClient.NetworkV1.DeleteNic(ctx, nicResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteNicV1Step("Delete the nic", t, ctx, suite.regionalClient.NetworkV1, nic)
 
 	// Delete PublicIp
-	t.WithNewStep("Delete Public ip", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "DeletePublicIp", workspaceName)
-
-		err = suite.regionalClient.NetworkV1.DeletePublicIp(ctx, publicIpResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deletePublicIpV1Step("Delete the public ip", t, ctx, suite.regionalClient.NetworkV1, publicIp)
 
 	// Delete subnet
-	t.WithNewStep("Delete Subnet", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "DeleteSubnet", workspaceName)
-
-		err = suite.regionalClient.NetworkV1.DeleteSubnet(ctx, subnetResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteSubnetV1Step("Delete the subnet", t, ctx, suite.regionalClient.NetworkV1, subnet)
 
 	// Delete Route-table
-	t.WithNewStep("Delete Route-table", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "DeleteRouteTable", workspaceName)
-
-		err = suite.regionalClient.NetworkV1.DeleteRouteTable(ctx, routeResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteRouteTableV1Step("Delete the route table", t, ctx, suite.regionalClient.NetworkV1, route)
 
 	// Delete Internet-gateway
-	t.WithNewStep("Delete Internet-gateway", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "DeleteInternetGateway", workspaceName)
-
-		err = suite.regionalClient.NetworkV1.DeleteInternetGateway(ctx, gatewayResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteInternetGatewayV1Step("Delete the internet gateway", t, ctx, suite.regionalClient.NetworkV1, gateway)
 
 	// Delete Network
-	t.WithNewStep("Delete Network", func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "DeleteNetwork", workspaceName)
-
-		err = suite.regionalClient.NetworkV1.DeleteNetwork(ctx, networkResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteNetworkV1Step("Delete the network", t, ctx, suite.regionalClient.NetworkV1, network)
 
 	// Delete BlockStorage
-	t.WithNewStep("Delete BlockStorage", func(sCtx provider.StepCtx) {
-		suite.setStorageV1StepParams(sCtx, "DeleteBlockStorage", workspaceName)
-
-		err = suite.regionalClient.StorageV1.DeleteBlockStorage(ctx, blockResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteBlockStorageV1Step("Delete the block storage", t, ctx, suite.regionalClient.StorageV1, block)
 
 	// Delete Image
-	t.WithNewStep("Delete Image", func(sCtx provider.StepCtx) {
-		suite.setStorageV1StepParams(sCtx, "DeleteImage", "")
-
-		err = suite.regionalClient.StorageV1.DeleteImage(ctx, imageResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteImageV1Step("Delete the image", t, ctx, suite.regionalClient.StorageV1, image)
 
 	// Delete Workspace
-	t.WithNewStep("Delete Workspace", func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "DeleteWorkspace")
-
-		err = suite.regionalClient.WorkspaceV1.DeleteWorkspace(ctx, workspaceResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.regionalClient.WorkspaceV1, workspace)
 
 	// Delete Role Assignment
-	t.WithNewStep("Delete Role Assignment", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "DeleteRoleAssignment")
-
-		err = suite.globalClient.AuthorizationV1.DeleteRoleAssignment(ctx, assignResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteRoleAssignmentV1Step("Delete the role assignment", t, ctx, suite.globalClient.AuthorizationV1, roleAssign)
 
 	// Delete Role
-	t.WithNewStep("Delete Role", func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "DeleteRole")
-
-		err = suite.globalClient.AuthorizationV1.DeleteRole(ctx, roleResp)
-		requireNoError(sCtx, err)
-	})
+	suite.deleteRoleV1Step("Delete the role", t, ctx, suite.globalClient.AuthorizationV1, role)
 
 	slog.Info("Finishing " + suite.scenarioName)
 }

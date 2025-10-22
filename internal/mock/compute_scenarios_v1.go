@@ -39,7 +39,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 		return nil, err
 	}
 
-	// Get created workspace
+	// Get the created workspace
 	secalib.SetWorkspaceStatusState(workspaceResponse.Status, secalib.ActiveResourceState)
 	workspaceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -62,7 +62,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 		return nil, err
 	}
 
-	// Get created block storage
+	// Get the created block storage
 	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -84,7 +84,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 		return nil, err
 	}
 
-	// Get created instance
+	// Get the created instance
 	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -102,7 +102,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 		return nil, err
 	}
 
-	// Get updated instance
+	// Get the updated instance
 	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
@@ -156,16 +156,38 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Delete the instance
-	instanceResponse.Metadata.Verb = http.MethodDelete
 	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "DeleteInstance", nextState: "GetDeletedInstance"}); err != nil {
+		&stubConfig{url: instanceUrl, params: params, currentState: "DeleteInstance", nextState: "GetDeletedInstance"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted instance
-	instanceResponse.Metadata.Verb = http.MethodGet
+	// Get the deleted instance
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
-		&stubConfig{url: instanceUrl, params: params, currentState: "GetDeletedInstance", nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: instanceUrl, params: params, currentState: "GetDeletedInstance", nextState: "DeleteBlockStorage"}); err != nil {
+		return nil, err
+	}
+
+	// Delete the block storage
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: blockUrl, params: params, currentState: "DeleteBlockStorage", nextState: "GetDeletedBlockStorage"}); err != nil {
+		return nil, err
+	}
+
+	// Get the deleted block storage
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: blockUrl, params: params, currentState: "GetDeletedBlockStorage", nextState: "DeleteWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Delete the workspace
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Get the deleted workspace
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 

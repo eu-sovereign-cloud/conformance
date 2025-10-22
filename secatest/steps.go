@@ -200,7 +200,7 @@ func (suite *testSuite) verifyRouteTableSpecStep(ctx provider.StepCtx, expected 
 	})
 }
 
-func (suite *testSuite) verifySubNetSpecStep(ctx provider.StepCtx, expected *schema.SubnetSpec, actual *schema.SubnetSpec) {
+func (suite *testSuite) verifySubnetSpecStep(ctx provider.StepCtx, expected *schema.SubnetSpec, actual *schema.SubnetSpec) {
 	ctx.WithNewStep("Verify SubnetSpec", func(stepCtx provider.StepCtx) {
 		if actual.Cidr.Ipv4 != nil {
 			stepCtx.Require().Equal(expected.Cidr.Ipv4, actual.Cidr.Ipv4, "Cidr.Ipv4 should match expected")
