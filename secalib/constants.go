@@ -4,11 +4,6 @@ const (
 	// API Versions
 	ApiVersion1 = "v1"
 
-	// Providers
-	WorkspaceV1Provider = "seca.workspace/v1"
-	StorageV1Provider   = "seca.storage/v1"
-	ComputeV1Provider   = "seca.compute/v1"
-	NetworkV1Provider   = "seca.network/v1"
 	// Labels
 	ArchitectureLabel   = "architecture"
 	ProviderLabel       = "provider"
@@ -16,6 +11,9 @@ const (
 	EnvLabel            = "env"
 	EnvDevelopmentLabel = "development"
 	EnvProductionLabel  = "production"
+
+	// URL Prefixes
+	urlProvidersPrefix = "/providers/"
 
 	// Resource URLs
 	resourceTenantsPrefix    = "tenants/%s"
