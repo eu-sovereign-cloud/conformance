@@ -17,6 +17,7 @@ func TestRegionV1Suite(t *testing.T) {
 			},
 			client: clients.globalClient,
 		},
+		regionName: config.clientRegion,
 	}
 
 	if testSuite.canRun(config.scenariosRegexp) {

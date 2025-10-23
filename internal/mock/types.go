@@ -23,9 +23,13 @@ type ResourceParams[T any] struct {
 	UpdatedSpec   *T
 }
 
+type HeaderParams struct {
+	Values map[string]string
+}
 type stubConfig struct {
 	url          string
 	params       HasParams
+	headers      HeaderParams
 	responseBody any
 	currentState string
 	nextState    string

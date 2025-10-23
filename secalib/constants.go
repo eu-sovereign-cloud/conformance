@@ -4,6 +4,13 @@ const (
 	// API Versions
 	ApiVersion1 = "v1"
 
+	// Providers
+	AuthorizationProvider = "seca.authorization"
+	WorkspaceProvider     = "seca.workspace"
+	StorageProvider       = "seca.storage"
+	ComputeProvider       = "seca.compute"
+	NetworkProvider       = "seca.network"
+
 	// Labels
 	ArchitectureLabel   = "architecture"
 	ProviderLabel       = "provider"

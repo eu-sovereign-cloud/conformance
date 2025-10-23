@@ -35,7 +35,6 @@ func configureStub(wm *wiremock.Client, scenarioName string, method string, http
 
 	// Request matchers
 	urlMatcher := wiremock.URLPathMatching(stubConfig.url)
-	headerMatcher := wiremock.Matching(authorizationHttpHeaderValuePrefix + stubConfig.params.getParams().AuthToken)
 
 	// Configure the stub
 	var stubRule *wiremock.StubRule
@@ -55,15 +54,30 @@ func configureStub(wm *wiremock.Client, scenarioName string, method string, http
 		priority = stubConfig.priority
 	}
 
-	if err := wm.StubFor(stubRule.
-		WithHeader(authorizationHttpHeaderKey, headerMatcher).
-		InScenario(scenarioName).
-		WhenScenarioStateIs(stubConfig.currentState).
-		WillSetStateTo(stubConfig.nextState).
-		WillReturnResponse(stubResponse).
-		AtPriority(int64(priority))); err != nil {
-		slog.Error("Error configuring stub", "method", method, "error", err)
-		return err
+	for key, value := range stubConfig.headers.Values {
+		matcher := wiremock.Matching(value)
+		stubRule.WithHeader(key, matcher)
+	}
+
+	// Create a stub with scenario state if currentState it's defined
+	if stubConfig.currentState != "" {
+		if err := wm.StubFor(stubRule.
+			InScenario(scenarioName).
+			WhenScenarioStateIs(stubConfig.currentState).
+			WillSetStateTo(stubConfig.nextState).
+			WillReturnResponse(stubResponse).
+			AtPriority(int64(priority))); err != nil {
+			slog.Error("Error configuring stub", "method", method, "error", err)
+			return err
+		}
+	} else {
+		if err := wm.StubFor(stubRule.
+			InScenario(scenarioName).
+			WillReturnResponse(stubResponse).
+			AtPriority(int64(priority))); err != nil {
+			slog.Error("Error configuring stub", "method", method, "error", err)
+			return err
+		}
 	}
 	return nil
 }

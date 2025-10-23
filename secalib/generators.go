@@ -7,6 +7,7 @@ import (
 	"net"
 
 	"github.com/apparentlymart/go-cidr/cidr"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
 // Names
@@ -67,7 +68,7 @@ func GenerateSecurityGroupName() string {
 }
 
 func GenerateRegionProviderUrl(provider string) string {
-	return fmt.Sprintf("{{request.scheme}}://{{request.host}}:{{request.port}}%s%s", urlProvidersPrefixV1, provider)
+	return fmt.Sprintf("{{request.scheme}}://{{request.host}}:{{request.port}}%s%s", urlProvidersPrefix, provider)
 }
 
 // Resources
@@ -231,6 +232,37 @@ func GenerateSubnetURL(tenant string, workspace string, network string, subnet s
 
 func GenerateSecurityGroupURL(tenant string, workspace string, securityGroup string) string {
 	return fmt.Sprintf(SecurityGroupURLV1, tenant, workspace, securityGroup)
+}
+
+// Providers
+func GenerateProviderSpec() []schema.Provider {
+	return []schema.Provider{
+		{
+			Name:    AuthorizationProvider,
+			Version: ApiVersion1,
+			Url:     GenerateRegionProviderUrl(AuthorizationProvider),
+		},
+		{
+			Name:    ComputeProvider,
+			Version: ApiVersion1,
+			Url:     GenerateRegionProviderUrl(ComputeProvider),
+		},
+		{
+			Name:    NetworkProvider,
+			Version: ApiVersion1,
+			Url:     GenerateRegionProviderUrl(NetworkProvider),
+		},
+		{
+			Name:    StorageProvider,
+			Version: ApiVersion1,
+			Url:     GenerateRegionProviderUrl(StorageProvider),
+		},
+		{
+			Name:    WorkspaceProvider,
+			Version: ApiVersion1,
+			Url:     GenerateRegionProviderUrl(WorkspaceProvider),
+		},
+	}
 }
 
 // Random

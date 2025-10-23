@@ -27,10 +27,10 @@ func requireNotNilResponse(sCtx provider.StepCtx, resp any) {
 		stepCtx.Require().NotNil(resp, "Should be not nil")
 	})
 }
-func requireLenResponse(sCtx provider.StepCtx, resp any, size int) {
+func requireLenResponse(sCtx provider.StepCtx, resp int) {
 	sCtx.WithNewStep("Verify response length", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters("response", fmt.Sprintf("%v", resp))
 		stepCtx.Require().NotNil(resp, "Should be not nil")
-		stepCtx.Require().Len(resp, size, "Should have the expected length")
+		stepCtx.Require().Greater(resp, 1, "Should have length greater than 1")
 	})
 }

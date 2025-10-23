@@ -7,6 +7,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
@@ -38,99 +39,21 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 					Name: suite.regionName,
 					InitialSpec: &schema.RegionSpec{
 						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
-						Providers: []schema.Provider{
-							{
-								Name:    secalib.AuthorizationProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProvider),
-							},
-							{
-								Name:    secalib.ComputeProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.ComputeProvider),
-							},
-							{
-								Name:    secalib.NetworkProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.NetworkProvider),
-							},
-							{
-								Name:    secalib.StorageProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.StorageProvider),
-							},
-							{
-								Name:    secalib.WorkspaceProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProvider),
-							},
-						},
+						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
 				{
 					Name: regionNameA,
 					InitialSpec: &schema.RegionSpec{
 						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
-						Providers: []schema.Provider{
-							{
-								Name:    secalib.AuthorizationProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProviderV1),
-							},
-							{
-								Name:    secalib.ComputeProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.ComputeProviderV1),
-							},
-							{
-								Name:    secalib.NetworkProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.NetworkProviderV1),
-							},
-							{
-								Name:    secalib.StorageProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.StorageProviderV1),
-							},
-							{
-								Name:    secalib.WorkspaceProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProviderV1),
-							},
-						},
+						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
 				{
 					Name: regionNameB,
 					InitialSpec: &schema.RegionSpec{
 						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
-						Providers: []schema.Provider{
-							{
-								Name:    secalib.AuthorizationProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProviderV1),
-							},
-							{
-								Name:    secalib.ComputeProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.ComputeProviderV1),
-							},
-							{
-								Name:    secalib.NetworkProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.NetworkProviderV1),
-							},
-							{
-								Name:    secalib.StorageProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.StorageProviderV1),
-							},
-							{
-								Name:    secalib.WorkspaceProvider,
-								Version: secalib.ApiVersion1,
-								Url:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProviderV1),
-							},
-						},
+						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
 			},
@@ -150,114 +73,20 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 			Metadata: &schema.GlobalResourceMetadata{
 				Name: suite.regionName,
 			},
-			Spec: schema.RegionSpec{
-				AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
-				Providers: []schema.Provider{
-					{
-						Name:    secalib.AuthorizationProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProvider),
-					},
-					{
-						Name:    secalib.ComputeProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.ComputeProvider),
-					},
-					{
-						Name:    secalib.NetworkProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.NetworkProvider),
-					},
-					{
-						Name:    secalib.StorageProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.StorageProvider),
-					},
-					{
-						Name:    secalib.WorkspaceProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProvider),
-					},
-				},
-			},
-		},
-		{
-			Metadata: &schema.GlobalResourceMetadata{
-				Name: regionNameA,
-			},
-			Spec: schema.RegionSpec{
-				AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
-				Providers: []schema.Provider{
-					{
-						Name:    secalib.AuthorizationProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProvider),
-					},
-					{
-						Name:    secalib.ComputeProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.ComputeProvider),
-					},
-					{
-						Name:    secalib.NetworkProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.NetworkProvider),
-					},
-					{
-						Name:    secalib.StorageProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.StorageProvider),
-					},
-					{
-						Name:    secalib.WorkspaceProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProvider),
-					},
-				},
-			},
-		},
-		{
-			Metadata: &schema.GlobalResourceMetadata{
-				Name: regionNameB,
-			},
-			Spec: schema.RegionSpec{
-				AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
-				Providers: []schema.Provider{
-					{
-						Name:    secalib.AuthorizationProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.AuthorizationProvider),
-					},
-					{
-						Name:    secalib.ComputeProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.ComputeProvider),
-					},
-					{
-						Name:    secalib.NetworkProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.NetworkProvider),
-					},
-					{
-						Name:    secalib.StorageProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.StorageProvider),
-					},
-					{
-						Name:    secalib.WorkspaceProvider,
-						Version: secalib.ApiVersion1,
-						Url:     secalib.GenerateRegionProviderUrl(secalib.WorkspaceProvider),
-					},
-				},
-			},
 		},
 	}
 	for _, region := range regions {
 		regionResource := secalib.GenerateRegionResource(region.Metadata.Name)
 		expectedRegionMeta := secalib.NewGlobalResourceMetadata(region.Metadata.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1, secalib.RegionKind)
-		expectedRegionSpec := region.Spec
-		suite.getRegion("Get region", t, ctx, suite.client.RegionV1, expectedRegionMeta, &expectedRegionSpec)
+		suite.getRegion("Get region", t, ctx, suite.client.RegionV1, expectedRegionMeta)
 	}
+	// List all Regions
+	suite.getListRegion("Get list region", t, ctx, suite.client.RegionV1)
 
-	suite.getListRegion("Get list region", t, ctx, suite.client.RegionV1, regions)
+	// List number of Regions defined in Limit key & labels
+	labelsParams := builders.NewLabelsBuilder().
+		Equals("env", "Development")
+	listOptions := builders.NewListOptions().WithLimit(1).WithLabels(labelsParams)
+	suite.getListRegionWithParameters("Get list region with Limit", t, ctx, suite.client.RegionV1, listOptions)
+
 }
