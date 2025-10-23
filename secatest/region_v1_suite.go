@@ -85,7 +85,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 
 	// List number of Regions defined in Limit key & labels
 	labelsParams := builders.NewLabelsBuilder().
-		Equals("env", "Development")
+		Equals(secalib.EnvLabel, secalib.EnvDevelopmentLabel)
 	listOptions := builders.NewListOptions().WithLimit(1).WithLabels(labelsParams)
 	suite.getListRegionWithParameters("Get list region with Limit", t, ctx, suite.client.RegionV1, listOptions)
 }
