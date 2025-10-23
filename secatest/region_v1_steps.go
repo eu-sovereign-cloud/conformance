@@ -29,7 +29,6 @@ func (suite *testSuite) getRegion(stepName string, t provider.T, ctx context.Con
 		suite.verifyRegionSpecStep(sCtx, &resp.Spec)
 	})
 	return resp
-
 }
 
 func (suite *testSuite) getListRegion(stepName string, t provider.T, ctx context.Context, api *secapi.RegionV1,
@@ -47,11 +46,10 @@ func (suite *testSuite) getListRegion(stepName string, t provider.T, ctx context
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 		requireLenResponse(sCtx, len(resp))
-
 	})
 	return resp
-
 }
+
 func (suite *testSuite) getListRegionWithParameters(stepName string, t provider.T, ctx context.Context, api *secapi.RegionV1, opts *builders.ListOptions,
 ) []*schema.Region {
 	var resp []*schema.Region
@@ -67,8 +65,6 @@ func (suite *testSuite) getListRegionWithParameters(stepName string, t provider.
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 		requireLenResponse(sCtx, len(resp))
-
 	})
 	return resp
-
 }

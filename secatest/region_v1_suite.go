@@ -88,5 +88,4 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 		Equals("env", "Development")
 	listOptions := builders.NewListOptions().WithLimit(1).WithLabels(labelsParams)
 	suite.getListRegionWithParameters("Get list region with Limit", t, ctx, suite.client.RegionV1, listOptions)
-
 }

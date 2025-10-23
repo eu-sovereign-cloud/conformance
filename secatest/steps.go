@@ -248,7 +248,5 @@ func (suite *testSuite) verifyRegionSpecStep(ctx provider.StepCtx, actual *schem
 		stepCtx.Require().GreaterOrEqual(len(actual.AvailableZones), 1, "AvailableZones list length should match expected")
 
 		stepCtx.Require().GreaterOrEqual(len(actual.Providers), 1, "Providers list length should greater then 1")
-
 	})
-
 }
