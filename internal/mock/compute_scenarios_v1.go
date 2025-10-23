@@ -3,14 +3,13 @@ package mock
 import (
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 
 	"github.com/wiremock/go-wiremock"
 )
 
-func CreateComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) (*wiremock.Client, error) {
+func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	wm, err := newClient(params.MockURL)
@@ -19,318 +18,176 @@ func CreateComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
-	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
-
-	blockStorageUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	blockUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
 	instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, params.Instance.Name)
 
-	blockStorageResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
+	blockResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
 	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
 
 	// Workspace
-	workResponse := &resourceResponse[secalib.WorkspaceSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.Workspace.Name,
-			Provider:   secalib.WorkspaceProviderV1,
-			Resource:   workspaceResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.WorkspaceKind,
-			Tenant:     params.Tenant,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Labels: &[]secalib.Label{},
-	}
+	workspaceResponse := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1,
+		params.Tenant, params.Region,
+		params.Workspace.InitialLabels)
 
 	// Create a workspace
-	workResponse.Metadata.Verb = http.MethodPut
-	workResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	workResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	workResponse.Metadata.ResourceVersion = 1
-	workResponse.Status.State = secalib.CreatingStatusState
-	workResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          workspaceUrl,
-		params:       params,
-		response:     workResponse,
-		template:     workspaceResponseTemplateV1,
-		currentState: startedScenarioState,
-		nextState:    "GetCreatedWorkspace",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
+	workspaceResponse.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
+	workspaceResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
 		return nil, err
 	}
 
-	// Get created workspace
-	workResponse.Metadata.Verb = http.MethodGet
-	workResponse.Status.State = secalib.ActiveStatusState
-	workResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          workspaceUrl,
-		params:       params,
-		response:     workResponse,
-		template:     workspaceResponseTemplateV1,
-		currentState: "GetCreatedWorkspace",
-		nextState:    "CreateBlockStorage",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	// Get the created workspace
+	secalib.SetWorkspaceStatusState(workspaceResponse.Status, secalib.ActiveResourceState)
+	workspaceResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Block storage
-	blockResponse := &resourceResponse[secalib.BlockStorageSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.BlockStorage.Name,
-			Provider:   secalib.StorageProviderV1,
-			Resource:   blockStorageResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.BlockStorageKind,
-			Tenant:     params.Tenant,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Spec: &secalib.BlockStorageSpecV1{
-			SkuRef: params.BlockStorage.InitialSpec.SkuRef,
-		},
-	}
+	blockResponse := newBlockStorageResponse(params.BlockStorage.Name, secalib.ComputeProviderV1, blockResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region,
+		params.BlockStorage.InitialSpec)
 
 	// Create a block storage
-	blockResponse.Metadata.Verb = http.MethodPut
-	blockResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	blockResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	blockResponse.Metadata.ResourceVersion = 1
+	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
+	blockResponse.Status = secalib.NewBlockStorageStatus(secalib.CreatingResourceState)
 	blockResponse.Spec.SizeGB = params.BlockStorage.InitialSpec.SizeGB
-	blockResponse.Status.State = secalib.CreatingStatusState
-	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          blockStorageUrl,
-		params:       params,
-		response:     blockResponse,
-		template:     blockStorageResponseTemplateV1,
-		currentState: "CreateBlockStorage",
-		nextState:    "GetCreatedBlockStorage",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	blockResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "CreateBlockStorage", nextState: "GetCreatedBlockStorage"}); err != nil {
 		return nil, err
 	}
 
-	// Get created block storage
+	// Get the created block storage
+	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
 	blockResponse.Metadata.Verb = http.MethodGet
-	blockResponse.Status.State = secalib.ActiveStatusState
-	blockResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          blockStorageUrl,
-		params:       params,
-		response:     blockResponse,
-		template:     blockStorageResponseTemplateV1,
-		currentState: "GetCreatedBlockStorage",
-		nextState:    "CreateInstance",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "CreateInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Instance
-	instResponse := &resourceResponse[secalib.InstanceSpecV1]{
-		Metadata: &secalib.Metadata{
-			Name:       params.Instance.Name,
-			Provider:   secalib.ComputeProviderV1,
-			Resource:   instanceResource,
-			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.InstanceKind,
-			Tenant:     params.Tenant,
-			Workspace:  &params.Workspace.Name,
-			Region:     &params.Region,
-		},
-		Status: &secalib.Status{},
-		Spec: &secalib.InstanceSpecV1{
-			SkuRef:        params.Instance.InitialSpec.SkuRef,
-			Zone:          params.Instance.InitialSpec.Zone,
-			BootDeviceRef: params.Instance.InitialSpec.BootDeviceRef,
-		},
-	}
+	instanceResponse := newInstanceResponse(params.Instance.Name, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region,
+		params.Instance.InitialSpec)
 
 	// Create an instance
-	instResponse.Metadata.Verb = http.MethodPut
-	instResponse.Metadata.CreatedAt = time.Now().Format(time.RFC3339)
-	instResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	instResponse.Metadata.ResourceVersion = 1
-	instResponse.Status.State = secalib.CreatingStatusState
-	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		template:     instanceResponseTemplateV1,
-		currentState: "CreateInstance",
-		nextState:    "GetCreatedInstance",
-		httpStatus:   http.StatusCreated,
-	}); err != nil {
+	setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
+	instanceResponse.Status = secalib.NewInstanceStatus(secalib.CreatingResourceState)
+	instanceResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "CreateInstance", nextState: "GetCreatedInstance"}); err != nil {
 		return nil, err
 	}
 
-	// Get created instance
-	instResponse.Metadata.Verb = http.MethodGet
-	instResponse.Status.State = secalib.ActiveStatusState
-	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		template:     instanceResponseTemplateV1,
-		currentState: "GetCreatedInstance",
-		nextState:    "UpdateInstance",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	// Get the created instance
+	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
+	instanceResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetCreatedInstance", nextState: "UpdateInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Update the instance
-	instResponse.Metadata.Verb = http.MethodPut
-	instResponse.Metadata.LastModifiedAt = time.Now().Format(time.RFC3339)
-	instResponse.Metadata.ResourceVersion = instResponse.Metadata.ResourceVersion + 1
-	instResponse.Spec = params.Instance.UpdatedSpec
-	instResponse.Status.State = secalib.UpdatingStatusState
-	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configurePutStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		template:     instanceResponseTemplateV1,
-		currentState: "UpdateInstance",
-		nextState:    "GetUpdatedInstance",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	setModifiedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
+	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.UpdatingResourceState)
+	instanceResponse.Spec = *params.Instance.UpdatedSpec
+	instanceResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "UpdateInstance", nextState: "GetUpdatedInstance"}); err != nil {
 		return nil, err
 	}
 
-	// Get updated instance
-	instResponse.Metadata.Verb = http.MethodGet
-	instResponse.Status.State = secalib.ActiveStatusState
-	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		template:     instanceResponseTemplateV1,
-		currentState: "GetUpdatedInstance",
-		nextState:    "StopInstance",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	// Get the updated instance
+	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
+	instanceResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetUpdatedInstance", nextState: "StopInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Stop the instance
-	instResponse.Metadata.Verb = http.MethodPost
-	if err := configurePostStub(wm, scenario, stubConfig{
-		url:          instanceUrl + "/stop",
-		params:       params,
-		response:     instResponse,
-		currentState: "StopInstance",
-		nextState:    "GetStoppedInstance",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	instanceResponse.Metadata.Verb = http.MethodPost
+	if err := configurePostStub(wm, scenario,
+		&stubConfig{url: instanceUrl + "/stop", params: params, responseBody: instanceResponse, currentState: "StopInstance", nextState: "GetStoppedInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Get the stopped instance
-	instResponse.Metadata.Verb = http.MethodGet
-	instResponse.Status.State = secalib.SuspendedStatusState
-	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		template:     instanceResponseTemplateV1,
-		currentState: "GetStoppedInstance",
-		nextState:    "StartInstance",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.SuspendedResourceState)
+	instanceResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetStoppedInstance", nextState: "StartInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Start the instance
-	instResponse.Metadata.Verb = http.MethodPost
-	if err := configurePostStub(wm, scenario, stubConfig{
-		url:          instanceUrl + "/start",
-		params:       params,
-		response:     instResponse,
-		currentState: "StartInstance",
-		nextState:    "GetStartedInstance",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	instanceResponse.Metadata.Verb = http.MethodPost
+	if err := configurePostStub(wm, scenario,
+		&stubConfig{url: instanceUrl + "/start", params: params, responseBody: instanceResponse, currentState: "StartInstance", nextState: "GetStartedInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Get the started instance
-	instResponse.Metadata.Verb = http.MethodGet
-	instResponse.Status.State = secalib.ActiveStatusState
-	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		template:     instanceResponseTemplateV1,
-		currentState: "GetStartedInstance",
-		nextState:    "RestartInstance",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
+	instanceResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetStartedInstance", nextState: "RestartInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Restart the instance
-	instResponse.Metadata.Verb = http.MethodPost
-	if err := configurePostStub(wm, scenario, stubConfig{
-		url:          instanceUrl + "/restart",
-		params:       params,
-		response:     instResponse,
-		currentState: "RestartInstance",
-		nextState:    "GetRestartedInstance",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	instanceResponse.Metadata.Verb = http.MethodPost
+	if err := configurePostStub(wm, scenario,
+		&stubConfig{url: instanceUrl + "/restart", params: params, responseBody: instanceResponse, currentState: "RestartInstance", nextState: "GetRestartedInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Get the restarted instance
-	instResponse.Metadata.Verb = http.MethodGet
-	instResponse.Status.State = secalib.ActiveStatusState
-	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		template:     instanceResponseTemplateV1,
-		currentState: "GetRestartedInstance",
-		nextState:    "DeleteInstance",
-		httpStatus:   http.StatusOK,
-	}); err != nil {
+	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
+	instanceResponse.Metadata.Verb = http.MethodGet
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetRestartedInstance", nextState: "DeleteInstance"}); err != nil {
 		return nil, err
 	}
 
 	// Delete the instance
-	instResponse.Metadata.Verb = http.MethodDelete
-	if err := configureDeleteStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		currentState: "DeleteInstance",
-		nextState:    "GetDeletedInstance",
-		httpStatus:   http.StatusAccepted,
-	}); err != nil {
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: instanceUrl, params: params, currentState: "DeleteInstance", nextState: "GetDeletedInstance"}); err != nil {
 		return nil, err
 	}
 
-	// Get deleted instance
-	instResponse.Metadata.Verb = http.MethodGet
-	instResponse.Status.LastTransitionAt = time.Now().Format(time.RFC3339)
-	if err := configureGetStub(wm, scenario, stubConfig{
-		url:          instanceUrl,
-		params:       params,
-		response:     instResponse,
-		currentState: "GetDeletedInstance",
-		nextState:    startedScenarioState,
-		httpStatus:   http.StatusNotFound,
-	}); err != nil {
+	// Get the deleted instance
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: instanceUrl, params: params, currentState: "GetDeletedInstance", nextState: "DeleteBlockStorage"}); err != nil {
+		return nil, err
+	}
+
+	// Delete the block storage
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: blockUrl, params: params, currentState: "DeleteBlockStorage", nextState: "GetDeletedBlockStorage"}); err != nil {
+		return nil, err
+	}
+
+	// Get the deleted block storage
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: blockUrl, params: params, currentState: "GetDeletedBlockStorage", nextState: "DeleteWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Delete the workspace
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Get the deleted workspace
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 

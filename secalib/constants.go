@@ -4,11 +4,6 @@ const (
 	// API Versions
 	ApiVersion1 = "v1"
 
-	// Providers
-	WorkspaceV1Provider = "seca.workspace/v1"
-	StorageV1Provider   = "seca.storage/v1"
-	ComputeV1Provider   = "seca.compute/v1"
-	NetworkV1Provider   = "seca.network/v1"
 	// Labels
 	ArchitectureLabel   = "architecture"
 	ProviderLabel       = "provider"
@@ -16,6 +11,9 @@ const (
 	EnvLabel            = "env"
 	EnvDevelopmentLabel = "development"
 	EnvProductionLabel  = "production"
+
+	// URL Prefixes
+	urlProvidersPrefix = "/providers/"
 
 	// Resource URLs
 	resourceTenantsPrefix    = "tenants/%s"
@@ -31,7 +29,7 @@ const (
 	NetworkResource         = resourceWorkspacesPrefix + "/networks/%s"
 	InternetGatewayResource = resourceWorkspacesPrefix + "/internet-gateways/%s"
 	NicResource             = resourceWorkspacesPrefix + "/nics/%s"
-	PublicIPResource        = resourceWorkspacesPrefix + "/public-ips/%s"
+	PublicIpResource        = resourceWorkspacesPrefix + "/public-ips/%s"
 	RouteTableResource      = resourceWorkspacesPrefix + "/networks/%s/route-tables/%s"
 	SubnetResource          = resourceWorkspacesPrefix + "/networks/%s/subnets/%s"
 	SecurityGroupResource   = resourceWorkspacesPrefix + "/security-groups/%s"
@@ -44,7 +42,7 @@ const (
 	NetworkRef         = "networks/%s"
 	RouteTableRef      = "route-tables/%s"
 	SubnetRef          = "subnets/%s"
-	PublicIPRef        = "public-ips/%s"
+	PublicIpRef        = "public-ips/%s"
 
 	// Resource Kinds
 	RoleKind            = "role"
@@ -59,7 +57,7 @@ const (
 	NetworkSkuKind      = "network-sku"
 	InternetGatewayKind = "internet-gateway"
 	NicKind             = "nic"
-	PublicIPKind        = "public-ip"
+	PublicIpKind        = "public-ip"
 	RouteTableKind      = "routing-table"
 	SubnetKind          = "subnet"
 	SecurityGroupKind   = "security-group"
@@ -68,17 +66,17 @@ const (
 	CpuArchitectureAmd64 = "amd64"
 	CpuArchitectureArm64 = "arm64"
 
-	IPVersion4 = "ipv4"
-	IPVersion6 = "ipv6"
+	IpVersion4 = "ipv4"
+	IpVersion6 = "ipv6"
 
 	SecurityRuleDirectionIngress = "ingress"
 	SecurityRuleDirectionEgress  = "egress"
 
 	// Status States
-	CreatingStatusState  = "creating"
-	ActiveStatusState    = "active"
-	UpdatingStatusState  = "updating"
-	SuspendedStatusState = "suspended"
+	CreatingResourceState  = "creating"
+	ActiveResourceState    = "active"
+	UpdatingResourceState  = "updating"
+	SuspendedResourceState = "suspended"
 
 	// Generators
 	maxBlockStorageSize = 1000000 // GB
