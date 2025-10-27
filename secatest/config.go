@@ -23,6 +23,10 @@ type ConfigHolder struct {
 
 	reportResultsPath string
 
+	initialDelay int
+	baseInterval int
+	maxAttempts  int
+
 	mockEnabled   bool
 	mockServerURL string
 }

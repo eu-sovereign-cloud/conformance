@@ -3,6 +3,7 @@ package secatest
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -58,21 +59,28 @@ func (suite *testSuite) getRoleV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
+		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
+			resp, err = api.GetRole(ctx, tref)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, resp)
+			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
 
-		resp, err = api.GetRole(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				if expectedMeta != nil {
+					expectedMeta.Verb = http.MethodGet
+					suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				}
 
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				if expectedSpec != nil {
+					suite.verifyRoleSpecStep(sCtx, expectedSpec, &resp.Spec)
+				}
+
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				return
+			} else {
+				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
+			}
 		}
-
-		if expectedSpec != nil {
-			suite.verifyRoleSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
 	return resp
 }
@@ -144,17 +152,24 @@ func (suite *testSuite) getRoleAssignmentV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
+		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
+			resp, err = api.GetRoleAssignment(ctx, tref)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, resp)
+			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
 
-		resp, err = api.GetRoleAssignment(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		expectedMeta.Verb = http.MethodGet
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				suite.verifyRoleAssignmentSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-		suite.verifyRoleAssignmentSpecStep(sCtx, expectedSpec, &resp.Spec)
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				return
+			} else {
+				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
+			}
+		}
 	})
 	return resp
 }

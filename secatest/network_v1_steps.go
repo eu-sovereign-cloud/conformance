@@ -3,6 +3,7 @@ package secatest
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -58,21 +59,28 @@ func (suite *testSuite) getNetworkV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetNetwork", string(wref.Workspace))
+		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
+			resp, err = api.GetNetwork(ctx, wref)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, resp)
+			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
 
-		resp, err = api.GetNetwork(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				if expectedMeta != nil {
+					expectedMeta.Verb = http.MethodGet
+					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				}
 
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				if expectedSpec != nil {
+					suite.verifyNetworkSpecStep(sCtx, expectedSpec, &resp.Spec)
+				}
+
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				return
+			} else {
+				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
+			}
 		}
-
-		if expectedSpec != nil {
-			suite.verifyNetworkSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
 	return resp
 }
@@ -149,21 +157,28 @@ func (suite *testSuite) getInternetGatewayV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetInternetGateway", string(wref.Workspace))
+		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
+			resp, err = api.GetInternetGateway(ctx, wref)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, resp)
+			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
 
-		resp, err = api.GetInternetGateway(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				if expectedMeta != nil {
+					expectedMeta.Verb = http.MethodGet
+					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				}
 
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				if expectedSpec != nil {
+					suite.verifyInternetGatewaySpecStep(sCtx, expectedSpec, &resp.Spec)
+				}
+
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				return
+			} else {
+				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
+			}
 		}
-
-		if expectedSpec != nil {
-			suite.verifyInternetGatewaySpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
 	return resp
 }
@@ -240,21 +255,28 @@ func (suite *testSuite) getRouteTableV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetRouteTable", string(nref.Workspace))
+		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
+			resp, err = api.GetRouteTable(ctx, nref)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, resp)
+			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
 
-		resp, err = api.GetRouteTable(ctx, nref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				if expectedMeta != nil {
+					expectedMeta.Verb = http.MethodGet
+					suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				}
 
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				if expectedSpec != nil {
+					suite.verifyRouteTableSpecStep(sCtx, expectedSpec, &resp.Spec)
+				}
+
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				return
+			} else {
+				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
+			}
 		}
-
-		if expectedSpec != nil {
-			suite.verifyRouteTableSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
 	return resp
 }
@@ -331,21 +353,28 @@ func (suite *testSuite) getSubnetV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetSubnet", string(nref.Workspace))
+		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
+			resp, err = api.GetSubnet(ctx, nref)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, resp)
+			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
 
-		resp, err = api.GetSubnet(ctx, nref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				if expectedMeta != nil {
+					expectedMeta.Verb = http.MethodGet
+					suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				}
 
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				if expectedSpec != nil {
+					suite.verifySubnetSpecStep(sCtx, expectedSpec, &resp.Spec)
+				}
+
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				return
+			} else {
+				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
+			}
 		}
-
-		if expectedSpec != nil {
-			suite.verifySubnetSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
 	return resp
 }
@@ -422,21 +451,28 @@ func (suite *testSuite) getPublicIpV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetPublicIp", string(wref.Workspace))
+		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
+			resp, err = api.GetPublicIp(ctx, wref)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, resp)
+			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
 
-		resp, err = api.GetPublicIp(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				if expectedMeta != nil {
+					expectedMeta.Verb = http.MethodGet
+					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				}
 
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				if expectedSpec != nil {
+					suite.verifyPublicIpSpecStep(sCtx, expectedSpec, &resp.Spec)
+				}
+
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				return
+			} else {
+				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
+			}
 		}
-
-		if expectedSpec != nil {
-			suite.verifyPublicIpSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
 	return resp
 }
@@ -513,21 +549,27 @@ func (suite *testSuite) getNicV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetNic", string(wref.Workspace))
+		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
+			resp, err = api.GetNic(ctx, wref)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, resp)
+			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
 
-		resp, err = api.GetNic(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				if expectedMeta != nil {
+					expectedMeta.Verb = http.MethodGet
+					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				}
 
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				if expectedSpec != nil {
+					suite.verifyNicSpecStep(sCtx, expectedSpec, &resp.Spec)
+				}
+
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+			} else {
+				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
+			}
 		}
-
-		if expectedSpec != nil {
-			suite.verifyNicSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
 	return resp
 }
@@ -604,21 +646,27 @@ func (suite *testSuite) getSecurityGroupV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetSecurityGroup", string(wref.Workspace))
+		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
+			resp, err = api.GetSecurityGroup(ctx, wref)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, resp)
+			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
 
-		resp, err = api.GetSecurityGroup(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				if expectedMeta != nil {
+					expectedMeta.Verb = http.MethodGet
+					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				}
 
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				if expectedSpec != nil {
+					suite.verifySecurityGroupSpecStep(sCtx, expectedSpec, &resp.Spec)
+				}
+
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+			} else {
+				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
+			}
 		}
-
-		if expectedSpec != nil {
-			suite.verifySecurityGroupSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 	})
 	return resp
 }

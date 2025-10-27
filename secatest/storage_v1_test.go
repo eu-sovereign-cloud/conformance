@@ -15,6 +15,9 @@ func TestStorageV1Suite(t *testing.T) {
 				mockEnabled:   config.mockEnabled,
 				mockServerURL: &config.mockServerURL,
 				scenarioName:  storageV1LifeCycleSuiteName,
+				initialDelay:  config.initialDelay,
+				baseInterval:  config.baseInterval,
+				maxAttempts:   config.maxAttempts,
 			},
 			region: config.clientRegion,
 			client: clients.regionalClient,
@@ -25,4 +28,5 @@ func TestStorageV1Suite(t *testing.T) {
 	if testSuite.canRun(config.scenariosRegexp) {
 		suite.RunSuite(t, testSuite)
 	}
+
 }

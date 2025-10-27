@@ -130,7 +130,10 @@ func initCommands(m *testing.M) *cobra.Command {
 	runCmd.Flags().BoolVar(&config.mockEnabled, "mock.enabled", false, "Enable Mock Usage")
 	runCmd.Flags().StringVar(&config.mockServerURL, "mock.server.url", "", "Mock Server URL")
 
-	runCmd.MarkFlagsRequiredTogether("provider.region.v1", "provider.authorization.v1", "client.auth.token", "client.region", "client.tenant", "scenarios.users", "scenarios.cidr", "scenarios.public.ips")
+	runCmd.Flags().IntVar(&config.initialDelay, "retry.initial.delay", 5, "Retry Initial Delay in seconds")
+	runCmd.Flags().IntVar(&config.baseInterval, "retry.base.interval", 30, "Retry Base Interval in seconds")
+	runCmd.Flags().IntVar(&config.maxAttempts, "retry.max.attempts", 10, "Retry Max Attempts")
+	runCmd.MarkFlagsRequiredTogether("provider.region.v1", "provider.authorization.v1", "client.auth.token", "client.region", "client.tenant", "scenarios.users", "scenarios.cidr", "scenarios.public.ips", "retry.initial.delay", "retry.base.interval", "retry.max.attempts")
 
 	rootCmd.AddCommand(runCmd)
 
