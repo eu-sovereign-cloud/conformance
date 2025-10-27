@@ -92,21 +92,21 @@ func (suite *testSuite) setWorkspaceV1StepParams(sctx provider.StepCtx, operatio
 	)
 }
 
-func (suite *testSuite) setStorageV1StepParams(sctx provider.StepCtx, operation string, workspace string) {
-	if workspace != "" {
-		sctx.WithNewParameters(
-			providerStepParameter, secalib.StorageProviderV1,
-			operationStepParameter, operation,
-			tenantStepParameter, suite.tenant,
-			workspaceStepParameter, workspace,
-		)
-	} else {
-		sctx.WithNewParameters(
-			providerStepParameter, secalib.StorageProviderV1,
-			operationStepParameter, operation,
-			tenantStepParameter, suite.tenant,
-		)
-	}
+func (suite *testSuite) setStorageTenantV1StepParams(sctx provider.StepCtx, operation string) {
+	sctx.WithNewParameters(
+		providerStepParameter, secalib.StorageProviderV1,
+		operationStepParameter, operation,
+		tenantStepParameter, suite.tenant,
+	)
+}
+
+func (suite *testSuite) setStorageWorkspaceV1StepParams(sctx provider.StepCtx, operation string, workspace string) {
+	sctx.WithNewParameters(
+		providerStepParameter, secalib.StorageProviderV1,
+		operationStepParameter, operation,
+		tenantStepParameter, suite.tenant,
+		workspaceStepParameter, workspace,
+	)
 }
 
 func (suite *testSuite) setComputeV1StepParams(sctx provider.StepCtx, operation string, workspace string) {
