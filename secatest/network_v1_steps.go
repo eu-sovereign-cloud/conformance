@@ -64,7 +64,7 @@ func (suite *testSuite) getNetworkV1Step(
 			resp, err = api.GetNetwork(ctx, wref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
 				if expectedMeta != nil {
 					expectedMeta.Verb = http.MethodGet
@@ -162,7 +162,7 @@ func (suite *testSuite) getInternetGatewayV1Step(
 			resp, err = api.GetInternetGateway(ctx, wref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
 				if expectedMeta != nil {
 					expectedMeta.Verb = http.MethodGet
@@ -260,7 +260,7 @@ func (suite *testSuite) getRouteTableV1Step(
 			resp, err = api.GetRouteTable(ctx, nref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
 				if expectedMeta != nil {
 					expectedMeta.Verb = http.MethodGet
@@ -358,7 +358,7 @@ func (suite *testSuite) getSubnetV1Step(
 			resp, err = api.GetSubnet(ctx, nref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
 				if expectedMeta != nil {
 					expectedMeta.Verb = http.MethodGet
@@ -456,7 +456,7 @@ func (suite *testSuite) getPublicIpV1Step(
 			resp, err = api.GetPublicIp(ctx, wref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
 				if expectedMeta != nil {
 					expectedMeta.Verb = http.MethodGet
@@ -554,7 +554,7 @@ func (suite *testSuite) getNicV1Step(
 			resp, err = api.GetNic(ctx, wref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
 				if expectedMeta != nil {
 					expectedMeta.Verb = http.MethodGet
@@ -566,6 +566,7 @@ func (suite *testSuite) getNicV1Step(
 				}
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				return
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
@@ -651,7 +652,7 @@ func (suite *testSuite) getSecurityGroupV1Step(
 			resp, err = api.GetSecurityGroup(ctx, wref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
 				if expectedMeta != nil {
 					expectedMeta.Verb = http.MethodGet
@@ -663,6 +664,7 @@ func (suite *testSuite) getSecurityGroupV1Step(
 				}
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				return
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}

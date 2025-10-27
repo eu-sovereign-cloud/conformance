@@ -64,9 +64,9 @@ func (suite *testSuite) getBlockStorageV1Step(
 			resp, err = api.GetBlockStorage(ctx, wref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 				if expectedMeta != nil {
-					expectedMeta.Verb = http.MethodPut
+					expectedMeta.Verb = http.MethodGet
 					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 				}
 
@@ -156,7 +156,7 @@ func (suite *testSuite) getImageV1Step(
 			resp, err = api.GetImage(ctx, tref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
 				expectedMeta.Verb = http.MethodGet
 				suite.verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)

@@ -62,7 +62,7 @@ func (suite *testSuite) getWorkspaceV1Step(
 			resp, err = api.GetWorkspace(ctx, tref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
 				if expectedMeta != nil {
 					expectedMeta.Verb = http.MethodGet

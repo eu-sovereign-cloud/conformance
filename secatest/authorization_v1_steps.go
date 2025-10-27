@@ -64,7 +64,7 @@ func (suite *testSuite) getRoleV1Step(
 			resp, err = api.GetRole(ctx, tref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
 				if expectedMeta != nil {
 					expectedMeta.Verb = http.MethodGet
@@ -157,7 +157,7 @@ func (suite *testSuite) getRoleAssignmentV1Step(
 			resp, err = api.GetRoleAssignment(ctx, tref)
 			requireNoError(sCtx, err)
 			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == secalib.ActiveResourceState {
+			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
 				expectedMeta.Verb = http.MethodGet
 				suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
