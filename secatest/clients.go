@@ -99,7 +99,7 @@ func initClients(ctx context.Context) error {
 	// Cleanup configured mock scenarios
 	if config.mockEnabled {
 		if err := wm.ResetAllScenarios(); err != nil {
-			fmt.Errorf("Failed to reset scenarios: %w", err)
+			fmt.Errorf("failed to reset scenarios: %w", err)
 		}
 	}
 

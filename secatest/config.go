@@ -28,6 +28,7 @@ type ConfigHolder struct {
 }
 
 var (
+	// TODO Find a better way to share data between test suites
 	config     *ConfigHolder
 	configLock sync.Mutex
 )

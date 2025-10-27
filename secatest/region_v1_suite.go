@@ -13,7 +13,7 @@ import (
 
 type RegionV1TestSuite struct {
 	globalTestSuite
-	
+
 	regionName string
 }
 
