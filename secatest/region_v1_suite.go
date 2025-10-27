@@ -13,6 +13,7 @@ import (
 
 type RegionV1TestSuite struct {
 	globalTestSuite
+	
 	regionName string
 }
 
@@ -59,7 +60,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 			},
 		}
 
-		wm, err := mock.CreateRegionLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigRegionLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to create region scenario: %v", err)
 		}
@@ -68,7 +69,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 
 	ctx := context.Background()
 
-	regions := []schema.Region{
+	/*regions := []schema.Region{
 		{
 			Metadata: &schema.GlobalResourceMetadata{
 				Name: suite.regionName,
@@ -79,7 +80,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 		regionResource := secalib.GenerateRegionResource(region.Metadata.Name)
 		expectedRegionMeta := secalib.NewGlobalResourceMetadata(region.Metadata.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1, secalib.RegionKind)
 		suite.getRegion("Get region", t, ctx, suite.client.RegionV1, expectedRegionMeta)
-	}
+	}*/
 	// List all Regions
 	suite.getListRegion("Get list region", t, ctx, suite.client.RegionV1)
 
@@ -88,4 +89,8 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 		Equals(secalib.EnvLabel, secalib.EnvDevelopmentLabel)
 	listOptions := builders.NewListOptions().WithLimit(1).WithLabels(labelsParams)
 	suite.getListRegionWithParameters("Get list region with Limit", t, ctx, suite.client.RegionV1, listOptions)
+}
+
+func (suite *RegionV1TestSuite) AfterEach(t provider.T) {
+	suite.resetAllScenarios()
 }

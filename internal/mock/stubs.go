@@ -54,7 +54,7 @@ func configureStub(wm *wiremock.Client, scenarioName string, method string, http
 		priority = stubConfig.priority
 	}
 
-	for key, value := range stubConfig.headers.Values {
+	for key, value := range stubConfig.headers {
 		matcher := wiremock.Matching(value)
 		stubRule.WithHeader(key, matcher)
 	}

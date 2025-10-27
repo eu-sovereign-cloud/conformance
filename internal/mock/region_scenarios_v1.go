@@ -10,7 +10,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func CreateRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*wiremock.Client, error) {
+func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	wm, err := newClient(params.MockURL)
@@ -19,10 +19,8 @@ func CreateRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	}
 
 	// Build headers
-	headerParams := HeaderParams{
-		Values: map[string]string{
-			authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + params.AuthToken,
-		},
+	headerParams := map[string]string{
+		authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + params.AuthToken,
 	}
 
 	regionsResponse := &regionV1.RegionIterator{
@@ -65,11 +63,9 @@ func CreateRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 		regionsResponse.Items = []schema.Region{regionsResponse.Items[0]}
 	}
 
-	headerParams = HeaderParams{
-		Values: map[string]string{
-			authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + params.AuthToken,
-			limitHeaderKey:             "1",
-		},
+	headerParams = map[string]string{
+		authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + params.AuthToken,
+		limitHeaderKey:             "1",
 	}
 
 	if err := configureGetStub(wm, scenario,

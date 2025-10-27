@@ -5,6 +5,9 @@
 # Build
 dist/
 
+# Debug
+**/__debug_bin*
+
 ## Allure
 reports/
 

@@ -20,16 +20,16 @@ const (
 	EnvProductionLabel  = "production"
 
 	// URL Prefixes
-	urlProvidersPrefix = "/providers/"
+	UrlProvidersPrefix = "/providers/"
 
 	// Resource URLs
 	resourceTenantsPrefix    = "tenants/%s"
 	resourceWorkspacesPrefix = resourceTenantsPrefix + "/workspaces/%s"
 
+	RegionResource          = "regions/%s"
 	SkuResource             = resourceTenantsPrefix + "/skus/%s"
 	RoleResource            = resourceTenantsPrefix + "/roles/%s"
 	RoleAssignmentResource  = resourceTenantsPrefix + "/role-assignments/%s"
-	RegionResource          = "regions/%s"
 	WorkspaceResource       = resourceTenantsPrefix + "/workspaces/%s"
 	BlockStorageResource    = resourceWorkspacesPrefix + "/block-storages/%s"
 	ImageResource           = resourceTenantsPrefix + "/images/%s"

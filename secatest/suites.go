@@ -60,6 +60,7 @@ func configureTags(t provider.T, provider string, kinds ...string) {
 }
 
 func (suite *testSuite) resetAllScenarios() {
+	// Cleanup configured mock scenarios
 	if suite.mockClient != nil {
 		if err := suite.mockClient.ResetAllScenarios(); err != nil {
 			slog.Error("Failed to reset scenarios", "error", err)

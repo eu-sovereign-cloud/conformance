@@ -68,7 +68,7 @@ func GenerateSecurityGroupName() string {
 }
 
 func GenerateRegionProviderUrl(provider string) string {
-	return fmt.Sprintf("{{request.scheme}}://{{request.host}}:{{request.port}}%s%s", urlProvidersPrefix, provider)
+	return fmt.Sprintf("{{request.scheme}}://{{request.host}}:{{request.port}}%s%s", UrlProvidersPrefix, provider)
 }
 
 // Resources
