@@ -28,5 +28,4 @@ func TestStorageV1Suite(t *testing.T) {
 	if testSuite.canRun(config.scenariosRegexp) {
 		suite.RunSuite(t, testSuite)
 	}
-
 }

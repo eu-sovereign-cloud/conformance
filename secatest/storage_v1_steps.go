@@ -41,7 +41,6 @@ func (suite *testSuite) createOrUpdateBlockStorageV1Step(
 		}
 
 		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-
 	})
 }
 
@@ -84,7 +83,6 @@ func (suite *testSuite) getBlockStorageV1Step(
 		}
 	})
 	return resp
-
 }
 
 func (suite *testSuite) getBlockStorageWithErrorV1Step(
