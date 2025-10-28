@@ -27,6 +27,7 @@ func (suite *testSuite) getRegion(stepName string, t provider.T, ctx context.Con
 		suite.verifyGlobalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
 		suite.verifyRegionSpecStep(sCtx, &resp.Spec)
+
 	})
 	return resp
 }
