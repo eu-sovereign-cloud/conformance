@@ -40,6 +40,9 @@ The following configurations are required to run the tool. These configurations 
 | `--scenarios.cidr`            | `SCENARIOS_CIDR`            | CIDR range available in the CSP to create network resources                                                               | True     |
 | `--scenarios.public.ips`      | `SCENARIOS_PUBLIC_IPS`      | Public IPs range, in CIDR format, to create CSP public IP's                                                               | True     |
 | `--report.results.path`       | `REPORT_RESULTS_PATH`       | Path to store the tests result reports                                                                                    | False    |
+| `--retry.base.delay`          | `RETRY_BASE_DELAY`          | Initial waiting time (in seconds) after creating a resource before performing the first state check                       | True     |
+| `--retry.base.interval`       | `RETRY_BASE_INTERVAL`       | Time interval (in seconds) to wait between consecutive retry attempts when checking the resource state                    | True     |
+| `--retry.max.attempts`        | `RETRY_MAX_ATTEMPTS`        | Maximum number of retry attempts to check the resource state before timing out                                            | True     |
 
 ## Running
 
@@ -53,7 +56,10 @@ secatest run \
   --client.tenant=$TENANT \
   --scenarios.users=$USERS \
   --scenarios.cidr=$CIDR \
-  --scenarios.public.ips=$PUBLIC_IPS
+  --scenarios.public.ips=$PUBLIC_IPS \
+  --retry.base.delay=$RETRY_BASE_DELAY \
+  --retry.base.interval=$RETRY_BASE_INTERVAL \
+  --retry.max.attempts=$RETRY_MAX_ATTEMPTS
 ```
 
 Example:
@@ -66,7 +72,10 @@ secatest run \
   --client.tenant=demo \
   --scenarios.users=user1@sdemo.secapi.cloud,user2@demo.secapi.cloud \
   --scenarios.cidr=10.1.0.0/16 \
-  --scenarios.public.ips=52.93.126.1/26
+  --scenarios.public.ips=52.93.126.1/26 \
+  --retry.base.delay=$RETRY_BASE_DELAY \
+  --retry.base.interval=$RETRY_BASE_INTERVAL \
+  --retry.max.attempts=$RETRY_MAX_ATTEMPTS
 ```
 
 ## Viewing Result
@@ -118,8 +127,11 @@ secatest run \
   --client.tenant=$TENANT \
   --scenarios.users=$USERS \
   --scenarios.cidr=$CIDR \
-  --scenarios.public.ips=$PUBLIC_IPS
-  --scenarios.filter=$SCENARIOS_FILTER
+  --scenarios.public.ips=$PUBLIC_IPS \
+  --scenarios.filter=$SCENARIOS_FILTER \
+  --retry.base.delay=$RETRY_BASE_DELAY \
+  --retry.base.interval=$RETRY_BASE_INTERVAL \
+  --retry.max.attempts=$RETRY_MAX_ATTEMPTS
 ```
 
 Example:
@@ -133,5 +145,8 @@ secatest run \
   --scenarios.users=user1@sdemo.secapi.cloud,user2@demo.secapi.cloud \
   --scenarios.cidr=10.1.0.0/16 \
   --scenarios.public.ips=52.93.126.1/26 \
-  --scenarios.filter=Compute.V1.LifeCycle
+  --scenarios.filter=Compute.V1.LifeCycle \
+  --retry.base.delay=$RETRY_BASE_DELAY \
+  --retry.base.interval=$RETRY_BASE_INTERVAL \
+  --retry.max.attempts=$RETRY_MAX_ATTEMPTS
 ```
