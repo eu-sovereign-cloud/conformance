@@ -14,12 +14,6 @@ func setCreatedGlobalTenantResourceMetadata(metadata *schema.GlobalTenantResourc
 	metadata.ResourceVersion = 1
 }
 
-func setCreatedGlobalResourceMetadata(metadata *schema.GlobalResourceMetadata) {
-	metadata.CreatedAt = time.Now()
-	metadata.LastModifiedAt = time.Now()
-	metadata.ResourceVersion = 1
-}
-
 func setModifiedGlobalTenantResourceMetadata(metadata *schema.GlobalTenantResourceMetadata) {
 	metadata.LastModifiedAt = time.Now()
 	metadata.ResourceVersion = metadata.ResourceVersion + 1

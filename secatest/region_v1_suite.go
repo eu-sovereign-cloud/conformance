@@ -69,7 +69,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 
 	ctx := context.Background()
 
-	/*regions := []schema.Region{
+	regions := []schema.Region{
 		{
 			Metadata: &schema.GlobalResourceMetadata{
 				Name: suite.regionName,
@@ -80,7 +80,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 		regionResource := secalib.GenerateRegionResource(region.Metadata.Name)
 		expectedRegionMeta := secalib.NewGlobalResourceMetadata(region.Metadata.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1, secalib.RegionKind)
 		suite.getRegion("Get region", t, ctx, suite.client.RegionV1, expectedRegionMeta)
-	}*/
+	}
 	// List all Regions
 	suite.getListRegion("Get list region", t, ctx, suite.client.RegionV1)
 

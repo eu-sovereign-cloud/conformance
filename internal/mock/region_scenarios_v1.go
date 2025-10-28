@@ -37,7 +37,11 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 		regionResource := secalib.GenerateRegionResource(region.Name)
 		regionResponse := newRegionResponse(region.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1,
 			region.InitialSpec)
-
+		regionResponse.Metadata.Verb = http.MethodGet
+		if err := configureGetStub(wm, scenario,
+			&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParams, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+			return nil, err
+		}
 		regionsList = append(regionsList, regionResponse)
 
 	}
@@ -52,6 +56,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 		}
 	}
 	regionsResponse.Items = regionsValueList
+	regionsResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParams, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
 		return nil, err
@@ -67,7 +72,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 		authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + params.AuthToken,
 		limitHeaderKey:             "1",
 	}
-
+	regionsResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParams, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
 		return nil, err
