@@ -149,29 +149,32 @@ func (suite *testSuite) getRoleAssignmentV1Step(
 	expectedStatusState string,
 ) *schema.RoleAssignment {
 	var resp *schema.RoleAssignment
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
-		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
-		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
-			resp, err = api.GetRoleAssignment(ctx, tref)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetRoleAssignment(ctx, tref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
 				expectedMeta.Verb = http.MethodGet
 				suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
 				suite.verifyRoleAssignmentSpecStep(sCtx, expectedSpec, &resp.Spec)
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-				return
-			} else {
-				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
-			}
-			suite.verifyMaxAttempts(sCtx, attempt, "GetRoleAssignment", expectedStatusState)
-		}
+			},
+		)
+		retry.run(sCtx, "GetRoleAssignment", expectedStatusState)
 	})
 	return resp
 }
