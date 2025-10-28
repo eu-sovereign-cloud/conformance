@@ -59,7 +59,7 @@ func (suite *testSuite) getInstanceV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "GetInstance", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetInstance(ctx, wref)
 			requireNoError(sCtx, err)
@@ -80,6 +80,7 @@ func (suite *testSuite) getInstanceV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetInstance", expectedStatusState)
 		}
 	})
 	return resp

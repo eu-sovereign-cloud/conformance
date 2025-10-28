@@ -236,3 +236,104 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 func (suite *StorageV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }
+
+func (suite *StorageV1TestSuite) TestSuiteRetryOperation(t provider.T) {
+	ctx := context.Background()
+	var err error
+	slog.Info("Starting " + suite.scenarioName + "retry")
+
+	t.Title(suite.scenarioName + "retry")
+	configureTags(t, secalib.StorageProviderV1, secalib.BlockStorageKind, secalib.ImageKind)
+
+	// Select sku
+	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
+
+	// Generate scenario data
+	workspaceName := secalib.GenerateWorkspaceName()
+
+	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
+	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	blockStorageName := secalib.GenerateBlockStorageName()
+	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
+	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	imageName := secalib.GenerateImageName()
+
+	initialStorageSize := secalib.GenerateBlockStorageSize()
+	updatedStorageSize := secalib.GenerateBlockStorageSize()
+
+	// Setup mock, if configured to use
+	if suite.mockEnabled {
+		mockParams := &mock.StorageParamsV1{
+			Params: &mock.Params{
+				MockURL:   *suite.mockServerURL,
+				AuthToken: suite.authToken,
+				Tenant:    suite.tenant,
+				Region:    suite.region,
+			},
+			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
+				Name: workspaceName,
+				InitialLabels: schema.Labels{
+					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+				},
+			},
+			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
+				Name: blockStorageName,
+				InitialSpec: &schema.BlockStorageSpec{
+					SkuRef: *storageSkuRefObj,
+					SizeGB: initialStorageSize,
+				},
+				UpdatedSpec: &schema.BlockStorageSpec{
+					SkuRef: *storageSkuRefObj,
+					SizeGB: updatedStorageSize,
+				},
+			},
+			Image: &mock.ResourceParams[schema.ImageSpec]{
+				Name: imageName,
+				InitialSpec: &schema.ImageSpec{
+					BlockStorageRef: *blockStorageRefObj,
+					CpuArchitecture: secalib.CpuArchitectureAmd64,
+				},
+				UpdatedSpec: &schema.ImageSpec{
+					BlockStorageRef: *blockStorageRefObj,
+					CpuArchitecture: secalib.CpuArchitectureArm64,
+				},
+			},
+		}
+		wm, err := mock.ConfigStorageWithWaitingScenarioV1(suite.scenarioName, mockParams)
+		if err != nil {
+			t.Fatalf("Failed to configure mock scenario: %v", err)
+		}
+		suite.mockClient = wm
+	}
+
+	// Workspace
+
+	// Create a workspace
+	workspace := &schema.Workspace{
+		Labels: schema.Labels{
+			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+		},
+		Metadata: &schema.RegionalResourceMetadata{
+			Tenant: suite.tenant,
+			Name:   workspaceName,
+		},
+	}
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, nil, nil, secalib.CreatingResourceState)
+
+	// Get the created Workspace
+	workspaceTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   workspaceName,
+	}
+	suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, nil, nil, secalib.ActiveResourceState)
+
+	slog.Info("Finishing " + suite.scenarioName)
+}

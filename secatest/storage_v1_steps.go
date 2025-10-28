@@ -59,7 +59,7 @@ func (suite *testSuite) getBlockStorageV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageWorkspaceV1StepParams(sCtx, "GetBlockStorage", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetBlockStorage(ctx, wref)
 			requireNoError(sCtx, err)
@@ -79,6 +79,8 @@ func (suite *testSuite) getBlockStorageV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+
+			suite.verifyMaxAttempts(sCtx, attempt, "GetBlockStorage", expectedStatusState)
 
 		}
 	})
@@ -151,7 +153,7 @@ func (suite *testSuite) getImageV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageTenantV1StepParams(sCtx, "GetImage")
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetImage(ctx, tref)
 			requireNoError(sCtx, err)
@@ -166,6 +168,7 @@ func (suite *testSuite) getImageV1Step(
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
 				return
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetImage", expectedStatusState)
 		}
 	})
 	return resp

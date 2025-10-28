@@ -59,7 +59,7 @@ func (suite *testSuite) getNetworkV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetNetwork", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetNetwork(ctx, wref)
 			requireNoError(sCtx, err)
@@ -80,6 +80,7 @@ func (suite *testSuite) getNetworkV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetNetwork", expectedStatusState)
 		}
 	})
 	return resp
@@ -157,7 +158,7 @@ func (suite *testSuite) getInternetGatewayV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetInternetGateway", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetInternetGateway(ctx, wref)
 			requireNoError(sCtx, err)
@@ -178,6 +179,7 @@ func (suite *testSuite) getInternetGatewayV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetInternetGateway", expectedStatusState)
 		}
 	})
 	return resp
@@ -255,7 +257,7 @@ func (suite *testSuite) getRouteTableV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetRouteTable", string(nref.Workspace))
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetRouteTable(ctx, nref)
 			requireNoError(sCtx, err)
@@ -276,6 +278,7 @@ func (suite *testSuite) getRouteTableV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetRouteTable", expectedStatusState)
 		}
 	})
 	return resp
@@ -353,7 +356,7 @@ func (suite *testSuite) getSubnetV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetSubnet", string(nref.Workspace))
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetSubnet(ctx, nref)
 			requireNoError(sCtx, err)
@@ -374,6 +377,7 @@ func (suite *testSuite) getSubnetV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetSubnet", expectedStatusState)
 		}
 	})
 	return resp
@@ -451,7 +455,7 @@ func (suite *testSuite) getPublicIpV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetPublicIp", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetPublicIp(ctx, wref)
 			requireNoError(sCtx, err)
@@ -472,6 +476,8 @@ func (suite *testSuite) getPublicIpV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetPublicIp", expectedStatusState)
+
 		}
 	})
 	return resp
@@ -549,7 +555,7 @@ func (suite *testSuite) getNicV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetNic", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetNic(ctx, wref)
 			requireNoError(sCtx, err)
@@ -570,6 +576,7 @@ func (suite *testSuite) getNicV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetNic", expectedStatusState)
 		}
 	})
 	return resp
@@ -647,7 +654,7 @@ func (suite *testSuite) getSecurityGroupV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetSecurityGroup", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetSecurityGroup(ctx, wref)
 			requireNoError(sCtx, err)
@@ -668,6 +675,7 @@ func (suite *testSuite) getSecurityGroupV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetSecurityGroup", expectedStatusState)
 		}
 	})
 	return resp

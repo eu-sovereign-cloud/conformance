@@ -23,7 +23,7 @@ type ConfigHolder struct {
 
 	reportResultsPath string
 
-	initialDelay int
+	baseDelay    int
 	baseInterval int
 	maxAttempts  int
 

@@ -15,7 +15,7 @@ func TestNetworkV1Suite(t *testing.T) {
 				mockEnabled:   config.mockEnabled,
 				mockServerURL: &config.mockServerURL,
 				scenarioName:  networkV1LifeCycleSuiteName,
-				initialDelay:  config.initialDelay,
+				baseDelay:     config.baseDelay,
 				baseInterval:  config.baseInterval,
 				maxAttempts:   config.maxAttempts,
 			},

@@ -23,7 +23,7 @@ type testSuite struct {
 	mockClient   *wiremock.Client
 	scenarioName string
 
-	initialDelay int
+	baseDelay    int
 	baseInterval int
 	maxAttempts  int
 }

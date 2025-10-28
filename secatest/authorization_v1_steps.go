@@ -59,7 +59,7 @@ func (suite *testSuite) getRoleV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetRole(ctx, tref)
 			requireNoError(sCtx, err)
@@ -80,6 +80,7 @@ func (suite *testSuite) getRoleV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetRole", expectedStatusState)
 		}
 	})
 	return resp
@@ -152,7 +153,7 @@ func (suite *testSuite) getRoleAssignmentV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetRoleAssignment(ctx, tref)
 			requireNoError(sCtx, err)
@@ -169,6 +170,7 @@ func (suite *testSuite) getRoleAssignmentV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetRoleAssignment", expectedStatusState)
 		}
 	})
 	return resp

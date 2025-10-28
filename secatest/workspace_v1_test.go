@@ -15,7 +15,7 @@ func TestWorkspaceV1Suite(t *testing.T) {
 				mockEnabled:   config.mockEnabled,
 				mockServerURL: &config.mockServerURL,
 				scenarioName:  workspaceV1LifeCycleSuiteName,
-				initialDelay:  config.initialDelay,
+				baseDelay:     config.baseDelay,
 				baseInterval:  config.baseInterval,
 				maxAttempts:   config.maxAttempts,
 			},

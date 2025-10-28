@@ -15,7 +15,7 @@ func TestFoundationUsageV1Suite(t *testing.T) {
 				mockEnabled:   config.mockEnabled,
 				mockServerURL: &config.mockServerURL,
 				scenarioName:  foundationV1UsageSuiteName,
-				initialDelay:  config.initialDelay,
+				baseDelay:     config.baseDelay,
 				baseInterval:  config.baseInterval,
 				maxAttempts:   config.maxAttempts,
 			},

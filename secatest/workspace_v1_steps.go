@@ -57,7 +57,7 @@ func (suite *testSuite) getWorkspaceV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
-		time.Sleep(time.Duration(suite.initialDelay) * time.Second)
+		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
 		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
 			resp, err = api.GetWorkspace(ctx, tref)
 			requireNoError(sCtx, err)
@@ -78,6 +78,7 @@ func (suite *testSuite) getWorkspaceV1Step(
 			} else {
 				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
 			}
+			suite.verifyMaxAttempts(sCtx, attempt, "GetWorkspace", expectedStatusState)
 		}
 	})
 	return resp
