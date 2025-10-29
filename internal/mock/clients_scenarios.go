@@ -2,6 +2,7 @@ package mock
 
 import (
 	"log/slog"
+	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -55,7 +56,7 @@ func ConfigClientsInitScenario(params *ClientsInitParams) (*wiremock.Client, err
 	}
 
 	response := newRegionResponse(params.Region, secalib.RegionProviderV1, resource, secalib.ApiVersion1, spec)
-
+	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, "ClientsInit",
 		&stubConfig{url: url, params: params, headers: headers, responseBody: response}); err != nil {
 		return nil, err

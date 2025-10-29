@@ -34,12 +34,14 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 
 	// Create Regions to be listed
 	for _, region := range params.Regions {
+		regionUrl := secalib.GenerateRegionURL(region.Name)
 		regionResource := secalib.GenerateRegionResource(region.Name)
 		regionResponse := newRegionResponse(region.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1,
 			region.InitialSpec)
 		regionResponse.Metadata.Verb = http.MethodGet
+
 		if err := configureGetStub(wm, scenario,
-			&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParams, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+			&stubConfig{url: regionUrl, params: params, headers: headerParams, responseBody: regionResponse, currentState: "", nextState: ""}); err != nil {
 			return nil, err
 		}
 		regionsList = append(regionsList, regionResponse)
