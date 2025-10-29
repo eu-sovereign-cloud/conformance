@@ -76,6 +76,13 @@ func (suite *testSuite) verifyRegionalNetworkResourceMetadataStep(ctx provider.S
 
 // Status
 
+func (suite *testSuite) requireNotNilStatus(sCtx provider.StepCtx, status any) {
+	sCtx.WithNewStep("Verify not nil status", func(stepCtx provider.StepCtx) {
+		stepCtx.WithNewParameters("status", fmt.Sprintf("%v", status))
+		stepCtx.Require().NotNil(status, "Should be not nil")
+	})
+}
+
 func (suite *testSuite) verifyStatusStep(ctx provider.StepCtx, expected schema.ResourceState, actual schema.ResourceState) {
 	ctx.WithNewStep("Verify status state", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(expected, actual, "Status state should match expected")

@@ -54,25 +54,33 @@ func (suite *testSuite) getInstanceV1Step(
 	expectedStatusState string,
 ) *schema.Instance {
 	var resp *schema.Instance
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "GetInstance", string(wref.Workspace))
 
-		resp, err = api.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetInstance(ctx, wref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		if expectedSpec != nil {
-			suite.verifyInstanceSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
+				suite.verifyInstanceSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+			},
+		)
+		retry.run(sCtx, "GetInstance", expectedStatusState)
 	})
 	return resp
 }

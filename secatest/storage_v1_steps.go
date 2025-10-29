@@ -54,25 +54,32 @@ func (suite *testSuite) getBlockStorageV1Step(
 	expectedStatusState string,
 ) *schema.BlockStorage {
 	var resp *schema.BlockStorage
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageWorkspaceV1StepParams(sCtx, "GetBlockStorage", string(wref.Workspace))
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetBlockStorage(ctx, wref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-		resp, err = api.GetBlockStorage(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
+				suite.verifyBlockStorageSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-		if expectedSpec != nil {
-			suite.verifyBlockStorageSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+			},
+		)
+		retry.run(sCtx, "GetBlockStorage", expectedStatusState)
 	})
 	return resp
 }
@@ -139,21 +146,32 @@ func (suite *testSuite) getImageV1Step(
 	expectedMeta *schema.RegionalResourceMetadata, expectedSpec *schema.ImageSpec, expectedStatusState string,
 ) *schema.Image {
 	var resp *schema.Image
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageTenantV1StepParams(sCtx, "GetImage")
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetImage(ctx, tref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-		resp, err = api.GetImage(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		expectedMeta.Verb = http.MethodGet
-		suite.verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+				suite.verifyImageSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-		suite.verifyImageSpecStep(sCtx, expectedSpec, &resp.Spec)
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+			},
+		)
+		retry.run(sCtx, "GetImage", expectedStatusState)
 	})
 	return resp
 }

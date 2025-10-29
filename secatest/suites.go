@@ -22,6 +22,10 @@ type testSuite struct {
 
 	mockClient   *wiremock.Client
 	scenarioName string
+
+	baseDelay    int
+	baseInterval int
+	maxAttempts  int
 }
 
 func (suite *testSuite) canRun(regexp *regexp.Regexp) bool {

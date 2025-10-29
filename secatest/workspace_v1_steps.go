@@ -52,25 +52,32 @@ func (suite *testSuite) getWorkspaceV1Step(
 	expectedStatusState string,
 ) *schema.Workspace {
 	var resp *schema.Workspace
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetWorkspace(ctx, tref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-		resp, err = api.GetWorkspace(ctx, tref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
+				suite.verifyLabelsStep(sCtx, expectedLabels, resp.Labels)
 
-		if expectedLabels != nil {
-			suite.verifyLabelsStep(sCtx, expectedLabels, resp.Labels)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+			},
+		)
+		retry.run(sCtx, "GetWorkspace", expectedStatusState)
 	})
 	return resp
 }

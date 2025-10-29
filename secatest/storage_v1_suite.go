@@ -32,6 +32,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 
 	// Generate scenario data
 	workspaceName := secalib.GenerateWorkspaceName()
+	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
 
 	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
 	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
@@ -110,14 +111,22 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, nil, nil, secalib.CreatingResourceState)
+	expectMeta := secalib.NewRegionalResourceMetadata(workspaceName,
+		secalib.WorkspaceProviderV1,
+		workspaceResource,
+		secalib.ApiVersion1,
+		secalib.WorkspaceKind,
+		suite.tenant, suite.region)
+	expectLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, expectMeta, expectLabels, secalib.CreatingResourceState)
 
 	// Get the created Workspace
 	workspaceTRef := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.tenant),
 		Name:   workspaceName,
 	}
-	suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, nil, nil, secalib.ActiveResourceState)
+	suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, expectMeta, expectLabels, secalib.ActiveResourceState)
 
 	// Block storage
 
