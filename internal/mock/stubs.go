@@ -58,7 +58,6 @@ func configureStub(wm *wiremock.Client, scenarioName string, method string, http
 		matcher := wiremock.Matching(value)
 		stubRule.WithHeader(key, matcher)
 	}
-	wm.DeleteStub()
 	// Create a stub with scenario state if currentState it's defined
 	if stubConfig.currentState != "" {
 		if err := wm.StubFor(stubRule.
