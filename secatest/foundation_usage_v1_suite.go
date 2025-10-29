@@ -108,6 +108,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	instanceName := secalib.GenerateInstanceName()
+	instanceResource := secalib.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
 
 	networkSkuRef1 := secalib.GenerateSkuRef(networkSkuName)
 	networkSkuRefObj, err := secapi.BuildReferenceFromURN(networkSkuRef1)
@@ -739,7 +740,24 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	suite.createOrUpdateInstanceV1Step("Create an instance", t, ctx, suite.regionalClient.ComputeV1, instance, nil, nil, secalib.CreatingResourceState)
+
+	expectInstanceMeta := secalib.NewRegionalWorkspaceResourceMetadata(instanceName,
+		secalib.ComputeProviderV1,
+		instanceResource,
+		secalib.ApiVersion1,
+		secalib.InstanceKind,
+		suite.tenant,
+		workspaceName,
+		suite.region)
+	expectInstanceSpec := &schema.InstanceSpec{
+		SkuRef: *instanceSkuRefObj,
+		Zone:   instance.Spec.Zone,
+		BootVolume: schema.VolumeReference{
+			DeviceRef: *blockStorageRefObj,
+		},
+	}
+
+	suite.createOrUpdateInstanceV1Step("Create an instance", t, ctx, suite.regionalClient.ComputeV1, instance, expectInstanceMeta, expectInstanceSpec, secalib.CreatingResourceState)
 
 	// Get the created instance
 	instanceWRef := &secapi.WorkspaceReference{
@@ -747,7 +765,8 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      instanceName,
 	}
-	instance = suite.getInstanceV1Step("Get the created instance", t, ctx, suite.regionalClient.ComputeV1, *instanceWRef, nil, nil, secalib.ActiveResourceState)
+
+	instance = suite.getInstanceV1Step("Get the created instance", t, ctx, suite.regionalClient.ComputeV1, *instanceWRef, expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
 
 	// Delete All
 

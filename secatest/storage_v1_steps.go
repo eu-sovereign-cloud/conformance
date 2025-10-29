@@ -3,7 +3,6 @@ package secatest
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -55,34 +54,32 @@ func (suite *testSuite) getBlockStorageV1Step(
 	expectedStatusState string,
 ) *schema.BlockStorage {
 	var resp *schema.BlockStorage
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageWorkspaceV1StepParams(sCtx, "GetBlockStorage", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
-		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
-			resp, err = api.GetBlockStorage(ctx, wref)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
-				if expectedMeta != nil {
-					expectedMeta.Verb = http.MethodGet
-					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-				}
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetBlockStorage(ctx, wref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-				if expectedSpec != nil {
-					suite.verifyBlockStorageSpecStep(sCtx, expectedSpec, &resp.Spec)
-				}
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+
+				suite.verifyBlockStorageSpecStep(sCtx, expectedSpec, &resp.Spec)
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-				return
-			} else {
-				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
-			}
-
-			suite.verifyMaxAttempts(sCtx, attempt, "GetBlockStorage", expectedStatusState)
-
-		}
+			},
+		)
+		retry.run(sCtx, "GetBlockStorage", expectedStatusState)
 	})
 	return resp
 }
@@ -149,27 +146,32 @@ func (suite *testSuite) getImageV1Step(
 	expectedMeta *schema.RegionalResourceMetadata, expectedSpec *schema.ImageSpec, expectedStatusState string,
 ) *schema.Image {
 	var resp *schema.Image
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageTenantV1StepParams(sCtx, "GetImage")
-		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
-		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
-			resp, err = api.GetImage(ctx, tref)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetImage(ctx, tref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
 				expectedMeta.Verb = http.MethodGet
 				suite.verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
 				suite.verifyImageSpecStep(sCtx, expectedSpec, &resp.Spec)
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-				return
-			}
-			suite.verifyMaxAttempts(sCtx, attempt, "GetImage", expectedStatusState)
-		}
+			},
+		)
+		retry.run(sCtx, "GetImage", expectedStatusState)
 	})
 	return resp
 }

@@ -3,7 +3,6 @@ package secatest
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -55,33 +54,32 @@ func (suite *testSuite) getNetworkV1Step(
 	expectedStatusState string,
 ) *schema.Network {
 	var resp *schema.Network
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetNetwork", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
-		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
-			resp, err = api.GetNetwork(ctx, wref)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetNetwork(ctx, wref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-				if expectedMeta != nil {
-					expectedMeta.Verb = http.MethodGet
-					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-				}
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-				if expectedSpec != nil {
-					suite.verifyNetworkSpecStep(sCtx, expectedSpec, &resp.Spec)
-				}
+				suite.verifyNetworkSpecStep(sCtx, expectedSpec, &resp.Spec)
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-				return
-			} else {
-				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
-			}
-			suite.verifyMaxAttempts(sCtx, attempt, "GetNetwork", expectedStatusState)
-		}
+			},
+		)
+		retry.run(sCtx, "GetNetwork", expectedStatusState)
 	})
 	return resp
 }
@@ -154,33 +152,32 @@ func (suite *testSuite) getInternetGatewayV1Step(
 	expectedStatusState string,
 ) *schema.InternetGateway {
 	var resp *schema.InternetGateway
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetInternetGateway", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
-		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
-			resp, err = api.GetInternetGateway(ctx, wref)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetInternetGateway(ctx, wref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-				if expectedMeta != nil {
-					expectedMeta.Verb = http.MethodGet
-					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-				}
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-				if expectedSpec != nil {
-					suite.verifyInternetGatewaySpecStep(sCtx, expectedSpec, &resp.Spec)
-				}
+				suite.verifyInternetGatewaySpecStep(sCtx, expectedSpec, &resp.Spec)
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-				return
-			} else {
-				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
-			}
-			suite.verifyMaxAttempts(sCtx, attempt, "GetInternetGateway", expectedStatusState)
-		}
+			},
+		)
+		retry.run(sCtx, "GetInternetGateway", expectedStatusState)
 	})
 	return resp
 }
@@ -253,33 +250,32 @@ func (suite *testSuite) getRouteTableV1Step(
 	expectedStatusState string,
 ) *schema.RouteTable {
 	var resp *schema.RouteTable
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetRouteTable", string(nref.Workspace))
-		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
-		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
-			resp, err = api.GetRouteTable(ctx, nref)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetRouteTable(ctx, nref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-				if expectedMeta != nil {
-					expectedMeta.Verb = http.MethodGet
-					suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-				}
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-				if expectedSpec != nil {
-					suite.verifyRouteTableSpecStep(sCtx, expectedSpec, &resp.Spec)
-				}
+				suite.verifyRouteTableSpecStep(sCtx, expectedSpec, &resp.Spec)
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-				return
-			} else {
-				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
-			}
-			suite.verifyMaxAttempts(sCtx, attempt, "GetRouteTable", expectedStatusState)
-		}
+			},
+		)
+		retry.run(sCtx, "GetRouteTable", expectedStatusState)
 	})
 	return resp
 }
@@ -352,33 +348,32 @@ func (suite *testSuite) getSubnetV1Step(
 	expectedStatusState string,
 ) *schema.Subnet {
 	var resp *schema.Subnet
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetSubnet", string(nref.Workspace))
-		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
-		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
-			resp, err = api.GetSubnet(ctx, nref)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetSubnet(ctx, nref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-				if expectedMeta != nil {
-					expectedMeta.Verb = http.MethodGet
-					suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-				}
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-				if expectedSpec != nil {
-					suite.verifySubnetSpecStep(sCtx, expectedSpec, &resp.Spec)
-				}
+				suite.verifySubnetSpecStep(sCtx, expectedSpec, &resp.Spec)
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-				return
-			} else {
-				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
-			}
-			suite.verifyMaxAttempts(sCtx, attempt, "GetSubnet", expectedStatusState)
-		}
+			},
+		)
+		retry.run(sCtx, "GetSubnet", expectedStatusState)
 	})
 	return resp
 }
@@ -451,34 +446,32 @@ func (suite *testSuite) getPublicIpV1Step(
 	expectedStatusState string,
 ) *schema.PublicIp {
 	var resp *schema.PublicIp
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetPublicIp", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
-		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
-			resp, err = api.GetPublicIp(ctx, wref)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetPublicIp(ctx, wref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-				if expectedMeta != nil {
-					expectedMeta.Verb = http.MethodGet
-					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-				}
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-				if expectedSpec != nil {
-					suite.verifyPublicIpSpecStep(sCtx, expectedSpec, &resp.Spec)
-				}
+				suite.verifyPublicIpSpecStep(sCtx, expectedSpec, &resp.Spec)
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-				return
-			} else {
-				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
-			}
-			suite.verifyMaxAttempts(sCtx, attempt, "GetPublicIp", expectedStatusState)
-
-		}
+			},
+		)
+		retry.run(sCtx, "GetPublicIp", expectedStatusState)
 	})
 	return resp
 }
@@ -551,33 +544,32 @@ func (suite *testSuite) getNicV1Step(
 	expectedStatusState string,
 ) *schema.Nic {
 	var resp *schema.Nic
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetNic", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
-		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
-			resp, err = api.GetNic(ctx, wref)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetNic(ctx, wref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-				if expectedMeta != nil {
-					expectedMeta.Verb = http.MethodGet
-					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-				}
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-				if expectedSpec != nil {
-					suite.verifyNicSpecStep(sCtx, expectedSpec, &resp.Spec)
-				}
+				suite.verifyNicSpecStep(sCtx, expectedSpec, &resp.Spec)
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-				return
-			} else {
-				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
-			}
-			suite.verifyMaxAttempts(sCtx, attempt, "GetNic", expectedStatusState)
-		}
+			},
+		)
+		retry.run(sCtx, "GetNic", expectedStatusState)
 	})
 	return resp
 }
@@ -650,33 +642,32 @@ func (suite *testSuite) getSecurityGroupV1Step(
 	expectedStatusState string,
 ) *schema.SecurityGroup {
 	var resp *schema.SecurityGroup
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetSecurityGroup", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
-		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
-			resp, err = api.GetSecurityGroup(ctx, wref)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetSecurityGroup(ctx, wref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-				if expectedMeta != nil {
-					expectedMeta.Verb = http.MethodGet
-					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-				}
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-				if expectedSpec != nil {
-					suite.verifySecurityGroupSpecStep(sCtx, expectedSpec, &resp.Spec)
-				}
+				suite.verifySecurityGroupSpecStep(sCtx, expectedSpec, &resp.Spec)
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-				return
-			} else {
-				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
-			}
-			suite.verifyMaxAttempts(sCtx, attempt, "GetSecurityGroup", expectedStatusState)
-		}
+			},
+		)
+		retry.run(sCtx, "GetSecurityGroup", expectedStatusState)
 	})
 	return resp
 }

@@ -3,7 +3,6 @@ package secatest
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -55,33 +54,33 @@ func (suite *testSuite) getInstanceV1Step(
 	expectedStatusState string,
 ) *schema.Instance {
 	var resp *schema.Instance
-	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "GetInstance", string(wref.Workspace))
-		time.Sleep(time.Duration(suite.baseDelay) * time.Second)
-		for attempt := 1; attempt <= suite.maxAttempts; attempt++ {
-			resp, err = api.GetInstance(ctx, wref)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, resp)
-			if resp.Status.State != nil && *resp.Status.State == *secalib.SetResourceState(expectedStatusState) {
 
-				if expectedMeta != nil {
-					expectedMeta.Verb = http.MethodGet
-					suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-				}
+		retry := newStepRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() schema.ResourceState {
+				var err error
+				resp, err = api.GetInstance(ctx, wref)
+				requireNoError(sCtx, err)
+				requireNotNilResponse(sCtx, resp)
 
-				if expectedSpec != nil {
-					suite.verifyInstanceSpecStep(sCtx, expectedSpec, &resp.Spec)
-				}
+				suite.requireNotNilStatus(sCtx, resp.Status)
+				return *resp.Status.State
+			},
+			func() {
+				expectedMeta.Verb = http.MethodGet
+				suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+
+				suite.verifyInstanceSpecStep(sCtx, expectedSpec, &resp.Spec)
 
 				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-				return
-			} else {
-				time.Sleep(time.Duration(suite.baseInterval) * time.Second)
-			}
-			suite.verifyMaxAttempts(sCtx, attempt, "GetInstance", expectedStatusState)
-		}
+			},
+		)
+		retry.run(sCtx, "GetInstance", expectedStatusState)
 	})
 	return resp
 }

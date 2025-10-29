@@ -237,15 +237,3 @@ func (suite *testSuite) verifySecurityGroupSpecStep(ctx provider.StepCtx, expect
 		}
 	})
 }
-
-func (suite *testSuite) verifyMaxAttempts(ctx provider.StepCtx, attempts int, scenario string, expectedStatusState string) {
-	if attempts == suite.maxAttempts {
-		ctx.WithNewStep("Max attempts reached", func(stepCtx provider.StepCtx) {
-			timeoutMsg := fmt.Sprintf(
-				"%s did not reach expected state '%s' after %d attempts ", scenario,
-				expectedStatusState, suite.maxAttempts,
-			)
-			stepCtx.Error(ctx, timeoutMsg)
-		})
-	}
-}
