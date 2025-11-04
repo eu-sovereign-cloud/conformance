@@ -93,23 +93,10 @@ fmt:
       jq '.' "$$file" > "$$file.tmp" && mv "$$file.tmp" "$$file"; \
 	done
 
-.PHONY: golint
-golint:
-	@echo "Linting code..."
-	$(GO_TOOL) github.com/golangci/golangci-lint/v2/cmd/golangci-lint run --timeout 5m
-
-.PHONY: vet
-vet:
-	@echo "Running vet..."
-	$(GO) vet ./...
-
-.PHONY: sec
-sec:
-	@echo "Running gosec..."
-	$(GO_TOOL) github.com/securego/gosec/v2/cmd/gosec -exclude=G101,G404 ./...
-
 .PHONY: lint
-lint: fmt golint vet sec
+lint:
+	@echo "Linting code..."
+	$(GO_TOOL) github.com/golangci/golangci-lint/cmd/golangci-lint run --verbose -c .golangci.yml
 
 .PHONY: clean
 clean:
