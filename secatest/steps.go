@@ -1,11 +1,109 @@
 package secatest
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
+
+// Steps
+
+type stepFuncResponse[M, E any] struct {
+	labels   schema.Labels
+	metadata *M
+	spec     E
+	state    *schema.ResourceState
+}
+
+func newStepFuncResponse[M, E any](labels schema.Labels, metadata *M, spec E, state *schema.ResourceState) *stepFuncResponse[M, E] {
+	return &stepFuncResponse[M, E]{
+		labels:   labels,
+		metadata: metadata,
+		spec:     spec,
+		state:    state,
+	}
+}
+
+func createOrUpdateResourceStep[M, R, E any](
+	t provider.T,
+	ctx context.Context,
+	suite *testSuite,
+	stepName string,
+	stepParamsFunc func(provider.StepCtx, string),
+	operationName string,
+	resource *R,
+	createOrUpdateFunc func(context.Context, *R) (*stepFuncResponse[M, E], error),
+	expectedLabels schema.Labels,
+	expectedMetadata *M,
+	verifyMetadataFunc func(provider.StepCtx, *M, *M),
+	expectedSpec *E,
+	verifySpecFunc func(provider.StepCtx, *E, *E),
+	expectedResourceState schema.ResourceState,
+) {
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		stepParamsFunc(sCtx, operationName)
+
+		resp, err := createOrUpdateFunc(ctx, resource)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, resp)
+
+		if expectedLabels != nil {
+			suite.verifyLabelsStep(sCtx, expectedLabels, resp.labels)
+		}
+
+		if expectedMetadata != nil {
+			verifyMetadataFunc(sCtx, expectedMetadata, resp.metadata)
+		}
+
+		if expectedSpec != nil {
+			verifySpecFunc(sCtx, expectedSpec, &resp.spec)
+		}
+
+		suite.verifyStatusStep(sCtx, expectedResourceState, *resp.state)
+	})
+}
+
+func createOrUpdateWorkspaceResourceStep[M, R, E any](
+	t provider.T,
+	ctx context.Context,
+	suite *testSuite,
+	stepName string,
+	stepParamsFunc func(provider.StepCtx, string, string),
+	operationName string,
+	workspace string,
+	resource *R,
+	createOrUpdateFunc func(context.Context, *R) (*stepFuncResponse[M, E], error),
+	expectedLabels schema.Labels,
+	expectedMetadata *M,
+	verifyMetadataFunc func(provider.StepCtx, *M, *M),
+	expectedSpec *E,
+	verifySpecFunc func(provider.StepCtx, *E, *E),
+	expectedResourceState schema.ResourceState,
+) {
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		stepParamsFunc(sCtx, operationName, workspace)
+
+		resp, err := createOrUpdateFunc(ctx, resource)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, resp)
+
+		if expectedLabels != nil {
+			suite.verifyLabelsStep(sCtx, expectedLabels, resp.labels)
+		}
+
+		if expectedMetadata != nil {
+			verifyMetadataFunc(sCtx, expectedMetadata, resp.metadata)
+		}
+
+		if expectedSpec != nil {
+			verifySpecFunc(sCtx, expectedSpec, &resp.spec)
+		}
+
+		suite.verifyStatusStep(sCtx, expectedResourceState, *resp.state)
+	})
+}
 
 // Metadata
 

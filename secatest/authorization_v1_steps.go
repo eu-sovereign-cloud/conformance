@@ -21,26 +21,28 @@ func (suite *testSuite) createOrUpdateRoleV1Step(
 	resource *schema.Role,
 	expectedMeta *schema.GlobalTenantResourceMetadata,
 	expectedSpec *schema.RoleSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRole")
-
-		resp, err := api.CreateOrUpdateRole(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyRoleSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	expectedMeta.Verb = http.MethodPut
+	createOrUpdateResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setAuthorizationV1StepParams,
+		"CreateOrUpdateRole",
+		resource,
+		func(context.Context, *schema.Role) (*stepFuncResponse[schema.GlobalTenantResourceMetadata, schema.RoleSpec], error) {
+			resp, err := api.CreateOrUpdateRole(ctx, resource)
+			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		nil,
+		expectedMeta,
+		suite.verifyGlobalTenantResourceMetadataStep,
+		expectedSpec,
+		suite.verifyRoleSpecStep,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getRoleV1Step(
@@ -57,18 +59,18 @@ func (suite *testSuite) getRoleV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
-		retry := newStepRetry(
+		retry := newStepResourceStateRetry(
 			suite.baseDelay,
 			suite.baseInterval,
 			suite.maxAttempts,
-			func() schema.ResourceState {
+			func() (schema.ResourceState, error) {
 				var err error
 				resp, err = api.GetRole(ctx, tref)
 				requireNoError(sCtx, err)
 				requireNotNilResponse(sCtx, resp)
 
 				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State
+				return *resp.Status.State, nil
 			},
 			func() {
 				expectedMeta.Verb = http.MethodGet
@@ -118,22 +120,28 @@ func (suite *testSuite) createOrUpdateRoleAssignmentV1Step(
 	resource *schema.RoleAssignment,
 	expectedMeta *schema.GlobalTenantResourceMetadata,
 	expectedSpec *schema.RoleAssignmentSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "CreateOrUpdateRoleAssignment")
-
-		resp, err := api.CreateOrUpdateRoleAssignment(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		expectedMeta.Verb = http.MethodPut
-		suite.verifyGlobalTenantResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-
-		suite.verifyRoleAssignmentSpecStep(sCtx, expectedSpec, &resp.Spec)
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	expectedMeta.Verb = http.MethodPut
+	createOrUpdateResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setAuthorizationV1StepParams,
+		"CreateOrUpdateRoleAssignment",
+		resource,
+		func(context.Context, *schema.RoleAssignment) (*stepFuncResponse[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec], error) {
+			resp, err := api.CreateOrUpdateRoleAssignment(ctx, resource)
+			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		nil,
+		expectedMeta,
+		suite.verifyGlobalTenantResourceMetadataStep,
+		expectedSpec,
+		suite.verifyRoleAssignmentSpecStep,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getRoleAssignmentV1Step(
@@ -150,18 +158,18 @@ func (suite *testSuite) getRoleAssignmentV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
-		retry := newStepRetry(
+		retry := newStepResourceStateRetry(
 			suite.baseDelay,
 			suite.baseInterval,
 			suite.maxAttempts,
-			func() schema.ResourceState {
+			func() (schema.ResourceState, error) {
 				var err error
 				resp, err = api.GetRoleAssignment(ctx, tref)
 				requireNoError(sCtx, err)
 				requireNotNilResponse(sCtx, resp)
 
 				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State
+				return *resp.Status.State, nil
 			},
 			func() {
 				expectedMeta.Verb = http.MethodGet

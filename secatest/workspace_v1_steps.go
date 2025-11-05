@@ -19,26 +19,28 @@ func (suite *testSuite) createOrUpdateWorkspaceV1Step(
 	resource *schema.Workspace,
 	expectedMeta *schema.RegionalResourceMetadata,
 	expectedLabels schema.Labels,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "CreateOrUpdateWorkspace")
-
-		resp, err := api.CreateOrUpdateWorkspace(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedLabels != nil {
-			suite.verifyLabelsStep(sCtx, expectedLabels, resp.Labels)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	expectedMeta.Verb = http.MethodPut
+	createOrUpdateResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setWorkspaceV1StepParams,
+		"CreateOrUpdateWorkspace",
+		resource,
+		func(context.Context, *schema.Workspace) (*stepFuncResponse[schema.RegionalResourceMetadata, schema.WorkspaceSpec], error) {
+			resp, err := api.CreateOrUpdateWorkspace(ctx, resource)
+			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		expectedLabels,
+		expectedMeta,
+		suite.verifyRegionalResourceMetadataStep,
+		nil,
+		nil,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getWorkspaceV1Step(
@@ -55,18 +57,18 @@ func (suite *testSuite) getWorkspaceV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
-		retry := newStepRetry(
+		retry := newStepResourceStateRetry(
 			suite.baseDelay,
 			suite.baseInterval,
 			suite.maxAttempts,
-			func() schema.ResourceState {
+			func() (schema.ResourceState, error) {
 				var err error
 				resp, err = api.GetWorkspace(ctx, tref)
 				requireNoError(sCtx, err)
 				requireNotNilResponse(sCtx, resp)
 
 				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State
+				return *resp.Status.State, nil
 			},
 			func() {
 				expectedMeta.Verb = http.MethodGet

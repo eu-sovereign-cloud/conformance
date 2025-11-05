@@ -21,26 +21,29 @@ func (suite *testSuite) createOrUpdateInstanceV1Step(
 	resource *schema.Instance,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.InstanceSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateInstance(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyInstanceSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	expectedMeta.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setComputeV1StepParams,
+		"CreateOrUpdateInstance",
+		resource.Metadata.Workspace,
+		resource,
+		func(context.Context, *schema.Instance) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec], error) {
+			resp, err := api.CreateOrUpdateInstance(ctx, resource)
+			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		nil,
+		expectedMeta,
+		suite.verifyRegionalWorkspaceResourceMetadataStep,
+		expectedSpec,
+		suite.verifyInstanceSpecStep,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getInstanceV1Step(
@@ -58,18 +61,18 @@ func (suite *testSuite) getInstanceV1Step(
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "GetInstance", string(wref.Workspace))
 
-		retry := newStepRetry(
+		retry := newStepResourceStateRetry(
 			suite.baseDelay,
 			suite.baseInterval,
 			suite.maxAttempts,
-			func() schema.ResourceState {
+			func() (schema.ResourceState, error) {
 				var err error
 				resp, err = api.GetInstance(ctx, wref)
 				requireNoError(sCtx, err)
 				requireNotNilResponse(sCtx, resp)
 
 				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State
+				return *resp.Status.State, nil
 			},
 			func() {
 				expectedMeta.Verb = http.MethodGet

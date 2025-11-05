@@ -21,26 +21,29 @@ func (suite *testSuite) createOrUpdateNetworkV1Step(
 	resource *schema.Network,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.NetworkSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNetwork", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateNetwork(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyNetworkSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	expectedMeta.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setNetworkV1StepParams,
+		"CreateOrUpdateNetwork",
+		resource.Metadata.Workspace,
+		resource,
+		func(context.Context, *schema.Network) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec], error) {
+			resp, err := api.CreateOrUpdateNetwork(ctx, resource)
+			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		nil,
+		expectedMeta,
+		suite.verifyRegionalWorkspaceResourceMetadataStep,
+		expectedSpec,
+		suite.verifyNetworkSpecStep,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getNetworkV1Step(
@@ -57,18 +60,18 @@ func (suite *testSuite) getNetworkV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetNetwork", string(wref.Workspace))
-		retry := newStepRetry(
+		retry := newStepResourceStateRetry(
 			suite.baseDelay,
 			suite.baseInterval,
 			suite.maxAttempts,
-			func() schema.ResourceState {
+			func() (schema.ResourceState, error) {
 				var err error
 				resp, err = api.GetNetwork(ctx, wref)
 				requireNoError(sCtx, err)
 				requireNotNilResponse(sCtx, resp)
 
 				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State
+				return *resp.Status.State, nil
 			},
 			func() {
 				expectedMeta.Verb = http.MethodGet
@@ -119,26 +122,29 @@ func (suite *testSuite) createOrUpdateInternetGatewayV1Step(
 	resource *schema.InternetGateway,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.InternetGatewaySpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateInternetGateway", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateInternetGateway(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyInternetGatewaySpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	expectedMeta.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setNetworkV1StepParams,
+		"CreateOrUpdateInternetGateway",
+		resource.Metadata.Workspace,
+		resource,
+		func(context.Context, *schema.InternetGateway) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec], error) {
+			resp, err := api.CreateOrUpdateInternetGateway(ctx, resource)
+			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		nil,
+		expectedMeta,
+		suite.verifyRegionalWorkspaceResourceMetadataStep,
+		expectedSpec,
+		suite.verifyInternetGatewaySpecStep,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getInternetGatewayV1Step(
@@ -155,18 +161,18 @@ func (suite *testSuite) getInternetGatewayV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetInternetGateway", string(wref.Workspace))
-		retry := newStepRetry(
+		retry := newStepResourceStateRetry(
 			suite.baseDelay,
 			suite.baseInterval,
 			suite.maxAttempts,
-			func() schema.ResourceState {
+			func() (schema.ResourceState, error) {
 				var err error
 				resp, err = api.GetInternetGateway(ctx, wref)
 				requireNoError(sCtx, err)
 				requireNotNilResponse(sCtx, resp)
 
 				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State
+				return *resp.Status.State, nil
 			},
 			func() {
 				expectedMeta.Verb = http.MethodGet
@@ -217,26 +223,29 @@ func (suite *testSuite) createOrUpdateRouteTableV1Step(
 	resource *schema.RouteTable,
 	expectedMeta *schema.RegionalNetworkResourceMetadata,
 	expectedSpec *schema.RouteTableSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateRouteTable", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateRouteTable(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyRouteTableSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	expectedMeta.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setNetworkV1StepParams,
+		"CreateOrUpdateRouteTable",
+		resource.Metadata.Workspace,
+		resource,
+		func(context.Context, *schema.RouteTable) (*stepFuncResponse[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec], error) {
+			resp, err := api.CreateOrUpdateRouteTable(ctx, resource)
+			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		nil,
+		expectedMeta,
+		suite.verifyRegionalNetworkResourceMetadataStep,
+		expectedSpec,
+		suite.verifyRouteTableSpecStep,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getRouteTableV1Step(
@@ -253,18 +262,18 @@ func (suite *testSuite) getRouteTableV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetRouteTable", string(nref.Workspace))
-		retry := newStepRetry(
+		retry := newStepResourceStateRetry(
 			suite.baseDelay,
 			suite.baseInterval,
 			suite.maxAttempts,
-			func() schema.ResourceState {
+			func() (schema.ResourceState, error) {
 				var err error
 				resp, err = api.GetRouteTable(ctx, nref)
 				requireNoError(sCtx, err)
 				requireNotNilResponse(sCtx, resp)
 
 				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State
+				return *resp.Status.State, nil
 			},
 			func() {
 				expectedMeta.Verb = http.MethodGet
@@ -315,26 +324,29 @@ func (suite *testSuite) createOrUpdateSubnetV1Step(
 	resource *schema.Subnet,
 	expectedMeta *schema.RegionalNetworkResourceMetadata,
 	expectedSpec *schema.SubnetSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateSubnet", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateSubnet(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifySubnetSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	expectedMeta.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setNetworkV1StepParams,
+		"CreateOrUpdateSubnet",
+		resource.Metadata.Workspace,
+		resource,
+		func(context.Context, *schema.Subnet) (*stepFuncResponse[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec], error) {
+			resp, err := api.CreateOrUpdateSubnet(ctx, resource)
+			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		nil,
+		expectedMeta,
+		suite.verifyRegionalNetworkResourceMetadataStep,
+		expectedSpec,
+		suite.verifySubnetSpecStep,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getSubnetV1Step(
@@ -351,18 +363,18 @@ func (suite *testSuite) getSubnetV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetSubnet", string(nref.Workspace))
-		retry := newStepRetry(
+		retry := newStepResourceStateRetry(
 			suite.baseDelay,
 			suite.baseInterval,
 			suite.maxAttempts,
-			func() schema.ResourceState {
+			func() (schema.ResourceState, error) {
 				var err error
 				resp, err = api.GetSubnet(ctx, nref)
 				requireNoError(sCtx, err)
 				requireNotNilResponse(sCtx, resp)
 
 				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State
+				return *resp.Status.State, nil
 			},
 			func() {
 				expectedMeta.Verb = http.MethodGet
@@ -413,26 +425,29 @@ func (suite *testSuite) createOrUpdatePublicIpV1Step(
 	resource *schema.PublicIp,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.PublicIpSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdatePublicIp", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdatePublicIp(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyPublicIpSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	expectedMeta.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setNetworkV1StepParams,
+		"CreateOrUpdatePublicIp",
+		resource.Metadata.Workspace,
+		resource,
+		func(context.Context, *schema.PublicIp) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec], error) {
+			resp, err := api.CreateOrUpdatePublicIp(ctx, resource)
+			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		nil,
+		expectedMeta,
+		suite.verifyRegionalWorkspaceResourceMetadataStep,
+		expectedSpec,
+		suite.verifyPublicIpSpecStep,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getPublicIpV1Step(
@@ -449,18 +464,18 @@ func (suite *testSuite) getPublicIpV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetPublicIp", string(wref.Workspace))
-		retry := newStepRetry(
+		retry := newStepResourceStateRetry(
 			suite.baseDelay,
 			suite.baseInterval,
 			suite.maxAttempts,
-			func() schema.ResourceState {
+			func() (schema.ResourceState, error) {
 				var err error
 				resp, err = api.GetPublicIp(ctx, wref)
 				requireNoError(sCtx, err)
 				requireNotNilResponse(sCtx, resp)
 
 				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State
+				return *resp.Status.State, nil
 			},
 			func() {
 				expectedMeta.Verb = http.MethodGet
@@ -511,26 +526,29 @@ func (suite *testSuite) createOrUpdateNicV1Step(
 	resource *schema.Nic,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.NicSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNic", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateNic(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyNicSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	expectedMeta.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setNetworkV1StepParams,
+		"CreateOrUpdateNic",
+		resource.Metadata.Workspace,
+		resource,
+		func(context.Context, *schema.Nic) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec], error) {
+			resp, err := api.CreateOrUpdateNic(ctx, resource)
+			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		nil,
+		expectedMeta,
+		suite.verifyRegionalWorkspaceResourceMetadataStep,
+		expectedSpec,
+		suite.verifyNicSpecStep,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getNicV1Step(
@@ -547,18 +565,18 @@ func (suite *testSuite) getNicV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetNic", string(wref.Workspace))
-		retry := newStepRetry(
+		retry := newStepResourceStateRetry(
 			suite.baseDelay,
 			suite.baseInterval,
 			suite.maxAttempts,
-			func() schema.ResourceState {
+			func() (schema.ResourceState, error) {
 				var err error
 				resp, err = api.GetNic(ctx, wref)
 				requireNoError(sCtx, err)
 				requireNotNilResponse(sCtx, resp)
 
 				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State
+				return *resp.Status.State, nil
 			},
 			func() {
 				expectedMeta.Verb = http.MethodGet
@@ -609,26 +627,29 @@ func (suite *testSuite) createOrUpdateSecurityGroupV1Step(
 	resource *schema.SecurityGroup,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.SecurityGroupSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateSecurityGroup", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateSecurityGroup(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifySecurityGroupSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	expectedMeta.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setNetworkV1StepParams,
+		"CreateOrUpdateSecurityGroup",
+		resource.Metadata.Workspace,
+		resource,
+		func(context.Context, *schema.SecurityGroup) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec], error) {
+			resp, err := api.CreateOrUpdateSecurityGroup(ctx, resource)
+			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		nil,
+		expectedMeta,
+		suite.verifyRegionalWorkspaceResourceMetadataStep,
+		expectedSpec,
+		suite.verifySecurityGroupSpecStep,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getSecurityGroupV1Step(
@@ -645,18 +666,18 @@ func (suite *testSuite) getSecurityGroupV1Step(
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetSecurityGroup", string(wref.Workspace))
-		retry := newStepRetry(
+		retry := newStepResourceStateRetry(
 			suite.baseDelay,
 			suite.baseInterval,
 			suite.maxAttempts,
-			func() schema.ResourceState {
+			func() (schema.ResourceState, error) {
 				var err error
 				resp, err = api.GetSecurityGroup(ctx, wref)
 				requireNoError(sCtx, err)
 				requireNotNilResponse(sCtx, resp)
 
 				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State
+				return *resp.Status.State, nil
 			},
 			func() {
 				expectedMeta.Verb = http.MethodGet

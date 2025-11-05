@@ -87,7 +87,7 @@ func (suite *testSuite) setWorkspaceV1StepParams(sctx provider.StepCtx, operatio
 	)
 }
 
-func (suite *testSuite) setStorageTenantV1StepParams(sctx provider.StepCtx, operation string) {
+func (suite *testSuite) setStorageV1StepParams(sctx provider.StepCtx, operation string) {
 	sctx.WithNewParameters(
 		providerStepParameter, secalib.StorageProviderV1,
 		operationStepParameter, operation,
@@ -113,6 +113,7 @@ func (suite *testSuite) setComputeV1StepParams(sctx provider.StepCtx, operation 
 	)
 }
 
+// TODO Add a StepParams with network param
 func (suite *testSuite) setNetworkV1StepParams(sctx provider.StepCtx, operation string, workspace string) {
 	sctx.WithNewParameters(
 		providerStepParameter, secalib.NetworkProviderV1,
