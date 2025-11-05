@@ -76,10 +76,9 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 		regionResource := secalib.GenerateRegionResource(region.Metadata.Name)
 		expectedRegionMeta := secalib.NewGlobalResourceMetadata(region.Metadata.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1, secalib.RegionKind)
 
-		//Call Get Region and verify one by one
+		// Call Get Region and verify one by one
 		suite.getRegion("Get region", t, ctx, suite.client.RegionV1, expectedRegionMeta)
 	}
-
 }
 
 func (suite *RegionV1TestSuite) AfterEach(t provider.T) {
