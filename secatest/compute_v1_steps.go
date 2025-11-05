@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -33,9 +32,9 @@ func (suite *testSuite) createOrUpdateInstanceV1Step(
 		"CreateOrUpdateInstance",
 		resource.Metadata.Workspace,
 		resource,
-		func(context.Context, *schema.Instance) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec], error) {
+		func(context.Context, *schema.Instance) (*stepFuncResponse[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec], error) {
 			resp, err := api.CreateOrUpdateInstance(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -54,38 +53,28 @@ func (suite *testSuite) getInstanceV1Step(
 	wref secapi.WorkspaceReference,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.InstanceSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.Instance {
-	var resp *schema.Instance
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", string(wref.Workspace))
-
-		retry := newStepResourceStateRetry(
-			suite.baseDelay,
-			suite.baseInterval,
-			suite.maxAttempts,
-			func() (schema.ResourceState, error) {
-				var err error
-				resp, err = api.GetInstance(ctx, wref)
-				requireNoError(sCtx, err)
-				requireNotNilResponse(sCtx, resp)
-
-				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State, nil
-			},
-			func() {
-				expectedMeta.Verb = http.MethodGet
-				suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-
-				suite.verifyInstanceSpecStep(sCtx, expectedSpec, &resp.Spec)
-
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-			},
-		)
-		retry.run(sCtx, "GetInstance", expectedStatusState)
-	})
-	return resp
+	expectedMeta.Verb = http.MethodGet
+	return getWorkspaceResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setComputeV1StepParams,
+		"GetInstance",
+		wref,
+		func(context.Context, secapi.WorkspaceReference) (*stepFuncResponse[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec], error) {
+			resp, err := api.GetInstance(ctx, wref)
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		nil,
+		expectedMeta,
+		suite.verifyRegionalWorkspaceResourceMetadataStep,
+		expectedSpec,
+		suite.verifyInstanceSpecStep,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getInstanceWithErrorV1Step(

@@ -5,20 +5,23 @@ import (
 	"fmt"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
 // Steps
 
-type stepFuncResponse[M, E any] struct {
+type stepFuncResponse[R, M, E any] struct {
+	resource *R
 	labels   schema.Labels
 	metadata *M
 	spec     E
 	state    *schema.ResourceState
 }
 
-func newStepFuncResponse[M, E any](labels schema.Labels, metadata *M, spec E, state *schema.ResourceState) *stepFuncResponse[M, E] {
-	return &stepFuncResponse[M, E]{
+func newStepFuncResponse[R, M, E any](resource *R, labels schema.Labels, metadata *M, spec E, state *schema.ResourceState) *stepFuncResponse[R, M, E] {
+	return &stepFuncResponse[R, M, E]{
+		resource: resource,
 		labels:   labels,
 		metadata: metadata,
 		spec:     spec,
@@ -26,7 +29,7 @@ func newStepFuncResponse[M, E any](labels schema.Labels, metadata *M, spec E, st
 	}
 }
 
-func createOrUpdateResourceStep[M, R, E any](
+func createOrUpdateResourceStep[R, M, E any](
 	t provider.T,
 	ctx context.Context,
 	suite *testSuite,
@@ -34,7 +37,7 @@ func createOrUpdateResourceStep[M, R, E any](
 	stepParamsFunc func(provider.StepCtx, string),
 	operationName string,
 	resource *R,
-	createOrUpdateFunc func(context.Context, *R) (*stepFuncResponse[M, E], error),
+	createOrUpdateFunc func(context.Context, *R) (*stepFuncResponse[R, M, E], error),
 	expectedLabels schema.Labels,
 	expectedMetadata *M,
 	verifyMetadataFunc func(provider.StepCtx, *M, *M),
@@ -47,7 +50,6 @@ func createOrUpdateResourceStep[M, R, E any](
 
 		resp, err := createOrUpdateFunc(ctx, resource)
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
 
 		if expectedLabels != nil {
 			suite.verifyLabelsStep(sCtx, expectedLabels, resp.labels)
@@ -65,7 +67,7 @@ func createOrUpdateResourceStep[M, R, E any](
 	})
 }
 
-func createOrUpdateWorkspaceResourceStep[M, R, E any](
+func createOrUpdateWorkspaceResourceStep[R, M, E any](
 	t provider.T,
 	ctx context.Context,
 	suite *testSuite,
@@ -74,7 +76,7 @@ func createOrUpdateWorkspaceResourceStep[M, R, E any](
 	operationName string,
 	workspace string,
 	resource *R,
-	createOrUpdateFunc func(context.Context, *R) (*stepFuncResponse[M, E], error),
+	createOrUpdateFunc func(context.Context, *R) (*stepFuncResponse[R, M, E], error),
 	expectedLabels schema.Labels,
 	expectedMetadata *M,
 	verifyMetadataFunc func(provider.StepCtx, *M, *M),
@@ -87,7 +89,6 @@ func createOrUpdateWorkspaceResourceStep[M, R, E any](
 
 		resp, err := createOrUpdateFunc(ctx, resource)
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
 
 		if expectedLabels != nil {
 			suite.verifyLabelsStep(sCtx, expectedLabels, resp.labels)
@@ -103,6 +104,112 @@ func createOrUpdateWorkspaceResourceStep[M, R, E any](
 
 		suite.verifyStatusStep(sCtx, expectedResourceState, *resp.state)
 	})
+}
+
+func getTenantResourceStep[R, M, E any](
+	t provider.T,
+	ctx context.Context,
+	suite *testSuite,
+	stepName string,
+	stepParamsFunc func(provider.StepCtx, string),
+	operationName string,
+	tref secapi.TenantReference,
+	getFunc func(context.Context, secapi.TenantReference) (*stepFuncResponse[R, M, E], error),
+	expectedLabels schema.Labels,
+	expectedMetadata *M,
+	verifyMetadataFunc func(provider.StepCtx, *M, *M),
+	expectedSpec *E,
+	verifySpecFunc func(provider.StepCtx, *E, *E),
+	expectedResourceState schema.ResourceState,
+) *R {
+	var resp *stepFuncResponse[R, M, E]
+
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		stepParamsFunc(sCtx, operationName)
+
+		retry := newStepResourceStateRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() (schema.ResourceState, error) {
+				var err error
+				resp, err = getFunc(ctx, tref)
+				requireNoError(sCtx, err)
+
+				return *resp.state, nil
+			},
+			func() {
+				if expectedLabels != nil {
+					suite.verifyLabelsStep(sCtx, expectedLabels, resp.labels)
+				}
+
+				if expectedMetadata != nil {
+					verifyMetadataFunc(sCtx, expectedMetadata, resp.metadata)
+				}
+
+				if expectedSpec != nil {
+					verifySpecFunc(sCtx, expectedSpec, &resp.spec)
+				}
+
+				suite.verifyStatusStep(sCtx, expectedResourceState, *resp.state)
+			},
+		)
+		retry.run(sCtx, operationName, expectedResourceState)
+	})
+	return resp.resource
+}
+
+func getWorkspaceResourceStep[R, M, E any](
+	t provider.T,
+	ctx context.Context,
+	suite *testSuite,
+	stepName string,
+	stepParamsFunc func(provider.StepCtx, string, string),
+	operationName string,
+	wref secapi.WorkspaceReference,
+	getFunc func(context.Context, secapi.WorkspaceReference) (*stepFuncResponse[R, M, E], error),
+	expectedLabels schema.Labels,
+	expectedMetadata *M,
+	verifyMetadataFunc func(provider.StepCtx, *M, *M),
+	expectedSpec *E,
+	verifySpecFunc func(provider.StepCtx, *E, *E),
+	expectedResourceState schema.ResourceState,
+) *R {
+	var resp *stepFuncResponse[R, M, E]
+
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		stepParamsFunc(sCtx, operationName, string(wref.Workspace))
+
+		retry := newStepResourceStateRetry(
+			suite.baseDelay,
+			suite.baseInterval,
+			suite.maxAttempts,
+			func() (schema.ResourceState, error) {
+				var err error
+				resp, err = getFunc(ctx, wref)
+				requireNoError(sCtx, err)
+
+				return *resp.state, nil
+			},
+			func() {
+				if expectedLabels != nil {
+					suite.verifyLabelsStep(sCtx, expectedLabels, resp.labels)
+				}
+
+				if expectedMetadata != nil {
+					verifyMetadataFunc(sCtx, expectedMetadata, resp.metadata)
+				}
+
+				if expectedSpec != nil {
+					verifySpecFunc(sCtx, expectedSpec, &resp.spec)
+				}
+
+				suite.verifyStatusStep(sCtx, expectedResourceState, *resp.state)
+			},
+		)
+		retry.run(sCtx, operationName, expectedResourceState)
+	})
+	return resp.resource
 }
 
 // Metadata

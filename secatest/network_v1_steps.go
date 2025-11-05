@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -33,9 +32,9 @@ func (suite *testSuite) createOrUpdateNetworkV1Step(
 		"CreateOrUpdateNetwork",
 		resource.Metadata.Workspace,
 		resource,
-		func(context.Context, *schema.Network) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec], error) {
+		func(context.Context, *schema.Network) (*stepFuncResponse[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec], error) {
 			resp, err := api.CreateOrUpdateNetwork(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -54,7 +53,7 @@ func (suite *testSuite) getNetworkV1Step(
 	wref secapi.WorkspaceReference,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.NetworkSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.Network {
 	var resp *schema.Network
 
@@ -79,10 +78,10 @@ func (suite *testSuite) getNetworkV1Step(
 
 				suite.verifyNetworkSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
 			},
 		)
-		retry.run(sCtx, "GetNetwork", expectedStatusState)
+		retry.run(sCtx, "GetNetwork", expectedState)
 	})
 	return resp
 }
@@ -134,9 +133,9 @@ func (suite *testSuite) createOrUpdateInternetGatewayV1Step(
 		"CreateOrUpdateInternetGateway",
 		resource.Metadata.Workspace,
 		resource,
-		func(context.Context, *schema.InternetGateway) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec], error) {
+		func(context.Context, *schema.InternetGateway) (*stepFuncResponse[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec], error) {
 			resp, err := api.CreateOrUpdateInternetGateway(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -155,7 +154,7 @@ func (suite *testSuite) getInternetGatewayV1Step(
 	wref secapi.WorkspaceReference,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.InternetGatewaySpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.InternetGateway {
 	var resp *schema.InternetGateway
 
@@ -180,10 +179,10 @@ func (suite *testSuite) getInternetGatewayV1Step(
 
 				suite.verifyInternetGatewaySpecStep(sCtx, expectedSpec, &resp.Spec)
 
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
 			},
 		)
-		retry.run(sCtx, "GetInternetGateway", expectedStatusState)
+		retry.run(sCtx, "GetInternetGateway", expectedState)
 	})
 	return resp
 }
@@ -235,9 +234,9 @@ func (suite *testSuite) createOrUpdateRouteTableV1Step(
 		"CreateOrUpdateRouteTable",
 		resource.Metadata.Workspace,
 		resource,
-		func(context.Context, *schema.RouteTable) (*stepFuncResponse[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec], error) {
+		func(context.Context, *schema.RouteTable) (*stepFuncResponse[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec], error) {
 			resp, err := api.CreateOrUpdateRouteTable(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -256,7 +255,7 @@ func (suite *testSuite) getRouteTableV1Step(
 	nref secapi.NetworkReference,
 	expectedMeta *schema.RegionalNetworkResourceMetadata,
 	expectedSpec *schema.RouteTableSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.RouteTable {
 	var resp *schema.RouteTable
 
@@ -281,10 +280,10 @@ func (suite *testSuite) getRouteTableV1Step(
 
 				suite.verifyRouteTableSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
 			},
 		)
-		retry.run(sCtx, "GetRouteTable", expectedStatusState)
+		retry.run(sCtx, "GetRouteTable", expectedState)
 	})
 	return resp
 }
@@ -336,9 +335,9 @@ func (suite *testSuite) createOrUpdateSubnetV1Step(
 		"CreateOrUpdateSubnet",
 		resource.Metadata.Workspace,
 		resource,
-		func(context.Context, *schema.Subnet) (*stepFuncResponse[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec], error) {
+		func(context.Context, *schema.Subnet) (*stepFuncResponse[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec], error) {
 			resp, err := api.CreateOrUpdateSubnet(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -357,7 +356,7 @@ func (suite *testSuite) getSubnetV1Step(
 	nref secapi.NetworkReference,
 	expectedMeta *schema.RegionalNetworkResourceMetadata,
 	expectedSpec *schema.SubnetSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.Subnet {
 	var resp *schema.Subnet
 
@@ -382,10 +381,10 @@ func (suite *testSuite) getSubnetV1Step(
 
 				suite.verifySubnetSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
 			},
 		)
-		retry.run(sCtx, "GetSubnet", expectedStatusState)
+		retry.run(sCtx, "GetSubnet", expectedState)
 	})
 	return resp
 }
@@ -437,9 +436,9 @@ func (suite *testSuite) createOrUpdatePublicIpV1Step(
 		"CreateOrUpdatePublicIp",
 		resource.Metadata.Workspace,
 		resource,
-		func(context.Context, *schema.PublicIp) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec], error) {
+		func(context.Context, *schema.PublicIp) (*stepFuncResponse[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec], error) {
 			resp, err := api.CreateOrUpdatePublicIp(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -458,7 +457,7 @@ func (suite *testSuite) getPublicIpV1Step(
 	wref secapi.WorkspaceReference,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.PublicIpSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.PublicIp {
 	var resp *schema.PublicIp
 
@@ -483,10 +482,10 @@ func (suite *testSuite) getPublicIpV1Step(
 
 				suite.verifyPublicIpSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
 			},
 		)
-		retry.run(sCtx, "GetPublicIp", expectedStatusState)
+		retry.run(sCtx, "GetPublicIp", expectedState)
 	})
 	return resp
 }
@@ -538,9 +537,9 @@ func (suite *testSuite) createOrUpdateNicV1Step(
 		"CreateOrUpdateNic",
 		resource.Metadata.Workspace,
 		resource,
-		func(context.Context, *schema.Nic) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec], error) {
+		func(context.Context, *schema.Nic) (*stepFuncResponse[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec], error) {
 			resp, err := api.CreateOrUpdateNic(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -559,7 +558,7 @@ func (suite *testSuite) getNicV1Step(
 	wref secapi.WorkspaceReference,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.NicSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.Nic {
 	var resp *schema.Nic
 
@@ -584,10 +583,10 @@ func (suite *testSuite) getNicV1Step(
 
 				suite.verifyNicSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
 			},
 		)
-		retry.run(sCtx, "GetNic", expectedStatusState)
+		retry.run(sCtx, "GetNic", expectedState)
 	})
 	return resp
 }
@@ -639,9 +638,9 @@ func (suite *testSuite) createOrUpdateSecurityGroupV1Step(
 		"CreateOrUpdateSecurityGroup",
 		resource.Metadata.Workspace,
 		resource,
-		func(context.Context, *schema.SecurityGroup) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec], error) {
+		func(context.Context, *schema.SecurityGroup) (*stepFuncResponse[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec], error) {
 			resp, err := api.CreateOrUpdateSecurityGroup(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -660,7 +659,7 @@ func (suite *testSuite) getSecurityGroupV1Step(
 	wref secapi.WorkspaceReference,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.SecurityGroupSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.SecurityGroup {
 	var resp *schema.SecurityGroup
 
@@ -685,10 +684,10 @@ func (suite *testSuite) getSecurityGroupV1Step(
 
 				suite.verifySecurityGroupSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
 			},
 		)
-		retry.run(sCtx, "GetSecurityGroup", expectedStatusState)
+		retry.run(sCtx, "GetSecurityGroup", expectedState)
 	})
 	return resp
 }

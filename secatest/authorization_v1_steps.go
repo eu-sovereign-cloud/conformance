@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -32,9 +31,9 @@ func (suite *testSuite) createOrUpdateRoleV1Step(
 		suite.setAuthorizationV1StepParams,
 		"CreateOrUpdateRole",
 		resource,
-		func(context.Context, *schema.Role) (*stepFuncResponse[schema.GlobalTenantResourceMetadata, schema.RoleSpec], error) {
+		func(context.Context, *schema.Role) (*stepFuncResponse[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec], error) {
 			resp, err := api.CreateOrUpdateRole(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -53,7 +52,7 @@ func (suite *testSuite) getRoleV1Step(
 	tref secapi.TenantReference,
 	expectedMeta *schema.GlobalTenantResourceMetadata,
 	expectedSpec *schema.RoleSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.Role {
 	var resp *schema.Role
 
@@ -78,10 +77,10 @@ func (suite *testSuite) getRoleV1Step(
 
 				suite.verifyRoleSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
 			},
 		)
-		retry.run(sCtx, "GetRole", expectedStatusState)
+		retry.run(sCtx, "GetRole", expectedState)
 	})
 	return resp
 }
@@ -131,9 +130,9 @@ func (suite *testSuite) createOrUpdateRoleAssignmentV1Step(
 		suite.setAuthorizationV1StepParams,
 		"CreateOrUpdateRoleAssignment",
 		resource,
-		func(context.Context, *schema.RoleAssignment) (*stepFuncResponse[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec], error) {
+		func(context.Context, *schema.RoleAssignment) (*stepFuncResponse[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec], error) {
 			resp, err := api.CreateOrUpdateRoleAssignment(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -152,7 +151,7 @@ func (suite *testSuite) getRoleAssignmentV1Step(
 	tref secapi.TenantReference,
 	expectedMeta *schema.GlobalTenantResourceMetadata,
 	expectedSpec *schema.RoleAssignmentSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.RoleAssignment {
 	var resp *schema.RoleAssignment
 
@@ -177,10 +176,10 @@ func (suite *testSuite) getRoleAssignmentV1Step(
 
 				suite.verifyRoleAssignmentSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
 			},
 		)
-		retry.run(sCtx, "GetRoleAssignment", expectedStatusState)
+		retry.run(sCtx, "GetRoleAssignment", expectedState)
 	})
 	return resp
 }

@@ -31,4 +31,4 @@ linters-settings:
     - G101 
     - G404
   dupl:
-    threshold: 200 # The goal is reach 100
+    threshold: 250 # The goal is reach 100

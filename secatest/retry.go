@@ -36,7 +36,7 @@ func newStepResourceStateRetry(
 	}
 }
 
-func (retry *stepResourceStateRetry) run(ctx provider.StepCtx, operation string, expectedResourceState string) {
+func (retry *stepResourceStateRetry) run(ctx provider.StepCtx, operation string, expectedResourceState schema.ResourceState) {
 	observer := secapi.NewResourceStateObserver(
 		retry.baseDelay,
 		retry.baseInterval,
@@ -44,7 +44,7 @@ func (retry *stepResourceStateRetry) run(ctx provider.StepCtx, operation string,
 		retry.actFunc,
 	)
 
-	err := observer.WaitUntil(schema.ResourceState(expectedResourceState))
+	err := observer.WaitUntil(expectedResourceState)
 
 	if err == secapi.ErrRetryMaxAttemptsReached {
 		ctx.WithNewStep("Max attempts reached", func(stepCtx provider.StepCtx) {

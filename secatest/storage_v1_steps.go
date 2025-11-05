@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -33,9 +32,9 @@ func (suite *testSuite) createOrUpdateBlockStorageV1Step(
 		"CreateOrUpdateBlockStorage",
 		resource.Metadata.Workspace,
 		resource,
-		func(context.Context, *schema.BlockStorage) (*stepFuncResponse[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec], error) {
+		func(context.Context, *schema.BlockStorage) (*stepFuncResponse[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec], error) {
 			resp, err := api.CreateOrUpdateBlockStorage(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -54,7 +53,7 @@ func (suite *testSuite) getBlockStorageV1Step(
 	wref secapi.WorkspaceReference,
 	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
 	expectedSpec *schema.BlockStorageSpec,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.BlockStorage {
 	var resp *schema.BlockStorage
 
@@ -79,10 +78,10 @@ func (suite *testSuite) getBlockStorageV1Step(
 
 				suite.verifyBlockStorageSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
 			},
 		)
-		retry.run(sCtx, "GetBlockStorage", expectedStatusState)
+		retry.run(sCtx, "GetBlockStorage", expectedState)
 	})
 	return resp
 }
@@ -133,9 +132,9 @@ func (suite *testSuite) createOrUpdateImageV1Step(
 		suite.setStorageV1StepParams,
 		"CreateOrUpdateImage",
 		resource,
-		func(context.Context, *schema.Image) (*stepFuncResponse[schema.RegionalResourceMetadata, schema.ImageSpec], error) {
+		func(context.Context, *schema.Image) (*stepFuncResponse[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec], error) {
 			resp, err := api.CreateOrUpdateImage(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		nil,
 		expectedMeta,
@@ -152,7 +151,9 @@ func (suite *testSuite) getImageV1Step(
 	ctx context.Context,
 	api *secapi.StorageV1,
 	tref secapi.TenantReference,
-	expectedMeta *schema.RegionalResourceMetadata, expectedSpec *schema.ImageSpec, expectedStatusState string,
+	expectedMeta *schema.RegionalResourceMetadata,
+	expectedSpec *schema.ImageSpec,
+	expectedState schema.ResourceState,
 ) *schema.Image {
 	var resp *schema.Image
 
@@ -177,10 +178,10 @@ func (suite *testSuite) getImageV1Step(
 
 				suite.verifyImageSpecStep(sCtx, expectedSpec, &resp.Spec)
 
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
+				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
 			},
 		)
-		retry.run(sCtx, "GetImage", expectedStatusState)
+		retry.run(sCtx, "GetImage", expectedState)
 	})
 	return resp
 }

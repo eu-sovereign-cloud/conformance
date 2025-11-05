@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -30,9 +29,9 @@ func (suite *testSuite) createOrUpdateWorkspaceV1Step(
 		suite.setWorkspaceV1StepParams,
 		"CreateOrUpdateWorkspace",
 		resource,
-		func(context.Context, *schema.Workspace) (*stepFuncResponse[schema.RegionalResourceMetadata, schema.WorkspaceSpec], error) {
+		func(context.Context, *schema.Workspace) (*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec], error) {
 			resp, err := api.CreateOrUpdateWorkspace(ctx, resource)
-			return newStepFuncResponse(resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 		},
 		expectedLabels,
 		expectedMeta,
@@ -51,37 +50,28 @@ func (suite *testSuite) getWorkspaceV1Step(
 	tref secapi.TenantReference,
 	expectedMeta *schema.RegionalResourceMetadata,
 	expectedLabels schema.Labels,
-	expectedStatusState string,
+	expectedState schema.ResourceState,
 ) *schema.Workspace {
-	var resp *schema.Workspace
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
-		retry := newStepResourceStateRetry(
-			suite.baseDelay,
-			suite.baseInterval,
-			suite.maxAttempts,
-			func() (schema.ResourceState, error) {
-				var err error
-				resp, err = api.GetWorkspace(ctx, tref)
-				requireNoError(sCtx, err)
-				requireNotNilResponse(sCtx, resp)
-
-				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State, nil
-			},
-			func() {
-				expectedMeta.Verb = http.MethodGet
-				suite.verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-
-				suite.verifyLabelsStep(sCtx, expectedLabels, resp.Labels)
-
-				suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-			},
-		)
-		retry.run(sCtx, "GetWorkspace", expectedStatusState)
-	})
-	return resp
+	expectedMeta.Verb = http.MethodGet
+	return getTenantResourceStep(
+		t,
+		ctx,
+		suite,
+		stepName,
+		suite.setWorkspaceV1StepParams,
+		"GetWorkspace",
+		tref,
+		func(context.Context, secapi.TenantReference) (*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec], error) {
+			resp, err := api.GetWorkspace(ctx, tref)
+			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+		},
+		expectedLabels,
+		expectedMeta,
+		suite.verifyRegionalResourceMetadataStep,
+		nil,
+		nil,
+		expectedState,
+	)
 }
 
 func (suite *testSuite) getWorkspaceWithErrorV1Step(
