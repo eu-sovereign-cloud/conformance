@@ -116,7 +116,7 @@ func (suite *testSuite) stopInstanceV1Step(stepName string, t provider.T, ctx co
 	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "StopInstance", string(resource.Metadata.Workspace))
+		suite.setComputeV1StepParams(sCtx, "StopInstance", resource.Metadata.Workspace)
 
 		err = api.StopInstance(ctx, resource)
 		requireNoError(sCtx, err)
