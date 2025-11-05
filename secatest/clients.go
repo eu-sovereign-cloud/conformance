@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/wiremock/go-wiremock"
 )
 
 type ClientsHolder struct {
@@ -31,6 +33,22 @@ func initClients(ctx context.Context) error {
 
 	if clients != nil {
 		return nil
+	}
+
+	// Setup mock, if configured to use
+	var wm *wiremock.Client
+	if config.mockEnabled {
+		params := mock.ClientsInitParams{
+			Params: &mock.Params{
+				MockURL:   config.mockServerURL,
+				AuthToken: config.clientAuthToken,
+				Region:    config.clientRegion,
+			},
+		}
+		wm, err = mock.ConfigClientsInitScenario(&params)
+		if err != nil {
+			return fmt.Errorf("failed to configure mock scenario: %w", err)
+		}
 	}
 
 	clients = &ClientsHolder{}
@@ -76,6 +94,13 @@ func initClients(ctx context.Context) error {
 	clients.networkSkus, err = loadNetworkSkus(ctx, clients.regionalClient)
 	if err != nil {
 		return fmt.Errorf("failed to list network skus: %w", err)
+	}
+
+	// Cleanup configured mock scenarios
+	if config.mockEnabled {
+		if err := wm.ResetAllScenarios(); err != nil {
+			return fmt.Errorf("failed to reset scenarios: %w", err)
+		}
 	}
 
 	return nil

@@ -4,6 +4,16 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
+func NewGlobalResourceMetadata(name, provider, resource, apiVersion, kind string) *schema.GlobalResourceMetadata {
+	return &schema.GlobalResourceMetadata{
+		Name:       name,
+		Provider:   provider,
+		Resource:   resource,
+		ApiVersion: apiVersion,
+		Kind:       schema.GlobalResourceMetadataKind(kind),
+	}
+}
+
 func NewGlobalTenantResourceMetadata(name, provider, resource, apiVersion, kind, tenant string) *schema.GlobalTenantResourceMetadata {
 	return &schema.GlobalTenantResourceMetadata{
 		Name:       name,
