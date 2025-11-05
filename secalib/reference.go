@@ -11,5 +11,5 @@ func AsReferenceURN(ref schema.Reference) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error extracting URN from reference: %w", err)
 	}
-	return string(urn), nil
+	return urn, nil
 }
