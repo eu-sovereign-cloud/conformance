@@ -62,14 +62,16 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 
 		wm, err := mock.ConfigRegionLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
-			t.Fatalf("Failed to create region scenario: %v", err)
+			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
 		suite.mockClient = wm
 	}
 
 	ctx := context.Background()
+
 	// List Regions and verify
-	regions := suite.getListRegion("Get list region", t, ctx, suite.client.RegionV1)
+	regions := suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1)
+
 	// Verify that all created Regions are present in the list
 	for _, region := range regions {
 
@@ -77,7 +79,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 		expectedRegionMeta := secalib.NewGlobalResourceMetadata(region.Metadata.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1, secalib.RegionKind)
 
 		// Call Get Region and verify one by one
-		suite.getRegion("Get region", t, ctx, suite.client.RegionV1, expectedRegionMeta)
+		suite.getRegionV1Step("Get region "+region.Metadata.Name, t, ctx, suite.client.RegionV1, expectedRegionMeta)
 	}
 }
 

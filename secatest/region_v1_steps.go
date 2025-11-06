@@ -9,9 +9,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-func (suite *testSuite) getRegion(stepName string, t provider.T, ctx context.Context, api *secapi.RegionV1,
-	expectedMeta *schema.GlobalResourceMetadata,
-) *schema.Region {
+func (suite *testSuite) getRegionV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.RegionV1, expectedMeta *schema.GlobalResourceMetadata) *schema.Region {
 	var resp *schema.Region
 	var err error
 
@@ -30,12 +28,11 @@ func (suite *testSuite) getRegion(stepName string, t provider.T, ctx context.Con
 	return resp
 }
 
-func (suite *testSuite) getListRegion(stepName string, t provider.T, ctx context.Context, api *secapi.RegionV1,
-) []*schema.Region {
+func (suite *testSuite) listRegionsV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.RegionV1) []*schema.Region {
 	var resp []*schema.Region
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setRegionV1StepParams(sCtx, "GetListRegion")
+		suite.setRegionV1StepParams(sCtx, "ListRegions")
 
 		iter, err := api.ListRegions(ctx)
 		requireNoError(sCtx, err)
