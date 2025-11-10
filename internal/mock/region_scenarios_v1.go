@@ -68,6 +68,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 			Kind:       secalib.RegionKind,
 			Verb:       http.MethodGet,
 		},
+		Spec: regionsResponse.Items[0].Spec,
 	}
 
 	if err := configureGetStub(wm, scenario,
