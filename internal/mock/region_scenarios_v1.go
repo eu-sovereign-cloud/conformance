@@ -17,7 +17,12 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	if err != nil {
 		return nil, err
 	}
-	regionResource := secalib.GenerateRegionResource("Regions")
+	// Generate resource
+	regionsResource := secalib.GenerateRegionResource("Regions")
+	regionResource := secalib.GenerateRegionResource(params.Regions[0].Name)
+
+	// Generate Url
+	regionUrl := secalib.GenerateRegionURL(params.Regions[0].Name)
 
 	// Build headers
 	headerParams := map[string]string{
@@ -27,42 +32,46 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	regionsResponse := &regionV1.RegionIterator{
 		Metadata: schema.ResponseMetadata{
 			Provider: secalib.RegionProviderV1,
-			Resource: regionResource,
+			Resource: regionsResource,
 			Verb:     http.MethodGet,
 		},
 	}
-	var regionsList []*schema.Region
+	var regionsList []schema.Region
 
 	// Create Regions to be listed
 	for _, region := range params.Regions {
-		regionUrl := secalib.GenerateRegionURL(region.Name)
+
 		regionResource := secalib.GenerateRegionResource(region.Name)
 		regionResponse := newRegionResponse(region.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1,
 			region.InitialSpec)
 		regionResponse.Metadata.Verb = http.MethodGet
 
-		if err := configureGetStub(wm, scenario,
-			&stubConfig{url: regionUrl, params: params, headers: headerParams, responseBody: regionResponse, currentState: "", nextState: ""}); err != nil {
-			return nil, err
-		}
-		regionsList = append(regionsList, regionResponse)
+		regionsList = append(regionsList, *regionResponse)
 
 	}
 
-	// List Region
+	regionsResponse.Items = regionsList
 
-	// Convert []*schema.Region to []schema.Region
-	var regionsValueList []schema.Region
-	for _, r := range regionsList {
-		if r != nil {
-			regionsValueList = append(regionsValueList, *r)
-		}
-	}
-
-	regionsResponse.Items = regionsValueList
-
+	// 1 - Create ListRegions stub
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParams, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+		return nil, err
+	}
+
+	// 2 - Create GetRegion stubs
+	singleRegionResponse := &schema.Region{
+		Metadata: &schema.GlobalResourceMetadata{
+			Name:       params.Regions[0].Name,
+			Provider:   secalib.RegionProviderV1,
+			Resource:   regionResource,
+			ApiVersion: secalib.ApiVersion1,
+			Kind:       secalib.RegionKind,
+			Verb:       http.MethodGet,
+		},
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: regionUrl, params: params, headers: headerParams, responseBody: singleRegionResponse, currentState: "", nextState: ""}); err != nil {
 		return nil, err
 	}
 

@@ -79,14 +79,11 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	// Test List iterator's (Next and All) for Regions and verify both responses have the same length
 	regions := suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1)
 
-	// Verify if one region is present in the list
-
-	regionResource := secalib.GenerateRegionResource(suite.regionName)
+	// Call Get Region and verify response
+	regionResource := secalib.GenerateRegionResource(regions[0].Metadata.Name)
 	expectedRegionMeta := secalib.NewGlobalResourceMetadata(regions[0].Metadata.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1, secalib.RegionKind)
 
-	// Call Get Region and verify response
 	suite.getRegionV1Step("Get region "+regions[0].Metadata.Name, t, ctx, suite.client.RegionV1, expectedRegionMeta)
-
 }
 
 func (suite *RegionV1TestSuite) AfterEach(t provider.T) {

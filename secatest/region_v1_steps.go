@@ -42,7 +42,7 @@ func (suite *testSuite) listRegionsV1Step(stepName string, t provider.T, ctx con
 		requireNotNilResponse(sCtx, iter)
 
 		for {
-			item, err := iter.Next(context.Background())
+			item, err := iter.Next(ctx)
 			if errors.Is(err, io.EOF) {
 				break
 			}
@@ -54,13 +54,16 @@ func (suite *testSuite) listRegionsV1Step(stepName string, t provider.T, ctx con
 		requireNotNilResponse(sCtx, respNext)
 		requireLenResponse(sCtx, len(respNext))
 
-		respAll, err = iter.All(ctx)
+		iterAll, err := api.ListRegions(ctx)
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, iterAll)
+
+		respAll, err = iterAll.All(ctx)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, respAll)
 		requireLenResponse(sCtx, len(respAll))
 
 		compareIteratorsResponse(sCtx, len(respNext), len(respAll))
-
 	})
 	return respAll
 }
