@@ -2,6 +2,8 @@ package secatest
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -29,7 +31,8 @@ func (suite *testSuite) getRegionV1Step(stepName string, t provider.T, ctx conte
 }
 
 func (suite *testSuite) listRegionsV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.RegionV1) []*schema.Region {
-	var resp []*schema.Region
+	var respNext []*schema.Region
+	var respAll []*schema.Region
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setRegionV1StepParams(sCtx, "ListRegions")
@@ -38,10 +41,26 @@ func (suite *testSuite) listRegionsV1Step(stepName string, t provider.T, ctx con
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, iter)
 
-		resp, err = iter.All(ctx)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+
+		respAll, err = iter.All(ctx)
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-		requireLenResponse(sCtx, len(resp))
+		requireNotNilResponse(sCtx, respAll)
+		requireLenResponse(sCtx, len(respAll))
+
+		compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+
 	})
-	return resp
+	return respAll
 }

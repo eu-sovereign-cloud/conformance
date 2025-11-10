@@ -243,6 +243,7 @@ func (suite *testSuite) verifySecurityGroupSpecStep(ctx provider.StepCtx, expect
 }
 
 // Region Spec
+
 func (suite *testSuite) verifyRegionSpecStep(ctx provider.StepCtx, actual *schema.RegionSpec) {
 	ctx.WithNewStep("Verify RegionSpec", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().GreaterOrEqual(len(actual.AvailableZones), 1, "AvailableZones list length should match expected")

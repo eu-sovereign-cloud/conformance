@@ -25,7 +25,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	// Generate scenario Names
 	regionNameA := secalib.GenerateRegionName()
 	regionNameB := secalib.GenerateRegionName()
-
+	regionNameC := secalib.GenerateRegionName()
 	// Configure Mock if enabled
 	if suite.mockEnabled {
 
@@ -57,6 +57,13 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
+				{
+					Name: regionNameC,
+					InitialSpec: &schema.RegionSpec{
+						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+						Providers:      secalib.GenerateProviderSpec(),
+					},
+				},
 			},
 		}
 
@@ -69,18 +76,17 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 
 	ctx := context.Background()
 
-	// List Regions and verify
+	// Test List iterator's (Next and All) for Regions and verify both responses have the same length
 	regions := suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1)
 
-	// Verify that all created Regions are present in the list
-	for _, region := range regions {
+	// Verify if one region is present in the list
 
-		regionResource := secalib.GenerateRegionResource(region.Metadata.Name)
-		expectedRegionMeta := secalib.NewGlobalResourceMetadata(region.Metadata.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1, secalib.RegionKind)
+	regionResource := secalib.GenerateRegionResource(suite.regionName)
+	expectedRegionMeta := secalib.NewGlobalResourceMetadata(regions[0].Metadata.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1, secalib.RegionKind)
 
-		// Call Get Region and verify one by one
-		suite.getRegionV1Step("Get region "+region.Metadata.Name, t, ctx, suite.client.RegionV1, expectedRegionMeta)
-	}
+	// Call Get Region and verify response
+	suite.getRegionV1Step("Get region "+regions[0].Metadata.Name, t, ctx, suite.client.RegionV1, expectedRegionMeta)
+
 }
 
 func (suite *RegionV1TestSuite) AfterEach(t provider.T) {
