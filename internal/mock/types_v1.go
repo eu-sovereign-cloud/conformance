@@ -6,6 +6,12 @@ import (
 
 // Params
 
+type ClientsInitParams struct {
+	*Params
+}
+
+func (p ClientsInitParams) getParams() *Params { return p.Params }
+
 type AuthorizationParamsV1 struct {
 	*Params
 	Role           *ResourceParams[schema.RoleSpec]
@@ -13,6 +19,13 @@ type AuthorizationParamsV1 struct {
 }
 
 func (p AuthorizationParamsV1) getParams() *Params { return p.Params }
+
+type RegionParamsV1 struct {
+	*Params
+	Regions []ResourceParams[schema.RegionSpec]
+}
+
+func (p RegionParamsV1) getParams() *Params { return p.Params }
 
 type WorkspaceParamsV1 struct {
 	*Params

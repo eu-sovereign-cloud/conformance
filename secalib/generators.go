@@ -7,6 +7,7 @@ import (
 	"net"
 
 	"github.com/apparentlymart/go-cidr/cidr"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
 // Names
@@ -16,6 +17,10 @@ func GenerateRoleName() string {
 
 func GenerateRoleAssignmentName() string {
 	return fmt.Sprintf("role-assignment-%d", rand.Intn(math.MaxInt32))
+}
+
+func GenerateRegionName() string {
+	return fmt.Sprintf("region-%d", rand.Intn(math.MaxInt32))
 }
 
 func GenerateWorkspaceName() string {
@@ -62,6 +67,10 @@ func GenerateSecurityGroupName() string {
 	return fmt.Sprintf("security-group-%d", rand.Intn(math.MaxInt32))
 }
 
+func GenerateRegionProviderUrl(provider string) string {
+	return fmt.Sprintf("{{request.scheme}}://{{request.host}}:{{request.port}}%s%s", UrlProvidersPrefix, provider)
+}
+
 // Resources
 func GenerateSkuResource(tenant string, sku string) string {
 	return fmt.Sprintf(SkuResource, tenant, sku)
@@ -73,6 +82,10 @@ func GenerateRoleResource(tenant string, role string) string {
 
 func GenerateRoleAssignmentResource(tenant string, roleAssignment string) string {
 	return fmt.Sprintf(RoleAssignmentResource, tenant, roleAssignment)
+}
+
+func GenerateRegionResource(region string) string {
+	return fmt.Sprintf(RegionResource, region)
 }
 
 func GenerateWorkspaceResource(tenant string, workspace string) string {
@@ -161,6 +174,10 @@ func GenerateRoleAssignmentURL(tenant string, roleAssignment string) string {
 	return fmt.Sprintf(RoleAssignmentURLV1, tenant, roleAssignment)
 }
 
+func GenerateRegionURL(region string) string {
+	return fmt.Sprintf(RegionURLV1, region)
+}
+
 func GenerateWorkspaceURL(tenant string, workspace string) string {
 	return fmt.Sprintf(WorkspaceURLV1, tenant, workspace)
 }
@@ -215,6 +232,37 @@ func GenerateSubnetURL(tenant string, workspace string, network string, subnet s
 
 func GenerateSecurityGroupURL(tenant string, workspace string, securityGroup string) string {
 	return fmt.Sprintf(SecurityGroupURLV1, tenant, workspace, securityGroup)
+}
+
+// Providers
+func GenerateProviderSpec() []schema.Provider {
+	return []schema.Provider{
+		{
+			Name:    AuthorizationProvider,
+			Version: ApiVersion1,
+			Url:     GenerateRegionProviderUrl(AuthorizationProvider),
+		},
+		{
+			Name:    ComputeProvider,
+			Version: ApiVersion1,
+			Url:     GenerateRegionProviderUrl(ComputeProvider),
+		},
+		{
+			Name:    NetworkProvider,
+			Version: ApiVersion1,
+			Url:     GenerateRegionProviderUrl(NetworkProvider),
+		},
+		{
+			Name:    StorageProvider,
+			Version: ApiVersion1,
+			Url:     GenerateRegionProviderUrl(StorageProvider),
+		},
+		{
+			Name:    WorkspaceProvider,
+			Version: ApiVersion1,
+			Url:     GenerateRegionProviderUrl(WorkspaceProvider),
+		},
+	}
 }
 
 // Random

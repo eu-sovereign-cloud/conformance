@@ -23,6 +23,14 @@ func newRoleAssignmentResponse(name, provider, resource, apiVersion, tenant stri
 	}
 }
 
+// Region
+func newRegionResponse(name, provider, resource, apiVersion string, spec *schema.RegionSpec) *schema.Region {
+	return &schema.Region{
+		Metadata: secalib.NewGlobalResourceMetadata(name, provider, resource, apiVersion, secalib.RegionKind),
+		Spec:     *spec,
+	}
+}
+
 // Workspace
 
 func newWorkspaceResponse(name, provider, resource, apiVersion, tenant, region string, labels schema.Labels) *schema.Workspace {

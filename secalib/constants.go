@@ -4,6 +4,13 @@ const (
 	// API Versions
 	ApiVersion1 = "v1"
 
+	// Providers
+	AuthorizationProvider = "seca.authorization"
+	WorkspaceProvider     = "seca.workspace"
+	StorageProvider       = "seca.storage"
+	ComputeProvider       = "seca.compute"
+	NetworkProvider       = "seca.network"
+
 	// Labels
 	ArchitectureLabel   = "architecture"
 	ProviderLabel       = "provider"
@@ -13,12 +20,13 @@ const (
 	EnvProductionLabel  = "production"
 
 	// URL Prefixes
-	urlProvidersPrefix = "/providers/"
+	UrlProvidersPrefix = "/providers/"
 
 	// Resource URLs
 	resourceTenantsPrefix    = "tenants/%s"
 	resourceWorkspacesPrefix = resourceTenantsPrefix + "/workspaces/%s"
 
+	RegionResource          = "regions/%s"
 	SkuResource             = resourceTenantsPrefix + "/skus/%s"
 	RoleResource            = resourceTenantsPrefix + "/roles/%s"
 	RoleAssignmentResource  = resourceTenantsPrefix + "/role-assignments/%s"
@@ -47,6 +55,7 @@ const (
 	// Resource Kinds
 	RoleKind            = "role"
 	RoleAssignmentKind  = "role-assignment"
+	RegionKind          = "region"
 	WorkspaceKind       = "workspace"
 	StorageSkuKind      = "storage-sku"
 	BlockStorageKind    = "block-storage"
@@ -80,4 +89,21 @@ const (
 
 	// Generators
 	maxBlockStorageSize = 1000000 // GB
+
+	// Zones
+	ZoneA = "a"
+	ZoneB = "b"
+
+	// Labels
+	LabelKeyTier         = "tier"
+	LabelEnvKey          = "env"
+	LabelEnvValue        = "test"
+	LabelMonitoringValue = "monitoring"
+	LabelAlertLevelValue = "alert-level"
+	LabelHightValue      = "high"
+	LabelTierKey         = "tier"
+	LabelTierValue       = "backend"
+	LabelVersion         = "version"
+	LabelUptime          = "uptime"
+	LabelLoad            = "load"
 )
