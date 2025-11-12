@@ -10,6 +10,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -48,7 +49,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
 			},
-			Role: &mock.ResourceParams[schema.RoleSpec]{
+			Role: &[]mock.ResourceParams[schema.RoleSpec]{{
 				Name: roleName,
 				InitialSpec: &schema.RoleSpec{
 					Permissions: []schema.Permission{
@@ -61,7 +62,8 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 					},
 				},
 			},
-			RoleAssignment: &mock.ResourceParams[schema.RoleAssignmentSpec]{
+			},
+			RoleAssignment: &[]mock.ResourceParams[schema.RoleAssignmentSpec]{{
 				Name: roleAssignmentName,
 				InitialSpec: &schema.RoleAssignmentSpec{
 					Roles: []string{roleName},
@@ -77,6 +79,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 						{Tenants: &[]string{suite.tenant}},
 					},
 				},
+			},
 			},
 		}
 		wm, err := mock.CreateAuthorizationLifecycleScenarioV1(suite.scenarioName, mockParams)
@@ -204,7 +207,231 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 
 	slog.Info("Finishing " + suite.scenarioName)
 }
+func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
+	slog.Info("Starting " + suite.scenarioName)
 
+	t.Title(suite.scenarioName)
+	configureTags(t, secalib.AuthorizationProviderV1, secalib.RoleKind, secalib.RoleAssignmentKind)
+
+	// Select subs
+	roleAssignmentSub1 := suite.users[rand.Intn(len(suite.users))]
+
+	roleName1 := secalib.GenerateRoleName()
+	roleName2 := secalib.GenerateRoleName()
+	roleName3 := secalib.GenerateRoleName()
+	// Generate scenario data
+
+	roleAssignmentName := secalib.GenerateRoleAssignmentName()
+
+	imageName := secalib.GenerateImageName()
+	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
+
+	// Setup mock, if configured to use
+	if suite.mockEnabled {
+		mockParams := &mock.AuthorizationParamsV1{
+			Params: &mock.Params{
+				MockURL:   *suite.mockServerURL,
+				AuthToken: suite.authToken,
+				Tenant:    suite.tenant,
+			},
+			Role: &[]mock.ResourceParams[schema.RoleSpec]{
+				{
+					Name: roleName1,
+					InitialLabels: map[string]string{
+						"env": "conformance",
+					},
+					InitialSpec: &schema.RoleSpec{
+						Permissions: []schema.Permission{
+							{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+						},
+					},
+				},
+				{
+					Name: roleName2,
+					InitialLabels: map[string]string{
+						"env": "conformance",
+					},
+					InitialSpec: &schema.RoleSpec{
+						Permissions: []schema.Permission{
+							{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+						},
+					},
+				},
+				{
+					Name: roleName3,
+					InitialLabels: map[string]string{
+						"env": "conformance",
+					},
+					InitialSpec: &schema.RoleSpec{
+						Permissions: []schema.Permission{
+							{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+						},
+					},
+				},
+			},
+			RoleAssignment: &[]mock.ResourceParams[schema.RoleAssignmentSpec]{
+				{
+					Name: roleAssignmentName,
+					InitialSpec: &schema.RoleAssignmentSpec{
+						Roles: []string{roleName1},
+						Subs:  []string{roleAssignmentSub1},
+						Scopes: []schema.RoleAssignmentScope{
+							{Tenants: &[]string{suite.tenant}},
+						},
+					},
+				},
+				{
+					Name: roleAssignmentName,
+					InitialSpec: &schema.RoleAssignmentSpec{
+						Roles: []string{roleName2},
+						Subs:  []string{roleAssignmentSub1},
+						Scopes: []schema.RoleAssignmentScope{
+							{Tenants: &[]string{suite.tenant}},
+						},
+					},
+				},
+				{
+					Name: roleAssignmentName,
+					InitialSpec: &schema.RoleAssignmentSpec{
+						Roles: []string{roleName3},
+						Subs:  []string{roleAssignmentSub1},
+						Scopes: []schema.RoleAssignmentScope{
+							{Tenants: &[]string{suite.tenant}},
+						},
+					},
+				},
+			}}
+		wm, err := mock.CreateAuthorizationListLifecycleScenarioV1(suite.scenarioName, mockParams)
+		if err != nil {
+			t.Fatalf("Failed to configure mock scenario: %v", err)
+		}
+		suite.mockClient = wm
+	}
+
+	ctx := context.Background()
+
+	// Role
+
+	roles := []schema.Role{
+		{
+			Metadata: &schema.GlobalTenantResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   roleName1,
+			},
+			Labels: map[string]string{
+				"env": "conformance",
+			},
+			Spec: schema.RoleSpec{
+				Permissions: []schema.Permission{
+					{
+						Provider:  secalib.StorageProviderV1,
+						Resources: []string{imageResource},
+						Verb:      []string{http.MethodGet},
+					},
+				},
+			},
+		},
+		{
+			Metadata: &schema.GlobalTenantResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   roleName2,
+			},
+			Labels: map[string]string{
+				"env": "conformance",
+			},
+			Spec: schema.RoleSpec{
+				Permissions: []schema.Permission{
+					{
+						Provider:  secalib.StorageProviderV1,
+						Resources: []string{imageResource},
+						Verb:      []string{http.MethodGet},
+					},
+				},
+			},
+		},
+		{
+			Metadata: &schema.GlobalTenantResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   roleName3,
+			},
+			Labels: map[string]string{
+				"env": "conformance",
+			},
+			Spec: schema.RoleSpec{
+				Permissions: []schema.Permission{
+					{
+						Provider:  secalib.StorageProviderV1,
+						Resources: []string{imageResource},
+						Verb:      []string{http.MethodGet},
+					},
+				},
+			},
+		},
+	}
+	// Create a roles
+
+	for _, role := range roles {
+
+		roleResource := secalib.GenerateRoleResource(suite.tenant, role.Metadata.Name)
+		role := &schema.Role{
+			Metadata: &schema.GlobalTenantResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   role.Metadata.Name,
+			},
+			Labels: map[string]string{
+				"env": "conformance",
+			},
+			Spec: schema.RoleSpec{
+				Permissions: []schema.Permission{
+					{
+						Provider:  secalib.StorageProviderV1,
+						Resources: []string{imageResource},
+						Verb:      []string{http.MethodGet},
+					},
+				},
+			},
+		}
+		expectRoleMeta := secalib.NewGlobalTenantResourceMetadata(role.Metadata.Name,
+			secalib.AuthorizationProviderV1,
+			roleResource,
+			secalib.ApiVersion1,
+			secalib.RoleKind,
+			suite.tenant)
+		expectRoleSpec := &schema.RoleSpec{
+			Permissions: []schema.Permission{
+				{
+					Provider:  secalib.StorageProviderV1,
+					Resources: []string{imageResource},
+					Verb:      []string{http.MethodGet},
+				},
+			},
+		}
+		// Create Role
+		suite.createOrUpdateRoleV1Step("Create a role", t, ctx, suite.client.AuthorizationV1, role,
+			expectRoleMeta, expectRoleSpec, secalib.CreatingResourceState)
+	}
+	roleTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+	}
+	// List Roles
+	suite.getListRoleV1Step("Get list of roles", t, ctx, suite.client.AuthorizationV1, *roleTRef)
+
+	//List Roles with limit
+
+	suite.getListRoleV1StepWithLimit("Get list of roles", t, ctx, suite.client.AuthorizationV1, *roleTRef,
+		builders.NewListOptions().WithLimit(1))
+
+	// List Roles with Label
+	suite.getListRoleV1StepWithLabel("Get list of roles", t, ctx, suite.client.AuthorizationV1, *roleTRef,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals("env", "conformance")))
+
+	// List Roles with Limit and label
+	suite.getListRoleV1StepWithLimitAndLabel("Get list of roles", t, ctx, suite.client.AuthorizationV1, *roleTRef,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals("env", "conformance")))
+
+}
 func (suite *AuthorizationV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }

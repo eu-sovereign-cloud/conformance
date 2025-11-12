@@ -14,8 +14,8 @@ func (p ClientsInitParams) getParams() *Params { return p.Params }
 
 type AuthorizationParamsV1 struct {
 	*Params
-	Role           *ResourceParams[schema.RoleSpec]
-	RoleAssignment *ResourceParams[schema.RoleAssignmentSpec]
+	Role           *[]ResourceParams[schema.RoleSpec]
+	RoleAssignment *[]ResourceParams[schema.RoleAssignmentSpec]
 }
 
 func (p AuthorizationParamsV1) getParams() *Params { return p.Params }

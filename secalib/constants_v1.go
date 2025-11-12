@@ -11,7 +11,9 @@ const (
 
 	// Base URLs
 	RoleURLV1            = UrlProvidersPrefix + AuthorizationProviderV1 + "/" + RoleResource
+	RolesURLV1           = UrlProvidersPrefix + AuthorizationProviderV1 + "/" + RolesResource
 	RoleAssignmentURLV1  = UrlProvidersPrefix + AuthorizationProviderV1 + "/" + RoleAssignmentResource
+	RoleAssignmentsURLV1 = UrlProvidersPrefix + AuthorizationProviderV1 + "/" + RoleAssignmentsResource
 	RegionsURLV1         = UrlProvidersPrefix + RegionProviderV1 + "/regions"
 	RegionURLV1          = UrlProvidersPrefix + RegionProviderV1 + "/" + RegionResource
 	WorkspaceURLV1       = UrlProvidersPrefix + WorkspaceProviderV1 + "/" + WorkspaceResource
