@@ -27,9 +27,11 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	imageResource := secalib.GenerateImageResource(params.Tenant, params.Image.Name)
 
 	// Workspace
-	workspaceResponse := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1,
-		params.Tenant, params.Region,
-		params.Workspace.InitialLabels)
+	workspaceResponse, err := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1,
+		params.Tenant, params.Region, params.Workspace.InitialLabels)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
@@ -49,9 +51,11 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	}
 
 	// Block storage
-	blockResponse := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region,
-		params.BlockStorage.InitialSpec)
+	blockResponse, err := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region, params.BlockStorage.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create a block storage
 	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
@@ -89,9 +93,11 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	}
 
 	// image
-	imageResponse := newImageResponse(params.Image.Name, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1,
-		params.Tenant, params.Region,
-		params.Image.InitialSpec)
+	imageResponse, err := newImageResponse(params.Image.Name, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1,
+		params.Tenant, params.Region, params.Image.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create an image
 	setCreatedRegionalResourceMetadata(imageResponse.Metadata)
@@ -135,7 +141,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	}
 
 	// Get the deleted image
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: imageUrl, params: params, currentState: "GetDeletedImage", nextState: "DeleteBlockStorage"}); err != nil {
 		return nil, err
 	}
@@ -147,7 +153,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	}
 
 	// Get the deleted block storage
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: blockUrl, params: params, currentState: "GetDeletedBlockStorage", nextState: "DeleteWorkspace"}); err != nil {
 		return nil, err
 	}
@@ -159,7 +165,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	}
 
 	// Get the deleted workspace
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: workspaceUrl, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}

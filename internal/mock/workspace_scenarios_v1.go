@@ -20,9 +20,11 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	url := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
 	resource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 
-	response := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, resource, secalib.ApiVersion1,
-		params.Tenant, params.Region,
-		params.Workspace.InitialLabels)
+	response, err := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, resource, secalib.ApiVersion1,
+		params.Tenant, params.Region, params.Workspace.InitialLabels)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(response.Metadata)
@@ -66,7 +68,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Get the deleted workspace
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: url, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}

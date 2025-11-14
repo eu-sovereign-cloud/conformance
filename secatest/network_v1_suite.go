@@ -1,7 +1,6 @@
 package secatest
 
 import (
-	"context"
 	"log/slog"
 	"math/rand"
 
@@ -30,7 +29,6 @@ type NetworkV1TestSuite struct {
 }
 
 func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
-	ctx := context.Background()
 	var err error
 	slog.Info("Starting " + suite.scenarioName)
 
@@ -286,22 +284,39 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-
-	expectMeta := secalib.NewRegionalResourceMetadata(workspaceName,
-		secalib.WorkspaceProviderV1,
-		workspaceResource,
-		secalib.ApiVersion1,
-		secalib.WorkspaceKind,
-		suite.tenant, suite.region)
-	expectLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
-	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, expectMeta, expectLabels, secalib.CreatingResourceState)
+	expectWorkspaceMeta, err := secalib.NewRegionalResourceMetadataBuilder().
+		Name(workspaceName).
+		Provider(secalib.WorkspaceProviderV1).
+		Resource(workspaceResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.WorkspaceKind).
+		Tenant(suite.tenant).
+		Region(suite.region).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
+	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, workspace,
+		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			labels:        expectWorkspaceLabels,
+			metadata:      expectWorkspaceMeta,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created Workspace
 	workspaceTRef := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.tenant),
 		Name:   workspaceName,
 	}
-	suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, expectMeta, expectLabels, secalib.ActiveResourceState)
+	suite.getWorkspaceV1Step("Get the created workspace", t, suite.client.WorkspaceV1, *workspaceTRef,
+		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			labels:        expectWorkspaceLabels,
+			metadata:      expectWorkspaceMeta,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Network
 
@@ -318,22 +333,31 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			RouteTableRef: *routeTableRefObj,
 		},
 	}
-	expectNetworkMeta := secalib.NewRegionalWorkspaceResourceMetadata(networkName,
-		secalib.NetworkProviderV1,
-		networkResource,
-		secalib.ApiVersion1,
-		secalib.NetworkKind,
-		suite.tenant,
-		workspaceName,
-		suite.region,
-	)
+	expectNetworkMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+		Name(networkName).
+		Provider(secalib.NetworkProviderV1).
+		Resource(networkResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.NetworkKind).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Region(suite.region).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
 	expectNetworkSpec := &schema.NetworkSpec{
 		Cidr:          schema.Cidr{Ipv4: &suite.networkCidr},
 		SkuRef:        *networkSkuRefObj,
 		RouteTableRef: *routeTableRefObj,
 	}
-	suite.createOrUpdateNetworkV1Step("Create a network", t, ctx, suite.client.NetworkV1, network,
-		expectNetworkMeta, expectNetworkSpec, secalib.CreatingResourceState)
+	suite.createOrUpdateNetworkV1Step("Create a network", t, suite.client.NetworkV1, network,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			metadata:      expectNetworkMeta,
+			spec:          expectNetworkSpec,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created network
 	networkWRef := &secapi.WorkspaceReference{
@@ -341,18 +365,33 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      networkName,
 	}
-	suite.getNetworkV1Step("Get the created network", t, ctx, suite.client.NetworkV1, *networkWRef,
-		expectNetworkMeta, expectNetworkSpec, secalib.ActiveResourceState)
+	suite.getNetworkV1Step("Get the created network", t, suite.client.NetworkV1, *networkWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			metadata:      expectNetworkMeta,
+			spec:          expectNetworkSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Update the network
 	network.Spec.SkuRef = *networkSkuRef2Obj
 	expectNetworkSpec.SkuRef = network.Spec.SkuRef
-	suite.createOrUpdateNetworkV1Step("Update the network", t, ctx, suite.client.NetworkV1, network,
-		expectNetworkMeta, expectNetworkSpec, secalib.UpdatingResourceState)
+	suite.createOrUpdateNetworkV1Step("Update the network", t, suite.client.NetworkV1, network,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			metadata:      expectNetworkMeta,
+			spec:          expectNetworkSpec,
+			resourceState: secalib.UpdatingResourceState,
+		},
+	)
 
 	// Get the updated network
-	suite.getNetworkV1Step("Get the updated network", t, ctx, suite.client.NetworkV1, *networkWRef,
-		expectNetworkMeta, expectNetworkSpec, secalib.ActiveResourceState)
+	suite.getNetworkV1Step("Get the updated network", t, suite.client.NetworkV1, *networkWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			metadata:      expectNetworkMeta,
+			spec:          expectNetworkSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Internet gateway
 
@@ -364,18 +403,27 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			Name:      internetGatewayName,
 		},
 	}
-	expectGatewayMeta := secalib.NewRegionalWorkspaceResourceMetadata(internetGatewayName,
-		secalib.NetworkProviderV1,
-		internetGatewayResource,
-		secalib.ApiVersion1,
-		secalib.InternetGatewayKind,
-		suite.tenant,
-		workspaceName,
-		suite.region,
-	)
+	expectGatewayMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+		Name(internetGatewayName).
+		Provider(secalib.NetworkProviderV1).
+		Resource(internetGatewayResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.InternetGatewayKind).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Region(suite.region).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
 	expectGatewaySpec := &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)}
-	suite.createOrUpdateInternetGatewayV1Step("Create a internet gateway", t, ctx, suite.client.NetworkV1, gateway,
-		expectGatewayMeta, expectGatewaySpec, secalib.CreatingResourceState)
+	suite.createOrUpdateInternetGatewayV1Step("Create a internet gateway", t, suite.client.NetworkV1, gateway,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			metadata:      expectGatewayMeta,
+			spec:          expectGatewaySpec,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created internet gateway
 	gatewayWRef := &secapi.WorkspaceReference{
@@ -383,18 +431,33 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      internetGatewayName,
 	}
-	suite.getInternetGatewayV1Step("Get the created internet gateway", t, ctx, suite.client.NetworkV1, *gatewayWRef,
-		expectGatewayMeta, expectGatewaySpec, secalib.ActiveResourceState)
+	suite.getInternetGatewayV1Step("Get the created internet gateway", t, suite.client.NetworkV1, *gatewayWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			metadata:      expectGatewayMeta,
+			spec:          expectGatewaySpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Update the internet gateway
 	gateway.Spec.EgressOnly = ptr.To(true)
 	expectGatewaySpec.EgressOnly = gateway.Spec.EgressOnly
-	suite.createOrUpdateInternetGatewayV1Step("Update the internet gateway", t, ctx, suite.client.NetworkV1, gateway,
-		expectGatewayMeta, expectGatewaySpec, secalib.UpdatingResourceState)
+	suite.createOrUpdateInternetGatewayV1Step("Update the internet gateway", t, suite.client.NetworkV1, gateway,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			metadata:      expectGatewayMeta,
+			spec:          expectGatewaySpec,
+			resourceState: secalib.UpdatingResourceState,
+		},
+	)
 
 	// Get the updated internet gateway
-	suite.getInternetGatewayV1Step("Get the updated internet gateway", t, ctx, suite.client.NetworkV1, *gatewayWRef,
-		expectGatewayMeta, expectGatewaySpec, secalib.ActiveResourceState)
+	suite.getInternetGatewayV1Step("Get the updated internet gateway", t, suite.client.NetworkV1, *gatewayWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			metadata:      expectGatewayMeta,
+			spec:          expectGatewaySpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Route table
 
@@ -412,22 +475,32 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectRouteMeta := secalib.NewRegionalNetworkResourceMetadata(routeTableName,
-		secalib.NetworkProviderV1,
-		routeTableResource,
-		secalib.ApiVersion1,
-		secalib.RouteTableKind,
-		suite.tenant,
-		workspaceName,
-		networkName,
-		suite.region)
+	expectRouteMeta, err := secalib.NewRegionalNetworkResourceMetadataBuilder().
+		Name(routeTableName).
+		Provider(secalib.NetworkProviderV1).
+		Resource(routeTableResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.RouteTableKind).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Network(networkName).
+		Region(suite.region).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
 	expectRouteSpec := &schema.RouteTableSpec{
 		Routes: []schema.RouteSpec{
 			{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 		},
 	}
-	suite.createOrUpdateRouteTableV1Step("Create a route table", t, ctx, suite.client.NetworkV1, route,
-		expectRouteMeta, expectRouteSpec, secalib.CreatingResourceState)
+	suite.createOrUpdateRouteTableV1Step("Create a route table", t, suite.client.NetworkV1, route,
+		responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			metadata:      expectRouteMeta,
+			spec:          expectRouteSpec,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created route table
 	routeNRef := &secapi.NetworkReference{
@@ -436,20 +509,35 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Network:   secapi.NetworkID(networkName),
 		Name:      routeTableName,
 	}
-	suite.getRouteTableV1Step("Get the created route table", t, ctx, suite.client.NetworkV1, *routeNRef,
-		expectRouteMeta, expectRouteSpec, secalib.ActiveResourceState)
+	suite.getRouteTableV1Step("Get the created route table", t, suite.client.NetworkV1, *routeNRef,
+		responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			metadata:      expectRouteMeta,
+			spec:          expectRouteSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Update the route table
 	route.Spec.Routes = []schema.RouteSpec{
 		{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *instanceRefObj},
 	}
 	expectRouteSpec.Routes = route.Spec.Routes
-	suite.createOrUpdateRouteTableV1Step("Update the route table", t, ctx, suite.client.NetworkV1, route,
-		expectRouteMeta, expectRouteSpec, secalib.UpdatingResourceState)
+	suite.createOrUpdateRouteTableV1Step("Update the route table", t, suite.client.NetworkV1, route,
+		responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			metadata:      expectRouteMeta,
+			spec:          expectRouteSpec,
+			resourceState: secalib.UpdatingResourceState,
+		},
+	)
 
 	// Get the updated route table
-	suite.getRouteTableV1Step("Get the updated route table", t, ctx, suite.client.NetworkV1, *routeNRef,
-		expectRouteMeta, expectRouteSpec, secalib.ActiveResourceState)
+	suite.getRouteTableV1Step("Get the updated route table", t, suite.client.NetworkV1, *routeNRef,
+		responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			metadata:      expectRouteMeta,
+			spec:          expectRouteSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Subnet
 
@@ -466,22 +554,31 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			Zone: zone1,
 		},
 	}
-	expectSubnetMeta := secalib.NewRegionalNetworkResourceMetadata(subnetName,
-		secalib.NetworkProviderV1,
-		subnetResource,
-		secalib.ApiVersion1,
-		secalib.SubnetKind,
-		suite.tenant,
-		workspaceName,
-		networkName,
-		suite.region,
-	)
+	expectSubnetMeta, err := secalib.NewRegionalNetworkResourceMetadataBuilder().
+		Name(subnetName).
+		Provider(secalib.NetworkProviderV1).
+		Resource(subnetResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.SubnetKind).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Network(networkName).
+		Region(suite.region).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
 	expectSubnetSpec := &schema.SubnetSpec{
 		Cidr: schema.Cidr{Ipv4: &subnetCidr},
 		Zone: zone1,
 	}
-	suite.createOrUpdateSubnetV1Step("Create a subnet", t, ctx, suite.client.NetworkV1, subnet,
-		expectSubnetMeta, expectSubnetSpec, secalib.CreatingResourceState)
+	suite.createOrUpdateSubnetV1Step("Create a subnet", t, suite.client.NetworkV1, subnet,
+		responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			metadata:      expectSubnetMeta,
+			spec:          expectSubnetSpec,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created subnet
 	subnetNRef := &secapi.NetworkReference{
@@ -490,18 +587,33 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Network:   secapi.NetworkID(networkName),
 		Name:      subnetName,
 	}
-	suite.getSubnetV1Step("Get the created subnet", t, ctx, suite.client.NetworkV1, *subnetNRef,
-		expectSubnetMeta, expectSubnetSpec, secalib.ActiveResourceState)
+	suite.getSubnetV1Step("Get the created subnet", t, suite.client.NetworkV1, *subnetNRef,
+		responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			metadata:      expectSubnetMeta,
+			spec:          expectSubnetSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Update the subnet
 	subnet.Spec.Zone = zone2
 	expectSubnetSpec.Zone = subnet.Spec.Zone
-	suite.createOrUpdateSubnetV1Step("Update the subnet", t, ctx, suite.client.NetworkV1, subnet,
-		expectSubnetMeta, expectSubnetSpec, secalib.UpdatingResourceState)
+	suite.createOrUpdateSubnetV1Step("Update the subnet", t, suite.client.NetworkV1, subnet,
+		responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			metadata:      expectSubnetMeta,
+			spec:          expectSubnetSpec,
+			resourceState: secalib.UpdatingResourceState,
+		},
+	)
 
 	// Get the updated subnet
-	suite.getSubnetV1Step("Get the updated subnet", t, ctx, suite.client.NetworkV1, *subnetNRef,
-		expectSubnetMeta, expectSubnetSpec, secalib.ActiveResourceState)
+	suite.getSubnetV1Step("Get the updated subnet", t, suite.client.NetworkV1, *subnetNRef,
+		responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			metadata:      expectSubnetMeta,
+			spec:          expectSubnetSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Public ip
 
@@ -517,21 +629,30 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			Version: secalib.IpVersion4,
 		},
 	}
-	expectPublicIpMeta := secalib.NewRegionalWorkspaceResourceMetadata(publicIpName,
-		secalib.NetworkProviderV1,
-		publicIpResource,
-		secalib.ApiVersion1,
-		secalib.PublicIpKind,
-		suite.tenant,
-		workspaceName,
-		suite.region,
-	)
+	expectPublicIpMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+		Name(publicIpName).
+		Provider(secalib.NetworkProviderV1).
+		Resource(publicIpResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.PublicIpKind).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Region(suite.region).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
 	expectPublicIpSpec := &schema.PublicIpSpec{
 		Address: &publicIpAddress1,
 		Version: secalib.IpVersion4,
 	}
-	suite.createOrUpdatePublicIpV1Step("Create a public ip", t, ctx, suite.client.NetworkV1, publicIp,
-		expectPublicIpMeta, expectPublicIpSpec, secalib.CreatingResourceState)
+	suite.createOrUpdatePublicIpV1Step("Create a public ip", t, suite.client.NetworkV1, publicIp,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			metadata:      expectPublicIpMeta,
+			spec:          expectPublicIpSpec,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created public ip
 	publicIpWRef := &secapi.WorkspaceReference{
@@ -539,18 +660,33 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      publicIpName,
 	}
-	suite.getPublicIpV1Step("Get the created public ip", t, ctx, suite.client.NetworkV1, *publicIpWRef,
-		expectPublicIpMeta, expectPublicIpSpec, secalib.ActiveResourceState)
+	suite.getPublicIpV1Step("Get the created public ip", t, suite.client.NetworkV1, *publicIpWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			metadata:      expectPublicIpMeta,
+			spec:          expectPublicIpSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Update the public ip
 	publicIp.Spec.Address = ptr.To(publicIpAddress2)
 	expectPublicIpSpec.Address = publicIp.Spec.Address
-	suite.createOrUpdatePublicIpV1Step("Update the public ip", t, ctx, suite.client.NetworkV1, publicIp,
-		expectPublicIpMeta, expectPublicIpSpec, secalib.UpdatingResourceState)
+	suite.createOrUpdatePublicIpV1Step("Update the public ip", t, suite.client.NetworkV1, publicIp,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			metadata:      expectPublicIpMeta,
+			spec:          expectPublicIpSpec,
+			resourceState: secalib.UpdatingResourceState,
+		},
+	)
 
 	// Get the updated public ip
-	suite.getPublicIpV1Step("Get the updated public ip", t, ctx, suite.client.NetworkV1, *publicIpWRef,
-		expectPublicIpMeta, expectPublicIpSpec, secalib.ActiveResourceState)
+	suite.getPublicIpV1Step("Get the updated public ip", t, suite.client.NetworkV1, *publicIpWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			metadata:      expectPublicIpMeta,
+			spec:          expectPublicIpSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Nic
 
@@ -567,19 +703,31 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			SubnetRef:    *subnetRefObj,
 		},
 	}
-	expectNicMeta := secalib.NewRegionalWorkspaceResourceMetadata(nicName,
-		secalib.NetworkProviderV1,
-		nicResource,
-		secalib.ApiVersion1,
-		secalib.NicKind,
-		suite.tenant, workspaceName, suite.region)
+	expectNicMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+		Name(nicName).
+		Provider(secalib.NetworkProviderV1).
+		Resource(nicResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.NicKind).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Region(suite.region).
+		Build()
 	expectNicSpec := &schema.NicSpec{
 		Addresses:    []string{nicAddress1},
 		PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
 		SubnetRef:    *subnetRefObj,
 	}
-	suite.createOrUpdateNicV1Step("Create a nic", t, ctx, suite.client.NetworkV1, nic,
-		expectNicMeta, expectNicSpec, secalib.CreatingResourceState)
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
+	suite.createOrUpdateNicV1Step("Create a nic", t, suite.client.NetworkV1, nic,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+			metadata:      expectNicMeta,
+			spec:          expectNicSpec,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created nic
 	nicWRef := &secapi.WorkspaceReference{
@@ -587,18 +735,33 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      nicName,
 	}
-	suite.getNicV1Step("Get the created nic", t, ctx, suite.client.NetworkV1, *nicWRef,
-		expectNicMeta, expectNicSpec, secalib.ActiveResourceState)
+	suite.getNicV1Step("Get the created nic", t, suite.client.NetworkV1, *nicWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+			metadata:      expectNicMeta,
+			spec:          expectNicSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Update the nic
 	nic.Spec.Addresses = []string{nicAddress2}
 	expectNicSpec.Addresses = nic.Spec.Addresses
-	suite.createOrUpdateNicV1Step("Update the nic", t, ctx, suite.client.NetworkV1, nic,
-		expectNicMeta, expectNicSpec, secalib.UpdatingResourceState)
+	suite.createOrUpdateNicV1Step("Update the nic", t, suite.client.NetworkV1, nic,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+			metadata:      expectNicMeta,
+			spec:          expectNicSpec,
+			resourceState: secalib.UpdatingResourceState,
+		},
+	)
 
 	// Get the updated nic
-	suite.getNicV1Step("Get the updated nic", t, ctx, suite.client.NetworkV1, *nicWRef,
-		expectNicMeta, expectNicSpec, secalib.ActiveResourceState)
+	suite.getNicV1Step("Get the updated nic", t, suite.client.NetworkV1, *nicWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+			metadata:      expectNicMeta,
+			spec:          expectNicSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Security Group
 
@@ -615,22 +778,31 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectGroupMeta := secalib.NewRegionalWorkspaceResourceMetadata(securityGroupName,
-		secalib.NetworkProviderV1,
-		securityGroupResource,
-		secalib.ApiVersion1,
-		secalib.SecurityGroupKind,
-		suite.tenant,
-		workspaceName,
-		suite.region,
-	)
+	expectGroupMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+		Name(securityGroupName).
+		Provider(secalib.NetworkProviderV1).
+		Resource(securityGroupResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.SecurityGroupKind).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Region(suite.region).
+		Build()
 	expectGroupSpec := &schema.SecurityGroupSpec{
 		Rules: []schema.SecurityGroupRuleSpec{
 			{Direction: secalib.SecurityRuleDirectionIngress},
 		},
 	}
-	suite.createOrUpdateSecurityGroupV1Step("Create a security group", t, ctx, suite.client.NetworkV1, group,
-		expectGroupMeta, expectGroupSpec, secalib.CreatingResourceState)
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
+	suite.createOrUpdateSecurityGroupV1Step("Create a security group", t, suite.client.NetworkV1, group,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+			metadata:      expectGroupMeta,
+			spec:          expectGroupSpec,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created security group
 	groupWRef := &secapi.WorkspaceReference{
@@ -638,18 +810,33 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      securityGroupName,
 	}
-	suite.getSecurityGroupV1Step("Get the created security group", t, ctx, suite.client.NetworkV1, *groupWRef,
-		expectGroupMeta, expectGroupSpec, secalib.ActiveResourceState)
+	suite.getSecurityGroupV1Step("Get the created security group", t, suite.client.NetworkV1, *groupWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+			metadata:      expectGroupMeta,
+			spec:          expectGroupSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Update the security group
 	group.Spec.Rules[0] = schema.SecurityGroupRuleSpec{Direction: secalib.SecurityRuleDirectionEgress}
 	expectGroupSpec.Rules = group.Spec.Rules
-	suite.createOrUpdateSecurityGroupV1Step("Update the security group", t, ctx, suite.client.NetworkV1, group,
-		expectGroupMeta, expectGroupSpec, secalib.UpdatingResourceState)
+	suite.createOrUpdateSecurityGroupV1Step("Update the security group", t, suite.client.NetworkV1, group,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+			metadata:      expectGroupMeta,
+			spec:          expectGroupSpec,
+			resourceState: secalib.UpdatingResourceState,
+		},
+	)
 
 	// Get the updated security group
-	suite.getSecurityGroupV1Step("Get the updated security group", t, ctx, suite.client.NetworkV1, *groupWRef,
-		expectGroupMeta, expectGroupSpec, secalib.ActiveResourceState)
+	suite.getSecurityGroupV1Step("Get the updated security group", t, suite.client.NetworkV1, *groupWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+			metadata:      expectGroupMeta,
+			spec:          expectGroupSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Block storage
 
@@ -665,19 +852,30 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			SkuRef: *storageSkuRefObj,
 		},
 	}
-	expectedBlockMeta := secalib.NewRegionalWorkspaceResourceMetadata(blockStorageName,
-		secalib.StorageProviderV1,
-		blockStorageResource,
-		secalib.ApiVersion1,
-		secalib.BlockStorageKind,
-		suite.tenant,
-		workspaceName,
-		suite.region)
+	expectedBlockMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+		Name(blockStorageName).
+		Provider(secalib.StorageProviderV1).
+		Resource(blockStorageResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.BlockStorageKind).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Region(suite.region).
+		Build()
 	expectedBlockSpec := &schema.BlockStorageSpec{
 		SizeGB: blockStorageSize,
 		SkuRef: *storageSkuRefObj,
 	}
-	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, ctx, suite.client.StorageV1, block, expectedBlockMeta, expectedBlockSpec, secalib.CreatingResourceState)
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
+	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, suite.client.StorageV1, block,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			metadata:      expectedBlockMeta,
+			spec:          expectedBlockSpec,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created block storage
 	blockWRef := &secapi.WorkspaceReference{
@@ -685,7 +883,13 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      blockStorageName,
 	}
-	suite.getBlockStorageV1Step("Get the created block storage", t, ctx, suite.client.StorageV1, *blockWRef, expectedBlockMeta, expectedBlockSpec, secalib.ActiveResourceState)
+	suite.getBlockStorageV1Step("Get the created block storage", t, suite.client.StorageV1, *blockWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			metadata:      expectedBlockMeta,
+			spec:          expectedBlockSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Instance
 
@@ -704,15 +908,16 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-
-	expectInstanceMeta := secalib.NewRegionalWorkspaceResourceMetadata(instanceName,
-		secalib.ComputeProviderV1,
-		instanceResource,
-		secalib.ApiVersion1,
-		secalib.InstanceKind,
-		suite.tenant,
-		workspaceName,
-		suite.region)
+	expectInstanceMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+		Name(instanceName).
+		Provider(secalib.ComputeProviderV1).
+		Resource(instanceResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.InstanceKind).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Region(suite.region).
+		Build()
 	expectInstanceSpec := &schema.InstanceSpec{
 		SkuRef: *instanceSkuRefObj,
 		Zone:   zone1,
@@ -720,7 +925,16 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			DeviceRef: *blockStorageRefObj,
 		},
 	}
-	suite.createOrUpdateInstanceV1Step("Create an instance", t, ctx, suite.client.ComputeV1, instance, expectInstanceMeta, expectInstanceSpec, secalib.CreatingResourceState)
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
+	suite.createOrUpdateInstanceV1Step("Create an instance", t, suite.client.ComputeV1, instance,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			metadata:      expectInstanceMeta,
+			spec:          expectInstanceSpec,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created instance
 	instanceWRef := &secapi.WorkspaceReference{
@@ -728,67 +942,73 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      instanceName,
 	}
-	instance = suite.getInstanceV1Step("Get the created instance", t, ctx, suite.client.ComputeV1, *instanceWRef, expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
+	instance = suite.getInstanceV1Step("Get the created instance", t, suite.client.ComputeV1, *instanceWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			metadata:      expectInstanceMeta,
+			spec:          expectInstanceSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Delete the instance
-	suite.deleteInstanceV1Step("Delete the instance", t, ctx, suite.client.ComputeV1, instance)
+	suite.deleteInstanceV1Step("Delete the instance", t, suite.client.ComputeV1, instance)
 
 	// Get the deleted instance
-	suite.getInstanceWithErrorV1Step("Get the deleted instance", t, ctx, suite.client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
+	suite.getInstanceWithErrorV1Step("Get the deleted instance", t, suite.client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
 
 	// Delete the block storage
-	suite.deleteBlockStorageV1Step("Delete the block storage", t, ctx, suite.client.StorageV1, block)
+	suite.deleteBlockStorageV1Step("Delete the block storage", t, suite.client.StorageV1, block)
 
 	// Get the deleted block storage
-	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, ctx, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
+	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
 
 	// Delete the security group
-	suite.deleteSecurityGroupV1Step("Delete the security group", t, ctx, suite.client.NetworkV1, group)
+	suite.deleteSecurityGroupV1Step("Delete the security group", t, suite.client.NetworkV1, group)
 
 	// Get deleted security group
-	suite.getSecurityGroupWithErrorV1Step("Get deleted security group", t, ctx, suite.client.NetworkV1, *groupWRef, secapi.ErrResourceNotFound)
+	suite.getSecurityGroupWithErrorV1Step("Get deleted security group", t, suite.client.NetworkV1, *groupWRef, secapi.ErrResourceNotFound)
 
 	// Delete the nic
-	suite.deleteNicV1Step("Delete the nic", t, ctx, suite.client.NetworkV1, nic)
+	suite.deleteNicV1Step("Delete the nic", t, suite.client.NetworkV1, nic)
 
 	// Get the deleted nic
-	suite.getNicWithErrorV1Step("Get deleted nic", t, ctx, suite.client.NetworkV1, *nicWRef, secapi.ErrResourceNotFound)
+	suite.getNicWithErrorV1Step("Get deleted nic", t, suite.client.NetworkV1, *nicWRef, secapi.ErrResourceNotFound)
 
 	// Delete the public ip
-	suite.deletePublicIpV1Step("Delete the public ip", t, ctx, suite.client.NetworkV1, publicIp)
+	suite.deletePublicIpV1Step("Delete the public ip", t, suite.client.NetworkV1, publicIp)
 
 	// Get the deleted public ip
-	suite.getPublicIpWithErrorV1Step("Get deleted public ip", t, ctx, suite.client.NetworkV1, *publicIpWRef, secapi.ErrResourceNotFound)
+	suite.getPublicIpWithErrorV1Step("Get deleted public ip", t, suite.client.NetworkV1, *publicIpWRef, secapi.ErrResourceNotFound)
 
 	// Delete the subnet
-	suite.deleteSubnetV1Step("Delete the subnet", t, ctx, suite.client.NetworkV1, subnet)
+	suite.deleteSubnetV1Step("Delete the subnet", t, suite.client.NetworkV1, subnet)
 
 	// Get the  deleted subnet
-	suite.getSubnetWithErrorV1Step("Get deleted subnet", t, ctx, suite.client.NetworkV1, *subnetNRef, secapi.ErrResourceNotFound)
+	suite.getSubnetWithErrorV1Step("Get deleted subnet", t, suite.client.NetworkV1, *subnetNRef, secapi.ErrResourceNotFound)
 
 	// Delete the route table
-	suite.deleteRouteTableV1Step("Delete the route table", t, ctx, suite.client.NetworkV1, route)
+	suite.deleteRouteTableV1Step("Delete the route table", t, suite.client.NetworkV1, route)
 
 	// Get the  deleted route table
-	suite.getRouteTableWithErrorV1Step("Get deleted route table", t, ctx, suite.client.NetworkV1, *routeNRef, secapi.ErrResourceNotFound)
+	suite.getRouteTableWithErrorV1Step("Get deleted route table", t, suite.client.NetworkV1, *routeNRef, secapi.ErrResourceNotFound)
 
 	// Delete the internet gateway
-	suite.deleteInternetGatewayV1Step("Delete the internet gateway", t, ctx, suite.client.NetworkV1, gateway)
+	suite.deleteInternetGatewayV1Step("Delete the internet gateway", t, suite.client.NetworkV1, gateway)
 
 	// Get the deleted internet gateway
-	suite.getInternetGatewayWithErrorV1Step("Get deleted internet gateway", t, ctx, suite.client.NetworkV1, *gatewayWRef, secapi.ErrResourceNotFound)
+	suite.getInternetGatewayWithErrorV1Step("Get deleted internet gateway", t, suite.client.NetworkV1, *gatewayWRef, secapi.ErrResourceNotFound)
 
 	// Delete the network
-	suite.deleteNetworkV1Step("Delete the network", t, ctx, suite.client.NetworkV1, network)
+	suite.deleteNetworkV1Step("Delete the network", t, suite.client.NetworkV1, network)
 
 	// Get the deleted network
-	suite.getNetworkWithErrorV1Step("Get deleted network", t, ctx, suite.client.NetworkV1, *networkWRef, secapi.ErrResourceNotFound)
+	suite.getNetworkWithErrorV1Step("Get deleted network", t, suite.client.NetworkV1, *networkWRef, secapi.ErrResourceNotFound)
 
 	// Delete the workspace
-	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
 
 	// Get the deleted workspace
-	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)
 }

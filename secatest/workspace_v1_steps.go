@@ -10,91 +10,64 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-func (suite *testSuite) createOrUpdateWorkspaceV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.WorkspaceV1,
-	resource *schema.Workspace,
-	expectedMeta *schema.RegionalResourceMetadata,
-	expectedLabels schema.Labels,
-	expectedState schema.ResourceState,
+func (suite *testSuite) createOrUpdateWorkspaceV1Step(stepName string, t provider.T, api *secapi.WorkspaceV1, resource *schema.Workspace,
+	responseExpects responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) {
-	expectedMeta.Verb = http.MethodPut
-	createOrUpdateResourceStep(
-		t,
-		ctx,
-		suite,
-		stepName,
-		suite.setWorkspaceV1StepParams,
-		"CreateOrUpdateWorkspace",
-		resource,
-		func(context.Context, *schema.Workspace) (*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec], error) {
-			resp, err := api.CreateOrUpdateWorkspace(ctx, resource)
-			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+	responseExpects.metadata.Verb = http.MethodPut
+	createOrUpdateTenantResourceStep(t, suite,
+		createOrUpdateTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setWorkspaceV1StepParams,
+			operationName:  "CreateOrUpdateWorkspace",
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Workspace) (*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec], error) {
+				resp, err := api.CreateOrUpdateWorkspace(t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedLabels:        responseExpects.labels,
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalResourceMetadataStep,
+			expectedResourceState: responseExpects.resourceState,
 		},
-		expectedLabels,
-		expectedMeta,
-		suite.verifyRegionalResourceMetadataStep,
-		nil,
-		nil,
-		expectedState,
 	)
 }
 
-func (suite *testSuite) getWorkspaceV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.WorkspaceV1,
-	tref secapi.TenantReference,
-	expectedMeta *schema.RegionalResourceMetadata,
-	expectedLabels schema.Labels,
-	expectedState schema.ResourceState,
+func (suite *testSuite) getWorkspaceV1Step(stepName string, t provider.T, api *secapi.WorkspaceV1, tref secapi.TenantReference,
+	responseExpects responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) *schema.Workspace {
-	expectedMeta.Verb = http.MethodGet
-	return getTenantResourceStep(
-		t,
-		ctx,
-		suite,
-		stepName,
-		suite.setWorkspaceV1StepParams,
-		"GetWorkspace",
-		tref,
-		func(context.Context, secapi.TenantReference) (*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec], error) {
-			resp, err := api.GetWorkspace(ctx, tref)
-			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+	responseExpects.metadata.Verb = http.MethodGet
+	return getTenantResourceStep(t, suite,
+		getTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setWorkspaceV1StepParams,
+			operationName:  "GetWorkspace",
+			tref:           tref,
+			getFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec], error) {
+				resp, err := api.GetWorkspaceUntilState(ctx, tref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedLabels:        responseExpects.labels,
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalResourceMetadataStep,
+			expectedResourceState: responseExpects.resourceState,
 		},
-		expectedLabels,
-		expectedMeta,
-		suite.verifyRegionalResourceMetadataStep,
-		nil,
-		nil,
-		expectedState,
 	)
 }
 
-func (suite *testSuite) getWorkspaceWithErrorV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.WorkspaceV1,
-	tref secapi.TenantReference,
-	expectedError error,
-) {
+func (suite *testSuite) getWorkspaceWithErrorV1Step(stepName string, t provider.T, api *secapi.WorkspaceV1, tref secapi.TenantReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")
 
-		_, err := api.GetWorkspace(ctx, tref)
+		_, err := api.GetWorkspace(t.Context(), tref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deleteWorkspaceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.WorkspaceV1, resource *schema.Workspace) {
+func (suite *testSuite) deleteWorkspaceV1Step(stepName string, t provider.T, api *secapi.WorkspaceV1, resource *schema.Workspace) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "DeleteWorkspace")
 
-		err := api.DeleteWorkspace(ctx, resource)
+		err := api.DeleteWorkspace(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }

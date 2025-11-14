@@ -12,201 +12,133 @@ import (
 
 // BlockStorage
 
-func (suite *testSuite) createOrUpdateBlockStorageV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.StorageV1,
-	resource *schema.BlockStorage,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.BlockStorageSpec,
-	expectedState schema.ResourceState,
+func (suite *testSuite) createOrUpdateBlockStorageV1Step(stepName string, t provider.T, api *secapi.StorageV1, resource *schema.BlockStorage,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
 ) {
-	expectedMeta.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(
-		t,
-		ctx,
-		suite,
-		stepName,
-		suite.setStorageWorkspaceV1StepParams,
-		"CreateOrUpdateBlockStorage",
-		resource.Metadata.Workspace,
-		resource,
-		func(context.Context, *schema.BlockStorage) (*stepFuncResponse[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec], error) {
-			resp, err := api.CreateOrUpdateBlockStorage(ctx, resource)
-			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+	responseExpects.metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(t, suite,
+		createOrUpdateWorkspaceResourceParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setStorageWorkspaceV1StepParams,
+			operationName:  "CreateOrUpdateBlockStorage",
+			workspace:      resource.Metadata.Workspace,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.BlockStorage) (*stepFuncResponse[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec], error) {
+				resp, err := api.CreateOrUpdateBlockStorage(t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyBlockStorageSpecStep,
+			expectedResourceState: responseExpects.resourceState,
 		},
-		nil,
-		expectedMeta,
-		suite.verifyRegionalWorkspaceResourceMetadataStep,
-		expectedSpec,
-		suite.verifyBlockStorageSpecStep,
-		expectedState,
 	)
 }
 
-func (suite *testSuite) getBlockStorageV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.StorageV1,
-	wref secapi.WorkspaceReference,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.BlockStorageSpec,
-	expectedState schema.ResourceState,
+func (suite *testSuite) getBlockStorageV1Step(stepName string, t provider.T, api *secapi.StorageV1, wref secapi.WorkspaceReference,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
 ) *schema.BlockStorage {
-	var resp *schema.BlockStorage
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setStorageWorkspaceV1StepParams(sCtx, "GetBlockStorage", string(wref.Workspace))
-		retry := newStepResourceStateRetry(
-			suite.baseDelay,
-			suite.baseInterval,
-			suite.maxAttempts,
-			func() (schema.ResourceState, error) {
-				var err error
-				resp, err = api.GetBlockStorage(ctx, wref)
-				requireNoError(sCtx, err)
-				requireNotNilResponse(sCtx, resp)
-
-				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State, nil
+	responseExpects.metadata.Verb = http.MethodGet
+	return getWorkspaceResourceStep(t, suite,
+		getWorkspaceResourceParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setStorageWorkspaceV1StepParams,
+			operationName:  "GetBlockStorage",
+			wref:           wref,
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec], error) {
+				resp, err := api.GetBlockStorageUntilState(ctx, wref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 			},
-			func() {
-				expectedMeta.Verb = http.MethodGet
-				suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-
-				suite.verifyBlockStorageSpecStep(sCtx, expectedSpec, &resp.Spec)
-
-				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
-			},
-		)
-		retry.run(sCtx, "GetBlockStorage", expectedState)
-	})
-	return resp
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyBlockStorageSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
-func (suite *testSuite) getBlockStorageWithErrorV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.StorageV1,
-	wref secapi.WorkspaceReference,
-	expectedError error,
-) {
+func (suite *testSuite) getBlockStorageWithErrorV1Step(stepName string, t provider.T, api *secapi.StorageV1, wref secapi.WorkspaceReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageWorkspaceV1StepParams(sCtx, "GetBlockStorage", string(wref.Workspace))
 
-		_, err := api.GetBlockStorage(ctx, wref)
+		_, err := api.GetBlockStorage(t.Context(), wref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deleteBlockStorageV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, resource *schema.BlockStorage) {
+func (suite *testSuite) deleteBlockStorageV1Step(stepName string, t provider.T, api *secapi.StorageV1, resource *schema.BlockStorage) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageWorkspaceV1StepParams(sCtx, "DeleteBlockStorage", resource.Metadata.Workspace)
 
-		err := api.DeleteBlockStorage(ctx, resource)
+		err := api.DeleteBlockStorage(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }
 
 // Image
 
-func (suite *testSuite) createOrUpdateImageV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.StorageV1,
-	resource *schema.Image,
-	expectedMeta *schema.RegionalResourceMetadata,
-	expectedSpec *schema.ImageSpec,
-	expectedState schema.ResourceState,
+func (suite *testSuite) createOrUpdateImageV1Step(stepName string, t provider.T, api *secapi.StorageV1, resource *schema.Image,
+	responseExpects responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
 ) {
-	expectedMeta.Verb = http.MethodPut
-	createOrUpdateResourceStep(
-		t,
-		ctx,
-		suite,
-		stepName,
-		suite.setStorageV1StepParams,
-		"CreateOrUpdateImage",
-		resource,
-		func(context.Context, *schema.Image) (*stepFuncResponse[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec], error) {
-			resp, err := api.CreateOrUpdateImage(ctx, resource)
-			return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+	responseExpects.metadata.Verb = http.MethodPut
+	createOrUpdateTenantResourceStep(t, suite,
+		createOrUpdateTenantResourceParams[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setStorageV1StepParams,
+			operationName:  "CreateOrUpdateImage",
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Image) (*stepFuncResponse[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec], error) {
+				resp, err := api.CreateOrUpdateImage(t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyImageSpecStep,
+			expectedResourceState: responseExpects.resourceState,
 		},
-		nil,
-		expectedMeta,
-		suite.verifyRegionalResourceMetadataStep,
-		expectedSpec,
-		suite.verifyImageSpecStep,
-		expectedState,
 	)
 }
 
-func (suite *testSuite) getImageV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.StorageV1,
-	tref secapi.TenantReference,
-	expectedMeta *schema.RegionalResourceMetadata,
-	expectedSpec *schema.ImageSpec,
-	expectedState schema.ResourceState,
+func (suite *testSuite) getImageV1Step(stepName string, t provider.T, api *secapi.StorageV1, tref secapi.TenantReference,
+	responseExpects responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
 ) *schema.Image {
-	var resp *schema.Image
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setStorageV1StepParams(sCtx, "GetImage")
-		retry := newStepResourceStateRetry(
-			suite.baseDelay,
-			suite.baseInterval,
-			suite.maxAttempts,
-			func() (schema.ResourceState, error) {
-				var err error
-				resp, err = api.GetImage(ctx, tref)
-				requireNoError(sCtx, err)
-				requireNotNilResponse(sCtx, resp)
-
-				suite.requireNotNilStatus(sCtx, resp.Status)
-				return *resp.Status.State, nil
+	responseExpects.metadata.Verb = http.MethodGet
+	return getTenantResourceStep(t, suite,
+		getTenantResourceParams[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setStorageV1StepParams,
+			operationName:  "GetImage",
+			tref:           tref,
+			getFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec], error) {
+				resp, err := api.GetImageUntilState(ctx, tref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
 			},
-			func() {
-				expectedMeta.Verb = http.MethodGet
-				suite.verifyRegionalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-
-				suite.verifyImageSpecStep(sCtx, expectedSpec, &resp.Spec)
-
-				suite.verifyStatusStep(sCtx, expectedState, *resp.Status.State)
-			},
-		)
-		retry.run(sCtx, "GetImage", expectedState)
-	})
-	return resp
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyImageSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
-func (suite *testSuite) getImageWithErrorV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.StorageV1,
-	tref secapi.TenantReference,
-	expectedError error,
-) {
+func (suite *testSuite) getImageWithErrorV1Step(stepName string, t provider.T, api *secapi.StorageV1, tref secapi.TenantReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "GetImage")
 
-		_, err := api.GetImage(ctx, tref)
+		_, err := api.GetImage(t.Context(), tref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deleteImageV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.StorageV1, resource *schema.Image) {
+func (suite *testSuite) deleteImageV1Step(stepName string, t provider.T, api *secapi.StorageV1, resource *schema.Image) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "DeleteImage")
 
-		err := api.DeleteImage(ctx, resource)
+		err := api.DeleteImage(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }

@@ -49,9 +49,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Authorization
 
 	// Role
-	roleResponse := newRoleResponse(params.Role.Name, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1,
-		params.Tenant,
-		params.Role.InitialSpec)
+	roleResponse, err := newRoleResponse(params.Role.Name, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1,
+		params.Tenant, params.Role.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create Role
 	setCreatedGlobalTenantResourceMetadata(roleResponse.Metadata)
@@ -71,9 +73,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Role assignment
-	roleAssignResponse := newRoleAssignmentResponse(params.RoleAssignment.Name, secalib.AuthorizationProviderV1, roleAssignResource, secalib.ApiVersion1,
-		params.Tenant,
-		params.RoleAssignment.InitialSpec)
+	roleAssignResponse, err := newRoleAssignmentResponse(params.RoleAssignment.Name, secalib.AuthorizationProviderV1, roleAssignResource, secalib.ApiVersion1,
+		params.Tenant, params.RoleAssignment.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create a role assignment
 	setCreatedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
@@ -93,9 +97,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Workspace
-	workspaceResponse := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1,
-		params.Tenant, params.Region,
-		params.Workspace.InitialLabels)
+	workspaceResponse, err := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1,
+		params.Tenant, params.Region, params.Workspace.InitialLabels)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
@@ -117,9 +123,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Storage
 
 	// Image
-	imageResponse := newImageResponse(params.Image.Name, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1,
-		params.Tenant, params.Region,
-		params.Image.InitialSpec)
+	imageResponse, err := newImageResponse(params.Image.Name, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1,
+		params.Tenant, params.Region, params.Image.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create an image
 	setCreatedRegionalResourceMetadata(imageResponse.Metadata)
@@ -138,9 +146,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	blockResponse := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region,
-		params.BlockStorage.InitialSpec)
+	blockResponse, err := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region, params.BlockStorage.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create a block storage
 	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
@@ -162,9 +172,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Network
 
 	// Network
-	networkResponse := newNetworkResponse(params.Network.Name, secalib.NetworkProviderV1, networkResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region,
-		params.Network.InitialSpec)
+	networkResponse, err := newNetworkResponse(params.Network.Name, secalib.NetworkProviderV1, networkResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region, params.Network.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create  Network
 	setCreatedRegionalWorkspaceResourceMetadata(networkResponse.Metadata)
@@ -184,9 +196,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Internet gateway
-	gatewayResponse := newInternetGatewayResponse(params.InternetGateway.Name, secalib.NetworkProviderV1, gatewayResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region,
-		params.InternetGateway.InitialSpec)
+	gatewayResponse, err := newInternetGatewayResponse(params.InternetGateway.Name, secalib.NetworkProviderV1, gatewayResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region, params.InternetGateway.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create internet gateway
 	setCreatedRegionalWorkspaceResourceMetadata(gatewayResponse.Metadata)
@@ -206,9 +220,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Route table
-	routeResponse := newRouteTableResponse(params.RouteTable.Name, secalib.NetworkProviderV1, routeResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region,
-		params.RouteTable.InitialSpec)
+	routeResponse, err := newRouteTableResponse(params.RouteTable.Name, secalib.NetworkProviderV1, routeResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region, params.RouteTable.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create route-table
 	setCreatedRegionalNetworkResourceMetadata(routeResponse.Metadata)
@@ -228,9 +244,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Subnet
-	subnetResponse := newSubnetResponse(params.Subnet.Name, secalib.NetworkProviderV1, subnetResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region,
-		params.Subnet.InitialSpec)
+	subnetResponse, err := newSubnetResponse(params.Subnet.Name, secalib.NetworkProviderV1, subnetResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region, params.Subnet.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create subnet
 	setCreatedRegionalNetworkResourceMetadata(subnetResponse.Metadata)
@@ -250,9 +268,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Security group
-	groupResponse := newSecurityGroupResponse(params.SecurityGroup.Name, secalib.NetworkProviderV1, groupResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region,
-		params.SecurityGroup.InitialSpec)
+	groupResponse, err := newSecurityGroupResponse(params.SecurityGroup.Name, secalib.NetworkProviderV1, groupResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region, params.SecurityGroup.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create security-group
 	setCreatedRegionalWorkspaceResourceMetadata(groupResponse.Metadata)
@@ -272,9 +292,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Public-ip
-	publicIpResponse := newPublicIpResponse(params.PublicIp.Name, secalib.NetworkProviderV1, publicIpResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region,
-		params.PublicIp.InitialSpec)
+	publicIpResponse, err := newPublicIpResponse(params.PublicIp.Name, secalib.NetworkProviderV1, publicIpResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region, params.PublicIp.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create public-ip
 	setCreatedRegionalWorkspaceResourceMetadata(publicIpResponse.Metadata)
@@ -294,9 +316,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// NIC
-	nicResponse := newNicResponse(params.Nic.Name, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region,
-		params.Nic.InitialSpec)
+	nicResponse, err := newNicResponse(params.Nic.Name, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region, params.Nic.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create NIC
 	setCreatedRegionalWorkspaceResourceMetadata(nicResponse.Metadata)
@@ -318,9 +342,11 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Compute
 
 	// Instance
-	instanceResponse := newInstanceResponse(params.Instance.Name, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region,
-		params.Instance.InitialSpec)
+	instanceResponse, err := newInstanceResponse(params.Instance.Name, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, params.Region, params.Instance.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create an instance
 	setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)

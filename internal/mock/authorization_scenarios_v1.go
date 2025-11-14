@@ -24,7 +24,10 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	roleAssignResource := secalib.GenerateRoleAssignmentResource(params.Tenant, params.RoleAssignment.Name)
 
 	// Role
-	roleResponse := newRoleResponse(params.Role.Name, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1, params.Tenant, params.Role.InitialSpec)
+	roleResponse, err := newRoleResponse(params.Role.Name, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1, params.Tenant, params.Role.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create a role
 	setCreatedGlobalTenantResourceMetadata(roleResponse.Metadata)
@@ -62,9 +65,11 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Role assignment
-	roleAssignResponse := newRoleAssignmentResponse(params.RoleAssignment.Name, secalib.AuthorizationProviderV1, roleAssignResource, secalib.ApiVersion1,
-		params.Tenant,
-		params.RoleAssignment.InitialSpec)
+	roleAssignResponse, err := newRoleAssignmentResponse(params.RoleAssignment.Name, secalib.AuthorizationProviderV1, roleAssignResource, secalib.ApiVersion1,
+		params.Tenant, params.RoleAssignment.InitialSpec)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create a role assignment
 	setCreatedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
@@ -108,7 +113,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the deleted role assignment
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, currentState: "GetDeletedRoleAssignment", nextState: "DeleteRole"}); err != nil {
 		return nil, err
 	}
@@ -120,7 +125,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get deleted role
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, currentState: "GetDeletedRole", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}

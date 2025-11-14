@@ -1,7 +1,6 @@
 package secatest
 
 import (
-	"context"
 	"log/slog"
 	"math/rand"
 
@@ -22,7 +21,6 @@ type ComputeV1TestSuite struct {
 }
 
 func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
-	ctx := context.Background()
 	var err error
 	slog.Info("Starting " + suite.scenarioName)
 
@@ -124,23 +122,40 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectMeta := secalib.NewRegionalResourceMetadata(workspaceName,
-		secalib.WorkspaceProviderV1,
-		workspaceResource,
-		secalib.ApiVersion1,
-		secalib.WorkspaceKind,
-		suite.tenant, suite.region)
-	expectLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+	expectWorkspaceMeta, err := secalib.NewRegionalResourceMetadataBuilder().
+		Name(workspaceName).
+		Provider(secalib.WorkspaceProviderV1).
+		Resource(workspaceResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.WorkspaceKind).
+		Tenant(suite.tenant).
+		Region(suite.region).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
+	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
 
-	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, expectMeta, expectLabels, secalib.CreatingResourceState)
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, workspace,
+		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			labels:        expectWorkspaceLabels,
+			metadata:      expectWorkspaceMeta,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created Workspace
 	workspaceTRef := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.tenant),
 		Name:   workspaceName,
 	}
-	suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, expectMeta, expectLabels, secalib.ActiveResourceState)
-
+	suite.getWorkspaceV1Step("Get the created workspace", t, suite.client.WorkspaceV1, *workspaceTRef,
+		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			labels:        expectWorkspaceLabels,
+			metadata:      expectWorkspaceMeta,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 	// Block storage
 
 	// Create a block storage
@@ -155,20 +170,30 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 			SkuRef: *storageSkuRefObj,
 		},
 	}
-
-	expectedBlockMeta := secalib.NewRegionalWorkspaceResourceMetadata(blockStorageName,
-		secalib.StorageProviderV1,
-		blockStorageResource,
-		secalib.ApiVersion1,
-		secalib.BlockStorageKind,
-		suite.tenant,
-		workspaceName,
-		suite.region)
+	expectedBlockMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+		Name(blockStorageName).
+		Provider(secalib.StorageProviderV1).
+		Resource(blockStorageResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.BlockStorageKind).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Region(suite.region).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
 	expectedBlockSpec := &schema.BlockStorageSpec{
 		SizeGB: blockStorageSize,
 		SkuRef: *storageSkuRefObj,
 	}
-	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, ctx, suite.client.StorageV1, block, expectedBlockMeta, expectedBlockSpec, secalib.CreatingResourceState)
+	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, suite.client.StorageV1, block,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			metadata:      expectedBlockMeta,
+			spec:          expectedBlockSpec,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created block storage
 	blockWRef := &secapi.WorkspaceReference{
@@ -176,8 +201,13 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      blockStorageName,
 	}
-	// TODO Create a function without expectated metadata and spec
-	suite.getBlockStorageV1Step("Get the created block storage", t, ctx, suite.client.StorageV1, *blockWRef, expectedBlockMeta, expectedBlockSpec, secalib.ActiveResourceState)
+	suite.getBlockStorageV1Step("Get the created block storage", t, suite.client.StorageV1, *blockWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			metadata:      expectedBlockMeta,
+			spec:          expectedBlockSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Instance
 
@@ -196,14 +226,19 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectInstanceMeta := secalib.NewRegionalWorkspaceResourceMetadata(instanceName,
-		secalib.ComputeProviderV1,
-		instanceResource,
-		secalib.ApiVersion1,
-		secalib.InstanceKind,
-		suite.tenant,
-		workspaceName,
-		suite.region)
+	expectInstanceMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+		Name(instanceName).
+		Provider(secalib.ComputeProviderV1).
+		Resource(instanceResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(secalib.InstanceKind).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Region(suite.region).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
 	expectInstanceSpec := &schema.InstanceSpec{
 		SkuRef: *instanceSkuRefObj,
 		Zone:   initialInstanceZone,
@@ -211,8 +246,13 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 			DeviceRef: *blockStorageRefObj,
 		},
 	}
-	suite.createOrUpdateInstanceV1Step("Create an instance", t, ctx, suite.client.ComputeV1, instance,
-		expectInstanceMeta, expectInstanceSpec, secalib.CreatingResourceState)
+	suite.createOrUpdateInstanceV1Step("Create an instance", t, suite.client.ComputeV1, instance,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			metadata:      expectInstanceMeta,
+			spec:          expectInstanceSpec,
+			resourceState: secalib.CreatingResourceState,
+		},
+	)
 
 	// Get the created instance
 	instanceWRef := &secapi.WorkspaceReference{
@@ -220,58 +260,88 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      instanceName,
 	}
-	instance = suite.getInstanceV1Step("Get the created instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
-		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
+	instance = suite.getInstanceV1Step("Get the created instance", t, suite.client.ComputeV1, *instanceWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			metadata:      expectInstanceMeta,
+			spec:          expectInstanceSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Update the instance
 	instance.Spec.Zone = updatedInstanceZone
 	expectInstanceSpec.Zone = instance.Spec.Zone
-	suite.createOrUpdateInstanceV1Step("Update the instance", t, ctx, suite.client.ComputeV1, instance,
-		expectInstanceMeta, expectInstanceSpec, secalib.UpdatingResourceState)
+	suite.createOrUpdateInstanceV1Step("Update the instance", t, suite.client.ComputeV1, instance,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			metadata:      expectInstanceMeta,
+			spec:          expectInstanceSpec,
+			resourceState: secalib.UpdatingResourceState,
+		},
+	)
 
 	// Get the updated instance
-	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
-		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
+	instance = suite.getInstanceV1Step("Get the updated instance", t, suite.client.ComputeV1, *instanceWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			metadata:      expectInstanceMeta,
+			spec:          expectInstanceSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Stop the instance
-	suite.stopInstanceV1Step("Stop the instance", t, ctx, suite.client.ComputeV1, instance)
+	suite.stopInstanceV1Step("Stop the instance", t, suite.client.ComputeV1, instance)
 
 	// Get the stoped instance
-	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
-		expectInstanceMeta, expectInstanceSpec, secalib.SuspendedResourceState)
+	instance = suite.getInstanceV1Step("Get the updated instance", t, suite.client.ComputeV1, *instanceWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			metadata:      expectInstanceMeta,
+			spec:          expectInstanceSpec,
+			resourceState: secalib.SuspendedResourceState,
+		},
+	)
 
 	// Start the instance
-	suite.startInstanceV1Step("Start the instance", t, ctx, suite.client.ComputeV1, instance)
+	suite.startInstanceV1Step("Start the instance", t, suite.client.ComputeV1, instance)
 
 	// Get the started instance
-	instance = suite.getInstanceV1Step("Get the started instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
-		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
+	instance = suite.getInstanceV1Step("Get the started instance", t, suite.client.ComputeV1, *instanceWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			metadata:      expectInstanceMeta,
+			spec:          expectInstanceSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Restart the instance
-	suite.restartInstanceV1Step("Restart the instance", t, ctx, suite.client.ComputeV1, instance)
+	suite.restartInstanceV1Step("Restart the instance", t, suite.client.ComputeV1, instance)
 
 	// Get the restarted instance
 	// TODO Find an away to assert if the instance is restarted
-	instance = suite.getInstanceV1Step("Get the updated instance", t, ctx, suite.client.ComputeV1, *instanceWRef,
-		expectInstanceMeta, expectInstanceSpec, secalib.ActiveResourceState)
+	instance = suite.getInstanceV1Step("Get the updated instance", t, suite.client.ComputeV1, *instanceWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			metadata:      expectInstanceMeta,
+			spec:          expectInstanceSpec,
+			resourceState: secalib.ActiveResourceState,
+		},
+	)
 
 	// Delete the instance
-	suite.deleteInstanceV1Step("Delete the instance", t, ctx, suite.client.ComputeV1, instance)
+	suite.deleteInstanceV1Step("Delete the instance", t, suite.client.ComputeV1, instance)
 
 	// Get the deleted instance
-	suite.getInstanceWithErrorV1Step("Get the deleted instance", t, ctx, suite.client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
+	suite.getInstanceWithErrorV1Step("Get the deleted instance", t, suite.client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
 
 	// Delete the block storage
-	suite.deleteBlockStorageV1Step("Delete the block storage", t, ctx, suite.client.StorageV1, block)
+	suite.deleteBlockStorageV1Step("Delete the block storage", t, suite.client.StorageV1, block)
 
 	// Get the deleted block storage
-	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, ctx, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
+	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
 
 	// Delete the workspace
-	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
 
 	// Get the deleted workspace
-	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)
 }
