@@ -6,6 +6,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
+	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -109,7 +110,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectWorkspaceMeta, err := secalib.NewRegionalResourceMetadataBuilder().
+	expectWorkspaceMeta, err := builders.NewRegionalResourceMetadataBuilder().
 		Name(workspaceName).
 		Provider(secalib.WorkspaceProviderV1).
 		Resource(workspaceResource).
@@ -117,7 +118,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		Kind(secalib.WorkspaceKind).
 		Tenant(suite.tenant).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -158,7 +159,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			SkuRef: *storageSkuRefObj,
 		},
 	}
-	expectedBlockMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+	expectedBlockMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(blockStorageName).
 		Provider(secalib.StorageProviderV1).
 		Resource(blockStorageResource).
@@ -167,7 +168,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -230,7 +231,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			CpuArchitecture: secalib.CpuArchitectureAmd64,
 		},
 	}
-	expectedImageMeta, err := secalib.NewRegionalResourceMetadataBuilder().
+	expectedImageMeta, err := builders.NewRegionalResourceMetadataBuilder().
 		Name(imageName).
 		Provider(secalib.StorageProviderV1).
 		Resource(imageResource).
@@ -238,7 +239,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		Kind(secalib.ImageKind).
 		Tenant(suite.tenant).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}

@@ -4,8 +4,9 @@ import (
 	"log/slog"
 	"math/rand"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
+	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"k8s.io/utils/ptr"
@@ -284,7 +285,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectWorkspaceMeta, err := secalib.NewRegionalResourceMetadataBuilder().
+	expectWorkspaceMeta, err := builders.NewRegionalResourceMetadataBuilder().
 		Name(workspaceName).
 		Provider(secalib.WorkspaceProviderV1).
 		Resource(workspaceResource).
@@ -292,7 +293,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Kind(secalib.WorkspaceKind).
 		Tenant(suite.tenant).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -333,7 +334,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			RouteTableRef: *routeTableRefObj,
 		},
 	}
-	expectNetworkMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+	expectNetworkMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(networkName).
 		Provider(secalib.NetworkProviderV1).
 		Resource(networkResource).
@@ -342,7 +343,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -403,7 +404,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			Name:      internetGatewayName,
 		},
 	}
-	expectGatewayMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+	expectGatewayMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(internetGatewayName).
 		Provider(secalib.NetworkProviderV1).
 		Resource(internetGatewayResource).
@@ -412,7 +413,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -475,7 +476,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectRouteMeta, err := secalib.NewRegionalNetworkResourceMetadataBuilder().
+	expectRouteMeta, err := builders.NewRegionalNetworkResourceMetadataBuilder().
 		Name(routeTableName).
 		Provider(secalib.NetworkProviderV1).
 		Resource(routeTableResource).
@@ -485,7 +486,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Workspace(workspaceName).
 		Network(networkName).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -554,7 +555,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			Zone: zone1,
 		},
 	}
-	expectSubnetMeta, err := secalib.NewRegionalNetworkResourceMetadataBuilder().
+	expectSubnetMeta, err := builders.NewRegionalNetworkResourceMetadataBuilder().
 		Name(subnetName).
 		Provider(secalib.NetworkProviderV1).
 		Resource(subnetResource).
@@ -564,7 +565,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Workspace(workspaceName).
 		Network(networkName).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -629,7 +630,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			Version: secalib.IpVersion4,
 		},
 	}
-	expectPublicIpMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+	expectPublicIpMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(publicIpName).
 		Provider(secalib.NetworkProviderV1).
 		Resource(publicIpResource).
@@ -638,7 +639,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -703,7 +704,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			SubnetRef:    *subnetRefObj,
 		},
 	}
-	expectNicMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+	expectNicMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(nicName).
 		Provider(secalib.NetworkProviderV1).
 		Resource(nicResource).
@@ -712,7 +713,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	expectNicSpec := &schema.NicSpec{
 		Addresses:    []string{nicAddress1},
 		PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
@@ -778,7 +779,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectGroupMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+	expectGroupMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(securityGroupName).
 		Provider(secalib.NetworkProviderV1).
 		Resource(securityGroupResource).
@@ -787,7 +788,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	expectGroupSpec := &schema.SecurityGroupSpec{
 		Rules: []schema.SecurityGroupRuleSpec{
 			{Direction: secalib.SecurityRuleDirectionIngress},
@@ -852,7 +853,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			SkuRef: *storageSkuRefObj,
 		},
 	}
-	expectedBlockMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+	expectedBlockMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(blockStorageName).
 		Provider(secalib.StorageProviderV1).
 		Resource(blockStorageResource).
@@ -861,7 +862,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	expectedBlockSpec := &schema.BlockStorageSpec{
 		SizeGB: blockStorageSize,
 		SkuRef: *storageSkuRefObj,
@@ -908,7 +909,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectInstanceMeta, err := secalib.NewRegionalWorkspaceResourceMetadataBuilder().
+	expectInstanceMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(instanceName).
 		Provider(secalib.ComputeProviderV1).
 		Resource(instanceResource).
@@ -917,7 +918,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	expectInstanceSpec := &schema.InstanceSpec{
 		SkuRef: *instanceSkuRefObj,
 		Zone:   zone1,

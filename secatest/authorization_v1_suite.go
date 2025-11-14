@@ -7,6 +7,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
+	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -103,14 +104,14 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectRoleMeta, err := secalib.NewGlobalTenantResourceMetadataBuilder().
+	expectRoleMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
 		Name(roleName).
 		Provider(secalib.AuthorizationProviderV1).
 		Resource(roleResource).
 		ApiVersion(secalib.ApiVersion1).
 		Kind(secalib.RoleKind).
 		Tenant(suite.tenant).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -178,14 +179,14 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 			Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
 		},
 	}
-	expectRoleAssignMeta, err := secalib.NewGlobalTenantResourceMetadataBuilder().
+	expectRoleAssignMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
 		Name(roleAssignmentName).
 		Provider(secalib.AuthorizationProviderV1).
 		Resource(roleAssignmentResource).
 		ApiVersion(secalib.ApiVersion1).
 		Kind(secalib.RoleAssignmentKind).
 		Tenant(suite.tenant).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
+	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -61,7 +62,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectMeta, err := secalib.NewRegionalResourceMetadataBuilder().
+	expectMeta, err := builders.NewRegionalResourceMetadataBuilder().
 		Name(workspaceName).
 		Provider(secalib.WorkspaceProviderV1).
 		Resource(workspaceResource).
@@ -69,7 +70,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		Kind(secalib.WorkspaceKind).
 		Tenant(suite.tenant).
 		Region(suite.region).
-		Build()
+		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}

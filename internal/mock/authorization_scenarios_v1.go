@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-
 	"github.com/wiremock/go-wiremock"
 )
 

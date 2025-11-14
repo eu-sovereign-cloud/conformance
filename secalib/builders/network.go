@@ -1,126 +1,12 @@
-package mock
+package builders
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-// Authorization
-
-func newRoleResponse(name, provider, resource, apiVersion, tenant string, spec *schema.RoleSpec) (*schema.Role, error) {
-	medatata, err := builders.NewGlobalTenantResourceMetadataBuilder().
-		Name(name).
-		Provider(provider).
-		Resource(resource).
-		ApiVersion(apiVersion).
-		Kind(secalib.RoleKind).
-		Tenant(tenant).
-		BuildResponse()
-	if err != nil {
-		return nil, err
-	}
-
-	return &schema.Role{
-		Metadata: medatata,
-		Spec:     *spec,
-		Status:   &schema.RoleStatus{},
-	}, nil
-}
-
-func newRoleAssignmentResponse(name, provider, resource, apiVersion, tenant string, spec *schema.RoleAssignmentSpec) (*schema.RoleAssignment, error) {
-	medatata, err := builders.NewGlobalTenantResourceMetadataBuilder().
-		Name(name).
-		Provider(provider).
-		Resource(resource).
-		ApiVersion(apiVersion).
-		Kind(secalib.RoleAssignmentKind).
-		Tenant(tenant).
-		BuildResponse()
-	if err != nil {
-		return nil, err
-	}
-
-	return &schema.RoleAssignment{
-		Metadata: medatata,
-		Spec:     *spec,
-		Status:   &schema.RoleAssignmentStatus{},
-	}, nil
-}
-
-// Storage
-
-func newBlockStorageResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.BlockStorageSpec) (*schema.BlockStorage, error) {
-	medatata, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
-		Name(name).
-		Provider(provider).
-		Resource(resource).
-		ApiVersion(apiVersion).
-		Kind(secalib.BlockStorageKind).
-		Tenant(tenant).
-		Workspace(workspace).
-		Region(region).
-		BuildResponse()
-	if err != nil {
-		return nil, err
-	}
-
-	return &schema.BlockStorage{
-		Metadata: medatata,
-		Spec:     *spec,
-		Status:   &schema.BlockStorageStatus{},
-	}, nil
-}
-
-func newImageResponse(name, provider, resource, apiVersion, tenant, region string, spec *schema.ImageSpec) (*schema.Image, error) {
-	medatata, err := builders.NewRegionalResourceMetadataBuilder().
-		Name(name).
-		Provider(provider).
-		Resource(resource).
-		ApiVersion(apiVersion).
-		Kind(secalib.ImageKind).
-		Tenant(tenant).
-		Region(region).
-		BuildResponse()
-	if err != nil {
-		return nil, err
-	}
-
-	return &schema.Image{
-		Metadata: medatata,
-		Spec:     *spec,
-		Status:   &schema.ImageStatus{},
-	}, nil
-}
-
-// Compute
-
-func newInstanceResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.InstanceSpec) (*schema.Instance, error) {
-	medatata, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
-		Name(name).
-		Provider(provider).
-		Resource(resource).
-		ApiVersion(apiVersion).
-		Kind(secalib.InstanceKind).
-		Tenant(tenant).
-		Workspace(workspace).
-		Region(region).
-		BuildResponse()
-	if err != nil {
-		return nil, err
-	}
-
-	return &schema.Instance{
-		Metadata: medatata,
-		Spec:     *spec,
-		Status:   &schema.InstanceStatus{},
-	}, nil
-}
-
-// Network
-
 func newNetworkResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.NetworkSpec) (*schema.Network, error) {
-	medatata, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
+	medatata, err := NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(name).
 		Provider(provider).
 		Resource(resource).
@@ -142,7 +28,7 @@ func newNetworkResponse(name, provider, resource, apiVersion, tenant, workspace,
 }
 
 func newInternetGatewayResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.InternetGatewaySpec) (*schema.InternetGateway, error) {
-	medatata, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
+	medatata, err := NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(name).
 		Provider(provider).
 		Resource(resource).
@@ -164,7 +50,7 @@ func newInternetGatewayResponse(name, provider, resource, apiVersion, tenant, wo
 }
 
 func newRouteTableResponse(name, provider, resource, apiVersion, tenant, workspace, network, region string, spec *schema.RouteTableSpec) (*schema.RouteTable, error) {
-	medatata, err := builders.NewRegionalNetworkResourceMetadataBuilder().
+	medatata, err := NewRegionalNetworkResourceMetadataBuilder().
 		Name(name).
 		Provider(provider).
 		Resource(resource).
@@ -187,7 +73,7 @@ func newRouteTableResponse(name, provider, resource, apiVersion, tenant, workspa
 }
 
 func newSubnetResponse(name, provider, resource, apiVersion, tenant, workspace, network, region string, spec *schema.SubnetSpec) (*schema.Subnet, error) {
-	medatata, err := builders.NewRegionalNetworkResourceMetadataBuilder().
+	medatata, err := NewRegionalNetworkResourceMetadataBuilder().
 		Name(name).
 		Provider(provider).
 		Resource(resource).
@@ -210,7 +96,7 @@ func newSubnetResponse(name, provider, resource, apiVersion, tenant, workspace, 
 }
 
 func newPublicIpResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.PublicIpSpec) (*schema.PublicIp, error) {
-	medatata, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
+	medatata, err := NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(name).
 		Provider(provider).
 		Resource(resource).
@@ -232,7 +118,7 @@ func newPublicIpResponse(name, provider, resource, apiVersion, tenant, workspace
 }
 
 func newNicResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.NicSpec) (*schema.Nic, error) {
-	medatata, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
+	medatata, err := NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(name).
 		Provider(provider).
 		Resource(resource).
@@ -254,7 +140,7 @@ func newNicResponse(name, provider, resource, apiVersion, tenant, workspace, reg
 }
 
 func newSecurityGroupResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.SecurityGroupSpec) (*schema.SecurityGroup, error) {
-	medatata, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
+	medatata, err := NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(name).
 		Provider(provider).
 		Resource(resource).

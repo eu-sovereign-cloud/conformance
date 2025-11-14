@@ -6,10 +6,17 @@ type Validator struct {
 	validator *validator.Validate
 }
 
-func newValidator() *Validator {
+func NewValidator() *Validator {
 	return &Validator{
 		validator: validator.New(),
 	}
+}
+
+func (v *Validator) ValidateRequired(field any) error {
+	if err := v.validator.Var(field, "required"); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (v *Validator) ValidateRequireds(fields []any) error {
