@@ -19,6 +19,7 @@ linters:
   - goimports     # Import formatting  
   - misspell      # Spelling mistakes
   # Code quality
+  - revive        # Code linter
   - dupl          # Code duplication
   - goconst       # Repeated strings
   - unconvert     # Unnecessary type conversions
@@ -32,3 +33,9 @@ linters-settings:
     - G404
   dupl:
     threshold: 200 # The goal is reach 100
+  revive:
+    rules:
+      - name: var-naming
+        disabled: true
+      - name: argument-limit
+        arguments: [5]

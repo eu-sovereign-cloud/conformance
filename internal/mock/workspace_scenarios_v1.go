@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-
+	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
 	"github.com/wiremock/go-wiremock"
 )
 
@@ -20,10 +20,18 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	url := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
 	resource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 
-	response := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, resource, secalib.ApiVersion1,
-		params.Tenant, params.Region,
-		params.Workspace.InitialLabels)
-
+	response, err := builders.NewWorkspaceBuilder().
+		Name(params.Workspace.Name).
+		Provider(secalib.WorkspaceProviderV1).
+		Resource(resource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Region(params.Region).
+		Labels(params.Workspace.InitialLabels).
+		BuildResponse()
+	if err != nil {
+		return nil, err
+	}
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(response.Metadata)
 	response.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
@@ -66,7 +74,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Get the deleted workspace
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: url, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}

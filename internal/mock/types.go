@@ -25,6 +25,8 @@ type ResourceParams[T any] struct {
 
 type stubConfig struct {
 	url          string
+	httpMethod   string
+	httpStatus   int
 	params       HasParams
 	responseBody any
 	currentState string
