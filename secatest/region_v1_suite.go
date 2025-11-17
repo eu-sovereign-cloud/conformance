@@ -7,6 +7,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
@@ -76,14 +77,29 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 
 	ctx := context.Background()
 
-	// Test List iterator's (Next and All) for Regions and verify both responses have the same length
-	regions := suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1)
+	//  List iterator's (Next and All) for Regions and verify both responses have the same length
+	regions := suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1, nil)
 
 	// Call Get Region and verify response
 	regionResource := secalib.GenerateRegionResource(regions[0].Metadata.Name)
 	expectedRegionMeta := secalib.NewGlobalResourceMetadata(regions[0].Metadata.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1, secalib.RegionKind)
 
 	suite.getRegionV1Step("Get region "+regions[0].Metadata.Name, t, ctx, suite.client.RegionV1, expectedRegionMeta)
+
+	// List with limit
+	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
+		builders.NewListOptions().WithLimit(1))
+
+	// List with labels
+	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// List with limit and labels
+	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
 }
 
 func (suite *RegionV1TestSuite) AfterEach(t provider.T) {
