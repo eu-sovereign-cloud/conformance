@@ -9,6 +9,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -68,26 +69,30 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
 				},
 			},
-			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
-				Name: blockStorageName,
-				InitialSpec: &schema.BlockStorageSpec{
-					SkuRef: *storageSkuRefObj,
-					SizeGB: initialStorageSize,
-				},
-				UpdatedSpec: &schema.BlockStorageSpec{
-					SkuRef: *storageSkuRefObj,
-					SizeGB: updatedStorageSize,
+			BlockStorage: &[]mock.ResourceParams[schema.BlockStorageSpec]{
+				{
+					Name: blockStorageName,
+					InitialSpec: &schema.BlockStorageSpec{
+						SkuRef: *storageSkuRefObj,
+						SizeGB: initialStorageSize,
+					},
+					UpdatedSpec: &schema.BlockStorageSpec{
+						SkuRef: *storageSkuRefObj,
+						SizeGB: updatedStorageSize,
+					},
 				},
 			},
-			Image: &mock.ResourceParams[schema.ImageSpec]{
-				Name: imageName,
-				InitialSpec: &schema.ImageSpec{
-					BlockStorageRef: *blockStorageRefObj,
-					CpuArchitecture: secalib.CpuArchitectureAmd64,
-				},
-				UpdatedSpec: &schema.ImageSpec{
-					BlockStorageRef: *blockStorageRefObj,
-					CpuArchitecture: secalib.CpuArchitectureArm64,
+			Image: &[]mock.ResourceParams[schema.ImageSpec]{
+				{
+					Name: imageName,
+					InitialSpec: &schema.ImageSpec{
+						BlockStorageRef: *blockStorageRefObj,
+						CpuArchitecture: secalib.CpuArchitectureAmd64,
+					},
+					UpdatedSpec: &schema.ImageSpec{
+						BlockStorageRef: *blockStorageRefObj,
+						CpuArchitecture: secalib.CpuArchitectureArm64,
+					},
 				},
 			},
 		}
@@ -230,6 +235,276 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	// Get the deleted workspace
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
+	slog.Info("Finishing " + suite.scenarioName)
+}
+
+func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
+	ctx := context.Background()
+	var err error
+	slog.Info("Starting " + suite.scenarioName)
+
+	t.Title(suite.scenarioName)
+	configureTags(t, secalib.StorageProviderV1, secalib.BlockStorageKind, secalib.ImageKind)
+
+	// Select sku
+	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
+
+	// Generate scenario data
+	workspaceName := secalib.GenerateWorkspaceName()
+
+	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
+	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	blockStorageName1 := secalib.GenerateBlockStorageName()
+	blockStorageResource1 := secalib.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName1)
+	blockStorageName2 := secalib.GenerateBlockStorageName()
+	blockStorageResource2 := secalib.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName2)
+	blockStorageName3 := secalib.GenerateBlockStorageName()
+	blockStorageResource3 := secalib.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName3)
+
+	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName1)
+	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	imageName1 := secalib.GenerateImageName()
+	imageResource1 := secalib.GenerateImageResource(suite.tenant, imageName1)
+	imageName2 := secalib.GenerateImageName()
+	imageResource2 := secalib.GenerateImageResource(suite.tenant, imageName2)
+	imageName3 := secalib.GenerateImageName()
+	imageResource3 := secalib.GenerateImageResource(suite.tenant, imageName3)
+	initialStorageSize := secalib.GenerateBlockStorageSize()
+
+	// Setup mock, if configured to use
+	if suite.mockEnabled {
+		mockParams := &mock.StorageParamsV1{
+			Params: &mock.Params{
+				MockURL:   *suite.mockServerURL,
+				AuthToken: suite.authToken,
+				Tenant:    suite.tenant,
+				Region:    suite.region,
+			},
+			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
+				Name: workspaceName,
+				InitialLabels: schema.Labels{
+					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+				},
+			},
+			BlockStorage: &[]mock.ResourceParams[schema.BlockStorageSpec]{
+				{
+					Name: blockStorageName1,
+					InitialSpec: &schema.BlockStorageSpec{
+						SkuRef: *storageSkuRefObj,
+						SizeGB: initialStorageSize,
+					},
+				},
+			},
+			Image: &[]mock.ResourceParams[schema.ImageSpec]{
+				{
+					Name: imageName1,
+					InitialSpec: &schema.ImageSpec{
+						BlockStorageRef: *blockStorageRefObj,
+						CpuArchitecture: secalib.CpuArchitectureAmd64,
+					},
+				},
+			},
+		}
+		wm, err := mock.ConfigStorageLifecycleScenarioV1(suite.scenarioName, mockParams)
+		if err != nil {
+			t.Fatalf("Failed to configure mock scenario: %v", err)
+		}
+		suite.mockClient = wm
+	}
+
+	// Workspace
+
+	// Create a workspace
+	workspace := &schema.Workspace{
+		Labels: schema.Labels{
+			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+		},
+		Metadata: &schema.RegionalResourceMetadata{
+			Tenant: suite.tenant,
+			Name:   workspaceName,
+		},
+	}
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, nil, nil, secalib.CreatingResourceState)
+
+	// Get the created Workspace
+	workspaceTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   workspaceName,
+	}
+	suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, nil, nil, secalib.ActiveResourceState)
+
+	// Block storage
+
+	// Create a block storage
+	blocks := &[]schema.BlockStorage{
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      blockStorageName1,
+				Resource:  blockStorageResource1,
+			},
+			Spec: schema.BlockStorageSpec{
+				SizeGB: initialStorageSize,
+				SkuRef: *storageSkuRefObj,
+			},
+		},
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      blockStorageName2,
+				Resource:  blockStorageResource2,
+			},
+			Spec: schema.BlockStorageSpec{
+				SizeGB: initialStorageSize,
+				SkuRef: *storageSkuRefObj,
+			},
+		},
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      blockStorageName3,
+				Resource:  blockStorageResource3,
+			},
+			Spec: schema.BlockStorageSpec{
+				SizeGB: initialStorageSize,
+				SkuRef: *storageSkuRefObj,
+			},
+		},
+	}
+	for _, block := range *blocks {
+		expectedBlockMeta := secalib.NewRegionalWorkspaceResourceMetadata(block.Metadata.Name,
+			secalib.StorageProviderV1,
+			block.Metadata.Resource,
+			secalib.ApiVersion1,
+			secalib.BlockStorageKind,
+			suite.tenant,
+			workspaceName,
+			suite.region)
+		expectedBlockSpec := &schema.BlockStorageSpec{
+			SizeGB: initialStorageSize,
+			SkuRef: *storageSkuRefObj,
+		}
+		suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, ctx, suite.client.StorageV1, &block,
+			expectedBlockMeta, expectedBlockSpec, secalib.CreatingResourceState)
+	}
+	tref := secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)}
+	wref := secapi.WorkspaceReference{Workspace: secapi.WorkspaceID(workspaceName)}
+	// List blockstorage
+	suite.getListBlockStorageV1Step("List block storage", t, ctx, suite.client.StorageV1, tref, wref, nil)
+
+	// List instances with limit
+	suite.getListBlockStorageV1Step("Get list of instances", t, ctx, suite.client.StorageV1, tref, wref,
+		builders.NewListOptions().WithLimit(1))
+
+	// List Instances with Label
+	suite.getListBlockStorageV1Step("Get list of instances", t, ctx, suite.client.StorageV1, tref, wref,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// List Instances with Limit and label
+	suite.getListBlockStorageV1Step("Get list of instances", t, ctx, suite.client.StorageV1, tref, wref,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// Image
+
+	// Create an image
+	images := &[]schema.Image{
+		{
+			Metadata: &schema.RegionalResourceMetadata{
+				Tenant:   suite.tenant,
+				Name:     imageName1,
+				Resource: imageResource1,
+			},
+			Spec: schema.ImageSpec{
+				BlockStorageRef: *blockStorageRefObj,
+				CpuArchitecture: secalib.CpuArchitectureAmd64,
+			},
+		},
+		{
+			Metadata: &schema.RegionalResourceMetadata{
+				Tenant:   suite.tenant,
+				Name:     imageName2,
+				Resource: imageResource2,
+			},
+			Spec: schema.ImageSpec{
+				BlockStorageRef: *blockStorageRefObj,
+				CpuArchitecture: secalib.CpuArchitectureAmd64,
+			},
+		},
+		{
+			Metadata: &schema.RegionalResourceMetadata{
+				Tenant:   suite.tenant,
+				Name:     imageName3,
+				Resource: imageResource3,
+			},
+			Spec: schema.ImageSpec{
+				BlockStorageRef: *blockStorageRefObj,
+				CpuArchitecture: secalib.CpuArchitectureAmd64,
+			},
+		},
+	}
+
+	for _, image := range *images {
+		expectedImageMeta := secalib.NewRegionalResourceMetadata(image.Metadata.Name,
+			secalib.StorageProviderV1,
+			image.Metadata.Resource,
+			secalib.ApiVersion1,
+			secalib.ImageKind,
+			suite.tenant,
+			suite.region)
+		expectedImageSpec := &schema.ImageSpec{
+			BlockStorageRef: *blockStorageRefObj,
+			CpuArchitecture: secalib.CpuArchitectureAmd64,
+		}
+		suite.createOrUpdateImageV1Step("Create an image", t, ctx, suite.client.StorageV1, &image,
+			expectedImageMeta, expectedImageSpec, secalib.CreatingResourceState)
+	}
+	// List image
+	suite.getListImageV1Step("List image", t, ctx, suite.client.StorageV1, tref, nil)
+
+	// List image with limit
+	suite.getListImageV1Step("Get list of images", t, ctx, suite.client.StorageV1, tref,
+		builders.NewListOptions().WithLimit(1))
+
+	// List image with Label
+	suite.getListImageV1Step("Get list of images", t, ctx, suite.client.StorageV1, tref,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// List image with Limit and label
+	suite.getListImageV1Step("Get list of images", t, ctx, suite.client.StorageV1, tref,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// Skus
+	// List Skus
+	suite.getListSkuV1Step("List skus", t, ctx, suite.client.StorageV1, tref, nil)
+
+	// List Skus with limit
+	suite.getListSkuV1Step("Get list of skus", t, ctx, suite.client.StorageV1, tref,
+		builders.NewListOptions().WithLimit(1))
+
+	// List Skus with Label
+	suite.getListSkuV1Step("Get list of skus", t, ctx, suite.client.StorageV1, tref,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// List Skus with Limit and label
+	suite.getListSkuV1Step("Get list of skus", t, ctx, suite.client.StorageV1, tref,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 	slog.Info("Finishing " + suite.scenarioName)
 }
 

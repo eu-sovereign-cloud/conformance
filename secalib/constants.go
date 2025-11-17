@@ -18,6 +18,7 @@ const (
 	EnvLabel            = "env"
 	EnvDevelopmentLabel = "development"
 	EnvProductionLabel  = "production"
+	EnvConformance      = "conformance"
 
 	// URL Prefixes
 	UrlProvidersPrefix = "/providers/"

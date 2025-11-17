@@ -8,6 +8,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -35,13 +36,15 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 				Tenant:    suite.tenant,
 				Region:    suite.region,
 			},
-			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
-				Name: workspaceName,
-				InitialLabels: schema.Labels{
-					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
-				},
-				UpdatedLabels: schema.Labels{
-					secalib.EnvLabel: secalib.EnvProductionLabel,
+			Workspace: &[]mock.ResourceParams[schema.WorkspaceSpec]{
+				{
+					Name: workspaceName,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+					},
+					UpdatedLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvProductionLabel,
+					},
 				},
 			},
 		}
@@ -99,6 +102,105 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 
 	// Get the deleted workspace
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *tref, secapi.ErrResourceNotFound)
+
+	slog.Info("Finishing " + suite.scenarioName)
+}
+
+func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
+	slog.Info("Starting " + suite.scenarioName)
+
+	t.Title(suite.scenarioName)
+	configureTags(t, secalib.WorkspaceProviderV1, secalib.WorkspaceKind)
+
+	// Generate scenario data
+	workspaceName := secalib.GenerateWorkspaceName()
+	workspaceName2 := secalib.GenerateWorkspaceName()
+
+	// Setup mock, if configured to use
+	if suite.mockEnabled {
+		mockParams := &mock.WorkspaceParamsV1{
+			Params: &mock.Params{
+				MockURL:   *suite.mockServerURL,
+				AuthToken: suite.authToken,
+				Tenant:    suite.tenant,
+				Region:    suite.region,
+			},
+			Workspace: &[]mock.ResourceParams[schema.WorkspaceSpec]{
+				{
+					Name: workspaceName,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+					},
+				},
+				{
+					Name: workspaceName2,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+					},
+				},
+			},
+		}
+		wm, err := mock.ConfigWorkspaceLifecycleScenarioV1(suite.scenarioName, mockParams)
+		if err != nil {
+			t.Fatalf("Failed to configure mock scenario: %v", err)
+		}
+		suite.mockClient = wm
+	}
+
+	ctx := context.Background()
+
+	// Create a workspace
+	workspaces := &[]schema.Workspace{
+		{
+			Labels: schema.Labels{
+				secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+			},
+			Metadata: &schema.RegionalResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   workspaceName,
+			},
+		},
+		{
+			Labels: schema.Labels{
+				secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+			},
+			Metadata: &schema.RegionalResourceMetadata{
+				Tenant: suite.tenant,
+				Name:   workspaceName2,
+			},
+		},
+	}
+	for _, workspace := range *workspaces {
+		workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspace.Metadata.Name)
+		expectMeta := secalib.NewRegionalResourceMetadata(workspaceName,
+			secalib.WorkspaceProviderV1,
+			workspaceResource,
+			secalib.ApiVersion1,
+			secalib.WorkspaceKind,
+			suite.tenant, suite.region)
+		expectLabels := schema.Labels{secalib.EnvLabel: secalib.EnvConformance}
+		suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, &workspace,
+			expectMeta, expectLabels, secalib.CreatingResourceState)
+
+	}
+	tref := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+	}
+
+	// List workspaces
+	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
+		nil)
+	// List workspaces with limit
+	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
+		builders.NewListOptions().WithLimit(1))
+	// List workspaces with label
+	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+	// List workspaces with label and limit
+	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
 	slog.Info("Finishing " + suite.scenarioName)
 }

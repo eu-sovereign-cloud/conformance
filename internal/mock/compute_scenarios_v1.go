@@ -19,11 +19,11 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
 	blockUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, params.Instance.Name)
+	instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, (*params.Instance)[0].Name)
 
 	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 	blockResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
+	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace.Name, (*params.Instance)[0].Name)
 
 	// Workspace
 	workspaceResponse := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1,
@@ -71,9 +71,9 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Instance
-	instanceResponse := newInstanceResponse(params.Instance.Name, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1,
+	instanceResponse := newInstanceResponse((*params.Instance)[0].Name, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
-		params.Instance.InitialSpec)
+		(*params.Instance)[0].InitialSpec)
 
 	// Create an instance
 	setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
@@ -95,7 +95,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	// Update the instance
 	setModifiedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
 	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.UpdatingResourceState)
-	instanceResponse.Spec = *params.Instance.UpdatedSpec
+	instanceResponse.Spec = *(*params.Instance)[0].UpdatedSpec
 	instanceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "UpdateInstance", nextState: "GetUpdatedInstance"}); err != nil {

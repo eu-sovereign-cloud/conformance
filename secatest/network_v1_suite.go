@@ -9,6 +9,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 	"k8s.io/utils/ptr"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -189,79 +190,93 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 					},
 				},
 			},
-			Network: &mock.ResourceParams[schema.NetworkSpec]{
-				Name: networkName,
-				InitialSpec: &schema.NetworkSpec{
-					Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
-					SkuRef:        *networkSkuRefObj,
-					RouteTableRef: *routeTableRefObj,
-				},
-				UpdatedSpec: &schema.NetworkSpec{
-					Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
-					SkuRef:        *networkSkuRef2Obj,
-					RouteTableRef: *routeTableRefObj,
-				},
-			},
-			InternetGateway: &mock.ResourceParams[schema.InternetGatewaySpec]{
-				Name:        internetGatewayName,
-				InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
-				UpdatedSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(true)},
-			},
-			RouteTable: &mock.ResourceParams[schema.RouteTableSpec]{
-				Name: routeTableName,
-				InitialSpec: &schema.RouteTableSpec{
-					Routes: []schema.RouteSpec{
-						{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+			Network: &[]mock.ResourceParams[schema.NetworkSpec]{
+				{
+					Name: networkName,
+					InitialSpec: &schema.NetworkSpec{
+						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
+						SkuRef:        *networkSkuRefObj,
+						RouteTableRef: *routeTableRefObj,
 					},
-				},
-				UpdatedSpec: &schema.RouteTableSpec{
-					Routes: []schema.RouteSpec{
-						{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *instanceRefObj},
+					UpdatedSpec: &schema.NetworkSpec{
+						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
+						SkuRef:        *networkSkuRef2Obj,
+						RouteTableRef: *routeTableRefObj,
 					},
 				},
 			},
-			Subnet: &mock.ResourceParams[schema.SubnetSpec]{
-				Name: subnetName,
-				InitialSpec: &schema.SubnetSpec{
-					Cidr: schema.Cidr{Ipv4: &subnetCidr},
-					Zone: zone1,
-				},
-				UpdatedSpec: &schema.SubnetSpec{
-					Cidr: schema.Cidr{Ipv4: &subnetCidr},
-					Zone: zone2,
+			InternetGateway: &[]mock.ResourceParams[schema.InternetGatewaySpec]{
+				{
+					Name:        internetGatewayName,
+					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
+					UpdatedSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(true)},
 				},
 			},
-			NIC: &mock.ResourceParams[schema.NicSpec]{
-				Name: nicName,
-				InitialSpec: &schema.NicSpec{
-					Addresses:    []string{nicAddress1},
-					PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
-					SubnetRef:    *subnetRefObj,
-				},
-				UpdatedSpec: &schema.NicSpec{
-					Addresses:    []string{nicAddress2},
-					PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
-					SubnetRef:    *subnetRefObj,
-				},
-			},
-			PublicIp: &mock.ResourceParams[schema.PublicIpSpec]{
-				Name: publicIpName,
-				InitialSpec: &schema.PublicIpSpec{
-					Version: secalib.IpVersion4,
-					Address: ptr.To(publicIpAddress1),
-				},
-				UpdatedSpec: &schema.PublicIpSpec{
-					Version: secalib.IpVersion4,
-					Address: ptr.To(publicIpAddress2),
+			RouteTable: &[]mock.ResourceParams[schema.RouteTableSpec]{
+				{
+					Name: routeTableName,
+					InitialSpec: &schema.RouteTableSpec{
+						Routes: []schema.RouteSpec{
+							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+						},
+					},
+					UpdatedSpec: &schema.RouteTableSpec{
+						Routes: []schema.RouteSpec{
+							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *instanceRefObj},
+						},
+					},
 				},
 			},
-			SecurityGroup: &mock.ResourceParams[schema.SecurityGroupSpec]{
-				Name: securityGroupName,
-				InitialSpec: &schema.SecurityGroupSpec{
-					Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionIngress}},
+			Subnet: &[]mock.ResourceParams[schema.SubnetSpec]{
+				{
+					Name: subnetName,
+					InitialSpec: &schema.SubnetSpec{
+						Cidr: schema.Cidr{Ipv4: &subnetCidr},
+						Zone: zone1,
+					},
+					UpdatedSpec: &schema.SubnetSpec{
+						Cidr: schema.Cidr{Ipv4: &subnetCidr},
+						Zone: zone2,
+					},
 				},
-				UpdatedSpec: &schema.SecurityGroupSpec{
-					Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionEgress}},
+			},
+			NIC: &[]mock.ResourceParams[schema.NicSpec]{
+				{
+					Name: nicName,
+					InitialSpec: &schema.NicSpec{
+						Addresses:    []string{nicAddress1},
+						PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+						SubnetRef:    *subnetRefObj,
+					},
+					UpdatedSpec: &schema.NicSpec{
+						Addresses:    []string{nicAddress2},
+						PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+						SubnetRef:    *subnetRefObj,
+					},
+				},
+			},
+			PublicIp: &[]mock.ResourceParams[schema.PublicIpSpec]{
+				{
+					Name: publicIpName,
+					InitialSpec: &schema.PublicIpSpec{
+						Version: secalib.IpVersion4,
+						Address: ptr.To(publicIpAddress1),
+					},
+					UpdatedSpec: &schema.PublicIpSpec{
+						Version: secalib.IpVersion4,
+						Address: ptr.To(publicIpAddress2),
+					},
+				},
+			},
+			SecurityGroup: &[]mock.ResourceParams[schema.SecurityGroupSpec]{
+				{
+					Name: securityGroupName,
+					InitialSpec: &schema.SecurityGroupSpec{
+						Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionIngress}},
+					},
+					UpdatedSpec: &schema.SecurityGroupSpec{
+						Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionEgress}},
+					},
 				},
 			},
 		}
@@ -751,6 +766,742 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 	// Get the deleted workspace
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+
+	slog.Info("Finishing " + suite.scenarioName)
+}
+
+func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
+	ctx := context.Background()
+	var err error
+	slog.Info("Starting " + suite.scenarioName)
+
+	t.Title(suite.scenarioName)
+	configureTags(t, secalib.NetworkProviderV1, secalib.NetworkKind, secalib.InternetGatewayKind, secalib.NicKind, secalib.PublicIpKind, secalib.RouteTableKind,
+		secalib.SubnetKind, secalib.SecurityGroupKind)
+
+	// Generate the subnet cidr
+	subnetCidr, err := secalib.GenerateSubnetCidr(suite.networkCidr, 8, 1)
+	if err != nil {
+		t.Fatalf("Failed to generate subnet cidr: %v", err)
+	}
+
+	// Generate the nic addresses
+	nicAddress1, err := secalib.GenerateNicAddress(subnetCidr, 1)
+	if err != nil {
+		t.Fatalf("Failed to generate nic address: %v", err)
+	}
+	nicAddress2, err := secalib.GenerateNicAddress(subnetCidr, 2)
+	if err != nil {
+		t.Fatalf("Failed to generate nic address: %v", err)
+	}
+
+	// Generate the public ips
+	publicIpAddress1, err := secalib.GeneratePublicIp(suite.publicIpsRange, 1)
+	if err != nil {
+		t.Fatalf("Failed to generate public ip: %v", err)
+	}
+	publicIpAddress2, err := secalib.GeneratePublicIp(suite.publicIpsRange, 2)
+	if err != nil {
+		t.Fatalf("Failed to generate public ip: %v", err)
+	}
+
+	// Select zones
+	zone1 := suite.regionZones[rand.Intn(len(suite.regionZones))]
+	zone2 := suite.regionZones[rand.Intn(len(suite.regionZones))]
+
+	// Select skus
+	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
+	instanceSkuName := suite.instanceSkus[rand.Intn(len(suite.instanceSkus))]
+	networkSkuName1 := suite.networkSkus[rand.Intn(len(suite.networkSkus))]
+	networkSkuName2 := suite.networkSkus[rand.Intn(len(suite.networkSkus))]
+
+	// Generate scenario data
+	workspaceName := secalib.GenerateWorkspaceName()
+
+	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
+	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	blockStorageName := secalib.GenerateBlockStorageName()
+	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
+	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	instanceSkuRef := secalib.GenerateSkuRef(instanceSkuName)
+	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	instanceName := secalib.GenerateInstanceName()
+	instanceRef := secalib.GenerateInstanceRef(instanceName)
+	instanceRefObj, err := secapi.BuildReferenceFromURN(instanceRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	networkSkuRef1 := secalib.GenerateSkuRef(networkSkuName1)
+	networkSkuRefObj, err := secapi.BuildReferenceFromURN(networkSkuRef1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	networkSkuRef2 := secalib.GenerateSkuRef(networkSkuName2)
+	networkSkuRef2Obj, err := secapi.BuildReferenceFromURN(networkSkuRef2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	networkName := secalib.GenerateNetworkName()
+	networkName2 := secalib.GenerateNetworkName()
+
+	internetGatewayName := secalib.GenerateInternetGatewayName()
+	internetGatewayName2 := secalib.GenerateInternetGatewayName()
+	internetGatewayRef := secalib.GenerateInternetGatewayRef(internetGatewayName)
+	internetGatewayRefObj, err := secapi.BuildReferenceFromURN(internetGatewayRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	routeTableName := secalib.GenerateRouteTableName()
+	routeTableName2 := secalib.GenerateRouteTableName()
+	routeTableRef := secalib.GenerateRouteTableRef(routeTableName)
+	routeTableRefObj, err := secapi.BuildReferenceFromURN(routeTableRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	subnetName := secalib.GenerateSubnetName()
+	subnetName2 := secalib.GenerateSubnetName()
+	subnetRef := secalib.GenerateSubnetRef(subnetName)
+	subnetRefObj, err := secapi.BuildReferenceFromURN(subnetRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	nicName := secalib.GenerateNicName()
+	nicName2 := secalib.GenerateNicName()
+
+	publicIpName := secalib.GeneratePublicIpName()
+	publicIpName2 := secalib.GeneratePublicIpName()
+	publicIpRef := secalib.GeneratePublicIpRef(publicIpName)
+	publicIpRefObj, err := secapi.BuildReferenceFromURN(publicIpRef)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	securityGroupName := secalib.GenerateSecurityGroupName()
+	securityGroupName2 := secalib.GenerateSecurityGroupName()
+
+	blockStorageSize := secalib.GenerateBlockStorageSize()
+
+	// Setup mock, if configured to use
+	if suite.mockEnabled {
+		mockParams := &mock.NetworkParamsV1{
+			Params: &mock.Params{
+				MockURL:   *suite.mockServerURL,
+				AuthToken: suite.authToken,
+				Tenant:    suite.tenant,
+				Region:    suite.region,
+			},
+			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
+				Name: workspaceName,
+				InitialLabels: schema.Labels{
+					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+				},
+			},
+			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
+				Name: blockStorageName,
+				InitialSpec: &schema.BlockStorageSpec{
+					SkuRef: *storageSkuRefObj,
+					SizeGB: blockStorageSize,
+				},
+			},
+			Instance: &mock.ResourceParams[schema.InstanceSpec]{
+				Name: instanceName,
+				InitialSpec: &schema.InstanceSpec{
+					SkuRef: *instanceSkuRefObj,
+					Zone:   zone1,
+					BootVolume: schema.VolumeReference{
+						DeviceRef: *blockStorageRefObj,
+					},
+				},
+			},
+			Network: &[]mock.ResourceParams[schema.NetworkSpec]{
+				{
+					Name: networkName,
+					InitialSpec: &schema.NetworkSpec{
+						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
+						SkuRef:        *networkSkuRefObj,
+						RouteTableRef: *routeTableRefObj,
+					},
+					UpdatedSpec: &schema.NetworkSpec{
+						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
+						SkuRef:        *networkSkuRef2Obj,
+						RouteTableRef: *routeTableRefObj,
+					},
+				},
+			},
+			InternetGateway: &[]mock.ResourceParams[schema.InternetGatewaySpec]{
+				{
+					Name:        internetGatewayName,
+					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
+					UpdatedSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(true)},
+				},
+			},
+			RouteTable: &[]mock.ResourceParams[schema.RouteTableSpec]{
+				{
+					Name: routeTableName,
+					InitialSpec: &schema.RouteTableSpec{
+						Routes: []schema.RouteSpec{
+							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+						},
+					},
+					UpdatedSpec: &schema.RouteTableSpec{
+						Routes: []schema.RouteSpec{
+							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *instanceRefObj},
+						},
+					},
+				},
+			},
+			Subnet: &[]mock.ResourceParams[schema.SubnetSpec]{
+				{
+					Name: subnetName,
+					InitialSpec: &schema.SubnetSpec{
+						Cidr: schema.Cidr{Ipv4: &subnetCidr},
+						Zone: zone1,
+					},
+					UpdatedSpec: &schema.SubnetSpec{
+						Cidr: schema.Cidr{Ipv4: &subnetCidr},
+						Zone: zone2,
+					},
+				},
+			},
+			NIC: &[]mock.ResourceParams[schema.NicSpec]{
+				{
+					Name: nicName,
+					InitialSpec: &schema.NicSpec{
+						Addresses:    []string{nicAddress1},
+						PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+						SubnetRef:    *subnetRefObj,
+					},
+					UpdatedSpec: &schema.NicSpec{
+						Addresses:    []string{nicAddress2},
+						PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+						SubnetRef:    *subnetRefObj,
+					},
+				},
+			},
+			PublicIp: &[]mock.ResourceParams[schema.PublicIpSpec]{
+				{
+					Name: publicIpName,
+					InitialSpec: &schema.PublicIpSpec{
+						Version: secalib.IpVersion4,
+						Address: ptr.To(publicIpAddress1),
+					},
+					UpdatedSpec: &schema.PublicIpSpec{
+						Version: secalib.IpVersion4,
+						Address: ptr.To(publicIpAddress2),
+					},
+				},
+			},
+			SecurityGroup: &[]mock.ResourceParams[schema.SecurityGroupSpec]{
+				{
+					Name: securityGroupName,
+					InitialSpec: &schema.SecurityGroupSpec{
+						Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionIngress}},
+					},
+					UpdatedSpec: &schema.SecurityGroupSpec{
+						Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionEgress}},
+					},
+				},
+			},
+		}
+		wm, err := mock.ConfigNetworkLifecycleScenarioV1(suite.scenarioName, mockParams)
+		if err != nil {
+			t.Fatalf("Failed to configure mock scenario: %v", err)
+		}
+		suite.mockClient = wm
+	}
+
+	// Workspace
+
+	// Create a workspace
+	workspace := &schema.Workspace{
+		Labels: schema.Labels{
+			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+		},
+		Metadata: &schema.RegionalResourceMetadata{
+			Tenant: suite.tenant,
+			Name:   workspaceName,
+		},
+	}
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, nil, nil, secalib.CreatingResourceState)
+
+	// Network
+
+	// Create a network
+	networks := &[]schema.Network{
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      networkName,
+			},
+			Spec: schema.NetworkSpec{
+				Cidr:          schema.Cidr{Ipv4: &suite.networkCidr},
+				SkuRef:        *networkSkuRefObj,
+				RouteTableRef: *routeTableRefObj,
+			},
+		},
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      networkName2,
+			},
+			Spec: schema.NetworkSpec{
+				Cidr:          schema.Cidr{Ipv4: &suite.networkCidr},
+				SkuRef:        *networkSkuRefObj,
+				RouteTableRef: *routeTableRefObj,
+			},
+		},
+	}
+
+	for _, network := range *networks {
+
+		networkResource := secalib.GenerateNetworkResource(suite.tenant, workspaceName, network.Metadata.Name)
+		expectNetworkMeta := secalib.NewRegionalWorkspaceResourceMetadata(network.Metadata.Name,
+			secalib.NetworkProviderV1,
+			networkResource,
+			secalib.ApiVersion1,
+			secalib.NetworkKind,
+			suite.tenant,
+			workspaceName,
+			suite.region,
+		)
+		expectNetworkSpec := &schema.NetworkSpec{
+			Cidr:          schema.Cidr{Ipv4: &suite.networkCidr},
+			SkuRef:        *networkSkuRefObj,
+			RouteTableRef: *routeTableRefObj,
+		}
+		suite.createOrUpdateNetworkV1Step("Create a network", t, ctx, suite.client.NetworkV1, &network,
+			expectNetworkMeta, expectNetworkSpec, secalib.CreatingResourceState)
+	}
+
+	tref := secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)}
+	wref := secapi.WorkspaceReference{Workspace: secapi.WorkspaceID(workspaceName)}
+
+	// List Network
+	suite.getListNetworkV1Step("List Network", t, ctx, suite.client.NetworkV1, tref, wref, nil)
+
+	// List Network with limit
+	suite.getListNetworkV1Step("Get list of Network with limit", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLimit(1))
+
+	// List Network with Label
+	suite.getListNetworkV1Step("Get list of Network with label", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// List Network with Limit and label
+	suite.getListNetworkV1Step("Get list of Network with limit and label", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// Internet gateway
+
+	// Create an internet gateway
+	gateways := &[]schema.InternetGateway{
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      internetGatewayName,
+			},
+		},
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      internetGatewayName2,
+			},
+		},
+	}
+
+	for _, gateway := range *gateways {
+		internetGatewayResource := secalib.GenerateInternetGatewayResource(suite.tenant, workspaceName, internetGatewayName)
+		expectGatewayMeta := secalib.NewRegionalWorkspaceResourceMetadata(gateway.Metadata.Name,
+			secalib.NetworkProviderV1,
+			internetGatewayResource,
+			secalib.ApiVersion1,
+			secalib.InternetGatewayKind,
+			suite.tenant,
+			workspaceName,
+			suite.region,
+		)
+		expectGatewaySpec := &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)}
+		suite.createOrUpdateInternetGatewayV1Step("Create a internet gateway", t, ctx, suite.client.NetworkV1, &gateway,
+			expectGatewayMeta, expectGatewaySpec, secalib.CreatingResourceState)
+
+	}
+
+	// List Internet Gateway
+	suite.getListInternetGatewayV1Step("List Internet Gateway", t, ctx, suite.client.NetworkV1, tref, wref, nil)
+
+	// List Internet Gateway with limit
+	suite.getListInternetGatewayV1Step("Get list of Internet Gateway with limit", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLimit(1))
+
+	// List Internet Gateway with Label
+	suite.getListInternetGatewayV1Step("Get list of Internet Gateway with label", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// List Internet Gateway with Limit and label
+	suite.getListInternetGatewayV1Step("Get list of Internet Gateway with limit and label", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// Route table
+
+	// Create a route table
+	routes := &[]schema.RouteTable{
+		{
+			Metadata: &schema.RegionalNetworkResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Network:   networkName,
+				Name:      routeTableName,
+			},
+			Spec: schema.RouteTableSpec{
+				Routes: []schema.RouteSpec{
+					{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+				},
+			},
+		},
+		{
+			Metadata: &schema.RegionalNetworkResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Network:   networkName,
+				Name:      routeTableName2,
+			},
+			Spec: schema.RouteTableSpec{
+				Routes: []schema.RouteSpec{
+					{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+				},
+			},
+		},
+	}
+	for _, route := range *routes {
+		routeTableResource := secalib.GenerateRouteTableResource(suite.tenant, workspaceName, networkName, route.Metadata.Name)
+
+		expectRouteMeta := secalib.NewRegionalNetworkResourceMetadata(route.Metadata.Name,
+			secalib.NetworkProviderV1,
+			routeTableResource,
+			secalib.ApiVersion1,
+			secalib.RouteTableKind,
+			suite.tenant,
+			workspaceName,
+			networkName,
+			suite.region)
+		expectRouteSpec := &schema.RouteTableSpec{
+			Routes: []schema.RouteSpec{
+				{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+			},
+		}
+		suite.createOrUpdateRouteTableV1Step("Create a route table", t, ctx, suite.client.NetworkV1, &route,
+			expectRouteMeta, expectRouteSpec, secalib.CreatingResourceState)
+	}
+	// Get the created route table
+	nref := &secapi.NetworkReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Network:   secapi.NetworkID(networkName),
+		Name:      routeTableName,
+	}
+	// List Route table
+	suite.getListRouteTableV1Step("List Route table", t, ctx, suite.client.NetworkV1, tref, wref, *nref, nil)
+
+	// List Route table with limit
+	suite.getListRouteTableV1Step("Get list of Route table with limit", t, ctx, suite.client.NetworkV1, tref, wref, *nref,
+		builders.NewListOptions().WithLimit(1))
+
+	// List Route table with Label
+	suite.getListRouteTableV1Step("Get list of Route table with label", t, ctx, suite.client.NetworkV1, tref, wref, *nref,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// List Route table with Limit and label
+	suite.getListRouteTableV1Step("Get list of Route table with limit and label", t, ctx, suite.client.NetworkV1, tref, wref, *nref,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+	// Subnet
+
+	// Create a subnet
+	subnets := &[]schema.Subnet{
+		{
+			Metadata: &schema.RegionalNetworkResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Network:   networkName,
+				Name:      subnetName,
+			},
+			Spec: schema.SubnetSpec{
+				Cidr: schema.Cidr{Ipv4: &subnetCidr},
+				Zone: zone1,
+			},
+		},
+		{
+			Metadata: &schema.RegionalNetworkResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Network:   networkName,
+				Name:      subnetName2,
+			},
+			Spec: schema.SubnetSpec{
+				Cidr: schema.Cidr{Ipv4: &subnetCidr},
+				Zone: zone1,
+			},
+		},
+	}
+
+	for _, subnet := range *subnets {
+
+		subnetResource := secalib.GenerateSubnetResource(suite.tenant, workspaceName, networkName, subnet.Metadata.Name)
+
+		expectSubnetMeta := secalib.NewRegionalNetworkResourceMetadata(subnet.Metadata.Name,
+			secalib.NetworkProviderV1,
+			subnetResource,
+			secalib.ApiVersion1,
+			secalib.SubnetKind,
+			suite.tenant,
+			workspaceName,
+			networkName,
+			suite.region,
+		)
+		expectSubnetSpec := &schema.SubnetSpec{
+			Cidr: schema.Cidr{Ipv4: &subnetCidr},
+			Zone: zone1,
+		}
+		suite.createOrUpdateSubnetV1Step("Create a subnet", t, ctx, suite.client.NetworkV1, &subnet,
+			expectSubnetMeta, expectSubnetSpec, secalib.CreatingResourceState)
+	}
+
+	// List Subnet
+	suite.getListSubnetV1Step("List Subnet", t, ctx, suite.client.NetworkV1, tref, wref, *nref, nil)
+
+	// List Subnet with limit
+	suite.getListSubnetV1Step("Get list of Subnet with limit", t, ctx, suite.client.NetworkV1, tref, wref, *nref,
+		builders.NewListOptions().WithLimit(1))
+
+	// List Subnet with Label
+	suite.getListSubnetV1Step("Get list of Subnet with label", t, ctx, suite.client.NetworkV1, tref, wref, *nref,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// List Subnet with Limit and label
+	suite.getListSubnetV1Step("Get list of Subnet with limit and label", t, ctx, suite.client.NetworkV1, tref, wref, *nref,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// Public ip
+
+	// Create a public ip
+	publicIps := &[]schema.PublicIp{
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      publicIpName,
+			},
+			Spec: schema.PublicIpSpec{
+				Address: &publicIpAddress1,
+				Version: secalib.IpVersion4,
+			},
+		},
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      publicIpName2,
+			},
+			Spec: schema.PublicIpSpec{
+				Address: &publicIpAddress1,
+				Version: secalib.IpVersion4,
+			},
+		},
+	}
+
+	for _, publicIp := range *publicIps {
+		publicIpResource := secalib.GeneratePublicIpResource(suite.tenant, workspaceName, publicIp.Metadata.Name)
+		expectPublicIpMeta := secalib.NewRegionalWorkspaceResourceMetadata(publicIp.Metadata.Name,
+			secalib.NetworkProviderV1,
+			publicIpResource,
+			secalib.ApiVersion1,
+			secalib.PublicIpKind,
+			suite.tenant,
+			workspaceName,
+			suite.region,
+		)
+		expectPublicIpSpec := &schema.PublicIpSpec{
+			Address: &publicIpAddress1,
+			Version: secalib.IpVersion4,
+		}
+		suite.createOrUpdatePublicIpV1Step("Create a public ip", t, ctx, suite.client.NetworkV1, &publicIp,
+			expectPublicIpMeta, expectPublicIpSpec, secalib.CreatingResourceState)
+	}
+
+	// List PublicIP
+	suite.getListPublicIpV1Step("List PublicIP", t, ctx, suite.client.NetworkV1, tref, wref, nil)
+
+	// List PublicIP with limit
+	suite.getListPublicIpV1Step("Get list of PublicIP with limit", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLimit(1))
+
+	// List PublicIP with Label
+	suite.getListPublicIpV1Step("Get list of PublicIP with label", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// List PublicIP with Limit and label
+	suite.getListPublicIpV1Step("Get list of PublicIP with limit and label", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// Nic
+
+	// Create a nic
+	nics := &[]schema.Nic{
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      nicName,
+			},
+			Spec: schema.NicSpec{
+				Addresses:    []string{nicAddress1},
+				PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+				SubnetRef:    *subnetRefObj,
+			},
+		},
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      nicName2,
+			},
+			Spec: schema.NicSpec{
+				Addresses:    []string{nicAddress1},
+				PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+				SubnetRef:    *subnetRefObj,
+			},
+		},
+	}
+
+	for _, nic := range *nics {
+
+		nicResource := secalib.GenerateNicResource(suite.tenant, workspaceName, nic.Metadata.Name)
+		expectNicMeta := secalib.NewRegionalWorkspaceResourceMetadata(nic.Metadata.Name,
+			secalib.NetworkProviderV1,
+			nicResource,
+			secalib.ApiVersion1,
+			secalib.NicKind,
+			suite.tenant, workspaceName, suite.region)
+		expectNicSpec := &schema.NicSpec{
+			Addresses:    []string{nicAddress1},
+			PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+			SubnetRef:    *subnetRefObj,
+		}
+		suite.createOrUpdateNicV1Step("Create a nic", t, ctx, suite.client.NetworkV1, &nic,
+			expectNicMeta, expectNicSpec, secalib.CreatingResourceState)
+	}
+	// List Nic
+	suite.getListNicV1Step("List Nic", t, ctx, suite.client.NetworkV1, tref, wref, nil)
+
+	// List Nic with limit
+	suite.getListNicV1Step("Get list of Nic with limit", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLimit(1))
+
+	// List Nic with Label
+	suite.getListNicV1Step("Get list of Nic with label", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// List Nic with Limit and label
+	suite.getListNicV1Step("Get list of Nic with limit and label", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// Security Group
+
+	// Create a security group
+	groups := &[]schema.SecurityGroup{
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      securityGroupName,
+			},
+			Spec: schema.SecurityGroupSpec{
+				Rules: []schema.SecurityGroupRuleSpec{
+					{Direction: secalib.SecurityRuleDirectionIngress},
+				},
+			},
+		},
+		{
+			Metadata: &schema.RegionalWorkspaceResourceMetadata{
+				Tenant:    suite.tenant,
+				Workspace: workspaceName,
+				Name:      securityGroupName2,
+			},
+			Spec: schema.SecurityGroupSpec{
+				Rules: []schema.SecurityGroupRuleSpec{
+					{Direction: secalib.SecurityRuleDirectionIngress},
+				},
+			},
+		},
+	}
+
+	for _, group := range *groups {
+		securityGroupResource := secalib.GenerateSecurityGroupResource(suite.tenant, workspaceName, group.Metadata.Name)
+		expectGroupMeta := secalib.NewRegionalWorkspaceResourceMetadata(group.Metadata.Name,
+			secalib.NetworkProviderV1,
+			securityGroupResource,
+			secalib.ApiVersion1,
+			secalib.SecurityGroupKind,
+			suite.tenant,
+			workspaceName,
+			suite.region,
+		)
+		expectGroupSpec := &schema.SecurityGroupSpec{
+			Rules: []schema.SecurityGroupRuleSpec{
+				{Direction: secalib.SecurityRuleDirectionIngress},
+			},
+		}
+		suite.createOrUpdateSecurityGroupV1Step("Create a security group", t, ctx, suite.client.NetworkV1, &group,
+			expectGroupMeta, expectGroupSpec, secalib.CreatingResourceState)
+	}
+	// List Security Group
+	suite.getListSecurityGroupV1Step("List Security Group", t, ctx, suite.client.NetworkV1, tref, wref, nil)
+
+	// List Security Group with limit
+	suite.getListSecurityGroupV1Step("Get list of Security Group with limit", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLimit(1))
+
+	// List Security Group with Label
+	suite.getListSecurityGroupV1Step("Get list of Security Group with label", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// List Nic with Limit and label
+	suite.getListSecurityGroupV1Step("Get list of Security Group with limit and label", t, ctx, suite.client.NetworkV1, tref, wref,
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
 	slog.Info("Finishing " + suite.scenarioName)
 }

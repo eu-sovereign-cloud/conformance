@@ -128,6 +128,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	return wm, nil
 }
+
 func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *AuthorizationParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
@@ -138,10 +139,10 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 	var rolesList []schema.Role
 	for i := range *params.Role {
 		roleUrl := secalib.GenerateRoleURL(params.Tenant, (*params.Role)[i].Name)
-		//roleAssignUrl := secalib.GenerateRoleAssignmentURL(params.Tenant, (*params.RoleAssignment)[i].Name)
+		// roleAssignUrl := secalib.GenerateRoleAssignmentURL(params.Tenant, (*params.RoleAssignment)[i].Name)
 
 		roleResource := secalib.GenerateRoleResource(params.Tenant, (*params.Role)[i].Name)
-		//roleAssignResource := secalib.GenerateRoleAssignmentResource(params.Tenant, (*params.RoleAssignment)[i].Name)
+		// roleAssignResource := secalib.GenerateRoleAssignmentResource(params.Tenant, (*params.RoleAssignment)[i].Name)
 		// Role
 		roleResponse := newRoleResponse((*params.Role)[i].Name, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1, params.Tenant, (*params.Role)[i].InitialSpec)
 

@@ -20,25 +20,25 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
 	blockUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
 	instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, params.Instance.Name)
-	networkUrl := secalib.GenerateNetworkURL(params.Tenant, params.Workspace.Name, params.Network.Name)
-	gatewayUrl := secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicUrl := secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, params.NIC.Name)
-	publicIpUrl := secalib.GeneratePublicIpURL(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
-	routeUrl := secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
-	subnetUrl := secalib.GenerateSubnetURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
-	groupUrl := secalib.GenerateSecurityGroupURL(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
+	networkUrl := secalib.GenerateNetworkURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name)
+	gatewayUrl := secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, (*params.InternetGateway)[0].Name)
+	nicUrl := secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, (*params.NIC)[0].Name)
+	publicIpUrl := secalib.GeneratePublicIpURL(params.Tenant, params.Workspace.Name, (*params.PublicIp)[0].Name)
+	routeUrl := secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.RouteTable)[0].Name)
+	subnetUrl := secalib.GenerateSubnetURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.Subnet)[0].Name)
+	groupUrl := secalib.GenerateSecurityGroupURL(params.Tenant, params.Workspace.Name, (*params.SecurityGroup)[0].Name)
 
 	// Generate resources
 	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 	blockResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
 	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
-	networkResource := secalib.GenerateNetworkResource(params.Tenant, params.Workspace.Name, params.Network.Name)
-	gatewayResource := secalib.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicResource := secalib.GenerateNicResource(params.Tenant, params.Workspace.Name, params.NIC.Name)
-	publicIpResource := secalib.GeneratePublicIpResource(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
-	routeResource := secalib.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
-	subnetResource := secalib.GenerateSubnetResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
-	groupResource := secalib.GenerateSecurityGroupResource(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
+	networkResource := secalib.GenerateNetworkResource(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name)
+	gatewayResource := secalib.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, (*params.InternetGateway)[0].Name)
+	nicResource := secalib.GenerateNicResource(params.Tenant, params.Workspace.Name, (*params.NIC)[0].Name)
+	publicIpResource := secalib.GeneratePublicIpResource(params.Tenant, params.Workspace.Name, (*params.PublicIp)[0].Name)
+	routeResource := secalib.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.RouteTable)[0].Name)
+	subnetResource := secalib.GenerateSubnetResource(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.Subnet)[0].Name)
+	groupResource := secalib.GenerateSecurityGroupResource(params.Tenant, params.Workspace.Name, (*params.SecurityGroup)[0].Name)
 
 	// Workspace
 	workResponse := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1, params.Tenant, params.Region,
@@ -62,9 +62,9 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Network
-	networkResponse := newNetworkResponse(params.Network.Name, secalib.NetworkProviderV1, networkResource, secalib.ApiVersion1,
+	networkResponse := newNetworkResponse((*params.Network)[0].Name, secalib.NetworkProviderV1, networkResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
-		params.Network.InitialSpec)
+		(*params.Network)[0].InitialSpec)
 
 	// Create a network
 	setCreatedRegionalWorkspaceResourceMetadata(networkResponse.Metadata)
@@ -85,7 +85,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Update the network
 	secalib.SetNetworkStatusState(networkResponse.Status, secalib.UpdatingResourceState)
-	networkResponse.Spec = *params.Network.UpdatedSpec
+	networkResponse.Spec = *(*params.Network)[0].UpdatedSpec
 	networkResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "UpdateNetwork", nextState: "GetNetwork2x"}); err != nil {
@@ -101,9 +101,9 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Internet gateway
-	gatewayResponse := newInternetGatewayResponse(params.InternetGateway.Name, secalib.NetworkProviderV1, gatewayResource, secalib.ApiVersion1,
+	gatewayResponse := newInternetGatewayResponse((*params.InternetGateway)[0].Name, secalib.NetworkProviderV1, gatewayResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
-		params.InternetGateway.InitialSpec)
+		(*params.InternetGateway)[0].InitialSpec)
 
 	// Create an internet gateway
 	setCreatedRegionalWorkspaceResourceMetadata(gatewayResponse.Metadata)
@@ -125,7 +125,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	// Update the internet gateway
 	setModifiedRegionalWorkspaceResourceMetadata(gatewayResponse.Metadata)
 	secalib.SetStatusState(gatewayResponse.Status, secalib.UpdatingResourceState)
-	gatewayResponse.Spec = *params.InternetGateway.UpdatedSpec
+	gatewayResponse.Spec = *(*params.InternetGateway)[0].UpdatedSpec
 	gatewayResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "UpdateInternetGateway", nextState: "GetInternetGateway2x"}); err != nil {
@@ -141,9 +141,9 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Route table
-	routeResponse := newRouteTableResponse(params.RouteTable.Name, secalib.NetworkProviderV1, routeResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region,
-		params.RouteTable.InitialSpec)
+	routeResponse := newRouteTableResponse((*params.RouteTable)[0].Name, secalib.NetworkProviderV1, routeResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, params.Region,
+		(*params.RouteTable)[0].InitialSpec)
 
 	// Create a route table
 	setCreatedRegionalNetworkResourceMetadata(routeResponse.Metadata)
@@ -165,7 +165,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	// Update the route table
 	setModifiedRegionalNetworkResourceMetadata(routeResponse.Metadata)
 	secalib.SetRouteTableStatusState(routeResponse.Status, secalib.UpdatingResourceState)
-	routeResponse.Spec = *params.RouteTable.UpdatedSpec
+	routeResponse.Spec = *(*params.RouteTable)[0].UpdatedSpec
 	routeResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "UpdateRouteTable", nextState: "GetRouteTableUpdated"}); err != nil {
@@ -181,9 +181,9 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Subnet
-	subnetResponse := newSubnetResponse(params.Subnet.Name, secalib.NetworkProviderV1, subnetResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region,
-		params.Subnet.InitialSpec)
+	subnetResponse := newSubnetResponse((*params.Subnet)[0].Name, secalib.NetworkProviderV1, subnetResource, secalib.ApiVersion1,
+		params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, params.Region,
+		(*params.Subnet)[0].InitialSpec)
 
 	// Create a subnet
 	setCreatedRegionalNetworkResourceMetadata(subnetResponse.Metadata)
@@ -205,7 +205,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	// Update the subnet
 	setModifiedRegionalNetworkResourceMetadata(subnetResponse.Metadata)
 	secalib.SetSubnetStatusState(subnetResponse.Status, secalib.UpdatingResourceState)
-	subnetResponse.Spec = *params.Subnet.UpdatedSpec
+	subnetResponse.Spec = *(*params.Subnet)[0].UpdatedSpec
 	subnetResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "UpdateSubnet", nextState: "GetSubnetUpdated"}); err != nil {
@@ -221,9 +221,9 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Public ip
-	publicIpResponse := newPublicIpResponse(params.PublicIp.Name, secalib.NetworkProviderV1, publicIpResource, secalib.ApiVersion1,
+	publicIpResponse := newPublicIpResponse((*params.PublicIp)[0].Name, secalib.NetworkProviderV1, publicIpResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
-		params.PublicIp.InitialSpec)
+		(*params.PublicIp)[0].InitialSpec)
 
 	// Create a public ip
 	setCreatedRegionalWorkspaceResourceMetadata(publicIpResponse.Metadata)
@@ -245,7 +245,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	// Update the public ip
 	setModifiedRegionalWorkspaceResourceMetadata(publicIpResponse.Metadata)
 	secalib.SetPublicIpStatusState(publicIpResponse.Status, secalib.UpdatingResourceState)
-	publicIpResponse.Spec = *params.PublicIp.UpdatedSpec
+	publicIpResponse.Spec = *(*params.PublicIp)[0].UpdatedSpec
 	publicIpResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "UpdatePublicIp", nextState: "GetPublicIpUpdated"}); err != nil {
@@ -261,9 +261,9 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Nic
-	nicResponse := newNicResponse(params.NIC.Name, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1,
+	nicResponse := newNicResponse((*params.NIC)[0].Name, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
-		params.NIC.InitialSpec)
+		(*params.NIC)[0].InitialSpec)
 
 	// Create a nic
 	setCreatedRegionalWorkspaceResourceMetadata(nicResponse.Metadata)
@@ -285,7 +285,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	// Update the nic
 	setModifiedRegionalWorkspaceResourceMetadata(nicResponse.Metadata)
 	secalib.SetNicStatusState(nicResponse.Status, secalib.UpdatingResourceState)
-	nicResponse.Spec = *params.NIC.UpdatedSpec
+	nicResponse.Spec = *(*params.NIC)[0].UpdatedSpec
 	nicResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "UpdateNIC", nextState: "GetNICUpdated"}); err != nil {
@@ -301,9 +301,9 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Security group
-	groupResponse := newSecurityGroupResponse(params.SecurityGroup.Name, secalib.NetworkProviderV1, groupResource, secalib.ApiVersion1,
+	groupResponse := newSecurityGroupResponse((*params.SecurityGroup)[0].Name, secalib.NetworkProviderV1, groupResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
-		params.SecurityGroup.InitialSpec)
+		(*params.SecurityGroup)[0].InitialSpec)
 
 	// Create a security group
 	setCreatedRegionalWorkspaceResourceMetadata(groupResponse.Metadata)
@@ -325,7 +325,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	// Update the security group
 	setModifiedRegionalWorkspaceResourceMetadata(groupResponse.Metadata)
 	secalib.SetSecurityGroupStatusState(groupResponse.Status, secalib.UpdatingResourceState)
-	groupResponse.Spec = *params.SecurityGroup.UpdatedSpec
+	groupResponse.Spec = *(*params.SecurityGroup)[0].UpdatedSpec
 	groupResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "UpdateSecurityGroup", nextState: "GetSecurityGroupUpdated"}); err != nil {

@@ -85,6 +85,7 @@ func (suite *testSuite) getListRoleV1Step(stepName string,
 	ctx context.Context,
 	api *secapi.AuthorizationV1,
 	tref secapi.TenantReference,
+	opts *builders.ListOptions,
 ) []*schema.Role {
 	var respNext []*schema.Role
 	var respAll []*schema.Role
@@ -92,119 +93,13 @@ func (suite *testSuite) getListRoleV1Step(stepName string,
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetListRole")
 
-		iter, err := api.ListRoles(ctx, tref.Tenant)
-		for {
-			item, err := iter.Next(context.Background())
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				break
-			}
-			respNext = append(respNext, item)
+		var iter *secapi.Iterator[schema.Role]
+		var err error
+		if opts != nil {
+			iter, err = api.ListRolesWithFilters(ctx, secapi.TenantID(tref.Name), opts)
+		} else {
+			iter, err = api.ListRoles(ctx, secapi.TenantID(tref.Name))
 		}
-		requireNotNilResponse(sCtx, respNext)
-		requireLenResponse(sCtx, len(respNext))
-
-		respAll, err = iter.All(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, respAll)
-		requireLenResponse(sCtx, len(respAll))
-
-		compareIteratorsResponse(sCtx, len(respNext), len(respAll))
-	})
-	return respAll
-}
-
-func (suite *testSuite) getListRoleV1StepWithLimit(stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.AuthorizationV1,
-	tref secapi.TenantReference,
-	opts *builders.ListOptions,
-) []*schema.Role {
-	var respNext []*schema.Role
-	var respAll []*schema.Role
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetListRoleWithLimit")
-
-		iter, err := api.ListRolesWithFilters(ctx, tref.Tenant, opts)
-		requireNoError(sCtx, err)
-		for {
-			item, err := iter.Next(context.Background())
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				break
-			}
-			respNext = append(respNext, item)
-		}
-		requireNotNilResponse(sCtx, respNext)
-		requireLenResponse(sCtx, len(respNext))
-
-		respAll, err = iter.All(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, respAll)
-		requireLenResponse(sCtx, len(respAll))
-
-		compareIteratorsResponse(sCtx, len(respNext), len(respAll))
-	})
-	return respAll
-}
-
-func (suite *testSuite) getListRoleV1StepWithLabel(stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.AuthorizationV1,
-	tref secapi.TenantReference,
-	opts *builders.ListOptions,
-) []*schema.Role {
-	var respNext []*schema.Role
-	var respAll []*schema.Role
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetListRoleWithLimit")
-
-		iter, err := api.ListRolesWithFilters(ctx, tref.Tenant, opts)
-		requireNoError(sCtx, err)
-		for {
-			item, err := iter.Next(context.Background())
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				break
-			}
-			respNext = append(respNext, item)
-		}
-		requireNotNilResponse(sCtx, respNext)
-		requireLenResponse(sCtx, len(respNext))
-
-		respAll, err = iter.All(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, respAll)
-		requireLenResponse(sCtx, len(respAll))
-
-		compareIteratorsResponse(sCtx, len(respNext), len(respAll))
-	})
-	return respAll
-}
-func (suite *testSuite) getListRoleV1StepWithLimitAndLabel(stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.AuthorizationV1,
-	tref secapi.TenantReference,
-	opts *builders.ListOptions,
-) []*schema.Role {
-	var respNext []*schema.Role
-	var respAll []*schema.Role
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetListRoleWithLimit")
-
-		iter, err := api.ListRolesWithFilters(ctx, tref.Tenant, opts)
 		requireNoError(sCtx, err)
 		for {
 			item, err := iter.Next(context.Background())
@@ -335,133 +230,27 @@ func (suite *testSuite) deleteRoleAssignmentV1Step(stepName string, t provider.T
 		requireNoError(sCtx, err)
 	})
 }
-func (suite *testSuite) getListRoleAssignmentV1Step(
-	stepName string,
+
+func (suite *testSuite) getListRoleAssignmentsV1(stepName string,
 	t provider.T,
 	ctx context.Context,
 	api *secapi.AuthorizationV1,
 	tref secapi.TenantReference,
 	opts *builders.ListOptions,
 ) []*schema.RoleAssignment {
-	var resp []*schema.RoleAssignment
+	var respNext []*schema.RoleAssignment
+	var respAll []*schema.RoleAssignment
 
-	// Simple list without filters
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetListRoleAssignment")
 
-		iter, err := api.ListRoleAssignments(ctx, tref.Tenant)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, iter)
-
-		resp, err = iter.All(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-		requireLenResponse(sCtx, len(resp))
-	})
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetListRoleAssignmentWithFilters")
-
-		iter, err := api.ListRoleAssignmentsWithFilters(ctx, tref.Tenant, opts)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, iter)
-
-		resp, err = iter.All(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-		requireLenResponse(sCtx, len(resp))
-	})
-	return resp
-}
-
-func (suite *testSuite) getListRoleAssignmentsV1StepWithLimit(stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.AuthorizationV1,
-	tref secapi.TenantReference,
-	opts *builders.ListOptions,
-) []*schema.RoleAssignment {
-	var respNext []*schema.RoleAssignment
-	var respAll []*schema.RoleAssignment
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetListRoleWithLimit")
-
-		iter, err := api.ListRoleAssignmentsWithFilters(ctx, tref.Tenant, opts)
-		for {
-			item, err := iter.Next(context.Background())
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				break
-			}
-			respNext = append(respNext, item)
+		var iter *secapi.Iterator[schema.RoleAssignment]
+		var err error
+		if opts != nil {
+			iter, err = api.ListRoleAssignmentsWithFilters(ctx, secapi.TenantID(tref.Name), opts)
+		} else {
+			iter, err = api.ListRoleAssignments(ctx, secapi.TenantID(tref.Name))
 		}
-		requireNotNilResponse(sCtx, respNext)
-		requireLenResponse(sCtx, len(respNext))
-
-		respAll, err = iter.All(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, respAll)
-		requireLenResponse(sCtx, len(respAll))
-
-		compareIteratorsResponse(sCtx, len(respNext), len(respAll))
-	})
-	return respAll
-}
-
-func (suite *testSuite) getListRoleAssignmentsV1StepWithLabel(stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.AuthorizationV1,
-	tref secapi.TenantReference,
-	opts *builders.ListOptions,
-) []*schema.RoleAssignment {
-	var respNext []*schema.RoleAssignment
-	var respAll []*schema.RoleAssignment
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetListRoleWithLimit")
-
-		iter, err := api.ListRoleAssignmentsWithFilters(ctx, tref.Tenant, opts)
-		requireNoError(sCtx, err)
-		for {
-			item, err := iter.Next(context.Background())
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				break
-			}
-			respNext = append(respNext, item)
-		}
-		requireNotNilResponse(sCtx, respNext)
-		requireLenResponse(sCtx, len(respNext))
-
-		respAll, err = iter.All(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, respAll)
-		requireLenResponse(sCtx, len(respAll))
-
-		compareIteratorsResponse(sCtx, len(respNext), len(respAll))
-	})
-	return respAll
-}
-func (suite *testSuite) getListRoleAssignmentsV1StepWithLimitAndLabel(stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.AuthorizationV1,
-	tref secapi.TenantReference,
-	opts *builders.ListOptions,
-) []*schema.RoleAssignment {
-	var respNext []*schema.RoleAssignment
-	var respAll []*schema.RoleAssignment
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setAuthorizationV1StepParams(sCtx, "GetListRoleWithLimit")
-
-		iter, err := api.ListRoleAssignmentsWithFilters(ctx, tref.Tenant, opts)
 		requireNoError(sCtx, err)
 		for {
 			item, err := iter.Next(context.Background())

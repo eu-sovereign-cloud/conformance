@@ -17,12 +17,12 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 		return nil, err
 	}
 
-	url := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
-	resource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
+	url := secalib.GenerateWorkspaceURL(params.Tenant, (*params.Workspace)[0].Name)
+	resource := secalib.GenerateWorkspaceResource(params.Tenant, (*params.Workspace)[0].Name)
 
-	response := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, resource, secalib.ApiVersion1,
+	response := newWorkspaceResponse((*params.Workspace)[0].Name, secalib.WorkspaceProviderV1, resource, secalib.ApiVersion1,
 		params.Tenant, params.Region,
-		params.Workspace.InitialLabels)
+		(*params.Workspace)[0].InitialLabels)
 
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(response.Metadata)
@@ -44,7 +44,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	// Update the workspace
 	setModifiedRegionalResourceMetadata(response.Metadata)
 	secalib.SetWorkspaceStatusState(response.Status, secalib.UpdatingResourceState)
-	response.Labels = params.Workspace.UpdatedLabels
+	response.Labels = (*params.Workspace)[0].UpdatedLabels
 	response.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: url, params: params, responseBody: response, currentState: "UpdateWorkspace", nextState: "GetUpdatedWorkspace"}); err != nil {

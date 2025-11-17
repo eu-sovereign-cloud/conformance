@@ -79,16 +79,19 @@ func GenerateSkuResource(tenant string, sku string) string {
 func GenerateRoleResource(tenant string, role string) string {
 	return fmt.Sprintf(RoleResource, tenant, role)
 }
+
 func GenerateRolesResource(tenant string) string {
-	return fmt.Sprintf(RoleResource, tenant)
+	return fmt.Sprintf(RolesResource, tenant)
 }
 
 func GenerateRoleAssignmentResource(tenant string, roleAssignment string) string {
 	return fmt.Sprintf(RoleAssignmentResource, tenant, roleAssignment)
 }
+
 func GenerateRoleAssignmentsResource(tenant string) string {
 	return fmt.Sprintf(RoleAssignmentsResource, tenant)
 }
+
 func GenerateRegionResource(region string) string {
 	return fmt.Sprintf(RegionResource, region)
 }
@@ -174,15 +177,19 @@ func GeneratePublicIpRef(publicIpName string) string {
 func GenerateRoleURL(tenant string, role string) string {
 	return fmt.Sprintf(RoleURLV1, tenant, role)
 }
+
 func GenerateRolesURL(tenant string) string {
 	return fmt.Sprintf(RolesURLV1, tenant)
 }
+
 func GenerateRoleAssignmentURL(tenant string, roleAssignment string) string {
 	return fmt.Sprintf(RoleAssignmentURLV1, tenant, roleAssignment)
 }
+
 func GenerateRoleAssignmentsURL(tenant string) string {
 	return fmt.Sprintf(RoleAssignmentsURLV1, tenant)
 }
+
 func GenerateRegionURL(region string) string {
 	return fmt.Sprintf(RegionURLV1, region)
 }
