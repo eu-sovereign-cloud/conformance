@@ -153,7 +153,7 @@ func (suite *testSuite) createOrUpdateRouteTableV1Step(stepName string, t provid
 	createOrUpdateNetworkResourceStep(t, suite,
 		createOrUpdateNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			stepName:       stepName,
-			stepParamsFunc: suite.setNetworkChildV1StepParams,
+			stepParamsFunc: suite.setNetworkNetworkV1StepParams,
 			operationName:  "CreateOrUpdateRouteTable",
 			workspace:      resource.Metadata.Workspace,
 			network:        resource.Metadata.Network,
@@ -178,7 +178,7 @@ func (suite *testSuite) getRouteTableV1Step(stepName string, t provider.T, api *
 	return getNetworkResourceStep(t, suite,
 		getNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			stepName:       stepName,
-			stepParamsFunc: suite.setNetworkChildV1StepParams,
+			stepParamsFunc: suite.setNetworkNetworkV1StepParams,
 			operationName:  "GetRouteTable",
 			nref:           nref,
 			getFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec], error) {
@@ -221,7 +221,7 @@ func (suite *testSuite) createOrUpdateSubnetV1Step(stepName string, t provider.T
 	createOrUpdateNetworkResourceStep(t, suite,
 		createOrUpdateNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			stepName:       stepName,
-			stepParamsFunc: suite.setNetworkChildV1StepParams,
+			stepParamsFunc: suite.setNetworkNetworkV1StepParams,
 			operationName:  "CreateOrUpdateSubnet",
 			workspace:      resource.Metadata.Workspace,
 			network:        resource.Metadata.Network,
@@ -246,7 +246,7 @@ func (suite *testSuite) getSubnetV1Step(stepName string, t provider.T, api *seca
 	return getNetworkResourceStep(t, suite,
 		getNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			stepName:       stepName,
-			stepParamsFunc: suite.setNetworkChildV1StepParams,
+			stepParamsFunc: suite.setNetworkNetworkV1StepParams,
 			operationName:  "GetSubnet",
 			nref:           nref,
 			getFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec], error) {

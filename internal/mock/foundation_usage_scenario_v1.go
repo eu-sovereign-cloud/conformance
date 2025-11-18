@@ -50,8 +50,14 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Authorization
 
 	// Role
-	roleResponse, err := newRoleResponse(params.Role.Name, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1,
-		params.Tenant, params.Role.InitialSpec)
+	roleResponse, err := builders.NewRoleBuilder().
+		Name(params.Role.Name).
+		Provider(secalib.AuthorizationProviderV1).
+		Resource(roleResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Spec(params.Role.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -74,8 +80,14 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Role assignment
-	roleAssignResponse, err := newRoleAssignmentResponse(params.RoleAssignment.Name, secalib.AuthorizationProviderV1, roleAssignResource, secalib.ApiVersion1,
-		params.Tenant, params.RoleAssignment.InitialSpec)
+	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
+		Name(params.RoleAssignment.Name).
+		Provider(secalib.AuthorizationProviderV1).
+		Resource(roleAssignResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Spec(params.RoleAssignment.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -131,8 +143,15 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Storage
 
 	// Image
-	imageResponse, err := newImageResponse(params.Image.Name, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1,
-		params.Tenant, params.Region, params.Image.InitialSpec)
+	imageResponse, err := builders.NewImageBuilder().
+		Name(params.Image.Name).
+		Provider(secalib.StorageProviderV1).
+		Resource(imageResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Region(params.Region).
+		Spec(params.Image.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -154,8 +173,17 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	blockResponse, err := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.BlockStorage.InitialSpec)
+	// Block storage
+	blockResponse, err := builders.NewBlockStorageBuilder().
+		Name(params.BlockStorage.Name).
+		Provider(secalib.StorageProviderV1).
+		Resource(blockResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.BlockStorage.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -180,8 +208,16 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Network
 
 	// Network
-	networkResponse, err := newNetworkResponse(params.Network.Name, secalib.NetworkProviderV1, networkResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.Network.InitialSpec)
+	networkResponse, err := builders.NewNetworkBuilder().
+		Name(params.Network.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(networkResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.Network.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -204,8 +240,16 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Internet gateway
-	gatewayResponse, err := newInternetGatewayResponse(params.InternetGateway.Name, secalib.NetworkProviderV1, gatewayResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.InternetGateway.InitialSpec)
+	gatewayResponse, err := builders.NewInternetGatewayBuilder().
+		Name(params.InternetGateway.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(gatewayResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.InternetGateway.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -228,8 +272,17 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Route table
-	routeResponse, err := newRouteTableResponse(params.RouteTable.Name, secalib.NetworkProviderV1, routeResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region, params.RouteTable.InitialSpec)
+	routeResponse, err := builders.NewRouteTableBuilder().
+		Name(params.RouteTable.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(routeResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Network(params.Network.Name).
+		Region(params.Region).
+		Spec(params.RouteTable.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -252,8 +305,17 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Subnet
-	subnetResponse, err := newSubnetResponse(params.Subnet.Name, secalib.NetworkProviderV1, subnetResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region, params.Subnet.InitialSpec)
+	subnetResponse, err := builders.NewSubnetBuilder().
+		Name(params.Subnet.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(subnetResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Network(params.Network.Name).
+		Region(params.Region).
+		Spec(params.Subnet.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -276,8 +338,16 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Security group
-	groupResponse, err := newSecurityGroupResponse(params.SecurityGroup.Name, secalib.NetworkProviderV1, groupResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.SecurityGroup.InitialSpec)
+	groupResponse, err := builders.NewSecurityGroupBuilder().
+		Name(params.SecurityGroup.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(groupResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.SecurityGroup.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -300,8 +370,16 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Public-ip
-	publicIpResponse, err := newPublicIpResponse(params.PublicIp.Name, secalib.NetworkProviderV1, publicIpResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.PublicIp.InitialSpec)
+	publicIpResponse, err := builders.NewPublicIpBuilder().
+		Name(params.PublicIp.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(publicIpResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.PublicIp.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -324,8 +402,16 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// NIC
-	nicResponse, err := newNicResponse(params.Nic.Name, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.Nic.InitialSpec)
+	nicResponse, err := builders.NewNicBuilder().
+		Name(params.Nic.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(nicResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.Nic.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -350,8 +436,16 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Compute
 
 	// Instance
-	instanceResponse, err := newInstanceResponse(params.Instance.Name, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.Instance.InitialSpec)
+	instanceResponse, err := builders.NewInstanceBuilder().
+		Name(params.Instance.Name).
+		Provider(secalib.ComputeProviderV1).
+		Resource(instanceResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.Instance.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}

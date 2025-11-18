@@ -23,7 +23,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, params.Instance.Name)
 	networkUrl := secalib.GenerateNetworkURL(params.Tenant, params.Workspace.Name, params.Network.Name)
 	gatewayUrl := secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicUrl := secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, params.NIC.Name)
+	nicUrl := secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, params.Nic.Name)
 	publicIpUrl := secalib.GeneratePublicIpURL(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
 	routeUrl := secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
 	subnetUrl := secalib.GenerateSubnetURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
@@ -35,7 +35,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
 	networkResource := secalib.GenerateNetworkResource(params.Tenant, params.Workspace.Name, params.Network.Name)
 	gatewayResource := secalib.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicResource := secalib.GenerateNicResource(params.Tenant, params.Workspace.Name, params.NIC.Name)
+	nicResource := secalib.GenerateNicResource(params.Tenant, params.Workspace.Name, params.Nic.Name)
 	publicIpResource := secalib.GeneratePublicIpResource(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
 	routeResource := secalib.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
 	subnetResource := secalib.GenerateSubnetResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
@@ -73,8 +73,16 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Network
-	networkResponse, err := newNetworkResponse(params.Network.Name, secalib.NetworkProviderV1, networkResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.Network.InitialSpec)
+	networkResponse, err := builders.NewNetworkBuilder().
+		Name(params.Network.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(networkResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.Network.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -114,8 +122,16 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Internet gateway
-	gatewayResponse, err := newInternetGatewayResponse(params.InternetGateway.Name, secalib.NetworkProviderV1, gatewayResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.InternetGateway.InitialSpec)
+	gatewayResponse, err := builders.NewInternetGatewayBuilder().
+		Name(params.InternetGateway.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(gatewayResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.InternetGateway.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -156,8 +172,17 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Route table
-	routeResponse, err := newRouteTableResponse(params.RouteTable.Name, secalib.NetworkProviderV1, routeResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region, params.RouteTable.InitialSpec)
+	routeResponse, err := builders.NewRouteTableBuilder().
+		Name(params.RouteTable.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(routeResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Network(params.Network.Name).
+		Region(params.Region).
+		Spec(params.RouteTable.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -198,8 +223,17 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Subnet
-	subnetResponse, err := newSubnetResponse(params.Subnet.Name, secalib.NetworkProviderV1, subnetResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region, params.Subnet.InitialSpec)
+	subnetResponse, err := builders.NewSubnetBuilder().
+		Name(params.Subnet.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(subnetResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Network(params.Network.Name).
+		Region(params.Region).
+		Spec(params.Subnet.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -240,8 +274,16 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Public ip
-	publicIpResponse, err := newPublicIpResponse(params.PublicIp.Name, secalib.NetworkProviderV1, publicIpResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.PublicIp.InitialSpec)
+	publicIpResponse, err := builders.NewPublicIpBuilder().
+		Name(params.PublicIp.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(publicIpResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.PublicIp.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -282,8 +324,16 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Nic
-	nicResponse, err := newNicResponse(params.NIC.Name, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.NIC.InitialSpec)
+	nicResponse, err := builders.NewNicBuilder().
+		Name(params.Nic.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(nicResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.Nic.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -308,7 +358,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	// Update the nic
 	setModifiedRegionalWorkspaceResourceMetadata(nicResponse.Metadata)
 	secalib.SetNicStatusState(nicResponse.Status, secalib.UpdatingResourceState)
-	nicResponse.Spec = *params.NIC.UpdatedSpec
+	nicResponse.Spec = *params.Nic.UpdatedSpec
 	nicResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "UpdateNIC", nextState: "GetNICUpdated"}); err != nil {
@@ -324,8 +374,16 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Security group
-	groupResponse, err := newSecurityGroupResponse(params.SecurityGroup.Name, secalib.NetworkProviderV1, groupResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.SecurityGroup.InitialSpec)
+	groupResponse, err := builders.NewSecurityGroupBuilder().
+		Name(params.SecurityGroup.Name).
+		Provider(secalib.NetworkProviderV1).
+		Resource(groupResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.SecurityGroup.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -366,8 +424,16 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Block storage
-	blockResponse, err := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.BlockStorage.InitialSpec)
+	blockResponse, err := builders.NewBlockStorageBuilder().
+		Name(params.BlockStorage.Name).
+		Provider(secalib.StorageProviderV1).
+		Resource(blockResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.BlockStorage.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -391,8 +457,16 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Instance
-	instanceResponse, err := newInstanceResponse(params.Instance.Name, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.Instance.InitialSpec)
+	instanceResponse, err := builders.NewInstanceBuilder().
+		Name(params.Instance.Name).
+		Provider(secalib.ComputeProviderV1).
+		Resource(instanceResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.Instance.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}

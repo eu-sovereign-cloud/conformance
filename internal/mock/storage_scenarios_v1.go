@@ -58,8 +58,16 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	}
 
 	// Block storage
-	blockResponse, err := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.BlockStorage.InitialSpec)
+	blockResponse, err := builders.NewBlockStorageBuilder().
+		Name(params.BlockStorage.Name).
+		Provider(secalib.StorageProviderV1).
+		Resource(blockResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.BlockStorage.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -99,9 +107,16 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 		return nil, err
 	}
 
-	// image
-	imageResponse, err := newImageResponse(params.Image.Name, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1,
-		params.Tenant, params.Region, params.Image.InitialSpec)
+	// Image
+	imageResponse, err := builders.NewImageBuilder().
+		Name(params.Image.Name).
+		Provider(secalib.StorageProviderV1).
+		Resource(imageResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Region(params.Region).
+		Spec(params.Image.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}

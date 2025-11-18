@@ -123,7 +123,7 @@ func (suite *testSuite) setNetworkV1StepParams(sctx provider.StepCtx, operation 
 }
 
 // TODO Find a better name for this function
-func (suite *testSuite) setNetworkChildV1StepParams(sctx provider.StepCtx, operation string, workspace string, network string) {
+func (suite *testSuite) setNetworkNetworkV1StepParams(sctx provider.StepCtx, operation string, workspace string, network string) {
 	sctx.WithNewParameters(
 		providerStepParameter, secalib.NetworkProviderV1,
 		operationStepParameter, operation,

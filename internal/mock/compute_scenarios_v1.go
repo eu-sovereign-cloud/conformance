@@ -57,8 +57,16 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Block storage
-	blockResponse, err := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.BlockStorage.InitialSpec)
+	blockResponse, err := builders.NewBlockStorageBuilder().
+		Name(params.BlockStorage.Name).
+		Provider(secalib.StorageProviderV1).
+		Resource(blockResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.BlockStorage.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +90,16 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Instance
-	instanceResponse, err := newInstanceResponse(params.Instance.Name, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region, params.Instance.InitialSpec)
+	instanceResponse, err := builders.NewInstanceBuilder().
+		Name(params.Instance.Name).
+		Provider(secalib.ComputeProviderV1).
+		Resource(instanceResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Spec(params.Instance.InitialSpec).
+		BuildResponse()
 	if err != nil {
 		return nil, err
 	}

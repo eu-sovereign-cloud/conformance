@@ -4,9 +4,9 @@ import (
 	"log/slog"
 	"math/rand"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"k8s.io/utils/ptr"
@@ -232,7 +232,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 					Zone: zone2,
 				},
 			},
-			NIC: &mock.ResourceParams[schema.NicSpec]{
+			Nic: &mock.ResourceParams[schema.NicSpec]{
 				Name: nicName,
 				InitialSpec: &schema.NicSpec{
 					Addresses:    []string{nicAddress1},

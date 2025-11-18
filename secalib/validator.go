@@ -27,3 +27,18 @@ func (v *Validator) ValidateRequireds(fields []any) error {
 	}
 	return nil
 }
+
+// TODO Find a better name for this function
+func (v *Validator) ValidateOneRequired(fields []any) error {
+	errors := []error{}
+	for _, f := range fields {
+		if err := v.validator.Var(f, "required"); err != nil {
+			errors = append(errors, err)
+		}
+	}
+
+	if len(errors) == len(fields) {
+		return errors[0]
+	}
+	return nil
+}

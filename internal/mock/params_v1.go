@@ -49,7 +49,7 @@ type NetworkParamsV1 struct {
 	InternetGateway *ResourceParams[schema.InternetGatewaySpec]
 	RouteTable      *ResourceParams[schema.RouteTableSpec]
 	Subnet          *ResourceParams[schema.SubnetSpec]
-	NIC             *ResourceParams[schema.NicSpec]
+	Nic             *ResourceParams[schema.NicSpec]
 	PublicIp        *ResourceParams[schema.PublicIpSpec]
 	SecurityGroup   *ResourceParams[schema.SecurityGroupSpec]
 }
