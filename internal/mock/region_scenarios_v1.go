@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
+	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
 	regionV1 "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.region.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
@@ -42,12 +43,18 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	for _, region := range params.Regions {
 
 		regionResource := secalib.GenerateRegionResource(region.Name)
-		regionResponse := newRegionResponse(region.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1,
-			region.InitialSpec)
-		regionResponse.Metadata.Verb = http.MethodGet
+		regionResponse, err := builders.NewRegionBuilder().
+			Name(region.Name).
+			Provider(secalib.RegionProviderV1).
+			Resource(regionResource).
+			ApiVersion(secalib.ApiVersion1).
+			Spec(region.InitialSpec).
+			BuildResponse()
+		if err != nil {
+			return nil, err
+		}
 
 		regionsList = append(regionsList, *regionResponse)
-
 	}
 
 	regionsResponse.Items = regionsList

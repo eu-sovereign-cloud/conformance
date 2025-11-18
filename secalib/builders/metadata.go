@@ -2,6 +2,62 @@ package builders
 
 import "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 
+// GlobalResourceMetadataBuilder
+
+type GlobalResourceMetadataBuilder struct {
+	*metadataBuilder
+	metadata *schema.GlobalResourceMetadata
+}
+
+func NewGlobalResourceMetadataBuilder() *GlobalResourceMetadataBuilder {
+	return &GlobalResourceMetadataBuilder{
+		metadataBuilder: newMetadataBuilder(),
+		metadata:        &schema.GlobalResourceMetadata{},
+	}
+}
+
+func (builder *GlobalResourceMetadataBuilder) Name(name string) *GlobalResourceMetadataBuilder {
+	builder.metadata.Name = name
+	return builder
+}
+
+func (builder *GlobalResourceMetadataBuilder) Provider(provider string) *GlobalResourceMetadataBuilder {
+	builder.metadata.Provider = provider
+	return builder
+}
+
+func (builder *GlobalResourceMetadataBuilder) Resource(resource string) *GlobalResourceMetadataBuilder {
+	builder.metadata.Resource = resource
+	return builder
+}
+
+func (builder *GlobalResourceMetadataBuilder) ApiVersion(apiVersion string) *GlobalResourceMetadataBuilder {
+	builder.metadata.ApiVersion = apiVersion
+	return builder
+}
+
+func (builder *GlobalResourceMetadataBuilder) Kind(kind string) *GlobalResourceMetadataBuilder {
+	builder.metadata.Kind = schema.GlobalResourceMetadataKind(kind)
+	return builder
+}
+
+func (builder *GlobalResourceMetadataBuilder) BuildResponse() (*schema.GlobalResourceMetadata, error) {
+	if err := builder.validator.ValidateRequireds(
+		[]any{
+			builder.metadata,
+			builder.metadata.Name,
+			builder.metadata.Provider,
+			builder.metadata.Resource,
+			builder.metadata.ApiVersion,
+			builder.metadata.Kind,
+		},
+	); err != nil {
+		return nil, err
+	}
+
+	return builder.metadata, nil
+}
+
 // GlobalTenantResourceMetadataBuilder
 
 type GlobalTenantResourceMetadataBuilder struct {
