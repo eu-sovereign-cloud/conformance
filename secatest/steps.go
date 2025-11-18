@@ -368,6 +368,17 @@ func (suite *testSuite) verifyGlobalTenantResourceMetadataStep(ctx provider.Step
 	})
 }
 
+func (suite *testSuite) verifyGlobalResourceMetadataStep(ctx provider.StepCtx, expected *schema.GlobalResourceMetadata, actual *schema.GlobalResourceMetadata) {
+	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
+		stepCtx.Require().Equal(expected.Name, actual.Name, "Name should match expected")
+		stepCtx.Require().Equal(expected.Provider, actual.Provider, "Provider should match expected")
+		stepCtx.Require().Equal(expected.Resource, actual.Resource, "Resource should match expected")
+		stepCtx.Require().Equal(expected.ApiVersion, actual.ApiVersion, "ApiVersion should match expected")
+		stepCtx.Require().Equal(expected.Verb, actual.Verb, "Verb should match expected")
+		stepCtx.Require().Equal(expected.Kind, actual.Kind, "Kind should match expected")
+	})
+}
+
 func (suite *testSuite) verifyRegionalResourceMetadataStep(ctx provider.StepCtx, expected *schema.RegionalResourceMetadata, actual *schema.RegionalResourceMetadata) {
 	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(expected.Name, actual.Name, "Name should match expected")
@@ -575,5 +586,15 @@ func (suite *testSuite) verifySecurityGroupSpecStep(ctx provider.StepCtx, expect
 			actualRule := actual.Rules[i]
 			stepCtx.Require().Equal(expectedRule.Direction, actualRule.Direction, fmt.Sprintf("Rule [%d] Direction should match expected", i))
 		}
+	})
+}
+
+// Region Spec
+
+func (suite *testSuite) verifyRegionSpecStep(ctx provider.StepCtx, actual *schema.RegionSpec) {
+	ctx.WithNewStep("Verify RegionSpec", func(stepCtx provider.StepCtx) {
+		stepCtx.Require().GreaterOrEqual(len(actual.AvailableZones), 1, "AvailableZones list length should match expected")
+
+		stepCtx.Require().GreaterOrEqual(len(actual.Providers), 1, "Providers list length should greater then 1")
 	})
 }
