@@ -129,13 +129,13 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 				{
 					Name: workspaceName,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+						secalib.EnvLabel: secalib.EnvConformance,
 					},
 				},
 				{
 					Name: workspaceName2,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+						secalib.EnvLabel: secalib.EnvConformance,
 					},
 				},
 			},
@@ -153,7 +153,7 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 	workspaces := &[]schema.Workspace{
 		{
 			Labels: schema.Labels{
-				secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+				secalib.EnvLabel: secalib.EnvConformance,
 			},
 			Metadata: &schema.RegionalResourceMetadata{
 				Tenant: suite.tenant,
@@ -162,7 +162,7 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 		},
 		{
 			Labels: schema.Labels{
-				secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+				secalib.EnvLabel: secalib.EnvConformance,
 			},
 			Metadata: &schema.RegionalResourceMetadata{
 				Tenant: suite.tenant,
