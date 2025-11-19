@@ -146,7 +146,7 @@ func SetNicStatusState(status *schema.NicStatus, state string) {
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
-func SewSecurityGroupStatus(state string) *schema.SecurityGroupStatus {
+func NewSecurityGroupStatus(state string) *schema.SecurityGroupStatus {
 	return &schema.SecurityGroupStatus{
 		State:      SetResourceState(state),
 		Conditions: []schema.StatusCondition{},

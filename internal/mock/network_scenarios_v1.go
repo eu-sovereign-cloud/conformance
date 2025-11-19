@@ -5,6 +5,9 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
+	networkV1 "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.network.v1"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+
 	"github.com/wiremock/go-wiremock"
 )
 
@@ -307,7 +310,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Create a security group
 	setCreatedRegionalWorkspaceResourceMetadata(groupResponse.Metadata)
-	groupResponse.Status = secalib.SewSecurityGroupStatus(secalib.CreatingResourceState)
+	groupResponse.Status = secalib.NewSecurityGroupStatus(secalib.CreatingResourceState)
 	groupResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "CreateSecurityGroup", nextState: "GetSecurityGroup"}); err != nil {
@@ -502,6 +505,667 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	// Get the deleted workspace
 	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
 		&stubConfig{url: workspaceUrl, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
+		return nil, err
+	}
+
+	return wm, nil
+}
+
+func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParamsV1) (*wiremock.Client, error) {
+	slog.Info("Configuring mock to scenario " + scenario)
+
+	wm, err := newClient(params.MockURL)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate URLs
+	workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
+
+	// Generate resources
+	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
+
+	// Workspace
+	workResponse := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1, params.Tenant, params.Region,
+		params.Workspace.InitialLabels)
+
+	// Create a workspace
+	setCreatedRegionalResourceMetadata(workResponse.Metadata)
+	workResponse.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
+	workResponse.Metadata.Verb = http.MethodPut
+	if err := configurePutStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, responseBody: workResponse, currentState: startedScenarioState, nextState: (*params.Network)[0].Name}); err != nil {
+		return nil, err
+	}
+
+	// Network
+	var networkList []schema.Network
+	for i := range *params.Network {
+		networkResource := secalib.GenerateNetworkResource(params.Tenant, params.Workspace.Name, (*params.Network)[i].Name)
+		networkResponse := newNetworkResponse((*params.Network)[i].Name, secalib.NetworkProviderV1, networkResource, secalib.ApiVersion1,
+			params.Tenant, params.Workspace.Name, params.Region,
+			(*params.Network)[i].InitialSpec)
+
+		var nextState string
+		if i < len(*params.Network)-1 {
+			nextState = (*params.Network)[i+1].Name
+		} else {
+			nextState = "GetNetworkList"
+		}
+		// Create a network
+		setCreatedRegionalWorkspaceResourceMetadata(networkResponse.Metadata)
+		networkResponse.Status = secalib.NewNetworkStatus(secalib.CreatingResourceState)
+		networkResponse.Metadata.Verb = http.MethodPut
+		if err := configurePutStub(wm, scenario,
+			&stubConfig{url: secalib.GenerateNetworkURL(params.Tenant, params.Workspace.Name, (*params.Network)[i].Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: networkResponse, currentState: (*params.Network)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+		networkList = append(networkList, *networkResponse)
+	}
+
+	// List
+	networkResource := secalib.GenerateNetworkListResource(params.Tenant, params.Workspace.Name)
+	networkListResponse := &networkV1.NetworkIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: networkResource,
+			Verb:     http.MethodGet,
+		},
+		Items: networkList,
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: networkListResponse, currentState: "GetNetworkList", nextState: "GetNetworkListWithLimit"}); err != nil {
+		return nil, err
+	}
+
+	// List limit
+	networkListResponse.Items = networkList[:1]
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimit(params.AuthToken, "1"), responseBody: networkListResponse, currentState: "GetNetworkListWithLimit", nextState: "GetNetworkListWithLabel"}); err != nil {
+		return nil, err
+	}
+	// List label
+
+	networkWithLabel := func(networkList []schema.Network) []schema.Network {
+		var filteredNetworks []schema.Network
+		for _, network := range networkList {
+			if val, ok := network.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
+				filteredNetworks = append(filteredNetworks, network)
+			}
+		}
+		return filteredNetworks
+	}
+
+	networkWithLabelResponse := &networkV1.NetworkIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: networkResource,
+			Verb:     http.MethodGet,
+		},
+		Items: networkWithLabel(networkList),
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLabel(params.AuthToken, secalib.EnvLabel, secalib.EnvConformance), responseBody: networkWithLabelResponse, currentState: "GetNetworkListWithLabel", nextState: "GetNetworkListWithLimitAndLabel"}); err != nil {
+		return nil, err
+	}
+
+	// List limit & label
+
+	networkWithLimitAndLabelResponse := &networkV1.NetworkIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: networkResource,
+			Verb:     http.MethodGet,
+		},
+		Items: networkWithLabel(networkList)[:1],
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimitAndLabel(params.AuthToken, "1", secalib.EnvLabel, secalib.EnvConformance), responseBody: networkWithLimitAndLabelResponse, currentState: "GetNetworkListWithLimitAndLabel", nextState: (*params.InternetGateway)[0].Name}); err != nil {
+		return nil, err
+	}
+
+	// Internet gateway
+	var gatewayList []schema.InternetGateway
+	for i := range *params.InternetGateway {
+		gatewayResource := secalib.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, (*params.InternetGateway)[i].Name)
+		gatewayResponse := newInternetGatewayResponse((*params.InternetGateway)[i].Name, secalib.ComputeProviderV1, gatewayResource, secalib.ApiVersion1,
+			params.Tenant, params.Workspace.Name, params.Region,
+			(*params.InternetGateway)[i].InitialSpec)
+
+		var nextState string
+		if i < len(*params.InternetGateway)-1 {
+			nextState = (*params.InternetGateway)[i+1].Name
+		} else {
+			nextState = "GetInternetGatewayList"
+		}
+		// Create an internet gateway
+		setCreatedRegionalWorkspaceResourceMetadata(gatewayResponse.Metadata)
+		gatewayResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
+		gatewayResponse.Metadata.Verb = http.MethodPut
+		if err := configurePutStub(wm, scenario,
+			&stubConfig{url: secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, (*params.InternetGateway)[i].Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: gatewayResponse, currentState: (*params.InternetGateway)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+		gatewayList = append(gatewayList, *gatewayResponse)
+	}
+
+	// List
+	gatewayListResource := secalib.GenerateInternetGatewayListResource(params.Tenant, params.Workspace.Name)
+	gatewayListResponse := &networkV1.InternetGatewayIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: gatewayListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: gatewayList,
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateInternetGatewayListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: gatewayListResponse, currentState: "GetInternetGatewayList", nextState: "GetInternetGatewayListWithLimit"}); err != nil {
+		return nil, err
+	}
+	// List with limit
+	gatewayListWithLimitResponse := &networkV1.InternetGatewayIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: gatewayListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: gatewayList[:1],
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateInternetGatewayListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimit(params.AuthToken, "1"), responseBody: gatewayListWithLimitResponse, currentState: "GetInternetGatewayListWithLimit", nextState: "GetInternetGatewayListWithLabel"}); err != nil {
+		return nil, err
+	}
+	// List with label
+
+	gatewayWithLabel := func(gatewayList []schema.InternetGateway) []schema.InternetGateway {
+		var filteredInstances []schema.InternetGateway
+		for _, gateway := range gatewayList {
+			if val, ok := gateway.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
+				filteredInstances = append(filteredInstances, gateway)
+			}
+		}
+		return filteredInstances
+	}
+
+	gatewayListResponse = &networkV1.InternetGatewayIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: gatewayListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: gatewayWithLabel(gatewayList),
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateInternetGatewayListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLabel(params.AuthToken, secalib.EnvLabel, secalib.EnvConformance), responseBody: gatewayListResponse, currentState: "GetInternetGatewayListWithLabel", nextState: "GetInternetGatewayListWithLimitAndLabel"}); err != nil {
+		return nil, err
+	}
+	// List with limit & label
+
+	gatewayListResponse = &networkV1.InternetGatewayIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: gatewayListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: gatewayWithLabel(gatewayList)[:1],
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateInternetGatewayListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimitAndLabel(params.AuthToken, "1", secalib.EnvLabel, secalib.EnvConformance), responseBody: gatewayListResponse, currentState: "GetInternetGatewayListWithLimitAndLabel", nextState: (*params.RouteTable)[0].Name}); err != nil {
+		return nil, err
+	}
+
+	// Route table
+
+	var routeTableList []schema.RouteTable
+	for i := range *params.RouteTable {
+		routeTableResource := secalib.GenerateRouteTableListResource(params.Tenant, params.Workspace.Name, (*params.RouteTable)[i].Name)
+		routeTableResponse := newRouteTableResponse((*params.RouteTable)[i].Name, secalib.NetworkProviderV1, routeTableResource, secalib.ApiVersion1, params.Region,
+			params.Tenant, params.Workspace.Name, params.Region,
+			(*params.RouteTable)[i].InitialSpec)
+
+		var nextState string
+		if i < len(*params.RouteTable)-1 {
+			nextState = (*params.RouteTable)[i+1].Name
+		} else {
+			nextState = "GetRouteTableList"
+		}
+		// Create an internet gateway
+		setCreatedRegionalNetworkResourceMetadata(routeTableResponse.Metadata)
+		routeTableResponse.Status = secalib.NewRouteTableStatus(secalib.CreatingResourceState)
+		routeTableResponse.Metadata.Verb = http.MethodPut
+		if err := configurePutStub(wm, scenario,
+			&stubConfig{url: secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.RouteTable)[i].Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: routeTableResponse, currentState: (*params.RouteTable)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+		routeTableList = append(routeTableList, *routeTableResponse)
+	}
+
+	// List
+	routeTableListResource := secalib.GenerateRouteTableListResource(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name)
+	routeTableListResponse := &networkV1.RouteTableIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: routeTableListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: routeTableList,
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: routeTableListResponse, currentState: "GetRouteTableList", nextState: "GetRouteTableListWithLimit"}); err != nil {
+		return nil, err
+	}
+	// List with limit
+	routeTableListResponse = &networkV1.RouteTableIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: routeTableListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: routeTableList[:1],
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, headers: headerParamsLimit(params.AuthToken, "1"), responseBody: routeTableListResponse, currentState: "GetRouteTableListWithLimit", nextState: "GetRouteTableListWithLabel"}); err != nil {
+		return nil, err
+	}
+	// List with label
+	routeTableWithLabel := func(routeTableList []schema.RouteTable) []schema.RouteTable {
+		var filteredInstances []schema.RouteTable
+		for _, routeTable := range routeTableList {
+			if val, ok := routeTable.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
+				filteredInstances = append(filteredInstances, routeTable)
+			}
+		}
+		return filteredInstances
+	}
+
+	routeTableListResponse = &networkV1.RouteTableIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: routeTableListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: routeTableWithLabel(routeTableList),
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, headers: headerParamsLabel(params.AuthToken, secalib.EnvLabel, secalib.EnvConformance), responseBody: routeTableListResponse, currentState: "GetRouteTableListWithLabel", nextState: "GetRouteTableListWithLimitAndLabel"}); err != nil {
+		return nil, err
+	}
+	// List with limit & label
+
+	routeTableListResponse = &networkV1.RouteTableIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: routeTableListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: routeTableWithLabel(routeTableList)[:1],
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, headers: headerParamsLimitAndLabel(params.AuthToken, "1", secalib.EnvLabel, secalib.EnvConformance), responseBody: routeTableListResponse, currentState: "GetRouteTableListWithLimitAndLabel", nextState: (*params.Subnet)[0].Name}); err != nil {
+		return nil, err
+	}
+
+	// Subnet
+
+	var subnetList []schema.Subnet
+	for i := range *params.Subnet {
+		subnetResource := secalib.GenerateSubnetResource(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.Subnet)[i].Name)
+		subnetResponse := newSubnetResponse((*params.Subnet)[i].Name, secalib.NetworkProviderV1, subnetResource, secalib.ApiVersion1, params.Region,
+			params.Tenant, params.Workspace.Name, params.Region,
+			(*params.Subnet)[i].InitialSpec)
+
+		var nextState string
+		if i < len(*params.Subnet)-1 {
+			nextState = (*params.Subnet)[i+1].Name
+		} else {
+			nextState = "GetSubnetList"
+		}
+		// Create an internet gateway
+		setCreatedRegionalNetworkResourceMetadata(subnetResponse.Metadata)
+		subnetResponse.Status = secalib.NewSubnetStatus(secalib.CreatingResourceState)
+		subnetResponse.Metadata.Verb = http.MethodPut
+		if err := configurePutStub(wm, scenario,
+			&stubConfig{url: secalib.GenerateSubnetURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.Subnet)[i].Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: subnetResponse, currentState: (*params.Subnet)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+		subnetList = append(subnetList, *subnetResponse)
+	}
+
+	// List
+	subnetListResource := secalib.GenerateSubnetListResource(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name)
+	subnetListResponse := &networkV1.SubnetIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: subnetListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: subnetList,
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateSubnetListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: subnetListResponse, currentState: "GetSubnetList", nextState: "GetSubnetListWithLimit"}); err != nil {
+		return nil, err
+	}
+	// List with limit
+
+	subnetListResponse = &networkV1.SubnetIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: subnetListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: subnetList[:1],
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateSubnetListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, headers: headerParamsLimit(params.AuthToken, "1"), responseBody: subnetListResponse, currentState: "GetSubnetListWithLimit", nextState: "GetSubnetListWithLabel"}); err != nil {
+		return nil, err
+	}
+	// List with label
+
+	subnetWithLabel := func(subnetList []schema.Subnet) []schema.Subnet {
+		var filteredInstances []schema.Subnet
+		for _, subnet := range subnetList {
+			if val, ok := subnet.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
+				filteredInstances = append(filteredInstances, subnet)
+			}
+		}
+		return filteredInstances
+	}
+
+	subnetListResponse = &networkV1.SubnetIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: subnetListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: subnetWithLabel(subnetList),
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateSubnetListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, headers: headerParamsLabel(params.AuthToken, secalib.EnvLabel, secalib.EnvConformance), responseBody: subnetListResponse, currentState: "GetSubnetListWithLabel", nextState: "GetSubnetListWithLimitAndLabel"}); err != nil {
+		return nil, err
+	}
+	// List with limit & label
+
+	subnetListResponse = &networkV1.SubnetIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: subnetListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: subnetWithLabel(subnetList)[:1],
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateSubnetListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, headers: headerParamsLimitAndLabel(params.AuthToken, "1", secalib.EnvLabel, secalib.EnvConformance), responseBody: subnetListResponse, currentState: "GetSubnetListWithLimitAndLabel", nextState: (*params.PublicIp)[0].Name}); err != nil {
+		return nil, err
+	}
+
+	// Public ip
+
+	var publicIpList []schema.PublicIp
+	for i := range *params.PublicIp {
+		publicIpResource := secalib.GeneratePublicIpResource(params.Tenant, params.Workspace.Name, (*params.PublicIp)[i].Name)
+		publicIpResponse := newPublicIpResponse((*params.PublicIp)[i].Name, secalib.NetworkProviderV1, publicIpResource, secalib.ApiVersion1,
+			params.Tenant, params.Workspace.Name, params.Region,
+			(*params.PublicIp)[i].InitialSpec)
+
+		var nextState string
+		if i < len(*params.PublicIp)-1 {
+			nextState = (*params.PublicIp)[i+1].Name
+		} else {
+			nextState = "GetPublicIpList"
+		}
+		// Create a PublicIp
+		setCreatedRegionalWorkspaceResourceMetadata(publicIpResponse.Metadata)
+		publicIpResponse.Status = secalib.NewPublicIpStatus(secalib.CreatingResourceState)
+		publicIpResponse.Metadata.Verb = http.MethodPut
+		if err := configurePutStub(wm, scenario,
+			&stubConfig{url: secalib.GeneratePublicIpURL(params.Tenant, params.Workspace.Name, (*params.PublicIp)[i].Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: publicIpResponse, currentState: (*params.PublicIp)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+		publicIpList = append(publicIpList, *publicIpResponse)
+	}
+
+	// List
+	publicIpListResource := secalib.GeneratePublicIpListResource(params.Tenant, params.Workspace.Name)
+	publicIpListResponse := &networkV1.PublicIpIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: publicIpListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: publicIpList,
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GeneratePublicIpListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: publicIpListResponse, currentState: "GetPublicIpList", nextState: "GetPublicIpListWithLimit"}); err != nil {
+		return nil, err
+	}
+	// List with limit
+	publicIpListResponse = &networkV1.PublicIpIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: publicIpListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: publicIpList[:1],
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GeneratePublicIpListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimit(params.AuthToken, "1"), responseBody: publicIpListResponse, currentState: "GetPublicIpListWithLimit", nextState: "GetPublicIpListWithLabel"}); err != nil {
+		return nil, err
+	}
+	// List with label
+
+	publicIpWithLabel := func(publicIpList []schema.PublicIp) []schema.PublicIp {
+		var filteredInstances []schema.PublicIp
+		for _, publicIp := range publicIpList {
+			if val, ok := publicIp.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
+				filteredInstances = append(filteredInstances, publicIp)
+			}
+		}
+		return filteredInstances
+	}
+
+	publicIpListResponse = &networkV1.PublicIpIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: publicIpListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: publicIpWithLabel(publicIpList),
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GeneratePublicIpListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLabel(params.AuthToken, secalib.EnvLabel, secalib.EnvConformance), responseBody: publicIpListResponse, currentState: "GetPublicIpListWithLabel", nextState: "GetPublicIpListWithLimitAndLabel"}); err != nil {
+		return nil, err
+	}
+	// List with limit & label
+
+	publicIpListResponse = &networkV1.PublicIpIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: publicIpListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: publicIpWithLabel(publicIpList)[:1],
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GeneratePublicIpListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimitAndLabel(params.AuthToken, "1", secalib.EnvLabel, secalib.EnvConformance), responseBody: publicIpListResponse, currentState: "GetPublicIpListWithLimitAndLabel", nextState: (*params.NIC)[0].Name}); err != nil {
+		return nil, err
+	}
+
+	// Nic
+
+	var nicList []schema.Nic
+	for i := range *params.NIC {
+		nicResource := secalib.GenerateNicResource(params.Tenant, params.Workspace.Name, (*params.NIC)[i].Name)
+		nicResponse := newNicResponse((*params.NIC)[i].Name, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1,
+			params.Tenant, params.Workspace.Name, params.Region,
+			(*params.NIC)[i].InitialSpec)
+
+		var nextState string
+		if i < len(*params.NIC)-1 {
+			nextState = (*params.NIC)[i+1].Name
+		} else {
+			nextState = "GetNICList"
+		}
+		// Create an internet gateway
+		setCreatedRegionalWorkspaceResourceMetadata(nicResponse.Metadata)
+		nicResponse.Status = secalib.NewNicStatus(secalib.CreatingResourceState)
+		nicResponse.Metadata.Verb = http.MethodPut
+		if err := configurePutStub(wm, scenario,
+			&stubConfig{url: secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, (*params.NIC)[i].Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: nicResponse, currentState: (*params.NIC)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+		nicList = append(nicList, *nicResponse)
+	}
+
+	// List
+	nicListResource := secalib.GenerateNicListResource(params.Tenant, params.Workspace.Name)
+	nicListResponse := &networkV1.NicIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: nicListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: nicList,
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateNicListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: nicListResponse, currentState: "GetNICList", nextState: "GetNICListWithLimit"}); err != nil {
+		return nil, err
+	}
+	// List with limit
+
+	nicListResponse = &networkV1.NicIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: nicListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: nicList[:1],
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateNicListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimit(params.AuthToken, "1"), responseBody: nicListResponse, currentState: "GetNICListWithLimit", nextState: "GetNICListWithLabel"}); err != nil {
+		return nil, err
+	}
+	// List with label
+
+	nicWithLabel := func(nicList []schema.Nic) []schema.Nic {
+		var filteredInstances []schema.Nic
+		for _, nic := range nicList {
+			if val, ok := nic.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
+				filteredInstances = append(filteredInstances, nic)
+			}
+		}
+		return filteredInstances
+	}
+
+	nicListResponse = &networkV1.NicIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: nicListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: nicWithLabel(nicList),
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateNicListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLabel(params.AuthToken, secalib.EnvLabel, secalib.EnvConformance), responseBody: nicListResponse, currentState: "GetNICListWithLabel", nextState: "GetNICListWithLimitAndLabel"}); err != nil {
+		return nil, err
+	}
+	// List with limit & label
+
+	nicListResponse = &networkV1.NicIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: nicListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: nicWithLabel(nicList)[:1],
+	}
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateNicListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimitAndLabel(params.AuthToken, "1", secalib.EnvLabel, secalib.EnvConformance), responseBody: nicListResponse, currentState: "GetNICListWithLimitAndLabel", nextState: (*params.SecurityGroup)[0].Name}); err != nil {
+		return nil, err
+	}
+
+	// Security group
+	securityGroupList := []schema.SecurityGroup{}
+	for i := range *params.SecurityGroup {
+		securityGroupResource := secalib.GenerateSecurityGroupResource(params.Tenant, params.Workspace.Name, (*params.SecurityGroup)[i].Name)
+		securityGroupResponse := newSecurityGroupResponse((*params.SecurityGroup)[i].Name, secalib.NetworkProviderV1, securityGroupResource, secalib.ApiVersion1,
+			params.Tenant, params.Workspace.Name, params.Region,
+			(*params.SecurityGroup)[i].InitialSpec)
+
+		var nextState string
+		if i < len(*params.SecurityGroup)-1 {
+			nextState = (*params.SecurityGroup)[i+1].Name
+		} else {
+			nextState = "GetSecurityGroupList"
+		}
+		// Create an internet gateway
+		setCreatedRegionalWorkspaceResourceMetadata(securityGroupResponse.Metadata)
+		securityGroupResponse.Status = secalib.NewSecurityGroupStatus(secalib.CreatingResourceState)
+		securityGroupResponse.Metadata.Verb = http.MethodPut
+		if err := configurePutStub(wm, scenario,
+			&stubConfig{url: secalib.GenerateSecurityGroupURL(params.Tenant, params.Workspace.Name, (*params.SecurityGroup)[i].Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: securityGroupResponse, currentState: (*params.SecurityGroup)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+		securityGroupList = append(securityGroupList, *securityGroupResponse)
+	}
+
+	// List
+	securityGroupListResource := secalib.GenerateSecurityGroupListResource(params.Tenant, params.Workspace.Name)
+	securityGroupListResponse := &networkV1.SecurityGroupIterator{
+		Metadata: schema.ResponseMetadata{
+			Provider: secalib.NetworkProviderV1,
+			Resource: securityGroupListResource,
+			Verb:     http.MethodGet,
+		},
+		Items: securityGroupList,
+	}
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateSecurityGroupListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: securityGroupListResponse, currentState: "GetSecurityGroupList", nextState: "GetSecurityGroupListWithLimit"}); err != nil {
+		return nil, err
+	}
+	// List with limit
+	securityGroupListResponse.Items = securityGroupList[:1]
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateSecurityGroupListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimit(params.AuthToken, "1"), responseBody: securityGroupListResponse, currentState: "GetSecurityGroupListWithLimit", nextState: "GetSecurityGroupListWithLabel"}); err != nil {
+		return nil, err
+	}
+	// List with label
+
+	securityGroupWithLabel := func(securityGroupList []schema.SecurityGroup) []schema.SecurityGroup {
+		var filteredInstances []schema.SecurityGroup
+		for _, securityGroup := range securityGroupList {
+			if val, ok := securityGroup.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
+				filteredInstances = append(filteredInstances, securityGroup)
+			}
+		}
+		return filteredInstances
+	}
+
+	securityGroupListResponse.Items = securityGroupWithLabel(securityGroupList)
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateSecurityGroupListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLabel(params.AuthToken, secalib.EnvLabel, secalib.EnvConformance), responseBody: securityGroupListResponse, currentState: "GetSecurityGroupListWithLabel", nextState: "GetSecurityGroupListWithLimitAndLabel"}); err != nil {
+		return nil, err
+	}
+	// List with limit & label
+
+	securityGroupListResponse.Items = securityGroupWithLabel(securityGroupList)[:1]
+
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.GenerateSecurityGroupListURL(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimitAndLabel(params.AuthToken, "1", secalib.EnvLabel, secalib.EnvConformance), responseBody: securityGroupListResponse, currentState: "GetSecurityGroupListWithLimitAndLabel", nextState: "end"}); err != nil {
 		return nil, err
 	}
 

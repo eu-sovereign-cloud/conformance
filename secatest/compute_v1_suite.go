@@ -461,7 +461,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 			},
 		},
 	}
-
+	// Create instances
 	for _, instance := range *instances {
 		expectInstanceMeta := secalib.NewRegionalWorkspaceResourceMetadata(instance.Metadata.Name,
 			secalib.ComputeProviderV1,

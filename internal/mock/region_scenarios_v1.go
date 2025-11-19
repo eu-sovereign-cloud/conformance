@@ -24,11 +24,6 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	// Generate Url
 	regionUrl := secalib.GenerateRegionURL(params.Regions[0].Name)
 
-	// Build headers
-	headerParams := map[string]string{
-		authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + params.AuthToken,
-	}
-
 	regionsResponse := &regionV1.RegionIterator{
 		Metadata: schema.ResponseMetadata{
 			Provider: secalib.RegionProviderV1,
@@ -54,7 +49,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 
 	// 1 - Create ListRegions stub
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParams, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
 		return nil, err
 	}
 
@@ -72,7 +67,25 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	}
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: regionUrl, params: params, headers: headerParams, responseBody: singleRegionResponse, currentState: "", nextState: ""}); err != nil {
+		&stubConfig{url: regionUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: singleRegionResponse, currentState: "", nextState: ""}); err != nil {
+		return nil, err
+	}
+
+	// List Regions with limit
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+		return nil, err
+	}
+
+	// List Regions with labels
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+		return nil, err
+	}
+
+	// List Regions with limit and labels
+	if err := configureGetStub(wm, scenario,
+		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
 		return nil, err
 	}
 
