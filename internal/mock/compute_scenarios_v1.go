@@ -438,7 +438,6 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 			}
 		}
 		return filteredSkus
-
 	}
 	skuWithLabelResponse.Items = skusWithLabel(instanceSku)
 	if err := configureGetStub(wm, scenario,

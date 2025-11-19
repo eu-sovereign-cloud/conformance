@@ -35,7 +35,8 @@ func (suite *testSuite) listRegionsV1Step(stepName string,
 	t provider.T,
 	ctx context.Context,
 	api *secapi.RegionV1,
-	opts *builders.ListOptions) []*schema.Region {
+	opts *builders.ListOptions,
+) []*schema.Region {
 	var respNext []*schema.Region
 	var respAll []*schema.Region
 

@@ -99,7 +99,6 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
-
 }
 
 func (suite *RegionV1TestSuite) AfterEach(t provider.T) {
