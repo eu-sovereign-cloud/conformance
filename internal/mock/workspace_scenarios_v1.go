@@ -91,17 +91,23 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 			params.Tenant, params.Region,
 			(*params.Workspace)[i].InitialLabels)
 		var nextState string
+		var currentState string
 		if i < len(*params.Workspace)-1 {
 			nextState = (*params.Workspace)[i+1].Name
 		} else {
 			nextState = "GetWorkspaceList"
+		}
+		if i == 0 {
+			currentState = startedScenarioState
+		} else {
+			currentState = (*params.Workspace)[i].Name
 		}
 		// Create a workspace
 		setCreatedRegionalResourceMetadata(response.Metadata)
 		response.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
 		response.Metadata.Verb = http.MethodPut
 		if err := configurePutStub(wm, scenario,
-			&stubConfig{url: secalib.GenerateWorkspaceURL(params.Tenant, (*params.Workspace)[i].Name), params: params, responseBody: response, currentState: startedScenarioState, nextState: nextState}); err != nil {
+			&stubConfig{url: secalib.GenerateWorkspaceURL(params.Tenant, (*params.Workspace)[i].Name), params: params, responseBody: response, currentState: currentState, nextState: nextState}); err != nil {
 			return nil, err
 		}
 		workspaceList = append(workspaceList, *response)
@@ -118,13 +124,15 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 		Items: workspaceList,
 	}
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, responseBody: workspaceListResponse, currentState: (*params.Workspace)[len(*params.Workspace)-1].Name, nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, responseBody: workspaceListResponse,
+			currentState: "GetWorkspaceList", nextState: "ListWorkspaceWithLimit"}); err != nil {
 		return nil, err
 	}
 
 	// List with limit
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimit("1"), responseBody: workspaceListResponse, currentState: startedScenarioState, nextState: "ListWithLimit"}); err != nil {
+		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimit("1"), responseBody: workspaceListResponse,
+			currentState: "ListWorkspaceWithLimit", nextState: "ListWorkspaceWithLabels"}); err != nil {
 		return nil, err
 	}
 	// List with labels
@@ -147,13 +155,15 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 	}
 	workspaceWithLabelResponse.Items = workspaceWithLabel(workspaceList)
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse, currentState: "ListWithLimit", nextState: "ListWithLabels"}); err != nil {
+		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse,
+			currentState: "ListWorkspaceWithLabels", nextState: "ListWorkspaceWithLimitAndLabels"}); err != nil {
 		return nil, err
 	}
 	// List with limit & labels
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse, currentState: "ListWithLabels", nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse,
+			currentState: "ListWorkspaceWithLimitAndLabels", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 	return wm, nil

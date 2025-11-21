@@ -62,6 +62,12 @@ func (suite *testSuite) listRegionsV1Step(stepName string,
 		}
 		requireNotNilResponse(sCtx, respNext)
 		requireLenResponse(sCtx, len(respNext))
+		if opts != nil {
+			iter, err = api.ListRegionsWithFilters(ctx, opts)
+		} else {
+			iter, err = api.ListRegions(ctx)
+		}
+		requireNoError(sCtx, err)
 
 		respAll, err = iter.All(ctx)
 		requireNoError(sCtx, err)

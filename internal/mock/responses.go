@@ -78,54 +78,61 @@ func newInstanceResponse(name, provider, resource, apiVersion, tenant, workspace
 func newNetworkResponse(name, provider, resource, apiVersion, tenant, workspace, region string, label *schema.Labels, spec *schema.NetworkSpec) *schema.Network {
 	return &schema.Network{
 		Metadata: secalib.NewRegionalWorkspaceResourceMetadata(name, provider, resource, apiVersion, secalib.NetworkKind, tenant, workspace, region),
+		Labels:   *label,
 		Spec:     *spec,
 		Status:   &schema.NetworkStatus{},
 	}
 }
 
-func newInternetGatewayResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.InternetGatewaySpec) *schema.InternetGateway {
+func newInternetGatewayResponse(name, provider, resource, apiVersion, tenant, workspace, region string, label *schema.Labels, spec *schema.InternetGatewaySpec) *schema.InternetGateway {
 	return &schema.InternetGateway{
 		Metadata: secalib.NewRegionalWorkspaceResourceMetadata(name, provider, resource, apiVersion, secalib.InternetGatewayKind, tenant, workspace, region),
+		Labels:   *label,
 		Spec:     *spec,
 		Status:   &schema.InternetGatewayStatus{},
 	}
 }
 
-func newRouteTableResponse(name, provider, resource, apiVersion, tenant, workspace, network, region string, spec *schema.RouteTableSpec) *schema.RouteTable {
+func newRouteTableResponse(name, provider, resource, apiVersion, tenant, workspace, network, region string, label *schema.Labels, spec *schema.RouteTableSpec) *schema.RouteTable {
 	return &schema.RouteTable{
 		Metadata: secalib.NewRegionalNetworkResourceMetadata(name, provider, resource, apiVersion, secalib.RouteTableKind, tenant, workspace, network, region),
+		Labels:   *label,
 		Spec:     *spec,
 		Status:   &schema.RouteTableStatus{},
 	}
 }
 
-func newSubnetResponse(name, provider, resource, apiVersion, tenant, workspace, network, region string, spec *schema.SubnetSpec) *schema.Subnet {
+func newSubnetResponse(name, provider, resource, apiVersion, tenant, workspace, network, region string, label *schema.Labels, spec *schema.SubnetSpec) *schema.Subnet {
 	return &schema.Subnet{
 		Metadata: secalib.NewRegionalNetworkResourceMetadata(name, provider, resource, apiVersion, secalib.SubnetKind, tenant, workspace, network, region),
+		Labels:   *label,
 		Spec:     *spec,
 		Status:   &schema.SubnetStatus{},
 	}
 }
 
-func newPublicIpResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.PublicIpSpec) *schema.PublicIp {
+func newPublicIpResponse(name, provider, resource, apiVersion, tenant, workspace, region string, label *schema.Labels, spec *schema.PublicIpSpec) *schema.PublicIp {
 	return &schema.PublicIp{
 		Metadata: secalib.NewRegionalWorkspaceResourceMetadata(name, provider, resource, apiVersion, secalib.PublicIpKind, tenant, workspace, region),
+		Labels:   *label,
 		Spec:     *spec,
 		Status:   &schema.PublicIpStatus{},
 	}
 }
 
-func newNicResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.NicSpec) *schema.Nic {
+func newNicResponse(name, provider, resource, apiVersion, tenant, workspace, region string, label *schema.Labels, spec *schema.NicSpec) *schema.Nic {
 	return &schema.Nic{
 		Metadata: secalib.NewRegionalWorkspaceResourceMetadata(name, provider, resource, apiVersion, secalib.NicKind, tenant, workspace, region),
+		Labels:   *label,
 		Spec:     *spec,
 		Status:   &schema.NicStatus{},
 	}
 }
 
-func newSecurityGroupResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.SecurityGroupSpec) *schema.SecurityGroup {
+func newSecurityGroupResponse(name, provider, resource, apiVersion, tenant, workspace, region string, label *schema.Labels, spec *schema.SecurityGroupSpec) *schema.SecurityGroup {
 	return &schema.SecurityGroup{
 		Metadata: secalib.NewRegionalWorkspaceResourceMetadata(name, provider, resource, apiVersion, secalib.SecurityGroupKind, tenant, workspace, region),
+		Labels:   *label,
 		Spec:     *spec,
 		Status:   &schema.SecurityGroupStatus{},
 	}

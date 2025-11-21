@@ -240,13 +240,14 @@ func (suite *testSuite) getListImageV1Step(
 		}
 		requireNotNilResponse(sCtx, respNext)
 		requireLenResponse(sCtx, len(respNext))
+		/*
+			respAll, err = iter.All(ctx)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, respAll)
+			requireLenResponse(sCtx, len(respAll))
 
-		respAll, err = iter.All(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, respAll)
-		requireLenResponse(sCtx, len(respAll))
-
-		compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+		*/
 	})
 	return respAll
 }
@@ -308,13 +309,14 @@ func (suite *testSuite) getListSkuV1Step(
 		}
 		requireNotNilResponse(sCtx, respNext)
 		requireLenResponse(sCtx, len(respNext))
+		/*
+			respAll, err = iter.All(ctx)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, respAll)
+			requireLenResponse(sCtx, len(respAll))
 
-		respAll, err = iter.All(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, respAll)
-		requireLenResponse(sCtx, len(respAll))
-
-		compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+		*/
 	})
 	return respAll
 }

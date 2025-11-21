@@ -790,30 +790,20 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to generate nic address: %v", err)
 	}
-	nicAddress2, err := secalib.GenerateNicAddress(subnetCidr, 2)
-	if err != nil {
-		t.Fatalf("Failed to generate nic address: %v", err)
-	}
 
 	// Generate the public ips
 	publicIpAddress1, err := secalib.GeneratePublicIp(suite.publicIpsRange, 1)
 	if err != nil {
 		t.Fatalf("Failed to generate public ip: %v", err)
 	}
-	publicIpAddress2, err := secalib.GeneratePublicIp(suite.publicIpsRange, 2)
-	if err != nil {
-		t.Fatalf("Failed to generate public ip: %v", err)
-	}
 
 	// Select zones
 	zone1 := suite.regionZones[rand.Intn(len(suite.regionZones))]
-	zone2 := suite.regionZones[rand.Intn(len(suite.regionZones))]
 
 	// Select skus
 	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
 	instanceSkuName := suite.instanceSkus[rand.Intn(len(suite.instanceSkus))]
 	networkSkuName1 := suite.networkSkus[rand.Intn(len(suite.networkSkus))]
-	networkSkuName2 := suite.networkSkus[rand.Intn(len(suite.networkSkus))]
 
 	// Generate scenario data
 	workspaceName := secalib.GenerateWorkspaceName()
@@ -838,19 +828,9 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	}
 
 	instanceName := secalib.GenerateInstanceName()
-	instanceRef := secalib.GenerateInstanceRef(instanceName)
-	instanceRefObj, err := secapi.BuildReferenceFromURN(instanceRef)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	networkSkuRef1 := secalib.GenerateSkuRef(networkSkuName1)
 	networkSkuRefObj, err := secapi.BuildReferenceFromURN(networkSkuRef1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	networkSkuRef2 := secalib.GenerateSkuRef(networkSkuName2)
-	networkSkuRef2Obj, err := secapi.BuildReferenceFromURN(networkSkuRef2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -915,6 +895,9 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
 				Name: blockStorageName,
+				InitialLabels: schema.Labels{
+					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+				},
 				InitialSpec: &schema.BlockStorageSpec{
 					SkuRef: *storageSkuRefObj,
 					SizeGB: blockStorageSize,
@@ -922,6 +905,9 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 			},
 			Instance: &mock.ResourceParams[schema.InstanceSpec]{
 				Name: instanceName,
+				InitialLabels: schema.Labels{
+					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+				},
 				InitialSpec: &schema.InstanceSpec{
 					SkuRef: *instanceSkuRefObj,
 					Zone:   zone1,
@@ -933,36 +919,63 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 			Network: &[]mock.ResourceParams[schema.NetworkSpec]{
 				{
 					Name: networkName,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.NetworkSpec{
 						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
 						SkuRef:        *networkSkuRefObj,
 						RouteTableRef: *routeTableRefObj,
 					},
-					UpdatedSpec: &schema.NetworkSpec{
+				},
+				{
+					Name: networkName2,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
+					InitialSpec: &schema.NetworkSpec{
 						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
-						SkuRef:        *networkSkuRef2Obj,
+						SkuRef:        *networkSkuRefObj,
 						RouteTableRef: *routeTableRefObj,
 					},
 				},
 			},
 			InternetGateway: &[]mock.ResourceParams[schema.InternetGatewaySpec]{
 				{
-					Name:        internetGatewayName,
+					Name: internetGatewayName,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
-					UpdatedSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(true)},
+				},
+				{
+					Name: internetGatewayName2,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
+					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
 				},
 			},
 			RouteTable: &[]mock.ResourceParams[schema.RouteTableSpec]{
 				{
 					Name: routeTableName,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.RouteTableSpec{
 						Routes: []schema.RouteSpec{
 							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 						},
 					},
-					UpdatedSpec: &schema.RouteTableSpec{
+				},
+				{
+					Name: routeTableName2,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
+					InitialSpec: &schema.RouteTableSpec{
 						Routes: []schema.RouteSpec{
-							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *instanceRefObj},
+							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 						},
 					},
 				},
@@ -970,26 +983,43 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 			Subnet: &[]mock.ResourceParams[schema.SubnetSpec]{
 				{
 					Name: subnetName,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.SubnetSpec{
 						Cidr: schema.Cidr{Ipv4: &subnetCidr},
 						Zone: zone1,
 					},
-					UpdatedSpec: &schema.SubnetSpec{
+				}, {
+					Name: subnetName2,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
+					InitialSpec: &schema.SubnetSpec{
 						Cidr: schema.Cidr{Ipv4: &subnetCidr},
-						Zone: zone2,
+						Zone: zone1,
 					},
 				},
 			},
 			NIC: &[]mock.ResourceParams[schema.NicSpec]{
 				{
 					Name: nicName,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.NicSpec{
 						Addresses:    []string{nicAddress1},
 						PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
 						SubnetRef:    *subnetRefObj,
 					},
-					UpdatedSpec: &schema.NicSpec{
-						Addresses:    []string{nicAddress2},
+				},
+				{
+					Name: nicName2,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
+					InitialSpec: &schema.NicSpec{
+						Addresses:    []string{nicAddress1},
 						PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
 						SubnetRef:    *subnetRefObj,
 					},
@@ -998,24 +1028,42 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 			PublicIp: &[]mock.ResourceParams[schema.PublicIpSpec]{
 				{
 					Name: publicIpName,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.PublicIpSpec{
 						Version: secalib.IpVersion4,
 						Address: ptr.To(publicIpAddress1),
 					},
-					UpdatedSpec: &schema.PublicIpSpec{
+				},
+				{
+					Name: publicIpName2,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
+					InitialSpec: &schema.PublicIpSpec{
 						Version: secalib.IpVersion4,
-						Address: ptr.To(publicIpAddress2),
+						Address: ptr.To(publicIpAddress1),
 					},
 				},
 			},
 			SecurityGroup: &[]mock.ResourceParams[schema.SecurityGroupSpec]{
 				{
 					Name: securityGroupName,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.SecurityGroupSpec{
 						Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionIngress}},
 					},
-					UpdatedSpec: &schema.SecurityGroupSpec{
-						Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionEgress}},
+				},
+				{
+					Name: securityGroupName2,
+					InitialLabels: schema.Labels{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
+					InitialSpec: &schema.SecurityGroupSpec{
+						Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionIngress}},
 					},
 				},
 			},
@@ -1133,7 +1181,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	}
 
 	for _, gateway := range *gateways {
-		internetGatewayResource := secalib.GenerateInternetGatewayResource(suite.tenant, workspaceName, internetGatewayName)
+		internetGatewayResource := secalib.GenerateInternetGatewayResource(suite.tenant, workspaceName, gateway.Metadata.Name)
 		expectGatewayMeta := secalib.NewRegionalWorkspaceResourceMetadata(gateway.Metadata.Name,
 			secalib.NetworkProviderV1,
 			internetGatewayResource,

@@ -440,19 +440,19 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 	tref := secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)}
 	wref := secapi.WorkspaceReference{Workspace: secapi.WorkspaceID(workspaceName)}
 	// List blockstorage
-	suite.getListBlockStorageV1Step("List block storage", t, ctx, suite.client.StorageV1, tref, wref, nil)
+	suite.getListBlockStorageV1Step("GetList block storage", t, ctx, suite.client.StorageV1, tref, wref, nil)
 
 	// List instances with limit
-	suite.getListBlockStorageV1Step("List block storage", t, ctx, suite.client.StorageV1, tref, wref,
+	suite.getListBlockStorageV1Step("Get List block storage with limit", t, ctx, suite.client.StorageV1, tref, wref,
 		builders.NewListOptions().WithLimit(1))
 
 	// List Instances with Label
-	suite.getListBlockStorageV1Step("Get list of block storage", t, ctx, suite.client.StorageV1, tref, wref,
+	suite.getListBlockStorageV1Step("Get list of block storage with label", t, ctx, suite.client.StorageV1, tref, wref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
 	// List Instances with Limit and label
-	suite.getListBlockStorageV1Step("Get list of block storage", t, ctx, suite.client.StorageV1, tref, wref,
+	suite.getListBlockStorageV1Step("Get list of block storage with limit and label", t, ctx, suite.client.StorageV1, tref, wref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
@@ -496,6 +496,7 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 	}
 
 	for _, image := range *images {
+
 		expectedImageMeta := secalib.NewRegionalResourceMetadata(image.Metadata.Name,
 			secalib.StorageProviderV1,
 			image.Metadata.Resource,

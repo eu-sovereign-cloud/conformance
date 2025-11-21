@@ -189,6 +189,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Internet gateway
 	gatewayResponse := newInternetGatewayResponse(params.InternetGateway.Name, secalib.NetworkProviderV1, gatewayResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
+		&params.InternetGateway.InitialLabels,
 		params.InternetGateway.InitialSpec)
 
 	// Create internet gateway
@@ -211,6 +212,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Route table
 	routeResponse := newRouteTableResponse(params.RouteTable.Name, secalib.NetworkProviderV1, routeResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region,
+		&params.RouteTable.InitialLabels,
 		params.RouteTable.InitialSpec)
 
 	// Create route-table
@@ -233,6 +235,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Subnet
 	subnetResponse := newSubnetResponse(params.Subnet.Name, secalib.NetworkProviderV1, subnetResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Network.Name, params.Region,
+		&params.Subnet.InitialLabels,
 		params.Subnet.InitialSpec)
 
 	// Create subnet
@@ -255,6 +258,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Security group
 	groupResponse := newSecurityGroupResponse(params.SecurityGroup.Name, secalib.NetworkProviderV1, groupResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
+		&params.SecurityGroup.InitialLabels,
 		params.SecurityGroup.InitialSpec)
 
 	// Create security-group
@@ -277,6 +281,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Public-ip
 	publicIpResponse := newPublicIpResponse(params.PublicIp.Name, secalib.NetworkProviderV1, publicIpResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
+		&params.PublicIp.InitialLabels,
 		params.PublicIp.InitialSpec)
 
 	// Create public-ip
@@ -299,6 +304,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// NIC
 	nicResponse := newNicResponse(params.Nic.Name, secalib.NetworkProviderV1, nicResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
+		&params.Nic.InitialLabels,
 		params.Nic.InitialSpec)
 
 	// Create NIC

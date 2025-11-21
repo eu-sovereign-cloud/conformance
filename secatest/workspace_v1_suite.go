@@ -172,7 +172,7 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 	}
 	for _, workspace := range *workspaces {
 		workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspace.Metadata.Name)
-		expectMeta := secalib.NewRegionalResourceMetadata(workspaceName,
+		expectMeta := secalib.NewRegionalResourceMetadata(workspace.Metadata.Name,
 			secalib.WorkspaceProviderV1,
 			workspaceResource,
 			secalib.ApiVersion1,

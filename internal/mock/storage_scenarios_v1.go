@@ -246,7 +246,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	blockListResponse.Items = blockList[:1]
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateBlockStorageListResource(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimit("1"), responseBody: blockListResponse,
+		&stubConfig{url: secalib.GenerateBlockStorageListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimit("1"), responseBody: blockListResponse,
 			currentState: "GetBlockStorageListWithLimit", nextState: "GetBlockStorageListWithLabel"}); err != nil {
 		return nil, err
 	}
@@ -265,14 +265,14 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	blockListResponse.Items = blocksWithLabel(blockList)
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateBlockStorageListResource(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: blockListResponse, currentState: "GetBlockStorageListWithLabel", nextState: "GetBlockStorageListWithLimitAndLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateBlockStorageListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: blockListResponse, currentState: "GetBlockStorageListWithLabel", nextState: "GetBlockStorageListWithLimitAndLabel"}); err != nil {
 		return nil, err
 	}
 	// List with limit & label
 
 	blockListResponse.Items = blocksWithLabel(blockList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateBlockStorageListResource(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: blockListResponse, currentState: "GetBlockStorageListWithLimitAndLabel", nextState: (*params.Image)[0].Name}); err != nil {
+		&stubConfig{url: secalib.GenerateBlockStorageListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: blockListResponse, currentState: "GetBlockStorageListWithLimitAndLabel", nextState: (*params.Image)[0].Name}); err != nil {
 		return nil, err
 	}
 	// image
@@ -292,8 +292,10 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 		}
 
 		// Create image
+		imageResp.Status = secalib.NewImageStatus(secalib.CreatingResourceState)
+		imageResp.Metadata.Verb = http.MethodPut
 		if err := configurePutStub(wm, scenario,
-			&stubConfig{url: secalib.GenerateImageResource(params.Tenant, (*params.Image)[i].Name), params: params, responseBody: imageResp, currentState: (*params.Image)[i].Name, nextState: nextState}); err != nil {
+			&stubConfig{url: secalib.GenerateImageURL(params.Tenant, (*params.Image)[i].Name), params: params, responseBody: imageResp, currentState: (*params.Image)[i].Name, nextState: nextState}); err != nil {
 			return nil, err
 		}
 		imageList = append(imageList, *imageResp)
@@ -309,7 +311,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	}
 	imageListResponse.Items = imageList
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, responseBody: imageListResponse, currentState: "GetImageList", nextState: "GetImageListWithLimit"}); err != nil {
+		&stubConfig{url: secalib.GenerateImageListURL(params.Tenant), params: params, responseBody: imageListResponse, currentState: "GetImageList", nextState: "GetImageListWithLimit"}); err != nil {
 		return nil, err
 	}
 	// List with limit
@@ -324,7 +326,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	imageListWithLimitResponse.Items = imageList[:1]
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, pathParams: pathParamsLimit("1"), responseBody: imageListWithLimitResponse, currentState: "GetImageListWithLimit", nextState: "GetImageListWithLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateImageListURL(params.Tenant), params: params, pathParams: pathParamsLimit("1"), responseBody: imageListWithLimitResponse, currentState: "GetImageListWithLimit", nextState: "GetImageListWithLabel"}); err != nil {
 		return nil, err
 	}
 	// List with Label
@@ -348,7 +350,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	imageListWithLabelResponse.Items = imagesWithLabel(imageList)
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: imageListWithLabelResponse, currentState: "GetImageListWithLabel", nextState: "GetImageListWithLimitAndLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateImageListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: imageListWithLabelResponse, currentState: "GetImageListWithLabel", nextState: "GetImageListWithLimitAndLabel"}); err != nil {
 		return nil, err
 	}
 	// List with limit & label
@@ -363,7 +365,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 
 	imageListWithLimitAndLabelResponse.Items = imagesWithLabel(imageList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: imageListWithLimitAndLabelResponse, currentState: "GetImageListWithLimitAndLabel", nextState: "GetSkuList"}); err != nil {
+		&stubConfig{url: secalib.GenerateImageListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: imageListWithLimitAndLabelResponse, currentState: "GetImageListWithLimitAndLabel", nextState: "GetSkuList"}); err != nil {
 		return nil, err
 	}
 
@@ -439,7 +441,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 		Items: skuList,
 	}
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, responseBody: skuResponse, currentState: "GetSkuList", nextState: "GetSkuListWithLimit"}); err != nil {
+		&stubConfig{url: secalib.GenerateStorageSkuListURL(params.Tenant), params: params, responseBody: skuResponse, currentState: "GetSkuList", nextState: "GetSkuListWithLimit"}); err != nil {
 		return nil, err
 	}
 	// List with limit
@@ -454,14 +456,14 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	skuWithLimitResponse.Items = skuList[:1]
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, pathParams: pathParamsLimit("1"), responseBody: skuWithLimitResponse, currentState: "GetSkuListWithLimit", nextState: "GetSkuListWithLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateStorageSkuListURL(params.Tenant), params: params, pathParams: pathParamsLimit("1"), responseBody: skuWithLimitResponse, currentState: "GetSkuListWithLimit", nextState: "GetSkuListWithLabel"}); err != nil {
 		return nil, err
 	}
 	// List with Label
 	skuWithLabelResponse := &storageV1.SkuIterator{
 		Metadata: schema.ResponseMetadata{
 			Provider: secalib.StorageProviderV1,
-			Resource: secalib.GenerateSkuListResource(params.Tenant),
+			Resource: secalib.GenerateStorageSkuListURL(params.Tenant),
 			Verb:     http.MethodGet,
 		},
 	}
@@ -478,7 +480,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	skuWithLabelResponse.Items = skusWithLabel(skuList)
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLabelResponse, currentState: "GetSkuListWithLabel", nextState: "GetSkuListWithLimitAndLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateStorageSkuListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLabelResponse, currentState: "GetSkuListWithLabel", nextState: "GetSkuListWithLimitAndLabel"}); err != nil {
 		return nil, err
 	}
 	// List with limit & label
@@ -493,7 +495,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 
 	skuWithLimitAndLabelResponse.Items = skusWithLabel(skuList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLimitAndLabelResponse, currentState: "GetSkuListWithLimitAndLabel", nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: secalib.GenerateStorageSkuListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLimitAndLabelResponse, currentState: "GetSkuListWithLimitAndLabel", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 	return wm, nil
