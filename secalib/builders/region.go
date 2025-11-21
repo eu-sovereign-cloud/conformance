@@ -53,23 +53,19 @@ func (builder *RegionBuilder) BuildResponse() (*schema.Region, error) {
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.AvailableZones,
-			builder.spec.Providers,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.AvailableZones,
+		builder.spec.Providers,
 	); err != nil {
 		return nil, err
 	}
 	// Validate each provider
 	for _, provider := range builder.spec.Providers {
-		if err := builder.validator.ValidateRequireds(
-			[]any{
-				provider.Name,
-				provider.Version,
-				provider.Url,
-			},
+		if err := builder.validator.ValidateRequired(
+			provider.Name,
+			provider.Version,
+			provider.Url,
 		); err != nil {
 			return nil, err
 		}

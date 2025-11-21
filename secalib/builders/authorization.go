@@ -58,22 +58,18 @@ func (builder *RoleBuilder) BuildResponse() (*schema.Role, error) {
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.Permissions,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.Permissions,
 	); err != nil {
 		return nil, err
 	}
 	// Validate each permission
 	for _, permission := range builder.spec.Permissions {
-		if err := builder.validator.ValidateRequireds(
-			[]any{
-				permission.Provider,
-				permission.Resources,
-				permission.Verb,
-			},
+		if err := builder.validator.ValidateRequired(
+			permission.Provider,
+			permission.Resources,
+			permission.Verb,
 		); err != nil {
 			return nil, err
 		}
@@ -140,24 +136,20 @@ func (builder *RoleAssignmentBuilder) BuildResponse() (*schema.RoleAssignment, e
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.Subs,
-			builder.spec.Scopes,
-			builder.spec.Roles,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.Subs,
+		builder.spec.Scopes,
+		builder.spec.Roles,
 	); err != nil {
 		return nil, err
 	}
 	// Validate each scope
 	for _, scope := range builder.spec.Scopes {
 		if err := builder.validator.ValidateOneRequired(
-			[]any{
-				scope.Tenants,
-				scope.Workspaces,
-				scope.Regions,
-			},
+			scope.Tenants,
+			scope.Workspaces,
+			scope.Regions,
 		); err != nil {
 			return nil, err
 		}

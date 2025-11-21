@@ -68,12 +68,10 @@ func (builder *BlockStorageBuilder) BuildResponse() (*schema.BlockStorage, error
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.SkuRef,
-			builder.spec.SizeGB,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.SkuRef,
+		builder.spec.SizeGB,
 	); err != nil {
 		return nil, err
 	}
@@ -144,12 +142,10 @@ func (builder *ImageBuilder) BuildResponse() (*schema.Image, error) {
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.BlockStorageRef,
-			builder.spec.CpuArchitecture,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.BlockStorageRef,
+		builder.spec.CpuArchitecture,
 	); err != nil {
 		return nil, err
 	}

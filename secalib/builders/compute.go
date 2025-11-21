@@ -68,14 +68,12 @@ func (builder *InstanceBuilder) BuildResponse() (*schema.Instance, error) {
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.SkuRef,
-			builder.spec.Zone,
-			builder.spec.BootVolume,
-			builder.spec.BootVolume.DeviceRef,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.SkuRef,
+		builder.spec.Zone,
+		builder.spec.BootVolume,
+		builder.spec.BootVolume.DeviceRef,
 	); err != nil {
 		return nil, err
 	}

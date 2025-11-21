@@ -12,14 +12,7 @@ func NewValidator() *Validator {
 	}
 }
 
-func (v *Validator) ValidateRequired(field any) error {
-	if err := v.validator.Var(field, "required"); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (v *Validator) ValidateRequireds(fields []any) error {
+func (v *Validator) ValidateRequired(fields ...any) error {
 	for _, f := range fields {
 		if err := v.validator.Var(f, "required"); err != nil {
 			return err
@@ -29,7 +22,7 @@ func (v *Validator) ValidateRequireds(fields []any) error {
 }
 
 // TODO Find a better name for this function
-func (v *Validator) ValidateOneRequired(fields []any) error {
+func (v *Validator) ValidateOneRequired(fields ...any) error {
 	errors := []error{}
 	for _, f := range fields {
 		if err := v.validator.Var(f, "required"); err != nil {

@@ -42,15 +42,13 @@ func (builder *GlobalResourceMetadataBuilder) Kind(kind string) *GlobalResourceM
 }
 
 func (builder *GlobalResourceMetadataBuilder) BuildResponse() (*schema.GlobalResourceMetadata, error) {
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.metadata,
-			builder.metadata.Name,
-			builder.metadata.Provider,
-			builder.metadata.Resource,
-			builder.metadata.ApiVersion,
-			builder.metadata.Kind,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.metadata,
+		builder.metadata.Name,
+		builder.metadata.Provider,
+		builder.metadata.Resource,
+		builder.metadata.ApiVersion,
+		builder.metadata.Kind,
 	); err != nil {
 		return nil, err
 	}
@@ -103,16 +101,14 @@ func (builder *GlobalTenantResourceMetadataBuilder) Tenant(tenant string) *Globa
 }
 
 func (builder *GlobalTenantResourceMetadataBuilder) BuildResponse() (*schema.GlobalTenantResourceMetadata, error) {
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.metadata,
-			builder.metadata.Name,
-			builder.metadata.Provider,
-			builder.metadata.Resource,
-			builder.metadata.ApiVersion,
-			builder.metadata.Kind,
-			builder.metadata.Tenant,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.metadata,
+		builder.metadata.Name,
+		builder.metadata.Provider,
+		builder.metadata.Resource,
+		builder.metadata.ApiVersion,
+		builder.metadata.Kind,
+		builder.metadata.Tenant,
 	); err != nil {
 		return nil, err
 	}
@@ -170,17 +166,15 @@ func (builder *RegionalResourceMetadataBuilder) Region(region string) *RegionalR
 }
 
 func (builder *RegionalResourceMetadataBuilder) BuildResponse() (*schema.RegionalResourceMetadata, error) {
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.metadata,
-			builder.metadata.Name,
-			builder.metadata.Provider,
-			builder.metadata.Resource,
-			builder.metadata.ApiVersion,
-			builder.metadata.Kind,
-			builder.metadata.Tenant,
-			builder.metadata.Region,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.metadata,
+		builder.metadata.Name,
+		builder.metadata.Provider,
+		builder.metadata.Resource,
+		builder.metadata.ApiVersion,
+		builder.metadata.Kind,
+		builder.metadata.Tenant,
+		builder.metadata.Region,
 	); err != nil {
 		return nil, err
 	}
@@ -243,18 +237,16 @@ func (builder *RegionalWorkspaceResourceMetadataBuilder) Region(region string) *
 }
 
 func (builder *RegionalWorkspaceResourceMetadataBuilder) BuildResponse() (*schema.RegionalWorkspaceResourceMetadata, error) {
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.metadata,
-			builder.metadata.Name,
-			builder.metadata.Provider,
-			builder.metadata.Resource,
-			builder.metadata.ApiVersion,
-			builder.metadata.Kind,
-			builder.metadata.Tenant,
-			builder.metadata.Workspace,
-			builder.metadata.Region,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.metadata,
+		builder.metadata.Name,
+		builder.metadata.Provider,
+		builder.metadata.Resource,
+		builder.metadata.ApiVersion,
+		builder.metadata.Kind,
+		builder.metadata.Tenant,
+		builder.metadata.Workspace,
+		builder.metadata.Region,
 	); err != nil {
 		return nil, err
 	}
@@ -322,19 +314,17 @@ func (builder *RegionalNetworkResourceMetadataBuilder) Region(region string) *Re
 }
 
 func (builder *RegionalNetworkResourceMetadataBuilder) BuildResponse() (*schema.RegionalNetworkResourceMetadata, error) {
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.metadata,
-			builder.metadata.Name,
-			builder.metadata.Provider,
-			builder.metadata.Resource,
-			builder.metadata.ApiVersion,
-			builder.metadata.Kind,
-			builder.metadata.Tenant,
-			builder.metadata.Workspace,
-			builder.metadata.Network,
-			builder.metadata.Region,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.metadata,
+		builder.metadata.Name,
+		builder.metadata.Provider,
+		builder.metadata.Resource,
+		builder.metadata.ApiVersion,
+		builder.metadata.Kind,
+		builder.metadata.Tenant,
+		builder.metadata.Workspace,
+		builder.metadata.Network,
+		builder.metadata.Region,
 	); err != nil {
 		return nil, err
 	}

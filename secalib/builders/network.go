@@ -68,21 +68,17 @@ func (builder *NetworkBuilder) BuildResponse() (*schema.Network, error) {
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.Cidr,
-			builder.spec.SkuRef,
-			builder.spec.RouteTableRef,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.Cidr,
+		builder.spec.SkuRef,
+		builder.spec.RouteTableRef,
 	); err != nil {
 		return nil, err
 	}
 	if err := builder.validator.ValidateOneRequired(
-		[]any{
-			builder.spec.Cidr.Ipv4,
-			builder.spec.Cidr.Ipv6,
-		},
+		builder.spec.Cidr.Ipv4,
+		builder.spec.Cidr.Ipv6,
 	); err != nil {
 		return nil, err
 	}
@@ -157,11 +153,9 @@ func (builder *InternetGatewayBuilder) BuildResponse() (*schema.InternetGateway,
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.EgressOnly,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.EgressOnly,
 	); err != nil {
 		return nil, err
 	}
@@ -241,20 +235,16 @@ func (builder *RouteTableBuilder) BuildResponse() (*schema.RouteTable, error) {
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec.Routes,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec.Routes,
 	); err != nil {
 		return nil, err
 	}
 	// Validate each route
 	for _, route := range builder.spec.Routes {
-		if err := builder.validator.ValidateRequireds(
-			[]any{
-				route.DestinationCidrBlock,
-				route.TargetRef,
-			},
+		if err := builder.validator.ValidateRequired(
+			route.DestinationCidrBlock,
+			route.TargetRef,
 		); err != nil {
 			return nil, err
 		}
@@ -335,12 +325,10 @@ func (builder *SubnetBuilder) BuildResponse() (*schema.Subnet, error) {
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.Cidr,
-			builder.spec.Zone,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.Cidr,
+		builder.spec.Zone,
 	); err != nil {
 		return nil, err
 	}
@@ -415,11 +403,9 @@ func (builder *PublicIpBuilder) BuildResponse() (*schema.PublicIp, error) {
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.Version,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.Version,
 	); err != nil {
 		return nil, err
 	}
@@ -494,12 +480,10 @@ func (builder *NicBuilder) BuildResponse() (*schema.Nic, error) {
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.Addresses,
-			builder.spec.SubnetRef,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.Addresses,
+		builder.spec.SubnetRef,
 	); err != nil {
 		return nil, err
 	}
@@ -574,20 +558,16 @@ func (builder *SecurityGroupBuilder) BuildResponse() (*schema.SecurityGroup, err
 	}
 
 	// Validate the spec
-	if err := builder.validator.ValidateRequireds(
-		[]any{
-			builder.spec,
-			builder.spec.Rules,
-		},
+	if err := builder.validator.ValidateRequired(
+		builder.spec,
+		builder.spec.Rules,
 	); err != nil {
 		return nil, err
 	}
 	// Validate each rule
 	for _, rule := range builder.spec.Rules {
-		if err := builder.validator.ValidateRequireds(
-			[]any{
-				rule.Direction,
-			},
+		if err := builder.validator.ValidateRequired(
+			rule.Direction,
 		); err != nil {
 			return nil, err
 		}
