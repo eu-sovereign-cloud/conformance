@@ -44,17 +44,19 @@ func newWorkspaceResponse(name, provider, resource, apiVersion, tenant, region s
 
 // Storage
 
-func newBlockStorageResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.BlockStorageSpec) *schema.BlockStorage {
+func newBlockStorageResponse(name, provider, resource, apiVersion, tenant, workspace, region string, labels schema.Labels, spec *schema.BlockStorageSpec) *schema.BlockStorage {
 	return &schema.BlockStorage{
 		Metadata: secalib.NewRegionalWorkspaceResourceMetadata(name, provider, resource, apiVersion, secalib.BlockStorageKind, tenant, workspace, region),
+		Labels:   labels,
 		Spec:     *spec,
 		Status:   &schema.BlockStorageStatus{},
 	}
 }
 
-func newImageResponse(name, provider, resource, apiVersion, tenant, region string, spec *schema.ImageSpec) *schema.Image {
+func newImageResponse(name, provider, resource, apiVersion, tenant, region string, label *schema.Labels, spec *schema.ImageSpec) *schema.Image {
 	return &schema.Image{
 		Metadata: secalib.NewRegionalResourceMetadata(name, provider, resource, apiVersion, secalib.ImageKind, tenant, region),
+		Labels:   *label,
 		Spec:     *spec,
 		Status:   &schema.ImageStatus{},
 	}
@@ -62,9 +64,10 @@ func newImageResponse(name, provider, resource, apiVersion, tenant, region strin
 
 // Compute
 
-func newInstanceResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.InstanceSpec) *schema.Instance {
+func newInstanceResponse(name, provider, resource, apiVersion, tenant, workspace, region string, label *schema.Labels, spec *schema.InstanceSpec) *schema.Instance {
 	return &schema.Instance{
 		Metadata: secalib.NewRegionalWorkspaceResourceMetadata(name, provider, resource, apiVersion, secalib.InstanceKind, tenant, workspace, region),
+		Labels:   *label,
 		Spec:     *spec,
 		Status:   &schema.InstanceStatus{},
 	}
@@ -72,7 +75,7 @@ func newInstanceResponse(name, provider, resource, apiVersion, tenant, workspace
 
 // Network
 
-func newNetworkResponse(name, provider, resource, apiVersion, tenant, workspace, region string, spec *schema.NetworkSpec) *schema.Network {
+func newNetworkResponse(name, provider, resource, apiVersion, tenant, workspace, region string, label *schema.Labels, spec *schema.NetworkSpec) *schema.Network {
 	return &schema.Network{
 		Metadata: secalib.NewRegionalWorkspaceResourceMetadata(name, provider, resource, apiVersion, secalib.NetworkKind, tenant, workspace, region),
 		Spec:     *spec,

@@ -1020,7 +1020,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigNetworkLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigNetworkListLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}

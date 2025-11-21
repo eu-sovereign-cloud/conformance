@@ -1,29 +1,20 @@
 package mock
 
-func headerParamsGeneric(authToken string) map[string]string {
+func pathParamsLimit(limit string) map[string]string {
 	return map[string]string{
-		authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + authToken,
+		limitHeaderKey: limit,
 	}
 }
 
-func headerParamsLimit(authToken string, limit string) map[string]string {
+func pathParamsLabel(labelKey string, labelValue string) map[string]string {
 	return map[string]string{
-		authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + authToken,
-		limitHeaderKey:             limit,
+		labelsHeaderKey: labelKey + "=" + labelValue,
 	}
 }
 
-func headerParamsLabel(authToken string, labelKey string, labelValue string) map[string]string {
+func pathParamsLimitAndLabel(limit string, labelKey string, labelValue string) map[string]string {
 	return map[string]string{
-		authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + authToken,
-		labelsHeaderKey:            labelKey + "=" + labelValue,
-	}
-}
-
-func headerParamsLimitAndLabel(authToken string, limit string, labelKey string, labelValue string) map[string]string {
-	return map[string]string{
-		authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + authToken,
-		labelsHeaderKey:            labelKey + "=" + labelValue,
-		limitHeaderKey:             limit,
+		labelsHeaderKey: labelKey + "=" + labelValue,
+		limitHeaderKey:  limit,
 	}
 }

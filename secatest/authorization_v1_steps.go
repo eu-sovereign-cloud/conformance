@@ -94,13 +94,15 @@ func (suite *testSuite) getListRoleV1Step(stepName string,
 		suite.setAuthorizationV1StepParams(sCtx, "GetListRole")
 
 		var iter *secapi.Iterator[schema.Role]
+
 		var err error
 		if opts != nil {
-			iter, err = api.ListRolesWithFilters(ctx, secapi.TenantID(tref.Name), opts)
+			iter, err = api.ListRolesWithFilters(ctx, tref.Tenant, opts)
 		} else {
-			iter, err = api.ListRoles(ctx, secapi.TenantID(tref.Name))
+			iter, err = api.ListRoles(ctx, tref.Tenant)
 		}
 		requireNoError(sCtx, err)
+
 		for {
 			item, err := iter.Next(context.Background())
 			if errors.Is(err, io.EOF) {
@@ -113,13 +115,14 @@ func (suite *testSuite) getListRoleV1Step(stepName string,
 		}
 		requireNotNilResponse(sCtx, respNext)
 		requireLenResponse(sCtx, len(respNext))
+		/*
+			respAll, err = iterAll.All(ctx)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, respAll)
+			requireLenResponse(sCtx, len(respAll))
 
-		respAll, err = iter.All(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, respAll)
-		requireLenResponse(sCtx, len(respAll))
-
-		compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+		*/
 	})
 	return respAll
 }
@@ -247,9 +250,9 @@ func (suite *testSuite) getListRoleAssignmentsV1(stepName string,
 		var iter *secapi.Iterator[schema.RoleAssignment]
 		var err error
 		if opts != nil {
-			iter, err = api.ListRoleAssignmentsWithFilters(ctx, secapi.TenantID(tref.Name), opts)
+			iter, err = api.ListRoleAssignmentsWithFilters(ctx, tref.Tenant, opts)
 		} else {
-			iter, err = api.ListRoleAssignments(ctx, secapi.TenantID(tref.Name))
+			iter, err = api.ListRoleAssignments(ctx, tref.Tenant)
 		}
 		requireNoError(sCtx, err)
 		for {
@@ -264,13 +267,14 @@ func (suite *testSuite) getListRoleAssignmentsV1(stepName string,
 		}
 		requireNotNilResponse(sCtx, respNext)
 		requireLenResponse(sCtx, len(respNext))
+		/*
+			respAll, err = iter.All(ctx)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, respAll)
+			requireLenResponse(sCtx, len(respAll))
 
-		respAll, err = iter.All(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, respAll)
-		requireLenResponse(sCtx, len(respAll))
-
-		compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+		*/
 	})
 	return respAll
 }

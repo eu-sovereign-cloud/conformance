@@ -257,7 +257,9 @@ func GenerateStorageSkuURL(tenant string, sku string) string {
 func GenerateBlockStorageURL(tenant string, workspace string, blockStorage string) string {
 	return fmt.Sprintf(BlockStorageURLV1, tenant, workspace, blockStorage)
 }
-
+func GenerateBlockStorageListURL(tenant string, workspace string) string {
+	return fmt.Sprintf(BlockStorageListURLV1, tenant, workspace)
+}
 func GenerateImageURL(tenant string, image string) string {
 	return fmt.Sprintf(ImageURLV1, tenant, image)
 }

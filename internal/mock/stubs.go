@@ -54,9 +54,11 @@ func configureStub(wm *wiremock.Client, scenarioName string, method string, http
 		priority = stubConfig.priority
 	}
 
-	for key, value := range stubConfig.headers {
+	stubRule.WithHeader(authorizationHttpHeaderKey, wiremock.Matching(authorizationHttpHeaderValuePrefix+stubConfig.params.getParams().AuthToken))
+
+	for key, value := range stubConfig.pathParams {
 		matcher := wiremock.Matching(value)
-		stubRule.WithHeader(key, matcher)
+		stubRule.WithPathParam(key, matcher)
 	}
 	// Create a stub with scenario state if currentState it's defined
 	if stubConfig.currentState != "" {

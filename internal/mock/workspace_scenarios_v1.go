@@ -30,7 +30,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	response.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
 	response.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: url, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: response, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
+		&stubConfig{url: url, params: params, responseBody: response, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
 		return nil, err
 	}
 
@@ -38,7 +38,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveResourceState)
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: url, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: response, currentState: "GetCreatedWorkspace", nextState: "UpdateWorkspace"}); err != nil {
+		&stubConfig{url: url, params: params, responseBody: response, currentState: "GetCreatedWorkspace", nextState: "UpdateWorkspace"}); err != nil {
 		return nil, err
 	}
 
@@ -48,7 +48,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	response.Labels = (*params.Workspace)[0].UpdatedLabels
 	response.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: url, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: response, currentState: "UpdateWorkspace", nextState: "GetUpdatedWorkspace"}); err != nil {
+		&stubConfig{url: url, params: params, responseBody: response, currentState: "UpdateWorkspace", nextState: "GetUpdatedWorkspace"}); err != nil {
 		return nil, err
 	}
 
@@ -56,7 +56,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveResourceState)
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: url, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: response, currentState: "GetUpdatedWorkspace", nextState: "DeleteWorkspace"}); err != nil {
+		&stubConfig{url: url, params: params, responseBody: response, currentState: "GetUpdatedWorkspace", nextState: "DeleteWorkspace"}); err != nil {
 		return nil, err
 	}
 
@@ -101,7 +101,7 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 		response.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
 		response.Metadata.Verb = http.MethodPut
 		if err := configurePutStub(wm, scenario,
-			&stubConfig{url: secalib.GenerateWorkspaceURL(params.Tenant, (*params.Workspace)[i].Name), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: response, currentState: startedScenarioState, nextState: nextState}); err != nil {
+			&stubConfig{url: secalib.GenerateWorkspaceURL(params.Tenant, (*params.Workspace)[i].Name), params: params, responseBody: response, currentState: startedScenarioState, nextState: nextState}); err != nil {
 			return nil, err
 		}
 		workspaceList = append(workspaceList, *response)
@@ -118,13 +118,13 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 		Items: workspaceList,
 	}
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: workspaceListResponse, currentState: (*params.Workspace)[len(*params.Workspace)-1].Name, nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, responseBody: workspaceListResponse, currentState: (*params.Workspace)[len(*params.Workspace)-1].Name, nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 
 	// List with limit
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, headers: headerParamsLimit(params.AuthToken, "1"), responseBody: workspaceListResponse, currentState: startedScenarioState, nextState: "ListWithLimit"}); err != nil {
+		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimit("1"), responseBody: workspaceListResponse, currentState: startedScenarioState, nextState: "ListWithLimit"}); err != nil {
 		return nil, err
 	}
 	// List with labels
@@ -147,13 +147,13 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 	}
 	workspaceWithLabelResponse.Items = workspaceWithLabel(workspaceList)
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, headers: headerParamsLabel(params.AuthToken, secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse, currentState: "ListWithLimit", nextState: "ListWithLabels"}); err != nil {
+		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse, currentState: "ListWithLimit", nextState: "ListWithLabels"}); err != nil {
 		return nil, err
 	}
 	// List with limit & labels
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, headers: headerParamsLimitAndLabel(params.AuthToken, "1", secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse, currentState: "ListWithLabels", nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse, currentState: "ListWithLabels", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 	return wm, nil

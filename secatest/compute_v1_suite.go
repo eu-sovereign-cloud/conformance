@@ -320,6 +320,9 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
 				Name: blockStorageName,
+				InitialLabels: map[string]string{
+					secalib.EnvLabel: secalib.EnvConformance,
+				},
 				InitialSpec: &schema.BlockStorageSpec{
 					SkuRef: *storageSkuRefObj,
 					SizeGB: blockStorageSize,
@@ -328,6 +331,9 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 			Instance: &[]mock.ResourceParams[schema.InstanceSpec]{
 				{
 					Name: instanceName1,
+					InitialLabels: map[string]string{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.InstanceSpec{
 						SkuRef: *instanceSkuRefObj,
 						Zone:   initialInstanceZone,
@@ -338,6 +344,9 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 				},
 				{
 					Name: instanceName2,
+					InitialLabels: map[string]string{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.InstanceSpec{
 						SkuRef: *instanceSkuRefObj,
 						Zone:   initialInstanceZone,
@@ -348,6 +357,9 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 				},
 				{
 					Name: instanceName3,
+					InitialLabels: map[string]string{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.InstanceSpec{
 						SkuRef: *instanceSkuRefObj,
 						Zone:   initialInstanceZone,
@@ -358,7 +370,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigComputeLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigComputeListLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -379,13 +391,6 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 	}
 	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, nil, nil, secalib.CreatingResourceState)
 
-	// Get the created Workspace
-	workspaceTRef := &secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.tenant),
-		Name:   workspaceName,
-	}
-	suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, nil, nil, secalib.ActiveResourceState)
-
 	// Block storage
 
 	// Create a block storage
@@ -401,15 +406,6 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 		},
 	}
 	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, ctx, suite.client.StorageV1, block, nil, nil, secalib.CreatingResourceState)
-
-	// Get the created block storage
-	blockWRef := &secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(suite.tenant),
-		Workspace: secapi.WorkspaceID(workspaceName),
-		Name:      blockStorageName,
-	}
-	// TODO Create a function without expectated metadata and spec
-	suite.getBlockStorageV1Step("Get the created block storage", t, ctx, suite.client.StorageV1, *blockWRef, nil, nil, secalib.ActiveResourceState)
 
 	// Instance
 

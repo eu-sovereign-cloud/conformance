@@ -58,7 +58,7 @@ func ConfigClientsInitScenario(params *ClientsInitParams) (*wiremock.Client, err
 	response := newRegionResponse(params.Region, secalib.RegionProviderV1, resource, secalib.ApiVersion1, spec)
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, "ClientsInit",
-		&stubConfig{url: url, params: params, headers: headers, responseBody: response}); err != nil {
+		&stubConfig{url: url, params: params, pathParams: headers, responseBody: response}); err != nil {
 		return nil, err
 	}
 

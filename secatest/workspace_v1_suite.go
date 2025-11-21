@@ -140,7 +140,7 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigWorkspaceLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigWorkspaceListLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}

@@ -58,7 +58,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	roleResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
 	roleResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: roleResponse, currentState: startedScenarioState, nextState: "GetCreatedRole"}); err != nil {
+		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: startedScenarioState, nextState: "GetCreatedRole"}); err != nil {
 		return nil, err
 	}
 
@@ -66,7 +66,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetStatusState(roleResponse.Status, secalib.ActiveResourceState)
 	roleResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: roleResponse, currentState: "GetCreatedRole", nextState: "CreateRoleAssignment"}); err != nil {
+		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetCreatedRole", nextState: "CreateRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
@@ -80,7 +80,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	roleAssignResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
 	roleAssignResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: roleAssignResponse, currentState: "CreateRoleAssignment", nextState: "GetCreatedRoleAssignment"}); err != nil {
+		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "CreateRoleAssignment", nextState: "GetCreatedRoleAssignment"}); err != nil {
 		return nil, err
 	}
 
@@ -88,7 +88,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetStatusState(roleAssignResponse.Status, secalib.ActiveResourceState)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: roleAssignResponse, currentState: "GetCreatedRoleAssignment", nextState: "CreateWorkspace"}); err != nil {
+		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetCreatedRoleAssignment", nextState: "CreateWorkspace"}); err != nil {
 		return nil, err
 	}
 
@@ -102,7 +102,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	workspaceResponse.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
 	workspaceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: workspaceResponse, currentState: "CreateWorkspace", nextState: "GetCreatedWorkspace"}); err != nil {
+		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "CreateWorkspace", nextState: "GetCreatedWorkspace"}); err != nil {
 		return nil, err
 	}
 
@@ -110,7 +110,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetWorkspaceStatusState(workspaceResponse.Status, secalib.ActiveResourceState)
 	workspaceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateImage"}); err != nil {
+		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateImage"}); err != nil {
 		return nil, err
 	}
 
@@ -119,6 +119,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Image
 	imageResponse := newImageResponse(params.Image.Name, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1,
 		params.Tenant, params.Region,
+		&params.Role.InitialLabels,
 		params.Image.InitialSpec)
 
 	// Create an image
@@ -126,7 +127,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	imageResponse.Status = secalib.NewImageStatus(secalib.CreatingResourceState)
 	imageResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: imageResponse, currentState: "CreateImage", nextState: "GetCreatedImage"}); err != nil {
+		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "CreateImage", nextState: "GetCreatedImage"}); err != nil {
 		return nil, err
 	}
 
@@ -134,12 +135,13 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetImageStatusState(imageResponse.Status, secalib.ActiveResourceState)
 	imageResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: imageResponse, currentState: "GetCreatedImage", nextState: "CreateBlockStorage"}); err != nil {
+		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "GetCreatedImage", nextState: "CreateBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	blockResponse := newBlockStorageResponse(params.BlockStorage.Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
+		params.BlockStorage.InitialLabels,
 		params.BlockStorage.InitialSpec)
 
 	// Create a block storage
@@ -147,7 +149,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	blockResponse.Status = secalib.NewBlockStorageStatus(secalib.CreatingResourceState)
 	blockResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: blockResponse, currentState: "CreateBlockStorage", nextState: "GetCreatedBlockStorage"}); err != nil {
+		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "CreateBlockStorage", nextState: "GetCreatedBlockStorage"}); err != nil {
 		return nil, err
 	}
 
@@ -155,7 +157,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "CreateNetwork"}); err != nil {
+		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "CreateNetwork"}); err != nil {
 		return nil, err
 	}
 
@@ -164,6 +166,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Network
 	networkResponse := newNetworkResponse(params.Network.Name, secalib.NetworkProviderV1, networkResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
+		&params.Network.InitialLabels,
 		params.Network.InitialSpec)
 
 	// Create  Network
@@ -171,7 +174,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	networkResponse.Status = secalib.NewNetworkStatus(secalib.CreatingResourceState)
 	networkResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: networkUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: networkResponse, currentState: "CreateNetwork", nextState: "GetNetwork"}); err != nil {
+		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "CreateNetwork", nextState: "GetNetwork"}); err != nil {
 		return nil, err
 	}
 
@@ -179,7 +182,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetNetworkStatusState(networkResponse.Status, secalib.ActiveResourceState)
 	networkResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: networkUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: networkResponse, currentState: "GetNetwork", nextState: "CreateInternetGateway"}); err != nil {
+		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "GetNetwork", nextState: "CreateInternetGateway"}); err != nil {
 		return nil, err
 	}
 
@@ -193,7 +196,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	gatewayResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
 	gatewayResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: gatewayUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: gatewayResponse, currentState: "CreateInternetGateway", nextState: "GetInternetGateway"}); err != nil {
+		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "CreateInternetGateway", nextState: "GetInternetGateway"}); err != nil {
 		return nil, err
 	}
 
@@ -201,7 +204,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetStatusState(gatewayResponse.Status, secalib.ActiveResourceState)
 	gatewayResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: gatewayUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: gatewayResponse, currentState: "GetInternetGateway", nextState: "CreateRouteTable"}); err != nil {
+		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "GetInternetGateway", nextState: "CreateRouteTable"}); err != nil {
 		return nil, err
 	}
 
@@ -215,7 +218,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	routeResponse.Status = secalib.NewRouteTableStatus(secalib.CreatingResourceState)
 	routeResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: routeUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: routeResponse, currentState: "CreateRouteTable", nextState: "GetRouteTable"}); err != nil {
+		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "CreateRouteTable", nextState: "GetRouteTable"}); err != nil {
 		return nil, err
 	}
 
@@ -223,7 +226,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetRouteTableStatusState(routeResponse.Status, secalib.ActiveResourceState)
 	routeResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: routeUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: routeResponse, currentState: "GetRouteTable", nextState: "CreateSubnet"}); err != nil {
+		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "GetRouteTable", nextState: "CreateSubnet"}); err != nil {
 		return nil, err
 	}
 
@@ -237,7 +240,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	subnetResponse.Status = secalib.NewSubnetStatus(secalib.CreatingResourceState)
 	subnetResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: subnetUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: subnetResponse, currentState: "CreateSubnet", nextState: "GetSubnet"}); err != nil {
+		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "CreateSubnet", nextState: "GetSubnet"}); err != nil {
 		return nil, err
 	}
 
@@ -245,7 +248,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetSubnetStatusState(subnetResponse.Status, secalib.ActiveResourceState)
 	subnetResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: subnetUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: subnetResponse, currentState: "GetSubnet", nextState: "CreateSecurityGroup"}); err != nil {
+		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "GetSubnet", nextState: "CreateSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
@@ -259,7 +262,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	groupResponse.Status = secalib.NewSecurityGroupStatus(secalib.CreatingResourceState)
 	groupResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: groupUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: groupResponse, currentState: "CreateSecurityGroup", nextState: "GetSecurityGroup"}); err != nil {
+		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "CreateSecurityGroup", nextState: "GetSecurityGroup"}); err != nil {
 		return nil, err
 	}
 
@@ -267,7 +270,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetSecurityGroupStatusState(groupResponse.Status, secalib.ActiveResourceState)
 	groupResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: groupUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: groupResponse, currentState: "GetSecurityGroup", nextState: "CreatePublicIp"}); err != nil {
+		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "GetSecurityGroup", nextState: "CreatePublicIp"}); err != nil {
 		return nil, err
 	}
 
@@ -281,7 +284,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	publicIpResponse.Status = secalib.NewPublicIpStatus(secalib.CreatingResourceState)
 	publicIpResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: publicIpUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: publicIpResponse, currentState: "CreatePublicIp", nextState: "GetPublicIp"}); err != nil {
+		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "CreatePublicIp", nextState: "GetPublicIp"}); err != nil {
 		return nil, err
 	}
 
@@ -289,7 +292,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetPublicIpStatusState(publicIpResponse.Status, secalib.ActiveResourceState)
 	publicIpResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: publicIpUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: publicIpResponse, currentState: "GetPublicIp", nextState: "CreateNIC"}); err != nil {
+		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "GetPublicIp", nextState: "CreateNIC"}); err != nil {
 		return nil, err
 	}
 
@@ -303,7 +306,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	nicResponse.Status = secalib.NewNicStatus(secalib.CreatingResourceState)
 	nicResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: nicUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: nicResponse, currentState: "CreateNIC", nextState: "GetNIC"}); err != nil {
+		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "CreateNIC", nextState: "GetNIC"}); err != nil {
 		return nil, err
 	}
 
@@ -311,7 +314,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetNicStatusState(nicResponse.Status, secalib.ActiveResourceState)
 	nicResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: nicUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: nicResponse, currentState: "GetNIC", nextState: "CreateInstance"}); err != nil {
+		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "GetNIC", nextState: "CreateInstance"}); err != nil {
 		return nil, err
 	}
 
@@ -320,6 +323,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Instance
 	instanceResponse := newInstanceResponse(params.Instance.Name, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
+		&params.Instance.InitialLabels,
 		params.Instance.InitialSpec)
 
 	// Create an instance
@@ -327,7 +331,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	instanceResponse.Status = secalib.NewInstanceStatus(secalib.CreatingResourceState)
 	instanceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: instanceResponse, currentState: "CreateInstance", nextState: "GetCreatedInstance"}); err != nil {
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "CreateInstance", nextState: "GetCreatedInstance"}); err != nil {
 		return nil, err
 	}
 
@@ -335,7 +339,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: instanceResponse, currentState: "GetCreatedInstance", nextState: "DeleteInstance"}); err != nil {
+		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetCreatedInstance", nextState: "DeleteInstance"}); err != nil {
 		return nil, err
 	}
 

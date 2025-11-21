@@ -49,7 +49,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 
 	// 1 - Create ListRegions stub
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+		&stubConfig{url: secalib.RegionsURLV1, params: params, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
 		return nil, err
 	}
 
@@ -67,25 +67,25 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	}
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: regionUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: singleRegionResponse, currentState: "", nextState: ""}); err != nil {
+		&stubConfig{url: regionUrl, params: params, responseBody: singleRegionResponse, currentState: "", nextState: ""}); err != nil {
 		return nil, err
 	}
 
 	// List Regions with limit
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+		&stubConfig{url: secalib.RegionsURLV1, params: params, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
 		return nil, err
 	}
 
 	// List Regions with labels
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+		&stubConfig{url: secalib.RegionsURLV1, params: params, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
 		return nil, err
 	}
 
 	// List Regions with limit and labels
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+		&stubConfig{url: secalib.RegionsURLV1, params: params, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
 		return nil, err
 	}
 

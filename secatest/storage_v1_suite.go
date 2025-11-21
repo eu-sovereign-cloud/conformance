@@ -297,6 +297,29 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 			BlockStorage: &[]mock.ResourceParams[schema.BlockStorageSpec]{
 				{
 					Name: blockStorageName1,
+					InitialLabels: map[string]string{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
+					InitialSpec: &schema.BlockStorageSpec{
+						SkuRef: *storageSkuRefObj,
+						SizeGB: initialStorageSize,
+					},
+				},
+				{
+					Name: blockStorageName2,
+					InitialLabels: map[string]string{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
+					InitialSpec: &schema.BlockStorageSpec{
+						SkuRef: *storageSkuRefObj,
+						SizeGB: initialStorageSize,
+					},
+				},
+				{
+					Name: blockStorageName3,
+					InitialLabels: map[string]string{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.BlockStorageSpec{
 						SkuRef: *storageSkuRefObj,
 						SizeGB: initialStorageSize,
@@ -306,6 +329,29 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 			Image: &[]mock.ResourceParams[schema.ImageSpec]{
 				{
 					Name: imageName1,
+					InitialLabels: map[string]string{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
+					InitialSpec: &schema.ImageSpec{
+						BlockStorageRef: *blockStorageRefObj,
+						CpuArchitecture: secalib.CpuArchitectureAmd64,
+					},
+				},
+				{
+					Name: imageName2,
+					InitialLabels: map[string]string{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
+					InitialSpec: &schema.ImageSpec{
+						BlockStorageRef: *blockStorageRefObj,
+						CpuArchitecture: secalib.CpuArchitectureAmd64,
+					},
+				},
+				{
+					Name: imageName3,
+					InitialLabels: map[string]string{
+						secalib.EnvLabel: secalib.EnvConformance,
+					},
 					InitialSpec: &schema.ImageSpec{
 						BlockStorageRef: *blockStorageRefObj,
 						CpuArchitecture: secalib.CpuArchitectureAmd64,
@@ -313,7 +359,7 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigStorageLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigStorageListLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -333,13 +379,6 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 		},
 	}
 	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, nil, nil, secalib.CreatingResourceState)
-
-	// Get the created Workspace
-	workspaceTRef := &secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.tenant),
-		Name:   workspaceName,
-	}
-	suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, nil, nil, secalib.ActiveResourceState)
 
 	// Block storage
 
@@ -404,16 +443,16 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 	suite.getListBlockStorageV1Step("List block storage", t, ctx, suite.client.StorageV1, tref, wref, nil)
 
 	// List instances with limit
-	suite.getListBlockStorageV1Step("Get list of instances", t, ctx, suite.client.StorageV1, tref, wref,
+	suite.getListBlockStorageV1Step("List block storage", t, ctx, suite.client.StorageV1, tref, wref,
 		builders.NewListOptions().WithLimit(1))
 
 	// List Instances with Label
-	suite.getListBlockStorageV1Step("Get list of instances", t, ctx, suite.client.StorageV1, tref, wref,
+	suite.getListBlockStorageV1Step("Get list of block storage", t, ctx, suite.client.StorageV1, tref, wref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
 	// List Instances with Limit and label
-	suite.getListBlockStorageV1Step("Get list of instances", t, ctx, suite.client.StorageV1, tref, wref,
+	suite.getListBlockStorageV1Step("Get list of block storage", t, ctx, suite.client.StorageV1, tref, wref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 

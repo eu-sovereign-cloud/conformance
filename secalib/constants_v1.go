@@ -23,6 +23,7 @@ const (
 	InstanceListURLV1        = UrlProvidersPrefix + ComputeProviderV1 + "/" + InstanceListResource
 	StorageSkuURLV1          = UrlProvidersPrefix + StorageProviderV1 + "/" + SkuResource
 	BlockStorageURLV1        = UrlProvidersPrefix + StorageProviderV1 + "/" + BlockStorageResource
+	BlockStorageListURLV1    = UrlProvidersPrefix + StorageProviderV1 + "/" + BlockStorageListResource
 	ImageURLV1               = UrlProvidersPrefix + StorageProviderV1 + "/" + ImageResource
 	ImageListURLV1           = UrlProvidersPrefix + StorageProviderV1 + "/" + ImageListResource
 	NetworkSkuURLV1          = UrlProvidersPrefix + NetworkProviderV1 + "/" + SkuResource

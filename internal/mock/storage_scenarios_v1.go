@@ -38,7 +38,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	workspaceResponse.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
 	workspaceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: workspaceResponse, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
+		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
 		return nil, err
 	}
 
@@ -46,13 +46,14 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	secalib.SetWorkspaceStatusState(workspaceResponse.Status, secalib.ActiveResourceState)
 	workspaceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateBlockStorage"}); err != nil {
+		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateBlockStorage"}); err != nil {
 		return nil, err
 	}
 
 	// Block storage
 	blockResponse := newBlockStorageResponse((*params.BlockStorage)[0].Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
 		params.Tenant, params.Workspace.Name, params.Region,
+		(*params.BlockStorage)[0].InitialLabels,
 		(*params.BlockStorage)[0].InitialSpec)
 
 	// Create a block storage
@@ -60,7 +61,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	blockResponse.Status = secalib.NewBlockStorageStatus(secalib.CreatingResourceState)
 	blockResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: blockResponse, currentState: "CreateBlockStorage", nextState: "GetCreatedBlockStorage"}); err != nil {
+		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "CreateBlockStorage", nextState: "GetCreatedBlockStorage"}); err != nil {
 		return nil, err
 	}
 
@@ -68,7 +69,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "UpdateBlockStorage"}); err != nil {
+		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "UpdateBlockStorage"}); err != nil {
 		return nil, err
 	}
 
@@ -78,7 +79,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	blockResponse.Spec = *(*params.BlockStorage)[0].UpdatedSpec
 	blockResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: blockResponse, currentState: "UpdateBlockStorage", nextState: "GetUpdatedBlockStorage"}); err != nil {
+		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "UpdateBlockStorage", nextState: "GetUpdatedBlockStorage"}); err != nil {
 		return nil, err
 	}
 
@@ -86,13 +87,14 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: blockResponse, currentState: "GetUpdatedBlockStorage", nextState: "CreateImage"}); err != nil {
+		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "GetUpdatedBlockStorage", nextState: "CreateImage"}); err != nil {
 		return nil, err
 	}
 
 	// image
 	imageResponse := newImageResponse((*params.Image)[0].Name, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1,
 		params.Tenant, params.Region,
+		&(*params.Image)[0].InitialLabels,
 		(*params.Image)[0].InitialSpec)
 
 	// Create an image
@@ -100,7 +102,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	imageResponse.Status = secalib.NewImageStatus(secalib.CreatingResourceState)
 	imageResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: imageResponse, currentState: "CreateImage", nextState: "GetCreatedImage"}); err != nil {
+		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "CreateImage", nextState: "GetCreatedImage"}); err != nil {
 		return nil, err
 	}
 
@@ -108,7 +110,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	secalib.SetImageStatusState(imageResponse.Status, secalib.ActiveResourceState)
 	imageResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: imageResponse, currentState: "GetCreatedImage", nextState: "UpdateImage"}); err != nil {
+		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "GetCreatedImage", nextState: "UpdateImage"}); err != nil {
 		return nil, err
 	}
 
@@ -118,7 +120,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	imageResponse.Spec = *(*params.Image)[0].UpdatedSpec
 	imageResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: imageResponse, currentState: "UpdateImage", nextState: "GetUpdatedImage"}); err != nil {
+		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "UpdateImage", nextState: "GetUpdatedImage"}); err != nil {
 		return nil, err
 	}
 
@@ -126,7 +128,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	secalib.SetImageStatusState(imageResponse.Status, secalib.ActiveResourceState)
 	imageResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: imageResponse, currentState: "GetUpdatedImage", nextState: "DeleteImage"}); err != nil {
+		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "GetUpdatedImage", nextState: "DeleteImage"}); err != nil {
 		return nil, err
 	}
 
@@ -180,11 +182,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
 	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 
-	blockUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, (*params.BlockStorage)[0].Name)
-	imageUrl := secalib.GenerateImageURL(params.Tenant, (*params.Image)[0].Name)
-
 	blockResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, (*params.BlockStorage)[0].Name)
-	imageResource := secalib.GenerateImageResource(params.Tenant, (*params.Image)[0].Name)
 
 	// Workspace
 	workspaceResponse := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1,
@@ -196,15 +194,17 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	workspaceResponse.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
 	workspaceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: workspaceResponse, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
+		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: startedScenarioState, nextState: (*params.BlockStorage)[0].Name}); err != nil {
 		return nil, err
 	}
 
 	// Block storage
 	var blockList []schema.BlockStorage
 	for i := range *params.BlockStorage {
+		blockResource = secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, (*params.BlockStorage)[i].Name)
 		blockResponse := newBlockStorageResponse((*params.BlockStorage)[i].Name, secalib.StorageProviderV1, blockResource, secalib.ApiVersion1,
 			params.Tenant, params.Workspace.Name, params.Region,
+			(*params.BlockStorage)[i].InitialLabels,
 			(*params.BlockStorage)[i].InitialSpec)
 
 		var nextState string
@@ -218,7 +218,8 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 		blockResponse.Status = secalib.NewBlockStorageStatus(secalib.CreatingResourceState)
 		blockResponse.Metadata.Verb = http.MethodPut
 		if err := configurePutStub(wm, scenario,
-			&stubConfig{url: blockUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: blockResponse, currentState: (*params.BlockStorage)[i].Name, nextState: nextState}); err != nil {
+			&stubConfig{url: secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, (*params.BlockStorage)[i].Name), params: params, responseBody: blockResponse,
+				currentState: (*params.BlockStorage)[i].Name, nextState: nextState}); err != nil {
 			return nil, err
 		}
 		blockList = append(blockList, *blockResponse)
@@ -236,33 +237,21 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	blockListResponse.Items = blockList
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: blockListResource, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: blockListResponse, currentState: "GetBlockStorageList", nextState: "CreateImage"}); err != nil {
+		&stubConfig{url: secalib.GenerateBlockStorageListURL(params.Tenant, params.Workspace.Name), params: params, responseBody: blockListResponse,
+			currentState: "GetBlockStorageList", nextState: "GetBlockStorageListWithLimit"}); err != nil {
 		return nil, err
 	}
 	// List with limit
 
-	blockListWithLimitResponse := &storageV1.BlockStorageIterator{
-		Metadata: schema.ResponseMetadata{
-			Provider: secalib.StorageProviderV1,
-			Resource: blockListResource,
-			Verb:     http.MethodGet,
-		},
-	}
-	blockListWithLimitResponse.Items = blockList[:1]
+	blockListResponse.Items = blockList[:1]
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateBlockStorageListResource(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimit(params.AuthToken, "1"), responseBody: blockListWithLimitResponse, currentState: "GetBlockStorageListWithLimit", nextState: "CreateImage"}); err != nil {
+		&stubConfig{url: secalib.GenerateBlockStorageListResource(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimit("1"), responseBody: blockListResponse,
+			currentState: "GetBlockStorageListWithLimit", nextState: "GetBlockStorageListWithLabel"}); err != nil {
 		return nil, err
 	}
 
 	// List with Label
-	blockListWithLabelResponse := &storageV1.BlockStorageIterator{
-		Metadata: schema.ResponseMetadata{
-			Provider: secalib.StorageProviderV1,
-			Resource: blockListResource,
-			Verb:     http.MethodGet,
-		},
-	}
 
 	blocksWithLabel := func(blockList []schema.BlockStorage) []schema.BlockStorage {
 		var filteredInstances []schema.BlockStorage
@@ -273,44 +262,26 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 		}
 		return filteredInstances
 	}
-	blockListWithLabelResponse.Items = blocksWithLabel(blockList)
+	blockListResponse.Items = blocksWithLabel(blockList)
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateBlockStorageListResource(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLabel(params.AuthToken, secalib.EnvLabel, secalib.EnvConformance), responseBody: blockListWithLabelResponse, currentState: "GetBlockStorageListWithLabel", nextState: "CreateImage"}); err != nil {
+		&stubConfig{url: secalib.GenerateBlockStorageListResource(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: blockListResponse, currentState: "GetBlockStorageListWithLabel", nextState: "GetBlockStorageListWithLimitAndLabel"}); err != nil {
 		return nil, err
 	}
 	// List with limit & label
 
-	blockListWithLimitAndLabelResponse := &storageV1.BlockStorageIterator{
-		Metadata: schema.ResponseMetadata{
-			Provider: secalib.StorageProviderV1,
-			Resource: blockListResource,
-			Verb:     http.MethodGet,
-		},
-	}
-
-	blockListWithLimitAndLabelResponse.Items = blocksWithLabel(blockList)[:1]
+	blockListResponse.Items = blocksWithLabel(blockList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateBlockStorageListResource(params.Tenant, params.Workspace.Name), params: params, headers: headerParamsLimitAndLabel(params.AuthToken, "1", secalib.EnvLabel, secalib.EnvConformance), responseBody: blockListWithLimitAndLabelResponse, currentState: "GetBlockStorageListWithLimitAndLabel", nextState: "CreateImage"}); err != nil {
+		&stubConfig{url: secalib.GenerateBlockStorageListResource(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: blockListResponse, currentState: "GetBlockStorageListWithLimitAndLabel", nextState: (*params.Image)[0].Name}); err != nil {
 		return nil, err
 	}
 	// image
-	imageResponse := newImageResponse((*params.Image)[0].Name, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1,
-		params.Tenant, params.Region,
-		(*params.Image)[0].InitialSpec)
-
-	// Create an image
-	setCreatedRegionalResourceMetadata(imageResponse.Metadata)
-	imageResponse.Status = secalib.NewImageStatus(secalib.CreatingResourceState)
-	imageResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: imageResponse, currentState: "CreateImage", nextState: (*params.Image)[0].Name}); err != nil {
-		return nil, err
-	}
 	var imageList []schema.Image
 	for i := range *params.Image {
+		imageResource := secalib.GenerateImageResource(params.Tenant, (*params.Image)[i].Name)
 		imageResp := newImageResponse((*params.Image)[i].Name, secalib.StorageProviderV1, imageResource, secalib.ApiVersion1,
 			params.Tenant, params.Region,
+			&(*params.Image)[i].InitialLabels,
 			(*params.Image)[i].InitialSpec)
 
 		var nextState string
@@ -322,7 +293,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 
 		// Create image
 		if err := configurePutStub(wm, scenario,
-			&stubConfig{url: imageUrl, params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: imageResp, currentState: (*params.Image)[i].Name, nextState: nextState}); err != nil {
+			&stubConfig{url: secalib.GenerateImageResource(params.Tenant, (*params.Image)[i].Name), params: params, responseBody: imageResp, currentState: (*params.Image)[i].Name, nextState: nextState}); err != nil {
 			return nil, err
 		}
 		imageList = append(imageList, *imageResp)
@@ -338,7 +309,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	}
 	imageListResponse.Items = imageList
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: imageListResponse, currentState: "GetImageList", nextState: "GetImageListWithLimit"}); err != nil {
+		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, responseBody: imageListResponse, currentState: "GetImageList", nextState: "GetImageListWithLimit"}); err != nil {
 		return nil, err
 	}
 	// List with limit
@@ -353,7 +324,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	imageListWithLimitResponse.Items = imageList[:1]
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, headers: headerParamsLimit(params.AuthToken, "1"), responseBody: imageListWithLimitResponse, currentState: "GetImageListWithLimit", nextState: "GetImageListWithLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, pathParams: pathParamsLimit("1"), responseBody: imageListWithLimitResponse, currentState: "GetImageListWithLimit", nextState: "GetImageListWithLabel"}); err != nil {
 		return nil, err
 	}
 	// List with Label
@@ -377,7 +348,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	imageListWithLabelResponse.Items = imagesWithLabel(imageList)
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, headers: headerParamsLabel(params.AuthToken, secalib.EnvLabel, secalib.EnvConformance), responseBody: imageListWithLabelResponse, currentState: "GetImageListWithLabel", nextState: "GetImageListWithLimitAndLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: imageListWithLabelResponse, currentState: "GetImageListWithLabel", nextState: "GetImageListWithLimitAndLabel"}); err != nil {
 		return nil, err
 	}
 	// List with limit & label
@@ -392,7 +363,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 
 	imageListWithLimitAndLabelResponse.Items = imagesWithLabel(imageList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, headers: headerParamsLimitAndLabel(params.AuthToken, "1", secalib.EnvLabel, secalib.EnvConformance), responseBody: imageListWithLimitAndLabelResponse, currentState: "GetImageListWithLimitAndLabel", nextState: "GetSkuList"}); err != nil {
+		&stubConfig{url: secalib.GenerateImageListResource(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: imageListWithLimitAndLabelResponse, currentState: "GetImageListWithLimitAndLabel", nextState: "GetSkuList"}); err != nil {
 		return nil, err
 	}
 
@@ -468,7 +439,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 		Items: skuList,
 	}
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, headers: headerParamsGeneric(params.AuthToken), responseBody: skuResponse, currentState: "GetSkuList", nextState: "GetSkuListWithLimit"}); err != nil {
+		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, responseBody: skuResponse, currentState: "GetSkuList", nextState: "GetSkuListWithLimit"}); err != nil {
 		return nil, err
 	}
 	// List with limit
@@ -483,7 +454,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	skuWithLimitResponse.Items = skuList[:1]
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, headers: headerParamsLimit(params.AuthToken, "1"), responseBody: skuWithLimitResponse, currentState: "GetSkuListWithLimit", nextState: "GetSkuListWithLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, pathParams: pathParamsLimit("1"), responseBody: skuWithLimitResponse, currentState: "GetSkuListWithLimit", nextState: "GetSkuListWithLabel"}); err != nil {
 		return nil, err
 	}
 	// List with Label
@@ -507,7 +478,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	skuWithLabelResponse.Items = skusWithLabel(skuList)
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, headers: headerParamsLabel(params.AuthToken, secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLabelResponse, currentState: "GetSkuListWithLabel", nextState: "GetSkuListWithLimitAndLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLabelResponse, currentState: "GetSkuListWithLabel", nextState: "GetSkuListWithLimitAndLabel"}); err != nil {
 		return nil, err
 	}
 	// List with limit & label
@@ -522,7 +493,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 
 	skuWithLimitAndLabelResponse.Items = skusWithLabel(skuList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, headers: headerParamsLimitAndLabel(params.AuthToken, "1", secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLimitAndLabelResponse, currentState: "GetSkuListWithLimitAndLabel", nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: secalib.GenerateSkuListResource(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLimitAndLabelResponse, currentState: "GetSkuListWithLimitAndLabel", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 	return wm, nil
