@@ -24,7 +24,10 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.AuthorizationProviderV1, secalib.RoleKind, secalib.RoleAssignmentKind)
+	configureTags(t, secalib.AuthorizationProviderV1, 
+		string(schema.GlobalTenantResourceMetadataKindResourceKindRole), 
+		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
+	)
 
 	// Select subs
 	roleAssignmentSub1 := suite.users[rand.Intn(len(suite.users))]
@@ -109,7 +112,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.AuthorizationProviderV1).
 		Resource(roleResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.RoleKind).
+		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).
 		Tenant(suite.tenant).
 		BuildResponse()
 	if err != nil {
@@ -128,7 +131,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			metadata:      expectRoleMeta,
 			spec:          expectRoleSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -141,7 +144,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			metadata:      expectRoleMeta,
 			spec:          expectRoleSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -152,7 +155,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			metadata:      expectRoleMeta,
 			spec:          expectRoleSpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -161,7 +164,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			metadata:      expectRoleMeta,
 			spec:          expectRoleSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -184,7 +187,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.AuthorizationProviderV1).
 		Resource(roleAssignmentResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.RoleAssignmentKind).
+		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).
 		Tenant(suite.tenant).
 		BuildResponse()
 	if err != nil {
@@ -199,7 +202,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			metadata:      expectRoleAssignMeta,
 			spec:          expectRoleAssignSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -212,7 +215,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			metadata:      expectRoleAssignMeta,
 			spec:          expectRoleAssignSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -223,7 +226,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			metadata:      expectRoleAssignMeta,
 			spec:          expectRoleAssignSpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -232,7 +235,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			metadata:      expectRoleAssignMeta,
 			spec:          expectRoleAssignSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 

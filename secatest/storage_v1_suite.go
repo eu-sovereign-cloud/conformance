@@ -24,7 +24,10 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.StorageProviderV1, secalib.BlockStorageKind, secalib.ImageKind)
+	configureTags(t, secalib.StorageProviderV1,
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
+	)
 
 	// Select sku
 	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
@@ -83,11 +86,11 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 				Name: imageName,
 				InitialSpec: &schema.ImageSpec{
 					BlockStorageRef: *blockStorageRefObj,
-					CpuArchitecture: secalib.CpuArchitectureAmd64,
+					CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
 				},
 				UpdatedSpec: &schema.ImageSpec{
 					BlockStorageRef: *blockStorageRefObj,
-					CpuArchitecture: secalib.CpuArchitectureArm64,
+					CpuArchitecture: schema.ImageSpecCpuArchitectureArm64,
 				},
 			},
 		}
@@ -115,7 +118,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.WorkspaceProviderV1).
 		Resource(workspaceResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.WorkspaceKind).
+		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
 		Tenant(suite.tenant).
 		Region(suite.region).
 		BuildResponse()
@@ -128,7 +131,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectWorkspaceLabels,
 			metadata:      expectWorkspaceMeta,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -141,7 +144,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectWorkspaceLabels,
 			metadata:      expectWorkspaceMeta,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -164,7 +167,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.StorageProviderV1).
 		Resource(blockStorageResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.BlockStorageKind).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
@@ -180,7 +183,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			metadata:      expectedBlockMeta,
 			spec:          expectedBlockSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -194,7 +197,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			metadata:      expectedBlockMeta,
 			spec:          expectedBlockSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -205,7 +208,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			metadata:      expectedBlockMeta,
 			spec:          expectedBlockSpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -214,7 +217,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			metadata:      expectedBlockMeta,
 			spec:          expectedBlockSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -228,7 +231,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		},
 		Spec: schema.ImageSpec{
 			BlockStorageRef: *blockStorageRefObj,
-			CpuArchitecture: secalib.CpuArchitectureAmd64,
+			CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
 		},
 	}
 	expectedImageMeta, err := builders.NewRegionalResourceMetadataBuilder().
@@ -236,7 +239,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.StorageProviderV1).
 		Resource(imageResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.ImageKind).
+		Kind(schema.RegionalResourceMetadataKindResourceKindImage).
 		Tenant(suite.tenant).
 		Region(suite.region).
 		BuildResponse()
@@ -245,13 +248,13 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectedImageSpec := &schema.ImageSpec{
 		BlockStorageRef: *blockStorageRefObj,
-		CpuArchitecture: secalib.CpuArchitectureAmd64,
+		CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
 	}
 	suite.createOrUpdateImageV1Step("Create an image", t, suite.client.StorageV1, image,
 		responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			metadata:      expectedImageMeta,
 			spec:          expectedImageSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -264,18 +267,18 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			metadata:      expectedImageMeta,
 			spec:          expectedImageSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
 	// Update the image
-	image.Spec.CpuArchitecture = secalib.CpuArchitectureArm64
+	image.Spec.CpuArchitecture = schema.ImageSpecCpuArchitectureArm64
 	expectedImageSpec.CpuArchitecture = image.Spec.CpuArchitecture
 	suite.createOrUpdateImageV1Step("Update the image", t, suite.client.StorageV1, image,
 		responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			metadata:      expectedImageMeta,
 			spec:          expectedImageSpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -284,7 +287,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			metadata:      expectedImageMeta,
 			spec:          expectedImageSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 

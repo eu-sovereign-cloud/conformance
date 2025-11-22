@@ -1,7 +1,6 @@
 package builders
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -62,7 +61,7 @@ func (builder *BlockStorageBuilder) Spec(spec *schema.BlockStorageSpec) *BlockSt
 }
 
 func (builder *BlockStorageBuilder) BuildResponse() (*schema.BlockStorage, error) {
-	medatata, err := builder.metadata.Kind(secalib.BlockStorageKind).BuildResponse()
+	medatata, err := builder.metadata.Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +135,7 @@ func (builder *ImageBuilder) Spec(spec *schema.ImageSpec) *ImageBuilder {
 }
 
 func (builder *ImageBuilder) BuildResponse() (*schema.Image, error) {
-	medatata, err := builder.metadata.Kind(secalib.ImageKind).BuildResponse()
+	medatata, err := builder.metadata.Kind(schema.RegionalResourceMetadataKindResourceKindImage).BuildResponse()
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package builders
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -62,7 +61,7 @@ func (builder *InstanceBuilder) Spec(spec *schema.InstanceSpec) *InstanceBuilder
 }
 
 func (builder *InstanceBuilder) BuildResponse() (*schema.Instance, error) {
-	medatata, err := builder.metadata.Kind(secalib.InstanceKind).BuildResponse()
+	medatata, err := builder.metadata.Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).BuildResponse()
 	if err != nil {
 		return nil, err
 	}

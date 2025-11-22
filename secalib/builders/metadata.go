@@ -36,8 +36,8 @@ func (builder *GlobalResourceMetadataBuilder) ApiVersion(apiVersion string) *Glo
 	return builder
 }
 
-func (builder *GlobalResourceMetadataBuilder) Kind(kind string) *GlobalResourceMetadataBuilder {
-	builder.metadata.Kind = schema.GlobalResourceMetadataKind(kind)
+func (builder *GlobalResourceMetadataBuilder) Kind(kind schema.GlobalResourceMetadataKind) *GlobalResourceMetadataBuilder {
+	builder.metadata.Kind = kind
 	return builder
 }
 
@@ -90,8 +90,8 @@ func (builder *GlobalTenantResourceMetadataBuilder) ApiVersion(apiVersion string
 	return builder
 }
 
-func (builder *GlobalTenantResourceMetadataBuilder) Kind(kind string) *GlobalTenantResourceMetadataBuilder {
-	builder.metadata.Kind = schema.GlobalTenantResourceMetadataKind(kind)
+func (builder *GlobalTenantResourceMetadataBuilder) Kind(kind schema.GlobalTenantResourceMetadataKind) *GlobalTenantResourceMetadataBuilder {
+	builder.metadata.Kind = kind
 	return builder
 }
 
@@ -150,8 +150,8 @@ func (builder *RegionalResourceMetadataBuilder) ApiVersion(apiVersion string) *R
 	return builder
 }
 
-func (builder *RegionalResourceMetadataBuilder) Kind(kind string) *RegionalResourceMetadataBuilder {
-	builder.metadata.Kind = schema.RegionalResourceMetadataKind(kind)
+func (builder *RegionalResourceMetadataBuilder) Kind(kind schema.RegionalResourceMetadataKind) *RegionalResourceMetadataBuilder {
+	builder.metadata.Kind = kind
 	return builder
 }
 
@@ -216,8 +216,8 @@ func (builder *RegionalWorkspaceResourceMetadataBuilder) ApiVersion(apiVersion s
 	return builder
 }
 
-func (builder *RegionalWorkspaceResourceMetadataBuilder) Kind(kind string) *RegionalWorkspaceResourceMetadataBuilder {
-	builder.metadata.Kind = schema.RegionalWorkspaceResourceMetadataKind(kind)
+func (builder *RegionalWorkspaceResourceMetadataBuilder) Kind(kind schema.RegionalWorkspaceResourceMetadataKind) *RegionalWorkspaceResourceMetadataBuilder {
+	builder.metadata.Kind = kind
 	return builder
 }
 
@@ -288,8 +288,8 @@ func (builder *RegionalNetworkResourceMetadataBuilder) ApiVersion(apiVersion str
 	return builder
 }
 
-func (builder *RegionalNetworkResourceMetadataBuilder) Kind(kind string) *RegionalNetworkResourceMetadataBuilder {
-	builder.metadata.Kind = schema.RegionalNetworkResourceMetadataKind(kind)
+func (builder *RegionalNetworkResourceMetadataBuilder) Kind(kind schema.RegionalNetworkResourceMetadataKind) *RegionalNetworkResourceMetadataBuilder {
+	builder.metadata.Kind = kind
 	return builder
 }
 

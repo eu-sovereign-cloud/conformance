@@ -1,7 +1,6 @@
 package builders
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -52,7 +51,7 @@ func (builder *RoleBuilder) Spec(spec *schema.RoleSpec) *RoleBuilder {
 }
 
 func (builder *RoleBuilder) BuildResponse() (*schema.Role, error) {
-	medatata, err := builder.metadata.Kind(secalib.RoleKind).BuildResponse()
+	medatata, err := builder.metadata.Kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +129,7 @@ func (builder *RoleAssignmentBuilder) Spec(spec *schema.RoleAssignmentSpec) *Rol
 }
 
 func (builder *RoleAssignmentBuilder) BuildResponse() (*schema.RoleAssignment, error) {
-	medatata, err := builder.metadata.Kind(secalib.RoleAssignmentKind).BuildResponse()
+	medatata, err := builder.metadata.Kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).BuildResponse()
 	if err != nil {
 		return nil, err
 	}

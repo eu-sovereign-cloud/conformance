@@ -1,7 +1,6 @@
 package builders
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -47,7 +46,7 @@ func (builder *RegionBuilder) Spec(spec *schema.RegionSpec) *RegionBuilder {
 }
 
 func (builder *RegionBuilder) BuildResponse() (*schema.Region, error) {
-	medatata, err := builder.metadata.Kind(secalib.RegionKind).BuildResponse()
+	medatata, err := builder.metadata.Kind(schema.GlobalResourceMetadataKindResourceKindRegion).BuildResponse()
 	if err != nil {
 		return nil, err
 	}

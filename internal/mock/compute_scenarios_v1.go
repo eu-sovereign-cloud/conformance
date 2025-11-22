@@ -6,6 +6,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
 
@@ -41,7 +42,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
-	workspaceResponse.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
+	workspaceResponse.Status = secalib.NewWorkspaceStatus(schema.ResourceStateCreating)
 	workspaceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
@@ -49,7 +50,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the created workspace
-	secalib.SetWorkspaceStatusState(workspaceResponse.Status, secalib.ActiveResourceState)
+	secalib.SetWorkspaceStatusState(workspaceResponse.Status, schema.ResourceStateActive)
 	workspaceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateBlockStorage"}); err != nil {
@@ -73,7 +74,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Create a block storage
 	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
-	blockResponse.Status = secalib.NewBlockStorageStatus(secalib.CreatingResourceState)
+	blockResponse.Status = secalib.NewBlockStorageStatus(schema.ResourceStateCreating)
 	blockResponse.Spec.SizeGB = params.BlockStorage.InitialSpec.SizeGB
 	blockResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -82,7 +83,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the created block storage
-	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
+	secalib.SetBlockStorageStatusState(blockResponse.Status, schema.ResourceStateActive)
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "CreateInstance"}); err != nil {
@@ -106,7 +107,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Create an instance
 	setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-	instanceResponse.Status = secalib.NewInstanceStatus(secalib.CreatingResourceState)
+	instanceResponse.Status = secalib.NewInstanceStatus(schema.ResourceStateCreating)
 	instanceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "CreateInstance", nextState: "GetCreatedInstance"}); err != nil {
@@ -114,7 +115,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the created instance
-	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
+	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateActive)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetCreatedInstance", nextState: "UpdateInstance"}); err != nil {
@@ -123,7 +124,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Update the instance
 	setModifiedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.UpdatingResourceState)
+	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateUpdating)
 	instanceResponse.Spec = *params.Instance.UpdatedSpec
 	instanceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -132,7 +133,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the updated instance
-	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
+	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateActive)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetUpdatedInstance", nextState: "StopInstance"}); err != nil {
@@ -147,7 +148,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the stopped instance
-	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.SuspendedResourceState)
+	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateSuspended)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetStoppedInstance", nextState: "StartInstance"}); err != nil {
@@ -162,7 +163,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the started instance
-	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
+	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateActive)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetStartedInstance", nextState: "RestartInstance"}); err != nil {
@@ -177,7 +178,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the restarted instance
-	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
+	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateActive)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetRestartedInstance", nextState: "DeleteInstance"}); err != nil {

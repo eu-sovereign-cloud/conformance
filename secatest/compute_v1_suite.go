@@ -26,7 +26,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.ComputeProviderV1, secalib.InstanceKind)
+	configureTags(t, secalib.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	// Select skus
 	instanceSkuName := suite.instanceSkus[rand.Intn(len(suite.instanceSkus))]
@@ -128,7 +128,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.WorkspaceProviderV1).
 		Resource(workspaceResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.WorkspaceKind).
+		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
 		Tenant(suite.tenant).
 		Region(suite.region).
 		BuildResponse()
@@ -141,7 +141,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectWorkspaceLabels,
 			metadata:      expectWorkspaceMeta,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -154,7 +154,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectWorkspaceLabels,
 			metadata:      expectWorkspaceMeta,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 	// Block storage
@@ -176,7 +176,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.StorageProviderV1).
 		Resource(blockStorageResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.BlockStorageKind).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
@@ -192,7 +192,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			metadata:      expectedBlockMeta,
 			spec:          expectedBlockSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -206,7 +206,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			metadata:      expectedBlockMeta,
 			spec:          expectedBlockSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -232,7 +232,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.ComputeProviderV1).
 		Resource(instanceResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.InstanceKind).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
@@ -251,7 +251,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			metadata:      expectInstanceMeta,
 			spec:          expectInstanceSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -265,7 +265,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			metadata:      expectInstanceMeta,
 			spec:          expectInstanceSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -276,7 +276,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			metadata:      expectInstanceMeta,
 			spec:          expectInstanceSpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -285,7 +285,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			metadata:      expectInstanceMeta,
 			spec:          expectInstanceSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -297,7 +297,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			metadata:      expectInstanceMeta,
 			spec:          expectInstanceSpec,
-			resourceState: secalib.SuspendedResourceState,
+			resourceState: schema.ResourceStateSuspended,
 		},
 	)
 
@@ -309,7 +309,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			metadata:      expectInstanceMeta,
 			spec:          expectInstanceSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -322,7 +322,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			metadata:      expectInstanceMeta,
 			spec:          expectInstanceSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 

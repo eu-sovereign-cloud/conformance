@@ -1,7 +1,6 @@
 package builders
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -62,7 +61,7 @@ func (builder *NetworkBuilder) Spec(spec *schema.NetworkSpec) *NetworkBuilder {
 }
 
 func (builder *NetworkBuilder) BuildResponse() (*schema.Network, error) {
-	metadata, err := builder.metadata.Kind(secalib.NetworkKind).BuildResponse()
+	metadata, err := builder.metadata.Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork).BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +146,7 @@ func (builder *InternetGatewayBuilder) Spec(spec *schema.InternetGatewaySpec) *I
 }
 
 func (builder *InternetGatewayBuilder) BuildResponse() (*schema.InternetGateway, error) {
-	metadata, err := builder.metadata.Kind(secalib.InternetGatewayKind).BuildResponse()
+	metadata, err := builder.metadata.Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway).BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +228,7 @@ func (builder *RouteTableBuilder) Spec(spec *schema.RouteTableSpec) *RouteTableB
 }
 
 func (builder *RouteTableBuilder) BuildResponse() (*schema.RouteTable, error) {
-	metadata, err := builder.metadata.Kind(secalib.RouteTableKind).BuildResponse()
+	metadata, err := builder.metadata.Kind(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable).BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -319,7 +318,7 @@ func (builder *SubnetBuilder) Spec(spec *schema.SubnetSpec) *SubnetBuilder {
 }
 
 func (builder *SubnetBuilder) BuildResponse() (*schema.Subnet, error) {
-	metadata, err := builder.metadata.Kind(secalib.SubnetKind).BuildResponse()
+	metadata, err := builder.metadata.Kind(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet).BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -397,7 +396,7 @@ func (builder *PublicIpBuilder) Spec(spec *schema.PublicIpSpec) *PublicIpBuilder
 }
 
 func (builder *PublicIpBuilder) BuildResponse() (*schema.PublicIp, error) {
-	metadata, err := builder.metadata.Kind(secalib.PublicIpKind).BuildResponse()
+	metadata, err := builder.metadata.Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP).BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -474,7 +473,7 @@ func (builder *NicBuilder) Spec(spec *schema.NicSpec) *NicBuilder {
 }
 
 func (builder *NicBuilder) BuildResponse() (*schema.Nic, error) {
-	metadata, err := builder.metadata.Kind(secalib.NicKind).BuildResponse()
+	metadata, err := builder.metadata.Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic).BuildResponse()
 	if err != nil {
 		return nil, err
 	}
@@ -552,7 +551,7 @@ func (builder *SecurityGroupBuilder) Spec(spec *schema.SecurityGroupSpec) *Secur
 }
 
 func (builder *SecurityGroupBuilder) BuildResponse() (*schema.SecurityGroup, error) {
-	metadata, err := builder.metadata.Kind(secalib.SecurityGroupKind).BuildResponse()
+	metadata, err := builder.metadata.Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup).BuildResponse()
 	if err != nil {
 		return nil, err
 	}

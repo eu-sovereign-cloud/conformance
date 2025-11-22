@@ -20,7 +20,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.WorkspaceProviderV1, secalib.WorkspaceKind)
+	configureTags(t, secalib.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	// Generate scenario data
 	workspaceName := secalib.GenerateWorkspaceName()
@@ -67,7 +67,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.WorkspaceProviderV1).
 		Resource(workspaceResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.WorkspaceKind).
+		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
 		Tenant(suite.tenant).
 		Region(suite.region).
 		BuildResponse()
@@ -79,7 +79,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectLabels,
 			metadata:      expectMeta,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -92,7 +92,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectLabels,
 			metadata:      expectMeta,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -105,7 +105,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectLabels,
 			metadata:      expectMeta,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -114,7 +114,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectLabels,
 			metadata:      expectMeta,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 

@@ -21,7 +21,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.RegionKind)
+	configureTags(t, secalib.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
 	// Generate scenario Names
 	regionNameA := secalib.GenerateRegionName()
@@ -87,7 +87,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.RegionProviderV1).
 		Resource(regionResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.RegionKind).
+		Kind(schema.GlobalResourceMetadataKindResourceKindRegion).
 		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)

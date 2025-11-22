@@ -72,7 +72,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 			Provider:   secalib.RegionProviderV1,
 			Resource:   regionResource,
 			ApiVersion: secalib.ApiVersion1,
-			Kind:       secalib.RegionKind,
+			Kind:       schema.GlobalResourceMetadataKindResourceKindRegion,
 			Verb:       http.MethodGet,
 		},
 		Spec: regionsResponse.Items[0].Spec,

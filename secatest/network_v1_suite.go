@@ -34,8 +34,15 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.NetworkProviderV1, secalib.NetworkKind, secalib.InternetGatewayKind, secalib.NicKind, secalib.PublicIpKind, secalib.RouteTableKind,
-		secalib.SubnetKind, secalib.SecurityGroupKind)
+	configureTags(t, secalib.NetworkProviderV1,
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP),
+		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
+		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
+	)
 
 	// Generate the subnet cidr
 	subnetCidr, err := secalib.GenerateSubnetCidr(suite.networkCidr, 8, 1)
@@ -248,21 +255,21 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			PublicIp: &mock.ResourceParams[schema.PublicIpSpec]{
 				Name: publicIpName,
 				InitialSpec: &schema.PublicIpSpec{
-					Version: secalib.IpVersion4,
+					Version: schema.IPVersionIPv4,
 					Address: ptr.To(publicIpAddress1),
 				},
 				UpdatedSpec: &schema.PublicIpSpec{
-					Version: secalib.IpVersion4,
+					Version: schema.IPVersionIPv4,
 					Address: ptr.To(publicIpAddress2),
 				},
 			},
 			SecurityGroup: &mock.ResourceParams[schema.SecurityGroupSpec]{
 				Name: securityGroupName,
 				InitialSpec: &schema.SecurityGroupSpec{
-					Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionIngress}},
+					Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 				},
 				UpdatedSpec: &schema.SecurityGroupSpec{
-					Rules: []schema.SecurityGroupRuleSpec{{Direction: secalib.SecurityRuleDirectionEgress}},
+					Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionEgress}},
 				},
 			},
 		}
@@ -290,7 +297,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.WorkspaceProviderV1).
 		Resource(workspaceResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.WorkspaceKind).
+		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
 		Tenant(suite.tenant).
 		Region(suite.region).
 		BuildResponse()
@@ -302,7 +309,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectWorkspaceLabels,
 			metadata:      expectWorkspaceMeta,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -315,7 +322,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectWorkspaceLabels,
 			metadata:      expectWorkspaceMeta,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -339,7 +346,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.NetworkProviderV1).
 		Resource(networkResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.NetworkKind).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
@@ -356,7 +363,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			metadata:      expectNetworkMeta,
 			spec:          expectNetworkSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -370,7 +377,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			metadata:      expectNetworkMeta,
 			spec:          expectNetworkSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -381,7 +388,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			metadata:      expectNetworkMeta,
 			spec:          expectNetworkSpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -390,7 +397,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			metadata:      expectNetworkMeta,
 			spec:          expectNetworkSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -409,7 +416,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.NetworkProviderV1).
 		Resource(internetGatewayResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.InternetGatewayKind).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
@@ -422,7 +429,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			metadata:      expectGatewayMeta,
 			spec:          expectGatewaySpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -436,7 +443,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			metadata:      expectGatewayMeta,
 			spec:          expectGatewaySpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -447,7 +454,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			metadata:      expectGatewayMeta,
 			spec:          expectGatewaySpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -456,7 +463,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			metadata:      expectGatewayMeta,
 			spec:          expectGatewaySpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -481,7 +488,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.NetworkProviderV1).
 		Resource(routeTableResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.RouteTableKind).
+		Kind(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Network(networkName).
@@ -499,7 +506,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			metadata:      expectRouteMeta,
 			spec:          expectRouteSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -514,7 +521,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			metadata:      expectRouteMeta,
 			spec:          expectRouteSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -527,7 +534,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			metadata:      expectRouteMeta,
 			spec:          expectRouteSpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -536,7 +543,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			metadata:      expectRouteMeta,
 			spec:          expectRouteSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -560,7 +567,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.NetworkProviderV1).
 		Resource(subnetResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.SubnetKind).
+		Kind(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Network(networkName).
@@ -577,7 +584,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			metadata:      expectSubnetMeta,
 			spec:          expectSubnetSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -592,7 +599,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			metadata:      expectSubnetMeta,
 			spec:          expectSubnetSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -603,7 +610,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			metadata:      expectSubnetMeta,
 			spec:          expectSubnetSpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -612,7 +619,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			metadata:      expectSubnetMeta,
 			spec:          expectSubnetSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -627,7 +634,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		},
 		Spec: schema.PublicIpSpec{
 			Address: &publicIpAddress1,
-			Version: secalib.IpVersion4,
+			Version: schema.IPVersionIPv4,
 		},
 	}
 	expectPublicIpMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
@@ -635,7 +642,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.NetworkProviderV1).
 		Resource(publicIpResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.PublicIpKind).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
@@ -645,13 +652,13 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectPublicIpSpec := &schema.PublicIpSpec{
 		Address: &publicIpAddress1,
-		Version: secalib.IpVersion4,
+		Version: schema.IPVersionIPv4,
 	}
 	suite.createOrUpdatePublicIpV1Step("Create a public ip", t, suite.client.NetworkV1, publicIp,
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			metadata:      expectPublicIpMeta,
 			spec:          expectPublicIpSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -665,7 +672,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			metadata:      expectPublicIpMeta,
 			spec:          expectPublicIpSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -676,7 +683,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			metadata:      expectPublicIpMeta,
 			spec:          expectPublicIpSpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -685,7 +692,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			metadata:      expectPublicIpMeta,
 			spec:          expectPublicIpSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -709,7 +716,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.NetworkProviderV1).
 		Resource(nicResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.NicKind).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
@@ -726,7 +733,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			metadata:      expectNicMeta,
 			spec:          expectNicSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -740,7 +747,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			metadata:      expectNicMeta,
 			spec:          expectNicSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -751,7 +758,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			metadata:      expectNicMeta,
 			spec:          expectNicSpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -760,7 +767,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			metadata:      expectNicMeta,
 			spec:          expectNicSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -775,7 +782,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		},
 		Spec: schema.SecurityGroupSpec{
 			Rules: []schema.SecurityGroupRuleSpec{
-				{Direction: secalib.SecurityRuleDirectionIngress},
+				{Direction: schema.SecurityGroupRuleDirectionIngress},
 			},
 		},
 	}
@@ -784,14 +791,14 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.NetworkProviderV1).
 		Resource(securityGroupResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.SecurityGroupKind).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
 		BuildResponse()
 	expectGroupSpec := &schema.SecurityGroupSpec{
 		Rules: []schema.SecurityGroupRuleSpec{
-			{Direction: secalib.SecurityRuleDirectionIngress},
+			{Direction: schema.SecurityGroupRuleDirectionIngress},
 		},
 	}
 	if err != nil {
@@ -801,7 +808,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			metadata:      expectGroupMeta,
 			spec:          expectGroupSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -815,18 +822,18 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			metadata:      expectGroupMeta,
 			spec:          expectGroupSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
 	// Update the security group
-	group.Spec.Rules[0] = schema.SecurityGroupRuleSpec{Direction: secalib.SecurityRuleDirectionEgress}
+	group.Spec.Rules[0] = schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionEgress}
 	expectGroupSpec.Rules = group.Spec.Rules
 	suite.createOrUpdateSecurityGroupV1Step("Update the security group", t, suite.client.NetworkV1, group,
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			metadata:      expectGroupMeta,
 			spec:          expectGroupSpec,
-			resourceState: secalib.UpdatingResourceState,
+			resourceState: schema.ResourceStateUpdating,
 		},
 	)
 
@@ -835,7 +842,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			metadata:      expectGroupMeta,
 			spec:          expectGroupSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -858,7 +865,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.StorageProviderV1).
 		Resource(blockStorageResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.BlockStorageKind).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
@@ -874,7 +881,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			metadata:      expectedBlockMeta,
 			spec:          expectedBlockSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -888,7 +895,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			metadata:      expectedBlockMeta,
 			spec:          expectedBlockSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -914,7 +921,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(secalib.ComputeProviderV1).
 		Resource(instanceResource).
 		ApiVersion(secalib.ApiVersion1).
-		Kind(secalib.InstanceKind).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).
 		Tenant(suite.tenant).
 		Workspace(workspaceName).
 		Region(suite.region).
@@ -933,7 +940,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			metadata:      expectInstanceMeta,
 			spec:          expectInstanceSpec,
-			resourceState: secalib.CreatingResourceState,
+			resourceState: schema.ResourceStateCreating,
 		},
 	)
 
@@ -947,7 +954,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			metadata:      expectInstanceMeta,
 			spec:          expectInstanceSpec,
-			resourceState: secalib.ActiveResourceState,
+			resourceState: schema.ResourceStateActive,
 		},
 	)
 

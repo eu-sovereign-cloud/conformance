@@ -6,6 +6,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
 
@@ -57,7 +58,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
-	workspaceResponse.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
+	workspaceResponse.Status = secalib.NewWorkspaceStatus(schema.ResourceStateCreating)
 	workspaceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
@@ -65,7 +66,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the created workspace
-	secalib.SetWorkspaceStatusState(workspaceResponse.Status, secalib.ActiveResourceState)
+	secalib.SetWorkspaceStatusState(workspaceResponse.Status, schema.ResourceStateActive)
 	workspaceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateNetwork"}); err != nil {
@@ -89,7 +90,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Create a network
 	setCreatedRegionalWorkspaceResourceMetadata(networkResponse.Metadata)
-	networkResponse.Status = secalib.NewNetworkStatus(secalib.CreatingResourceState)
+	networkResponse.Status = secalib.NewNetworkStatus(schema.ResourceStateCreating)
 	networkResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "CreateNetwork", nextState: "GetNetwork"}); err != nil {
@@ -97,7 +98,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the created network
-	secalib.SetNetworkStatusState(networkResponse.Status, secalib.ActiveResourceState)
+	secalib.SetNetworkStatusState(networkResponse.Status, schema.ResourceStateActive)
 	networkResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "GetNetwork", nextState: "UpdateNetwork"}); err != nil {
@@ -105,7 +106,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Update the network
-	secalib.SetNetworkStatusState(networkResponse.Status, secalib.UpdatingResourceState)
+	secalib.SetNetworkStatusState(networkResponse.Status, schema.ResourceStateUpdating)
 	networkResponse.Spec = *params.Network.UpdatedSpec
 	networkResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -114,7 +115,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the updated network
-	secalib.SetNetworkStatusState(networkResponse.Status, secalib.ActiveResourceState)
+	secalib.SetNetworkStatusState(networkResponse.Status, schema.ResourceStateActive)
 	networkResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "GetNetwork2x", nextState: "CreateInternetGateway"}); err != nil {
@@ -138,7 +139,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Create an internet gateway
 	setCreatedRegionalWorkspaceResourceMetadata(gatewayResponse.Metadata)
-	gatewayResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
+	gatewayResponse.Status = secalib.NewResourceStatus(schema.ResourceStateCreating)
 	gatewayResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "CreateInternetGateway", nextState: "GetInternetGateway"}); err != nil {
@@ -146,7 +147,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the created internet gateway
-	secalib.SetStatusState(gatewayResponse.Status, secalib.ActiveResourceState)
+	secalib.SetStatusState(gatewayResponse.Status, schema.ResourceStateActive)
 	gatewayResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "GetInternetGateway", nextState: "UpdateInternetGateway"}); err != nil {
@@ -155,7 +156,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Update the internet gateway
 	setModifiedRegionalWorkspaceResourceMetadata(gatewayResponse.Metadata)
-	secalib.SetStatusState(gatewayResponse.Status, secalib.UpdatingResourceState)
+	secalib.SetStatusState(gatewayResponse.Status, schema.ResourceStateUpdating)
 	gatewayResponse.Spec = *params.InternetGateway.UpdatedSpec
 	gatewayResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -164,7 +165,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the updated internet gateway
-	secalib.SetStatusState(gatewayResponse.Status, secalib.ActiveResourceState)
+	secalib.SetStatusState(gatewayResponse.Status, schema.ResourceStateActive)
 	gatewayResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "GetInternetGateway2x", nextState: "CreateRouteTable"}); err != nil {
@@ -189,7 +190,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Create a route table
 	setCreatedRegionalNetworkResourceMetadata(routeResponse.Metadata)
-	routeResponse.Status = secalib.NewRouteTableStatus(secalib.CreatingResourceState)
+	routeResponse.Status = secalib.NewRouteTableStatus(schema.ResourceStateCreating)
 	routeResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "CreateRouteTable", nextState: "GetRouteTable"}); err != nil {
@@ -197,7 +198,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the created route table
-	secalib.SetRouteTableStatusState(routeResponse.Status, secalib.ActiveResourceState)
+	secalib.SetRouteTableStatusState(routeResponse.Status, schema.ResourceStateActive)
 	routeResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "GetRouteTable", nextState: "UpdateRouteTable"}); err != nil {
@@ -206,7 +207,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Update the route table
 	setModifiedRegionalNetworkResourceMetadata(routeResponse.Metadata)
-	secalib.SetRouteTableStatusState(routeResponse.Status, secalib.UpdatingResourceState)
+	secalib.SetRouteTableStatusState(routeResponse.Status, schema.ResourceStateUpdating)
 	routeResponse.Spec = *params.RouteTable.UpdatedSpec
 	routeResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -215,7 +216,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the updated route table
-	secalib.SetRouteTableStatusState(routeResponse.Status, secalib.ActiveResourceState)
+	secalib.SetRouteTableStatusState(routeResponse.Status, schema.ResourceStateActive)
 	routeResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "GetRouteTableUpdated", nextState: "CreateSubnet"}); err != nil {
@@ -240,7 +241,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Create a subnet
 	setCreatedRegionalNetworkResourceMetadata(subnetResponse.Metadata)
-	subnetResponse.Status = secalib.NewSubnetStatus(secalib.CreatingResourceState)
+	subnetResponse.Status = secalib.NewSubnetStatus(schema.ResourceStateCreating)
 	subnetResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "CreateSubnet", nextState: "GetSubnet"}); err != nil {
@@ -248,7 +249,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the created subnet
-	secalib.SetSubnetStatusState(subnetResponse.Status, secalib.ActiveResourceState)
+	secalib.SetSubnetStatusState(subnetResponse.Status, schema.ResourceStateActive)
 	subnetResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "GetSubnet", nextState: "UpdateSubnet"}); err != nil {
@@ -257,7 +258,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Update the subnet
 	setModifiedRegionalNetworkResourceMetadata(subnetResponse.Metadata)
-	secalib.SetSubnetStatusState(subnetResponse.Status, secalib.UpdatingResourceState)
+	secalib.SetSubnetStatusState(subnetResponse.Status, schema.ResourceStateUpdating)
 	subnetResponse.Spec = *params.Subnet.UpdatedSpec
 	subnetResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -266,7 +267,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the updated subnet
-	secalib.SetSubnetStatusState(subnetResponse.Status, secalib.ActiveResourceState)
+	secalib.SetSubnetStatusState(subnetResponse.Status, schema.ResourceStateActive)
 	subnetResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "GetSubnetUpdated", nextState: "CreatePublicIp"}); err != nil {
@@ -290,7 +291,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Create a public ip
 	setCreatedRegionalWorkspaceResourceMetadata(publicIpResponse.Metadata)
-	publicIpResponse.Status = secalib.NewPublicIpStatus(secalib.CreatingResourceState)
+	publicIpResponse.Status = secalib.NewPublicIpStatus(schema.ResourceStateCreating)
 	publicIpResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "CreatePublicIp", nextState: "GetPublicIp"}); err != nil {
@@ -298,7 +299,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the created public ip
-	secalib.SetPublicIpStatusState(publicIpResponse.Status, secalib.ActiveResourceState)
+	secalib.SetPublicIpStatusState(publicIpResponse.Status, schema.ResourceStateActive)
 	publicIpResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "GetPublicIp", nextState: "UpdatePublicIp"}); err != nil {
@@ -307,7 +308,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Update the public ip
 	setModifiedRegionalWorkspaceResourceMetadata(publicIpResponse.Metadata)
-	secalib.SetPublicIpStatusState(publicIpResponse.Status, secalib.UpdatingResourceState)
+	secalib.SetPublicIpStatusState(publicIpResponse.Status, schema.ResourceStateUpdating)
 	publicIpResponse.Spec = *params.PublicIp.UpdatedSpec
 	publicIpResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -316,7 +317,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the updated public ip
-	secalib.SetPublicIpStatusState(publicIpResponse.Status, secalib.ActiveResourceState)
+	secalib.SetPublicIpStatusState(publicIpResponse.Status, schema.ResourceStateActive)
 	publicIpResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "GetPublicIpUpdated", nextState: "CreateNIC"}); err != nil {
@@ -340,7 +341,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Create a nic
 	setCreatedRegionalWorkspaceResourceMetadata(nicResponse.Metadata)
-	nicResponse.Status = secalib.NewNicStatus(secalib.CreatingResourceState)
+	nicResponse.Status = secalib.NewNicStatus(schema.ResourceStateCreating)
 	nicResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "CreateNIC", nextState: "GetNIC"}); err != nil {
@@ -348,7 +349,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the created nic
-	secalib.SetNicStatusState(nicResponse.Status, secalib.ActiveResourceState)
+	secalib.SetNicStatusState(nicResponse.Status, schema.ResourceStateActive)
 	nicResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "GetNIC", nextState: "UpdateNIC"}); err != nil {
@@ -357,7 +358,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Update the nic
 	setModifiedRegionalWorkspaceResourceMetadata(nicResponse.Metadata)
-	secalib.SetNicStatusState(nicResponse.Status, secalib.UpdatingResourceState)
+	secalib.SetNicStatusState(nicResponse.Status, schema.ResourceStateUpdating)
 	nicResponse.Spec = *params.Nic.UpdatedSpec
 	nicResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -366,7 +367,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the updated nic
-	secalib.SetNicStatusState(nicResponse.Status, secalib.ActiveResourceState)
+	secalib.SetNicStatusState(nicResponse.Status, schema.ResourceStateActive)
 	nicResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "GetNICUpdated", nextState: "CreateSecurityGroup"}); err != nil {
@@ -390,7 +391,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Create a security group
 	setCreatedRegionalWorkspaceResourceMetadata(groupResponse.Metadata)
-	groupResponse.Status = secalib.SewSecurityGroupStatus(secalib.CreatingResourceState)
+	groupResponse.Status = secalib.NewSecurityGroupStatus(schema.ResourceStateCreating)
 	groupResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "CreateSecurityGroup", nextState: "GetSecurityGroup"}); err != nil {
@@ -398,7 +399,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the created security group
-	secalib.SetSecurityGroupStatusState(groupResponse.Status, secalib.ActiveResourceState)
+	secalib.SetSecurityGroupStatusState(groupResponse.Status, schema.ResourceStateActive)
 	groupResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "GetSecurityGroup", nextState: "UpdateSecurityGroup"}); err != nil {
@@ -407,7 +408,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Update the security group
 	setModifiedRegionalWorkspaceResourceMetadata(groupResponse.Metadata)
-	secalib.SetSecurityGroupStatusState(groupResponse.Status, secalib.UpdatingResourceState)
+	secalib.SetSecurityGroupStatusState(groupResponse.Status, schema.ResourceStateUpdating)
 	groupResponse.Spec = *params.SecurityGroup.UpdatedSpec
 	groupResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -416,7 +417,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the updated security group
-	secalib.SetSecurityGroupStatusState(groupResponse.Status, secalib.ActiveResourceState)
+	secalib.SetSecurityGroupStatusState(groupResponse.Status, schema.ResourceStateActive)
 	groupResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "GetSecurityGroupUpdated", nextState: "CreateBlockStorage"}); err != nil {
@@ -440,7 +441,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Create a block storage
 	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
-	blockResponse.Status = secalib.NewBlockStorageStatus(secalib.CreatingResourceState)
+	blockResponse.Status = secalib.NewBlockStorageStatus(schema.ResourceStateCreating)
 	blockResponse.Spec.SizeGB = params.BlockStorage.InitialSpec.SizeGB
 	blockResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -449,7 +450,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the created block storage
-	secalib.SetBlockStorageStatusState(blockResponse.Status, secalib.ActiveResourceState)
+	secalib.SetBlockStorageStatusState(blockResponse.Status, schema.ResourceStateActive)
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "CreateInstance"}); err != nil {
@@ -473,7 +474,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Create an instance
 	setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-	instanceResponse.Status = secalib.NewInstanceStatus(secalib.CreatingResourceState)
+	instanceResponse.Status = secalib.NewInstanceStatus(schema.ResourceStateCreating)
 	instanceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "CreateInstance", nextState: "GetCreatedInstance"}); err != nil {
@@ -481,7 +482,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Get the created instance
-	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.ActiveResourceState)
+	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateActive)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetCreatedInstance", nextState: "DeleteInstance"}); err != nil {
