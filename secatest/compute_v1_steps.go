@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -13,124 +12,100 @@ import (
 
 // Instance
 
-func (suite *testSuite) createOrUpdateInstanceV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.ComputeV1,
-	resource *schema.Instance,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.InstanceSpec,
-	expectedStatusState string,
+func (suite *testSuite) createOrUpdateInstanceV1Step(stepName string, t provider.T, api *secapi.ComputeV1, resource *schema.Instance,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "CreateOrUpdateInstance", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateInstance(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyInstanceSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	responseExpects.metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(t, suite,
+		createOrUpdateWorkspaceResourceParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setComputeV1StepParams,
+			operationName:  "CreateOrUpdateInstance",
+			workspace:      resource.Metadata.Workspace,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Instance) (*stepFuncResponse[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec], error) {
+				resp, err := api.CreateOrUpdateInstance(t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyInstanceSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
-func (suite *testSuite) getInstanceV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.ComputeV1,
-	wref secapi.WorkspaceReference,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.InstanceSpec,
-	expectedStatusState string,
+func (suite *testSuite) getInstanceV1Step(stepName string, t provider.T, api *secapi.ComputeV1, wref secapi.WorkspaceReference,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
 ) *schema.Instance {
-	var resp *schema.Instance
-	var err error
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "GetInstance", string(wref.Workspace))
-
-		resp, err = api.GetInstance(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyInstanceSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
-	return resp
+	responseExpects.metadata.Verb = http.MethodGet
+	return getWorkspaceResourceStep(t, suite,
+		getWorkspaceResourceParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setComputeV1StepParams,
+			operationName:  "GetInstance",
+			wref:           wref,
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec], error) {
+				resp, err := api.GetInstanceUntilState(t.Context(), wref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyInstanceSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
-func (suite *testSuite) getInstanceWithErrorV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.ComputeV1,
-	wref secapi.WorkspaceReference,
-	expectedError error,
-) {
+func (suite *testSuite) getInstanceWithErrorV1Step(stepName string, t provider.T, api *secapi.ComputeV1, wref secapi.WorkspaceReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "GetInstance", string(wref.Workspace))
 
-		_, err := api.GetInstance(ctx, wref)
+		_, err := api.GetInstance(t.Context(), wref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) startInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, resource *schema.Instance) {
+func (suite *testSuite) startInstanceV1Step(stepName string, t provider.T, api *secapi.ComputeV1, resource *schema.Instance) {
 	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "StartInstance", resource.Metadata.Workspace)
 
-		err = api.StartInstance(ctx, resource)
+		err = api.StartInstance(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }
 
-func (suite *testSuite) stopInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, resource *schema.Instance) {
+func (suite *testSuite) stopInstanceV1Step(stepName string, t provider.T, api *secapi.ComputeV1, resource *schema.Instance) {
 	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "StopInstance", resource.Metadata.Workspace)
 
-		err = api.StopInstance(ctx, resource)
+		err = api.StopInstance(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }
 
-func (suite *testSuite) restartInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, resource *schema.Instance) {
+func (suite *testSuite) restartInstanceV1Step(stepName string, t provider.T, api *secapi.ComputeV1, resource *schema.Instance) {
 	var err error
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "RestartInstance", resource.Metadata.Workspace)
 
-		err = api.RestartInstance(ctx, resource)
+		err = api.RestartInstance(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }
 
-func (suite *testSuite) deleteInstanceV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.ComputeV1, resource *schema.Instance) {
+func (suite *testSuite) deleteInstanceV1Step(stepName string, t provider.T, api *secapi.ComputeV1, resource *schema.Instance) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "DeleteInstance", resource.Metadata.Workspace)
 
-		err := api.DeleteInstance(ctx, resource)
+		err := api.DeleteInstance(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }

@@ -55,6 +55,9 @@ run:
 	  --scenarios.cidr=10.1.0.0/16 \
 	  --scenarios.public.ips=52.93.126.1/26 \
 	  --report.results.path=$(RESULTS_PATH) \
+	  --retry.base.delay=0 \
+	  --retry.base.interval=1 \
+	  --retry.max.attempts=4 \
 	  --mock.enabled=true \
 	  --mock.server.url=http://localhost:8080
 
@@ -81,6 +84,9 @@ test:
 	  --scenarios.cidr=10.1.0.0/16 \
 	  --scenarios.public.ips=52.93.126.1/26 \
 	  --report.results.path=$(RESULTS_PATH) \
+	  --retry.base.delay=0 \
+      --retry.base.interval=1 \
+      --retry.max.attempts=4 \
 	  --mock.enabled=true \
 	  --mock.server.url=http://localhost:8080
 

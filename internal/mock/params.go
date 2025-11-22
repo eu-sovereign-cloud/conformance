@@ -2,7 +2,6 @@ package mock
 
 import "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 
-// TODO Find a better name
 type Params struct {
 	MockURL   string
 	AuthToken string
@@ -14,7 +13,6 @@ type HasParams interface {
 	getParams() *Params
 }
 
-// TODO Find a better name
 type ResourceParams[T any] struct {
 	Name          string
 	InitialLabels schema.Labels
@@ -25,6 +23,8 @@ type ResourceParams[T any] struct {
 
 type stubConfig struct {
 	url          string
+	httpMethod   string
+	httpStatus   int
 	params       HasParams
 	headers      map[string]string
 	responseBody any
