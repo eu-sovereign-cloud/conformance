@@ -52,7 +52,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),	
+		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
 		secalib.ComputeProviderV1,
 		string(schema.RegionalResourceMetadataKindResourceKindInstance),

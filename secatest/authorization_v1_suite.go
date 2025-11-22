@@ -24,8 +24,8 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.AuthorizationProviderV1, 
-		string(schema.GlobalTenantResourceMetadataKindResourceKindRole), 
+	configureTags(t, secalib.AuthorizationProviderV1,
+		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
 
