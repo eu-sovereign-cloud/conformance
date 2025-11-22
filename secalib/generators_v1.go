@@ -8,7 +8,7 @@ import (
 
 // URLs
 
-// Remove the v1 depencency to supporte multiple API versions
+// Remove the v1 dependency to support multiple API versions
 func GenerateRoleURL(tenant string, role string) string {
 	return fmt.Sprintf(RoleURLV1, tenant, role)
 }
