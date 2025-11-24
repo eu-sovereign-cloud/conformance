@@ -515,6 +515,42 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
+	// Resources deletion
+
+	// Delete all instances
+	for _, instance := range *instances {
+		suite.deleteInstanceV1Step("Delete the instance", t, ctx, suite.client.ComputeV1, &instance)
+
+		// Get the deleted instance
+		instanceWRef := &secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      instance.Metadata.Name,
+		}
+		suite.getInstanceWithErrorV1Step("Get the deleted instance", t, ctx, suite.client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
+	}
+
+	// Delete the block storage
+	suite.deleteBlockStorageV1Step("Delete the block storage", t, ctx, suite.client.StorageV1, block)
+
+	// Get the deleted block storage
+	blockWRef := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      blockStorageName,
+	}
+	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, ctx, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
+
+	// Delete the workspace
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)
+
+	// Get the deleted workspace
+	workspaceTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   workspaceName,
+	}
+	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+
 	slog.Info("Finishing " + suite.scenarioName)
 }
 

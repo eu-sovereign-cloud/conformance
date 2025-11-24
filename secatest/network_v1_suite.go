@@ -1551,6 +1551,111 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
+	// Resources deletion
+
+	// Delete all security groups
+	for _, group := range *groups {
+		suite.deleteSecurityGroupV1Step("Delete the security group", t, ctx, suite.client.NetworkV1, &group)
+
+		// Get deleted security group
+		groupWRef := &secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      group.Metadata.Name,
+		}
+		suite.getSecurityGroupWithErrorV1Step("Get deleted security group", t, ctx, suite.client.NetworkV1, *groupWRef, secapi.ErrResourceNotFound)
+	}
+
+	// Delete all NICs
+	for _, nic := range *nics {
+		suite.deleteNicV1Step("Delete the nic", t, ctx, suite.client.NetworkV1, &nic)
+
+		// Get the deleted nic
+		nicWRef := &secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      nic.Metadata.Name,
+		}
+		suite.getNicWithErrorV1Step("Get deleted nic", t, ctx, suite.client.NetworkV1, *nicWRef, secapi.ErrResourceNotFound)
+	}
+
+	// Delete all public IPs
+	for _, publicIp := range *publicIps {
+		suite.deletePublicIpV1Step("Delete the public ip", t, ctx, suite.client.NetworkV1, &publicIp)
+
+		// Get the deleted public ip
+		publicIpWRef := &secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      publicIp.Metadata.Name,
+		}
+		suite.getPublicIpWithErrorV1Step("Get deleted public ip", t, ctx, suite.client.NetworkV1, *publicIpWRef, secapi.ErrResourceNotFound)
+	}
+
+	// Delete all subnets
+	for _, subnet := range *subnets {
+		suite.deleteSubnetV1Step("Delete the subnet", t, ctx, suite.client.NetworkV1, &subnet)
+
+		// Get the deleted subnet
+		subnetNRef := &secapi.NetworkReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Network:   secapi.NetworkID(networkName),
+			Name:      subnet.Metadata.Name,
+		}
+		suite.getSubnetWithErrorV1Step("Get deleted subnet", t, ctx, suite.client.NetworkV1, *subnetNRef, secapi.ErrResourceNotFound)
+	}
+
+	// Delete all route tables
+	for _, route := range *routes {
+		suite.deleteRouteTableV1Step("Delete the route table", t, ctx, suite.client.NetworkV1, &route)
+
+		// Get the deleted route table
+		routeNRef := &secapi.NetworkReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Network:   secapi.NetworkID(networkName),
+			Name:      route.Metadata.Name,
+		}
+		suite.getRouteTableWithErrorV1Step("Get deleted route table", t, ctx, suite.client.NetworkV1, *routeNRef, secapi.ErrResourceNotFound)
+	}
+
+	// Delete all internet gateways
+	for _, gateway := range *gateways {
+		suite.deleteInternetGatewayV1Step("Delete the internet gateway", t, ctx, suite.client.NetworkV1, &gateway)
+
+		// Get the deleted internet gateway
+		gatewayWRef := &secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      gateway.Metadata.Name,
+		}
+		suite.getInternetGatewayWithErrorV1Step("Get deleted internet gateway", t, ctx, suite.client.NetworkV1, *gatewayWRef, secapi.ErrResourceNotFound)
+	}
+
+	// Delete all networks
+	for _, network := range *networks {
+		suite.deleteNetworkV1Step("Delete the network", t, ctx, suite.client.NetworkV1, &network)
+
+		// Get the deleted network
+		networkWRef := &secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(suite.tenant),
+			Workspace: secapi.WorkspaceID(workspaceName),
+			Name:      network.Metadata.Name,
+		}
+		suite.getNetworkWithErrorV1Step("Get deleted network", t, ctx, suite.client.NetworkV1, *networkWRef, secapi.ErrResourceNotFound)
+	}
+
+	// Delete the workspace
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)
+
+	// Get the deleted workspace
+	workspaceTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   workspaceName,
+	}
+	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+
 	slog.Info("Finishing " + suite.scenarioName)
 }
 

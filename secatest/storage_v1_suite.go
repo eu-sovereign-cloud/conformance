@@ -545,6 +545,64 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 	suite.getListSkuV1Step("Get list of skus", t, ctx, suite.client.StorageV1, tref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// Resources deletion
+
+	// Delete all images
+	imageTRef1 := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   imageName1,
+	}
+	suite.deleteImageV1Step("Delete image 1", t, ctx, suite.client.StorageV1, &(*images)[0])
+	suite.getImageWithErrorV1Step("Get deleted image 1", t, ctx, suite.client.StorageV1, *imageTRef1, secapi.ErrResourceNotFound)
+
+	imageTRef2 := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   imageName2,
+	}
+	suite.deleteImageV1Step("Delete image 2", t, ctx, suite.client.StorageV1, &(*images)[1])
+	suite.getImageWithErrorV1Step("Get deleted image 2", t, ctx, suite.client.StorageV1, *imageTRef2, secapi.ErrResourceNotFound)
+
+	imageTRef3 := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   imageName3,
+	}
+	suite.deleteImageV1Step("Delete image 3", t, ctx, suite.client.StorageV1, &(*images)[2])
+	suite.getImageWithErrorV1Step("Get deleted image 3", t, ctx, suite.client.StorageV1, *imageTRef3, secapi.ErrResourceNotFound)
+
+	// Delete all block storages
+	blockWRef1 := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      blockStorageName1,
+	}
+	suite.deleteBlockStorageV1Step("Delete block storage 1", t, ctx, suite.client.StorageV1, &(*blocks)[0])
+	suite.getBlockStorageWithErrorV1Step("Get deleted block storage 1", t, ctx, suite.client.StorageV1, *blockWRef1, secapi.ErrResourceNotFound)
+
+	blockWRef2 := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      blockStorageName2,
+	}
+	suite.deleteBlockStorageV1Step("Delete block storage 2", t, ctx, suite.client.StorageV1, &(*blocks)[1])
+	suite.getBlockStorageWithErrorV1Step("Get deleted block storage 2", t, ctx, suite.client.StorageV1, *blockWRef2, secapi.ErrResourceNotFound)
+
+	blockWRef3 := &secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Name:      blockStorageName3,
+	}
+	suite.deleteBlockStorageV1Step("Delete block storage 3", t, ctx, suite.client.StorageV1, &(*blocks)[2])
+	suite.getBlockStorageWithErrorV1Step("Get deleted block storage 3", t, ctx, suite.client.StorageV1, *blockWRef3, secapi.ErrResourceNotFound)
+
+	// Delete the workspace
+	workspaceTRef := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   workspaceName,
+	}
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)
+	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+
 	slog.Info("Finishing " + suite.scenarioName)
 }
 

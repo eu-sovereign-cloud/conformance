@@ -289,8 +289,79 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 
 	roleAssignResponse.Items = rolesAssignWithLabel(rolesAssignmentList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateRoleAssignmentListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: roleAssignResponse, currentState: "GetRoleAssignmentsListWithLimitAndLabel", nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: secalib.GenerateRoleAssignmentListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: roleAssignResponse, currentState: "GetRoleAssignmentsListWithLimitAndLabel", nextState: "DeleteRoleAssignment"}); err != nil {
 		return nil, err
 	}
+
+	//Delete RoleAssignments
+	for i := range *params.RoleAssignment {
+		roleAssignUrl := secalib.GenerateRoleAssignmentURL(params.Tenant, (*params.RoleAssignment)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeleteRoleAssignment"
+		} else {
+			currentState = "GetDeletedRoleAssignment_" + (*params.RoleAssignment)[i-1].Name
+		}
+
+		nextState = "DeleteRoleAssignment_" + (*params.RoleAssignment)[i].Name
+
+		// Delete the role assignment
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: roleAssignUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted role assignment (should return 404)
+		nextState = func() string {
+			if i < len(*params.RoleAssignment)-1 {
+				return "GetDeletedRoleAssignment_" + (*params.RoleAssignment)[i].Name
+			} else {
+				return "DeleteRole_" + (*params.Role)[0].Name
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: roleAssignUrl, params: params, currentState: "DeleteRoleAssignment_" + (*params.RoleAssignment)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
+	//Delete Roles
+	for i := range *params.Role {
+		roleUrl := secalib.GenerateRoleURL(params.Tenant, (*params.Role)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeleteRole_" + (*params.Role)[i].Name
+		} else {
+			currentState = "GetDeletedRole_" + (*params.Role)[i-1].Name
+		}
+
+		nextState = "DeleteRole_" + (*params.Role)[i].Name
+
+		// Delete the role
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: roleUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted role (should return 404)
+		nextState = func() string {
+			if i < len(*params.Role)-1 {
+				return "GetDeletedRole_" + (*params.Role)[i].Name
+			} else {
+				return startedScenarioState
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: roleUrl, params: params, currentState: "DeleteRole_" + (*params.Role)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
 	return wm, nil
 }

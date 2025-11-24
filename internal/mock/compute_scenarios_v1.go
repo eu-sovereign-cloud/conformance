@@ -439,7 +439,66 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 
 	skuWithLimitAndLabelResponse.Items = skusWithLabel(instanceSku)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLimitAndLabelResponse, currentState: "GetListSkusWithLimitAndLabel", nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLimitAndLabelResponse, currentState: "GetListSkusWithLimitAndLabel", nextState: "DeleteInstance_" + (*params.Instance)[0].Name}); err != nil {
+		return nil, err
+	}
+
+	// Delete Instances
+	for i := range *params.Instance {
+		instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, (*params.Instance)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeleteInstance_" + (*params.Instance)[i].Name
+		} else {
+			currentState = "GetDeletedInstance_" + (*params.Instance)[i-1].Name
+		}
+
+		nextState = "DeleteInstance_" + (*params.Instance)[i].Name
+
+		// Delete the instance
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: instanceUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted instance (should return 404)
+		nextState = func() string {
+			if i < len(*params.Instance)-1 {
+				return "GetDeletedInstance_" + (*params.Instance)[i].Name
+			} else {
+				return "DeleteBlockStorage"
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: instanceUrl, params: params, currentState: "DeleteInstance_" + (*params.Instance)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
+	// Delete the block storage
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: blockUrl, params: params, currentState: "DeleteBlockStorage", nextState: "GetDeletedBlockStorage"}); err != nil {
+		return nil, err
+	}
+
+	// Get the deleted block storage
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: blockUrl, params: params, currentState: "GetDeletedBlockStorage", nextState: "DeleteWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Delete the workspace
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Get the deleted workspace
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 

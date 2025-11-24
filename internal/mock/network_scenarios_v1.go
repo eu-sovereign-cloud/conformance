@@ -1158,7 +1158,265 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 	securityGroupListResponse.Items = securityGroupWithLabel(securityGroupList)[:1]
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateSecurityGroupListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: securityGroupListResponse, currentState: "GetSecurityGroupListWithLimitAndLabel", nextState: "end"}); err != nil {
+		&stubConfig{url: secalib.GenerateSecurityGroupListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: securityGroupListResponse, currentState: "GetSecurityGroupListWithLimitAndLabel", nextState: "DeleteSecurityGroup_" + (*params.SecurityGroup)[0].Name}); err != nil {
+		return nil, err
+	}
+
+	// Delete SecurityGroups
+	for i := range *params.SecurityGroup {
+		securityGroupUrl := secalib.GenerateSecurityGroupURL(params.Tenant, params.Workspace.Name, (*params.SecurityGroup)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeleteSecurityGroup_" + (*params.SecurityGroup)[i].Name
+		} else {
+			currentState = "GetDeletedSecurityGroup_" + (*params.SecurityGroup)[i-1].Name
+		}
+
+		nextState = "DeleteSecurityGroup_" + (*params.SecurityGroup)[i].Name
+
+		// Delete the security group
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: securityGroupUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted security group (should return 404)
+		nextState = func() string {
+			if i < len(*params.SecurityGroup)-1 {
+				return "GetDeletedSecurityGroup_" + (*params.SecurityGroup)[i].Name
+			} else {
+				return "DeleteNic_" + (*params.NIC)[0].Name
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: securityGroupUrl, params: params, currentState: "DeleteSecurityGroup_" + (*params.SecurityGroup)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
+	// Delete NICs
+	for i := range *params.NIC {
+		nicUrl := secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, (*params.NIC)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeleteNic_" + (*params.NIC)[i].Name
+		} else {
+			currentState = "GetDeletedNic_" + (*params.NIC)[i-1].Name
+		}
+
+		nextState = "DeleteNic_" + (*params.NIC)[i].Name
+
+		// Delete the NIC
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: nicUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted NIC (should return 404)
+		nextState = func() string {
+			if i < len(*params.NIC)-1 {
+				return "GetDeletedNic_" + (*params.NIC)[i].Name
+			} else {
+				return "DeletePublicIp_" + (*params.PublicIp)[0].Name
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: nicUrl, params: params, currentState: "DeleteNic_" + (*params.NIC)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
+	// Delete Public IPs
+	for i := range *params.PublicIp {
+		publicIpUrl := secalib.GeneratePublicIpURL(params.Tenant, params.Workspace.Name, (*params.PublicIp)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeletePublicIp_" + (*params.PublicIp)[i].Name
+		} else {
+			currentState = "GetDeletedPublicIp_" + (*params.PublicIp)[i-1].Name
+		}
+
+		nextState = "DeletePublicIp_" + (*params.PublicIp)[i].Name
+
+		// Delete the public IP
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: publicIpUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted public IP (should return 404)
+		nextState = func() string {
+			if i < len(*params.PublicIp)-1 {
+				return "GetDeletedPublicIp_" + (*params.PublicIp)[i].Name
+			} else {
+				return "DeleteSubnet_" + (*params.Subnet)[0].Name
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: publicIpUrl, params: params, currentState: "DeletePublicIp_" + (*params.PublicIp)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
+	// Delete Subnets
+	for i := range *params.Subnet {
+		subnetUrl := secalib.GenerateSubnetURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.Subnet)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeleteSubnet_" + (*params.Subnet)[i].Name
+		} else {
+			currentState = "GetDeletedSubnet_" + (*params.Subnet)[i-1].Name
+		}
+
+		nextState = "DeleteSubnet_" + (*params.Subnet)[i].Name
+
+		// Delete the subnet
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: subnetUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted subnet (should return 404)
+		nextState = func() string {
+			if i < len(*params.Subnet)-1 {
+				return "GetDeletedSubnet_" + (*params.Subnet)[i].Name
+			} else {
+				return "DeleteRouteTable_" + (*params.RouteTable)[0].Name
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: subnetUrl, params: params, currentState: "DeleteSubnet_" + (*params.Subnet)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
+	// Delete Route Tables
+	for i := range *params.RouteTable {
+		routeUrl := secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.RouteTable)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeleteRouteTable_" + (*params.RouteTable)[i].Name
+		} else {
+			currentState = "GetDeletedRouteTable_" + (*params.RouteTable)[i-1].Name
+		}
+
+		nextState = "DeleteRouteTable_" + (*params.RouteTable)[i].Name
+
+		// Delete the route table
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: routeUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted route table (should return 404)
+		nextState = func() string {
+			if i < len(*params.RouteTable)-1 {
+				return "GetDeletedRouteTable_" + (*params.RouteTable)[i].Name
+			} else {
+				return "DeleteGateway_" + (*params.InternetGateway)[0].Name
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: routeUrl, params: params, currentState: "DeleteRouteTable_" + (*params.RouteTable)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
+	// Delete Internet Gateways
+	for i := range *params.InternetGateway {
+		gatewayUrl := secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, (*params.InternetGateway)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeleteGateway_" + (*params.InternetGateway)[i].Name
+		} else {
+			currentState = "GetDeletedGateway_" + (*params.InternetGateway)[i-1].Name
+		}
+
+		nextState = "DeleteGateway_" + (*params.InternetGateway)[i].Name
+
+		// Delete the gateway
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: gatewayUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted gateway (should return 404)
+		nextState = func() string {
+			if i < len(*params.InternetGateway)-1 {
+				return "GetDeletedGateway_" + (*params.InternetGateway)[i].Name
+			} else {
+				return "DeleteNetwork_" + (*params.Network)[0].Name
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: gatewayUrl, params: params, currentState: "DeleteGateway_" + (*params.InternetGateway)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
+	// Delete Networks
+	for i := range *params.Network {
+		networkUrl := secalib.GenerateNetworkURL(params.Tenant, params.Workspace.Name, (*params.Network)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeleteNetwork_" + (*params.Network)[i].Name
+		} else {
+			currentState = "GetDeletedNetwork_" + (*params.Network)[i-1].Name
+		}
+
+		nextState = "DeleteNetwork_" + (*params.Network)[i].Name
+
+		// Delete the network
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: networkUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted network (should return 404)
+		nextState = func() string {
+			if i < len(*params.Network)-1 {
+				return "GetDeletedNetwork_" + (*params.Network)[i].Name
+			} else {
+				return "DeleteWorkspace"
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: networkUrl, params: params, currentState: "DeleteNetwork_" + (*params.Network)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
+	// Delete the workspace
+	workspaceUrl = secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Get the deleted workspace
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
 

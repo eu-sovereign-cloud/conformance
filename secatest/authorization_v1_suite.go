@@ -533,6 +533,34 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 	suite.getListRoleAssignmentsV1("Get list of role assignments", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+
+	// Resources deletion
+
+	// Delete all role assignments
+	for _, roleAssign := range roleAssignments {
+		suite.deleteRoleAssignmentV1Step("Delete the role assignment", t, ctx, suite.client.AuthorizationV1, &roleAssign)
+
+		// Get the deleted role assignment
+		roleAssignTRefSingle := &secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   roleAssign.Metadata.Name,
+		}
+		suite.getRoleAssignmentWithErrorV1Step("Get the deleted role assignment", t, ctx, suite.client.AuthorizationV1, *roleAssignTRefSingle, secapi.ErrResourceNotFound)
+	}
+
+	// Delete all roles
+	for _, role := range roles {
+		suite.deleteRoleV1Step("Delete the role", t, ctx, suite.client.AuthorizationV1, &role)
+
+		// Get the deleted role
+		roleTRefSingle := &secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   role.Metadata.Name,
+		}
+		suite.getRoleWithErrorV1Step("Get the deleted role", t, ctx, suite.client.AuthorizationV1, *roleTRefSingle, secapi.ErrResourceNotFound)
+	}
+
+	slog.Info("Finishing " + suite.scenarioName)
 }
 
 func (suite *AuthorizationV1TestSuite) AfterEach(t provider.T) {

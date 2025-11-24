@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -163,8 +164,35 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse,
-			currentState: "ListWorkspaceWithLimitAndLabels", nextState: startedScenarioState}); err != nil {
+			currentState: "ListWorkspaceWithLimitAndLabels", nextState: "DeleteWorkspace1"}); err != nil {
 		return nil, err
 	}
+
+	// Delete all workspaces
+	for i := range *params.Workspace {
+		workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, (*params.Workspace)[i].Name)
+		var nextState string
+		var currentState string
+
+		nextState = fmt.Sprintf("GetDeletedWorkspace%d", i+1)
+		currentState = fmt.Sprintf("DeleteWorkspace%d", i+1)
+
+		// Delete workspace
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: workspaceUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get deleted workspace
+		getNextState := startedScenarioState
+		if i < len(*params.Workspace)-1 {
+			getNextState = fmt.Sprintf("DeleteWorkspace%d", i+2)
+		}
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: workspaceUrl, params: params, currentState: nextState, nextState: getNextState}); err != nil {
+			return nil, err
+		}
+	}
+
 	return wm, nil
 }

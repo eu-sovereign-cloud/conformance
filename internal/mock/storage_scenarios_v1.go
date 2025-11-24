@@ -495,8 +495,91 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 
 	skuWithLimitAndLabelResponse.Items = skusWithLabel(skuList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateStorageSkuListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLimitAndLabelResponse, currentState: "GetSkuListWithLimitAndLabel", nextState: startedScenarioState}); err != nil {
+		&stubConfig{url: secalib.GenerateStorageSkuListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLimitAndLabelResponse, currentState: "GetSkuListWithLimitAndLabel", nextState: "DeleteImage_" + (*params.Image)[0].Name}); err != nil {
 		return nil, err
 	}
+
+	// Delete Images
+	for i := range *params.Image {
+		imageUrl := secalib.GenerateImageURL(params.Tenant, (*params.Image)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeleteImage_" + (*params.Image)[i].Name
+		} else {
+			currentState = "GetDeletedImage_" + (*params.Image)[i-1].Name
+		}
+
+		nextState = "DeleteImage_" + (*params.Image)[i].Name
+
+		// Delete the image
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: imageUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted image (should return 404)
+		nextState = func() string {
+			if i < len(*params.Image)-1 {
+				return "GetDeletedImage_" + (*params.Image)[i].Name
+			} else {
+				return "DeleteBlockStorage_" + (*params.BlockStorage)[0].Name
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: imageUrl, params: params, currentState: "DeleteImage_" + (*params.Image)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
+	// Delete BlockStorages
+	for i := range *params.BlockStorage {
+		blockUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, (*params.BlockStorage)[i].Name)
+		var currentState string
+		var nextState string
+
+		if i == 0 {
+			currentState = "DeleteBlockStorage_" + (*params.BlockStorage)[i].Name
+		} else {
+			currentState = "GetDeletedBlockStorage_" + (*params.BlockStorage)[i-1].Name
+		}
+
+		nextState = "DeleteBlockStorage_" + (*params.BlockStorage)[i].Name
+
+		// Delete the block storage
+		if err := configureDeleteStub(wm, scenario,
+			&stubConfig{url: blockUrl, params: params, currentState: currentState, nextState: nextState}); err != nil {
+			return nil, err
+		}
+
+		// Get the deleted block storage (should return 404)
+		nextState = func() string {
+			if i < len(*params.BlockStorage)-1 {
+				return "GetDeletedBlockStorage_" + (*params.BlockStorage)[i].Name
+			} else {
+				return "DeleteWorkspace"
+			}
+		}()
+
+		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+			&stubConfig{url: blockUrl, params: params, currentState: "DeleteBlockStorage_" + (*params.BlockStorage)[i].Name, nextState: nextState}); err != nil {
+			return nil, err
+		}
+	}
+
+	// Delete the workspace
+	if err := configureDeleteStub(wm, scenario,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
+		return nil, err
+	}
+
+	// Get the deleted workspace
+	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		&stubConfig{url: workspaceUrl, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
+		return nil, err
+	}
+
 	return wm, nil
 }

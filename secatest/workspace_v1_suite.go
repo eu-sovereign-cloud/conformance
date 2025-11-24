@@ -202,6 +202,23 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
+	// Resources deletion
+
+	// Delete all workspaces
+	workspaceTRef1 := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   workspaceName,
+	}
+	suite.deleteWorkspaceV1Step("Delete workspace 1", t, ctx, suite.client.WorkspaceV1, &(*workspaces)[0])
+	suite.getWorkspaceWithErrorV1Step("Get deleted workspace 1", t, ctx, suite.client.WorkspaceV1, *workspaceTRef1, secapi.ErrResourceNotFound)
+
+	workspaceTRef2 := &secapi.TenantReference{
+		Tenant: secapi.TenantID(suite.tenant),
+		Name:   workspaceName2,
+	}
+	suite.deleteWorkspaceV1Step("Delete workspace 2", t, ctx, suite.client.WorkspaceV1, &(*workspaces)[1])
+	suite.getWorkspaceWithErrorV1Step("Get deleted workspace 2", t, ctx, suite.client.WorkspaceV1, *workspaceTRef2, secapi.ErrResourceNotFound)
+
 	slog.Info("Finishing " + suite.scenarioName)
 }
 
