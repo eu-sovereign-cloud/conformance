@@ -125,15 +125,19 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 		Items: workspaceList,
 	}
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, responseBody: workspaceListResponse,
-			currentState: "GetWorkspaceList", nextState: "ListWorkspaceWithLimit"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, responseBody: workspaceListResponse,
+			currentState: "GetWorkspaceList", nextState: "ListWorkspaceWithLimit",
+		}); err != nil {
 		return nil, err
 	}
 
 	// List with limit
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimit("1"), responseBody: workspaceListResponse,
-			currentState: "ListWorkspaceWithLimit", nextState: "ListWorkspaceWithLabels"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimit("1"), responseBody: workspaceListResponse,
+			currentState: "ListWorkspaceWithLimit", nextState: "ListWorkspaceWithLabels",
+		}); err != nil {
 		return nil, err
 	}
 	// List with labels
@@ -156,15 +160,19 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 	}
 	workspaceWithLabelResponse.Items = workspaceWithLabel(workspaceList)
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse,
-			currentState: "ListWorkspaceWithLabels", nextState: "ListWorkspaceWithLimitAndLabels"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse,
+			currentState: "ListWorkspaceWithLabels", nextState: "ListWorkspaceWithLimitAndLabels",
+		}); err != nil {
 		return nil, err
 	}
 	// List with limit & labels
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse,
-			currentState: "ListWorkspaceWithLimitAndLabels", nextState: "DeleteWorkspace1"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse,
+			currentState: "ListWorkspaceWithLimitAndLabels", nextState: "DeleteWorkspace1",
+		}); err != nil {
 		return nil, err
 	}
 

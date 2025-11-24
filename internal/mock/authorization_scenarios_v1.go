@@ -293,7 +293,7 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 		return nil, err
 	}
 
-	//Delete RoleAssignments
+	// Delete RoleAssignments
 	for i := range *params.RoleAssignment {
 		roleAssignUrl := secalib.GenerateRoleAssignmentURL(params.Tenant, (*params.RoleAssignment)[i].Name)
 		var currentState string
@@ -328,7 +328,7 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 		}
 	}
 
-	//Delete Roles
+	// Delete Roles
 	for i := range *params.Role {
 		roleUrl := secalib.GenerateRoleURL(params.Tenant, (*params.Role)[i].Name)
 		var currentState string

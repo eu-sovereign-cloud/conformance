@@ -218,8 +218,10 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 		blockResponse.Status = secalib.NewBlockStorageStatus(secalib.CreatingResourceState)
 		blockResponse.Metadata.Verb = http.MethodPut
 		if err := configurePutStub(wm, scenario,
-			&stubConfig{url: secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, (*params.BlockStorage)[i].Name), params: params, responseBody: blockResponse,
-				currentState: (*params.BlockStorage)[i].Name, nextState: nextState}); err != nil {
+			&stubConfig{
+				url: secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, (*params.BlockStorage)[i].Name), params: params, responseBody: blockResponse,
+				currentState: (*params.BlockStorage)[i].Name, nextState: nextState,
+			}); err != nil {
 			return nil, err
 		}
 		blockList = append(blockList, *blockResponse)
@@ -237,8 +239,10 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	blockListResponse.Items = blockList
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateBlockStorageListURL(params.Tenant, params.Workspace.Name), params: params, responseBody: blockListResponse,
-			currentState: "GetBlockStorageList", nextState: "GetBlockStorageListWithLimit"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateBlockStorageListURL(params.Tenant, params.Workspace.Name), params: params, responseBody: blockListResponse,
+			currentState: "GetBlockStorageList", nextState: "GetBlockStorageListWithLimit",
+		}); err != nil {
 		return nil, err
 	}
 	// List with limit
@@ -246,8 +250,10 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 	blockListResponse.Items = blockList[:1]
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateBlockStorageListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimit("1"), responseBody: blockListResponse,
-			currentState: "GetBlockStorageListWithLimit", nextState: "GetBlockStorageListWithLabel"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateBlockStorageListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimit("1"), responseBody: blockListResponse,
+			currentState: "GetBlockStorageListWithLimit", nextState: "GetBlockStorageListWithLabel",
+		}); err != nil {
 		return nil, err
 	}
 

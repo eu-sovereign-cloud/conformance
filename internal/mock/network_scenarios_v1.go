@@ -584,8 +584,10 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 		Items: networkList,
 	}
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, responseBody: networkListResponse,
-			currentState: "GetNetworkList", nextState: "GetNetworkListWithLimit"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, responseBody: networkListResponse,
+			currentState: "GetNetworkList", nextState: "GetNetworkListWithLimit",
+		}); err != nil {
 		return nil, err
 	}
 
@@ -593,8 +595,10 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 	networkListResponse.Items = networkList[:1]
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimit("1"), responseBody: networkListResponse,
-			currentState: "GetNetworkListWithLimit", nextState: "GetNetworkListWithLabel"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimit("1"), responseBody: networkListResponse,
+			currentState: "GetNetworkListWithLimit", nextState: "GetNetworkListWithLabel",
+		}); err != nil {
 		return nil, err
 	}
 	// List label
@@ -618,8 +622,10 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 		Items: networkWithLabel(networkList),
 	}
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: networkListResponse,
-			currentState: "GetNetworkListWithLabel", nextState: "GetNetworkListWithLimitAndLabel"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: networkListResponse,
+			currentState: "GetNetworkListWithLabel", nextState: "GetNetworkListWithLimitAndLabel",
+		}); err != nil {
 		return nil, err
 	}
 
@@ -634,8 +640,10 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 		Items: networkWithLabel(networkList)[:1],
 	}
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: networkListResponse,
-			currentState: "GetNetworkListWithLimitAndLabel", nextState: (*params.InternetGateway)[0].Name}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateNetworkListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: networkListResponse,
+			currentState: "GetNetworkListWithLimitAndLabel", nextState: (*params.InternetGateway)[0].Name,
+		}); err != nil {
 		return nil, err
 	}
 
@@ -659,8 +667,10 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 		gatewayResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
 		gatewayResponse.Metadata.Verb = http.MethodPut
 		if err := configurePutStub(wm, scenario,
-			&stubConfig{url: secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, (*params.InternetGateway)[i].Name), params: params, responseBody: gatewayResponse,
-				currentState: (*params.InternetGateway)[i].Name, nextState: nextState}); err != nil {
+			&stubConfig{
+				url: secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, (*params.InternetGateway)[i].Name), params: params, responseBody: gatewayResponse,
+				currentState: (*params.InternetGateway)[i].Name, nextState: nextState,
+			}); err != nil {
 			return nil, err
 		}
 		gatewayList = append(gatewayList, *gatewayResponse)
@@ -730,8 +740,10 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 		Items: gatewayWithLabel(gatewayList)[:1],
 	}
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateInternetGatewayListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: gatewayListResponse,
-			currentState: "GetInternetGatewayListWithLimitAndLabel", nextState: (*params.RouteTable)[0].Name}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateInternetGatewayListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: gatewayListResponse,
+			currentState: "GetInternetGatewayListWithLimitAndLabel", nextState: (*params.RouteTable)[0].Name,
+		}); err != nil {
 		return nil, err
 	}
 
@@ -774,8 +786,10 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 	}
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, responseBody: routeTableListResponse,
-			currentState: "GetRouteTableList", nextState: "GetRouteTableListWithLimit"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, responseBody: routeTableListResponse,
+			currentState: "GetRouteTableList", nextState: "GetRouteTableListWithLimit",
+		}); err != nil {
 		return nil, err
 	}
 	// List with limit
@@ -783,8 +797,10 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 	routeTableListResponse.Items = routeTableList[:1]
 
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, pathParams: pathParamsLimit("1"), responseBody: routeTableListResponse,
-			currentState: "GetRouteTableListWithLimit", nextState: "GetRouteTableListWithLabel"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, pathParams: pathParamsLimit("1"), responseBody: routeTableListResponse,
+			currentState: "GetRouteTableListWithLimit", nextState: "GetRouteTableListWithLabel",
+		}); err != nil {
 		return nil, err
 	}
 	// List with label
@@ -800,16 +816,20 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 
 	routeTableListResponse.Items = routeTableWithLabel(routeTableList)
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: routeTableListResponse,
-			currentState: "GetRouteTableListWithLabel", nextState: "GetRouteTableListWithLimitAndLabel"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: routeTableListResponse,
+			currentState: "GetRouteTableListWithLabel", nextState: "GetRouteTableListWithLimitAndLabel",
+		}); err != nil {
 		return nil, err
 	}
 	// List with limit & label
 
 	routeTableListResponse.Items = routeTableWithLabel(routeTableList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: routeTableListResponse,
-			currentState: "GetRouteTableListWithLimitAndLabel", nextState: (*params.Subnet)[0].Name}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateRouteTableListURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: routeTableListResponse,
+			currentState: "GetRouteTableListWithLimitAndLabel", nextState: (*params.Subnet)[0].Name,
+		}); err != nil {
 		return nil, err
 	}
 

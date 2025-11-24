@@ -279,16 +279,20 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 	}
 	instanceResponse.Items = instanceList
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, responseBody: instanceResponse,
-			currentState: "GetInstancesList", nextState: "GetInstancesListWithLimit"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, responseBody: instanceResponse,
+			currentState: "GetInstancesList", nextState: "GetInstancesListWithLimit",
+		}); err != nil {
 		return nil, err
 	}
 	// List Roles with limit 1
 
 	instanceResponse.Items = instanceList[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimit("1"), responseBody: instanceResponse,
-			currentState: "GetInstancesListWithLimit", nextState: "GetInstancesListWithLabel"}); err != nil {
+		&stubConfig{
+			url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimit("1"), responseBody: instanceResponse,
+			currentState: "GetInstancesListWithLimit", nextState: "GetInstancesListWithLabel",
+		}); err != nil {
 		return nil, err
 	}
 	// List instances with label
