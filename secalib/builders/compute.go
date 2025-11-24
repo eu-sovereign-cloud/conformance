@@ -7,36 +7,26 @@ import (
 // Instance
 
 type InstanceBuilder struct {
-	*resourceBuilder
+	*resourceBuilder[InstanceBuilder, schema.InstanceSpec]
 	metadata *RegionalWorkspaceResourceMetadataBuilder
 	spec     *schema.InstanceSpec
 }
 
 func NewInstanceBuilder() *InstanceBuilder {
-	return &InstanceBuilder{
-		resourceBuilder: newResourceBuilder(),
-		metadata:        NewRegionalWorkspaceResourceMetadataBuilder(),
-		spec:            &schema.InstanceSpec{},
+	builder := &InstanceBuilder{
+		metadata: NewRegionalWorkspaceResourceMetadataBuilder(),
+		spec:     &schema.InstanceSpec{},
 	}
-}
 
-func (builder *InstanceBuilder) Name(name string) *InstanceBuilder {
-	builder.metadata.Name(name)
-	return builder
-}
+	builder.resourceBuilder = newResourceBuilder(newResourceBuilderParams[InstanceBuilder, schema.InstanceSpec]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.setName(name) },
+		setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
+		setResource:   func(resource string) { builder.metadata.setResource(resource) },
+		setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+		setSpec:       func(spec *schema.InstanceSpec) { builder.spec = spec },
+	})
 
-func (builder *InstanceBuilder) Provider(provider string) *InstanceBuilder {
-	builder.metadata.Provider(provider)
-	return builder
-}
-
-func (builder *InstanceBuilder) Resource(resource string) *InstanceBuilder {
-	builder.metadata.Resource(resource)
-	return builder
-}
-
-func (builder *InstanceBuilder) ApiVersion(apiVersion string) *InstanceBuilder {
-	builder.metadata.ApiVersion(apiVersion)
 	return builder
 }
 
@@ -52,11 +42,6 @@ func (builder *InstanceBuilder) Workspace(workspace string) *InstanceBuilder {
 
 func (builder *InstanceBuilder) Region(region string) *InstanceBuilder {
 	builder.metadata.Region(region)
-	return builder
-}
-
-func (builder *InstanceBuilder) Spec(spec *schema.InstanceSpec) *InstanceBuilder {
-	builder.spec = spec
 	return builder
 }
 

@@ -7,41 +7,26 @@ import (
 // Region
 
 type RegionBuilder struct {
-	*resourceBuilder
+	*resourceBuilder[RegionBuilder, schema.RegionSpec]
 	metadata *GlobalResourceMetadataBuilder
 	spec     *schema.RegionSpec
 }
 
 func NewRegionBuilder() *RegionBuilder {
-	return &RegionBuilder{
-		resourceBuilder: newResourceBuilder(),
-		metadata:        NewGlobalResourceMetadataBuilder(),
-		spec:            &schema.RegionSpec{},
+	builder := &RegionBuilder{
+		metadata: NewGlobalResourceMetadataBuilder(),
+		spec:     &schema.RegionSpec{},
 	}
-}
 
-func (builder *RegionBuilder) Name(name string) *RegionBuilder {
-	builder.metadata.Name(name)
-	return builder
-}
+	builder.resourceBuilder = newResourceBuilder(newResourceBuilderParams[RegionBuilder, schema.RegionSpec]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.setName(name) },
+		setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
+		setResource:   func(resource string) { builder.metadata.setResource(resource) },
+		setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+		setSpec:       func(spec *schema.RegionSpec) { builder.spec = spec },
+	})
 
-func (builder *RegionBuilder) Provider(provider string) *RegionBuilder {
-	builder.metadata.Provider(provider)
-	return builder
-}
-
-func (builder *RegionBuilder) Resource(resource string) *RegionBuilder {
-	builder.metadata.Resource(resource)
-	return builder
-}
-
-func (builder *RegionBuilder) ApiVersion(apiVersion string) *RegionBuilder {
-	builder.metadata.ApiVersion(apiVersion)
-	return builder
-}
-
-func (builder *RegionBuilder) Spec(spec *schema.RegionSpec) *RegionBuilder {
-	builder.spec = spec
 	return builder
 }
 

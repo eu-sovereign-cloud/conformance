@@ -7,40 +7,31 @@ import (
 // workspace
 
 type WorkspaceBuilder struct {
-	*resourceBuilder
+	*resourceBuilder[WorkspaceBuilder, schema.WorkspaceSpec]
 	labels   schema.Labels
 	metadata *RegionalResourceMetadataBuilder
+	spec     *schema.WorkspaceSpec
 }
 
 func NewWorkspaceBuilder() *WorkspaceBuilder {
-	return &WorkspaceBuilder{
-		resourceBuilder: newResourceBuilder(),
-		metadata:        NewRegionalResourceMetadataBuilder(),
+	builder := &WorkspaceBuilder{
+		metadata: NewRegionalResourceMetadataBuilder(),
 	}
+
+	builder.resourceBuilder = newResourceBuilder(newResourceBuilderParams[WorkspaceBuilder, schema.WorkspaceSpec]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.setName(name) },
+		setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
+		setResource:   func(resource string) { builder.metadata.setResource(resource) },
+		setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+		setSpec:       func(spec *schema.WorkspaceSpec) { builder.spec = spec },
+	})
+
+	return builder
 }
 
 func (builder *WorkspaceBuilder) Labels(labels schema.Labels) *WorkspaceBuilder {
 	builder.labels = labels
-	return builder
-}
-
-func (builder *WorkspaceBuilder) Name(name string) *WorkspaceBuilder {
-	builder.metadata.Name(name)
-	return builder
-}
-
-func (builder *WorkspaceBuilder) Provider(provider string) *WorkspaceBuilder {
-	builder.metadata.Provider(provider)
-	return builder
-}
-
-func (builder *WorkspaceBuilder) Resource(resource string) *WorkspaceBuilder {
-	builder.metadata.Resource(resource)
-	return builder
-}
-
-func (builder *WorkspaceBuilder) ApiVersion(apiVersion string) *WorkspaceBuilder {
-	builder.metadata.ApiVersion(apiVersion)
 	return builder
 }
 

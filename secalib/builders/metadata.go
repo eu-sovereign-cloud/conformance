@@ -5,39 +5,24 @@ import "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 // GlobalResourceMetadataBuilder
 
 type GlobalResourceMetadataBuilder struct {
-	*metadataBuilder
+	*metadataBuilder[GlobalResourceMetadataBuilder, schema.GlobalResourceMetadataKind]
 	metadata *schema.GlobalResourceMetadata
 }
 
 func NewGlobalResourceMetadataBuilder() *GlobalResourceMetadataBuilder {
-	return &GlobalResourceMetadataBuilder{
-		metadataBuilder: newMetadataBuilder(),
-		metadata:        &schema.GlobalResourceMetadata{},
+	builder := &GlobalResourceMetadataBuilder{
+		metadata: &schema.GlobalResourceMetadata{},
 	}
-}
 
-func (builder *GlobalResourceMetadataBuilder) Name(name string) *GlobalResourceMetadataBuilder {
-	builder.metadata.Name = name
-	return builder
-}
+	builder.metadataBuilder = newMetadataBuilder(newMetadataBuilderParams[GlobalResourceMetadataBuilder, schema.GlobalResourceMetadataKind]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.Name = name },
+		setProvider:   func(provider string) { builder.metadata.Provider = provider },
+		setResource:   func(resource string) { builder.metadata.Resource = resource },
+		setApiVersion: func(apiVersion string) { builder.metadata.ApiVersion = apiVersion },
+		setKind:       func(kind schema.GlobalResourceMetadataKind) { builder.metadata.Kind = kind },
+	})
 
-func (builder *GlobalResourceMetadataBuilder) Provider(provider string) *GlobalResourceMetadataBuilder {
-	builder.metadata.Provider = provider
-	return builder
-}
-
-func (builder *GlobalResourceMetadataBuilder) Resource(resource string) *GlobalResourceMetadataBuilder {
-	builder.metadata.Resource = resource
-	return builder
-}
-
-func (builder *GlobalResourceMetadataBuilder) ApiVersion(apiVersion string) *GlobalResourceMetadataBuilder {
-	builder.metadata.ApiVersion = apiVersion
-	return builder
-}
-
-func (builder *GlobalResourceMetadataBuilder) Kind(kind schema.GlobalResourceMetadataKind) *GlobalResourceMetadataBuilder {
-	builder.metadata.Kind = kind
 	return builder
 }
 
@@ -59,39 +44,24 @@ func (builder *GlobalResourceMetadataBuilder) BuildResponse() (*schema.GlobalRes
 // GlobalTenantResourceMetadataBuilder
 
 type GlobalTenantResourceMetadataBuilder struct {
-	*metadataBuilder
+	*metadataBuilder[GlobalTenantResourceMetadataBuilder, schema.GlobalTenantResourceMetadataKind]
 	metadata *schema.GlobalTenantResourceMetadata
 }
 
 func NewGlobalTenantResourceMetadataBuilder() *GlobalTenantResourceMetadataBuilder {
-	return &GlobalTenantResourceMetadataBuilder{
-		metadataBuilder: newMetadataBuilder(),
-		metadata:        &schema.GlobalTenantResourceMetadata{},
+	builder := &GlobalTenantResourceMetadataBuilder{
+		metadata: &schema.GlobalTenantResourceMetadata{},
 	}
-}
 
-func (builder *GlobalTenantResourceMetadataBuilder) Name(name string) *GlobalTenantResourceMetadataBuilder {
-	builder.metadata.Name = name
-	return builder
-}
+	builder.metadataBuilder = newMetadataBuilder(newMetadataBuilderParams[GlobalTenantResourceMetadataBuilder, schema.GlobalTenantResourceMetadataKind]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.Name = name },
+		setProvider:   func(provider string) { builder.metadata.Provider = provider },
+		setResource:   func(resource string) { builder.metadata.Resource = resource },
+		setApiVersion: func(apiVersion string) { builder.metadata.ApiVersion = apiVersion },
+		setKind:       func(kind schema.GlobalTenantResourceMetadataKind) { builder.metadata.Kind = kind },
+	})
 
-func (builder *GlobalTenantResourceMetadataBuilder) Provider(provider string) *GlobalTenantResourceMetadataBuilder {
-	builder.metadata.Provider = provider
-	return builder
-}
-
-func (builder *GlobalTenantResourceMetadataBuilder) Resource(resource string) *GlobalTenantResourceMetadataBuilder {
-	builder.metadata.Resource = resource
-	return builder
-}
-
-func (builder *GlobalTenantResourceMetadataBuilder) ApiVersion(apiVersion string) *GlobalTenantResourceMetadataBuilder {
-	builder.metadata.ApiVersion = apiVersion
-	return builder
-}
-
-func (builder *GlobalTenantResourceMetadataBuilder) Kind(kind schema.GlobalTenantResourceMetadataKind) *GlobalTenantResourceMetadataBuilder {
-	builder.metadata.Kind = kind
 	return builder
 }
 
@@ -119,39 +89,24 @@ func (builder *GlobalTenantResourceMetadataBuilder) BuildResponse() (*schema.Glo
 // RegionalResourceMetadata
 
 type RegionalResourceMetadataBuilder struct {
-	*metadataBuilder
+	*metadataBuilder[RegionalResourceMetadataBuilder, schema.RegionalResourceMetadataKind]
 	metadata *schema.RegionalResourceMetadata
 }
 
 func NewRegionalResourceMetadataBuilder() *RegionalResourceMetadataBuilder {
-	return &RegionalResourceMetadataBuilder{
-		metadataBuilder: newMetadataBuilder(),
-		metadata:        &schema.RegionalResourceMetadata{},
+	builder := &RegionalResourceMetadataBuilder{
+		metadata: &schema.RegionalResourceMetadata{},
 	}
-}
 
-func (builder *RegionalResourceMetadataBuilder) Name(name string) *RegionalResourceMetadataBuilder {
-	builder.metadata.Name = name
-	return builder
-}
+	builder.metadataBuilder = newMetadataBuilder(newMetadataBuilderParams[RegionalResourceMetadataBuilder, schema.RegionalResourceMetadataKind]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.Name = name },
+		setProvider:   func(provider string) { builder.metadata.Provider = provider },
+		setResource:   func(resource string) { builder.metadata.Resource = resource },
+		setApiVersion: func(apiVersion string) { builder.metadata.ApiVersion = apiVersion },
+		setKind:       func(kind schema.RegionalResourceMetadataKind) { builder.metadata.Kind = kind },
+	})
 
-func (builder *RegionalResourceMetadataBuilder) Provider(provider string) *RegionalResourceMetadataBuilder {
-	builder.metadata.Provider = provider
-	return builder
-}
-
-func (builder *RegionalResourceMetadataBuilder) Resource(resource string) *RegionalResourceMetadataBuilder {
-	builder.metadata.Resource = resource
-	return builder
-}
-
-func (builder *RegionalResourceMetadataBuilder) ApiVersion(apiVersion string) *RegionalResourceMetadataBuilder {
-	builder.metadata.ApiVersion = apiVersion
-	return builder
-}
-
-func (builder *RegionalResourceMetadataBuilder) Kind(kind schema.RegionalResourceMetadataKind) *RegionalResourceMetadataBuilder {
-	builder.metadata.Kind = kind
 	return builder
 }
 
@@ -185,39 +140,24 @@ func (builder *RegionalResourceMetadataBuilder) BuildResponse() (*schema.Regiona
 // RegionalWorkspaceResourceMetadata
 
 type RegionalWorkspaceResourceMetadataBuilder struct {
-	*metadataBuilder
+	*metadataBuilder[RegionalWorkspaceResourceMetadataBuilder, schema.RegionalWorkspaceResourceMetadataKind]
 	metadata *schema.RegionalWorkspaceResourceMetadata
 }
 
 func NewRegionalWorkspaceResourceMetadataBuilder() *RegionalWorkspaceResourceMetadataBuilder {
-	return &RegionalWorkspaceResourceMetadataBuilder{
-		metadataBuilder: newMetadataBuilder(),
-		metadata:        &schema.RegionalWorkspaceResourceMetadata{},
+	builder := &RegionalWorkspaceResourceMetadataBuilder{
+		metadata: &schema.RegionalWorkspaceResourceMetadata{},
 	}
-}
 
-func (builder *RegionalWorkspaceResourceMetadataBuilder) Name(name string) *RegionalWorkspaceResourceMetadataBuilder {
-	builder.metadata.Name = name
-	return builder
-}
+	builder.metadataBuilder = newMetadataBuilder(newMetadataBuilderParams[RegionalWorkspaceResourceMetadataBuilder, schema.RegionalWorkspaceResourceMetadataKind]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.Name = name },
+		setProvider:   func(provider string) { builder.metadata.Provider = provider },
+		setResource:   func(resource string) { builder.metadata.Resource = resource },
+		setApiVersion: func(apiVersion string) { builder.metadata.ApiVersion = apiVersion },
+		setKind:       func(kind schema.RegionalWorkspaceResourceMetadataKind) { builder.metadata.Kind = kind },
+	})
 
-func (builder *RegionalWorkspaceResourceMetadataBuilder) Provider(provider string) *RegionalWorkspaceResourceMetadataBuilder {
-	builder.metadata.Provider = provider
-	return builder
-}
-
-func (builder *RegionalWorkspaceResourceMetadataBuilder) Resource(resource string) *RegionalWorkspaceResourceMetadataBuilder {
-	builder.metadata.Resource = resource
-	return builder
-}
-
-func (builder *RegionalWorkspaceResourceMetadataBuilder) ApiVersion(apiVersion string) *RegionalWorkspaceResourceMetadataBuilder {
-	builder.metadata.ApiVersion = apiVersion
-	return builder
-}
-
-func (builder *RegionalWorkspaceResourceMetadataBuilder) Kind(kind schema.RegionalWorkspaceResourceMetadataKind) *RegionalWorkspaceResourceMetadataBuilder {
-	builder.metadata.Kind = kind
 	return builder
 }
 
@@ -257,39 +197,24 @@ func (builder *RegionalWorkspaceResourceMetadataBuilder) BuildResponse() (*schem
 // RegionalNetworkResourceMetadata
 
 type RegionalNetworkResourceMetadataBuilder struct {
-	*metadataBuilder
+	*metadataBuilder[RegionalNetworkResourceMetadataBuilder, schema.RegionalNetworkResourceMetadataKind]
 	metadata *schema.RegionalNetworkResourceMetadata
 }
 
 func NewRegionalNetworkResourceMetadataBuilder() *RegionalNetworkResourceMetadataBuilder {
-	return &RegionalNetworkResourceMetadataBuilder{
-		metadataBuilder: newMetadataBuilder(),
-		metadata:        &schema.RegionalNetworkResourceMetadata{},
+	builder := &RegionalNetworkResourceMetadataBuilder{
+		metadata: &schema.RegionalNetworkResourceMetadata{},
 	}
-}
 
-func (builder *RegionalNetworkResourceMetadataBuilder) Name(name string) *RegionalNetworkResourceMetadataBuilder {
-	builder.metadata.Name = name
-	return builder
-}
+	builder.metadataBuilder = newMetadataBuilder(newMetadataBuilderParams[RegionalNetworkResourceMetadataBuilder, schema.RegionalNetworkResourceMetadataKind]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.Name = name },
+		setProvider:   func(provider string) { builder.metadata.Provider = provider },
+		setResource:   func(resource string) { builder.metadata.Resource = resource },
+		setApiVersion: func(apiVersion string) { builder.metadata.ApiVersion = apiVersion },
+		setKind:       func(kind schema.RegionalNetworkResourceMetadataKind) { builder.metadata.Kind = kind },
+	})
 
-func (builder *RegionalNetworkResourceMetadataBuilder) Provider(provider string) *RegionalNetworkResourceMetadataBuilder {
-	builder.metadata.Provider = provider
-	return builder
-}
-
-func (builder *RegionalNetworkResourceMetadataBuilder) Resource(resource string) *RegionalNetworkResourceMetadataBuilder {
-	builder.metadata.Resource = resource
-	return builder
-}
-
-func (builder *RegionalNetworkResourceMetadataBuilder) ApiVersion(apiVersion string) *RegionalNetworkResourceMetadataBuilder {
-	builder.metadata.ApiVersion = apiVersion
-	return builder
-}
-
-func (builder *RegionalNetworkResourceMetadataBuilder) Kind(kind schema.RegionalNetworkResourceMetadataKind) *RegionalNetworkResourceMetadataBuilder {
-	builder.metadata.Kind = kind
 	return builder
 }
 

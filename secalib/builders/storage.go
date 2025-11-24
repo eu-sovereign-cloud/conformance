@@ -7,36 +7,26 @@ import (
 // BlockStorage
 
 type BlockStorageBuilder struct {
-	*resourceBuilder
+	*resourceBuilder[BlockStorageBuilder, schema.BlockStorageSpec]
 	metadata *RegionalWorkspaceResourceMetadataBuilder
 	spec     *schema.BlockStorageSpec
 }
 
 func NewBlockStorageBuilder() *BlockStorageBuilder {
-	return &BlockStorageBuilder{
-		resourceBuilder: newResourceBuilder(),
-		metadata:        NewRegionalWorkspaceResourceMetadataBuilder(),
-		spec:            &schema.BlockStorageSpec{},
+	builder := &BlockStorageBuilder{
+		metadata: NewRegionalWorkspaceResourceMetadataBuilder(),
+		spec:     &schema.BlockStorageSpec{},
 	}
-}
 
-func (builder *BlockStorageBuilder) Name(name string) *BlockStorageBuilder {
-	builder.metadata.Name(name)
-	return builder
-}
+	builder.resourceBuilder = newResourceBuilder(newResourceBuilderParams[BlockStorageBuilder, schema.BlockStorageSpec]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.setName(name) },
+		setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
+		setResource:   func(resource string) { builder.metadata.setResource(resource) },
+		setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+		setSpec:       func(spec *schema.BlockStorageSpec) { builder.spec = spec },
+	})
 
-func (builder *BlockStorageBuilder) Provider(provider string) *BlockStorageBuilder {
-	builder.metadata.Provider(provider)
-	return builder
-}
-
-func (builder *BlockStorageBuilder) Resource(resource string) *BlockStorageBuilder {
-	builder.metadata.Resource(resource)
-	return builder
-}
-
-func (builder *BlockStorageBuilder) ApiVersion(apiVersion string) *BlockStorageBuilder {
-	builder.metadata.ApiVersion(apiVersion)
 	return builder
 }
 
@@ -52,11 +42,6 @@ func (builder *BlockStorageBuilder) Workspace(workspace string) *BlockStorageBui
 
 func (builder *BlockStorageBuilder) Region(region string) *BlockStorageBuilder {
 	builder.metadata.Region(region)
-	return builder
-}
-
-func (builder *BlockStorageBuilder) Spec(spec *schema.BlockStorageSpec) *BlockStorageBuilder {
-	builder.spec = spec
 	return builder
 }
 
@@ -86,36 +71,26 @@ func (builder *BlockStorageBuilder) BuildResponse() (*schema.BlockStorage, error
 // Image
 
 type ImageBuilder struct {
-	*resourceBuilder
+	*resourceBuilder[ImageBuilder, schema.ImageSpec]
 	metadata *RegionalResourceMetadataBuilder
 	spec     *schema.ImageSpec
 }
 
 func NewImageBuilder() *ImageBuilder {
-	return &ImageBuilder{
-		resourceBuilder: newResourceBuilder(),
-		metadata:        NewRegionalResourceMetadataBuilder(),
-		spec:            &schema.ImageSpec{},
+	builder := &ImageBuilder{
+		metadata: NewRegionalResourceMetadataBuilder(),
+		spec:     &schema.ImageSpec{},
 	}
-}
 
-func (builder *ImageBuilder) Name(name string) *ImageBuilder {
-	builder.metadata.Name(name)
-	return builder
-}
+	builder.resourceBuilder = newResourceBuilder(newResourceBuilderParams[ImageBuilder, schema.ImageSpec]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.setName(name) },
+		setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
+		setResource:   func(resource string) { builder.metadata.setResource(resource) },
+		setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+		setSpec:       func(spec *schema.ImageSpec) { builder.spec = spec },
+	})
 
-func (builder *ImageBuilder) Provider(provider string) *ImageBuilder {
-	builder.metadata.Provider(provider)
-	return builder
-}
-
-func (builder *ImageBuilder) Resource(resource string) *ImageBuilder {
-	builder.metadata.Resource(resource)
-	return builder
-}
-
-func (builder *ImageBuilder) ApiVersion(apiVersion string) *ImageBuilder {
-	builder.metadata.ApiVersion(apiVersion)
 	return builder
 }
 
@@ -126,11 +101,6 @@ func (builder *ImageBuilder) Tenant(tenant string) *ImageBuilder {
 
 func (builder *ImageBuilder) Region(region string) *ImageBuilder {
 	builder.metadata.Region(region)
-	return builder
-}
-
-func (builder *ImageBuilder) Spec(spec *schema.ImageSpec) *ImageBuilder {
-	builder.spec = spec
 	return builder
 }
 

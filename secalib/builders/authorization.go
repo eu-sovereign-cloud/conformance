@@ -7,46 +7,31 @@ import (
 // Role
 
 type RoleBuilder struct {
-	*resourceBuilder
+	*resourceBuilder[RoleBuilder, schema.RoleSpec]
 	metadata *GlobalTenantResourceMetadataBuilder
 	spec     *schema.RoleSpec
 }
 
 func NewRoleBuilder() *RoleBuilder {
-	return &RoleBuilder{
-		resourceBuilder: newResourceBuilder(),
-		metadata:        NewGlobalTenantResourceMetadataBuilder(),
-		spec:            &schema.RoleSpec{},
+	builder := &RoleBuilder{
+		metadata: NewGlobalTenantResourceMetadataBuilder(),
+		spec:     &schema.RoleSpec{},
 	}
-}
 
-func (builder *RoleBuilder) Name(name string) *RoleBuilder {
-	builder.metadata.Name(name)
-	return builder
-}
+	builder.resourceBuilder = newResourceBuilder(newResourceBuilderParams[RoleBuilder, schema.RoleSpec]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.setName(name) },
+		setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
+		setResource:   func(resource string) { builder.metadata.setResource(resource) },
+		setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+		setSpec:       func(spec *schema.RoleSpec) { builder.spec = spec },
+	})
 
-func (builder *RoleBuilder) Provider(provider string) *RoleBuilder {
-	builder.metadata.Provider(provider)
-	return builder
-}
-
-func (builder *RoleBuilder) Resource(resource string) *RoleBuilder {
-	builder.metadata.Resource(resource)
-	return builder
-}
-
-func (builder *RoleBuilder) ApiVersion(apiVersion string) *RoleBuilder {
-	builder.metadata.ApiVersion(apiVersion)
 	return builder
 }
 
 func (builder *RoleBuilder) Tenant(tenant string) *RoleBuilder {
 	builder.metadata.Tenant(tenant)
-	return builder
-}
-
-func (builder *RoleBuilder) Spec(spec *schema.RoleSpec) *RoleBuilder {
-	builder.spec = spec
 	return builder
 }
 
@@ -85,46 +70,31 @@ func (builder *RoleBuilder) BuildResponse() (*schema.Role, error) {
 // RoleAssignment
 
 type RoleAssignmentBuilder struct {
-	*resourceBuilder
+	*resourceBuilder[RoleAssignmentBuilder, schema.RoleAssignmentSpec]
 	metadata *GlobalTenantResourceMetadataBuilder
 	spec     *schema.RoleAssignmentSpec
 }
 
 func NewRoleAssignmentBuilder() *RoleAssignmentBuilder {
-	return &RoleAssignmentBuilder{
-		resourceBuilder: newResourceBuilder(),
-		metadata:        NewGlobalTenantResourceMetadataBuilder(),
-		spec:            &schema.RoleAssignmentSpec{},
+	builder := &RoleAssignmentBuilder{
+		metadata: NewGlobalTenantResourceMetadataBuilder(),
+		spec:     &schema.RoleAssignmentSpec{},
 	}
-}
 
-func (builder *RoleAssignmentBuilder) Name(name string) *RoleAssignmentBuilder {
-	builder.metadata.Name(name)
-	return builder
-}
+	builder.resourceBuilder = newResourceBuilder(newResourceBuilderParams[RoleAssignmentBuilder, schema.RoleAssignmentSpec]{
+		parent:        builder,
+		setName:       func(name string) { builder.metadata.setName(name) },
+		setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
+		setResource:   func(resource string) { builder.metadata.setResource(resource) },
+		setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+		setSpec:       func(spec *schema.RoleAssignmentSpec) { builder.spec = spec },
+	})
 
-func (builder *RoleAssignmentBuilder) Provider(provider string) *RoleAssignmentBuilder {
-	builder.metadata.Provider(provider)
-	return builder
-}
-
-func (builder *RoleAssignmentBuilder) Resource(resource string) *RoleAssignmentBuilder {
-	builder.metadata.Resource(resource)
-	return builder
-}
-
-func (builder *RoleAssignmentBuilder) ApiVersion(apiVersion string) *RoleAssignmentBuilder {
-	builder.metadata.ApiVersion(apiVersion)
 	return builder
 }
 
 func (builder *RoleAssignmentBuilder) Tenant(tenant string) *RoleAssignmentBuilder {
 	builder.metadata.Tenant(tenant)
-	return builder
-}
-
-func (builder *RoleAssignmentBuilder) Spec(spec *schema.RoleAssignmentSpec) *RoleAssignmentBuilder {
-	builder.spec = spec
 	return builder
 }
 
