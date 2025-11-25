@@ -67,41 +67,6 @@ const (
 	SubnetRef          = "subnets/%s"
 	PublicIpRef        = "public-ips/%s"
 
-	// Resource Kinds
-	RoleKind            = "role"
-	RoleAssignmentKind  = "role-assignment"
-	RegionKind          = "region"
-	WorkspaceKind       = "workspace"
-	StorageSkuKind      = "storage-sku"
-	BlockStorageKind    = "block-storage"
-	ImageKind           = "image"
-	InstanceSkuKind     = "instance-sku"
-	InstanceKind        = "instance"
-	NetworkKind         = "network"
-	NetworkSkuKind      = "network-sku"
-	InternetGatewayKind = "internet-gateway"
-	NicKind             = "nic"
-	PublicIpKind        = "public-ip"
-	RouteTableKind      = "routing-table"
-	SubnetKind          = "subnet"
-	SecurityGroupKind   = "security-group"
-
-	// Resource Enums
-	CpuArchitectureAmd64 = "amd64"
-	CpuArchitectureArm64 = "arm64"
-
-	IpVersion4 = "ipv4"
-	IpVersion6 = "ipv6"
-
-	SecurityRuleDirectionIngress = "ingress"
-	SecurityRuleDirectionEgress  = "egress"
-
-	// Status States
-	CreatingResourceState  = "creating"
-	ActiveResourceState    = "active"
-	UpdatingResourceState  = "updating"
-	SuspendedResourceState = "suspended"
-
 	// Generators
 	maxBlockStorageSize = 1000000 // GB
 

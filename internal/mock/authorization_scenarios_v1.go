@@ -8,6 +8,8 @@ import (
 	authorizationV1 "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.authorization.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 
+	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
 
@@ -25,11 +27,21 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	roleResource := secalib.GenerateRoleResource(params.Tenant, (*params.Role)[0].Name)
 	roleAssignResource := secalib.GenerateRoleAssignmentResource(params.Tenant, (*params.RoleAssignment)[0].Name)
 	// Role
-	roleResponse := newRoleResponse((*params.Role)[0].Name, secalib.AuthorizationProviderV1, roleResource, secalib.ApiVersion1, params.Tenant, (*params.Role)[0].InitialSpec)
+	roleResponse, err := builders.NewRoleBuilder().
+		Name(params.Role.Name).
+		Provider(secalib.AuthorizationProviderV1).
+		Resource(roleResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Spec(params.Role.InitialSpec).
+		BuildResponse()
+	if err != nil {
+		return nil, err
+	}
 
 	// Create a role
 	setCreatedGlobalTenantResourceMetadata(roleResponse.Metadata)
-	roleResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
+	roleResponse.Status = secalib.NewResourceStatus(schema.ResourceStateCreating)
 	roleResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: startedScenarioState, nextState: "GetCreatedRole"}); err != nil {
@@ -37,7 +49,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the created role
-	secalib.SetStatusState(roleResponse.Status, secalib.ActiveResourceState)
+	secalib.SetStatusState(roleResponse.Status, schema.ResourceStateActive)
 	roleResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetCreatedRole", nextState: "UpdateRole"}); err != nil {
@@ -55,7 +67,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the updated role
-	secalib.SetStatusState(roleResponse.Status, secalib.ActiveResourceState)
+	secalib.SetStatusState(roleResponse.Status, schema.ResourceStateActive)
 	roleResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetUpdatedRole", nextState: "CreateRoleAssignment"}); err != nil {
@@ -63,13 +75,21 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Role assignment
-	roleAssignResponse := newRoleAssignmentResponse((*params.RoleAssignment)[0].Name, secalib.AuthorizationProviderV1, roleAssignResource, secalib.ApiVersion1,
-		params.Tenant,
-		(*params.RoleAssignment)[0].InitialSpec)
+	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
+		Name((*params.RoleAssignment)[0].Name).
+		Provider(secalib.AuthorizationProviderV1).
+		Resource(roleAssignResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Spec((*params.RoleAssignment)[0].InitialSpec).
+		BuildResponse()
+	if err != nil {
+		return nil, err
+	}
 
 	// Create a role assignment
 	setCreatedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-	roleAssignResponse.Status = secalib.NewResourceStatus(secalib.CreatingResourceState)
+	roleAssignResponse.Status = secalib.NewResourceStatus(schema.ResourceStateCreating)
 	roleAssignResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "CreateRoleAssignment", nextState: "GetCreatedRoleAssignment"}); err != nil {
@@ -77,7 +97,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the created role assignment
-	secalib.SetStatusState(roleAssignResponse.Status, secalib.ActiveResourceState)
+	secalib.SetStatusState(roleAssignResponse.Status, schema.ResourceStateActive)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetCreatedRoleAssignment", nextState: "UpdateRoleAssignment"}); err != nil {
@@ -95,7 +115,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the updated role assignment
-	secalib.SetStatusState(roleAssignResponse.Status, secalib.ActiveResourceState)
+	secalib.SetStatusState(roleAssignResponse.Status, schema.ResourceStateActive)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetUpdatedRoleAssignment", nextState: "DeleteRoleAssignment"}); err != nil {
@@ -109,7 +129,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the deleted role assignment
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, currentState: "GetDeletedRoleAssignment", nextState: "DeleteRole"}); err != nil {
 		return nil, err
 	}
@@ -121,7 +141,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get deleted role
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, currentState: "GetDeletedRole", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}

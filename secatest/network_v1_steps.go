@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
@@ -16,68 +15,51 @@ import (
 
 // Network
 
-func (suite *testSuite) createOrUpdateNetworkV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	resource *schema.Network,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.NetworkSpec,
-	expectedStatusState string,
+func (suite *testSuite) createOrUpdateNetworkV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.Network,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNetwork", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateNetwork(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyNetworkSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	responseExpects.metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(t, suite,
+		createOrUpdateWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkV1StepParams,
+			operationName:  "CreateOrUpdateNetwork",
+			workspace:      resource.Metadata.Workspace,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Network) (*stepFuncResponse[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec], error) {
+				resp, err := api.CreateOrUpdateNetwork(t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyNetworkSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
-func (suite *testSuite) getNetworkV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.NetworkSpec,
-	expectedStatusState string,
+func (suite *testSuite) getNetworkV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
 ) *schema.Network {
-	var resp *schema.Network
-	var err error
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetNetwork", string(wref.Workspace))
-
-		resp, err = api.GetNetwork(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyNetworkSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
-	return resp
+	responseExpects.metadata.Verb = http.MethodGet
+	return getWorkspaceResourceStep(t, suite,
+		getWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkV1StepParams,
+			operationName:  "GetNetwork",
+			wref:           wref,
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec], error) {
+				resp, err := api.GetNetworkUntilState(ctx, wref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyNetworkSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
 func (suite *testSuite) getListNetworkV1Step(
@@ -125,95 +107,71 @@ func (suite *testSuite) getListNetworkV1Step(
 	return respAll
 }
 
-func (suite *testSuite) getNetworkWithErrorV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	expectedError error,
-) {
+func (suite *testSuite) getNetworkWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetNetwork", string(wref.Workspace))
 
-		_, err := api.GetNetwork(ctx, wref)
+		_, err := api.GetNetwork(t.Context(), wref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deleteNetworkV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.NetworkV1, resource *schema.Network) {
+func (suite *testSuite) deleteNetworkV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.Network) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "DeleteNetwork", resource.Metadata.Workspace)
 
-		err := api.DeleteNetwork(ctx, resource)
+		err := api.DeleteNetwork(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }
 
 // Internet Gateway
 
-func (suite *testSuite) createOrUpdateInternetGatewayV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	resource *schema.InternetGateway,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.InternetGatewaySpec,
-	expectedStatusState string,
+func (suite *testSuite) createOrUpdateInternetGatewayV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.InternetGateway,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateInternetGateway", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateInternetGateway(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyInternetGatewaySpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	responseExpects.metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(t, suite,
+		createOrUpdateWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkV1StepParams,
+			operationName:  "CreateOrUpdateInternetGateway",
+			workspace:      resource.Metadata.Workspace,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.InternetGateway) (*stepFuncResponse[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec], error) {
+				resp, err := api.CreateOrUpdateInternetGateway(t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyInternetGatewaySpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
-func (suite *testSuite) getInternetGatewayV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.InternetGatewaySpec,
-	expectedStatusState string,
+func (suite *testSuite) getInternetGatewayV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
 ) *schema.InternetGateway {
-	var resp *schema.InternetGateway
-	var err error
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetInternetGateway", string(wref.Workspace))
-
-		resp, err = api.GetInternetGateway(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyInternetGatewaySpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
-	return resp
+	responseExpects.metadata.Verb = http.MethodGet
+	return getWorkspaceResourceStep(t, suite,
+		getWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkV1StepParams,
+			operationName:  "GetInternetGateway",
+			wref:           wref,
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec], error) {
+				resp, err := api.GetInternetGatewayUntilState(ctx, wref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyInternetGatewaySpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
 func (suite *testSuite) getListInternetGatewayV1Step(
@@ -261,95 +219,72 @@ func (suite *testSuite) getListInternetGatewayV1Step(
 	return respAll
 }
 
-func (suite *testSuite) getInternetGatewayWithErrorV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	expectedError error,
-) {
+func (suite *testSuite) getInternetGatewayWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetInternetGateway", string(wref.Workspace))
 
-		_, err := api.GetInternetGateway(ctx, wref)
+		_, err := api.GetInternetGateway(t.Context(), wref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deleteInternetGatewayV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.NetworkV1, resource *schema.InternetGateway) {
+func (suite *testSuite) deleteInternetGatewayV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.InternetGateway) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "DeleteInternetGateway", resource.Metadata.Workspace)
 
-		err := api.DeleteInternetGateway(ctx, resource)
+		err := api.DeleteInternetGateway(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }
 
 // Route Table
 
-func (suite *testSuite) createOrUpdateRouteTableV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	resource *schema.RouteTable,
-	expectedMeta *schema.RegionalNetworkResourceMetadata,
-	expectedSpec *schema.RouteTableSpec,
-	expectedStatusState string,
+func (suite *testSuite) createOrUpdateRouteTableV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.RouteTable,
+	responseExpects responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateRouteTable", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateRouteTable(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyRouteTableSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	responseExpects.metadata.Verb = http.MethodPut
+	createOrUpdateNetworkResourceStep(t, suite,
+		createOrUpdateNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkNetworkV1StepParams,
+			operationName:  "CreateOrUpdateRouteTable",
+			workspace:      resource.Metadata.Workspace,
+			network:        resource.Metadata.Network,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.RouteTable) (*stepFuncResponse[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec], error) {
+				resp, err := api.CreateOrUpdateRouteTable(t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyRouteTableSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
-func (suite *testSuite) getRouteTableV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	nref secapi.NetworkReference,
-	expectedMeta *schema.RegionalNetworkResourceMetadata,
-	expectedSpec *schema.RouteTableSpec,
-	expectedStatusState string,
+func (suite *testSuite) getRouteTableV1Step(stepName string, t provider.T, api *secapi.NetworkV1, nref secapi.NetworkReference,
+	responseExpects responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
 ) *schema.RouteTable {
-	var resp *schema.RouteTable
-	var err error
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetRouteTable", string(nref.Workspace))
-
-		resp, err = api.GetRouteTable(ctx, nref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyRouteTableSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
-	return resp
+	responseExpects.metadata.Verb = http.MethodGet
+	return getNetworkResourceStep(t, suite,
+		getNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkNetworkV1StepParams,
+			operationName:  "GetRouteTable",
+			nref:           nref,
+			getFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec], error) {
+				resp, err := api.GetRouteTableUntilState(ctx, nref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyRouteTableSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
 func (suite *testSuite) getListRouteTableV1Step(
@@ -398,95 +333,72 @@ func (suite *testSuite) getListRouteTableV1Step(
 	return respAll
 }
 
-func (suite *testSuite) getRouteTableWithErrorV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	nref secapi.NetworkReference,
-	expectedError error,
-) {
+func (suite *testSuite) getRouteTableWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetRouteTable", string(nref.Workspace))
 
-		_, err := api.GetRouteTable(ctx, nref)
+		_, err := api.GetRouteTable(t.Context(), nref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deleteRouteTableV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.NetworkV1, resource *schema.RouteTable) {
+func (suite *testSuite) deleteRouteTableV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.RouteTable) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "DeleteRouteTable", resource.Metadata.Workspace)
 
-		err := api.DeleteRouteTable(ctx, resource)
+		err := api.DeleteRouteTable(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }
 
 // Subnet
 
-func (suite *testSuite) createOrUpdateSubnetV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	resource *schema.Subnet,
-	expectedMeta *schema.RegionalNetworkResourceMetadata,
-	expectedSpec *schema.SubnetSpec,
-	expectedStatusState string,
+func (suite *testSuite) createOrUpdateSubnetV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.Subnet,
+	responseExpects responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateSubnet", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateSubnet(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifySubnetSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	responseExpects.metadata.Verb = http.MethodPut
+	createOrUpdateNetworkResourceStep(t, suite,
+		createOrUpdateNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkNetworkV1StepParams,
+			operationName:  "CreateOrUpdateSubnet",
+			workspace:      resource.Metadata.Workspace,
+			network:        resource.Metadata.Network,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Subnet) (*stepFuncResponse[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec], error) {
+				resp, err := api.CreateOrUpdateSubnet(t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifySubnetSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
-func (suite *testSuite) getSubnetV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	nref secapi.NetworkReference,
-	expectedMeta *schema.RegionalNetworkResourceMetadata,
-	expectedSpec *schema.SubnetSpec,
-	expectedStatusState string,
+func (suite *testSuite) getSubnetV1Step(stepName string, t provider.T, api *secapi.NetworkV1, nref secapi.NetworkReference,
+	responseExpects responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
 ) *schema.Subnet {
-	var resp *schema.Subnet
-	var err error
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetSubnet", string(nref.Workspace))
-
-		resp, err = api.GetSubnet(ctx, nref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalNetworkResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifySubnetSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
-	return resp
+	responseExpects.metadata.Verb = http.MethodGet
+	return getNetworkResourceStep(t, suite,
+		getNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkNetworkV1StepParams,
+			operationName:  "GetSubnet",
+			nref:           nref,
+			getFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec], error) {
+				resp, err := api.GetSubnetUntilState(ctx, nref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifySubnetSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
 func (suite *testSuite) getListSubnetV1Step(
@@ -535,95 +447,71 @@ func (suite *testSuite) getListSubnetV1Step(
 	return respAll
 }
 
-func (suite *testSuite) getSubnetWithErrorV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	nref secapi.NetworkReference,
-	expectedError error,
-) {
+func (suite *testSuite) getSubnetWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetSubnet", string(nref.Workspace))
 
-		_, err := api.GetSubnet(ctx, nref)
+		_, err := api.GetSubnet(t.Context(), nref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deleteSubnetV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.NetworkV1, resource *schema.Subnet) {
+func (suite *testSuite) deleteSubnetV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.Subnet) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "DeleteSubnet", resource.Metadata.Workspace)
 
-		err := api.DeleteSubnet(ctx, resource)
+		err := api.DeleteSubnet(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }
 
 // Public Ip
 
-func (suite *testSuite) createOrUpdatePublicIpV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	resource *schema.PublicIp,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.PublicIpSpec,
-	expectedStatusState string,
+func (suite *testSuite) createOrUpdatePublicIpV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.PublicIp,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdatePublicIp", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdatePublicIp(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyPublicIpSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	responseExpects.metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(t, suite,
+		createOrUpdateWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkV1StepParams,
+			operationName:  "CreateOrUpdatePublicIp",
+			workspace:      resource.Metadata.Workspace,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.PublicIp) (*stepFuncResponse[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec], error) {
+				resp, err := api.CreateOrUpdatePublicIp(t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyPublicIpSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
-func (suite *testSuite) getPublicIpV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.PublicIpSpec,
-	expectedStatusState string,
+func (suite *testSuite) getPublicIpV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
 ) *schema.PublicIp {
-	var resp *schema.PublicIp
-	var err error
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetPublicIp", string(wref.Workspace))
-
-		resp, err = api.GetPublicIp(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyPublicIpSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
-	return resp
+	responseExpects.metadata.Verb = http.MethodGet
+	return getWorkspaceResourceStep(t, suite,
+		getWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkV1StepParams,
+			operationName:  "GetPublicIp",
+			wref:           wref,
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec], error) {
+				resp, err := api.GetPublicIpUntilState(ctx, wref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyPublicIpSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
 func (suite *testSuite) getListPublicIpV1Step(
@@ -671,95 +559,71 @@ func (suite *testSuite) getListPublicIpV1Step(
 	return respAll
 }
 
-func (suite *testSuite) getPublicIpWithErrorV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	expectedError error,
-) {
+func (suite *testSuite) getPublicIpWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetPublicIp", string(wref.Workspace))
 
-		_, err := api.GetPublicIp(ctx, wref)
+		_, err := api.GetPublicIp(t.Context(), wref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deletePublicIpV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.NetworkV1, resource *schema.PublicIp) {
+func (suite *testSuite) deletePublicIpV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.PublicIp) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "DeletePublicIp", resource.Metadata.Workspace)
 
-		err := api.DeletePublicIp(ctx, resource)
+		err := api.DeletePublicIp(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }
 
 // Nic
 
-func (suite *testSuite) createOrUpdateNicV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	resource *schema.Nic,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.NicSpec,
-	expectedStatusState string,
+func (suite *testSuite) createOrUpdateNicV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.Nic,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateNic", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateNic(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyNicSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	responseExpects.metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(t, suite,
+		createOrUpdateWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkV1StepParams,
+			operationName:  "CreateOrUpdateNic",
+			workspace:      resource.Metadata.Workspace,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Nic) (*stepFuncResponse[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec], error) {
+				resp, err := api.CreateOrUpdateNic(t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyNicSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
-func (suite *testSuite) getNicV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.NicSpec,
-	expectedStatusState string,
+func (suite *testSuite) getNicV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
 ) *schema.Nic {
-	var resp *schema.Nic
-	var err error
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetNic", string(wref.Workspace))
-
-		resp, err = api.GetNic(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifyNicSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
-	return resp
+	responseExpects.metadata.Verb = http.MethodGet
+	return getWorkspaceResourceStep(t, suite,
+		getWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkV1StepParams,
+			operationName:  "GetNic",
+			wref:           wref,
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec], error) {
+				resp, err := api.GetNicUntilState(ctx, wref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifyNicSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
 func (suite *testSuite) getListNicV1Step(
@@ -807,95 +671,71 @@ func (suite *testSuite) getListNicV1Step(
 	return respAll
 }
 
-func (suite *testSuite) getNicWithErrorV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	expectedError error,
-) {
+func (suite *testSuite) getNicWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetNic", string(wref.Workspace))
 
-		_, err := api.GetNic(ctx, wref)
+		_, err := api.GetNic(t.Context(), wref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deleteNicV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.NetworkV1, resource *schema.Nic) {
+func (suite *testSuite) deleteNicV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.Nic) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "DeleteNic", resource.Metadata.Workspace)
 
-		err := api.DeleteNic(ctx, resource)
+		err := api.DeleteNic(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }
 
 // Security Group
 
-func (suite *testSuite) createOrUpdateSecurityGroupV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	resource *schema.SecurityGroup,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.SecurityGroupSpec,
-	expectedStatusState string,
+func (suite *testSuite) createOrUpdateSecurityGroupV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.SecurityGroup,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "CreateOrUpdateSecurityGroup", resource.Metadata.Workspace)
-
-		resp, err := api.CreateOrUpdateSecurityGroup(ctx, resource)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodPut
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifySecurityGroupSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
+	responseExpects.metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(t, suite,
+		createOrUpdateWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkV1StepParams,
+			operationName:  "CreateOrUpdateSecurityGroup",
+			workspace:      resource.Metadata.Workspace,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.SecurityGroup) (*stepFuncResponse[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec], error) {
+				resp, err := api.CreateOrUpdateSecurityGroup(t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifySecurityGroupSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
-func (suite *testSuite) getSecurityGroupV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	expectedMeta *schema.RegionalWorkspaceResourceMetadata,
-	expectedSpec *schema.SecurityGroupSpec,
-	expectedStatusState string,
+func (suite *testSuite) getSecurityGroupV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
+	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
 ) *schema.SecurityGroup {
-	var resp *schema.SecurityGroup
-	var err error
-
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setNetworkV1StepParams(sCtx, "GetSecurityGroup", string(wref.Workspace))
-
-		resp, err = api.GetSecurityGroup(ctx, wref)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		if expectedMeta != nil {
-			expectedMeta.Verb = http.MethodGet
-			suite.verifyRegionalWorkspaceResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-		}
-
-		if expectedSpec != nil {
-			suite.verifySecurityGroupSpecStep(sCtx, expectedSpec, &resp.Spec)
-		}
-
-		suite.verifyStatusStep(sCtx, *secalib.SetResourceState(expectedStatusState), *resp.Status.State)
-	})
-	return resp
+	responseExpects.metadata.Verb = http.MethodGet
+	return getWorkspaceResourceStep(t, suite,
+		getWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+			stepName:       stepName,
+			stepParamsFunc: suite.setNetworkV1StepParams,
+			operationName:  "GetSecurityGroup",
+			wref:           wref,
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec], error) {
+				resp, err := api.GetSecurityGroupUntilState(ctx, wref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.metadata,
+			verifyMetadataFunc:    suite.verifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.spec,
+			verifySpecFunc:        suite.verifySecurityGroupSpecStep,
+			expectedResourceState: responseExpects.resourceState,
+		},
+	)
 }
 
 func (suite *testSuite) getListSecurityGroupV1Step(
@@ -943,27 +783,20 @@ func (suite *testSuite) getListSecurityGroupV1Step(
 	return respAll
 }
 
-func (suite *testSuite) getSecurityGroupWithErrorV1Step(
-	stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	expectedError error,
-) {
+func (suite *testSuite) getSecurityGroupWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetSecurityGroup", string(wref.Workspace))
 
-		_, err := api.GetSecurityGroup(ctx, wref)
+		_, err := api.GetSecurityGroup(t.Context(), wref)
 		requireError(sCtx, err, expectedError)
 	})
 }
 
-func (suite *testSuite) deleteSecurityGroupV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.NetworkV1, resource *schema.SecurityGroup) {
+func (suite *testSuite) deleteSecurityGroupV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.SecurityGroup) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "DeleteSecurityGroup", resource.Metadata.Workspace)
 
-		err := api.DeleteSecurityGroup(ctx, resource)
+		err := api.DeleteSecurityGroup(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
 }

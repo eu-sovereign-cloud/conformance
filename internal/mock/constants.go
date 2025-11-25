@@ -10,6 +10,4 @@ const (
 	authorizationHttpHeaderValuePrefix = "Bearer "
 	contentTypeHttpHeaderKey           = "Content-Type"
 	contentTypeHttpHeaderValue         = "application/json"
-	limitHeaderKey                     = "Limit"
-	labelsHeaderKey                    = "Labels"
 )

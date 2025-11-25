@@ -22,6 +22,10 @@ type testSuite struct {
 
 	mockClient   *wiremock.Client
 	scenarioName string
+
+	baseDelay    int
+	baseInterval int
+	maxAttempts  int
 }
 
 func (suite *testSuite) canRun(regexp *regexp.Regexp) bool {
@@ -92,7 +96,7 @@ func (suite *testSuite) setWorkspaceV1StepParams(sctx provider.StepCtx, operatio
 	)
 }
 
-func (suite *testSuite) setStorageTenantV1StepParams(sctx provider.StepCtx, operation string) {
+func (suite *testSuite) setStorageV1StepParams(sctx provider.StepCtx, operation string) {
 	sctx.WithNewParameters(
 		providerStepParameter, secalib.StorageProviderV1,
 		operationStepParameter, operation,
@@ -124,5 +128,16 @@ func (suite *testSuite) setNetworkV1StepParams(sctx provider.StepCtx, operation 
 		operationStepParameter, operation,
 		tenantStepParameter, suite.tenant,
 		workspaceStepParameter, workspace,
+	)
+}
+
+// TODO Find a better name for this function
+func (suite *testSuite) setNetworkNetworkV1StepParams(sctx provider.StepCtx, operation string, workspace string, network string) {
+	sctx.WithNewParameters(
+		providerStepParameter, secalib.NetworkProviderV1,
+		operationStepParameter, operation,
+		tenantStepParameter, suite.tenant,
+		workspaceStepParameter, workspace,
+		networkStepParameter, network,
 	)
 }

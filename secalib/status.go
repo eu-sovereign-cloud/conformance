@@ -4,156 +4,151 @@ import (
 	"time"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
-	"k8s.io/utils/ptr"
 )
 
-func SetResourceState(state string) *schema.ResourceState {
-	return ptr.To(schema.ResourceState(state))
-}
-
-func addStatusCondition(conditions []schema.StatusCondition, state string) []schema.StatusCondition {
+func addStatusCondition(conditions []schema.StatusCondition, state schema.ResourceState) []schema.StatusCondition {
 	return append(conditions, schema.StatusCondition{
 		LastTransitionAt: time.Now(),
-		State:            schema.ResourceState(state),
+		State:            state,
 	})
 }
 
-func NewResourceStatus(state string) *schema.Status {
+func NewResourceStatus(state schema.ResourceState) *schema.Status {
 	return &schema.Status{
-		State:      SetResourceState(state),
+		State:      &state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
-func SetStatusState(status *schema.Status, state string) {
-	status.State = SetResourceState(state)
+func SetStatusState(status *schema.Status, state schema.ResourceState) {
+	status.State = &state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
 // Worspace
 
-func NewWorkspaceStatus(state string) *schema.WorkspaceStatus {
+func NewWorkspaceStatus(state schema.ResourceState) *schema.WorkspaceStatus {
 	return &schema.WorkspaceStatus{
-		State:      SetResourceState(state),
+		State:      &state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
-func SetWorkspaceStatusState(status *schema.WorkspaceStatus, state string) {
-	status.State = SetResourceState(state)
+func SetWorkspaceStatusState(status *schema.WorkspaceStatus, state schema.ResourceState) {
+	status.State = &state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
 // Storage
 
-func NewBlockStorageStatus(state string) *schema.BlockStorageStatus {
+func NewBlockStorageStatus(state schema.ResourceState) *schema.BlockStorageStatus {
 	return &schema.BlockStorageStatus{
-		State:      SetResourceState(state),
+		State:      &state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
-func SetBlockStorageStatusState(status *schema.BlockStorageStatus, state string) {
-	status.State = SetResourceState(state)
+func SetBlockStorageStatusState(status *schema.BlockStorageStatus, state schema.ResourceState) {
+	status.State = &state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
-func NewImageStatus(state string) *schema.ImageStatus {
+func NewImageStatus(state schema.ResourceState) *schema.ImageStatus {
 	return &schema.ImageStatus{
-		State:      SetResourceState(state),
+		State:      &state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
-func SetImageStatusState(status *schema.ImageStatus, state string) {
-	status.State = SetResourceState(state)
+func SetImageStatusState(status *schema.ImageStatus, state schema.ResourceState) {
+	status.State = &state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
 // Instance
 
-func NewInstanceStatus(state string) *schema.InstanceStatus {
+func NewInstanceStatus(state schema.ResourceState) *schema.InstanceStatus {
 	return &schema.InstanceStatus{
-		State:      SetResourceState(state),
+		State:      &state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
-func SetInstanceStatusState(status *schema.InstanceStatus, state string) {
-	status.State = SetResourceState(state)
+func SetInstanceStatusState(status *schema.InstanceStatus, state schema.ResourceState) {
+	status.State = &state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
 // Network
 
-func NewNetworkStatus(state string) *schema.NetworkStatus {
+func NewNetworkStatus(state schema.ResourceState) *schema.NetworkStatus {
 	return &schema.NetworkStatus{
-		State:      SetResourceState(state),
+		State:      &state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
-func SetNetworkStatusState(status *schema.NetworkStatus, state string) {
-	status.State = SetResourceState(state)
+func SetNetworkStatusState(status *schema.NetworkStatus, state schema.ResourceState) {
+	status.State = &state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
-func NewRouteTableStatus(state string) *schema.RouteTableStatus {
+func NewRouteTableStatus(state schema.ResourceState) *schema.RouteTableStatus {
 	return &schema.RouteTableStatus{
-		State:      SetResourceState(state),
+		State:      &state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
-func SetRouteTableStatusState(status *schema.RouteTableStatus, state string) {
-	status.State = SetResourceState(state)
+func SetRouteTableStatusState(status *schema.RouteTableStatus, state schema.ResourceState) {
+	status.State = &state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
-func NewSubnetStatus(state string) *schema.SubnetStatus {
+func NewSubnetStatus(state schema.ResourceState) *schema.SubnetStatus {
 	return &schema.SubnetStatus{
-		State:      SetResourceState(state),
+		State:      &state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
-func SetSubnetStatusState(status *schema.SubnetStatus, state string) {
-	status.State = SetResourceState(state)
+func SetSubnetStatusState(status *schema.SubnetStatus, state schema.ResourceState) {
+	status.State = &state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
-func NewPublicIpStatus(state string) *schema.PublicIpStatus {
+func NewPublicIpStatus(state schema.ResourceState) *schema.PublicIpStatus {
 	return &schema.PublicIpStatus{
-		State:      SetResourceState(state),
+		State:      &state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
-func SetPublicIpStatusState(status *schema.PublicIpStatus, state string) {
-	status.State = SetResourceState(state)
+func SetPublicIpStatusState(status *schema.PublicIpStatus, state schema.ResourceState) {
+	status.State = &state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
-func NewNicStatus(state string) *schema.NicStatus {
+func NewNicStatus(state schema.ResourceState) *schema.NicStatus {
 	return &schema.NicStatus{
-		State:      SetResourceState(state),
+		State:      &state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
-func SetNicStatusState(status *schema.NicStatus, state string) {
-	status.State = SetResourceState(state)
+func SetNicStatusState(status *schema.NicStatus, state schema.ResourceState) {
+	status.State = &state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
-func NewSecurityGroupStatus(state string) *schema.SecurityGroupStatus {
+func NewSecurityGroupStatus(state schema.ResourceState) *schema.SecurityGroupStatus {
 	return &schema.SecurityGroupStatus{
-		State:      SetResourceState(state),
+		State:      &state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
-func SetSecurityGroupStatusState(status *schema.SecurityGroupStatus, state string) {
-	status.State = SetResourceState(state)
+func SetSecurityGroupStatusState(status *schema.SecurityGroupStatus, state schema.ResourceState) {
+	status.State = &state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }

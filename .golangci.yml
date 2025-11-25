@@ -1,0 +1,41 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: none
+  enable:
+  # Bug prevention
+  - errcheck      # Unchecked errors
+  - gosimple      # Simplify code
+  - govet         # Suspicious constructs
+  - ineffassign   # Ineffectual assignments
+  - staticcheck   # Static analysis checks
+  - typecheck     # Type-checking errors
+  - unused        # Unused code
+  # Code style
+  - gofmt         # Code formatting
+  - goimports     # Import formatting  
+  - misspell      # Spelling mistakes
+  # Code quality
+  - revive        # Code linter
+  - dupl          # Code duplication
+  - goconst       # Repeated strings
+  - unconvert     # Unnecessary type conversions
+  # Safe code
+  - gosec         # Security issues
+
+linters-settings:
+  gosec:
+    excludes:
+    - G101 
+    - G404
+  dupl:
+    threshold: 160 # The goal is reach 100
+  revive:
+    rules:
+      - name: var-naming
+        disabled: true
+      - name: argument-limit
+        arguments: [5]
