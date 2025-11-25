@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -14,7 +15,7 @@ import (
 
 /// Create Or Update
 
-type createOrUpdateTenantResourceParams[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType] struct {
+type createOrUpdateTenantResourceParams[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType] struct {
 	stepName              string
 	stepParamsFunc        func(provider.StepCtx, string)
 	operationName         string
@@ -28,7 +29,7 @@ type createOrUpdateTenantResourceParams[R secapi.ResourceType, M secapi.Metadata
 	expectedResourceState schema.ResourceState
 }
 
-type createOrUpdateWorkspaceResourceParams[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType] struct {
+type createOrUpdateWorkspaceResourceParams[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType] struct {
 	stepName              string
 	stepParamsFunc        func(provider.StepCtx, string, string)
 	operationName         string
@@ -43,7 +44,7 @@ type createOrUpdateWorkspaceResourceParams[R secapi.ResourceType, M secapi.Metad
 	expectedResourceState schema.ResourceState
 }
 
-type createOrUpdateNetworkResourceParams[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType] struct {
+type createOrUpdateNetworkResourceParams[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType] struct {
 	stepName              string
 	stepParamsFunc        func(provider.StepCtx, string, string, string)
 	operationName         string
@@ -59,7 +60,7 @@ type createOrUpdateNetworkResourceParams[R secapi.ResourceType, M secapi.Metadat
 	expectedResourceState schema.ResourceState
 }
 
-type createOrUpdateResourceParams[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType] struct {
+type createOrUpdateResourceParams[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType] struct {
 	resource              *R
 	createOrUpdateFunc    func(context.Context, *R) (*stepFuncResponse[R, M, E], error)
 	expectedLabels        schema.Labels
@@ -72,7 +73,7 @@ type createOrUpdateResourceParams[R secapi.ResourceType, M secapi.MetadataType, 
 
 /// Get
 
-type getTenantResourceParams[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType] struct {
+type getTenantResourceParams[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType] struct {
 	stepName              string
 	stepParamsFunc        func(provider.StepCtx, string)
 	operationName         string
@@ -86,7 +87,7 @@ type getTenantResourceParams[R secapi.ResourceType, M secapi.MetadataType, E sec
 	verifySpecFunc        func(provider.StepCtx, *E, *E)
 }
 
-type getWorkspaceResourceParams[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType] struct {
+type getWorkspaceResourceParams[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType] struct {
 	stepName              string
 	stepParamsFunc        func(provider.StepCtx, string, string)
 	operationName         string
@@ -100,7 +101,7 @@ type getWorkspaceResourceParams[R secapi.ResourceType, M secapi.MetadataType, E 
 	verifySpecFunc        func(provider.StepCtx, *E, *E)
 }
 
-type getNetworkResourceParams[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType] struct {
+type getNetworkResourceParams[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType] struct {
 	stepName              string
 	stepParamsFunc        func(provider.StepCtx, string, string, string)
 	operationName         string
@@ -114,7 +115,7 @@ type getNetworkResourceParams[R secapi.ResourceType, M secapi.MetadataType, E se
 	verifySpecFunc        func(provider.StepCtx, *E, *E)
 }
 
-type getResourceWithObserverParams[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType, F secapi.Reference, V any] struct {
+type getResourceWithObserverParams[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType, F secapi.Reference, V any] struct {
 	reference             F
 	observerExpectedValue V
 	getFunc               func(context.Context, F, secapi.ResourceObserverConfig[V]) (*stepFuncResponse[R, M, E], error)
@@ -128,7 +129,7 @@ type getResourceWithObserverParams[R secapi.ResourceType, M secapi.MetadataType,
 
 /// Response
 
-type stepFuncResponse[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType] struct {
+type stepFuncResponse[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType] struct {
 	resource *R
 	labels   schema.Labels
 	metadata *M
@@ -136,7 +137,7 @@ type stepFuncResponse[R secapi.ResourceType, M secapi.MetadataType, E secapi.Spe
 	state    *schema.ResourceState
 }
 
-func newStepFuncResponse[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType](resource *R, labels schema.Labels, metadata *M, spec E, state *schema.ResourceState) *stepFuncResponse[R, M, E] {
+func newStepFuncResponse[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType](resource *R, labels schema.Labels, metadata *M, spec E, state *schema.ResourceState) *stepFuncResponse[R, M, E] {
 	return &stepFuncResponse[R, M, E]{
 		resource: resource,
 		labels:   labels,
@@ -146,14 +147,14 @@ func newStepFuncResponse[R secapi.ResourceType, M secapi.MetadataType, E secapi.
 	}
 }
 
-type responseExpects[M secapi.MetadataType, E secapi.SpecType] struct {
+type responseExpects[M secalib.MetadataType, E secalib.SpecType] struct {
 	labels        schema.Labels
 	metadata      *M
 	spec          *E
 	resourceState schema.ResourceState
 }
 
-func createOrUpdateTenantResourceStep[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType](
+func createOrUpdateTenantResourceStep[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType](
 	t provider.T,
 	suite *testSuite,
 	params createOrUpdateTenantResourceParams[R, M, E],
@@ -174,7 +175,7 @@ func createOrUpdateTenantResourceStep[R secapi.ResourceType, M secapi.MetadataTy
 	})
 }
 
-func createOrUpdateWorkspaceResourceStep[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType](
+func createOrUpdateWorkspaceResourceStep[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType](
 	t provider.T,
 	suite *testSuite,
 	params createOrUpdateWorkspaceResourceParams[R, M, E],
@@ -195,7 +196,7 @@ func createOrUpdateWorkspaceResourceStep[R secapi.ResourceType, M secapi.Metadat
 	})
 }
 
-func createOrUpdateNetworkResourceStep[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType](
+func createOrUpdateNetworkResourceStep[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType](
 	t provider.T,
 	suite *testSuite,
 	params createOrUpdateNetworkResourceParams[R, M, E],
@@ -216,7 +217,7 @@ func createOrUpdateNetworkResourceStep[R secapi.ResourceType, M secapi.MetadataT
 	})
 }
 
-func createOrUpdateResourceStep[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType](
+func createOrUpdateResourceStep[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType](
 	t provider.T,
 	suite *testSuite,
 	sCtx provider.StepCtx,
@@ -239,7 +240,7 @@ func createOrUpdateResourceStep[R secapi.ResourceType, M secapi.MetadataType, E 
 	suite.verifyStatusStep(sCtx, params.expectedResourceState, *resp.state)
 }
 
-func getTenantResourceStep[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType](
+func getTenantResourceStep[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType](
 	t provider.T,
 	suite *testSuite,
 	params getTenantResourceParams[R, M, E],
@@ -266,7 +267,7 @@ func getTenantResourceStep[R secapi.ResourceType, M secapi.MetadataType, E secap
 	return resp.resource
 }
 
-func getWorkspaceResourceStep[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType](
+func getWorkspaceResourceStep[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType](
 	t provider.T,
 	suite *testSuite,
 	params getWorkspaceResourceParams[R, M, E],
@@ -293,7 +294,7 @@ func getWorkspaceResourceStep[R secapi.ResourceType, M secapi.MetadataType, E se
 	return resp.resource
 }
 
-func getNetworkResourceStep[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType](
+func getNetworkResourceStep[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType](
 	t provider.T,
 	suite *testSuite,
 	params getNetworkResourceParams[R, M, E],
@@ -320,7 +321,7 @@ func getNetworkResourceStep[R secapi.ResourceType, M secapi.MetadataType, E seca
 	return resp.resource
 }
 
-func getResourceWithObserver[R secapi.ResourceType, M secapi.MetadataType, E secapi.SpecType, F secapi.Reference, V any](
+func getResourceWithObserver[R secalib.ResourceType, M secalib.MetadataType, E secalib.SpecType, F secapi.Reference, V any](
 	t provider.T,
 	suite *testSuite,
 	sCtx provider.StepCtx,
