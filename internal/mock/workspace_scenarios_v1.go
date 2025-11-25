@@ -5,7 +5,8 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-
+	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
 
@@ -20,13 +21,21 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	url := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
 	resource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 
-	response := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, resource, secalib.ApiVersion1,
-		params.Tenant, params.Region,
-		params.Workspace.InitialLabels)
-
+	response, err := builders.NewWorkspaceBuilder().
+		Name(params.Workspace.Name).
+		Provider(secalib.WorkspaceProviderV1).
+		Resource(resource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Region(params.Region).
+		Labels(params.Workspace.InitialLabels).
+		BuildResponse()
+	if err != nil {
+		return nil, err
+	}
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(response.Metadata)
-	response.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
+	response.Status = secalib.NewWorkspaceStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: url, params: params, responseBody: response, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
@@ -34,7 +43,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Get the created workspace
-	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveResourceState)
+	secalib.SetWorkspaceStatusState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: url, params: params, responseBody: response, currentState: "GetCreatedWorkspace", nextState: "UpdateWorkspace"}); err != nil {
@@ -43,7 +52,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 
 	// Update the workspace
 	setModifiedRegionalResourceMetadata(response.Metadata)
-	secalib.SetWorkspaceStatusState(response.Status, secalib.UpdatingResourceState)
+	secalib.SetWorkspaceStatusState(response.Status, schema.ResourceStateUpdating)
 	response.Labels = params.Workspace.UpdatedLabels
 	response.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -52,7 +61,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Get the updated workspace
-	secalib.SetWorkspaceStatusState(response.Status, secalib.ActiveResourceState)
+	secalib.SetWorkspaceStatusState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: url, params: params, responseBody: response, currentState: "GetUpdatedWorkspace", nextState: "DeleteWorkspace"}); err != nil {
@@ -66,7 +75,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Get the deleted workspace
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: url, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}

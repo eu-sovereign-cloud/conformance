@@ -6,6 +6,7 @@ const (
 	operationStepParameter = "operation"
 	tenantStepParameter    = "tenant"
 	workspaceStepParameter = "workspace"
+	networkStepParameter   = "network"
 
 	// Suite Names
 	authorizationV1LifeCycleSuiteName = "Authorization.V1.LifeCycle"

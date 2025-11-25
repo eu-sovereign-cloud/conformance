@@ -1,12 +1,12 @@
 package secatest
 
 import (
-	"context"
 	"log/slog"
 	"math/rand"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
+	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -20,18 +20,21 @@ type StorageV1TestSuite struct {
 }
 
 func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
-	ctx := context.Background()
 	var err error
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.StorageProviderV1, secalib.BlockStorageKind, secalib.ImageKind)
+	configureTags(t, secalib.StorageProviderV1,
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
+	)
 
 	// Select sku
 	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
 
 	// Generate scenario data
 	workspaceName := secalib.GenerateWorkspaceName()
+	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
 
 	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
 	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
@@ -83,11 +86,11 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 				Name: imageName,
 				InitialSpec: &schema.ImageSpec{
 					BlockStorageRef: *blockStorageRefObj,
-					CpuArchitecture: secalib.CpuArchitectureAmd64,
+					CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
 				},
 				UpdatedSpec: &schema.ImageSpec{
 					BlockStorageRef: *blockStorageRefObj,
-					CpuArchitecture: secalib.CpuArchitectureArm64,
+					CpuArchitecture: schema.ImageSpecCpuArchitectureArm64,
 				},
 			},
 		}
@@ -110,14 +113,40 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, nil, nil, secalib.CreatingResourceState)
+	expectWorkspaceMeta, err := builders.NewRegionalResourceMetadataBuilder().
+		Name(workspaceName).
+		Provider(secalib.WorkspaceProviderV1).
+		Resource(workspaceResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
+		Tenant(suite.tenant).
+		Region(suite.region).
+		BuildResponse()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
+	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, workspace,
+		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			labels:        expectWorkspaceLabels,
+			metadata:      expectWorkspaceMeta,
+			resourceState: schema.ResourceStateCreating,
+		},
+	)
 
 	// Get the created Workspace
 	workspaceTRef := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.tenant),
 		Name:   workspaceName,
 	}
-	suite.getWorkspaceV1Step("Get the created workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, nil, nil, secalib.ActiveResourceState)
+	suite.getWorkspaceV1Step("Get the created workspace", t, suite.client.WorkspaceV1, *workspaceTRef,
+		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			labels:        expectWorkspaceLabels,
+			metadata:      expectWorkspaceMeta,
+			resourceState: schema.ResourceStateActive,
+		},
+	)
 
 	// Block storage
 
@@ -133,20 +162,30 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			SkuRef: *storageSkuRefObj,
 		},
 	}
-	expectedBlockMeta := secalib.NewRegionalWorkspaceResourceMetadata(blockStorageName,
-		secalib.StorageProviderV1,
-		blockStorageResource,
-		secalib.ApiVersion1,
-		secalib.BlockStorageKind,
-		suite.tenant,
-		workspaceName,
-		suite.region)
+	expectedBlockMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
+		Name(blockStorageName).
+		Provider(secalib.StorageProviderV1).
+		Resource(blockStorageResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Region(suite.region).
+		BuildResponse()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
 	expectedBlockSpec := &schema.BlockStorageSpec{
 		SizeGB: initialStorageSize,
 		SkuRef: *storageSkuRefObj,
 	}
-	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, ctx, suite.client.StorageV1, block,
-		expectedBlockMeta, expectedBlockSpec, secalib.CreatingResourceState)
+	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, suite.client.StorageV1, block,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			metadata:      expectedBlockMeta,
+			spec:          expectedBlockSpec,
+			resourceState: schema.ResourceStateCreating,
+		},
+	)
 
 	// Get the created block storage
 	blockWRef := &secapi.WorkspaceReference{
@@ -154,18 +193,33 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      blockStorageName,
 	}
-	block = suite.getBlockStorageV1Step("Get the created block storage", t, ctx, suite.client.StorageV1, *blockWRef,
-		expectedBlockMeta, expectedBlockSpec, secalib.ActiveResourceState)
+	block = suite.getBlockStorageV1Step("Get the created block storage", t, suite.client.StorageV1, *blockWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			metadata:      expectedBlockMeta,
+			spec:          expectedBlockSpec,
+			resourceState: schema.ResourceStateActive,
+		},
+	)
 
 	// Update the block storage
 	block.Spec.SizeGB = updatedStorageSize
 	expectedBlockSpec.SizeGB = block.Spec.SizeGB
-	suite.createOrUpdateBlockStorageV1Step("Update the block storage", t, ctx, suite.client.StorageV1, block,
-		expectedBlockMeta, expectedBlockSpec, secalib.UpdatingResourceState)
+	suite.createOrUpdateBlockStorageV1Step("Update the block storage", t, suite.client.StorageV1, block,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			metadata:      expectedBlockMeta,
+			spec:          expectedBlockSpec,
+			resourceState: schema.ResourceStateUpdating,
+		},
+	)
 
 	// Get the updated block storage
-	block = suite.getBlockStorageV1Step("Get the updated block storage", t, ctx, suite.client.StorageV1, *blockWRef,
-		expectedBlockMeta, expectedBlockSpec, secalib.ActiveResourceState)
+	block = suite.getBlockStorageV1Step("Get the updated block storage", t, suite.client.StorageV1, *blockWRef,
+		responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			metadata:      expectedBlockMeta,
+			spec:          expectedBlockSpec,
+			resourceState: schema.ResourceStateActive,
+		},
+	)
 
 	// Image
 
@@ -177,58 +231,83 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		},
 		Spec: schema.ImageSpec{
 			BlockStorageRef: *blockStorageRefObj,
-			CpuArchitecture: secalib.CpuArchitectureAmd64,
+			CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
 		},
 	}
-	expectedImageMeta := secalib.NewRegionalResourceMetadata(imageName,
-		secalib.StorageProviderV1,
-		imageResource,
-		secalib.ApiVersion1,
-		secalib.ImageKind,
-		suite.tenant,
-		suite.region)
+	expectedImageMeta, err := builders.NewRegionalResourceMetadataBuilder().
+		Name(imageName).
+		Provider(secalib.StorageProviderV1).
+		Resource(imageResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(schema.RegionalResourceMetadataKindResourceKindImage).
+		Tenant(suite.tenant).
+		Region(suite.region).
+		BuildResponse()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
 	expectedImageSpec := &schema.ImageSpec{
 		BlockStorageRef: *blockStorageRefObj,
-		CpuArchitecture: secalib.CpuArchitectureAmd64,
+		CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
 	}
-	suite.createOrUpdateImageV1Step("Create an image", t, ctx, suite.client.StorageV1, image,
-		expectedImageMeta, expectedImageSpec, secalib.CreatingResourceState)
+	suite.createOrUpdateImageV1Step("Create an image", t, suite.client.StorageV1, image,
+		responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
+			metadata:      expectedImageMeta,
+			spec:          expectedImageSpec,
+			resourceState: schema.ResourceStateCreating,
+		},
+	)
 
 	// Get the created image
 	imageTRef := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.tenant),
 		Name:   imageName,
 	}
-	image = suite.getImageV1Step("Get the created image", t, ctx, suite.client.StorageV1, *imageTRef,
-		expectedImageMeta, expectedImageSpec, secalib.ActiveResourceState)
+	image = suite.getImageV1Step("Get the created image", t, suite.client.StorageV1, *imageTRef,
+		responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
+			metadata:      expectedImageMeta,
+			spec:          expectedImageSpec,
+			resourceState: schema.ResourceStateActive,
+		},
+	)
 
 	// Update the image
-	image.Spec.CpuArchitecture = secalib.CpuArchitectureArm64
+	image.Spec.CpuArchitecture = schema.ImageSpecCpuArchitectureArm64
 	expectedImageSpec.CpuArchitecture = image.Spec.CpuArchitecture
-	suite.createOrUpdateImageV1Step("Update the image", t, ctx, suite.client.StorageV1, image,
-		expectedImageMeta, expectedImageSpec, secalib.UpdatingResourceState)
+	suite.createOrUpdateImageV1Step("Update the image", t, suite.client.StorageV1, image,
+		responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
+			metadata:      expectedImageMeta,
+			spec:          expectedImageSpec,
+			resourceState: schema.ResourceStateUpdating,
+		},
+	)
 
 	// Get the updated image
-	image = suite.getImageV1Step("Get the updated image", t, ctx, suite.client.StorageV1, *imageTRef,
-		expectedImageMeta, expectedImageSpec, secalib.ActiveResourceState)
+	image = suite.getImageV1Step("Get the updated image", t, suite.client.StorageV1, *imageTRef,
+		responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
+			metadata:      expectedImageMeta,
+			spec:          expectedImageSpec,
+			resourceState: schema.ResourceStateActive,
+		},
+	)
 
 	// Delete the image
-	suite.deleteImageV1Step("Delete the image", t, ctx, suite.client.StorageV1, image)
+	suite.deleteImageV1Step("Delete the image", t, suite.client.StorageV1, image)
 
 	// Get the deleted image
-	suite.getImageWithErrorV1Step("Get the deleted image", t, ctx, suite.client.StorageV1, *imageTRef, secapi.ErrResourceNotFound)
+	suite.getImageWithErrorV1Step("Get the deleted image", t, suite.client.StorageV1, *imageTRef, secapi.ErrResourceNotFound)
 
 	// Delete the block storage
-	suite.deleteBlockStorageV1Step("Delete the block storage", t, ctx, suite.client.StorageV1, block)
+	suite.deleteBlockStorageV1Step("Delete the block storage", t, suite.client.StorageV1, block)
 
 	// Get the deleted block storage
-	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, ctx, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
+	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
 
 	// Delete the workspace
-	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
 
 	// Get the deleted workspace
-	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)
 }

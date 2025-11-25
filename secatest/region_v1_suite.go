@@ -6,6 +6,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
+	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -20,7 +21,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.RegionKind)
+	configureTags(t, secalib.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
 	// Generate scenario Names
 	regionNameA := secalib.GenerateRegionName()
@@ -81,7 +82,16 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 
 	// Call Get Region and verify response
 	regionResource := secalib.GenerateRegionResource(regions[0].Metadata.Name)
-	expectedRegionMeta := secalib.NewGlobalResourceMetadata(regions[0].Metadata.Name, secalib.RegionProviderV1, regionResource, secalib.ApiVersion1, secalib.RegionKind)
+	expectedRegionMeta, err := builders.NewGlobalResourceMetadataBuilder().
+		Name(regions[0].Metadata.Name).
+		Provider(secalib.RegionProviderV1).
+		Resource(regionResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(schema.GlobalResourceMetadataKindResourceKindRegion).
+		BuildResponse()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
 
 	suite.getRegionV1Step("Get region "+regions[0].Metadata.Name, t, ctx, suite.client.RegionV1, expectedRegionMeta)
 }
