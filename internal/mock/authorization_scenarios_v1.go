@@ -39,7 +39,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Create a role
 	setCreatedGlobalTenantResourceMetadata(roleResponse.Metadata)
-	roleResponse.Status = secalib.NewResourceStatus(schema.ResourceStateCreating)
+	roleResponse.Status = newResourceStatus(schema.ResourceStateCreating)
 	roleResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: startedScenarioState, nextState: "GetCreatedRole"}); err != nil {
@@ -47,7 +47,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the created role
-	secalib.SetStatusState(roleResponse.Status, schema.ResourceStateActive)
+	setResourceState(roleResponse.Status, schema.ResourceStateActive)
 	roleResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetCreatedRole", nextState: "UpdateRole"}); err != nil {
@@ -56,7 +56,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Update the role
 	setModifiedGlobalTenantResourceMetadata(roleResponse.Metadata)
-	secalib.SetStatusState(roleResponse.Status, schema.ResourceStateUpdating)
+	setResourceState(roleResponse.Status, schema.ResourceStateUpdating)
 	roleResponse.Spec = *params.Role.UpdatedSpec
 	roleResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -65,7 +65,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the updated role
-	secalib.SetStatusState(roleResponse.Status, schema.ResourceStateActive)
+	setResourceState(roleResponse.Status, schema.ResourceStateActive)
 	roleResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetUpdatedRole", nextState: "CreateRoleAssignment"}); err != nil {
@@ -87,7 +87,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Create a role assignment
 	setCreatedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-	roleAssignResponse.Status = secalib.NewResourceStatus(schema.ResourceStateCreating)
+	roleAssignResponse.Status = newResourceStatus(schema.ResourceStateCreating)
 	roleAssignResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "CreateRoleAssignment", nextState: "GetCreatedRoleAssignment"}); err != nil {
@@ -95,7 +95,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the created role assignment
-	secalib.SetStatusState(roleAssignResponse.Status, schema.ResourceStateActive)
+	setResourceState(roleAssignResponse.Status, schema.ResourceStateActive)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetCreatedRoleAssignment", nextState: "UpdateRoleAssignment"}); err != nil {
@@ -104,7 +104,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Update the role assignment
 	setModifiedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-	secalib.SetStatusState(roleAssignResponse.Status, schema.ResourceStateUpdating)
+	setResourceState(roleAssignResponse.Status, schema.ResourceStateUpdating)
 	roleAssignResponse.Spec = *params.RoleAssignment.UpdatedSpec
 	roleAssignResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -113,7 +113,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the updated role assignment
-	secalib.SetStatusState(roleAssignResponse.Status, schema.ResourceStateActive)
+	setResourceState(roleAssignResponse.Status, schema.ResourceStateActive)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetUpdatedRoleAssignment", nextState: "DeleteRoleAssignment"}); err != nil {
