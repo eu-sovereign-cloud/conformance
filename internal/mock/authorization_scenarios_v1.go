@@ -5,10 +5,14 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
+<<<<<<< HEAD
 	authorizationV1 "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.authorization.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
+=======
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+>>>>>>> origin/go-sdk-builders
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )

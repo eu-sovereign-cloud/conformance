@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	workspaceV1 "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
@@ -24,13 +24,13 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	resource := secalib.GenerateWorkspaceResource(params.Tenant, (*params.Workspace)[0].Name)
 
 	response, err := builders.NewWorkspaceBuilder().
-		Name(params.Workspace.Name).
+		Name((*params.Workspace)[0].Name).
 		Provider(secalib.WorkspaceProviderV1).
 		Resource(resource).
 		ApiVersion(secalib.ApiVersion1).
 		Tenant(params.Tenant).
 		Region(params.Region).
-		Labels(params.Workspace.InitialLabels).
+		Labels((*params.Workspace)[0].InitialLabels).
 		BuildResponse()
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 
 	// Update the workspace
 	setModifiedRegionalResourceMetadata(response.Metadata)
-	secalib.SetWorkspaceStatusState(response.Status, secalib.UpdatingResourceState)
+	secalib.SetWorkspaceStatusState(response.Status, schema.ResourceStateUpdating)
 	response.Labels = (*params.Workspace)[0].UpdatedLabels
 	response.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -96,10 +96,19 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 	// Workspace
 	var workspaceList []schema.Workspace
 	for i := range *params.Workspace {
-		resource := secalib.GenerateWorkspaceResource(params.Tenant, (*params.Workspace)[i].Name)
-		response := newWorkspaceResponse((*params.Workspace)[i].Name, secalib.WorkspaceProviderV1, resource, secalib.ApiVersion1,
-			params.Tenant, params.Region,
-			(*params.Workspace)[i].InitialLabels)
+		workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, (*params.Workspace)[i].Name)
+		workspaceResponse, err := builders.NewWorkspaceBuilder().
+			Name((*params.Workspace)[i].Name).
+			Provider(secalib.WorkspaceProviderV1).
+			Resource(workspaceResource).
+			ApiVersion(secalib.ApiVersion1).
+			Tenant(params.Tenant).
+			Region(params.Region).
+			Labels((*params.Workspace)[i].InitialLabels).
+			BuildResponse()
+		if err != nil {
+			return nil, err
+		}
 		var nextState string
 		var currentState string
 		if i < len(*params.Workspace)-1 {
@@ -113,14 +122,14 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 			currentState = (*params.Workspace)[i].Name
 		}
 		// Create a workspace
-		setCreatedRegionalResourceMetadata(response.Metadata)
-		response.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
-		response.Metadata.Verb = http.MethodPut
+		setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
+		workspaceResponse.Status = secalib.NewWorkspaceStatus(schema.ResourceStateCreating)
+		workspaceResponse.Metadata.Verb = http.MethodPut
 		if err := configurePutStub(wm, scenario,
-			&stubConfig{url: secalib.GenerateWorkspaceURL(params.Tenant, (*params.Workspace)[i].Name), params: params, responseBody: response, currentState: currentState, nextState: nextState}); err != nil {
+			&stubConfig{url: secalib.GenerateWorkspaceURL(params.Tenant, (*params.Workspace)[i].Name), params: params, responseBody: workspaceResponse, currentState: currentState, nextState: nextState}); err != nil {
 			return nil, err
 		}
-		workspaceList = append(workspaceList, *response)
+		workspaceList = append(workspaceList, *workspaceResponse)
 	}
 	// List workspaces
 
@@ -205,7 +214,7 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 		if i < len(*params.Workspace)-1 {
 			getNextState = fmt.Sprintf("DeleteWorkspace%d", i+2)
 		}
-		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		if err := configureGetNotFoundStub(wm, scenario,
 			&stubConfig{url: workspaceUrl, params: params, currentState: nextState, nextState: getNextState}); err != nil {
 			return nil, err
 		}

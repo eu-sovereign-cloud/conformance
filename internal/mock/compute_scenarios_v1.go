@@ -5,10 +5,8 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	computeV1 "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
-
-	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
@@ -95,14 +93,14 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Instance
 	instanceResponse, err := builders.NewInstanceBuilder().
-		Name(params.Instance.Name).
+		Name((*params.Instance)[0].Name).
 		Provider(secalib.ComputeProviderV1).
 		Resource(instanceResource).
 		ApiVersion(secalib.ApiVersion1).
 		Tenant(params.Tenant).
 		Workspace(params.Workspace.Name).
 		Region(params.Region).
-		Spec(params.Instance.InitialSpec).
+		Spec((*params.Instance)[0].InitialSpec).
 		BuildResponse()
 	if err != nil {
 		return nil, err
@@ -127,7 +125,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Update the instance
 	setModifiedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-	secalib.SetInstanceStatusState(instanceResponse.Status, secalib.UpdatingResourceState)
+	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateUpdating)
 	instanceResponse.Spec = *(*params.Instance)[0].UpdatedSpec
 	instanceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -242,13 +240,19 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 	blockResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
 
 	// Workspace
-	workspaceResponse := newWorkspaceResponse(params.Workspace.Name, secalib.WorkspaceProviderV1, workspaceResource, secalib.ApiVersion1,
-		params.Tenant, params.Region,
-		params.Workspace.InitialLabels)
 
+	workspaceResponse, err := builders.NewWorkspaceBuilder().
+		Name(params.Workspace.Name).
+		Provider(secalib.WorkspaceProviderV1).
+		Resource(workspaceResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Region(params.Region).
+		Labels(params.Workspace.InitialLabels).
+		BuildResponse()
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
-	workspaceResponse.Status = secalib.NewWorkspaceStatus(secalib.CreatingResourceState)
+	workspaceResponse.Status = secalib.NewWorkspaceStatus(schema.ResourceStateCreating)
 	workspaceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: startedScenarioState, nextState: "CreateBlockStorage"}); err != nil {
@@ -256,14 +260,21 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 	}
 
 	// Block storage
-	blockResponse := newBlockStorageResponse(params.BlockStorage.Name, secalib.ComputeProviderV1, blockResource, secalib.ApiVersion1,
-		params.Tenant, params.Workspace.Name, params.Region,
-		params.BlockStorage.InitialLabels,
-		params.BlockStorage.InitialSpec)
+	blockResponse, err := builders.NewBlockStorageBuilder().
+		Name(params.BlockStorage.Name).
+		Provider(secalib.StorageProviderV1).
+		Resource(blockResource).
+		ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).
+		Workspace(params.Workspace.Name).
+		Region(params.Region).
+		Labels(params.BlockStorage.InitialLabels).
+		Spec(params.BlockStorage.InitialSpec).
+		BuildResponse()
 
 	// Create a block storage
 	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
-	blockResponse.Status = secalib.NewBlockStorageStatus(secalib.CreatingResourceState)
+	blockResponse.Status = secalib.NewBlockStorageStatus(schema.ResourceStateCreating)
 	blockResponse.Spec.SizeGB = params.BlockStorage.InitialSpec.SizeGB
 	blockResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -275,10 +286,20 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 	var instanceList []schema.Instance
 	for i := range *params.Instance {
 		instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace.Name, (*params.Instance)[i].Name)
-		instanceResponse := newInstanceResponse((*params.Instance)[i].Name, secalib.ComputeProviderV1, instanceResource, secalib.ApiVersion1,
-			params.Tenant, params.Workspace.Name, params.Region,
-			&(*params.Instance)[i].InitialLabels,
-			(*params.Instance)[i].InitialSpec)
+		instanceResponse, err := builders.NewInstanceBuilder().
+			Name((*params.Instance)[i].Name).
+			Provider(secalib.ComputeProviderV1).
+			Resource(instanceResource).
+			ApiVersion(secalib.ApiVersion1).
+			Tenant(params.Tenant).
+			Workspace(params.Workspace.Name).
+			Region(params.Region).
+			Labels(&(*params.Instance)[i].InitialLabels).
+			Spec((*params.Instance)[i].InitialSpec).
+			BuildResponse()
+		if err != nil {
+			return nil, err
+		}
 
 		var nextState string
 		if i < len(*params.Instance)-1 {
@@ -288,7 +309,7 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 		}
 		// Create an instance
 		setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-		instanceResponse.Status = secalib.NewInstanceStatus(secalib.CreatingResourceState)
+		instanceResponse.Status = secalib.NewInstanceStatus(schema.ResourceStateCreating)
 		instanceResponse.Metadata.Verb = http.MethodPut
 		if err := configurePutStub(wm, scenario,
 			&stubConfig{url: secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, (*params.Instance)[i].Name), params: params, responseBody: instanceResponse, currentState: (*params.Instance)[i].Name, nextState: nextState}); err != nil {
@@ -356,7 +377,6 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 				Provider: secalib.ComputeProviderV1,
 				Resource: instancesResource,
 				Verb:     http.MethodGet,
-				Kind:     secalib.InstanceSkuKind,
 				Tenant:   params.Tenant,
 			},
 			Labels: schema.Labels{
@@ -375,7 +395,6 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 				Provider: secalib.ComputeProviderV1,
 				Resource: instancesResource,
 				Verb:     http.MethodGet,
-				Kind:     secalib.InstanceSkuKind,
 				Tenant:   params.Tenant,
 			},
 			Labels: schema.Labels{
@@ -394,7 +413,6 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 				Provider: secalib.ComputeProviderV1,
 				Resource: instancesResource,
 				Verb:     http.MethodGet,
-				Kind:     secalib.InstanceSkuKind,
 				Tenant:   params.Tenant,
 			},
 			Labels: schema.Labels{
@@ -505,7 +523,7 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 			}
 		}()
 
-		if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+		if err := configureGetNotFoundStub(wm, scenario,
 			&stubConfig{url: instanceUrl, params: params, currentState: "DeleteInstance_" + (*params.Instance)[i].Name, nextState: nextState}); err != nil {
 			return nil, err
 		}
@@ -518,7 +536,7 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 	}
 
 	// Get the deleted block storage
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: blockUrl, params: params, currentState: "GetDeletedBlockStorage", nextState: "DeleteWorkspace"}); err != nil {
 		return nil, err
 	}
@@ -530,7 +548,7 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 	}
 
 	// Get the deleted workspace
-	if err := configureGetStubWithStatus(wm, scenario, http.StatusNotFound,
+	if err := configureGetNotFoundStub(wm, scenario,
 		&stubConfig{url: workspaceUrl, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
 		return nil, err
 	}
