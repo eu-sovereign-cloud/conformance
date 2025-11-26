@@ -16,4 +16,15 @@ const (
 	storageV1LifeCycleSuiteName       = "Storage.V1.LifeCycle"
 	workspaceV1LifeCycleSuiteName     = "Workspace.V1.LifeCycle"
 	foundationV1UsageSuiteName        = "Foundation.V1.Usage"
+
+	// Test Data
+
+	// Zones
+	zoneA = "a"
+	zoneB = "b"
+
+	// Labels
+	envLabel            = "env"
+	envDevelopmentLabel = "development"
+	envProductionLabel  = "production"
 )

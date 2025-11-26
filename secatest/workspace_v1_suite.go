@@ -38,10 +38,10 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+					envLabel: envDevelopmentLabel,
 				},
 				UpdatedLabels: schema.Labels{
-					secalib.EnvLabel: secalib.EnvProductionLabel,
+					envLabel: envProductionLabel,
 				},
 			},
 		}
@@ -55,7 +55,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+			envLabel: envDevelopmentLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.tenant,
@@ -74,7 +74,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
-	expectLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+	expectLabels := schema.Labels{envLabel: envDevelopmentLabel}
 	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, workspace,
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectLabels,
@@ -98,7 +98,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 
 	// Update the workspace labels
 	workspace.Labels = schema.Labels{
-		secalib.EnvLabel: secalib.EnvProductionLabel,
+		envLabel: envProductionLabel,
 	}
 	expectLabels = workspace.Labels
 	suite.createOrUpdateWorkspaceV1Step("Update the workspace", t, suite.client.WorkspaceV1, workspace,
