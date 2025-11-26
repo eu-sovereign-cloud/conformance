@@ -108,13 +108,6 @@ func (suite *testSuite) getListRoleV1Step(stepName string,
 	return respAll
 }
 
-func (suite *testSuite) getRoleWithErrorV1Step(stepName string,
-	t provider.T,
-	ctx context.Context,
-	api *secapi.AuthorizationV1,
-	tref secapi.TenantReference,
-	expectedError error,
-) {
 func (suite *testSuite) getRoleWithErrorV1Step(stepName string, t provider.T, api *secapi.AuthorizationV1, tref secapi.TenantReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
