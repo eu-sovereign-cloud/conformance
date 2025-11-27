@@ -10,10 +10,10 @@ const (
 	NetworkProviderV1       = "seca.network/" + ApiVersion1
 
 	// Base URLs
-	RegionsURLV1         = urlProvidersPrefix + RegionProviderV1 + "/regions"
+	RegionsURLV1 = urlProvidersPrefix + RegionProviderV1 + "/regions"
 
 	roleURLV1            = urlProvidersPrefix + AuthorizationProviderV1 + "/" + roleResource
-	roleAssignmentURLV1  = urlProvidersPrefix + AuthorizationProviderV1 + "/" + roleAssignmentResource	
+	roleAssignmentURLV1  = urlProvidersPrefix + AuthorizationProviderV1 + "/" + roleAssignmentResource
 	regionURLV1          = urlProvidersPrefix + RegionProviderV1 + "/" + regionResource
 	workspaceURLV1       = urlProvidersPrefix + WorkspaceProviderV1 + "/" + workspaceResource
 	instanceSkuURLV1     = urlProvidersPrefix + ComputeProviderV1 + "/" + skuResource
