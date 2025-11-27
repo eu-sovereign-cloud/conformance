@@ -27,4 +27,7 @@ const (
 	envLabel            = "env"
 	envDevelopmentLabel = "development"
 	envProductionLabel  = "production"
+
+	// Network
+	routeTableDefaultDestination = "0.0.0.0/0"
 )

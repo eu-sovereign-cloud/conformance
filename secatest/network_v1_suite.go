@@ -14,10 +14,6 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-const (
-	routeTableDefaultDestination = "0.0.0.0/0"
-)
-
 type NetworkV1TestSuite struct {
 	regionalTestSuite
 
