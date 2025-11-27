@@ -934,13 +934,13 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 	}
 	// List with label
 	routeTableWithLabel := func(routeTableList []schema.RouteTable) []schema.RouteTable {
-		var filteredInstances []schema.RouteTable
+		var filteredRouteTables []schema.RouteTable
 		for _, routeTable := range routeTableList {
 			if val, ok := routeTable.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
-				filteredInstances = append(filteredInstances, routeTable)
+				filteredRouteTables = append(filteredRouteTables, routeTable)
 			}
 		}
-		return filteredInstances
+		return filteredRouteTables
 	}
 
 	routeTableListResponse.Items = routeTableWithLabel(routeTableList)

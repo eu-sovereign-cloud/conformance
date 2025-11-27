@@ -6,9 +6,9 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
-	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -116,7 +116,6 @@ func (suite *testSuite) deleteInstanceV1Step(stepName string, t provider.T, api 
 func (suite *testSuite) getListInstanceV1Step(
 	stepName string,
 	t provider.T,
-	ctx context.Context,
 	api *secapi.ComputeV1,
 	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
@@ -130,9 +129,9 @@ func (suite *testSuite) getListInstanceV1Step(
 		var iter *secapi.Iterator[schema.Instance]
 		var err error
 		if opts != nil {
-			iter, err = api.ListInstancesWithFilters(ctx, tref.Tenant, wref.Workspace, opts)
+			iter, err = api.ListInstancesWithFilters(context.Background(), tref.Tenant, wref.Workspace, opts)
 		} else {
-			iter, err = api.ListInstances(ctx, tref.Tenant, wref.Workspace)
+			iter, err = api.ListInstances(context.Background(), tref.Tenant, wref.Workspace)
 		}
 		requireNoError(sCtx, err)
 		for {
@@ -164,7 +163,6 @@ func (suite *testSuite) getListInstanceV1Step(
 func (suite *testSuite) getListSkusV1Step(
 	stepName string,
 	t provider.T,
-	ctx context.Context,
 	api *secapi.ComputeV1,
 	tref secapi.TenantReference,
 	opts *builders.ListOptions,
@@ -178,9 +176,9 @@ func (suite *testSuite) getListSkusV1Step(
 		var iter *secapi.Iterator[schema.InstanceSku]
 		var err error
 		if opts != nil {
-			iter, err = api.ListSkusWithFilters(ctx, tref.Tenant, opts)
+			iter, err = api.ListSkusWithFilters(t.Context(), tref.Tenant, opts)
 		} else {
-			iter, err = api.ListSkus(ctx, tref.Tenant)
+			iter, err = api.ListSkus(t.Context(), tref.Tenant)
 		}
 		requireNoError(sCtx, err)
 		for {

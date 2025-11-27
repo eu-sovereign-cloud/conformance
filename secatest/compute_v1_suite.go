@@ -9,7 +9,6 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
-	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -351,12 +350,11 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 }
 
 func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
-	ctx := context.Background()
 	var err error
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.ComputeProviderV1, secalib.InstanceKind)
+	configureTags(t, secalib.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	// Select skus
 	instanceSkuName := suite.instanceSkus[rand.Intn(len(suite.instanceSkus))]
@@ -367,7 +365,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 
 	// Generate scenario data
 	workspaceName := secalib.GenerateWorkspaceName()
-
+	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
 	instanceSkuRef := secalib.GenerateSkuRef(instanceSkuName)
 	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
 	if err != nil {
@@ -388,6 +386,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 	}
 
 	blockStorageName := secalib.GenerateBlockStorageName()
+	blockStorageResource := secalib.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
 	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
 	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
 	if err != nil {
@@ -482,7 +481,28 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, workspace, nil, nil, secalib.CreatingResourceState)
+
+	expectWorkspaceMeta, err := builders.NewRegionalResourceMetadataBuilder().
+		Name(workspaceName).
+		Provider(secalib.WorkspaceProviderV1).
+		Resource(workspaceResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
+		Tenant(suite.tenant).
+		Region(suite.region).
+		BuildResponse()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
+	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+
+	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, workspace,
+		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			labels:        expectWorkspaceLabels,
+			metadata:      expectWorkspaceMeta,
+			resourceState: schema.ResourceStateCreating,
+		},
+	)
 
 	// Block storage
 
@@ -498,7 +518,30 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 			SkuRef: *storageSkuRefObj,
 		},
 	}
-	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, ctx, suite.client.StorageV1, block, nil, nil, secalib.CreatingResourceState)
+
+	expectedBlockMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
+		Name(blockStorageName).
+		Provider(secalib.StorageProviderV1).
+		Resource(blockStorageResource).
+		ApiVersion(secalib.ApiVersion1).
+		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
+		Tenant(suite.tenant).
+		Workspace(workspaceName).
+		Region(suite.region).
+		BuildResponse()
+	if err != nil {
+		t.Fatalf("Failed to build metadata: %v", err)
+	}
+	expectedBlockSpec := &schema.BlockStorageSpec{
+		SizeGB: blockStorageSize,
+		SkuRef: *storageSkuRefObj,
+	}
+	suite.createOrUpdateBlockStorageV1Step("Create a block storage", t, suite.client.StorageV1, block, responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+		metadata:      expectedBlockMeta,
+		spec:          expectedBlockSpec,
+		resourceState: schema.ResourceStateCreating,
+	},
+	)
 
 	// Instance
 
@@ -552,14 +595,21 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 	}
 	// Create instances
 	for _, instance := range *instances {
-		expectInstanceMeta := secalib.NewRegionalWorkspaceResourceMetadata(instance.Metadata.Name,
-			secalib.ComputeProviderV1,
-			instance.Metadata.Resource,
-			secalib.ApiVersion1,
-			secalib.InstanceKind,
-			suite.tenant,
-			workspaceName,
-			suite.region)
+		instanceResource := secalib.GenerateInstanceResource(suite.tenant, workspaceName, instance.Metadata.Name)
+		expectInstanceMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
+			Name(instance.Metadata.Name).
+			Provider(secalib.ComputeProviderV1).
+			Resource(instanceResource).
+			ApiVersion(secalib.ApiVersion1).
+			Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).
+			Tenant(suite.tenant).
+			Workspace(workspaceName).
+			Region(suite.region).
+			BuildResponse()
+		if err != nil {
+			t.Fatalf("Failed to build metadata: %v", err)
+		}
+
 		expectInstanceSpec := &schema.InstanceSpec{
 			SkuRef: *instanceSkuRefObj,
 			Zone:   initialInstanceZone,
@@ -567,44 +617,49 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 				DeviceRef: *blockStorageRefObj,
 			},
 		}
-		suite.createOrUpdateInstanceV1Step("Create an instance", t, ctx, suite.client.ComputeV1, &instance,
-			expectInstanceMeta, expectInstanceSpec, secalib.CreatingResourceState)
+		suite.createOrUpdateInstanceV1Step("Create an instance", t, suite.client.ComputeV1, &instance,
+			responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+				metadata:      expectInstanceMeta,
+				spec:          expectInstanceSpec,
+				resourceState: schema.ResourceStateCreating,
+			},
+		)
 	}
 
 	tref := secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)}
 	wref := secapi.WorkspaceReference{Workspace: secapi.WorkspaceID(workspaceName)}
 	// List instances
-	suite.getListInstanceV1Step("List instances", t, ctx, suite.client.ComputeV1, tref, wref, nil)
+	suite.getListInstanceV1Step("List instances", t, suite.client.ComputeV1, tref, wref, nil)
 
 	// List instances with limit
-	suite.getListInstanceV1Step("Get list of instances", t, ctx, suite.client.ComputeV1, tref, wref,
+	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, tref, wref,
 		builders.NewListOptions().WithLimit(1))
 
 	// List Instances with Label
-	suite.getListInstanceV1Step("Get list of instances", t, ctx, suite.client.ComputeV1, tref, wref,
+	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, tref, wref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
 	// List Instances with Limit and label
-	suite.getListInstanceV1Step("Get list of instances", t, ctx, suite.client.ComputeV1, tref, wref,
+	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, tref, wref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
 	// SKUS
 	// List SKUS
-	suite.getListSkusV1Step("List skus", t, ctx, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)}, nil)
+	suite.getListSkusV1Step("List skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)}, nil)
 
 	// List SKUS with limit
-	suite.getListSkusV1Step("Get list of skus", t, ctx, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
+	suite.getListSkusV1Step("Get list of skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
 		builders.NewListOptions().WithLimit(1))
 
 	// List SKUS with Label
-	suite.getListSkusV1Step("Get list of skus", t, ctx, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
+	suite.getListSkusV1Step("Get list of skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
 	// List SKUS with Limit and label
-	suite.getListSkusV1Step("Get list of skus", t, ctx, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
+	suite.getListSkusV1Step("Get list of skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformance)))
 
@@ -612,7 +667,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 
 	// Delete all instances
 	for _, instance := range *instances {
-		suite.deleteInstanceV1Step("Delete the instance", t, ctx, suite.client.ComputeV1, &instance)
+		suite.deleteInstanceV1Step("Delete the instance", t, suite.client.ComputeV1, &instance)
 
 		// Get the deleted instance
 		instanceWRef := &secapi.WorkspaceReference{
@@ -620,11 +675,11 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 			Workspace: secapi.WorkspaceID(workspaceName),
 			Name:      instance.Metadata.Name,
 		}
-		suite.getInstanceWithErrorV1Step("Get the deleted instance", t, ctx, suite.client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
+		suite.getInstanceWithErrorV1Step("Get the deleted instance", t, suite.client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
 	}
 
 	// Delete the block storage
-	suite.deleteBlockStorageV1Step("Delete the block storage", t, ctx, suite.client.StorageV1, block)
+	suite.deleteBlockStorageV1Step("Delete the block storage", t, suite.client.StorageV1, block)
 
 	// Get the deleted block storage
 	blockWRef := &secapi.WorkspaceReference{
@@ -632,17 +687,17 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      blockStorageName,
 	}
-	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, ctx, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
+	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
 
 	// Delete the workspace
-	suite.deleteWorkspaceV1Step("Delete the workspace", t, ctx, suite.client.WorkspaceV1, workspace)
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
 
 	// Get the deleted workspace
 	workspaceTRef := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.tenant),
 		Name:   workspaceName,
 	}
-	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, ctx, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)
 }
