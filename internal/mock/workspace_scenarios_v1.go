@@ -37,7 +37,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(response.Metadata)
-	response.Status = secalib.NewWorkspaceStatus(schema.ResourceStateCreating)
+	response.Status = newWorkspaceStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: url, params: params, responseBody: response, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
@@ -45,7 +45,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Get the created workspace
-	secalib.SetWorkspaceStatusState(response.Status, schema.ResourceStateActive)
+	setWorkspaceState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: url, params: params, responseBody: response, currentState: "GetCreatedWorkspace", nextState: "UpdateWorkspace"}); err != nil {
@@ -54,7 +54,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 
 	// Update the workspace
 	setModifiedRegionalResourceMetadata(response.Metadata)
-	secalib.SetWorkspaceStatusState(response.Status, schema.ResourceStateUpdating)
+	setWorkspaceState(response.Status, schema.ResourceStateUpdating)
 	response.Labels = (*params.Workspace)[0].UpdatedLabels
 	response.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -63,7 +63,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Get the updated workspace
-	secalib.SetWorkspaceStatusState(response.Status, schema.ResourceStateActive)
+	setWorkspaceState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: url, params: params, responseBody: response, currentState: "GetUpdatedWorkspace", nextState: "DeleteWorkspace"}); err != nil {
@@ -123,7 +123,7 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 		}
 		// Create a workspace
 		setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
-		workspaceResponse.Status = secalib.NewWorkspaceStatus(schema.ResourceStateCreating)
+		workspaceResponse.Status = newWorkspaceStatus(schema.ResourceStateCreating)
 		workspaceResponse.Metadata.Verb = http.MethodPut
 		if err := configurePutStub(wm, scenario,
 			&stubConfig{url: secalib.GenerateWorkspaceURL(params.Tenant, (*params.Workspace)[i].Name), params: params, responseBody: workspaceResponse, currentState: currentState, nextState: nextState}); err != nil {
@@ -170,7 +170,7 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 	workspaceWithLabel := func(workspaceList []schema.Workspace) []schema.Workspace {
 		var filteredWorkspaces []schema.Workspace
 		for _, ws := range workspaceList {
-			if val, ok := ws.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
+			if val, ok := ws.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformanceLabel {
 				filteredWorkspaces = append(filteredWorkspaces, ws)
 			}
 		}
@@ -179,7 +179,7 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 	workspaceWithLabelResponse.Items = workspaceWithLabel(workspaceList)
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{
-			url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse,
+			url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformanceLabel), responseBody: workspaceWithLabelResponse,
 			currentState: "ListWorkspaceWithLabels", nextState: "ListWorkspaceWithLimitAndLabels",
 		}); err != nil {
 		return nil, err
@@ -188,7 +188,7 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspacePa
 
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{
-			url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: workspaceWithLabelResponse,
+			url: secalib.GenerateWorkspaceListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformanceLabel), responseBody: workspaceWithLabelResponse,
 			currentState: "ListWorkspaceWithLimitAndLabels", nextState: "DeleteWorkspace1",
 		}); err != nil {
 		return nil, err

@@ -68,13 +68,13 @@ func GenerateSecurityGroupName() string {
 }
 
 func GenerateRegionProviderUrl(provider string) string {
-	return fmt.Sprintf("{{request.scheme}}://{{request.host}}:{{request.port}}%s%s", UrlProvidersPrefix, provider)
+	return fmt.Sprintf("{{request.scheme}}://{{request.host}}:{{request.port}}%s%s", urlProvidersPrefix, provider)
 }
 
 // Resources
 
 func GenerateSkuResource(tenant string, sku string) string {
-	return fmt.Sprintf(SkuResource, tenant, sku)
+	return fmt.Sprintf(skuResource, tenant, sku)
 }
 
 func GenerateSkuListResource(tenant string) string {
@@ -82,7 +82,7 @@ func GenerateSkuListResource(tenant string) string {
 }
 
 func GenerateRoleResource(tenant string, role string) string {
-	return fmt.Sprintf(RoleResource, tenant, role)
+	return fmt.Sprintf(roleResource, tenant, role)
 }
 
 func GenerateRolesResource(tenant string) string {
@@ -90,7 +90,7 @@ func GenerateRolesResource(tenant string) string {
 }
 
 func GenerateRoleAssignmentResource(tenant string, roleAssignment string) string {
-	return fmt.Sprintf(RoleAssignmentResource, tenant, roleAssignment)
+	return fmt.Sprintf(roleAssignmentResource, tenant, roleAssignment)
 }
 
 func GenerateRoleAssignmentsResource(tenant string) string {
@@ -98,11 +98,11 @@ func GenerateRoleAssignmentsResource(tenant string) string {
 }
 
 func GenerateRegionResource(region string) string {
-	return fmt.Sprintf(RegionResource, region)
+	return fmt.Sprintf(regionResource, region)
 }
 
 func GenerateWorkspaceResource(tenant string, workspace string) string {
-	return fmt.Sprintf(WorkspaceResource, tenant, workspace)
+	return fmt.Sprintf(workspaceResource, tenant, workspace)
 }
 
 func GenerateWorkspaceListResource(tenant string) string {
@@ -110,7 +110,7 @@ func GenerateWorkspaceListResource(tenant string) string {
 }
 
 func GenerateBlockStorageResource(tenant string, workspace string, blockStorage string) string {
-	return fmt.Sprintf(BlockStorageResource, tenant, workspace, blockStorage)
+	return fmt.Sprintf(blockStorageResource, tenant, workspace, blockStorage)
 }
 
 func GenerateBlockStorageListResource(tenant string, workspace string) string {
@@ -118,7 +118,7 @@ func GenerateBlockStorageListResource(tenant string, workspace string) string {
 }
 
 func GenerateImageResource(tenant string, image string) string {
-	return fmt.Sprintf(ImageResource, tenant, image)
+	return fmt.Sprintf(imageResource, tenant, image)
 }
 
 func GenerateImageListResource(tenant string) string {
@@ -126,7 +126,7 @@ func GenerateImageListResource(tenant string) string {
 }
 
 func GenerateInstanceResource(tenant string, workspace string, instance string) string {
-	return fmt.Sprintf(InstanceResource, tenant, workspace, instance)
+	return fmt.Sprintf(instanceResource, tenant, workspace, instance)
 }
 
 func GenerateInstanceListResource(tenant string, workspace string) string {
@@ -134,7 +134,7 @@ func GenerateInstanceListResource(tenant string, workspace string) string {
 }
 
 func GenerateNetworkResource(tenant string, workspace string, network string) string {
-	return fmt.Sprintf(NetworkResource, tenant, workspace, network)
+	return fmt.Sprintf(networkResource, tenant, workspace, network)
 }
 
 func GenerateNetworkListResource(tenant string, workspace string) string {
@@ -142,7 +142,7 @@ func GenerateNetworkListResource(tenant string, workspace string) string {
 }
 
 func GenerateInternetGatewayResource(tenant string, workspace string, internetGateway string) string {
-	return fmt.Sprintf(InternetGatewayResource, tenant, workspace, internetGateway)
+	return fmt.Sprintf(internetGatewayResource, tenant, workspace, internetGateway)
 }
 
 func GenerateInternetGatewayListResource(tenant string, workspace string) string {
@@ -150,7 +150,7 @@ func GenerateInternetGatewayListResource(tenant string, workspace string) string
 }
 
 func GenerateNicResource(tenant string, workspace string, nic string) string {
-	return fmt.Sprintf(NicResource, tenant, workspace, nic)
+	return fmt.Sprintf(nicResource, tenant, workspace, nic)
 }
 
 func GenerateNicListResource(tenant string, workspace string) string {
@@ -158,7 +158,7 @@ func GenerateNicListResource(tenant string, workspace string) string {
 }
 
 func GeneratePublicIpResource(tenant string, workspace string, publicIp string) string {
-	return fmt.Sprintf(PublicIpResource, tenant, workspace, publicIp)
+	return fmt.Sprintf(publicIpResource, tenant, workspace, publicIp)
 }
 
 func GeneratePublicIpListResource(tenant string, workspace string) string {
@@ -166,7 +166,7 @@ func GeneratePublicIpListResource(tenant string, workspace string) string {
 }
 
 func GenerateRouteTableResource(tenant string, workspace string, network string, routeTable string) string {
-	return fmt.Sprintf(RouteTableResource, tenant, workspace, network, routeTable)
+	return fmt.Sprintf(routeTableResource, tenant, workspace, network, routeTable)
 }
 
 func GenerateRouteTableListResource(tenant string, workspace string, network string) string {
@@ -174,7 +174,7 @@ func GenerateRouteTableListResource(tenant string, workspace string, network str
 }
 
 func GenerateSubnetResource(tenant string, workspace string, network string, subnet string) string {
-	return fmt.Sprintf(SubnetResource, tenant, workspace, network, subnet)
+	return fmt.Sprintf(subnetResource, tenant, workspace, network, subnet)
 }
 
 func GenerateSubnetListResource(tenant string, workspace string, network string) string {
@@ -182,7 +182,7 @@ func GenerateSubnetListResource(tenant string, workspace string, network string)
 }
 
 func GenerateSecurityGroupResource(tenant string, workspace string, securityGroup string) string {
-	return fmt.Sprintf(SecurityGroupResource, tenant, workspace, securityGroup)
+	return fmt.Sprintf(securityGroupResource, tenant, workspace, securityGroup)
 }
 
 func GenerateSecurityGroupListResource(tenant string, workspace string) string {
@@ -192,35 +192,35 @@ func GenerateSecurityGroupListResource(tenant string, workspace string) string {
 // References
 
 func GenerateSkuRef(name string) string {
-	return fmt.Sprintf(SkuRef, name)
+	return fmt.Sprintf(skuRef, name)
 }
 
 func GenerateInstanceRef(instanceName string) string {
-	return fmt.Sprintf(InstanceRef, instanceName)
+	return fmt.Sprintf(instanceRef, instanceName)
 }
 
 func GenerateBlockStorageRef(blockStorageName string) string {
-	return fmt.Sprintf(BlockStorageRef, blockStorageName)
+	return fmt.Sprintf(blockStorageRef, blockStorageName)
 }
 
 func GenerateInternetGatewayRef(internetGatewayName string) string {
-	return fmt.Sprintf(InternetGatewayRef, internetGatewayName)
+	return fmt.Sprintf(internetGatewayRef, internetGatewayName)
 }
 
 func GenerateNetworkRef(networkName string) string {
-	return fmt.Sprintf(NetworkRef, networkName)
+	return fmt.Sprintf(networkRef, networkName)
 }
 
 func GenerateRouteTableRef(routeTableName string) string {
-	return fmt.Sprintf(RouteTableRef, routeTableName)
+	return fmt.Sprintf(routeTableRef, routeTableName)
 }
 
 func GenerateSubnetRef(subnetName string) string {
-	return fmt.Sprintf(SubnetRef, subnetName)
+	return fmt.Sprintf(subnetRef, subnetName)
 }
 
 func GeneratePublicIpRef(publicIpName string) string {
-	return fmt.Sprintf(PublicIpRef, publicIpName)
+	return fmt.Sprintf(publicIpRef, publicIpName)
 }
 
 // Random

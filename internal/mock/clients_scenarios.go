@@ -25,7 +25,7 @@ func ConfigClientsInitScenario(params *ClientsInitParams) (*wiremock.Client, err
 	}
 
 	spec := &schema.RegionSpec{
-		AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+		AvailableZones: []string{zoneA, zoneB},
 		Providers: []schema.Provider{
 			{
 				Name:    secalib.AuthorizationProvider,

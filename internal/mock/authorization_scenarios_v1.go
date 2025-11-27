@@ -39,7 +39,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Create a role
 	setCreatedGlobalTenantResourceMetadata(roleResponse.Metadata)
-	roleResponse.Status = secalib.NewResourceStatus(schema.ResourceStateCreating)
+	roleResponse.Status = newResourceStatus(schema.ResourceStateCreating)
 	roleResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: startedScenarioState, nextState: "GetCreatedRole"}); err != nil {
@@ -47,7 +47,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the created role
-	secalib.SetStatusState(roleResponse.Status, schema.ResourceStateActive)
+	setResourceState(roleResponse.Status, schema.ResourceStateActive)
 	roleResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetCreatedRole", nextState: "UpdateRole"}); err != nil {
@@ -56,7 +56,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Update the role
 	setModifiedGlobalTenantResourceMetadata(roleResponse.Metadata)
-	secalib.SetStatusState(roleResponse.Status, schema.ResourceStateUpdating)
+	setResourceState(roleResponse.Status, schema.ResourceStateUpdating)
 	roleResponse.Spec = *(*params.Role)[0].UpdatedSpec
 	roleResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -65,7 +65,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the updated role
-	secalib.SetStatusState(roleResponse.Status, schema.ResourceStateActive)
+	setResourceState(roleResponse.Status, schema.ResourceStateActive)
 	roleResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetUpdatedRole", nextState: "CreateRoleAssignment"}); err != nil {
@@ -87,7 +87,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Create a role assignment
 	setCreatedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-	roleAssignResponse.Status = secalib.NewResourceStatus(schema.ResourceStateCreating)
+	roleAssignResponse.Status = newResourceStatus(schema.ResourceStateCreating)
 	roleAssignResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "CreateRoleAssignment", nextState: "GetCreatedRoleAssignment"}); err != nil {
@@ -95,7 +95,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the created role assignment
-	secalib.SetStatusState(roleAssignResponse.Status, schema.ResourceStateActive)
+	setResourceState(roleAssignResponse.Status, schema.ResourceStateActive)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetCreatedRoleAssignment", nextState: "UpdateRoleAssignment"}); err != nil {
@@ -104,7 +104,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Update the role assignment
 	setModifiedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-	secalib.SetStatusState(roleAssignResponse.Status, schema.ResourceStateUpdating)
+	setResourceState(roleAssignResponse.Status, schema.ResourceStateUpdating)
 	roleAssignResponse.Spec = *(*params.RoleAssignment)[0].UpdatedSpec
 	roleAssignResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -113,7 +113,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Get the updated role assignment
-	secalib.SetStatusState(roleAssignResponse.Status, schema.ResourceStateActive)
+	setResourceState(roleAssignResponse.Status, schema.ResourceStateActive)
 	roleAssignResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetUpdatedRoleAssignment", nextState: "DeleteRoleAssignment"}); err != nil {
@@ -175,9 +175,10 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 
 		// Create a role
 		setCreatedGlobalTenantResourceMetadata(roleResponse.Metadata)
-		roleResponse.Status = secalib.NewResourceStatus(schema.ResourceStateCreating)
+		roleResponse.Status = newResourceStatus(schema.ResourceStateCreating)
 		roleResponse.Metadata.Verb = http.MethodPut
 		roleResponse.Labels = (*params.Role)[i].InitialLabels
+
 		var nextState string
 		if i < len(*params.Role)-1 {
 			nextState = (*params.RoleAssignment)[i+1].Name
@@ -231,7 +232,7 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 	rolesListWithLabel := func(rolesList []schema.Role) []schema.Role {
 		var filteredRoles []schema.Role
 		for _, role := range rolesList {
-			if val, ok := role.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
+			if val, ok := role.Labels[secalib.EnvLabel]; ok && val == secalib.EnvDevelopmentLabel {
 				filteredRoles = append(filteredRoles, role)
 			}
 		}
@@ -239,14 +240,14 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 	}
 	rolesResponse.Items = rolesListWithLabel(rolesList)
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateRoleListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: rolesResponse, currentState: "GetRolesListWithLabel", nextState: "GetRolesListWithLimitAndLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateRoleListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformanceLabel), responseBody: rolesResponse, currentState: "GetRolesListWithLabel", nextState: "GetRolesListWithLimitAndLabel"}); err != nil {
 		return nil, err
 	}
 	// List roles with limit and label
 
 	rolesResponse.Items = rolesListWithLabel(rolesList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateRoleListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: rolesResponse, currentState: "GetRolesListWithLimitAndLabel", nextState: (*params.RoleAssignment)[0].Name}); err != nil {
+		&stubConfig{url: secalib.GenerateRoleListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformanceLabel), responseBody: rolesResponse, currentState: "GetRolesListWithLimitAndLabel", nextState: (*params.RoleAssignment)[0].Name}); err != nil {
 		return nil, err
 	}
 
@@ -270,7 +271,7 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 		}
 		// Create a role assignment
 		setCreatedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-		roleAssignResponse.Status = secalib.NewResourceStatus(schema.ResourceStateCreating)
+		roleAssignResponse.Status = newResourceStatus(schema.ResourceStateCreating)
 		roleAssignResponse.Metadata.Verb = http.MethodPut
 		var nextState string
 		if i < len(*params.RoleAssignment)-1 {
@@ -314,7 +315,7 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 	rolesAssignWithLabel := func(rolesAssignList []schema.RoleAssignment) []schema.RoleAssignment {
 		var filteredRoles []schema.RoleAssignment
 		for _, roleAssign := range rolesAssignList {
-			if val, ok := roleAssign.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
+			if val, ok := roleAssign.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformanceLabel {
 				filteredRoles = append(filteredRoles, roleAssign)
 			}
 		}
@@ -322,14 +323,14 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 	}
 	roleAssignResponse.Items = rolesAssignWithLabel(rolesAssignmentList)
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateRoleAssignmentListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: roleAssignResponse, currentState: "GetRoleAssignmentsListWithLabel", nextState: "GetRoleAssignmentsListWithLimitAndLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateRoleAssignmentListURL(params.Tenant), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformanceLabel), responseBody: roleAssignResponse, currentState: "GetRoleAssignmentsListWithLabel", nextState: "GetRoleAssignmentsListWithLimitAndLabel"}); err != nil {
 		return nil, err
 	}
 	// List roles with limit and label
 
 	roleAssignResponse.Items = rolesAssignWithLabel(rolesAssignmentList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateRoleAssignmentListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: roleAssignResponse, currentState: "GetRoleAssignmentsListWithLimitAndLabel", nextState: "DeleteRoleAssignment"}); err != nil {
+		&stubConfig{url: secalib.GenerateRoleAssignmentListURL(params.Tenant), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformanceLabel), responseBody: roleAssignResponse, currentState: "GetRoleAssignmentsListWithLimitAndLabel", nextState: "DeleteRoleAssignment"}); err != nil {
 		return nil, err
 	}
 

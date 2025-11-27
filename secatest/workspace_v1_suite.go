@@ -1,6 +1,7 @@
 package secatest
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
@@ -8,7 +9,6 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
-	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -43,7 +43,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 						secalib.EnvLabel: secalib.EnvDevelopmentLabel,
 					},
 					UpdatedLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvProductionLabel,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 				},
 			},
@@ -134,7 +134,7 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.WorkspaceProviderV1, secalib.WorkspaceKind)
+	configureTags(t, secalib.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	// Generate scenario data
 	workspaceName := secalib.GenerateWorkspaceName()
@@ -153,13 +153,13 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 				{
 					Name: workspaceName,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 				},
 				{
 					Name: workspaceName2,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 				},
 			},
@@ -177,7 +177,7 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 	workspaces := &[]schema.Workspace{
 		{
 			Labels: schema.Labels{
-				secalib.EnvLabel: secalib.EnvConformance,
+				secalib.EnvLabel: secalib.EnvConformanceLabel,
 			},
 			Metadata: &schema.RegionalResourceMetadata{
 				Tenant: suite.tenant,
@@ -186,7 +186,7 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 		},
 		{
 			Labels: schema.Labels{
-				secalib.EnvLabel: secalib.EnvConformance,
+				secalib.EnvLabel: secalib.EnvConformanceLabel,
 			},
 			Metadata: &schema.RegionalResourceMetadata{
 				Tenant: suite.tenant,
@@ -196,15 +196,26 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 	}
 	for _, workspace := range *workspaces {
 		workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspace.Metadata.Name)
-		expectMeta := secalib.NewRegionalResourceMetadata(workspace.Metadata.Name,
-			secalib.WorkspaceProviderV1,
-			workspaceResource,
-			secalib.ApiVersion1,
-			secalib.WorkspaceKind,
-			suite.tenant, suite.region)
-		expectLabels := schema.Labels{secalib.EnvLabel: secalib.EnvConformance}
-		suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, ctx, suite.client.WorkspaceV1, &workspace,
-			expectMeta, expectLabels, secalib.CreatingResourceState)
+		expectMeta, err := builders.NewRegionalResourceMetadataBuilder().
+			Name(workspace.Metadata.Name).
+			Provider(secalib.WorkspaceProviderV1).
+			Resource(workspaceResource).
+			ApiVersion(secalib.ApiVersion1).
+			Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
+			Tenant(suite.tenant).
+			Region(suite.region).
+			BuildResponse()
+		if err != nil {
+			t.Fatalf("Failed to build metadata: %v", err)
+		}
+		expectLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+		suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, &workspace,
+			responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+				labels:        expectLabels,
+				metadata:      expectMeta,
+				resourceState: schema.ResourceStateCreating,
+			},
+		)
 
 	}
 	tref := &secapi.TenantReference{
@@ -220,29 +231,23 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 	// List workspaces with label
 	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 	// List workspaces with label and limit
 	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
-
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 	// Resources deletion
 
 	// Delete all workspaces
-	workspaceTRef1 := &secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.tenant),
-		Name:   workspaceName,
-	}
-	suite.deleteWorkspaceV1Step("Delete workspace 1", t, ctx, suite.client.WorkspaceV1, &(*workspaces)[0])
-	suite.getWorkspaceWithErrorV1Step("Get deleted workspace 1", t, ctx, suite.client.WorkspaceV1, *workspaceTRef1, secapi.ErrResourceNotFound)
+	for _, workspace := range *workspaces {
+		workspaceTRef := &secapi.TenantReference{
+			Tenant: secapi.TenantID(suite.tenant),
+			Name:   workspace.Metadata.Name,
+		}
+		suite.deleteWorkspaceV1Step("Delete workspace 1", t, suite.client.WorkspaceV1, &workspace)
+		suite.getWorkspaceWithErrorV1Step("Get deleted workspace 1", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
-	workspaceTRef2 := &secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.tenant),
-		Name:   workspaceName2,
 	}
-	suite.deleteWorkspaceV1Step("Delete workspace 2", t, ctx, suite.client.WorkspaceV1, &(*workspaces)[1])
-	suite.getWorkspaceWithErrorV1Step("Get deleted workspace 2", t, ctx, suite.client.WorkspaceV1, *workspaceTRef2, secapi.ErrResourceNotFound)
-
 	slog.Info("Finishing " + suite.scenarioName)
 }
 

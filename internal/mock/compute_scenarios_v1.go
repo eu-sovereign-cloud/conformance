@@ -43,7 +43,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
-	workspaceResponse.Status = secalib.NewWorkspaceStatus(schema.ResourceStateCreating)
+	workspaceResponse.Status = newWorkspaceStatus(schema.ResourceStateCreating)
 	workspaceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
@@ -51,7 +51,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the created workspace
-	secalib.SetWorkspaceStatusState(workspaceResponse.Status, schema.ResourceStateActive)
+	setWorkspaceState(workspaceResponse.Status, schema.ResourceStateActive)
 	workspaceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateBlockStorage"}); err != nil {
@@ -75,7 +75,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Create a block storage
 	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
-	blockResponse.Status = secalib.NewBlockStorageStatus(schema.ResourceStateCreating)
+	blockResponse.Status = newBlockStorageStatus(schema.ResourceStateCreating)
 	blockResponse.Spec.SizeGB = params.BlockStorage.InitialSpec.SizeGB
 	blockResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -84,7 +84,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the created block storage
-	secalib.SetBlockStorageStatusState(blockResponse.Status, schema.ResourceStateActive)
+	setBlockStorageState(blockResponse.Status, schema.ResourceStateActive)
 	blockResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "CreateInstance"}); err != nil {
@@ -108,7 +108,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Create an instance
 	setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-	instanceResponse.Status = secalib.NewInstanceStatus(schema.ResourceStateCreating)
+	instanceResponse.Status = newInstanceStatus(schema.ResourceStateCreating)
 	instanceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "CreateInstance", nextState: "GetCreatedInstance"}); err != nil {
@@ -116,7 +116,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the created instance
-	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateActive)
+	setInstanceState(instanceResponse.Status, schema.ResourceStateActive)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetCreatedInstance", nextState: "UpdateInstance"}); err != nil {
@@ -125,7 +125,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Update the instance
 	setModifiedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateUpdating)
+	setInstanceState(instanceResponse.Status, schema.ResourceStateUpdating)
 	instanceResponse.Spec = *(*params.Instance)[0].UpdatedSpec
 	instanceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -134,7 +134,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the updated instance
-	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateActive)
+	setInstanceState(instanceResponse.Status, schema.ResourceStateActive)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetUpdatedInstance", nextState: "StopInstance"}); err != nil {
@@ -149,7 +149,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the stopped instance
-	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateSuspended)
+	setInstanceState(instanceResponse.Status, schema.ResourceStateSuspended)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetStoppedInstance", nextState: "StartInstance"}); err != nil {
@@ -164,7 +164,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the started instance
-	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateActive)
+	setInstanceState(instanceResponse.Status, schema.ResourceStateActive)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetStartedInstance", nextState: "RestartInstance"}); err != nil {
@@ -179,7 +179,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Get the restarted instance
-	secalib.SetInstanceStatusState(instanceResponse.Status, schema.ResourceStateActive)
+	setInstanceState(instanceResponse.Status, schema.ResourceStateActive)
 	instanceResponse.Metadata.Verb = http.MethodGet
 	if err := configureGetStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetRestartedInstance", nextState: "DeleteInstance"}); err != nil {
@@ -252,7 +252,7 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 		BuildResponse()
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
-	workspaceResponse.Status = secalib.NewWorkspaceStatus(schema.ResourceStateCreating)
+	workspaceResponse.Status = newWorkspaceStatus(schema.ResourceStateCreating)
 	workspaceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: startedScenarioState, nextState: "CreateBlockStorage"}); err != nil {
@@ -274,7 +274,7 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 
 	// Create a block storage
 	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
-	blockResponse.Status = secalib.NewBlockStorageStatus(schema.ResourceStateCreating)
+	blockResponse.Status = newBlockStorageStatus(schema.ResourceStateCreating)
 	blockResponse.Spec.SizeGB = params.BlockStorage.InitialSpec.SizeGB
 	blockResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
@@ -309,7 +309,7 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 		}
 		// Create an instance
 		setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-		instanceResponse.Status = secalib.NewInstanceStatus(schema.ResourceStateCreating)
+		instanceResponse.Status = newInstanceStatus(schema.ResourceStateCreating)
 		instanceResponse.Metadata.Verb = http.MethodPut
 		if err := configurePutStub(wm, scenario,
 			&stubConfig{url: secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, (*params.Instance)[i].Name), params: params, responseBody: instanceResponse, currentState: (*params.Instance)[i].Name, nextState: nextState}); err != nil {
@@ -350,7 +350,7 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 	instancesWithLabel := func(instancesList []schema.Instance) []schema.Instance {
 		var filteredInstances []schema.Instance
 		for _, instance := range instancesList {
-			if val, ok := instance.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformance {
+			if val, ok := instance.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformanceLabel {
 				filteredInstances = append(filteredInstances, instance)
 			}
 		}
@@ -358,14 +358,14 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 	}
 	instanceResponse.Items = instancesWithLabel(instanceList)
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: instanceResponse, currentState: "GetInstancesListWithLabel", nextState: "GetInstancesListWithLimitAndLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformanceLabel), responseBody: instanceResponse, currentState: "GetInstancesListWithLabel", nextState: "GetInstancesListWithLimitAndLabel"}); err != nil {
 		return nil, err
 	}
 	// List instances with limit and label
 
 	instanceResponse.Items = instancesWithLabel(instanceList)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: instanceResponse, currentState: "GetInstancesListWithLimitAndLabel", nextState: "GetListSkus"}); err != nil {
+		&stubConfig{url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformanceLabel), responseBody: instanceResponse, currentState: "GetInstancesListWithLimitAndLabel", nextState: "GetListSkus"}); err != nil {
 		return nil, err
 	}
 
@@ -475,7 +475,7 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 	}
 	skuWithLabelResponse.Items = skusWithLabel(instanceSku)
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateInstanceSkuURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLabelResponse, currentState: "GetListSkusWithLabel", nextState: "GetListSkusWithLimitAndLabel"}); err != nil {
+		&stubConfig{url: secalib.GenerateInstanceSkuURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLabel(secalib.EnvLabel, secalib.EnvConformanceLabel), responseBody: skuWithLabelResponse, currentState: "GetListSkusWithLabel", nextState: "GetListSkusWithLimitAndLabel"}); err != nil {
 		return nil, err
 	}
 	// List Sku with limit and label
@@ -490,7 +490,7 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 
 	skuWithLimitAndLabelResponse.Items = skusWithLabel(instanceSku)[:1]
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformance), responseBody: skuWithLimitAndLabelResponse, currentState: "GetListSkusWithLimitAndLabel", nextState: "DeleteInstance_" + (*params.Instance)[0].Name}); err != nil {
+		&stubConfig{url: secalib.GenerateInstanceListURL(params.Tenant, params.Workspace.Name), params: params, pathParams: pathParamsLimitAndLabel("1", secalib.EnvLabel, secalib.EnvConformanceLabel), responseBody: skuWithLimitAndLabelResponse, currentState: "GetListSkusWithLimitAndLabel", nextState: "DeleteInstance_" + (*params.Instance)[0].Name}); err != nil {
 		return nil, err
 	}
 
