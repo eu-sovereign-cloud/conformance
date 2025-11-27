@@ -6,9 +6,9 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
-	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )

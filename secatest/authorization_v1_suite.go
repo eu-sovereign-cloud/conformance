@@ -297,7 +297,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 					Name: roleName1,
 
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleSpec{
 						Permissions: []schema.Permission{
@@ -308,7 +308,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				{
 					Name: roleName2,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleSpec{
 						Permissions: []schema.Permission{
@@ -319,7 +319,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				{
 					Name: roleName3,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleSpec{
 						Permissions: []schema.Permission{
@@ -332,7 +332,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				{
 					Name: roleAssignmentName1,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleAssignmentSpec{
 						Roles: []string{roleName1},
@@ -345,7 +345,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				{
 					Name: roleAssignmentName2,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleAssignmentSpec{
 						Roles: []string{roleName2},
@@ -358,7 +358,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				{
 					Name: roleAssignmentName3,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleAssignmentSpec{
 						Roles: []string{roleName3},
@@ -500,17 +500,17 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 
 	// List Roles with limit
 	suite.getListRoleV1Step("Get list of roles with limit", t, ctx, suite.client.AuthorizationV1, *roleTRef,
-		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().Equals(secalib.EnvLabel, secalib.EnvConformance)))
+		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Roles with Label
 	suite.getListRoleV1Step("Get list of roles with label", t, ctx, suite.client.AuthorizationV1, *roleTRef,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Roles with Limit and label
 	suite.getListRoleV1Step("Get list of roles with limit and label", t, ctx, suite.client.AuthorizationV1, *roleTRef,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Role assignment
 
@@ -521,7 +521,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				Name:   roleAssignmentName1,
 			},
 			Labels: map[string]string{
-				secalib.EnvLabel: secalib.EnvConformance,
+				secalib.EnvLabel: secalib.EnvConformanceLabel,
 			},
 			Spec: schema.RoleAssignmentSpec{
 				Roles: []string{roleName1},
@@ -537,7 +537,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				Name:   roleAssignmentName2,
 			},
 			Labels: map[string]string{
-				secalib.EnvLabel: secalib.EnvConformance,
+				secalib.EnvLabel: secalib.EnvConformanceLabel,
 			},
 			Spec: schema.RoleAssignmentSpec{
 				Roles: []string{roleName2},
@@ -553,7 +553,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				Name:   roleAssignmentName3,
 			},
 			Labels: map[string]string{
-				secalib.EnvLabel: secalib.EnvConformance,
+				secalib.EnvLabel: secalib.EnvConformanceLabel,
 			},
 			Spec: schema.RoleAssignmentSpec{
 				Roles: []string{roleName3},
@@ -603,12 +603,12 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 	// List RoleAssignments with Label
 	suite.getListRoleAssignmentsV1("Get list of role assignments", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List RoleAssignments with Limit and label
 	suite.getListRoleAssignmentsV1("Get list of role assignments", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Resources deletion
 

@@ -76,7 +76,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					envLabel: envDevelopmentLabel,
+					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
 				},
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
@@ -118,7 +118,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			envLabel: envDevelopmentLabel,
+			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.tenant,
@@ -137,7 +137,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{envLabel: envDevelopmentLabel}
+	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
 
 	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, workspace,
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
@@ -407,13 +407,13 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+					secalib.EnvLabel: secalib.EnvConformanceLabel,
 				},
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
 				Name: blockStorageName,
 				InitialLabels: map[string]string{
-					secalib.EnvLabel: secalib.EnvConformance,
+					secalib.EnvLabel: secalib.EnvConformanceLabel,
 				},
 				InitialSpec: &schema.BlockStorageSpec{
 					SkuRef: *storageSkuRefObj,
@@ -424,7 +424,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: instanceName1,
 					InitialLabels: map[string]string{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.InstanceSpec{
 						SkuRef: *instanceSkuRefObj,
@@ -437,7 +437,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: instanceName2,
 					InitialLabels: map[string]string{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.InstanceSpec{
 						SkuRef: *instanceSkuRefObj,
@@ -450,7 +450,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: instanceName3,
 					InitialLabels: map[string]string{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.InstanceSpec{
 						SkuRef: *instanceSkuRefObj,
@@ -474,7 +474,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+			secalib.EnvLabel: secalib.EnvConformanceLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.tenant,
@@ -494,7 +494,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvConformanceLabel}
 
 	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, workspace,
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
@@ -638,12 +638,12 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 	// List Instances with Label
 	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, tref, wref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Instances with Limit and label
 	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, tref, wref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// SKUS
 	// List SKUS
@@ -656,12 +656,12 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 	// List SKUS with Label
 	suite.getListSkusV1Step("Get list of skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List SKUS with Limit and label
 	suite.getListSkusV1Step("Get list of skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Resources deletion
 

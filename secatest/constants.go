@@ -22,9 +22,4 @@ const (
 	// Zones
 	zoneA = "a"
 	zoneB = "b"
-
-	// Labels
-	envLabel            = "env"
-	envDevelopmentLabel = "development"
-	envProductionLabel  = "production"
 )

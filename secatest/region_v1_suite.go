@@ -102,12 +102,12 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	// List with labels
 	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List with limit and labels
 	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 }
 
 func (suite *RegionV1TestSuite) AfterEach(t provider.T) {

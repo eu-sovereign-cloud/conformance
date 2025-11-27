@@ -178,7 +178,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					envLabel: envDevelopmentLabel,
+					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
 				},
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
@@ -272,7 +272,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			envLabel: envDevelopmentLabel,
+			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.tenant,
@@ -291,7 +291,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{envLabel: envDevelopmentLabel}
+	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
 	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, workspace,
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectWorkspaceLabels,
@@ -1136,13 +1136,13 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+					secalib.EnvLabel: secalib.EnvConformanceLabel,
 				},
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
 				Name: blockStorageName,
 				InitialLabels: schema.Labels{
-					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+					secalib.EnvLabel: secalib.EnvConformanceLabel,
 				},
 				InitialSpec: &schema.BlockStorageSpec{
 					SkuRef: *storageSkuRefObj,
@@ -1152,7 +1152,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 			Instance: &mock.ResourceParams[schema.InstanceSpec]{
 				Name: instanceName,
 				InitialLabels: schema.Labels{
-					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+					secalib.EnvLabel: secalib.EnvConformanceLabel,
 				},
 				InitialSpec: &schema.InstanceSpec{
 					SkuRef: *instanceSkuRefObj,
@@ -1166,7 +1166,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: networkName,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.NetworkSpec{
 						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
@@ -1177,7 +1177,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: networkName2,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.NetworkSpec{
 						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
@@ -1190,14 +1190,14 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: internetGatewayName,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
 				},
 				{
 					Name: internetGatewayName2,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
 				},
@@ -1206,7 +1206,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: routeTableName,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RouteTableSpec{
 						Routes: []schema.RouteSpec{
@@ -1217,7 +1217,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: routeTableName2,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RouteTableSpec{
 						Routes: []schema.RouteSpec{
@@ -1230,7 +1230,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: subnetName,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.SubnetSpec{
 						Cidr: schema.Cidr{Ipv4: &subnetCidr},
@@ -1239,7 +1239,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				}, {
 					Name: subnetName2,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.SubnetSpec{
 						Cidr: schema.Cidr{Ipv4: &subnetCidr},
@@ -1251,7 +1251,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: nicName,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.NicSpec{
 						Addresses:    []string{nicAddress1},
@@ -1262,7 +1262,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: nicName2,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.NicSpec{
 						Addresses:    []string{nicAddress1},
@@ -1275,7 +1275,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: publicIpName,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.PublicIpSpec{
 						Version: schema.IPVersionIPv4,
@@ -1285,7 +1285,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: publicIpName2,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.PublicIpSpec{
 						Version: schema.IPVersionIPv4,
@@ -1297,7 +1297,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: securityGroupName,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.SecurityGroupSpec{
 						Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
@@ -1306,7 +1306,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				{
 					Name: securityGroupName2,
 					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformance,
+						secalib.EnvLabel: secalib.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.SecurityGroupSpec{
 						Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
@@ -1326,7 +1326,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+			secalib.EnvLabel: secalib.EnvConformanceLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.tenant,
@@ -1345,7 +1345,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvConformanceLabel}
 	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, workspace,
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectWorkspaceLabels,
@@ -1426,12 +1426,12 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	// List Network with Label
 	suite.getListNetworkV1Step("Get list of Network with label", t, ctx, suite.client.NetworkV1, tref, wref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Network with Limit and label
 	suite.getListNetworkV1Step("Get list of Network with limit and label", t, ctx, suite.client.NetworkV1, tref, wref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Internet gateway
 
@@ -1489,12 +1489,12 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	// List Internet Gateway with Label
 	suite.getListInternetGatewayV1Step("Get list of Internet Gateway with label", t, ctx, suite.client.NetworkV1, tref, wref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Internet Gateway with Limit and label
 	suite.getListInternetGatewayV1Step("Get list of Internet Gateway with limit and label", t, ctx, suite.client.NetworkV1, tref, wref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Route table
 
@@ -1573,12 +1573,12 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	// List Route table with Label
 	suite.getListRouteTableV1Step("Get list of Route table with label", t, ctx, suite.client.NetworkV1, tref, wref, *nref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Route table with Limit and label
 	suite.getListRouteTableV1Step("Get list of Route table with limit and label", t, ctx, suite.client.NetworkV1, tref, wref, *nref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 	// Subnet
 
 	// Create a subnet
@@ -1649,12 +1649,12 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	// List Subnet with Label
 	suite.getListSubnetV1Step("Get list of Subnet with label", t, ctx, suite.client.NetworkV1, tref, wref, *nref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Subnet with Limit and label
 	suite.getListSubnetV1Step("Get list of Subnet with limit and label", t, ctx, suite.client.NetworkV1, tref, wref, *nref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Public ip
 
@@ -1722,12 +1722,12 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	// List PublicIP with Label
 	suite.getListPublicIpV1Step("Get list of PublicIP with label", t, ctx, suite.client.NetworkV1, tref, wref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List PublicIP with Limit and label
 	suite.getListPublicIpV1Step("Get list of PublicIP with limit and label", t, ctx, suite.client.NetworkV1, tref, wref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Nic
 
@@ -1798,12 +1798,12 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	// List Nic with Label
 	suite.getListNicV1Step("Get list of Nic with label", t, ctx, suite.client.NetworkV1, tref, wref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Nic with Limit and label
 	suite.getListNicV1Step("Get list of Nic with limit and label", t, ctx, suite.client.NetworkV1, tref, wref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Security Group
 
@@ -1873,12 +1873,12 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	// List Security Group with Label
 	suite.getListSecurityGroupV1Step("Get list of Security Group with label", t, ctx, suite.client.NetworkV1, tref, wref,
 		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Nic with Limit and label
 	suite.getListSecurityGroupV1Step("Get list of Security Group with limit and label", t, ctx, suite.client.NetworkV1, tref, wref,
 		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
-			Equals(secalib.EnvLabel, secalib.EnvConformance)))
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Resources deletion
 
