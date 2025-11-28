@@ -177,7 +177,6 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 		setCreatedGlobalTenantResourceMetadata(roleResponse.Metadata)
 		roleResponse.Status = newResourceStatus(schema.ResourceStateCreating)
 		roleResponse.Metadata.Verb = http.MethodPut
-		roleResponse.Labels = (*params.Role)[i].InitialLabels
 
 		var nextState string
 		if i < len(*params.Role)-1 {
@@ -232,7 +231,7 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 	rolesListWithLabel := func(rolesList []schema.Role) []schema.Role {
 		var filteredRoles []schema.Role
 		for _, role := range rolesList {
-			if val, ok := role.Labels[secalib.EnvLabel]; ok && val == secalib.EnvDevelopmentLabel {
+			if val, ok := role.Labels[secalib.EnvLabel]; ok && val == secalib.EnvConformanceLabel {
 				filteredRoles = append(filteredRoles, role)
 			}
 		}
@@ -257,7 +256,7 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 	for i := range *params.RoleAssignment {
 		roleAssignResource := secalib.GenerateRoleAssignmentResource(params.Tenant, (*params.RoleAssignment)[i].Name)
 		roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
-			Name((*params.RoleAssignment)[0].Name).
+			Name((*params.RoleAssignment)[i].Name).
 			Provider(secalib.AuthorizationProviderV1).
 			Resource(roleAssignResource).
 			ApiVersion(secalib.ApiVersion1).

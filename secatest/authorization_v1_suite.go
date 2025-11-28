@@ -388,7 +388,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				Name:   roleName1,
 			},
 			Labels: map[string]string{
-				"env": "conformance",
+				secalib.EnvLabel: secalib.EnvConformanceLabel,
 			},
 			Spec: schema.RoleSpec{
 				Permissions: []schema.Permission{
@@ -406,7 +406,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				Name:   roleName2,
 			},
 			Labels: map[string]string{
-				"env": "conformance",
+				secalib.EnvLabel: secalib.EnvConformanceLabel,
 			},
 			Spec: schema.RoleSpec{
 				Permissions: []schema.Permission{
@@ -424,7 +424,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				Name:   roleName3,
 			},
 			Labels: map[string]string{
-				"env": "conformance",
+				secalib.EnvLabel: secalib.EnvConformanceLabel,
 			},
 			Spec: schema.RoleSpec{
 				Permissions: []schema.Permission{
@@ -448,7 +448,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				Name:   role.Metadata.Name,
 			},
 			Labels: map[string]string{
-				"env": "conformance",
+				secalib.EnvLabel: secalib.EnvConformanceLabel,
 			},
 			Spec: schema.RoleSpec{
 				Permissions: []schema.Permission{
@@ -461,7 +461,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 			},
 		}
 		expectRoleMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
-			Name(roleName1).
+			Name(role.Metadata.Name).
 			Provider(secalib.AuthorizationProviderV1).
 			Resource(roleResource).
 			ApiVersion(secalib.ApiVersion1).

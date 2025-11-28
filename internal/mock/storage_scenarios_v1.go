@@ -244,6 +244,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 			Tenant(params.Tenant).
 			Workspace(params.Workspace.Name).
 			Region(params.Region).
+			Labels((*params.BlockStorage)[i].InitialLabels).
 			Spec((*params.BlockStorage)[i].InitialSpec).
 			BuildResponse()
 		if err != nil {

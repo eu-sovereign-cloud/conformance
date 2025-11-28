@@ -185,7 +185,7 @@ func (suite *testSuite) getListImageV1Step(
 	var respNext []*schema.Image
 	var respAll []*schema.Image
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListImage", string(tref.Name))
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListImage", tref.Name)
 		var iter *secapi.Iterator[schema.Image]
 		var err error
 		if opts != nil {
@@ -247,7 +247,7 @@ func (suite *testSuite) getListSkuV1Step(
 	var respNext []*schema.StorageSku
 	var respAll []*schema.StorageSku
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListSku", string(tref.Name))
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListSku", tref.Name)
 		var iter *secapi.Iterator[schema.StorageSku]
 		var err error
 		if opts != nil {

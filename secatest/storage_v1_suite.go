@@ -472,7 +472,7 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvConformanceLabel}
 
 	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, workspace,
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{

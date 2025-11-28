@@ -170,7 +170,7 @@ func (suite *testSuite) getListSkusV1Step(
 	var respAll []*schema.InstanceSku
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "ListSkus", string(tref.Name))
+		suite.setComputeV1StepParams(sCtx, "ListSkus", tref.Name)
 
 		var iter *secapi.Iterator[schema.InstanceSku]
 		var err error

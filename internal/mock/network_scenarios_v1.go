@@ -652,7 +652,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 		networkResource := secalib.GenerateNetworkResource(params.Tenant, params.Workspace.Name, (*params.Network)[i].Name)
 
 		networkResponse, err := builders.NewNetworkBuilder().
-			Name((*params.Network)[0].Name).
+			Name((*params.Network)[i].Name).
 			Provider(secalib.NetworkProviderV1).
 			Resource(networkResource).
 			ApiVersion(secalib.ApiVersion1).
@@ -762,7 +762,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 	for i := range *params.InternetGateway {
 		gatewayResource := secalib.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, (*params.InternetGateway)[i].Name)
 		gatewayResponse, err := builders.NewInternetGatewayBuilder().
-			Name((*params.InternetGateway)[0].Name).
+			Name((*params.InternetGateway)[i].Name).
 			Provider(secalib.NetworkProviderV1).
 			Resource(gatewayResource).
 			ApiVersion(secalib.ApiVersion1).
@@ -878,7 +878,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 			ApiVersion(secalib.ApiVersion1).
 			Tenant(params.Tenant).
 			Workspace(params.Workspace.Name).
-			Network((*params.Network)[i].Name).
+			Network((*params.Network)[0].Name).
 			Region(params.Region).
 			Labels((*params.RouteTable)[i].InitialLabels).
 			Spec((*params.RouteTable)[i].InitialSpec).
@@ -974,7 +974,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 			ApiVersion(secalib.ApiVersion1).
 			Tenant(params.Tenant).
 			Workspace(params.Workspace.Name).
-			Network((*params.Network)[i].Name).
+			Network((*params.Network)[0].Name).
 			Region(params.Region).
 			Labels((*params.Subnet)[i].InitialLabels).
 			Spec((*params.Subnet)[i].InitialSpec).

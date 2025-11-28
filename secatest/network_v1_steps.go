@@ -185,7 +185,7 @@ func (suite *testSuite) getListInternetGatewayV1Step(
 	var respNext []*schema.InternetGateway
 	var respAll []*schema.InternetGateway
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListInternetGateway", string(wref.Name))
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListInternetGateway", wref.Name)
 		var iter *secapi.Iterator[schema.InternetGateway]
 		var err error
 		if opts != nil {
@@ -299,7 +299,7 @@ func (suite *testSuite) getListRouteTableV1Step(
 	var respNext []*schema.RouteTable
 	var respAll []*schema.RouteTable
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListRouteTable", string(nref.Name))
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListRouteTable", nref.Name)
 		var iter *secapi.Iterator[schema.RouteTable]
 		var err error
 		if opts != nil {
@@ -413,7 +413,7 @@ func (suite *testSuite) getListSubnetV1Step(
 	var respNext []*schema.Subnet
 	var respAll []*schema.Subnet
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListSubnet", string(nref.Name))
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListSubnet", nref.Name)
 		var iter *secapi.Iterator[schema.Subnet]
 		var err error
 		if opts != nil {
@@ -525,7 +525,7 @@ func (suite *testSuite) getListPublicIpV1Step(
 	var respNext []*schema.PublicIp
 	var respAll []*schema.PublicIp
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListPublicIp", string(wref.Name))
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListPublicIp", wref.Name)
 		var iter *secapi.Iterator[schema.PublicIp]
 		var err error
 		if opts != nil {
@@ -637,7 +637,7 @@ func (suite *testSuite) getListNicV1Step(
 	var respNext []*schema.Nic
 	var respAll []*schema.Nic
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListNic", string(wref.Name))
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListNic", wref.Name)
 		var iter *secapi.Iterator[schema.Nic]
 		var err error
 		if opts != nil {
@@ -749,7 +749,7 @@ func (suite *testSuite) getListSecurityGroupV1Step(
 	var respNext []*schema.SecurityGroup
 	var respAll []*schema.SecurityGroup
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListSecurityGroup", string(wref.Name))
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListSecurityGroup", wref.Name)
 		var iter *secapi.Iterator[schema.SecurityGroup]
 		var err error
 		if opts != nil {

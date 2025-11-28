@@ -220,6 +220,34 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 					UpdatedSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(true)},
 				},
 			},
+			RouteTable: &[]mock.ResourceParams[schema.RouteTableSpec]{
+				{
+					Name: routeTableName,
+					InitialSpec: &schema.RouteTableSpec{
+						Routes: []schema.RouteSpec{
+							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+						},
+					},
+					UpdatedSpec: &schema.RouteTableSpec{
+						Routes: []schema.RouteSpec{
+							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *instanceRefObj},
+						},
+					},
+				},
+			},
+			Subnet: &[]mock.ResourceParams[schema.SubnetSpec]{
+				{
+					Name: subnetName,
+					InitialSpec: &schema.SubnetSpec{
+						Cidr: schema.Cidr{Ipv4: &subnetCidr},
+						Zone: zone1,
+					},
+					UpdatedSpec: &schema.SubnetSpec{
+						Cidr: schema.Cidr{Ipv4: &subnetCidr},
+						Zone: zone2,
+					},
+				},
+			},
 			NIC: &[]mock.ResourceParams[schema.NicSpec]{
 				{
 					Name: nicName,
@@ -1528,7 +1556,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 		},
 	}
 	for _, route := range *routes {
-		routeTableResource := secalib.GenerateRouteTableResource(suite.tenant, workspaceName, networkName, route.Metadata.Name)
+		routeTableResource := secalib.GenerateRouteTableResource(suite.tenant, workspaceName, route.Metadata.Network, route.Metadata.Name)
 		expectRouteMeta, err := builders.NewRegionalNetworkResourceMetadataBuilder().
 			Name(route.Metadata.Name).
 			Provider(secalib.NetworkProviderV1).
@@ -1537,7 +1565,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 			Kind(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable).
 			Tenant(suite.tenant).
 			Workspace(workspaceName).
-			Network(networkName).
+			Network(route.Metadata.Network).
 			Region(suite.region).
 			BuildResponse()
 		if err != nil {
