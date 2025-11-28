@@ -557,16 +557,16 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 
 	// List instances with limit
 	suite.getListBlockStorageV1Step("Get List block storage with limit", t, ctx, suite.client.StorageV1, tref, wref,
-		builders.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List Instances with Label
 	suite.getListBlockStorageV1Step("Get list of block storage with label", t, ctx, suite.client.StorageV1, tref, wref,
-		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Instances with Limit and label
 	suite.getListBlockStorageV1Step("Get list of block storage with limit and label", t, ctx, suite.client.StorageV1, tref, wref,
-		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Image
@@ -639,16 +639,16 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 
 	// List image with limit
 	suite.getListImageV1Step("Get list of images", t, ctx, suite.client.StorageV1, tref,
-		builders.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List image with Label
 	suite.getListImageV1Step("Get list of images", t, ctx, suite.client.StorageV1, tref,
-		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List image with Limit and label
 	suite.getListImageV1Step("Get list of images", t, ctx, suite.client.StorageV1, tref,
-		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Skus
@@ -657,16 +657,16 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 
 	// List Skus with limit
 	suite.getListSkuV1Step("Get list of skus", t, ctx, suite.client.StorageV1, tref,
-		builders.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List Skus with Label
 	suite.getListSkuV1Step("Get list of skus", t, ctx, suite.client.StorageV1, tref,
-		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Skus with Limit and label
 	suite.getListSkuV1Step("Get list of skus", t, ctx, suite.client.StorageV1, tref,
-		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Resources deletion

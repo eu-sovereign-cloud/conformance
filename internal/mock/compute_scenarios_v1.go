@@ -250,6 +250,9 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 		Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		BuildResponse()
+	if err != nil {
+		return nil, err
+	}
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
 	workspaceResponse.Status = newWorkspaceStatus(schema.ResourceStateCreating)
@@ -271,7 +274,9 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 		Labels(params.BlockStorage.InitialLabels).
 		Spec(params.BlockStorage.InitialSpec).
 		BuildResponse()
-
+	if err != nil {
+		return nil, err
+	}
 	// Create a block storage
 	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
 	blockResponse.Status = newBlockStorageStatus(schema.ResourceStateCreating)
@@ -294,7 +299,7 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParams
 			Tenant(params.Tenant).
 			Workspace(params.Workspace.Name).
 			Region(params.Region).
-			Labels(&(*params.Instance)[i].InitialLabels).
+			Labels((*params.Instance)[i].InitialLabels).
 			Spec((*params.Instance)[i].InitialSpec).
 			BuildResponse()
 		if err != nil {

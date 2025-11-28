@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -69,7 +68,7 @@ func (suite *testSuite) getListBlockStorageV1Step(
 	api *secapi.StorageV1,
 	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.BlockStorage {
 	var respNext []*schema.BlockStorage
 	var respAll []*schema.BlockStorage
@@ -181,7 +180,7 @@ func (suite *testSuite) getListImageV1Step(
 	ctx context.Context,
 	api *secapi.StorageV1,
 	tref secapi.TenantReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.Image {
 	var respNext []*schema.Image
 	var respAll []*schema.Image
@@ -243,7 +242,7 @@ func (suite *testSuite) getListSkuV1Step(
 	ctx context.Context,
 	api *secapi.StorageV1,
 	tref secapi.TenantReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.StorageSku {
 	var respNext []*schema.StorageSku
 	var respAll []*schema.StorageSku

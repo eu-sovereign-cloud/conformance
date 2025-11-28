@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -119,7 +118,7 @@ func (suite *testSuite) getListInstanceV1Step(
 	api *secapi.ComputeV1,
 	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.Instance {
 	var respNext []*schema.Instance
 	var respAll []*schema.Instance
@@ -165,7 +164,7 @@ func (suite *testSuite) getListSkusV1Step(
 	t provider.T,
 	api *secapi.ComputeV1,
 	tref secapi.TenantReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.InstanceSku {
 	var respNext []*schema.InstanceSku
 	var respAll []*schema.InstanceSku

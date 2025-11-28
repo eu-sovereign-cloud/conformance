@@ -633,16 +633,16 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 
 	// List instances with limit
 	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, tref, wref,
-		builders.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List Instances with Label
 	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, tref, wref,
-		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Instances with Limit and label
 	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, tref, wref,
-		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// SKUS
@@ -651,16 +651,16 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 
 	// List SKUS with limit
 	suite.getListSkusV1Step("Get list of skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
-		builders.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List SKUS with Label
 	suite.getListSkusV1Step("Get list of skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
-		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List SKUS with Limit and label
 	suite.getListSkusV1Step("Get list of skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
-		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Resources deletion

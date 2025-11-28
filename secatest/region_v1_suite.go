@@ -8,6 +8,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
@@ -97,16 +98,16 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 
 	// List with limit
 	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
-		builders.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List with labels
 	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
-		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List with limit and labels
 	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
-		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 }
 

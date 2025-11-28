@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -69,7 +68,7 @@ func (suite *testSuite) getListNetworkV1Step(
 	api *secapi.NetworkV1,
 	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.Network {
 	var respNext []*schema.Network
 	var respAll []*schema.Network
@@ -181,7 +180,7 @@ func (suite *testSuite) getListInternetGatewayV1Step(
 	api *secapi.NetworkV1,
 	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.InternetGateway {
 	var respNext []*schema.InternetGateway
 	var respAll []*schema.InternetGateway
@@ -295,7 +294,7 @@ func (suite *testSuite) getListRouteTableV1Step(
 	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
 	nref secapi.NetworkReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.RouteTable {
 	var respNext []*schema.RouteTable
 	var respAll []*schema.RouteTable
@@ -409,7 +408,7 @@ func (suite *testSuite) getListSubnetV1Step(
 	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
 	nref secapi.NetworkReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.Subnet {
 	var respNext []*schema.Subnet
 	var respAll []*schema.Subnet
@@ -521,7 +520,7 @@ func (suite *testSuite) getListPublicIpV1Step(
 	api *secapi.NetworkV1,
 	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.PublicIp {
 	var respNext []*schema.PublicIp
 	var respAll []*schema.PublicIp
@@ -633,7 +632,7 @@ func (suite *testSuite) getListNicV1Step(
 	api *secapi.NetworkV1,
 	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.Nic {
 	var respNext []*schema.Nic
 	var respAll []*schema.Nic
@@ -745,7 +744,7 @@ func (suite *testSuite) getListSecurityGroupV1Step(
 	api *secapi.NetworkV1,
 	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.SecurityGroup {
 	var respNext []*schema.SecurityGroup
 	var respAll []*schema.SecurityGroup

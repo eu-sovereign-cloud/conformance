@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -35,7 +34,7 @@ func (suite *testSuite) listRegionsV1Step(stepName string,
 	t provider.T,
 	ctx context.Context,
 	api *secapi.RegionV1,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.Region {
 	var respNext []*schema.Region
 	var respAll []*schema.Region

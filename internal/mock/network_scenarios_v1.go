@@ -659,7 +659,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 			Tenant(params.Tenant).
 			Workspace(params.Workspace.Name).
 			Region(params.Region).
-			Labels(&(*params.Network)[i].InitialLabels).
+			Labels((*params.Network)[i].InitialLabels).
 			Spec((*params.Network)[i].InitialSpec).
 			BuildResponse()
 
@@ -769,7 +769,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 			Tenant(params.Tenant).
 			Workspace(params.Workspace.Name).
 			Region(params.Region).
-			Labels(&(*params.InternetGateway)[i].InitialLabels).
+			Labels((*params.InternetGateway)[i].InitialLabels).
 			Spec((*params.InternetGateway)[i].InitialSpec).
 			BuildResponse()
 		if err != nil {
@@ -880,7 +880,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 			Workspace(params.Workspace.Name).
 			Network((*params.Network)[i].Name).
 			Region(params.Region).
-			Labels(&(*params.RouteTable)[i].InitialLabels).
+			Labels((*params.RouteTable)[i].InitialLabels).
 			Spec((*params.RouteTable)[i].InitialSpec).
 			BuildResponse()
 		if err != nil {
@@ -976,7 +976,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 			Workspace(params.Workspace.Name).
 			Network((*params.Network)[i].Name).
 			Region(params.Region).
-			Labels(&(*params.Subnet)[i].InitialLabels).
+			Labels((*params.Subnet)[i].InitialLabels).
 			Spec((*params.Subnet)[i].InitialSpec).
 			BuildResponse()
 		if err != nil {
@@ -1068,7 +1068,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 			Tenant(params.Tenant).
 			Workspace(params.Workspace.Name).
 			Region(params.Region).
-			Labels(&(*params.PublicIp)[i].InitialLabels).
+			Labels((*params.PublicIp)[i].InitialLabels).
 			Spec((*params.PublicIp)[i].InitialSpec).
 			BuildResponse()
 		if err != nil {
@@ -1172,7 +1172,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 			Tenant(params.Tenant).
 			Workspace(params.Workspace.Name).
 			Region(params.Region).
-			Labels(&(*params.NIC)[i].InitialLabels).
+			Labels((*params.NIC)[i].InitialLabels).
 			Spec((*params.NIC)[i].InitialSpec).
 			BuildResponse()
 		if err != nil {
@@ -1277,7 +1277,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 			Tenant(params.Tenant).
 			Workspace(params.Workspace.Name).
 			Region(params.Region).
-			Labels(&(*params.SecurityGroup)[i].InitialLabels).
+			Labels((*params.SecurityGroup)[i].InitialLabels).
 			Spec((*params.SecurityGroup)[i].InitialSpec).
 			BuildResponse()
 		if err != nil {

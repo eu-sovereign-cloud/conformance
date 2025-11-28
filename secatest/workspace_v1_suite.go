@@ -227,14 +227,14 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 		nil)
 	// List workspaces with limit
 	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
-		builders.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 	// List workspaces with label
 	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
-		builders.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 	// List workspaces with label and limit
 	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
-		builders.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 	// Resources deletion
 

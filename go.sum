@@ -35,6 +35,8 @@ github.com/docker/go-units v0.5.0 h1:69rxXcBk27SvSaaxTtLh/8llcHD8vYHT7WSdRZ/jvr4
 github.com/docker/go-units v0.5.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
 github.com/eu-sovereign-cloud/go-sdk v0.3.15 h1:Su6Ilk4Fh3Uu8gkMl/cO6EDIN1AMLFRGIG1Xolzaby0=
 github.com/eu-sovereign-cloud/go-sdk v0.3.15/go.mod h1:S+Ir+zEEpELHlnN+PuQDhSXXu5FxHWCVLCP9wJu72Ac=
+github.com/eu-sovereign-cloud/go-sdk v0.3.17-0.20251128092047-c70116d66ce8 h1:VCK8wpASCvs4rEUBGmOCRuPiKTby4m9aD0BnxuPH1Pw=
+github.com/eu-sovereign-cloud/go-sdk v0.3.17-0.20251128092047-c70116d66ce8/go.mod h1:S+Ir+zEEpELHlnN+PuQDhSXXu5FxHWCVLCP9wJu72Ac=
 github.com/felixge/httpsnoop v1.0.3 h1:s/nj+GCswXYzN5v2DpNMuMQYe+0DDwt5WVCU6CWBdXk=
 github.com/felixge/httpsnoop v1.0.3/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
 github.com/gabriel-vasile/mimetype v1.4.2 h1:w5qFW6JKBz9Y393Y4q372O9A7cUSequkh1Q7OhCmWKU=

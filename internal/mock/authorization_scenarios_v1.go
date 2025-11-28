@@ -166,7 +166,7 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 			Resource(roleResource).
 			ApiVersion(secalib.ApiVersion1).
 			Tenant(params.Tenant).
-			Label((*params.Role)[i].InitialLabels).
+			Labels((*params.Role)[i].InitialLabels).
 			Spec((*params.Role)[i].InitialSpec).
 			BuildResponse()
 		if err != nil {
@@ -256,7 +256,6 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 	var rolesAssignmentList []schema.RoleAssignment
 	for i := range *params.RoleAssignment {
 		roleAssignResource := secalib.GenerateRoleAssignmentResource(params.Tenant, (*params.RoleAssignment)[i].Name)
-		// RoleAssignmentroleAssignResponse := newRoleAssignmentResponse((*params.RoleAssignment)[i].Name, secalib.AuthorizationProviderV1, roleAssignResource, secalib.ApiVersion1, params.Tenant, (*params.RoleAssignment)[i].InitialSpec)
 		roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
 			Name((*params.RoleAssignment)[0].Name).
 			Provider(secalib.AuthorizationProviderV1).

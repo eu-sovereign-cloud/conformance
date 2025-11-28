@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -66,7 +65,7 @@ func (suite *testSuite) getListRoleV1Step(stepName string,
 	ctx context.Context,
 	api *secapi.AuthorizationV1,
 	tref secapi.TenantReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.Role {
 	var respNext []*schema.Role
 	var respAll []*schema.Role
@@ -197,7 +196,7 @@ func (suite *testSuite) getListRoleAssignmentsV1(stepName string,
 	ctx context.Context,
 	api *secapi.AuthorizationV1,
 	tref secapi.TenantReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.RoleAssignment {
 	var respNext []*schema.RoleAssignment
 	var respAll []*schema.RoleAssignment

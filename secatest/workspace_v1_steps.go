@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -63,7 +62,7 @@ func (suite *testSuite) getListWorkspaceV1Step(
 	ctx context.Context,
 	api *secapi.WorkspaceV1,
 	tref secapi.TenantReference,
-	opts *builders.ListOptions,
+	opts *secapi.ListOptions,
 ) []*schema.Workspace {
 	var respNext []*schema.Workspace
 	var respAll []*schema.Workspace
