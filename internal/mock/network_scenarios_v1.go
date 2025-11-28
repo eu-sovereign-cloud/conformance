@@ -637,6 +637,10 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 		Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		BuildResponse()
+
+	if err != nil {
+		return nil, err
+	}
 	// Create a workspace
 	setCreatedRegionalResourceMetadata(workResponse.Metadata)
 	workResponse.Status = newWorkspaceStatus(schema.ResourceStateCreating)
