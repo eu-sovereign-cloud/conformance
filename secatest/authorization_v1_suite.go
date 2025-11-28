@@ -52,7 +52,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
 			},
-			Role: *[]mock.ResourceParams[schema.RoleSpec]{
+			Role: &[]mock.ResourceParams[schema.RoleSpec]{
 				{
 					Name: roleName,
 					InitialSpec: &schema.RoleSpec{
