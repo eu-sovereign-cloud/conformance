@@ -4,7 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
@@ -25,7 +25,7 @@ func ConfigClientsInitScenario(params *ClientsInitParams) (*wiremock.Client, err
 	}
 
 	spec := &schema.RegionSpec{
-		AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+		AvailableZones: []string{zoneA, zoneB},
 		Providers: []schema.Provider{
 			{
 				Name:    secalib.AuthorizationProvider,

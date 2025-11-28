@@ -10,22 +10,23 @@ const (
 	NetworkProviderV1       = "seca.network/" + ApiVersion1
 
 	// Base URLs
-	RoleURLV1            = UrlProvidersPrefix + AuthorizationProviderV1 + "/" + RoleResource
-	RoleAssignmentURLV1  = UrlProvidersPrefix + AuthorizationProviderV1 + "/" + RoleAssignmentResource
-	RegionsURLV1         = UrlProvidersPrefix + RegionProviderV1 + "/regions"
-	RegionURLV1          = UrlProvidersPrefix + RegionProviderV1 + "/" + RegionResource
-	WorkspaceURLV1       = UrlProvidersPrefix + WorkspaceProviderV1 + "/" + WorkspaceResource
-	InstanceSkuURLV1     = UrlProvidersPrefix + ComputeProviderV1 + "/" + SkuResource
-	InstanceURLV1        = UrlProvidersPrefix + ComputeProviderV1 + "/" + InstanceResource
-	StorageSkuURLV1      = UrlProvidersPrefix + StorageProviderV1 + "/" + SkuResource
-	BlockStorageURLV1    = UrlProvidersPrefix + StorageProviderV1 + "/" + BlockStorageResource
-	ImageURLV1           = UrlProvidersPrefix + StorageProviderV1 + "/" + ImageResource
-	NetworkSkuURLV1      = UrlProvidersPrefix + NetworkProviderV1 + "/" + SkuResource
-	NetworkURLV1         = UrlProvidersPrefix + NetworkProviderV1 + "/" + NetworkResource
-	InternetGatewayURLV1 = UrlProvidersPrefix + NetworkProviderV1 + "/" + InternetGatewayResource
-	NicURLV1             = UrlProvidersPrefix + NetworkProviderV1 + "/" + NicResource
-	PublicIpURLV1        = UrlProvidersPrefix + NetworkProviderV1 + "/" + PublicIpResource
-	RouteTableURLV1      = UrlProvidersPrefix + NetworkProviderV1 + "/" + RouteTableResource
-	SubnetURLV1          = UrlProvidersPrefix + NetworkProviderV1 + "/" + SubnetResource
-	SecurityGroupURLV1   = UrlProvidersPrefix + NetworkProviderV1 + "/" + SecurityGroupResource
+	RegionsURLV1 = urlProvidersPrefix + RegionProviderV1 + "/regions"
+
+	roleURLV1            = urlProvidersPrefix + AuthorizationProviderV1 + "/" + roleResource
+	roleAssignmentURLV1  = urlProvidersPrefix + AuthorizationProviderV1 + "/" + roleAssignmentResource
+	regionURLV1          = urlProvidersPrefix + RegionProviderV1 + "/" + regionResource
+	workspaceURLV1       = urlProvidersPrefix + WorkspaceProviderV1 + "/" + workspaceResource
+	instanceSkuURLV1     = urlProvidersPrefix + ComputeProviderV1 + "/" + skuResource
+	instanceURLV1        = urlProvidersPrefix + ComputeProviderV1 + "/" + instanceResource
+	storageSkuURLV1      = urlProvidersPrefix + StorageProviderV1 + "/" + skuResource
+	blockStorageURLV1    = urlProvidersPrefix + StorageProviderV1 + "/" + blockStorageResource
+	imageURLV1           = urlProvidersPrefix + StorageProviderV1 + "/" + imageResource
+	networkSkuURLV1      = urlProvidersPrefix + NetworkProviderV1 + "/" + skuResource
+	networkURLV1         = urlProvidersPrefix + NetworkProviderV1 + "/" + networkResource
+	internetGatewayURLV1 = urlProvidersPrefix + NetworkProviderV1 + "/" + internetGatewayResource
+	nicURLV1             = urlProvidersPrefix + NetworkProviderV1 + "/" + nicResource
+	publicIpURLV1        = urlProvidersPrefix + NetworkProviderV1 + "/" + publicIpResource
+	routeTableURLV1      = urlProvidersPrefix + NetworkProviderV1 + "/" + routeTableResource
+	subnetURLV1          = urlProvidersPrefix + NetworkProviderV1 + "/" + subnetResource
+	securityGroupURLV1   = urlProvidersPrefix + NetworkProviderV1 + "/" + securityGroupResource
 )

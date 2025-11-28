@@ -11,64 +11,39 @@ const (
 	ComputeProvider       = "seca.compute"
 	NetworkProvider       = "seca.network"
 
-	// Labels
-	ArchitectureLabel   = "architecture"
-	ProviderLabel       = "provider"
-	TierLabel           = "tier"
-	EnvLabel            = "env"
-	EnvDevelopmentLabel = "development"
-	EnvProductionLabel  = "production"
-
 	// URL Prefixes
-	UrlProvidersPrefix = "/providers/"
+	urlProvidersPrefix = "/providers/"
 
 	// Resource URLs
 	resourceTenantsPrefix    = "tenants/%s"
 	resourceWorkspacesPrefix = resourceTenantsPrefix + "/workspaces/%s"
 
-	RegionResource          = "regions/%s"
-	SkuResource             = resourceTenantsPrefix + "/skus/%s"
-	RoleResource            = resourceTenantsPrefix + "/roles/%s"
-	RoleAssignmentResource  = resourceTenantsPrefix + "/role-assignments/%s"
-	WorkspaceResource       = resourceTenantsPrefix + "/workspaces/%s"
-	BlockStorageResource    = resourceWorkspacesPrefix + "/block-storages/%s"
-	ImageResource           = resourceTenantsPrefix + "/images/%s"
-	InstanceResource        = resourceWorkspacesPrefix + "/instances/%s"
-	NetworkResource         = resourceWorkspacesPrefix + "/networks/%s"
-	InternetGatewayResource = resourceWorkspacesPrefix + "/internet-gateways/%s"
-	NicResource             = resourceWorkspacesPrefix + "/nics/%s"
-	PublicIpResource        = resourceWorkspacesPrefix + "/public-ips/%s"
-	RouteTableResource      = resourceWorkspacesPrefix + "/networks/%s/route-tables/%s"
-	SubnetResource          = resourceWorkspacesPrefix + "/networks/%s/subnets/%s"
-	SecurityGroupResource   = resourceWorkspacesPrefix + "/security-groups/%s"
+	regionResource          = "regions/%s"
+	skuResource             = resourceTenantsPrefix + "/skus/%s"
+	roleResource            = resourceTenantsPrefix + "/roles/%s"
+	roleAssignmentResource  = resourceTenantsPrefix + "/role-assignments/%s"
+	workspaceResource       = resourceTenantsPrefix + "/workspaces/%s"
+	blockStorageResource    = resourceWorkspacesPrefix + "/block-storages/%s"
+	imageResource           = resourceTenantsPrefix + "/images/%s"
+	instanceResource        = resourceWorkspacesPrefix + "/instances/%s"
+	networkResource         = resourceWorkspacesPrefix + "/networks/%s"
+	internetGatewayResource = resourceWorkspacesPrefix + "/internet-gateways/%s"
+	nicResource             = resourceWorkspacesPrefix + "/nics/%s"
+	publicIpResource        = resourceWorkspacesPrefix + "/public-ips/%s"
+	routeTableResource      = resourceWorkspacesPrefix + "/networks/%s/route-tables/%s"
+	subnetResource          = resourceWorkspacesPrefix + "/networks/%s/subnets/%s"
+	securityGroupResource   = resourceWorkspacesPrefix + "/security-groups/%s"
 
 	// Resource References
-	SkuRef             = "skus/%s"
-	InstanceRef        = "instances/%s"
-	BlockStorageRef    = "block-storages/%s"
-	InternetGatewayRef = "internet-gateways/%s"
-	NetworkRef         = "networks/%s"
-	RouteTableRef      = "route-tables/%s"
-	SubnetRef          = "subnets/%s"
-	PublicIpRef        = "public-ips/%s"
+	skuRef             = "skus/%s"
+	instanceRef        = "instances/%s"
+	blockStorageRef    = "block-storages/%s"
+	internetGatewayRef = "internet-gateways/%s"
+	networkRef         = "networks/%s"
+	routeTableRef      = "route-tables/%s"
+	subnetRef          = "subnets/%s"
+	publicIpRef        = "public-ips/%s"
 
 	// Generators
 	maxBlockStorageSize = 1000000 // GB
-
-	// Zones
-	ZoneA = "a"
-	ZoneB = "b"
-
-	// Labels
-	LabelKeyTier         = "tier"
-	LabelEnvKey          = "env"
-	LabelEnvValue        = "test"
-	LabelMonitoringValue = "monitoring"
-	LabelAlertLevelValue = "alert-level"
-	LabelHightValue      = "high"
-	LabelTierKey         = "tier"
-	LabelTierValue       = "backend"
-	LabelVersion         = "version"
-	LabelUptime          = "uptime"
-	LabelLoad            = "load"
 )

@@ -6,7 +6,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"k8s.io/utils/ptr"
@@ -177,7 +177,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+					envLabel: envDevelopmentLabel,
 				},
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
@@ -285,7 +285,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+			envLabel: envDevelopmentLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.tenant,
@@ -304,7 +304,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{secalib.EnvLabel: secalib.EnvDevelopmentLabel}
+	expectWorkspaceLabels := schema.Labels{envLabel: envDevelopmentLabel}
 	suite.createOrUpdateWorkspaceV1Step("Create a workspace", t, suite.client.WorkspaceV1, workspace,
 		responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			labels:        expectWorkspaceLabels,

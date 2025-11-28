@@ -6,7 +6,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -40,28 +40,28 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 				{
 					Name: suite.regionName,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+						AvailableZones: []string{zoneA, zoneB},
 						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
 				{
 					Name: regionNameA,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+						AvailableZones: []string{zoneA, zoneB},
 						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
 				{
 					Name: regionNameB,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+						AvailableZones: []string{zoneA, zoneB},
 						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
 				{
 					Name: regionNameC,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+						AvailableZones: []string{zoneA, zoneB},
 						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
