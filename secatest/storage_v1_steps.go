@@ -2,6 +2,8 @@ package secatest
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -57,6 +59,53 @@ func (suite *testSuite) getBlockStorageV1Step(stepName string, t provider.T, api
 			expectedResourceState: responseExpects.resourceState,
 		},
 	)
+}
+
+func (suite *testSuite) getListBlockStorageV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.StorageV1,
+	tref secapi.TenantReference,
+	wref secapi.WorkspaceReference,
+	opts *secapi.ListOptions,
+) []*schema.BlockStorage {
+	var respNext []*schema.BlockStorage
+	var respAll []*schema.BlockStorage
+
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListBlockStorage", string(wref.Workspace))
+
+		var iter *secapi.Iterator[schema.BlockStorage]
+		var err error
+		if opts != nil {
+			iter, err = api.ListBlockStoragesWithFilters(ctx, tref.Tenant, wref.Workspace, opts)
+		} else {
+			iter, err = api.ListBlockStorages(ctx, tref.Tenant, wref.Workspace)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+		/*
+			respAll, err = iter.All(ctx)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, respAll)
+			requireLenResponse(sCtx, len(respAll))
+
+			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+		*/
+	})
+	return respAll
 }
 
 func (suite *testSuite) getBlockStorageWithErrorV1Step(stepName string, t provider.T, api *secapi.StorageV1, wref secapi.WorkspaceReference, expectedError error) {
@@ -125,6 +174,50 @@ func (suite *testSuite) getImageV1Step(stepName string, t provider.T, api *secap
 	)
 }
 
+func (suite *testSuite) getListImageV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.StorageV1,
+	tref secapi.TenantReference,
+	opts *secapi.ListOptions,
+) []*schema.Image {
+	var respNext []*schema.Image
+	var respAll []*schema.Image
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListImage", tref.Name)
+		var iter *secapi.Iterator[schema.Image]
+		var err error
+		if opts != nil {
+			iter, err = api.ListImagesWithFilters(ctx, tref.Tenant, opts)
+		} else {
+			iter, err = api.ListImages(ctx, tref.Tenant)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+		/*
+			respAll, err = iter.All(ctx)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, respAll)
+			requireLenResponse(sCtx, len(respAll))
+
+			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+		*/
+	})
+	return respAll
+}
+
 func (suite *testSuite) getImageWithErrorV1Step(stepName string, t provider.T, api *secapi.StorageV1, tref secapi.TenantReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "GetImage")
@@ -141,4 +234,48 @@ func (suite *testSuite) deleteImageV1Step(stepName string, t provider.T, api *se
 		err := api.DeleteImage(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
+}
+
+func (suite *testSuite) getListSkuV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.StorageV1,
+	tref secapi.TenantReference,
+	opts *secapi.ListOptions,
+) []*schema.StorageSku {
+	var respNext []*schema.StorageSku
+	var respAll []*schema.StorageSku
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListSku", tref.Name)
+		var iter *secapi.Iterator[schema.StorageSku]
+		var err error
+		if opts != nil {
+			iter, err = api.ListSkusWithFilters(ctx, tref.Tenant, opts)
+		} else {
+			iter, err = api.ListSkus(ctx, tref.Tenant)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+		/*
+			respAll, err = iter.All(ctx)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, respAll)
+			requireLenResponse(sCtx, len(respAll))
+
+			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+		*/
+	})
+	return respAll
 }

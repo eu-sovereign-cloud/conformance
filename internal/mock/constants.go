@@ -10,4 +10,11 @@ const (
 	authorizationHttpHeaderValuePrefix = "Bearer "
 	contentTypeHttpHeaderKey           = "Content-Type"
 	contentTypeHttpHeaderValue         = "application/json"
+	limitHeaderKey                     = "Limit"
+	labelsHeaderKey                    = "Labels"
+	// Test Data
+
+	// Zones
+	zoneA = "a"
+	zoneB = "b"
 )

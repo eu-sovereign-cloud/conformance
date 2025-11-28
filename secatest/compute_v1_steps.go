@@ -2,6 +2,8 @@ package secatest
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -108,4 +110,97 @@ func (suite *testSuite) deleteInstanceV1Step(stepName string, t provider.T, api 
 		err := api.DeleteInstance(t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
+}
+
+func (suite *testSuite) getListInstanceV1Step(
+	stepName string,
+	t provider.T,
+	api *secapi.ComputeV1,
+	tref secapi.TenantReference,
+	wref secapi.WorkspaceReference,
+	opts *secapi.ListOptions,
+) []*schema.Instance {
+	var respNext []*schema.Instance
+	var respAll []*schema.Instance
+
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setComputeV1StepParams(sCtx, "ListInstances with parameters", string(wref.Workspace))
+		var iter *secapi.Iterator[schema.Instance]
+		var err error
+		if opts != nil {
+			iter, err = api.ListInstancesWithFilters(context.Background(), tref.Tenant, wref.Workspace, opts)
+		} else {
+			iter, err = api.ListInstances(context.Background(), tref.Tenant, wref.Workspace)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+
+		/*
+			respAll, err = iter.All(ctx)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, respAll)
+			requireLenResponse(sCtx, len(respAll))
+
+			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+		*/
+	})
+	return respAll
+}
+
+func (suite *testSuite) getListSkusV1Step(
+	stepName string,
+	t provider.T,
+	api *secapi.ComputeV1,
+	tref secapi.TenantReference,
+	opts *secapi.ListOptions,
+) []*schema.InstanceSku {
+	var respNext []*schema.InstanceSku
+	var respAll []*schema.InstanceSku
+
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setComputeV1StepParams(sCtx, "ListSkus", tref.Name)
+
+		var iter *secapi.Iterator[schema.InstanceSku]
+		var err error
+		if opts != nil {
+			iter, err = api.ListSkusWithFilters(t.Context(), tref.Tenant, opts)
+		} else {
+			iter, err = api.ListSkus(t.Context(), tref.Tenant)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+		/*
+			respAll, err = iter.All(ctx)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, respAll)
+			requireLenResponse(sCtx, len(respAll))
+
+			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+		*/
+	})
+	return respAll
 }

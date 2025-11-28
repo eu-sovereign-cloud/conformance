@@ -26,7 +26,7 @@ type stubConfig struct {
 	httpMethod   string
 	httpStatus   int
 	params       HasParams
-	headers      map[string]string
+	pathParams   map[string]string
 	responseBody any
 	currentState string
 	nextState    string

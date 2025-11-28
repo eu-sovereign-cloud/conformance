@@ -30,19 +30,27 @@ func (suite *testSuite) getRegionV1Step(stepName string, t provider.T, ctx conte
 	return resp
 }
 
-func (suite *testSuite) listRegionsV1Step(stepName string, t provider.T, ctx context.Context, api *secapi.RegionV1) []*schema.Region {
+func (suite *testSuite) listRegionsV1Step(stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.RegionV1,
+	opts *secapi.ListOptions,
+) []*schema.Region {
 	var respNext []*schema.Region
 	var respAll []*schema.Region
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setRegionV1StepParams(sCtx, "ListRegions")
-
-		iter, err := api.ListRegions(ctx)
+		var iter *secapi.Iterator[schema.Region]
+		var err error
+		if opts != nil {
+			iter, err = api.ListRegionsWithFilters(ctx, opts)
+		} else {
+			iter, err = api.ListRegions(ctx)
+		}
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, iter)
-
 		for {
-			item, err := iter.Next(ctx)
+			item, err := iter.Next(context.Background())
 			if errors.Is(err, io.EOF) {
 				break
 			}
@@ -53,12 +61,14 @@ func (suite *testSuite) listRegionsV1Step(stepName string, t provider.T, ctx con
 		}
 		requireNotNilResponse(sCtx, respNext)
 		requireLenResponse(sCtx, len(respNext))
-
-		iterAll, err := api.ListRegions(ctx)
+		if opts != nil {
+			iter, err = api.ListRegionsWithFilters(ctx, opts)
+		} else {
+			iter, err = api.ListRegions(ctx)
+		}
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, iterAll)
 
-		respAll, err = iterAll.All(ctx)
+		respAll, err = iter.All(ctx)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, respAll)
 		requireLenResponse(sCtx, len(respAll))

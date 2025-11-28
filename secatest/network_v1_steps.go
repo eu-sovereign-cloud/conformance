@@ -2,6 +2,8 @@ package secatest
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -57,6 +59,51 @@ func (suite *testSuite) getNetworkV1Step(stepName string, t provider.T, api *sec
 			expectedResourceState: responseExpects.resourceState,
 		},
 	)
+}
+
+func (suite *testSuite) getListNetworkV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.NetworkV1,
+	tref secapi.TenantReference,
+	wref secapi.WorkspaceReference,
+	opts *secapi.ListOptions,
+) []*schema.Network {
+	var respNext []*schema.Network
+	var respAll []*schema.Network
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListNetwork", string(wref.Workspace))
+		var iter *secapi.Iterator[schema.Network]
+		var err error
+		if opts != nil {
+			iter, err = api.ListNetworksWithFilters(ctx, tref.Tenant, wref.Workspace, opts)
+		} else {
+			iter, err = api.ListNetworks(ctx, tref.Tenant, wref.Workspace)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+		/*
+			respAll, err = iter.All(ctx)
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, respAll)
+			requireLenResponse(sCtx, len(respAll))
+
+			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+		*/
+	})
+	return respAll
 }
 
 func (suite *testSuite) getNetworkWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
@@ -124,6 +171,51 @@ func (suite *testSuite) getInternetGatewayV1Step(stepName string, t provider.T, 
 			expectedResourceState: responseExpects.resourceState,
 		},
 	)
+}
+
+func (suite *testSuite) getListInternetGatewayV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.NetworkV1,
+	tref secapi.TenantReference,
+	wref secapi.WorkspaceReference,
+	opts *secapi.ListOptions,
+) []*schema.InternetGateway {
+	var respNext []*schema.InternetGateway
+	var respAll []*schema.InternetGateway
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListInternetGateway", wref.Name)
+		var iter *secapi.Iterator[schema.InternetGateway]
+		var err error
+		if opts != nil {
+			iter, err = api.ListInternetGatewaysWithFilters(ctx, tref.Tenant, wref.Workspace, opts)
+		} else {
+			iter, err = api.ListInternetGateways(ctx, tref.Tenant, wref.Workspace)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+
+		/*
+			requireNoError(sCtx, err)
+			requireNotNilResponse(sCtx, respAll)
+			requireLenResponse(sCtx, len(respAll))
+
+			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
+		*/
+	})
+	return respAll
 }
 
 func (suite *testSuite) getInternetGatewayWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
@@ -194,6 +286,52 @@ func (suite *testSuite) getRouteTableV1Step(stepName string, t provider.T, api *
 	)
 }
 
+func (suite *testSuite) getListRouteTableV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.NetworkV1,
+	tref secapi.TenantReference,
+	wref secapi.WorkspaceReference,
+	nref secapi.NetworkReference,
+	opts *secapi.ListOptions,
+) []*schema.RouteTable {
+	var respNext []*schema.RouteTable
+	var respAll []*schema.RouteTable
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListRouteTable", nref.Name)
+		var iter *secapi.Iterator[schema.RouteTable]
+		var err error
+		if opts != nil {
+			iter, err = api.ListRouteTablesWithFilters(ctx, tref.Tenant, wref.Workspace, nref.Network, opts)
+		} else {
+			iter, err = api.ListRouteTables(ctx, tref.Tenant, wref.Workspace, nref.Network)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+
+		/*
+			respAll, err = iter.All(ctx)
+					requireNoError(sCtx, err)
+					requireNotNilResponse(sCtx, respAll)
+					requireLenResponse(sCtx, len(respAll))
+
+					compareIteratorsResponse(sCtx, len(respNext), len(respAll))*/
+	})
+	return respAll
+}
+
 func (suite *testSuite) getRouteTableWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetRouteTable", string(nref.Workspace))
@@ -260,6 +398,52 @@ func (suite *testSuite) getSubnetV1Step(stepName string, t provider.T, api *seca
 			expectedResourceState: responseExpects.resourceState,
 		},
 	)
+}
+
+func (suite *testSuite) getListSubnetV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.NetworkV1,
+	tref secapi.TenantReference,
+	wref secapi.WorkspaceReference,
+	nref secapi.NetworkReference,
+	opts *secapi.ListOptions,
+) []*schema.Subnet {
+	var respNext []*schema.Subnet
+	var respAll []*schema.Subnet
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListSubnet", nref.Name)
+		var iter *secapi.Iterator[schema.Subnet]
+		var err error
+		if opts != nil {
+			iter, err = api.ListSubnetsWithFilters(ctx, tref.Tenant, wref.Workspace, nref.Network, opts)
+		} else {
+			iter, err = api.ListSubnets(ctx, tref.Tenant, wref.Workspace, nref.Network)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+
+		/*
+			respAll, err = iter.All(ctx)
+					requireNoError(sCtx, err)
+					requireNotNilResponse(sCtx, respAll)
+					requireLenResponse(sCtx, len(respAll))
+
+					compareIteratorsResponse(sCtx, len(respNext), len(respAll))*/
+	})
+	return respAll
 }
 
 func (suite *testSuite) getSubnetWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
@@ -329,6 +513,51 @@ func (suite *testSuite) getPublicIpV1Step(stepName string, t provider.T, api *se
 	)
 }
 
+func (suite *testSuite) getListPublicIpV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.NetworkV1,
+	tref secapi.TenantReference,
+	wref secapi.WorkspaceReference,
+	opts *secapi.ListOptions,
+) []*schema.PublicIp {
+	var respNext []*schema.PublicIp
+	var respAll []*schema.PublicIp
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListPublicIp", wref.Name)
+		var iter *secapi.Iterator[schema.PublicIp]
+		var err error
+		if opts != nil {
+			iter, err = api.ListPublicIpsWithFilters(ctx, tref.Tenant, wref.Workspace, opts)
+		} else {
+			iter, err = api.ListPublicIps(ctx, tref.Tenant, wref.Workspace)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+
+		/*
+			respAll, err = iter.All(ctx)
+					requireNoError(sCtx, err)
+					requireNotNilResponse(sCtx, respAll)
+					requireLenResponse(sCtx, len(respAll))
+
+					compareIteratorsResponse(sCtx, len(respNext), len(respAll))*/
+	})
+	return respAll
+}
+
 func (suite *testSuite) getPublicIpWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetPublicIp", string(wref.Workspace))
@@ -396,6 +625,51 @@ func (suite *testSuite) getNicV1Step(stepName string, t provider.T, api *secapi.
 	)
 }
 
+func (suite *testSuite) getListNicV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.NetworkV1,
+	tref secapi.TenantReference,
+	wref secapi.WorkspaceReference,
+	opts *secapi.ListOptions,
+) []*schema.Nic {
+	var respNext []*schema.Nic
+	var respAll []*schema.Nic
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListNic", wref.Name)
+		var iter *secapi.Iterator[schema.Nic]
+		var err error
+		if opts != nil {
+			iter, err = api.ListNicsWithFilters(ctx, tref.Tenant, wref.Workspace, opts)
+		} else {
+			iter, err = api.ListNics(ctx, tref.Tenant, wref.Workspace)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+
+		/*
+			respAll, err = iter.All(ctx)
+					requireNoError(sCtx, err)
+					requireNotNilResponse(sCtx, respAll)
+					requireLenResponse(sCtx, len(respAll))
+
+					compareIteratorsResponse(sCtx, len(respNext), len(respAll))*/
+	})
+	return respAll
+}
+
 func (suite *testSuite) getNicWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setNetworkV1StepParams(sCtx, "GetNic", string(wref.Workspace))
@@ -461,6 +735,51 @@ func (suite *testSuite) getSecurityGroupV1Step(stepName string, t provider.T, ap
 			expectedResourceState: responseExpects.resourceState,
 		},
 	)
+}
+
+func (suite *testSuite) getListSecurityGroupV1Step(
+	stepName string,
+	t provider.T,
+	ctx context.Context,
+	api *secapi.NetworkV1,
+	tref secapi.TenantReference,
+	wref secapi.WorkspaceReference,
+	opts *secapi.ListOptions,
+) []*schema.SecurityGroup {
+	var respNext []*schema.SecurityGroup
+	var respAll []*schema.SecurityGroup
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListSecurityGroup", wref.Name)
+		var iter *secapi.Iterator[schema.SecurityGroup]
+		var err error
+		if opts != nil {
+			iter, err = api.ListSecurityGroupsWithFilters(ctx, tref.Tenant, wref.Workspace, opts)
+		} else {
+			iter, err = api.ListSecurityGroups(ctx, tref.Tenant, wref.Workspace)
+		}
+		requireNoError(sCtx, err)
+		for {
+			item, err := iter.Next(context.Background())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				break
+			}
+			respNext = append(respNext, item)
+		}
+		requireNotNilResponse(sCtx, respNext)
+		requireLenResponse(sCtx, len(respNext))
+
+		/*
+			respAll, err = iter.All(ctx)
+					requireNoError(sCtx, err)
+					requireNotNilResponse(sCtx, respAll)
+					requireLenResponse(sCtx, len(respAll))
+
+					compareIteratorsResponse(sCtx, len(respNext), len(respAll))*/
+	})
+	return respAll
 }
 
 func (suite *testSuite) getSecurityGroupWithErrorV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {

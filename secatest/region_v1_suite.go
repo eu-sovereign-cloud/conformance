@@ -6,8 +6,9 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/secalib"
-	"github.com/eu-sovereign-cloud/conformance/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
@@ -40,28 +41,28 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 				{
 					Name: suite.regionName,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+						AvailableZones: []string{zoneA, zoneB},
 						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
 				{
 					Name: regionNameA,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+						AvailableZones: []string{zoneA, zoneB},
 						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
 				{
 					Name: regionNameB,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+						AvailableZones: []string{zoneA, zoneB},
 						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
 				{
 					Name: regionNameC,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{secalib.ZoneA, secalib.ZoneB},
+						AvailableZones: []string{zoneA, zoneB},
 						Providers:      secalib.GenerateProviderSpec(),
 					},
 				},
@@ -77,8 +78,8 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 
 	ctx := context.Background()
 
-	// Test List iterator's (Next and All) for Regions and verify both responses have the same length
-	regions := suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1)
+	//  List iterator's (Next and All) for Regions and verify both responses have the same length
+	regions := suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1, nil)
 
 	// Call Get Region and verify response
 	regionResource := secalib.GenerateRegionResource(regions[0].Metadata.Name)
@@ -94,6 +95,20 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	suite.getRegionV1Step("Get region "+regions[0].Metadata.Name, t, ctx, suite.client.RegionV1, expectedRegionMeta)
+
+	// List with limit
+	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
+		secapi.NewListOptions().WithLimit(1))
+
+	// List with labels
+	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
+		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
+
+	// List with limit and labels
+	suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1,
+		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
+			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 }
 
 func (suite *RegionV1TestSuite) AfterEach(t provider.T) {
