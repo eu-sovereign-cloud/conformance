@@ -4,7 +4,8 @@
 
 SECA Conformance is a comprehensive testing tool for validating Cloud Service Provider (CSP) implementations against the [SECA API specification](https://spec.secapi.cloud). The tool validates API endpoints, resource lifecycle management, and compliance with SECA standards across for a specific cloud provider.
 
-The project is built as a go test binary (`secatest`) that compiles test scenarios into an executable. It uses It uses Cobra framework to provied the command line base strucute and Allure framework for rich test reporting.
+The project is built as a go test binary (`secatest`) that compiles test scenarios into an executable.
+It uses It uses Cobra framework to provied the command line base strucute, uses the [SECA GO SDK](https://github.com/eu-sovereign-cloud/go-sdk) to comunicate with the SECA API implementation and uses Allure Reportin tool, trought the [AllureGo framework](https://github.com/ozontech/allure-go) for rich test reporting.
 
 ## Build and Development Commands
 
@@ -92,8 +93,6 @@ The SDK provides two client types in `secatest/clients.go`:
    - Created from GlobalClient with a specific region
    - Endpoints: Workspace V1, Storage V1, Compute V1, Network V1
    - Used for: Workspaces, BlockStorage, Images, Instances, Networks, etc.
-
-Both clients are initialized once and stored in `ClientsHolder` for reuse across tests.
 
 ### Test Suite Organization
 
@@ -209,15 +208,6 @@ The SECA API is organized into providers:
 
 Each provider has its own base URL endpoint.
 
-### SKU References
-
-Many resources require SKU (Stock Keeping Unit) references:
-- Compute instances require instance SKUs
-- Block storage requires storage SKUs
-- Networks require network SKUs
-
-SKUs are loaded during client initialization (`loadInstanceSkus`, `loadStorageSkus`, `loadNetworkSkus`) and cached in `ClientsHolder`.
-
 ## Development Notes
 
 ### Adding New Test Scenarios
@@ -226,10 +216,6 @@ SKUs are loaded during client initialization (`loadInstanceSkus`, `loadStorageSk
 2. Create test function in `*_v1_test.go` (must start with `Test`)
 3. Use step functions from `steps.go` for consistency
 4. Add to list command in `main_test.go`
-
-### Working with Generics
-
-The codebase uses Go generics extensively for type-safe step functions. When calling step functions, the compiler infers types from the parameters. Always provide complete type information for the generic parameters `[R, M, E]`.
 
 ### Test Isolation
 
