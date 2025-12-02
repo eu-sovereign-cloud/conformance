@@ -599,3 +599,14 @@ func (suite *testSuite) verifyRegionSpecStep(ctx provider.StepCtx, actual *schem
 		stepCtx.Require().GreaterOrEqual(len(actual.Providers), 1, "Providers list length should greater then 1")
 	})
 }
+
+// List Steps
+func verifyIterListStep[R any](ctx provider.StepCtx, t provider.T, iter secapi.Iterator[R]) {
+	ctx.WithNewStep("Verify Iter List", func(stepCtx provider.StepCtx) {
+		// Iterate through all items
+		resp, err := iter.All(t.Context())
+		requireNoError(stepCtx, err)
+		requireNotNilResponse(stepCtx, resp)
+		requireLenResponse(stepCtx, len(resp))
+	})
+}

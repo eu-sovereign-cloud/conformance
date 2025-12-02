@@ -1,7 +1,6 @@
 package secatest
 
 import (
-	"context"
 	"log/slog"
 	"math/rand"
 	"net/http"
@@ -377,8 +376,6 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 		suite.mockClient = wm
 	}
 
-	ctx := context.Background()
-
 	// Role
 
 	roles := []schema.Role{
@@ -496,19 +493,19 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 		Name:   suite.tenant,
 	}
 	// List Roles
-	suite.getListRoleV1Step("Get list of roles", t, ctx, suite.client.AuthorizationV1, *roleTRef, nil)
+	suite.getListRoleV1Step("Get list of roles", t, suite.client.AuthorizationV1, *roleTRef, nil)
 
 	// List Roles with limit
-	suite.getListRoleV1Step("Get list of roles with limit", t, ctx, suite.client.AuthorizationV1, *roleTRef,
+	suite.getListRoleV1Step("Get list of roles with limit", t, suite.client.AuthorizationV1, *roleTRef,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Roles with Label
-	suite.getListRoleV1Step("Get list of roles with label", t, ctx, suite.client.AuthorizationV1, *roleTRef,
+	suite.getListRoleV1Step("Get list of roles with label", t, suite.client.AuthorizationV1, *roleTRef,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Roles with Limit and label
-	suite.getListRoleV1Step("Get list of roles with limit and label", t, ctx, suite.client.AuthorizationV1, *roleTRef,
+	suite.getListRoleV1Step("Get list of roles with limit and label", t, suite.client.AuthorizationV1, *roleTRef,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
@@ -595,18 +592,18 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 		Tenant: secapi.TenantID(suite.tenant),
 	}
 	// List RoleAssignments
-	suite.getListRoleAssignmentsV1("Get list of role assignments", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef, nil)
+	suite.getListRoleAssignmentsV1("Get list of role assignments", t, suite.client.AuthorizationV1, *roleAssignTRef, nil)
 	// List RoleAssignments with limit
-	suite.getListRoleAssignmentsV1("Get list of role assignments", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef,
+	suite.getListRoleAssignmentsV1("Get list of role assignments", t, suite.client.AuthorizationV1, *roleAssignTRef,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List RoleAssignments with Label
-	suite.getListRoleAssignmentsV1("Get list of role assignments", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef,
+	suite.getListRoleAssignmentsV1("Get list of role assignments", t, suite.client.AuthorizationV1, *roleAssignTRef,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List RoleAssignments with Limit and label
-	suite.getListRoleAssignmentsV1("Get list of role assignments", t, ctx, suite.client.AuthorizationV1, *roleAssignTRef,
+	suite.getListRoleAssignmentsV1("Get list of role assignments", t, suite.client.AuthorizationV1, *roleAssignTRef,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 

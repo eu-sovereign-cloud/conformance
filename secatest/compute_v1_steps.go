@@ -166,8 +166,7 @@ func (suite *testSuite) getListSkusV1Step(
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) []*schema.InstanceSku {
-	var respNext []*schema.InstanceSku
-	var respAll []*schema.InstanceSku
+	var resp []*schema.InstanceSku
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setComputeV1StepParams(sCtx, "ListSkus", tref.Name)
@@ -180,27 +179,12 @@ func (suite *testSuite) getListSkusV1Step(
 			iter, err = api.ListSkus(t.Context(), tref.Tenant)
 		}
 		requireNoError(sCtx, err)
-		for {
-			item, err := iter.Next(context.Background())
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				break
-			}
-			respNext = append(respNext, item)
-		}
 
-		requireNotNilResponse(sCtx, respNext)
-		requireLenResponse(sCtx, len(respNext))
-		/*
-			respAll, err = iter.All(ctx)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, respAll)
-			requireLenResponse(sCtx, len(respAll))
-
-			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
-		*/
+		// Iterate through all items
+		resp, err := iter.All(t.Context())
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, resp)
+		requireLenResponse(sCtx, len(resp))
 	})
-	return respAll
+	return resp
 }

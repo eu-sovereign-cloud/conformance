@@ -2,8 +2,6 @@ package secatest
 
 import (
 	"context"
-	"errors"
-	"io"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -62,14 +60,10 @@ func (suite *testSuite) getRoleV1Step(stepName string, t provider.T, api *secapi
 
 func (suite *testSuite) getListRoleV1Step(stepName string,
 	t provider.T,
-	ctx context.Context,
 	api *secapi.AuthorizationV1,
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
-) []*schema.Role {
-	var respNext []*schema.Role
-	var respAll []*schema.Role
-
+) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetListRole")
 
@@ -77,34 +71,14 @@ func (suite *testSuite) getListRoleV1Step(stepName string,
 
 		var err error
 		if opts != nil {
-			iter, err = api.ListRolesWithFilters(ctx, tref.Tenant, opts)
+			iter, err = api.ListRolesWithFilters(t.Context(), tref.Tenant, opts)
 		} else {
-			iter, err = api.ListRoles(ctx, tref.Tenant)
+			iter, err = api.ListRoles(t.Context(), tref.Tenant)
 		}
 		requireNoError(sCtx, err)
 
-		for {
-			item, err := iter.Next(context.Background())
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				break
-			}
-			respNext = append(respNext, item)
-		}
-		requireNotNilResponse(sCtx, respNext)
-		requireLenResponse(sCtx, len(respNext))
-		/*
-			respAll, err = iterAll.All(ctx)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, respAll)
-			requireLenResponse(sCtx, len(respAll))
-
-			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
-		*/
+		verifyIterListStep(sCtx, t, *iter)
 	})
-	return respAll
 }
 
 func (suite *testSuite) getRoleWithErrorV1Step(stepName string, t provider.T, api *secapi.AuthorizationV1, tref secapi.TenantReference, expectedError error) {
@@ -193,45 +167,22 @@ func (suite *testSuite) deleteRoleAssignmentV1Step(stepName string, t provider.T
 
 func (suite *testSuite) getListRoleAssignmentsV1(stepName string,
 	t provider.T,
-	ctx context.Context,
 	api *secapi.AuthorizationV1,
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
-) []*schema.RoleAssignment {
-	var respNext []*schema.RoleAssignment
-	var respAll []*schema.RoleAssignment
-
+) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetListRoleAssignment")
 
 		var iter *secapi.Iterator[schema.RoleAssignment]
 		var err error
 		if opts != nil {
-			iter, err = api.ListRoleAssignmentsWithFilters(ctx, tref.Tenant, opts)
+			iter, err = api.ListRoleAssignmentsWithFilters(t.Context(), tref.Tenant, opts)
 		} else {
-			iter, err = api.ListRoleAssignments(ctx, tref.Tenant)
+			iter, err = api.ListRoleAssignments(t.Context(), tref.Tenant)
 		}
 		requireNoError(sCtx, err)
-		for {
-			item, err := iter.Next(context.Background())
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				break
-			}
-			respNext = append(respNext, item)
-		}
-		requireNotNilResponse(sCtx, respNext)
-		requireLenResponse(sCtx, len(respNext))
-		/*
-			respAll, err = iter.All(ctx)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, respAll)
-			requireLenResponse(sCtx, len(respAll))
 
-			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
-		*/
+		verifyIterListStep(sCtx, t, *iter)
 	})
-	return respAll
 }

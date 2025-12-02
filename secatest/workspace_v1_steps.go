@@ -2,8 +2,6 @@ package secatest
 
 import (
 	"context"
-	"errors"
-	"io"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -59,45 +57,23 @@ func (suite *testSuite) getWorkspaceV1Step(stepName string, t provider.T, api *s
 func (suite *testSuite) getListWorkspaceV1Step(
 	stepName string,
 	t provider.T,
-	ctx context.Context,
 	api *secapi.WorkspaceV1,
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
-) []*schema.Workspace {
-	var respNext []*schema.Workspace
-	var respAll []*schema.Workspace
+) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListWorkspace", string(tref.Tenant))
 		var iter *secapi.Iterator[schema.Workspace]
 		var err error
 		if opts != nil {
-			iter, err = api.ListWorkspacesWithFilters(ctx, tref.Tenant, opts)
+			iter, err = api.ListWorkspacesWithFilters(t.Context(), tref.Tenant, opts)
 		} else {
-			iter, err = api.ListWorkspaces(ctx, tref.Tenant)
+			iter, err = api.ListWorkspaces(t.Context(), tref.Tenant)
 		}
 		requireNoError(sCtx, err)
-		for {
-			item, err := iter.Next(context.Background())
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				break
-			}
-			respNext = append(respNext, item)
-		}
-		requireNotNilResponse(sCtx, respNext)
-		requireLenResponse(sCtx, len(respNext))
-		/*
-			respAll, err = iter.All(ctx)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, respAll)
-			requireLenResponse(sCtx, len(respAll))
 
-			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
-		*/
+		verifyIterListStep(sCtx, t, *iter)
 	})
-	return respAll
 }
 
 func (suite *testSuite) getWorkspaceWithErrorV1Step(stepName string, t provider.T, api *secapi.WorkspaceV1, tref secapi.TenantReference, expectedError error) {

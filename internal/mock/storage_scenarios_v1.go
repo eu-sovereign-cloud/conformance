@@ -338,7 +338,6 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 			Labels((*params.Image)[i].InitialLabels).
 			Spec((*params.Image)[i].InitialSpec).
 			BuildResponse()
-
 		if err != nil {
 			return nil, err
 		}
@@ -353,8 +352,10 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParams
 		imageResp.Status = newImageStatus(schema.ResourceStateCreating)
 		imageResp.Metadata.Verb = http.MethodPut
 		if err := configurePutStub(wm, scenario,
-			&stubConfig{url: secalib.GenerateImageURL(params.Tenant, (*params.Image)[i].Name), params: params, responseBody: imageResp,
-				currentState: (*params.Image)[i].Name, nextState: nextState}); err != nil {
+			&stubConfig{
+				url: secalib.GenerateImageURL(params.Tenant, (*params.Image)[i].Name), params: params, responseBody: imageResp,
+				currentState: (*params.Image)[i].Name, nextState: nextState,
+			}); err != nil {
 			return nil, err
 		}
 		imageList = append(imageList, *imageResp)

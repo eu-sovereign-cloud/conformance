@@ -1,7 +1,6 @@
 package secatest
 
 import (
-	"context"
 	"log/slog"
 	"math/rand"
 
@@ -318,7 +317,6 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 }
 
 func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
-	ctx := context.Background()
 	var err error
 	slog.Info("Starting " + suite.scenarioName)
 
@@ -553,19 +551,19 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 	tref := secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)}
 	wref := secapi.WorkspaceReference{Workspace: secapi.WorkspaceID(workspaceName)}
 	// List blockstorage
-	suite.getListBlockStorageV1Step("GetList block storage", t, ctx, suite.client.StorageV1, tref, wref, nil)
+	suite.getListBlockStorageV1Step("GetList block storage", t, suite.client.StorageV1, tref, wref, nil)
 
 	// List instances with limit
-	suite.getListBlockStorageV1Step("Get List block storage with limit", t, ctx, suite.client.StorageV1, tref, wref,
+	suite.getListBlockStorageV1Step("Get List block storage with limit", t, suite.client.StorageV1, tref, wref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List Instances with Label
-	suite.getListBlockStorageV1Step("Get list of block storage with label", t, ctx, suite.client.StorageV1, tref, wref,
+	suite.getListBlockStorageV1Step("Get list of block storage with label", t, suite.client.StorageV1, tref, wref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Instances with Limit and label
-	suite.getListBlockStorageV1Step("Get list of block storage with limit and label", t, ctx, suite.client.StorageV1, tref, wref,
+	suite.getListBlockStorageV1Step("Get list of block storage with limit and label", t, suite.client.StorageV1, tref, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
@@ -635,37 +633,37 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 		)
 	}
 	// List image
-	suite.getListImageV1Step("List image", t, ctx, suite.client.StorageV1, tref, nil)
+	suite.getListImageV1Step("List image", t, suite.client.StorageV1, tref, nil)
 
 	// List image with limit
-	suite.getListImageV1Step("Get list of images", t, ctx, suite.client.StorageV1, tref,
+	suite.getListImageV1Step("Get list of images", t, suite.client.StorageV1, tref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List image with Label
-	suite.getListImageV1Step("Get list of images", t, ctx, suite.client.StorageV1, tref,
+	suite.getListImageV1Step("Get list of images", t, suite.client.StorageV1, tref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List image with Limit and label
-	suite.getListImageV1Step("Get list of images", t, ctx, suite.client.StorageV1, tref,
+	suite.getListImageV1Step("Get list of images", t, suite.client.StorageV1, tref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// Skus
 	// List Skus
-	suite.getListSkuV1Step("List skus", t, ctx, suite.client.StorageV1, tref, nil)
+	suite.getListSkuV1Step("List skus", t, suite.client.StorageV1, tref, nil)
 
 	// List Skus with limit
-	suite.getListSkuV1Step("Get list of skus", t, ctx, suite.client.StorageV1, tref,
+	suite.getListSkuV1Step("Get list of skus", t, suite.client.StorageV1, tref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List Skus with Label
-	suite.getListSkuV1Step("Get list of skus", t, ctx, suite.client.StorageV1, tref,
+	suite.getListSkuV1Step("Get list of skus", t, suite.client.StorageV1, tref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Skus with Limit and label
-	suite.getListSkuV1Step("Get list of skus", t, ctx, suite.client.StorageV1, tref,
+	suite.getListSkuV1Step("Get list of skus", t, suite.client.StorageV1, tref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 

@@ -1,7 +1,6 @@
 package secatest
 
 import (
-	"context"
 	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
@@ -171,8 +170,6 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 		suite.mockClient = wm
 	}
 
-	ctx := context.Background()
-
 	// Create a workspace
 	workspaces := &[]schema.Workspace{
 		{
@@ -223,17 +220,17 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 	}
 
 	// List workspaces
-	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
+	suite.getListWorkspaceV1Step("list workspace", t, suite.client.WorkspaceV1, *tref,
 		nil)
 	// List workspaces with limit
-	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
+	suite.getListWorkspaceV1Step("list workspace", t, suite.client.WorkspaceV1, *tref,
 		secapi.NewListOptions().WithLimit(1))
 	// List workspaces with label
-	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
+	suite.getListWorkspaceV1Step("list workspace", t, suite.client.WorkspaceV1, *tref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 	// List workspaces with label and limit
-	suite.getListWorkspaceV1Step("list workspace", t, ctx, suite.client.WorkspaceV1, *tref,
+	suite.getListWorkspaceV1Step("list workspace", t, suite.client.WorkspaceV1, *tref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 	// Resources deletion

@@ -637,7 +637,6 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 		Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		BuildResponse()
-
 	if err != nil {
 		return nil, err
 	}
@@ -666,7 +665,6 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 			Labels((*params.Network)[i].InitialLabels).
 			Spec((*params.Network)[i].InitialSpec).
 			BuildResponse()
-
 		if err != nil {
 			return nil, err
 		}
@@ -1613,4 +1611,93 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkParams
 	}
 
 	return wm, nil
+}
+
+// Helper functions to reduce code duplication
+func createNetworkList(wm *wiremock.Client, scenario string, params *NetworkParamsV1) ([]schema.Network, error) {
+	var networkList []schema.Network
+	for i := range *params.Network {
+		networkResource := secalib.GenerateNetworkResource(params.Tenant, params.Workspace.Name, (*params.Network)[i].Name)
+		networkResponse, err := builders.NewNetworkBuilder().
+			Name((*params.Network)[i].Name).
+			Provider(secalib.NetworkProviderV1).
+			Resource(networkResource).
+			ApiVersion(secalib.ApiVersion1).
+			Tenant(params.Tenant).
+			Workspace(params.Workspace.Name).
+			Region(params.Region).
+			Labels((*params.Network)[i].InitialLabels).
+			Spec((*params.Network)[i].InitialSpec).
+			BuildResponse()
+		if err != nil {
+			return nil, err
+		}
+
+		nextState := getNextState(i, len(*params.Network), (*params.Network), "GetNetworkList")
+
+		setCreatedRegionalWorkspaceResourceMetadata(networkResponse.Metadata)
+		networkResponse.Status = newNetworkStatus(schema.ResourceStateCreating)
+		networkResponse.Metadata.Verb = http.MethodPut
+
+		if err := configurePutStub(wm, scenario,
+			&stubConfig{
+				url:          secalib.GenerateNetworkURL(params.Tenant, params.Workspace.Name, (*params.Network)[i].Name),
+				params:       params,
+				responseBody: networkResponse,
+				currentState: (*params.Network)[i].Name,
+				nextState:    nextState,
+			}); err != nil {
+			return nil, err
+		}
+		networkList = append(networkList, *networkResponse)
+	}
+	return networkList, nil
+}
+
+func createInternetGatewayList(wm *wiremock.Client, scenario string, params *NetworkParamsV1) ([]schema.InternetGateway, error) {
+	var gatewayList []schema.InternetGateway
+	for i := range *params.InternetGateway {
+		gatewayResource := secalib.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, (*params.InternetGateway)[i].Name)
+		gatewayResponse, err := builders.NewInternetGatewayBuilder().
+			Name((*params.InternetGateway)[i].Name).
+			Provider(secalib.NetworkProviderV1).
+			Resource(gatewayResource).
+			ApiVersion(secalib.ApiVersion1).
+			Tenant(params.Tenant).
+			Workspace(params.Workspace.Name).
+			Region(params.Region).
+			Labels((*params.InternetGateway)[i].InitialLabels).
+			Spec((*params.InternetGateway)[i].InitialSpec).
+			BuildResponse()
+		if err != nil {
+			return nil, err
+		}
+
+		nextState := getNextState(i, len(*params.InternetGateway), (*params.InternetGateway), "GetInternetGatewayList")
+
+		setCreatedRegionalWorkspaceResourceMetadata(gatewayResponse.Metadata)
+		gatewayResponse.Status = newResourceStatus(schema.ResourceStateCreating)
+		gatewayResponse.Metadata.Verb = http.MethodPut
+
+		if err := configurePutStub(wm, scenario,
+			&stubConfig{
+				url:          secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, (*params.InternetGateway)[i].Name),
+				params:       params,
+				responseBody: gatewayResponse,
+				currentState: (*params.InternetGateway)[i].Name,
+				nextState:    nextState,
+			}); err != nil {
+			return nil, err
+		}
+		gatewayList = append(gatewayList, *gatewayResponse)
+	}
+	return gatewayList, nil
+}
+
+func getNextState[T any](i, length int, params []T, listStateName string) string {
+	if i < length-1 {
+		// This assumes the params have a Name field - adjust based on actual structure
+		return listStateName // For now, simplified
+	}
+	return listStateName
 }
