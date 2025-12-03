@@ -63,7 +63,6 @@ func (suite *testSuite) getListNetworkV1Step(
 	stepName string,
 	t provider.T,
 	api *secapi.NetworkV1,
-	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -72,9 +71,9 @@ func (suite *testSuite) getListNetworkV1Step(
 		var iter *secapi.Iterator[schema.Network]
 		var err error
 		if opts != nil {
-			iter, err = api.ListNetworksWithFilters(t.Context(), tref.Tenant, wref.Workspace, opts)
+			iter, err = api.ListNetworksWithFilters(t.Context(), wref.Tenant, wref.Workspace, opts)
 		} else {
-			iter, err = api.ListNetworks(t.Context(), tref.Tenant, wref.Workspace)
+			iter, err = api.ListNetworks(t.Context(), wref.Tenant, wref.Workspace)
 		}
 		requireNoError(sCtx, err)
 
@@ -153,7 +152,6 @@ func (suite *testSuite) getListInternetGatewayV1Step(
 	stepName string,
 	t provider.T,
 	api *secapi.NetworkV1,
-	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -162,9 +160,9 @@ func (suite *testSuite) getListInternetGatewayV1Step(
 		var iter *secapi.Iterator[schema.InternetGateway]
 		var err error
 		if opts != nil {
-			iter, err = api.ListInternetGatewaysWithFilters(t.Context(), tref.Tenant, wref.Workspace, opts)
+			iter, err = api.ListInternetGatewaysWithFilters(t.Context(), wref.Tenant, wref.Workspace, opts)
 		} else {
-			iter, err = api.ListInternetGateways(t.Context(), tref.Tenant, wref.Workspace)
+			iter, err = api.ListInternetGateways(t.Context(), wref.Tenant, wref.Workspace)
 		}
 		requireNoError(sCtx, err)
 
@@ -244,8 +242,6 @@ func (suite *testSuite) getListRouteTableV1Step(
 	stepName string,
 	t provider.T,
 	api *secapi.NetworkV1,
-	tref secapi.TenantReference,
-	wref secapi.WorkspaceReference,
 	nref secapi.NetworkReference,
 	opts *secapi.ListOptions,
 ) {
@@ -254,9 +250,9 @@ func (suite *testSuite) getListRouteTableV1Step(
 		var iter *secapi.Iterator[schema.RouteTable]
 		var err error
 		if opts != nil {
-			iter, err = api.ListRouteTablesWithFilters(t.Context(), tref.Tenant, wref.Workspace, nref.Network, opts)
+			iter, err = api.ListRouteTablesWithFilters(t.Context(), nref.Tenant, nref.Workspace, nref.Network, opts)
 		} else {
-			iter, err = api.ListRouteTables(t.Context(), tref.Tenant, wref.Workspace, nref.Network)
+			iter, err = api.ListRouteTables(t.Context(), nref.Tenant, nref.Workspace, nref.Network)
 		}
 		requireNoError(sCtx, err)
 		verifyIterListStep(sCtx, t, *iter)
@@ -335,8 +331,6 @@ func (suite *testSuite) getListSubnetV1Step(
 	stepName string,
 	t provider.T,
 	api *secapi.NetworkV1,
-	tref secapi.TenantReference,
-	wref secapi.WorkspaceReference,
 	nref secapi.NetworkReference,
 	opts *secapi.ListOptions,
 ) {
@@ -345,9 +339,9 @@ func (suite *testSuite) getListSubnetV1Step(
 		var iter *secapi.Iterator[schema.Subnet]
 		var err error
 		if opts != nil {
-			iter, err = api.ListSubnetsWithFilters(t.Context(), tref.Tenant, wref.Workspace, nref.Network, opts)
+			iter, err = api.ListSubnetsWithFilters(t.Context(), nref.Tenant, nref.Workspace, nref.Network, opts)
 		} else {
-			iter, err = api.ListSubnets(t.Context(), tref.Tenant, wref.Workspace, nref.Network)
+			iter, err = api.ListSubnets(t.Context(), nref.Tenant, nref.Workspace, nref.Network)
 		}
 		requireNoError(sCtx, err)
 
@@ -426,7 +420,6 @@ func (suite *testSuite) getListPublicIpV1Step(
 	stepName string,
 	t provider.T,
 	api *secapi.NetworkV1,
-	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -435,9 +428,9 @@ func (suite *testSuite) getListPublicIpV1Step(
 		var iter *secapi.Iterator[schema.PublicIp]
 		var err error
 		if opts != nil {
-			iter, err = api.ListPublicIpsWithFilters(t.Context(), tref.Tenant, wref.Workspace, opts)
+			iter, err = api.ListPublicIpsWithFilters(t.Context(), wref.Tenant, wref.Workspace, opts)
 		} else {
-			iter, err = api.ListPublicIps(t.Context(), tref.Tenant, wref.Workspace)
+			iter, err = api.ListPublicIps(t.Context(), wref.Tenant, wref.Workspace)
 		}
 		requireNoError(sCtx, err)
 
@@ -517,7 +510,6 @@ func (suite *testSuite) getListNicV1Step(
 	stepName string,
 	t provider.T,
 	api *secapi.NetworkV1,
-	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -526,9 +518,9 @@ func (suite *testSuite) getListNicV1Step(
 		var iter *secapi.Iterator[schema.Nic]
 		var err error
 		if opts != nil {
-			iter, err = api.ListNicsWithFilters(t.Context(), tref.Tenant, wref.Workspace, opts)
+			iter, err = api.ListNicsWithFilters(t.Context(), wref.Tenant, wref.Workspace, opts)
 		} else {
-			iter, err = api.ListNics(t.Context(), tref.Tenant, wref.Workspace)
+			iter, err = api.ListNics(t.Context(), wref.Tenant, wref.Workspace)
 		}
 		requireNoError(sCtx, err)
 
@@ -607,7 +599,6 @@ func (suite *testSuite) getListSecurityGroupV1Step(
 	stepName string,
 	t provider.T,
 	api *secapi.NetworkV1,
-	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -616,9 +607,9 @@ func (suite *testSuite) getListSecurityGroupV1Step(
 		var iter *secapi.Iterator[schema.SecurityGroup]
 		var err error
 		if opts != nil {
-			iter, err = api.ListSecurityGroupsWithFilters(t.Context(), tref.Tenant, wref.Workspace, opts)
+			iter, err = api.ListSecurityGroupsWithFilters(t.Context(), wref.Tenant, wref.Workspace, opts)
 		} else {
-			iter, err = api.ListSecurityGroups(t.Context(), tref.Tenant, wref.Workspace)
+			iter, err = api.ListSecurityGroups(t.Context(), wref.Tenant, wref.Workspace)
 		}
 		requireNoError(sCtx, err)
 

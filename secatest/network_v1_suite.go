@@ -1439,23 +1439,26 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 		)
 	}
 
-	tref := secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)}
-	wref := secapi.WorkspaceReference{Workspace: secapi.WorkspaceID(workspaceName)}
+	wref := secapi.WorkspaceReference{
+		Name:      workspaceName,
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Tenant:    secapi.TenantID(suite.tenant),
+	}
 
 	// List Network
-	suite.getListNetworkV1Step("List Network", t, suite.client.NetworkV1, tref, wref, nil)
+	suite.getListNetworkV1Step("List Network", t, suite.client.NetworkV1, wref, nil)
 
 	// List Network with limit
-	suite.getListNetworkV1Step("Get list of Network with limit", t, suite.client.NetworkV1, tref, wref,
+	suite.getListNetworkV1Step("Get list of Network with limit", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List Network with Label
-	suite.getListNetworkV1Step("Get list of Network with label", t, suite.client.NetworkV1, tref, wref,
+	suite.getListNetworkV1Step("Get list of Network with label", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Network with Limit and label
-	suite.getListNetworkV1Step("Get list of Network with limit and label", t, suite.client.NetworkV1, tref, wref,
+	suite.getListNetworkV1Step("Get list of Network with limit and label", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
@@ -1506,19 +1509,19 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	}
 
 	// List Internet Gateway
-	suite.getListInternetGatewayV1Step("List Internet Gateway", t, suite.client.NetworkV1, tref, wref, nil)
+	suite.getListInternetGatewayV1Step("List Internet Gateway", t, suite.client.NetworkV1, wref, nil)
 
 	// List Internet Gateway with limit
-	suite.getListInternetGatewayV1Step("Get list of Internet Gateway with limit", t, suite.client.NetworkV1, tref, wref,
+	suite.getListInternetGatewayV1Step("Get list of Internet Gateway with limit", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List Internet Gateway with Label
-	suite.getListInternetGatewayV1Step("Get list of Internet Gateway with label", t, suite.client.NetworkV1, tref, wref,
+	suite.getListInternetGatewayV1Step("Get list of Internet Gateway with label", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Internet Gateway with Limit and label
-	suite.getListInternetGatewayV1Step("Get list of Internet Gateway with limit and label", t, suite.client.NetworkV1, tref, wref,
+	suite.getListInternetGatewayV1Step("Get list of Internet Gateway with limit and label", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
@@ -1590,19 +1593,19 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 		Name:      routeTableName,
 	}
 	// List Route table
-	suite.getListRouteTableV1Step("List Route table", t, suite.client.NetworkV1, tref, wref, *nref, nil)
+	suite.getListRouteTableV1Step("List Route table", t, suite.client.NetworkV1, *nref, nil)
 
 	// List Route table with limit
-	suite.getListRouteTableV1Step("Get list of Route table with limit", t, suite.client.NetworkV1, tref, wref, *nref,
+	suite.getListRouteTableV1Step("Get list of Route table with limit", t, suite.client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List Route table with Label
-	suite.getListRouteTableV1Step("Get list of Route table with label", t, suite.client.NetworkV1, tref, wref, *nref,
+	suite.getListRouteTableV1Step("Get list of Route table with label", t, suite.client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Route table with Limit and label
-	suite.getListRouteTableV1Step("Get list of Route table with limit and label", t, suite.client.NetworkV1, tref, wref, *nref,
+	suite.getListRouteTableV1Step("Get list of Route table with limit and label", t, suite.client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 	// Subnet
@@ -1666,19 +1669,19 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	}
 
 	// List Subnet
-	suite.getListSubnetV1Step("List Subnet", t, suite.client.NetworkV1, tref, wref, *nref, nil)
+	suite.getListSubnetV1Step("List Subnet", t, suite.client.NetworkV1, *nref, nil)
 
 	// List Subnet with limit
-	suite.getListSubnetV1Step("Get list of Subnet with limit", t, suite.client.NetworkV1, tref, wref, *nref,
+	suite.getListSubnetV1Step("Get list of Subnet with limit", t, suite.client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List Subnet with Label
-	suite.getListSubnetV1Step("Get list of Subnet with label", t, suite.client.NetworkV1, tref, wref, *nref,
+	suite.getListSubnetV1Step("Get list of Subnet with label", t, suite.client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Subnet with Limit and label
-	suite.getListSubnetV1Step("Get list of Subnet with limit and label", t, suite.client.NetworkV1, tref, wref, *nref,
+	suite.getListSubnetV1Step("Get list of Subnet with limit and label", t, suite.client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
@@ -1739,19 +1742,19 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	}
 
 	// List PublicIP
-	suite.getListPublicIpV1Step("List PublicIP", t, suite.client.NetworkV1, tref, wref, nil)
+	suite.getListPublicIpV1Step("List PublicIP", t, suite.client.NetworkV1, wref, nil)
 
 	// List PublicIP with limit
-	suite.getListPublicIpV1Step("Get list of PublicIP with limit", t, suite.client.NetworkV1, tref, wref,
+	suite.getListPublicIpV1Step("Get list of PublicIP with limit", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List PublicIP with Label
-	suite.getListPublicIpV1Step("Get list of PublicIP with label", t, suite.client.NetworkV1, tref, wref,
+	suite.getListPublicIpV1Step("Get list of PublicIP with label", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List PublicIP with Limit and label
-	suite.getListPublicIpV1Step("Get list of PublicIP with limit and label", t, suite.client.NetworkV1, tref, wref,
+	suite.getListPublicIpV1Step("Get list of PublicIP with limit and label", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
@@ -1815,19 +1818,19 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 		)
 	}
 	// List Nic
-	suite.getListNicV1Step("List Nic", t, suite.client.NetworkV1, tref, wref, nil)
+	suite.getListNicV1Step("List Nic", t, suite.client.NetworkV1, wref, nil)
 
 	// List Nic with limit
-	suite.getListNicV1Step("Get list of Nic with limit", t, suite.client.NetworkV1, tref, wref,
+	suite.getListNicV1Step("Get list of Nic with limit", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List Nic with Label
-	suite.getListNicV1Step("Get list of Nic with label", t, suite.client.NetworkV1, tref, wref,
+	suite.getListNicV1Step("Get list of Nic with label", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Nic with Limit and label
-	suite.getListNicV1Step("Get list of Nic with limit and label", t, suite.client.NetworkV1, tref, wref,
+	suite.getListNicV1Step("Get list of Nic with limit and label", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
@@ -1890,19 +1893,19 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 		)
 	}
 	// List Security Group
-	suite.getListSecurityGroupV1Step("List Security Group", t, suite.client.NetworkV1, tref, wref, nil)
+	suite.getListSecurityGroupV1Step("List Security Group", t, suite.client.NetworkV1, wref, nil)
 
 	// List Security Group with limit
-	suite.getListSecurityGroupV1Step("Get list of Security Group with limit", t, suite.client.NetworkV1, tref, wref,
+	suite.getListSecurityGroupV1Step("Get list of Security Group with limit", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List Security Group with Label
-	suite.getListSecurityGroupV1Step("Get list of Security Group with label", t, suite.client.NetworkV1, tref, wref,
+	suite.getListSecurityGroupV1Step("Get list of Security Group with label", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Nic with Limit and label
-	suite.getListSecurityGroupV1Step("Get list of Security Group with limit and label", t, suite.client.NetworkV1, tref, wref,
+	suite.getListSecurityGroupV1Step("Get list of Security Group with limit and label", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 

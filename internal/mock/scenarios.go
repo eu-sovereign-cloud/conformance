@@ -62,6 +62,7 @@ func createNetworkList(wm *wiremock.Client, scenario string, params *NetworkPara
 	}
 	return networkList, nil
 }
+
 func deleteNetworkList(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) error {
 	for i := range *params.Network {
 		networkUrl := secalib.GenerateNetworkURL(params.Tenant, params.Workspace.Name, (*params.Network)[i].Name)
@@ -142,6 +143,7 @@ func createInternetGatewayList(wm *wiremock.Client, scenario string, params *Net
 	}
 	return gatewayList, nil
 }
+
 func deleteInternetGatewayList(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) error {
 	for i := range *params.InternetGateway {
 		internetGatewayUrl := secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, (*params.InternetGateway)[i].Name)
@@ -177,8 +179,8 @@ func deleteInternetGatewayList(wm *wiremock.Client, scenario string, params *Net
 	}
 	return nil
 }
-func createRouteTableList(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) ([]schema.RouteTable, error) {
 
+func createRouteTableList(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) ([]schema.RouteTable, error) {
 	var routeTableList []schema.RouteTable
 	for i := range *params.RouteTable {
 		routeTableResource := secalib.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.RouteTable)[i].Name)
@@ -215,6 +217,7 @@ func createRouteTableList(wm *wiremock.Client, scenario string, params *NetworkP
 	}
 	return routeTableList, nil
 }
+
 func deleteRouteTableList(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) error {
 	for i := range *params.RouteTable {
 		routeTableUrl := secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.RouteTable)[i].Name)
@@ -250,6 +253,7 @@ func deleteRouteTableList(wm *wiremock.Client, scenario string, params *NetworkP
 	}
 	return nil
 }
+
 func createSubnetList(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) ([]schema.Subnet, error) {
 	var subnetList []schema.Subnet
 	for i := range *params.Subnet {
@@ -287,6 +291,7 @@ func createSubnetList(wm *wiremock.Client, scenario string, params *NetworkParam
 	}
 	return subnetList, nil
 }
+
 func deleteSubnetList(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) error {
 	for i := range *params.Subnet {
 		subnetUrl := secalib.GenerateSubnetURL(params.Tenant, params.Workspace.Name, (*params.Network)[0].Name, (*params.Subnet)[i].Name)
@@ -322,6 +327,7 @@ func deleteSubnetList(wm *wiremock.Client, scenario string, params *NetworkParam
 	}
 	return nil
 }
+
 func createPublicIpList(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) ([]schema.PublicIp, error) {
 	var publicIpList []schema.PublicIp
 	for i := range *params.PublicIp {
@@ -358,6 +364,7 @@ func createPublicIpList(wm *wiremock.Client, scenario string, params *NetworkPar
 	}
 	return publicIpList, nil
 }
+
 func deletePublicIpList(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) error {
 	for i := range *params.PublicIp {
 		publicIpUrl := secalib.GeneratePublicIpURL(params.Tenant, params.Workspace.Name, (*params.PublicIp)[i].Name)
@@ -393,6 +400,7 @@ func deletePublicIpList(wm *wiremock.Client, scenario string, params *NetworkPar
 	}
 	return nil
 }
+
 func createNicList(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) ([]schema.Nic, error) {
 	var nicList []schema.Nic
 	for i := range *params.NIC {
@@ -430,6 +438,7 @@ func createNicList(wm *wiremock.Client, scenario string, params *NetworkParamsV1
 	}
 	return nicList, nil
 }
+
 func deleteNics(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) error {
 	for i := range *params.NIC {
 		nicUrl := secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, (*params.NIC)[i].Name)
@@ -504,6 +513,7 @@ func createSecurityGroupList(wm *wiremock.Client, scenario string, params *Netwo
 	}
 	return securityGroupList, nil
 }
+
 func deleteSecurityGroupList(wm *wiremock.Client, scenario string, params *NetworkParamsV1, nextScenario string) error {
 	for i := range *params.SecurityGroup {
 		securityGroupUrl := secalib.GenerateSecurityGroupURL(params.Tenant, params.Workspace.Name, (*params.SecurityGroup)[i].Name)

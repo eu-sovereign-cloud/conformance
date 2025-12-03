@@ -2,8 +2,6 @@ package secatest
 
 import (
 	"context"
-	"errors"
-	"io"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -116,47 +114,28 @@ func (suite *testSuite) getListInstanceV1Step(
 	stepName string,
 	t provider.T,
 	api *secapi.ComputeV1,
-	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) []*schema.Instance {
-	var respNext []*schema.Instance
-	var respAll []*schema.Instance
+
+	var resp []*schema.Instance
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		suite.setComputeV1StepParams(sCtx, "ListInstances with parameters", string(wref.Workspace))
+		suite.setComputeV1StepParams(sCtx, "ListInstances with parameters", wref.Name)
 		var iter *secapi.Iterator[schema.Instance]
 		var err error
 		if opts != nil {
-			iter, err = api.ListInstancesWithFilters(context.Background(), tref.Tenant, wref.Workspace, opts)
+			iter, err = api.ListInstancesWithFilters(context.Background(), wref.Tenant, wref.Workspace, opts)
 		} else {
-			iter, err = api.ListInstances(context.Background(), tref.Tenant, wref.Workspace)
+			iter, err = api.ListInstances(context.Background(), wref.Tenant, wref.Workspace)
 		}
 		requireNoError(sCtx, err)
-		for {
-			item, err := iter.Next(context.Background())
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				break
-			}
-			respNext = append(respNext, item)
-		}
-
-		requireNotNilResponse(sCtx, respNext)
-		requireLenResponse(sCtx, len(respNext))
-
-		/*
-			respAll, err = iter.All(ctx)
-			requireNoError(sCtx, err)
-			requireNotNilResponse(sCtx, respAll)
-			requireLenResponse(sCtx, len(respAll))
-
-			compareIteratorsResponse(sCtx, len(respNext), len(respAll))
-		*/
+		resp, err := iter.All(t.Context())
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, resp)
+		requireLenResponse(sCtx, len(resp))
 	})
-	return respAll
+	return resp
 }
 
 func (suite *testSuite) getListSkusV1Step(

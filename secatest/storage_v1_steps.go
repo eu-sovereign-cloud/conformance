@@ -63,7 +63,6 @@ func (suite *testSuite) getListBlockStorageV1Step(
 	stepName string,
 	t provider.T,
 	api *secapi.StorageV1,
-	tref secapi.TenantReference,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -73,9 +72,9 @@ func (suite *testSuite) getListBlockStorageV1Step(
 		var iter *secapi.Iterator[schema.BlockStorage]
 		var err error
 		if opts != nil {
-			iter, err = api.ListBlockStoragesWithFilters(t.Context(), tref.Tenant, wref.Workspace, opts)
+			iter, err = api.ListBlockStoragesWithFilters(t.Context(), wref.Tenant, wref.Workspace, opts)
 		} else {
-			iter, err = api.ListBlockStorages(t.Context(), tref.Tenant, wref.Workspace)
+			iter, err = api.ListBlockStorages(t.Context(), wref.Tenant, wref.Workspace)
 		}
 		requireNoError(sCtx, err)
 

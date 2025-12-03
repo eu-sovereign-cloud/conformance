@@ -626,22 +626,25 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 		)
 	}
 
-	tref := secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)}
-	wref := secapi.WorkspaceReference{Workspace: secapi.WorkspaceID(workspaceName)}
+	wref := secapi.WorkspaceReference{
+		Name:      workspaceName,
+		Workspace: secapi.WorkspaceID(workspaceName),
+		Tenant:    secapi.TenantID(suite.tenant),
+	}
 	// List instances
-	suite.getListInstanceV1Step("List instances", t, suite.client.ComputeV1, tref, wref, nil)
+	suite.getListInstanceV1Step("List instances", t, suite.client.ComputeV1, wref, nil)
 
 	// List instances with limit
-	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, tref, wref,
+	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List Instances with Label
-	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, tref, wref,
+	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, wref,
 		secapi.NewListOptions().WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
 	// List Instances with Limit and label
-	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, tref, wref,
+	suite.getListInstanceV1Step("Get list of instances", t, suite.client.ComputeV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(builders.NewLabelsBuilder().
 			Equals(secalib.EnvLabel, secalib.EnvConformanceLabel)))
 
