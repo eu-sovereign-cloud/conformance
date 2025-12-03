@@ -12,6 +12,7 @@ import (
 
 // Network
 
+//nolint:dupl
 func (suite *testSuite) createOrUpdateNetworkV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.Network,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
 ) {
@@ -36,6 +37,7 @@ func (suite *testSuite) createOrUpdateNetworkV1Step(stepName string, t provider.
 	)
 }
 
+//nolint:dupl
 func (suite *testSuite) getNetworkV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
 ) *schema.Network {
@@ -79,6 +81,7 @@ func (suite *testSuite) deleteNetworkV1Step(stepName string, t provider.T, api *
 
 // Internet Gateway
 
+//nolint:dupl
 func (suite *testSuite) createOrUpdateInternetGatewayV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.InternetGateway,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
 ) {
@@ -103,6 +106,7 @@ func (suite *testSuite) createOrUpdateInternetGatewayV1Step(stepName string, t p
 	)
 }
 
+//nolint:dupl
 func (suite *testSuite) getInternetGatewayV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
 ) *schema.InternetGateway {
@@ -146,6 +150,7 @@ func (suite *testSuite) deleteInternetGatewayV1Step(stepName string, t provider.
 
 // Route Table
 
+//nolint:dupl
 func (suite *testSuite) createOrUpdateRouteTableV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.RouteTable,
 	responseExpects responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
 ) {
@@ -171,6 +176,7 @@ func (suite *testSuite) createOrUpdateRouteTableV1Step(stepName string, t provid
 	)
 }
 
+//nolint:dupl
 func (suite *testSuite) getRouteTableV1Step(stepName string, t provider.T, api *secapi.NetworkV1, nref secapi.NetworkReference,
 	responseExpects responseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
 ) *schema.RouteTable {
@@ -214,6 +220,7 @@ func (suite *testSuite) deleteRouteTableV1Step(stepName string, t provider.T, ap
 
 // Subnet
 
+//nolint:dupl
 func (suite *testSuite) createOrUpdateSubnetV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.Subnet,
 	responseExpects responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
 ) {
@@ -239,6 +246,7 @@ func (suite *testSuite) createOrUpdateSubnetV1Step(stepName string, t provider.T
 	)
 }
 
+//nolint:dupl
 func (suite *testSuite) getSubnetV1Step(stepName string, t provider.T, api *secapi.NetworkV1, nref secapi.NetworkReference,
 	responseExpects responseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
 ) *schema.Subnet {
@@ -282,6 +290,7 @@ func (suite *testSuite) deleteSubnetV1Step(stepName string, t provider.T, api *s
 
 // Public Ip
 
+//nolint:dupl
 func (suite *testSuite) createOrUpdatePublicIpV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.PublicIp,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
 ) {
@@ -306,6 +315,7 @@ func (suite *testSuite) createOrUpdatePublicIpV1Step(stepName string, t provider
 	)
 }
 
+//nolint:dupl
 func (suite *testSuite) getPublicIpV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
 ) *schema.PublicIp {
@@ -349,6 +359,7 @@ func (suite *testSuite) deletePublicIpV1Step(stepName string, t provider.T, api 
 
 // Nic
 
+//nolint:dupl
 func (suite *testSuite) createOrUpdateNicV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.Nic,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
 ) {
@@ -373,6 +384,7 @@ func (suite *testSuite) createOrUpdateNicV1Step(stepName string, t provider.T, a
 	)
 }
 
+//nolint:dupl
 func (suite *testSuite) getNicV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
 ) *schema.Nic {
@@ -416,6 +428,7 @@ func (suite *testSuite) deleteNicV1Step(stepName string, t provider.T, api *seca
 
 // Security Group
 
+//nolint:dupl
 func (suite *testSuite) createOrUpdateSecurityGroupV1Step(stepName string, t provider.T, api *secapi.NetworkV1, resource *schema.SecurityGroup,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
 ) {
@@ -440,6 +453,7 @@ func (suite *testSuite) createOrUpdateSecurityGroupV1Step(stepName string, t pro
 	)
 }
 
+//nolint:dupl
 func (suite *testSuite) getSecurityGroupV1Step(stepName string, t provider.T, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
 ) *schema.SecurityGroup {

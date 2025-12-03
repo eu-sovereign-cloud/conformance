@@ -12,6 +12,7 @@ import (
 
 // Role
 
+//nolint:dupl
 func (suite *testSuite) createOrUpdateRoleV1Step(stepName string, t provider.T, api *secapi.AuthorizationV1, resource *schema.Role,
 	responseExpects responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec],
 ) {
@@ -35,6 +36,7 @@ func (suite *testSuite) createOrUpdateRoleV1Step(stepName string, t provider.T, 
 	)
 }
 
+//nolint:dupl
 func (suite *testSuite) getRoleV1Step(stepName string, t provider.T, api *secapi.AuthorizationV1, tref secapi.TenantReference,
 	responseExpects responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec],
 ) *schema.Role {
@@ -78,6 +80,7 @@ func (suite *testSuite) deleteRoleV1Step(stepName string, t provider.T, api *sec
 
 // Role Assignment
 
+//nolint:dupl
 func (suite *testSuite) createOrUpdateRoleAssignmentV1Step(stepName string, t provider.T, api *secapi.AuthorizationV1, resource *schema.RoleAssignment,
 	responseExpects responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec],
 ) {
@@ -101,6 +104,7 @@ func (suite *testSuite) createOrUpdateRoleAssignmentV1Step(stepName string, t pr
 	)
 }
 
+//nolint:dupl
 func (suite *testSuite) getRoleAssignmentV1Step(stepName string, t provider.T, api *secapi.AuthorizationV1, tref secapi.TenantReference,
 	responseExpects responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec],
 ) *schema.RoleAssignment {
