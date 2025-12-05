@@ -117,7 +117,6 @@ func (suite *testSuite) getListInstanceV1Step(
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) []*schema.Instance {
-
 	var resp []*schema.Instance
 
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {

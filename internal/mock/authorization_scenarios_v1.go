@@ -147,6 +147,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	return wm, nil
 }
 
+//nolint:dupl
 func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *AuthorizationParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 

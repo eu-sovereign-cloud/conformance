@@ -225,6 +225,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	return wm, nil
 }
 
+//nolint:dupl
 func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 

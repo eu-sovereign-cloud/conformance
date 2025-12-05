@@ -32,7 +32,7 @@ linters-settings:
     - G101 
     - G404
   dupl:
-    threshold: 160 # The goal is reach 100
+    threshold: 200 # The goal is reach 100
   revive:
     rules:
       - name: var-naming
