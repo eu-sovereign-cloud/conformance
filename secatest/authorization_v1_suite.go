@@ -108,10 +108,8 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		},
 	}
 	expectRoleMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
-		Name(roleName).
-		Provider(secalib.AuthorizationProviderV1).
-		Resource(roleResource).
-		ApiVersion(secalib.ApiVersion1).
+		Name(roleName).Resource(roleResource).
+		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
 		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).
 		Tenant(suite.tenant).
 		BuildResponse()
@@ -183,10 +181,8 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		},
 	}
 	expectRoleAssignMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
-		Name(roleAssignmentName).
-		Provider(secalib.AuthorizationProviderV1).
-		Resource(roleAssignmentResource).
-		ApiVersion(secalib.ApiVersion1).
+		Name(roleAssignmentName).Resource(roleAssignmentResource).
+		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
 		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).
 		Tenant(suite.tenant).
 		BuildResponse()
@@ -241,16 +237,10 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 
 	// Resources deletion
 
-	// Delete the role assignment
 	suite.deleteRoleAssignmentV1Step("Delete the role assignment", t, suite.client.AuthorizationV1, roleAssign)
-
-	// Get the deleted role assignment
 	suite.getRoleAssignmentWithErrorV1Step("Get the deleted role assignment", t, suite.client.AuthorizationV1, *roleAssignTRef, secapi.ErrResourceNotFound)
 
-	// Delete the role
 	suite.deleteRoleV1Step("Delete the role", t, suite.client.AuthorizationV1, role)
-
-	// Get the deleted role
 	suite.getRoleWithErrorV1Step("Get the deleted role", t, suite.client.AuthorizationV1, *roleTRef, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)

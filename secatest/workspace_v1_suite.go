@@ -63,13 +63,10 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		},
 	}
 	expectMeta, err := builders.NewRegionalResourceMetadataBuilder().
-		Name(workspaceName).
-		Provider(secalib.WorkspaceProviderV1).
-		Resource(workspaceResource).
-		ApiVersion(secalib.ApiVersion1).
+		Name(workspaceName).Resource(workspaceResource).
+		Provider(secalib.WorkspaceProviderV1).ApiVersion(secalib.ApiVersion1).
 		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
-		Tenant(suite.tenant).
-		Region(suite.region).
+		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
@@ -118,10 +115,9 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		},
 	)
 
-	// Delete the workspace
-	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
+	// Resources deletion
 
-	// Get the deleted workspace
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *tref, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)

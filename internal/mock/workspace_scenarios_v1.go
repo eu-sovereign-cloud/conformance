@@ -22,12 +22,9 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	resource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 
 	response, err := builders.NewWorkspaceBuilder().
-		Name(params.Workspace.Name).
-		Provider(secalib.WorkspaceProviderV1).
-		Resource(resource).
-		ApiVersion(secalib.ApiVersion1).
-		Tenant(params.Tenant).
-		Region(params.Region).
+		Name(params.Workspace.Name).Resource(resource).
+		Provider(secalib.WorkspaceProviderV1).ApiVersion(secalib.ApiVersion1).
+		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		BuildResponse()
 	if err != nil {

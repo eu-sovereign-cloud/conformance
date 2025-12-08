@@ -26,10 +26,8 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Role
 	roleResponse, err := builders.NewRoleBuilder().
-		Name(params.Role.Name).
-		Provider(secalib.AuthorizationProviderV1).
-		Resource(roleResource).
-		ApiVersion(secalib.ApiVersion1).
+		Name(params.Role.Name).Resource(roleResource).
+		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.Role.InitialSpec).
 		BuildResponse()
@@ -74,10 +72,8 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Role assignment
 	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
-		Name(params.RoleAssignment.Name).
-		Provider(secalib.AuthorizationProviderV1).
-		Resource(roleAssignResource).
-		ApiVersion(secalib.ApiVersion1).
+		Name(params.RoleAssignment.Name).Resource(roleAssignResource).
+		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.RoleAssignment.InitialSpec).
 		BuildResponse()

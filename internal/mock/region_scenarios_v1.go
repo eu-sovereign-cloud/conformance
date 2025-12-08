@@ -44,10 +44,8 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 
 		regionResource := secalib.GenerateRegionResource(region.Name)
 		regionResponse, err := builders.NewRegionBuilder().
-			Name(region.Name).
-			Provider(secalib.RegionProviderV1).
-			Resource(regionResource).
-			ApiVersion(secalib.ApiVersion1).
+			Name(region.Name).Resource(regionResource).
+			Provider(secalib.RegionProviderV1).ApiVersion(secalib.ApiVersion1).
 			Spec(region.InitialSpec).
 			BuildResponse()
 		if err != nil {

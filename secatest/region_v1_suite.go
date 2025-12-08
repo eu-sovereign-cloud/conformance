@@ -83,10 +83,8 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	// Call Get Region and verify response
 	regionResource := secalib.GenerateRegionResource(regions[0].Metadata.Name)
 	expectedRegionMeta, err := builders.NewGlobalResourceMetadataBuilder().
-		Name(regions[0].Metadata.Name).
-		Provider(secalib.RegionProviderV1).
-		Resource(regionResource).
-		ApiVersion(secalib.ApiVersion1).
+		Name(regions[0].Metadata.Name).Resource(regionResource).
+		Provider(secalib.RegionProviderV1).ApiVersion(secalib.ApiVersion1).
 		Kind(schema.GlobalResourceMetadataKindResourceKindRegion).
 		BuildResponse()
 	if err != nil {
