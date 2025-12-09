@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
@@ -18,12 +18,12 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 		return nil, err
 	}
 
-	url := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
-	resource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
+	url := generators.GenerateWorkspaceURL(workspaceProviderV1, params.Tenant, params.Workspace.Name)
+	resource := generators.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 
 	response, err := builders.NewWorkspaceBuilder().
 		Name(params.Workspace.Name).Resource(resource).
-		Provider(secalib.WorkspaceProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		BuildResponse()

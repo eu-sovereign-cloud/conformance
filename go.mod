@@ -3,8 +3,7 @@ module github.com/eu-sovereign-cloud/conformance
 go 1.24
 
 require (
-	github.com/apparentlymart/go-cidr v1.1.0
-	github.com/eu-sovereign-cloud/go-sdk v0.3.15
+	github.com/eu-sovereign-cloud/go-sdk v0.3.22
 	github.com/ozontech/allure-go/pkg/framework v0.7.6
 	github.com/spf13/cobra v1.10.1
 	github.com/wiremock/go-wiremock v1.14.0
@@ -13,6 +12,7 @@ require (
 
 require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
+	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect

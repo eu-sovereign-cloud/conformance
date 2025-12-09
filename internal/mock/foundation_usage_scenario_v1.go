@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
@@ -19,41 +19,40 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Generate URLs
-	roleUrl := secalib.GenerateRoleURL(params.Tenant, params.Role.Name)
-	roleAssignUrl := secalib.GenerateRoleAssignmentURL(params.Tenant, params.RoleAssignment.Name)
-	workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
-	blockUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	imageUrl := secalib.GenerateImageURL(params.Tenant, params.Image.Name)
-	instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, params.Instance.Name)
-	networkUrl := secalib.GenerateNetworkURL(params.Tenant, params.Workspace.Name, params.Network.Name)
-	gatewayUrl := secalib.GenerateInternetGatewayURL(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicUrl := secalib.GenerateNicURL(params.Tenant, params.Workspace.Name, params.Nic.Name)
-	publicIpUrl := secalib.GeneratePublicIpURL(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
-	routeUrl := secalib.GenerateRouteTableURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
-	subnetUrl := secalib.GenerateSubnetURL(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
-	groupUrl := secalib.GenerateSecurityGroupURL(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
-
+	roleUrl := generators.GenerateRoleURL(authorizationProviderV1, params.Tenant, params.Role.Name)
+	roleAssignUrl := generators.GenerateRoleAssignmentURL(authorizationProviderV1, params.Tenant, params.RoleAssignment.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(workspaceProviderV1, params.Tenant, params.Workspace.Name)
+	blockUrl := generators.GenerateBlockStorageURL(storageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	imageUrl := generators.GenerateImageURL(storageProviderV1, params.Tenant, params.Image.Name)
+	instanceUrl := generators.GenerateInstanceURL(computeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
+	networkUrl := generators.GenerateNetworkURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name)
+	gatewayUrl := generators.GenerateInternetGatewayURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
+	nicUrl := generators.GenerateNicURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.Nic.Name)
+	publicIpUrl := generators.GeneratePublicIpURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.PublicIp.Name)
+	routeUrl := generators.GenerateRouteTableURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
+	subnetUrl := generators.GenerateSubnetURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
+	groupUrl := generators.GenerateSecurityGroupURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
 	// GenerateResources
-	roleResource := secalib.GenerateRoleResource(params.Tenant, params.Role.Name)
-	roleAssignResource := secalib.GenerateRoleAssignmentResource(params.Tenant, params.RoleAssignment.Name)
-	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
-	blockResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	imageResource := secalib.GenerateImageResource(params.Tenant, params.Image.Name)
-	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
-	networkResource := secalib.GenerateNetworkResource(params.Tenant, params.Workspace.Name, params.Network.Name)
-	gatewayResource := secalib.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicResource := secalib.GenerateNicResource(params.Tenant, params.Workspace.Name, params.Nic.Name)
-	publicIpResource := secalib.GeneratePublicIpResource(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
-	routeResource := secalib.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
-	subnetResource := secalib.GenerateSubnetResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
-	groupResource := secalib.GenerateSecurityGroupResource(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
+	roleResource := generators.GenerateRoleResource(params.Tenant, params.Role.Name)
+	roleAssignResource := generators.GenerateRoleAssignmentResource(params.Tenant, params.RoleAssignment.Name)
+	workspaceResource := generators.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
+	blockResource := generators.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	imageResource := generators.GenerateImageResource(params.Tenant, params.Image.Name)
+	instanceResource := generators.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
+	networkResource := generators.GenerateNetworkResource(params.Tenant, params.Workspace.Name, params.Network.Name)
+	gatewayResource := generators.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
+	nicResource := generators.GenerateNicResource(params.Tenant, params.Workspace.Name, params.Nic.Name)
+	publicIpResource := generators.GeneratePublicIpResource(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
+	routeResource := generators.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
+	subnetResource := generators.GenerateSubnetResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
+	groupResource := generators.GenerateSecurityGroupResource(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
 
 	// Authorization
 
 	// Role
 	roleResponse, err := builders.NewRoleBuilder().
 		Name(params.Role.Name).Resource(roleResource).
-		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.Role.InitialSpec).
 		BuildResponse()
@@ -81,7 +80,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Role assignment
 	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
 		Name(params.RoleAssignment.Name).Resource(roleAssignResource).
-		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.RoleAssignment.InitialSpec).
 		BuildResponse()
@@ -109,7 +108,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(params.Workspace.Name).Resource(workspaceResource).
-		Provider(secalib.WorkspaceProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		BuildResponse()
@@ -139,7 +138,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Image
 	imageResponse, err := builders.NewImageBuilder().
 		Name(params.Image.Name).Resource(imageResource).
-		Provider(secalib.StorageProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Spec(params.Image.InitialSpec).
 		BuildResponse()
@@ -167,7 +166,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
 		Name(params.BlockStorage.Name).Resource(blockResource).
-		Provider(secalib.StorageProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
 		BuildResponse()
@@ -197,7 +196,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Network
 	networkResponse, err := builders.NewNetworkBuilder().
 		Name(params.Network.Name).Resource(networkResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Network.InitialSpec).
 		BuildResponse()
@@ -225,7 +224,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Internet gateway
 	gatewayResponse, err := builders.NewInternetGatewayBuilder().
 		Name(params.InternetGateway.Name).Resource(gatewayResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.InternetGateway.InitialSpec).
 		BuildResponse()
@@ -253,7 +252,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Route table
 	routeResponse, err := builders.NewRouteTableBuilder().
 		Name(params.RouteTable.Name).Resource(routeResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.RouteTable.InitialSpec).
 		BuildResponse()
@@ -281,7 +280,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Subnet
 	subnetResponse, err := builders.NewSubnetBuilder().
 		Name(params.Subnet.Name).Resource(subnetResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.Subnet.InitialSpec).
 		BuildResponse()
@@ -309,7 +308,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Security group
 	groupResponse, err := builders.NewSecurityGroupBuilder().
 		Name(params.SecurityGroup.Name).Resource(groupResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.SecurityGroup.InitialSpec).
 		BuildResponse()
@@ -337,7 +336,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Public-ip
 	publicIpResponse, err := builders.NewPublicIpBuilder().
 		Name(params.PublicIp.Name).Resource(publicIpResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.PublicIp.InitialSpec).
 		BuildResponse()
@@ -365,7 +364,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// NIC
 	nicResponse, err := builders.NewNicBuilder().
 		Name(params.Nic.Name).Resource(nicResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Nic.InitialSpec).
 		BuildResponse()
@@ -395,7 +394,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Instance
 	instanceResponse, err := builders.NewInstanceBuilder().
 		Name(params.Instance.Name).Resource(instanceResource).
-		Provider(secalib.ComputeProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(computeProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Instance.InitialSpec).
 		BuildResponse()

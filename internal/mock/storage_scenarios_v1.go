@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
@@ -18,19 +18,19 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 		return nil, err
 	}
 
-	workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
-	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(workspaceProviderV1, params.Tenant, params.Workspace.Name)
+	workspaceResource := generators.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 
-	blockUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	imageUrl := secalib.GenerateImageURL(params.Tenant, params.Image.Name)
+	blockUrl := generators.GenerateBlockStorageURL(storageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	imageUrl := generators.GenerateImageURL(storageProviderV1, params.Tenant, params.Image.Name)
 
-	blockResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	imageResource := secalib.GenerateImageResource(params.Tenant, params.Image.Name)
+	blockResource := generators.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	imageResource := generators.GenerateImageResource(params.Tenant, params.Image.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(params.Workspace.Name).Resource(workspaceResource).
-		Provider(secalib.WorkspaceProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		BuildResponse()
@@ -58,7 +58,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
 		Name(params.BlockStorage.Name).Resource(blockResource).
-		Provider(secalib.StorageProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
 		BuildResponse()
@@ -104,7 +104,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	// Image
 	imageResponse, err := builders.NewImageBuilder().
 		Name(params.Image.Name).Resource(imageResource).
-		Provider(secalib.StorageProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Spec(params.Image.InitialSpec).
 		BuildResponse()

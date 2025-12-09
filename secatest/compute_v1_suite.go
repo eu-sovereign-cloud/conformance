@@ -5,8 +5,8 @@ import (
 	"math/rand"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -26,7 +26,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	configureTags(t, computeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	// Select skus
 	instanceSkuName := suite.instanceSkus[rand.Intn(len(suite.instanceSkus))]
@@ -37,32 +37,32 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	updatedInstanceZone := suite.availableZones[rand.Intn(len(suite.availableZones))]
 
 	// Generate scenario data
-	workspaceName := secalib.GenerateWorkspaceName()
-	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
-	instanceSkuRef := secalib.GenerateSkuRef(instanceSkuName)
+	workspaceName := generators.GenerateWorkspaceName()
+	workspaceResource := generators.GenerateWorkspaceResource(suite.tenant, workspaceName)
+	instanceSkuRef := generators.GenerateSkuRef(instanceSkuName)
 	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	instanceName := secalib.GenerateInstanceName()
-	instanceResource := secalib.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
+	instanceName := generators.GenerateInstanceName()
+	instanceResource := generators.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
 
-	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
+	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
 	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	blockStorageName := secalib.GenerateBlockStorageName()
-	blockStorageResource := secalib.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
-	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
+	blockStorageName := generators.GenerateBlockStorageName()
+	blockStorageResource := generators.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
+	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
 	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	blockStorageSize := secalib.GenerateBlockStorageSize()
+	blockStorageSize := generators.GenerateBlockStorageSize()
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
@@ -125,7 +125,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectWorkspaceMeta, err := builders.NewRegionalResourceMetadataBuilder().
 		Name(workspaceName).Resource(workspaceResource).
-		Provider(secalib.WorkspaceProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
 		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()
@@ -170,7 +170,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectedBlockMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(blockStorageName).Resource(blockStorageResource).
-		Provider(secalib.StorageProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
@@ -222,7 +222,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectInstanceMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(instanceName).Resource(instanceResource).
-		Provider(secalib.ComputeProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(computeProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()

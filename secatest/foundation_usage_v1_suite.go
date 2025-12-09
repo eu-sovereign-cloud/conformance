@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"k8s.io/utils/ptr"
@@ -33,15 +33,15 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 	t.Title(suite.scenarioName)
 	configureTags(t,
-		secalib.AuthorizationProviderV1,
+		authorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
-		secalib.WorkspaceProviderV1,
+		workspaceProviderV1,
 		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
-		secalib.StorageProviderV1,
+		storageProviderV1,
 		string(schema.RegionalResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalResourceMetadataKindResourceKindImage),
-		secalib.NetworkProviderV1,
+		networkProviderV1,
 		string(schema.RegionalResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
 		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
@@ -54,26 +54,26 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
-		secalib.ComputeProviderV1,
+		computeProviderV1,
 		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 	)
 
 	// Generate the subnet cidr
-	subnetCidr, err := secalib.GenerateSubnetCidr(suite.networkCidr, 8, 1)
+	subnetCidr, err := generators.GenerateSubnetCidr(suite.networkCidr, 8, 1)
 	if err != nil {
 		slog.Error("Failed to generate subnet cidr", "error", err)
 		return
 	}
 
 	// Generate the nic addresses
-	nicAddress1, err := secalib.GenerateNicAddress(subnetCidr, 1)
+	nicAddress1, err := generators.GenerateNicAddress(subnetCidr, 1)
 	if err != nil {
 		slog.Error("Failed to generate nic address", "error", err)
 		return
 	}
 
 	// Generate the public ips
-	publicIpAddress1, err := secalib.GeneratePublicIp(suite.publicIpsRange, 1)
+	publicIpAddress1, err := generators.GeneratePublicIp(suite.publicIpsRange, 1)
 	if err != nil {
 		slog.Error("Failed to generate public ip", "error", err)
 		return
@@ -91,88 +91,88 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	networkSkuName := suite.networkSkus[rand.Intn(len(suite.networkSkus))]
 
 	// Generate scenario data
-	workspaceName := secalib.GenerateWorkspaceName()
-	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
+	workspaceName := generators.GenerateWorkspaceName()
+	workspaceResource := generators.GenerateWorkspaceResource(suite.tenant, workspaceName)
 
-	roleName := secalib.GenerateRoleName()
-	roleResource := secalib.GenerateRoleResource(suite.tenant, roleName)
+	roleName := generators.GenerateRoleName()
+	roleResource := generators.GenerateRoleResource(suite.tenant, roleName)
 
-	roleAssignmentName := secalib.GenerateRoleAssignmentName()
-	roleAssignmentResource := secalib.GenerateRoleAssignmentResource(suite.tenant, roleAssignmentName)
+	roleAssignmentName := generators.GenerateRoleAssignmentName()
+	roleAssignmentResource := generators.GenerateRoleAssignmentResource(suite.tenant, roleAssignmentName)
 
-	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
+	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
 	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	blockStorageName := secalib.GenerateBlockStorageName()
-	blockStorageResource := secalib.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
-	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
+	blockStorageName := generators.GenerateBlockStorageName()
+	blockStorageResource := generators.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
+	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
 	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
-	initialStorageSize := secalib.GenerateBlockStorageSize()
+	initialStorageSize := generators.GenerateBlockStorageSize()
 
-	imageName := secalib.GenerateImageName()
-	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
+	imageName := generators.GenerateImageName()
+	imageResource := generators.GenerateImageResource(suite.tenant, imageName)
 
-	instanceSkuRef := secalib.GenerateSkuRef(instanceSkuName)
+	instanceSkuRef := generators.GenerateSkuRef(instanceSkuName)
 	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	instanceName := secalib.GenerateInstanceName()
-	instanceResource := secalib.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
+	instanceName := generators.GenerateInstanceName()
+	instanceResource := generators.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
 
-	networkSkuRef1 := secalib.GenerateSkuRef(networkSkuName)
+	networkSkuRef1 := generators.GenerateSkuRef(networkSkuName)
 	networkSkuRefObj, err := secapi.BuildReferenceFromURN(networkSkuRef1)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	networkName := secalib.GenerateNetworkName()
-	networkResource := secalib.GenerateNetworkResource(suite.tenant, workspaceName, networkName)
+	networkName := generators.GenerateNetworkName()
+	networkResource := generators.GenerateNetworkResource(suite.tenant, workspaceName, networkName)
 
-	internetGatewayName := secalib.GenerateInternetGatewayName()
-	internetGatewayResource := secalib.GenerateInternetGatewayResource(suite.tenant, workspaceName, internetGatewayName)
-	internetGatewayRef := secalib.GenerateInternetGatewayRef(internetGatewayName)
+	internetGatewayName := generators.GenerateInternetGatewayName()
+	internetGatewayResource := generators.GenerateInternetGatewayResource(suite.tenant, workspaceName, internetGatewayName)
+	internetGatewayRef := generators.GenerateInternetGatewayRef(internetGatewayName)
 	internetGatewayRefObj, err := secapi.BuildReferenceFromURN(internetGatewayRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	routeTableName := secalib.GenerateRouteTableName()
-	routeTableResource := secalib.GenerateRouteTableResource(suite.tenant, workspaceName, networkName, routeTableName)
-	routeTableRef := secalib.GenerateRouteTableRef(routeTableName)
+	routeTableName := generators.GenerateRouteTableName()
+	routeTableResource := generators.GenerateRouteTableResource(suite.tenant, workspaceName, networkName, routeTableName)
+	routeTableRef := generators.GenerateRouteTableRef(routeTableName)
 	routeTableRefObj, err := secapi.BuildReferenceFromURN(routeTableRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	subnetName := secalib.GenerateSubnetName()
-	subnetResource := secalib.GenerateSubnetResource(suite.tenant, workspaceName, networkName, subnetName)
-	subnetRef := secalib.GenerateSubnetRef(subnetName)
+	subnetName := generators.GenerateSubnetName()
+	subnetResource := generators.GenerateSubnetResource(suite.tenant, workspaceName, networkName, subnetName)
+	subnetRef := generators.GenerateSubnetRef(subnetName)
 	subnetRefObj, err := secapi.BuildReferenceFromURN(subnetRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	nicName := secalib.GenerateNicName()
-	nicResource := secalib.GenerateNicResource(suite.tenant, workspaceName, nicName)
+	nicName := generators.GenerateNicName()
+	nicResource := generators.GenerateNicResource(suite.tenant, workspaceName, nicName)
 
-	publicIpName := secalib.GeneratePublicIpName()
-	publicIpResource := secalib.GeneratePublicIpResource(suite.tenant, workspaceName, publicIpName)
-	publicIpRef := secalib.GeneratePublicIpRef(publicIpName)
+	publicIpName := generators.GeneratePublicIpName()
+	publicIpResource := generators.GeneratePublicIpResource(suite.tenant, workspaceName, publicIpName)
+	publicIpRef := generators.GeneratePublicIpRef(publicIpName)
 	publicIpRefObj, err := secapi.BuildReferenceFromURN(publicIpRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	securityGroupName := secalib.GenerateSecurityGroupName()
-	securityGroupResource := secalib.GenerateSecurityGroupResource(suite.tenant, workspaceName, securityGroupName)
+	securityGroupName := generators.GenerateSecurityGroupName()
+	securityGroupResource := generators.GenerateSecurityGroupResource(suite.tenant, workspaceName, securityGroupName)
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
@@ -187,7 +187,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 				Name: roleName,
 				InitialSpec: &schema.RoleSpec{
 					Permissions: []schema.Permission{
-						{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+						{Provider: storageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 					},
 				},
 			},
@@ -299,7 +299,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Spec: schema.RoleSpec{
 			Permissions: []schema.Permission{
 				{
-					Provider:  secalib.StorageProviderV1,
+					Provider:  storageProviderV1,
 					Resources: []string{imageResource},
 					Verb:      []string{http.MethodGet},
 				},
@@ -308,7 +308,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectRoleMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
 		Name(roleName).Resource(roleResource).
-		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).
 		Tenant(suite.tenant).
 		BuildResponse()
@@ -318,7 +318,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	expectRoleSpec := &schema.RoleSpec{
 		Permissions: []schema.Permission{
 			{
-				Provider:  secalib.StorageProviderV1,
+				Provider:  storageProviderV1,
 				Resources: []string{imageResource},
 				Verb:      []string{http.MethodGet},
 			},
@@ -361,7 +361,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectRoleAssignMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
 		Name(roleAssignmentName).Resource(roleAssignmentResource).
-		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).
 		Tenant(suite.tenant).
 		BuildResponse()
@@ -408,7 +408,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectWorkspaceMeta, err := builders.NewRegionalResourceMetadataBuilder().
 		Name(workspaceName).Resource(workspaceResource).
-		Provider(secalib.WorkspaceProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
 		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()
@@ -452,7 +452,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectedImageMeta, err := builders.NewRegionalResourceMetadataBuilder().
 		Name(imageName).Resource(imageResource).
-		Provider(secalib.StorageProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalResourceMetadataKindResourceKindImage).
 		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()
@@ -500,7 +500,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectedBlockMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(blockStorageName).Resource(blockStorageResource).
-		Provider(secalib.StorageProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
@@ -550,7 +550,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectNetworkMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(networkName).Resource(networkResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
@@ -596,7 +596,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectGatewayMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(internetGatewayName).Resource(internetGatewayResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
@@ -644,7 +644,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectRouteMeta, err := builders.NewRegionalNetworkResourceMetadataBuilder().
 		Name(routeTableName).Resource(routeTableResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable).
 		Tenant(suite.tenant).Workspace(workspaceName).Network(networkName).Region(suite.region).
 		BuildResponse()
@@ -696,7 +696,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectSubnetMeta, err := builders.NewRegionalNetworkResourceMetadataBuilder().
 		Name(subnetName).Resource(subnetResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet).
 		Tenant(suite.tenant).Workspace(workspaceName).Network(networkName).Region(suite.region).
 		BuildResponse()
@@ -747,7 +747,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectGroupMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(securityGroupName).Resource(securityGroupResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
@@ -797,7 +797,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectPublicIpMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(publicIpName).Resource(publicIpResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
@@ -847,7 +847,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectNicMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(nicName).Resource(nicResource).
-		Provider(secalib.NetworkProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
@@ -900,7 +900,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectInstanceMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(instanceName).Resource(instanceResource).
-		Provider(secalib.ComputeProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(computeProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()

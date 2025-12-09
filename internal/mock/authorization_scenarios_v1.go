@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
@@ -18,16 +18,16 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 		return nil, err
 	}
 
-	roleUrl := secalib.GenerateRoleURL(params.Tenant, params.Role.Name)
-	roleAssignUrl := secalib.GenerateRoleAssignmentURL(params.Tenant, params.RoleAssignment.Name)
+	roleUrl := generators.GenerateRoleURL(authorizationProviderV1, params.Tenant, params.Role.Name)
+	roleAssignUrl := generators.GenerateRoleAssignmentURL(authorizationProviderV1, params.Tenant, params.RoleAssignment.Name)
 
-	roleResource := secalib.GenerateRoleResource(params.Tenant, params.Role.Name)
-	roleAssignResource := secalib.GenerateRoleAssignmentResource(params.Tenant, params.RoleAssignment.Name)
+	roleResource := generators.GenerateRoleResource(params.Tenant, params.Role.Name)
+	roleAssignResource := generators.GenerateRoleAssignmentResource(params.Tenant, params.RoleAssignment.Name)
 
 	// Role
 	roleResponse, err := builders.NewRoleBuilder().
 		Name(params.Role.Name).Resource(roleResource).
-		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.Role.InitialSpec).
 		BuildResponse()
@@ -73,7 +73,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	// Role assignment
 	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
 		Name(params.RoleAssignment.Name).Resource(roleAssignResource).
-		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.RoleAssignment.InitialSpec).
 		BuildResponse()

@@ -4,8 +4,8 @@ import (
 	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -20,11 +20,11 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	configureTags(t, workspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	// Generate scenario data
-	workspaceName := secalib.GenerateWorkspaceName()
-	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
+	workspaceName := generators.GenerateWorkspaceName()
+	workspaceResource := generators.GenerateWorkspaceResource(suite.tenant, workspaceName)
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
@@ -64,7 +64,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectMeta, err := builders.NewRegionalResourceMetadataBuilder().
 		Name(workspaceName).Resource(workspaceResource).
-		Provider(secalib.WorkspaceProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
 		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()

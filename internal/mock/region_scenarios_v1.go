@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
 	regionV1 "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.region.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
@@ -19,11 +19,12 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 		return nil, err
 	}
 	// Generate resource
-	regionsResource := secalib.GenerateRegionResource("Regions")
-	regionResource := secalib.GenerateRegionResource(params.Regions[0].Name)
+	regionsResource := generators.GenerateRegionResource("Regions")
+	regionResource := generators.GenerateRegionResource(params.Regions[0].Name)
 
-	// Generate Url
-	regionUrl := secalib.GenerateRegionURL(params.Regions[0].Name)
+	// Generate URLs
+	regionsUrl := generators.GenerateRegionsURL(regionProviderV1)
+	regionUrl := generators.GenerateRegionURL(regionProviderV1, params.Regions[0].Name)
 
 	// Build headers
 	headerParams := map[string]string{
@@ -32,7 +33,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 
 	regionsResponse := &regionV1.RegionIterator{
 		Metadata: schema.ResponseMetadata{
-			Provider: secalib.RegionProviderV1,
+			Provider: regionProviderV1,
 			Resource: regionsResource,
 			Verb:     http.MethodGet,
 		},
@@ -42,10 +43,10 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	// Create Regions to be listed
 	for _, region := range params.Regions {
 
-		regionResource := secalib.GenerateRegionResource(region.Name)
+		regionResource := generators.GenerateRegionResource(region.Name)
 		regionResponse, err := builders.NewRegionBuilder().
 			Name(region.Name).Resource(regionResource).
-			Provider(secalib.RegionProviderV1).ApiVersion(secalib.ApiVersion1).
+			Provider(regionProviderV1).ApiVersion(apiVersion1).
 			Spec(region.InitialSpec).
 			BuildResponse()
 		if err != nil {
@@ -59,7 +60,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 
 	// 1 - Create ListRegions stub
 	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: secalib.RegionsURLV1, params: params, headers: headerParams, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+		&stubConfig{url: regionsUrl, params: params, headers: headerParams, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
 		return nil, err
 	}
 
@@ -67,9 +68,9 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	singleRegionResponse := &schema.Region{
 		Metadata: &schema.GlobalResourceMetadata{
 			Name:       params.Regions[0].Name,
-			Provider:   secalib.RegionProviderV1,
+			Provider:   regionProviderV1,
 			Resource:   regionResource,
-			ApiVersion: secalib.ApiVersion1,
+			ApiVersion: apiVersion1,
 			Kind:       schema.GlobalResourceMetadataKindResourceKindRegion,
 			Verb:       http.MethodGet,
 		},

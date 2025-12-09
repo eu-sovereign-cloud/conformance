@@ -5,8 +5,8 @@ import (
 	"math/rand"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -24,7 +24,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.StorageProviderV1,
+	configureTags(t, storageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
 	)
@@ -33,28 +33,28 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
 
 	// Generate scenario data
-	workspaceName := secalib.GenerateWorkspaceName()
-	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
+	workspaceName := generators.GenerateWorkspaceName()
+	workspaceResource := generators.GenerateWorkspaceResource(suite.tenant, workspaceName)
 
-	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
+	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
 	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	blockStorageName := secalib.GenerateBlockStorageName()
-	blockStorageResource := secalib.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
-	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
+	blockStorageName := generators.GenerateBlockStorageName()
+	blockStorageResource := generators.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
+	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
 	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	imageName := secalib.GenerateImageName()
-	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
+	imageName := generators.GenerateImageName()
+	imageResource := generators.GenerateImageResource(suite.tenant, imageName)
 
-	initialStorageSize := secalib.GenerateBlockStorageSize()
-	updatedStorageSize := secalib.GenerateBlockStorageSize()
+	initialStorageSize := generators.GenerateBlockStorageSize()
+	updatedStorageSize := generators.GenerateBlockStorageSize()
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
@@ -115,7 +115,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectWorkspaceMeta, err := builders.NewRegionalResourceMetadataBuilder().
 		Name(workspaceName).Resource(workspaceResource).
-		Provider(secalib.WorkspaceProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
 		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()
@@ -161,7 +161,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectedBlockMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
 		Name(blockStorageName).Resource(blockStorageResource).
-		Provider(secalib.StorageProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
@@ -229,7 +229,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectedImageMeta, err := builders.NewRegionalResourceMetadataBuilder().
 		Name(imageName).Resource(imageResource).
-		Provider(secalib.StorageProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.RegionalResourceMetadataKindResourceKindImage).
 		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()

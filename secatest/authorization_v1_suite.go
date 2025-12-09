@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -24,7 +24,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.AuthorizationProviderV1,
+	configureTags(t, authorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
@@ -34,14 +34,14 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 	roleAssignmentSub2 := suite.users[rand.Intn(len(suite.users))]
 
 	// Generate scenario data
-	roleName := secalib.GenerateRoleName()
-	roleResource := secalib.GenerateRoleResource(suite.tenant, roleName)
+	roleName := generators.GenerateRoleName()
+	roleResource := generators.GenerateRoleResource(suite.tenant, roleName)
 
-	roleAssignmentName := secalib.GenerateRoleAssignmentName()
-	roleAssignmentResource := secalib.GenerateRoleAssignmentResource(suite.tenant, roleAssignmentName)
+	roleAssignmentName := generators.GenerateRoleAssignmentName()
+	roleAssignmentResource := generators.GenerateRoleAssignmentResource(suite.tenant, roleAssignmentName)
 
-	imageName := secalib.GenerateImageName()
-	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
+	imageName := generators.GenerateImageName()
+	imageResource := generators.GenerateImageResource(suite.tenant, imageName)
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
@@ -55,12 +55,12 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 				Name: roleName,
 				InitialSpec: &schema.RoleSpec{
 					Permissions: []schema.Permission{
-						{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+						{Provider: storageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 					},
 				},
 				UpdatedSpec: &schema.RoleSpec{
 					Permissions: []schema.Permission{
-						{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet, http.MethodPut}},
+						{Provider: storageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet, http.MethodPut}},
 					},
 				},
 			},
@@ -100,7 +100,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		Spec: schema.RoleSpec{
 			Permissions: []schema.Permission{
 				{
-					Provider:  secalib.StorageProviderV1,
+					Provider:  storageProviderV1,
 					Resources: []string{imageResource},
 					Verb:      []string{http.MethodGet},
 				},
@@ -109,7 +109,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectRoleMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
 		Name(roleName).Resource(roleResource).
-		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).
 		Tenant(suite.tenant).
 		BuildResponse()
@@ -119,7 +119,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 	expectRoleSpec := &schema.RoleSpec{
 		Permissions: []schema.Permission{
 			{
-				Provider:  secalib.StorageProviderV1,
+				Provider:  storageProviderV1,
 				Resources: []string{imageResource},
 				Verb:      []string{http.MethodGet},
 			},
@@ -182,7 +182,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 	}
 	expectRoleAssignMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
 		Name(roleAssignmentName).Resource(roleAssignmentResource).
-		Provider(secalib.AuthorizationProviderV1).ApiVersion(secalib.ApiVersion1).
+		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).
 		Tenant(suite.tenant).
 		BuildResponse()
