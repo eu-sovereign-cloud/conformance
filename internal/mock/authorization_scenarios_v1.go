@@ -21,12 +21,9 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	roleUrl := generators.GenerateRoleURL(authorizationProviderV1, params.Tenant, params.Role.Name)
 	roleAssignUrl := generators.GenerateRoleAssignmentURL(authorizationProviderV1, params.Tenant, params.RoleAssignment.Name)
 
-	roleResource := generators.GenerateRoleResource(params.Tenant, params.Role.Name)
-	roleAssignResource := generators.GenerateRoleAssignmentResource(params.Tenant, params.RoleAssignment.Name)
-
 	// Role
 	roleResponse, err := builders.NewRoleBuilder().
-		Name(params.Role.Name).Resource(roleResource).
+		Name(params.Role.Name).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.Role.InitialSpec).
@@ -72,7 +69,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Role assignment
 	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
-		Name(params.RoleAssignment.Name).Resource(roleAssignResource).
+		Name(params.RoleAssignment.Name).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.RoleAssignment.InitialSpec).

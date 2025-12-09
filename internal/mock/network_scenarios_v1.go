@@ -30,21 +30,9 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	subnetUrl := generators.GenerateSubnetURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
 	groupUrl := generators.GenerateSecurityGroupURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
 
-	// Generate resources
-	workspaceResource := generators.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
-	blockResource := generators.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	instanceResource := generators.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
-	networkResource := generators.GenerateNetworkResource(params.Tenant, params.Workspace.Name, params.Network.Name)
-	gatewayResource := generators.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicResource := generators.GenerateNicResource(params.Tenant, params.Workspace.Name, params.Nic.Name)
-	publicIpResource := generators.GeneratePublicIpResource(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
-	routeResource := generators.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
-	subnetResource := generators.GenerateSubnetResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
-	groupResource := generators.GenerateSecurityGroupResource(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
-
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
-		Name(params.Workspace.Name).Resource(workspaceResource).
+		Name(params.Workspace.Name).
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
@@ -72,7 +60,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Network
 	networkResponse, err := builders.NewNetworkBuilder().
-		Name(params.Network.Name).Resource(networkResource).
+		Name(params.Network.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Network.InitialSpec).
@@ -117,7 +105,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Internet gateway
 	gatewayResponse, err := builders.NewInternetGatewayBuilder().
-		Name(params.InternetGateway.Name).Resource(gatewayResource).
+		Name(params.InternetGateway.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.InternetGateway.InitialSpec).
@@ -163,7 +151,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Route table
 	routeResponse, err := builders.NewRouteTableBuilder().
-		Name(params.RouteTable.Name).Resource(routeResource).
+		Name(params.RouteTable.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.RouteTable.InitialSpec).
@@ -209,7 +197,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Subnet
 	subnetResponse, err := builders.NewSubnetBuilder().
-		Name(params.Subnet.Name).Resource(subnetResource).
+		Name(params.Subnet.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.Subnet.InitialSpec).
@@ -255,7 +243,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Public ip
 	publicIpResponse, err := builders.NewPublicIpBuilder().
-		Name(params.PublicIp.Name).Resource(publicIpResource).
+		Name(params.PublicIp.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.PublicIp.InitialSpec).
@@ -301,7 +289,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Nic
 	nicResponse, err := builders.NewNicBuilder().
-		Name(params.Nic.Name).Resource(nicResource).
+		Name(params.Nic.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Nic.InitialSpec).
@@ -347,7 +335,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Security group
 	groupResponse, err := builders.NewSecurityGroupBuilder().
-		Name(params.SecurityGroup.Name).Resource(groupResource).
+		Name(params.SecurityGroup.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.SecurityGroup.InitialSpec).
@@ -393,7 +381,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
-		Name(params.BlockStorage.Name).Resource(blockResource).
+		Name(params.BlockStorage.Name).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
@@ -422,7 +410,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 
 	// Instance
 	instanceResponse, err := builders.NewInstanceBuilder().
-		Name(params.Instance.Name).Resource(instanceResource).
+		Name(params.Instance.Name).
 		Provider(computeProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Instance.InitialSpec).

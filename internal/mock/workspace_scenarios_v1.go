@@ -19,10 +19,9 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	url := generators.GenerateWorkspaceURL(workspaceProviderV1, params.Tenant, params.Workspace.Name)
-	resource := generators.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 
 	response, err := builders.NewWorkspaceBuilder().
-		Name(params.Workspace.Name).Resource(resource).
+		Name(params.Workspace.Name).
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).

@@ -32,26 +32,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	routeUrl := generators.GenerateRouteTableURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
 	subnetUrl := generators.GenerateSubnetURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
 	groupUrl := generators.GenerateSecurityGroupURL(networkProviderV1, params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
-	// GenerateResources
-	roleResource := generators.GenerateRoleResource(params.Tenant, params.Role.Name)
-	roleAssignResource := generators.GenerateRoleAssignmentResource(params.Tenant, params.RoleAssignment.Name)
-	workspaceResource := generators.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
-	blockResource := generators.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	imageResource := generators.GenerateImageResource(params.Tenant, params.Image.Name)
-	instanceResource := generators.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
-	networkResource := generators.GenerateNetworkResource(params.Tenant, params.Workspace.Name, params.Network.Name)
-	gatewayResource := generators.GenerateInternetGatewayResource(params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicResource := generators.GenerateNicResource(params.Tenant, params.Workspace.Name, params.Nic.Name)
-	publicIpResource := generators.GeneratePublicIpResource(params.Tenant, params.Workspace.Name, params.PublicIp.Name)
-	routeResource := generators.GenerateRouteTableResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
-	subnetResource := generators.GenerateSubnetResource(params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
-	groupResource := generators.GenerateSecurityGroupResource(params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
 
 	// Authorization
 
 	// Role
 	roleResponse, err := builders.NewRoleBuilder().
-		Name(params.Role.Name).Resource(roleResource).
+		Name(params.Role.Name).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.Role.InitialSpec).
@@ -79,7 +65,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Role assignment
 	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
-		Name(params.RoleAssignment.Name).Resource(roleAssignResource).
+		Name(params.RoleAssignment.Name).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.RoleAssignment.InitialSpec).
@@ -107,7 +93,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
-		Name(params.Workspace.Name).Resource(workspaceResource).
+		Name(params.Workspace.Name).
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
@@ -137,7 +123,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Image
 	imageResponse, err := builders.NewImageBuilder().
-		Name(params.Image.Name).Resource(imageResource).
+		Name(params.Image.Name).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Spec(params.Image.InitialSpec).
@@ -165,7 +151,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
-		Name(params.BlockStorage.Name).Resource(blockResource).
+		Name(params.BlockStorage.Name).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
@@ -195,7 +181,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Network
 	networkResponse, err := builders.NewNetworkBuilder().
-		Name(params.Network.Name).Resource(networkResource).
+		Name(params.Network.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Network.InitialSpec).
@@ -223,7 +209,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Internet gateway
 	gatewayResponse, err := builders.NewInternetGatewayBuilder().
-		Name(params.InternetGateway.Name).Resource(gatewayResource).
+		Name(params.InternetGateway.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.InternetGateway.InitialSpec).
@@ -251,7 +237,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Route table
 	routeResponse, err := builders.NewRouteTableBuilder().
-		Name(params.RouteTable.Name).Resource(routeResource).
+		Name(params.RouteTable.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.RouteTable.InitialSpec).
@@ -279,7 +265,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Subnet
 	subnetResponse, err := builders.NewSubnetBuilder().
-		Name(params.Subnet.Name).Resource(subnetResource).
+		Name(params.Subnet.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.Subnet.InitialSpec).
@@ -307,7 +293,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Security group
 	groupResponse, err := builders.NewSecurityGroupBuilder().
-		Name(params.SecurityGroup.Name).Resource(groupResource).
+		Name(params.SecurityGroup.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.SecurityGroup.InitialSpec).
@@ -335,7 +321,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Public-ip
 	publicIpResponse, err := builders.NewPublicIpBuilder().
-		Name(params.PublicIp.Name).Resource(publicIpResource).
+		Name(params.PublicIp.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.PublicIp.InitialSpec).
@@ -363,7 +349,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// NIC
 	nicResponse, err := builders.NewNicBuilder().
-		Name(params.Nic.Name).Resource(nicResource).
+		Name(params.Nic.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Nic.InitialSpec).
@@ -393,7 +379,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 
 	// Instance
 	instanceResponse, err := builders.NewInstanceBuilder().
-		Name(params.Instance.Name).Resource(instanceResource).
+		Name(params.Instance.Name).
 		Provider(computeProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Instance.InitialSpec).

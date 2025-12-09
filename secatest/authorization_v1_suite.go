@@ -35,10 +35,8 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 
 	// Generate scenario data
 	roleName := generators.GenerateRoleName()
-	roleResource := generators.GenerateRoleResource(suite.tenant, roleName)
 
 	roleAssignmentName := generators.GenerateRoleAssignmentName()
-	roleAssignmentResource := generators.GenerateRoleAssignmentResource(suite.tenant, roleAssignmentName)
 
 	imageName := generators.GenerateImageName()
 	imageResource := generators.GenerateImageResource(suite.tenant, imageName)
@@ -107,10 +105,9 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectRoleMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
-		Name(roleName).Resource(roleResource).
+	expectRoleMeta, err := builders.NewRoleMetadataBuilder().
+		Name(roleName).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).
 		Tenant(suite.tenant).
 		BuildResponse()
 	if err != nil {
@@ -180,10 +177,9 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 			Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
 		},
 	}
-	expectRoleAssignMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
-		Name(roleAssignmentName).Resource(roleAssignmentResource).
+	expectRoleAssignMeta, err := builders.NewRoleAssignmentMetadataBuilder().
+		Name(roleAssignmentName).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).
 		Tenant(suite.tenant).
 		BuildResponse()
 	if err != nil {

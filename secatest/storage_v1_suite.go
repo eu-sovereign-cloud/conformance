@@ -34,7 +34,6 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
-	workspaceResource := generators.GenerateWorkspaceResource(suite.tenant, workspaceName)
 
 	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
 	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
@@ -43,7 +42,6 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageResource := generators.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
 	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
 	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
 	if err != nil {
@@ -51,7 +49,6 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	imageName := generators.GenerateImageName()
-	imageResource := generators.GenerateImageResource(suite.tenant, imageName)
 
 	initialStorageSize := generators.GenerateBlockStorageSize()
 	updatedStorageSize := generators.GenerateBlockStorageSize()
@@ -113,10 +110,9 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectWorkspaceMeta, err := builders.NewRegionalResourceMetadataBuilder().
-		Name(workspaceName).Resource(workspaceResource).
+	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
+		Name(workspaceName).
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
 		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -159,10 +155,9 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			SkuRef: *storageSkuRefObj,
 		},
 	}
-	expectedBlockMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
-		Name(blockStorageName).Resource(blockStorageResource).
+	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
+		Name(blockStorageName).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -227,10 +222,9 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
 		},
 	}
-	expectedImageMeta, err := builders.NewRegionalResourceMetadataBuilder().
-		Name(imageName).Resource(imageResource).
+	expectedImageMeta, err := builders.NewImageMetadataBuilder().
+		Name(imageName).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalResourceMetadataKindResourceKindImage).
 		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()
 	if err != nil {

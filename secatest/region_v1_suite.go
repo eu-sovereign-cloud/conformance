@@ -81,11 +81,9 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	regions := suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1)
 
 	// Call Get Region and verify response
-	regionResource := generators.GenerateRegionResource(regions[0].Metadata.Name)
-	expectedRegionMeta, err := builders.NewGlobalResourceMetadataBuilder().
-		Name(regions[0].Metadata.Name).Resource(regionResource).
+	expectedRegionMeta, err := builders.NewRegionMetadataBuilder().
+		Name(regions[0].Metadata.Name).
 		Provider(regionProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.GlobalResourceMetadataKindResourceKindRegion).
 		BuildResponse()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)

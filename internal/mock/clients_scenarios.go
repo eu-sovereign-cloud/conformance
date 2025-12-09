@@ -17,7 +17,6 @@ func ConfigClientsInitScenario(params *ClientsInitParams) (*wiremock.Client, err
 		return nil, err
 	}
 
-	resource := generators.GenerateRegionResource(params.Region)
 	url := generators.GenerateRegionURL(regionProviderV1, params.Region)
 
 	headers := map[string]string{
@@ -31,9 +30,7 @@ func ConfigClientsInitScenario(params *ClientsInitParams) (*wiremock.Client, err
 
 	response, err := builders.NewRegionBuilder().
 		Name(params.Region).
-		Provider(regionProviderV1).
-		Resource(resource).
-		ApiVersion(apiVersion1).
+		Provider(regionProviderV1).ApiVersion(apiVersion1).
 		Spec(spec).
 		BuildResponse()
 	if err != nil {

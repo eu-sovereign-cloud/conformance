@@ -18,18 +18,14 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 		return nil, err
 	}
 
+	// Generate URLs
 	workspaceUrl := generators.GenerateWorkspaceURL(workspaceProviderV1, params.Tenant, params.Workspace.Name)
-	workspaceResource := generators.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
-
 	blockUrl := generators.GenerateBlockStorageURL(storageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
 	imageUrl := generators.GenerateImageURL(storageProviderV1, params.Tenant, params.Image.Name)
 
-	blockResource := generators.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	imageResource := generators.GenerateImageResource(params.Tenant, params.Image.Name)
-
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
-		Name(params.Workspace.Name).Resource(workspaceResource).
+		Name(params.Workspace.Name).
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
@@ -57,7 +53,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
-		Name(params.BlockStorage.Name).Resource(blockResource).
+		Name(params.BlockStorage.Name).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
@@ -103,7 +99,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 
 	// Image
 	imageResponse, err := builders.NewImageBuilder().
-		Name(params.Image.Name).Resource(imageResource).
+		Name(params.Image.Name).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Spec(params.Image.InitialSpec).

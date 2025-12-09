@@ -22,13 +22,9 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	blockUrl := generators.GenerateBlockStorageURL(storageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
 	instanceUrl := generators.GenerateInstanceURL(computeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
 
-	workspaceResource := generators.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
-	blockResource := generators.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	instanceResource := generators.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
-
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
-		Name(params.Workspace.Name).Resource(workspaceResource).
+		Name(params.Workspace.Name).
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
@@ -56,7 +52,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
-		Name(params.BlockStorage.Name).Resource(blockResource).
+		Name(params.BlockStorage.Name).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
@@ -85,7 +81,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Instance
 	instanceResponse, err := builders.NewInstanceBuilder().
-		Name(params.Instance.Name).Resource(instanceResource).
+		Name(params.Instance.Name).
 		Provider(computeProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Instance.InitialSpec).

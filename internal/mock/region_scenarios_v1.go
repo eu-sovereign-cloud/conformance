@@ -43,9 +43,8 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	// Create Regions to be listed
 	for _, region := range params.Regions {
 
-		regionResource := generators.GenerateRegionResource(region.Name)
 		regionResponse, err := builders.NewRegionBuilder().
-			Name(region.Name).Resource(regionResource).
+			Name(region.Name).
 			Provider(regionProviderV1).ApiVersion(apiVersion1).
 			Spec(region.InitialSpec).
 			BuildResponse()

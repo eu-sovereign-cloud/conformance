@@ -24,7 +24,6 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
-	workspaceResource := generators.GenerateWorkspaceResource(suite.tenant, workspaceName)
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
@@ -62,10 +61,9 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectMeta, err := builders.NewRegionalResourceMetadataBuilder().
-		Name(workspaceName).Resource(workspaceResource).
+	expectMeta, err := builders.NewWorkspaceMetadataBuilder().
+		Name(workspaceName).
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
 		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()
 	if err != nil {

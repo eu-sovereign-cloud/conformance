@@ -92,13 +92,10 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
-	workspaceResource := generators.GenerateWorkspaceResource(suite.tenant, workspaceName)
 
 	roleName := generators.GenerateRoleName()
-	roleResource := generators.GenerateRoleResource(suite.tenant, roleName)
 
 	roleAssignmentName := generators.GenerateRoleAssignmentName()
-	roleAssignmentResource := generators.GenerateRoleAssignmentResource(suite.tenant, roleAssignmentName)
 
 	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
 	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
@@ -107,7 +104,6 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageResource := generators.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
 	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
 	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
 	if err != nil {
@@ -125,7 +121,6 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	instanceName := generators.GenerateInstanceName()
-	instanceResource := generators.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
 
 	networkSkuRef1 := generators.GenerateSkuRef(networkSkuName)
 	networkSkuRefObj, err := secapi.BuildReferenceFromURN(networkSkuRef1)
@@ -134,10 +129,8 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	networkName := generators.GenerateNetworkName()
-	networkResource := generators.GenerateNetworkResource(suite.tenant, workspaceName, networkName)
 
 	internetGatewayName := generators.GenerateInternetGatewayName()
-	internetGatewayResource := generators.GenerateInternetGatewayResource(suite.tenant, workspaceName, internetGatewayName)
 	internetGatewayRef := generators.GenerateInternetGatewayRef(internetGatewayName)
 	internetGatewayRefObj, err := secapi.BuildReferenceFromURN(internetGatewayRef)
 	if err != nil {
@@ -145,7 +138,6 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	routeTableName := generators.GenerateRouteTableName()
-	routeTableResource := generators.GenerateRouteTableResource(suite.tenant, workspaceName, networkName, routeTableName)
 	routeTableRef := generators.GenerateRouteTableRef(routeTableName)
 	routeTableRefObj, err := secapi.BuildReferenceFromURN(routeTableRef)
 	if err != nil {
@@ -153,7 +145,6 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	subnetName := generators.GenerateSubnetName()
-	subnetResource := generators.GenerateSubnetResource(suite.tenant, workspaceName, networkName, subnetName)
 	subnetRef := generators.GenerateSubnetRef(subnetName)
 	subnetRefObj, err := secapi.BuildReferenceFromURN(subnetRef)
 	if err != nil {
@@ -161,10 +152,8 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	nicName := generators.GenerateNicName()
-	nicResource := generators.GenerateNicResource(suite.tenant, workspaceName, nicName)
 
 	publicIpName := generators.GeneratePublicIpName()
-	publicIpResource := generators.GeneratePublicIpResource(suite.tenant, workspaceName, publicIpName)
 	publicIpRef := generators.GeneratePublicIpRef(publicIpName)
 	publicIpRefObj, err := secapi.BuildReferenceFromURN(publicIpRef)
 	if err != nil {
@@ -172,7 +161,6 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	securityGroupName := generators.GenerateSecurityGroupName()
-	securityGroupResource := generators.GenerateSecurityGroupResource(suite.tenant, workspaceName, securityGroupName)
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
@@ -306,10 +294,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectRoleMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
-		Name(roleName).Resource(roleResource).
+	expectRoleMeta, err := builders.NewRoleMetadataBuilder().
+		Name(roleName).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).
 		Tenant(suite.tenant).
 		BuildResponse()
 	if err != nil {
@@ -359,10 +346,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
 		},
 	}
-	expectRoleAssignMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
-		Name(roleAssignmentName).Resource(roleAssignmentResource).
+	expectRoleAssignMeta, err := builders.NewRoleAssignmentMetadataBuilder().
+		Name(roleAssignmentName).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).
 		Tenant(suite.tenant).
 		BuildResponse()
 	if err != nil {
@@ -406,10 +392,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectWorkspaceMeta, err := builders.NewRegionalResourceMetadataBuilder().
-		Name(workspaceName).Resource(workspaceResource).
+	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
+		Name(workspaceName).
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
 		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -450,10 +435,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
 		},
 	}
-	expectedImageMeta, err := builders.NewRegionalResourceMetadataBuilder().
-		Name(imageName).Resource(imageResource).
+	expectedImageMeta, err := builders.NewImageMetadataBuilder().
+		Name(imageName).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalResourceMetadataKindResourceKindImage).
 		Tenant(suite.tenant).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -498,10 +482,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			SkuRef: *storageSkuRefObj,
 		},
 	}
-	expectedBlockMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
-		Name(blockStorageName).Resource(blockStorageResource).
+	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
+		Name(blockStorageName).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -548,10 +531,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			RouteTableRef: *routeTableRefObj,
 		},
 	}
-	expectNetworkMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
-		Name(networkName).Resource(networkResource).
+	expectNetworkMeta, err := builders.NewNetworkMetadataBuilder().
+		Name(networkName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -594,10 +576,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			Name:      internetGatewayName,
 		},
 	}
-	expectGatewayMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
-		Name(internetGatewayName).Resource(internetGatewayResource).
+	expectGatewayMeta, err := builders.NewInternetGatewayMetadataBuilder().
+		Name(internetGatewayName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -642,10 +623,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectRouteMeta, err := builders.NewRegionalNetworkResourceMetadataBuilder().
-		Name(routeTableName).Resource(routeTableResource).
+	expectRouteMeta, err := builders.NewRouteTableMetadataBuilder().
+		Name(routeTableName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable).
 		Tenant(suite.tenant).Workspace(workspaceName).Network(networkName).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -694,10 +674,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			Zone: zone,
 		},
 	}
-	expectSubnetMeta, err := builders.NewRegionalNetworkResourceMetadataBuilder().
-		Name(subnetName).Resource(subnetResource).
+	expectSubnetMeta, err := builders.NewSubnetMetadataBuilder().
+		Name(subnetName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet).
 		Tenant(suite.tenant).Workspace(workspaceName).Network(networkName).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -745,10 +724,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectGroupMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
-		Name(securityGroupName).Resource(securityGroupResource).
+	expectGroupMeta, err := builders.NewSecurityGroupMetadataBuilder().
+		Name(securityGroupName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -795,10 +773,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			Version: schema.IPVersionIPv4,
 		},
 	}
-	expectPublicIpMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
-		Name(publicIpName).Resource(publicIpResource).
+	expectPublicIpMeta, err := builders.NewPublicIpMetadataBuilder().
+		Name(publicIpName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -845,10 +822,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			SubnetRef:    *subnetRefObj,
 		},
 	}
-	expectNicMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
-		Name(nicName).Resource(nicResource).
+	expectNicMeta, err := builders.NewNicMetadataBuilder().
+		Name(nicName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
 	if err != nil {
@@ -898,10 +874,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectInstanceMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
-		Name(instanceName).Resource(instanceResource).
+	expectInstanceMeta, err := builders.NewInstanceMetadataBuilder().
+		Name(instanceName).
 		Provider(computeProviderV1).ApiVersion(apiVersion1).
-		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
 		BuildResponse()
 	if err != nil {
