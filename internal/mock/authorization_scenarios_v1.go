@@ -19,19 +19,19 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 		return nil, err
 	}
 
-	roleUrl := secalib.GenerateRoleURL(params.Tenant, (*params.Role)[0].Name)
-	roleAssignUrl := secalib.GenerateRoleAssignmentURL(params.Tenant, (*params.RoleAssignment)[0].Name)
+	roleUrl := secalib.GenerateRoleURL(params.Tenant, params.Role.Name)
+	roleAssignUrl := secalib.GenerateRoleAssignmentURL(params.Tenant, (*params.RoleAssignment).Name)
 
-	roleResource := secalib.GenerateRoleResource(params.Tenant, (*params.Role)[0].Name)
-	roleAssignResource := secalib.GenerateRoleAssignmentResource(params.Tenant, (*params.RoleAssignment)[0].Name)
+	roleResource := secalib.GenerateRoleResource(params.Tenant, params.Role.Name)
+	roleAssignResource := secalib.GenerateRoleAssignmentResource(params.Tenant, (*params.RoleAssignment).Name)
 	// Role
 	roleResponse, err := builders.NewRoleBuilder().
-		Name((*params.Role)[0].Name).
+		Name(params.Role.Name).
 		Provider(secalib.AuthorizationProviderV1).
 		Resource(roleResource).
 		ApiVersion(secalib.ApiVersion1).
 		Tenant(params.Tenant).
-		Spec((*params.Role)[0].InitialSpec).
+		Spec(params.Role.InitialSpec).
 		BuildResponse()
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	// Update the role
 	setModifiedGlobalTenantResourceMetadata(roleResponse.Metadata)
 	setResourceState(roleResponse.Status, schema.ResourceStateUpdating)
-	roleResponse.Spec = *(*params.Role)[0].UpdatedSpec
+	roleResponse.Spec = *params.Role.UpdatedSpec
 	roleResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "UpdateRole", nextState: "GetUpdatedRole"}); err != nil {
@@ -74,12 +74,12 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 
 	// Role assignment
 	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
-		Name((*params.RoleAssignment)[0].Name).
+		Name((*params.RoleAssignment).Name).
 		Provider(secalib.AuthorizationProviderV1).
 		Resource(roleAssignResource).
 		ApiVersion(secalib.ApiVersion1).
 		Tenant(params.Tenant).
-		Spec((*params.RoleAssignment)[0].InitialSpec).
+		Spec((*params.RoleAssignment).InitialSpec).
 		BuildResponse()
 	if err != nil {
 		return nil, err
@@ -105,7 +105,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	// Update the role assignment
 	setModifiedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
 	setResourceState(roleAssignResponse.Status, schema.ResourceStateUpdating)
-	roleAssignResponse.Spec = *(*params.RoleAssignment)[0].UpdatedSpec
+	roleAssignResponse.Spec = *(*params.RoleAssignment).UpdatedSpec
 	roleAssignResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "UpdateRoleAssignment", nextState: "GetUpdatedRoleAssignment"}); err != nil {
@@ -148,7 +148,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 }
 
 //nolint:dupl
-func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *AuthorizationParamsV1) (*wiremock.Client, error) {
+func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *AuthorizationIteratorParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	wm, err := newClient(params.MockURL)

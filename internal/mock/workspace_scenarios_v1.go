@@ -20,17 +20,17 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 		return nil, err
 	}
 
-	url := secalib.GenerateWorkspaceURL(params.Tenant, (*params.Workspace)[0].Name)
-	resource := secalib.GenerateWorkspaceResource(params.Tenant, (*params.Workspace)[0].Name)
+	url := secalib.GenerateWorkspaceURL(params.Tenant, (*params).Workspace.Name)
+	resource := secalib.GenerateWorkspaceResource(params.Tenant, (*params).Workspace.Name)
 
 	response, err := builders.NewWorkspaceBuilder().
-		Name((*params.Workspace)[0].Name).
+		Name((*params.Workspace).Name).
 		Provider(secalib.WorkspaceProviderV1).
 		Resource(resource).
 		ApiVersion(secalib.ApiVersion1).
 		Tenant(params.Tenant).
 		Region(params.Region).
-		Labels((*params.Workspace)[0].InitialLabels).
+		Labels((*params.Workspace).InitialLabels).
 		BuildResponse()
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	// Update the workspace
 	setModifiedRegionalResourceMetadata(response.Metadata)
 	setWorkspaceState(response.Status, schema.ResourceStateUpdating)
-	response.Labels = (*params.Workspace)[0].UpdatedLabels
+	response.Labels = (*params.Workspace).UpdatedLabels
 	response.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: url, params: params, responseBody: response, currentState: "UpdateWorkspace", nextState: "GetUpdatedWorkspace"}); err != nil {
@@ -86,7 +86,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 }
 
 //nolint:dupl
-func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspaceParamsV1) (*wiremock.Client, error) {
+func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspaceListParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	wm, err := newClient(params.MockURL)

@@ -51,37 +51,33 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
 			},
-			Role: &[]mock.ResourceParams[schema.RoleSpec]{
-				{
-					Name: roleName,
-					InitialSpec: &schema.RoleSpec{
-						Permissions: []schema.Permission{
-							{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
-						},
+			Role: &mock.ResourceParams[schema.RoleSpec]{
+				Name: roleName,
+				InitialSpec: &schema.RoleSpec{
+					Permissions: []schema.Permission{
+						{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 					},
-					UpdatedSpec: &schema.RoleSpec{
-						Permissions: []schema.Permission{
-							{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet, http.MethodPut}},
-						},
+				},
+				UpdatedSpec: &schema.RoleSpec{
+					Permissions: []schema.Permission{
+						{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet, http.MethodPut}},
 					},
 				},
 			},
-			RoleAssignment: &[]mock.ResourceParams[schema.RoleAssignmentSpec]{
-				{
-					Name: roleAssignmentName,
-					InitialSpec: &schema.RoleAssignmentSpec{
-						Roles: []string{roleName},
-						Subs:  []string{roleAssignmentSub1},
-						Scopes: []schema.RoleAssignmentScope{
-							{Tenants: &[]string{suite.tenant}},
-						},
+			RoleAssignment: &mock.ResourceParams[schema.RoleAssignmentSpec]{
+				Name: roleAssignmentName,
+				InitialSpec: &schema.RoleAssignmentSpec{
+					Roles: []string{roleName},
+					Subs:  []string{roleAssignmentSub1},
+					Scopes: []schema.RoleAssignmentScope{
+						{Tenants: &[]string{suite.tenant}},
 					},
-					UpdatedSpec: &schema.RoleAssignmentSpec{
-						Roles: []string{roleName},
-						Subs:  []string{roleAssignmentSub1, roleAssignmentSub2},
-						Scopes: []schema.RoleAssignmentScope{
-							{Tenants: &[]string{suite.tenant}},
-						},
+				},
+				UpdatedSpec: &schema.RoleAssignmentSpec{
+					Roles: []string{roleName},
+					Subs:  []string{roleAssignmentSub1, roleAssignmentSub2},
+					Scopes: []schema.RoleAssignmentScope{
+						{Tenants: &[]string{suite.tenant}},
 					},
 				},
 			},
@@ -285,7 +281,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		mockParams := &mock.AuthorizationParamsV1{
+		mockParams := &mock.AuthorizationIteratorParamsV1{
 			Params: &mock.Params{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,

@@ -197,93 +197,79 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 					},
 				},
 			},
-			Network: &[]mock.ResourceParams[schema.NetworkSpec]{
-				{
-					Name: networkName,
-					InitialSpec: &schema.NetworkSpec{
-						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
-						SkuRef:        *networkSkuRefObj,
-						RouteTableRef: *routeTableRefObj,
+			Network: &mock.ResourceParams[schema.NetworkSpec]{
+				Name: networkName,
+				InitialSpec: &schema.NetworkSpec{
+					Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
+					SkuRef:        *networkSkuRefObj,
+					RouteTableRef: *routeTableRefObj,
+				},
+				UpdatedSpec: &schema.NetworkSpec{
+					Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
+					SkuRef:        *networkSkuRef2Obj,
+					RouteTableRef: *routeTableRefObj,
+				},
+			},
+			InternetGateway: &mock.ResourceParams[schema.InternetGatewaySpec]{
+				Name:        internetGatewayName,
+				InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
+				UpdatedSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(true)},
+			},
+			RouteTable: &mock.ResourceParams[schema.RouteTableSpec]{
+				Name: routeTableName,
+				InitialSpec: &schema.RouteTableSpec{
+					Routes: []schema.RouteSpec{
+						{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 					},
-					UpdatedSpec: &schema.NetworkSpec{
-						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.networkCidr)},
-						SkuRef:        *networkSkuRef2Obj,
-						RouteTableRef: *routeTableRefObj,
+				},
+				UpdatedSpec: &schema.RouteTableSpec{
+					Routes: []schema.RouteSpec{
+						{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *instanceRefObj},
 					},
 				},
 			},
-			InternetGateway: &[]mock.ResourceParams[schema.InternetGatewaySpec]{
-				{
-					Name:        internetGatewayName,
-					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
-					UpdatedSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(true)},
+			Subnet: &mock.ResourceParams[schema.SubnetSpec]{
+				Name: subnetName,
+				InitialSpec: &schema.SubnetSpec{
+					Cidr: schema.Cidr{Ipv4: &subnetCidr},
+					Zone: zone1,
+				},
+				UpdatedSpec: &schema.SubnetSpec{
+					Cidr: schema.Cidr{Ipv4: &subnetCidr},
+					Zone: zone2,
 				},
 			},
-			RouteTable: &[]mock.ResourceParams[schema.RouteTableSpec]{
-				{
-					Name: routeTableName,
-					InitialSpec: &schema.RouteTableSpec{
-						Routes: []schema.RouteSpec{
-							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *internetGatewayRefObj},
-						},
-					},
-					UpdatedSpec: &schema.RouteTableSpec{
-						Routes: []schema.RouteSpec{
-							{DestinationCidrBlock: routeTableDefaultDestination, TargetRef: *instanceRefObj},
-						},
-					},
+			NIC: &mock.ResourceParams[schema.NicSpec]{
+				Name: nicName,
+				InitialSpec: &schema.NicSpec{
+					Addresses:    []string{nicAddress1},
+					PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+					SubnetRef:    *subnetRefObj,
+				},
+				UpdatedSpec: &schema.NicSpec{
+					Addresses:    []string{nicAddress2},
+					PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+					SubnetRef:    *subnetRefObj,
 				},
 			},
-			Subnet: &[]mock.ResourceParams[schema.SubnetSpec]{
-				{
-					Name: subnetName,
-					InitialSpec: &schema.SubnetSpec{
-						Cidr: schema.Cidr{Ipv4: &subnetCidr},
-						Zone: zone1,
-					},
-					UpdatedSpec: &schema.SubnetSpec{
-						Cidr: schema.Cidr{Ipv4: &subnetCidr},
-						Zone: zone2,
-					},
+			PublicIp: &mock.ResourceParams[schema.PublicIpSpec]{
+				Name: publicIpName,
+				InitialSpec: &schema.PublicIpSpec{
+					Version: schema.IPVersionIPv4,
+					Address: ptr.To(publicIpAddress1),
+				},
+				UpdatedSpec: &schema.PublicIpSpec{
+					Version: schema.IPVersionIPv4,
+					Address: ptr.To(publicIpAddress2),
 				},
 			},
-			NIC: &[]mock.ResourceParams[schema.NicSpec]{
-				{
-					Name: nicName,
-					InitialSpec: &schema.NicSpec{
-						Addresses:    []string{nicAddress1},
-						PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
-						SubnetRef:    *subnetRefObj,
-					},
-					UpdatedSpec: &schema.NicSpec{
-						Addresses:    []string{nicAddress2},
-						PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
-						SubnetRef:    *subnetRefObj,
-					},
+			SecurityGroup: &mock.ResourceParams[schema.SecurityGroupSpec]{
+				Name: securityGroupName,
+				InitialSpec: &schema.SecurityGroupSpec{
+					Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 				},
-			},
-			PublicIp: &[]mock.ResourceParams[schema.PublicIpSpec]{
-				{
-					Name: publicIpName,
-					InitialSpec: &schema.PublicIpSpec{
-						Version: schema.IPVersionIPv4,
-						Address: ptr.To(publicIpAddress1),
-					},
-					UpdatedSpec: &schema.PublicIpSpec{
-						Version: schema.IPVersionIPv4,
-						Address: ptr.To(publicIpAddress2),
-					},
-				},
-			},
-			SecurityGroup: &[]mock.ResourceParams[schema.SecurityGroupSpec]{
-				{
-					Name: securityGroupName,
-					InitialSpec: &schema.SecurityGroupSpec{
-						Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
-					},
-					UpdatedSpec: &schema.SecurityGroupSpec{
-						Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionEgress}},
-					},
+				UpdatedSpec: &schema.SecurityGroupSpec{
+					Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionEgress}},
 				},
 			},
 		}
@@ -1152,7 +1138,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		mockParams := &mock.NetworkParamsV1{
+		mockParams := &mock.NetworkListParamsV1{
 			Params: &mock.Params{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,

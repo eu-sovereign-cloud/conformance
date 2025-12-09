@@ -22,11 +22,11 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
 	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 
-	blockUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, (*params.BlockStorage)[0].Name)
-	imageUrl := secalib.GenerateImageURL(params.Tenant, (*params.Image)[0].Name)
+	blockUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	imageUrl := secalib.GenerateImageURL(params.Tenant, params.Image.Name)
 
-	blockResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, (*params.BlockStorage)[0].Name)
-	imageResource := secalib.GenerateImageResource(params.Tenant, (*params.Image)[0].Name)
+	blockResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	imageResource := secalib.GenerateImageResource(params.Tenant, params.Image.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
@@ -61,14 +61,14 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
-		Name((*params.BlockStorage)[0].Name).
+		Name(params.BlockStorage.Name).
 		Provider(secalib.StorageProviderV1).
 		Resource(blockResource).
 		ApiVersion(secalib.ApiVersion1).
 		Tenant(params.Tenant).
 		Workspace(params.Workspace.Name).
 		Region(params.Region).
-		Spec((*params.BlockStorage)[0].InitialSpec).
+		Spec(params.BlockStorage.InitialSpec).
 		BuildResponse()
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	// Update the block storage
 	setModifiedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
 	setBlockStorageState(blockResponse.Status, schema.ResourceStateUpdating)
-	blockResponse.Spec = *(*params.BlockStorage)[0].UpdatedSpec
+	blockResponse.Spec = *params.BlockStorage.UpdatedSpec
 	blockResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "UpdateBlockStorage", nextState: "GetUpdatedBlockStorage"}); err != nil {
@@ -111,13 +111,13 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 
 	// Image
 	imageResponse, err := builders.NewImageBuilder().
-		Name((*params.Image)[0].Name).
+		Name(params.Image.Name).
 		Provider(secalib.StorageProviderV1).
 		Resource(imageResource).
 		ApiVersion(secalib.ApiVersion1).
 		Tenant(params.Tenant).
 		Region(params.Region).
-		Spec((*params.Image)[0].InitialSpec).
+		Spec(params.Image.InitialSpec).
 		BuildResponse()
 	if err != nil {
 		return nil, err
@@ -143,7 +143,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	// Update the image
 	setModifiedRegionalResourceMetadata(imageResponse.Metadata)
 	setImageState(imageResponse.Status, schema.ResourceStateUpdating)
-	imageResponse.Spec = *(*params.Image)[0].UpdatedSpec
+	imageResponse.Spec = *params.Image.UpdatedSpec
 	imageResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "UpdateImage", nextState: "GetUpdatedImage"}); err != nil {
@@ -198,7 +198,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 }
 
 //nolint:dupl
-func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageParamsV1) (*wiremock.Client, error) {
+func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageListParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	wm, err := newClient(params.MockURL)

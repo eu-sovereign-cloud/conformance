@@ -35,15 +35,13 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 				Tenant:    suite.tenant,
 				Region:    suite.region,
 			},
-			Workspace: &[]mock.ResourceParams[schema.WorkspaceSpec]{
-				{
-					Name: workspaceName,
-					InitialLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvDevelopmentLabel,
-					},
-					UpdatedLabels: schema.Labels{
-						secalib.EnvLabel: secalib.EnvConformanceLabel,
-					},
+			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
+				Name: workspaceName,
+				InitialLabels: schema.Labels{
+					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
+				},
+				UpdatedLabels: schema.Labels{
+					secalib.EnvLabel: secalib.EnvConformanceLabel,
 				},
 			},
 		}
@@ -141,7 +139,7 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		mockParams := &mock.WorkspaceParamsV1{
+		mockParams := &mock.WorkspaceListParamsV1{
 			Params: &mock.Params{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,

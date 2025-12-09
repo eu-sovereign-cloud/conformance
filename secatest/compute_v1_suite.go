@@ -86,22 +86,20 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 					SizeGB: blockStorageSize,
 				},
 			},
-			Instance: &[]mock.ResourceParams[schema.InstanceSpec]{
-				{
-					Name: instanceName,
-					InitialSpec: &schema.InstanceSpec{
-						SkuRef: *instanceSkuRefObj,
-						Zone:   initialInstanceZone,
-						BootVolume: schema.VolumeReference{
-							DeviceRef: *blockStorageRefObj,
-						},
+			Instance: &mock.ResourceParams[schema.InstanceSpec]{
+				Name: instanceName,
+				InitialSpec: &schema.InstanceSpec{
+					SkuRef: *instanceSkuRefObj,
+					Zone:   initialInstanceZone,
+					BootVolume: schema.VolumeReference{
+						DeviceRef: *blockStorageRefObj,
 					},
-					UpdatedSpec: &schema.InstanceSpec{
-						SkuRef: *instanceSkuRefObj,
-						Zone:   updatedInstanceZone,
-						BootVolume: schema.VolumeReference{
-							DeviceRef: *blockStorageRefObj,
-						},
+				},
+				UpdatedSpec: &schema.InstanceSpec{
+					SkuRef: *instanceSkuRefObj,
+					Zone:   updatedInstanceZone,
+					BootVolume: schema.VolumeReference{
+						DeviceRef: *blockStorageRefObj,
 					},
 				},
 			},
@@ -397,7 +395,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		mockParams := &mock.ComputeParamsV1{
+		mockParams := &mock.ComputeListParamsV1{
 			Params: &mock.Params{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,

@@ -71,30 +71,26 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 					secalib.EnvLabel: secalib.EnvDevelopmentLabel,
 				},
 			},
-			BlockStorage: &[]mock.ResourceParams[schema.BlockStorageSpec]{
-				{
-					Name: blockStorageName,
-					InitialSpec: &schema.BlockStorageSpec{
-						SkuRef: *storageSkuRefObj,
-						SizeGB: initialStorageSize,
-					},
-					UpdatedSpec: &schema.BlockStorageSpec{
-						SkuRef: *storageSkuRefObj,
-						SizeGB: updatedStorageSize,
-					},
+			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
+				Name: blockStorageName,
+				InitialSpec: &schema.BlockStorageSpec{
+					SkuRef: *storageSkuRefObj,
+					SizeGB: initialStorageSize,
+				},
+				UpdatedSpec: &schema.BlockStorageSpec{
+					SkuRef: *storageSkuRefObj,
+					SizeGB: updatedStorageSize,
 				},
 			},
-			Image: &[]mock.ResourceParams[schema.ImageSpec]{
-				{
-					Name: imageName,
-					InitialSpec: &schema.ImageSpec{
-						BlockStorageRef: *blockStorageRefObj,
-						CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
-					},
-					UpdatedSpec: &schema.ImageSpec{
-						BlockStorageRef: *blockStorageRefObj,
-						CpuArchitecture: schema.ImageSpecCpuArchitectureArm64,
-					},
+			Image: &mock.ResourceParams[schema.ImageSpec]{
+				Name: imageName,
+				InitialSpec: &schema.ImageSpec{
+					BlockStorageRef: *blockStorageRefObj,
+					CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
+				},
+				UpdatedSpec: &schema.ImageSpec{
+					BlockStorageRef: *blockStorageRefObj,
+					CpuArchitecture: schema.ImageSpecCpuArchitectureArm64,
 				},
 			},
 		}
@@ -361,7 +357,7 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		mockParams := &mock.StorageParamsV1{
+		mockParams := &mock.StorageListParamsV1{
 			Params: &mock.Params{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,

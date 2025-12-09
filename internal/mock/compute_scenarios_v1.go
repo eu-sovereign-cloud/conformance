@@ -21,11 +21,11 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	workspaceUrl := secalib.GenerateWorkspaceURL(params.Tenant, params.Workspace.Name)
 	blockUrl := secalib.GenerateBlockStorageURL(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, (*params.Instance)[0].Name)
+	instanceUrl := secalib.GenerateInstanceURL(params.Tenant, params.Workspace.Name, params.Instance.Name)
 
 	workspaceResource := secalib.GenerateWorkspaceResource(params.Tenant, params.Workspace.Name)
 	blockResource := secalib.GenerateBlockStorageResource(params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace.Name, (*params.Instance)[0].Name)
+	instanceResource := secalib.GenerateInstanceResource(params.Tenant, params.Workspace.Name, params.Instance.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
@@ -93,14 +93,14 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 
 	// Instance
 	instanceResponse, err := builders.NewInstanceBuilder().
-		Name((*params.Instance)[0].Name).
+		Name(params.Instance.Name).
 		Provider(secalib.ComputeProviderV1).
 		Resource(instanceResource).
 		ApiVersion(secalib.ApiVersion1).
 		Tenant(params.Tenant).
 		Workspace(params.Workspace.Name).
 		Region(params.Region).
-		Spec((*params.Instance)[0].InitialSpec).
+		Spec(params.Instance.InitialSpec).
 		BuildResponse()
 	if err != nil {
 		return nil, err
@@ -126,7 +126,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	// Update the instance
 	setModifiedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
 	setInstanceState(instanceResponse.Status, schema.ResourceStateUpdating)
-	instanceResponse.Spec = *(*params.Instance)[0].UpdatedSpec
+	instanceResponse.Spec = *params.Instance.UpdatedSpec
 	instanceResponse.Metadata.Verb = http.MethodPut
 	if err := configurePutStub(wm, scenario,
 		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "UpdateInstance", nextState: "GetUpdatedInstance"}); err != nil {
@@ -226,7 +226,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 }
 
 //nolint:dupl
-func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeParamsV1) (*wiremock.Client, error) {
+func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeListParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	wm, err := newClient(params.MockURL)
