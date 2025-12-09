@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/apparentlymart/go-cidr v1.1.0
-	github.com/eu-sovereign-cloud/go-sdk v0.3.19
+	github.com/eu-sovereign-cloud/go-sdk v0.3.20
 	github.com/ozontech/allure-go/pkg/framework v0.7.6
 	github.com/spf13/cobra v1.10.1
 	github.com/wiremock/go-wiremock v1.14.0
