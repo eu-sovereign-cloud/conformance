@@ -29,27 +29,27 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Create a workspace
-	if err := configureCreateWorkspaceStub(configurator, response, url, params); err != nil {
+	if err := configurator.configureCreateWorkspaceStub(response, url, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created workspace
-	if err := configureGetActiveWorkspaceStub(configurator, response, url, params); err != nil {
+	if err := configurator.configureGetActiveWorkspaceStub(response, url, params); err != nil {
 		return nil, err
 	}
 
 	// Update the workspace
-	if err := configureUpdateWorkspaceStub(configurator, response, url, params.Workspace.UpdatedLabels, params); err != nil {
+	if err := configurator.configureUpdateWorkspaceStubWithLabels(response, url, params, params.Workspace.UpdatedLabels); err != nil {
 		return nil, err
 	}
 
 	// Get the updated workspace
-	if err := configureGetActiveWorkspaceStub(configurator, response, url, params); err != nil {
+	if err := configurator.configureGetActiveWorkspaceStub(response, url, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
-	if err := configurator.configureDeleteStub(url, params, response, false); err != nil {
+	if err := configurator.configureDeleteStub(url, params, false); err != nil {
 		return nil, err
 	}
 

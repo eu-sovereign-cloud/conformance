@@ -8,7 +8,7 @@ import (
 
 // Network
 
-func configureCreateNetworkStub(configurator *scenarioConfigurator, response *schema.Network, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreateNetworkStub(response *schema.Network, url string, params HasParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
 	response.Status = newNetworkStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
@@ -19,10 +19,9 @@ func configureCreateNetworkStub(configurator *scenarioConfigurator, response *sc
 	return nil
 }
 
-func configureUpdateNetworkStub(configurator *scenarioConfigurator, response *schema.Network, url string, labels schema.Labels, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdateNetworkStub(response *schema.Network, url string, params HasParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
 	setNetworkState(response.Status, schema.ResourceStateUpdating)
-	response.Labels = labels
 	response.Metadata.Verb = http.MethodPut
 
 	if err := configurator.configurePutStub(url, params, response, false); err != nil {
@@ -31,7 +30,7 @@ func configureUpdateNetworkStub(configurator *scenarioConfigurator, response *sc
 	return nil
 }
 
-func configureGetActiveNetworkStub(configurator *scenarioConfigurator, response *schema.Network, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActiveNetworkStub(response *schema.Network, url string, params HasParams) error {
 	setNetworkState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 
@@ -43,7 +42,7 @@ func configureGetActiveNetworkStub(configurator *scenarioConfigurator, response 
 
 // Internet gateway
 
-func configureCreateInternetGatewayStub(configurator *scenarioConfigurator, response *schema.InternetGateway, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreateInternetGatewayStub(response *schema.InternetGateway, url string, params HasParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
 	response.Status = newResourceStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
@@ -54,10 +53,9 @@ func configureCreateInternetGatewayStub(configurator *scenarioConfigurator, resp
 	return nil
 }
 
-func configureUpdateInternetGatewayStub(configurator *scenarioConfigurator, response *schema.InternetGateway, url string, labels schema.Labels, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdateInternetGatewayStub(response *schema.InternetGateway, url string, params HasParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
 	setResourceState(response.Status, schema.ResourceStateUpdating)
-	response.Labels = labels
 	response.Metadata.Verb = http.MethodPut
 
 	if err := configurator.configurePutStub(url, params, response, false); err != nil {
@@ -66,7 +64,7 @@ func configureUpdateInternetGatewayStub(configurator *scenarioConfigurator, resp
 	return nil
 }
 
-func configureGetActiveInternetGatewayStub(configurator *scenarioConfigurator, response *schema.InternetGateway, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActiveInternetGatewayStub(response *schema.InternetGateway, url string, params HasParams) error {
 	setResourceState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 
@@ -78,7 +76,7 @@ func configureGetActiveInternetGatewayStub(configurator *scenarioConfigurator, r
 
 // Route table
 
-func configureCreateRouteTableStub(configurator *scenarioConfigurator, response *schema.RouteTable, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreateRouteTableStub(response *schema.RouteTable, url string, params HasParams) error {
 	setCreatedRegionalNetworkResourceMetadata(response.Metadata)
 	response.Status = newRouteTableStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
@@ -89,10 +87,9 @@ func configureCreateRouteTableStub(configurator *scenarioConfigurator, response 
 	return nil
 }
 
-func configureUpdateRouteTableStub(configurator *scenarioConfigurator, response *schema.RouteTable, url string, labels schema.Labels, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdateRouteTableStub(response *schema.RouteTable, url string, params HasParams) error {
 	setModifiedRegionalNetworkResourceMetadata(response.Metadata)
 	setRouteTableState(response.Status, schema.ResourceStateUpdating)
-	response.Labels = labels
 	response.Metadata.Verb = http.MethodPut
 
 	if err := configurator.configurePutStub(url, params, response, false); err != nil {
@@ -101,7 +98,7 @@ func configureUpdateRouteTableStub(configurator *scenarioConfigurator, response 
 	return nil
 }
 
-func configureGetActiveRouteTableStub(configurator *scenarioConfigurator, response *schema.RouteTable, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActiveRouteTableStub(response *schema.RouteTable, url string, params HasParams) error {
 	setRouteTableState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 
@@ -113,7 +110,7 @@ func configureGetActiveRouteTableStub(configurator *scenarioConfigurator, respon
 
 // Subnet
 
-func configureCreateSubnetStub(configurator *scenarioConfigurator, response *schema.Subnet, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreateSubnetStub(response *schema.Subnet, url string, params HasParams) error {
 	setCreatedRegionalNetworkResourceMetadata(response.Metadata)
 	response.Status = newSubnetStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
@@ -124,10 +121,9 @@ func configureCreateSubnetStub(configurator *scenarioConfigurator, response *sch
 	return nil
 }
 
-func configureUpdateSubnetStub(configurator *scenarioConfigurator, response *schema.Subnet, url string, labels schema.Labels, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdateSubnetStub(response *schema.Subnet, url string, params HasParams) error {
 	setModifiedRegionalNetworkResourceMetadata(response.Metadata)
 	setSubnetState(response.Status, schema.ResourceStateUpdating)
-	response.Labels = labels
 	response.Metadata.Verb = http.MethodPut
 
 	if err := configurator.configurePutStub(url, params, response, false); err != nil {
@@ -136,7 +132,7 @@ func configureUpdateSubnetStub(configurator *scenarioConfigurator, response *sch
 	return nil
 }
 
-func configureGetActiveSubnetStub(configurator *scenarioConfigurator, response *schema.Subnet, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActiveSubnetStub(response *schema.Subnet, url string, params HasParams) error {
 	setSubnetState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 
@@ -148,7 +144,7 @@ func configureGetActiveSubnetStub(configurator *scenarioConfigurator, response *
 
 // Public ip
 
-func configureCreatePublicIpStub(configurator *scenarioConfigurator, response *schema.PublicIp, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreatePublicIpStub(response *schema.PublicIp, url string, params HasParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
 	response.Status = newPublicIpStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
@@ -159,10 +155,9 @@ func configureCreatePublicIpStub(configurator *scenarioConfigurator, response *s
 	return nil
 }
 
-func configureUpdatePublicIpStub(configurator *scenarioConfigurator, response *schema.PublicIp, url string, labels schema.Labels, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdatePublicIpStub(response *schema.PublicIp, url string, params HasParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
 	setPublicIpState(response.Status, schema.ResourceStateUpdating)
-	response.Labels = labels
 	response.Metadata.Verb = http.MethodPut
 
 	if err := configurator.configurePutStub(url, params, response, false); err != nil {
@@ -171,7 +166,7 @@ func configureUpdatePublicIpStub(configurator *scenarioConfigurator, response *s
 	return nil
 }
 
-func configureGetActivePublicIpStub(configurator *scenarioConfigurator, response *schema.PublicIp, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActivePublicIpStub(response *schema.PublicIp, url string, params HasParams) error {
 	setPublicIpState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 
@@ -183,7 +178,7 @@ func configureGetActivePublicIpStub(configurator *scenarioConfigurator, response
 
 // Nic
 
-func configureCreateNicStub(configurator *scenarioConfigurator, response *schema.Nic, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreateNicStub(response *schema.Nic, url string, params HasParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
 	response.Status = newNicStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
@@ -194,10 +189,9 @@ func configureCreateNicStub(configurator *scenarioConfigurator, response *schema
 	return nil
 }
 
-func configureUpdateNicStub(configurator *scenarioConfigurator, response *schema.Nic, url string, labels schema.Labels, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdateNicStub(response *schema.Nic, url string, params HasParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
 	setNicState(response.Status, schema.ResourceStateUpdating)
-	response.Labels = labels
 	response.Metadata.Verb = http.MethodPut
 
 	if err := configurator.configurePutStub(url, params, response, false); err != nil {
@@ -206,7 +200,7 @@ func configureUpdateNicStub(configurator *scenarioConfigurator, response *schema
 	return nil
 }
 
-func configureGetActiveNicStub(configurator *scenarioConfigurator, response *schema.Nic, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActiveNicStub(response *schema.Nic, url string, params HasParams) error {
 	setNicState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 
@@ -218,7 +212,7 @@ func configureGetActiveNicStub(configurator *scenarioConfigurator, response *sch
 
 // Security group
 
-func configureCreateSecurityGroupStub(configurator *scenarioConfigurator, response *schema.SecurityGroup, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreateSecurityGroupStub(response *schema.SecurityGroup, url string, params HasParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
 	response.Status = newSecurityGroupStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
@@ -229,10 +223,9 @@ func configureCreateSecurityGroupStub(configurator *scenarioConfigurator, respon
 	return nil
 }
 
-func configureUpdateSecurityGroupStub(configurator *scenarioConfigurator, response *schema.SecurityGroup, url string, labels schema.Labels, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdateSecurityGroupStub(response *schema.SecurityGroup, url string, params HasParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
 	setSecurityGroupState(response.Status, schema.ResourceStateUpdating)
-	response.Labels = labels
 	response.Metadata.Verb = http.MethodPut
 
 	if err := configurator.configurePutStub(url, params, response, false); err != nil {
@@ -241,7 +234,7 @@ func configureUpdateSecurityGroupStub(configurator *scenarioConfigurator, respon
 	return nil
 }
 
-func configureGetActiveSecurityGroupStub(configurator *scenarioConfigurator, response *schema.SecurityGroup, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActiveSecurityGroupStub(response *schema.SecurityGroup, url string, params HasParams) error {
 	setSecurityGroupState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 

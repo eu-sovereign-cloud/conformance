@@ -2,18 +2,16 @@ package mock
 
 import (
 	"log/slog"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
 
 func CreateAuthorizationLifecycleScenarioV1(scenario string, params *AuthorizationParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
-	wm, err := newMockClient(params.MockURL)
+	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
 	if err != nil {
 		return nil, err
 	}
@@ -33,37 +31,23 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Create a role
-	setCreatedGlobalTenantResourceMetadata(roleResponse.Metadata)
-	roleResponse.Status = newResourceStatus(schema.ResourceStateCreating)
-	roleResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: startedScenarioState, nextState: "GetCreatedRole"}); err != nil {
+	if err := configurator.configureCreateRoleStub(roleResponse, roleUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created role
-	setResourceState(roleResponse.Status, schema.ResourceStateActive)
-	roleResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetCreatedRole", nextState: "UpdateRole"}); err != nil {
+	if err := configurator.configureGetActiveRoleStub(roleResponse, roleUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Update the role
-	setModifiedGlobalTenantResourceMetadata(roleResponse.Metadata)
-	setResourceState(roleResponse.Status, schema.ResourceStateUpdating)
 	roleResponse.Spec = *params.Role.UpdatedSpec
-	roleResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "UpdateRole", nextState: "GetUpdatedRole"}); err != nil {
+	if err := configurator.configureUpdateRoleStub(roleResponse, roleUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the updated role
-	setResourceState(roleResponse.Status, schema.ResourceStateActive)
-	roleResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetUpdatedRole", nextState: "CreateRoleAssignment"}); err != nil {
+	if err := configurator.configureGetActiveRoleStub(roleResponse, roleUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -79,63 +63,45 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Create a role assignment
-	setCreatedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-	roleAssignResponse.Status = newResourceStatus(schema.ResourceStateCreating)
-	roleAssignResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "CreateRoleAssignment", nextState: "GetCreatedRoleAssignment"}); err != nil {
+	if err := configurator.configureCreateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created role assignment
-	setResourceState(roleAssignResponse.Status, schema.ResourceStateActive)
-	roleAssignResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetCreatedRoleAssignment", nextState: "UpdateRoleAssignment"}); err != nil {
+	if err := configurator.configureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Update the role assignment
-	setModifiedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-	setResourceState(roleAssignResponse.Status, schema.ResourceStateUpdating)
 	roleAssignResponse.Spec = *params.RoleAssignment.UpdatedSpec
-	roleAssignResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "UpdateRoleAssignment", nextState: "GetUpdatedRoleAssignment"}); err != nil {
+	if err := configurator.configureUpdateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the updated role assignment
-	setResourceState(roleAssignResponse.Status, schema.ResourceStateActive)
-	roleAssignResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetUpdatedRoleAssignment", nextState: "DeleteRoleAssignment"}); err != nil {
+	if err := configurator.configureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the role assignment
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, currentState: "DeleteRoleAssignment", nextState: "GetDeletedRoleAssignment"}); err != nil {
+	if err := configurator.configureDeleteStub(roleAssignUrl, params, false); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted role assignment
-	if err := configureGetNotFoundStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, currentState: "GetDeletedRoleAssignment", nextState: "DeleteRole"}); err != nil {
+	if err := configurator.configureGetNotFoundStub(roleAssignUrl, params, false); err != nil {
 		return nil, err
 	}
 
 	// Delete the role
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, currentState: "DeleteRole", nextState: "GetDeletedRole"}); err != nil {
+	if err := configurator.configureDeleteStub(roleUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Get deleted role
-	if err := configureGetNotFoundStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, currentState: "GetDeletedRole", nextState: startedScenarioState}); err != nil {
+	// Get the deleted role
+	if err := configurator.configureGetNotFoundStub(roleUrl, params, true); err != nil {
 		return nil, err
 	}
 
-	return wm, nil
+	return configurator.client, nil
 }

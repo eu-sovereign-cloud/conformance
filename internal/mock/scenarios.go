@@ -31,8 +31,13 @@ func newScenarioConfigurator(scenarioName, mockURL string) (*scenarioConfigurato
 	}, nil
 }
 
-func (builder *scenarioConfigurator) configureStub(stubFunc func(*wiremock.Client, string, *stubConfig) error,
-	url string, params HasParams, responseBody any, restart bool,
+func (builder *scenarioConfigurator) configureStub(
+	stubFunc func(*wiremock.Client, string, *stubConfig) error,
+	url string,
+	params HasParams,
+	headers map[string]string,
+	responseBody any,
+	restart bool,
 ) error {
 	// Calculte next state
 	var stateID int
@@ -46,7 +51,7 @@ func (builder *scenarioConfigurator) configureStub(stubFunc func(*wiremock.Clien
 	}
 
 	if err := stubFunc(builder.client, builder.scenarioName,
-		&stubConfig{url: url, params: params, responseBody: responseBody, currentState: builder.currentState, nextState: nextState}); err != nil {
+		&stubConfig{url: url, params: params, headers: headers, responseBody: responseBody, currentState: builder.currentState, nextState: nextState}); err != nil {
 		return err
 	}
 
@@ -56,35 +61,42 @@ func (builder *scenarioConfigurator) configureStub(stubFunc func(*wiremock.Clien
 }
 
 func (builder *scenarioConfigurator) configurePutStub(url string, params HasParams, responseBody any, restart bool) error {
-	if err := builder.configureStub(configurePutStub, url, params, responseBody, restart); err != nil {
+	if err := builder.configureStub(configurePutStub, url, params, nil, responseBody, restart); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (builder *scenarioConfigurator) configurePostStub(url string, params HasParams, responseBody any, restart bool) error {
-	if err := builder.configureStub(configurePostStub, url, params, responseBody, restart); err != nil {
+	if err := builder.configureStub(configurePostStub, url, params, nil, responseBody, restart); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (builder *scenarioConfigurator) configureGetStub(url string, params HasParams, responseBody any, restart bool) error {
-	if err := builder.configureStub(configureGetStub, url, params, responseBody, restart); err != nil {
+	if err := builder.configureStub(configureGetStub, url, params, nil, responseBody, restart); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (builder *scenarioConfigurator) configureGetStubWithHeaders(url string, params HasParams, headers map[string]string, responseBody any, restart bool) error {
+	if err := builder.configureStub(configureGetStub, url, params, headers, responseBody, restart); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (builder *scenarioConfigurator) configureGetNotFoundStub(url string, params HasParams, restart bool) error {
-	if err := builder.configureStub(configureGetNotFoundStub, url, params, nil, restart); err != nil {
+	if err := builder.configureStub(configureGetNotFoundStub, url, params, nil, nil, restart); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (builder *scenarioConfigurator) configureDeleteStub(url string, params HasParams, responseBody any, restart bool) error {
-	if err := builder.configureStub(configureDeleteStub, url, params, responseBody, restart); err != nil {
+func (builder *scenarioConfigurator) configureDeleteStub(url string, params HasParams, restart bool) error {
+	if err := builder.configureStub(configureDeleteStub, url, params, nil, nil, restart); err != nil {
 		return err
 	}
 	return nil

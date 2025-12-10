@@ -2,18 +2,16 @@ package mock
 
 import (
 	"log/slog"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
 
 func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
-	wm, err := newMockClient(params.MockURL)
+	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
 	if err != nil {
 		return nil, err
 	}
@@ -34,19 +32,12 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Create a workspace
-	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
-	workspaceResponse.Status = newWorkspaceStatus(schema.ResourceStateCreating)
-	workspaceResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: startedScenarioState, nextState: "GetCreatedWorkspace"}); err != nil {
+	if err := configurator.configureCreateWorkspaceStub(workspaceResponse, workspaceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created workspace
-	setWorkspaceState(workspaceResponse.Status, schema.ResourceStateActive)
-	workspaceResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateBlockStorage"}); err != nil {
+	if err := configurator.configureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -62,20 +53,12 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Create a block storage
-	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
-	blockResponse.Status = newBlockStorageStatus(schema.ResourceStateCreating)
-	blockResponse.Spec.SizeGB = params.BlockStorage.InitialSpec.SizeGB
-	blockResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "CreateBlockStorage", nextState: "GetCreatedBlockStorage"}); err != nil {
+	if err := configurator.configureCreateBlockStorageStub(blockResponse, blockUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created block storage
-	setBlockStorageState(blockResponse.Status, schema.ResourceStateActive)
-	blockResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "CreateInstance"}); err != nil {
+	if err := configurator.configureGetActiveBlockStorageStub(blockResponse, blockUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -91,120 +74,85 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Create an instance
-	setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-	instanceResponse.Status = newInstanceStatus(schema.ResourceStateCreating)
-	instanceResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "CreateInstance", nextState: "GetCreatedInstance"}); err != nil {
+	if err := configurator.configureCreateInstanceStub(instanceResponse, instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created instance
-	setInstanceState(instanceResponse.Status, schema.ResourceStateActive)
-	instanceResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetCreatedInstance", nextState: "UpdateInstance"}); err != nil {
+	if err := configurator.configureGetActiveInstanceStub(instanceResponse, instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Update the instance
-	setModifiedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-	setInstanceState(instanceResponse.Status, schema.ResourceStateUpdating)
 	instanceResponse.Spec = *params.Instance.UpdatedSpec
-	instanceResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "UpdateInstance", nextState: "GetUpdatedInstance"}); err != nil {
+	if err := configurator.configureUpdateInstanceStub(instanceResponse, instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the updated instance
-	setInstanceState(instanceResponse.Status, schema.ResourceStateActive)
-	instanceResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetUpdatedInstance", nextState: "StopInstance"}); err != nil {
+	if err := configurator.configureGetActiveInstanceStub(instanceResponse, instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Stop the instance
-	instanceResponse.Metadata.Verb = http.MethodPost
-	if err := configurePostStub(wm, scenario,
-		&stubConfig{url: instanceUrl + "/stop", params: params, responseBody: instanceResponse, currentState: "StopInstance", nextState: "GetStoppedInstance"}); err != nil {
+	if err := configurator.configureInstanceOperationStub(instanceResponse, instanceUrl+"/stop", params); err != nil {
 		return nil, err
 	}
 
 	// Get the stopped instance
-	setInstanceState(instanceResponse.Status, schema.ResourceStateSuspended)
-	instanceResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetStoppedInstance", nextState: "StartInstance"}); err != nil {
+	if err := configurator.configureGetSuspendedInstanceStub(instanceResponse, instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Start the instance
-	instanceResponse.Metadata.Verb = http.MethodPost
-	if err := configurePostStub(wm, scenario,
-		&stubConfig{url: instanceUrl + "/start", params: params, responseBody: instanceResponse, currentState: "StartInstance", nextState: "GetStartedInstance"}); err != nil {
+	if err := configurator.configureInstanceOperationStub(instanceResponse, instanceUrl+"/start", params); err != nil {
 		return nil, err
 	}
 
 	// Get the started instance
-	setInstanceState(instanceResponse.Status, schema.ResourceStateActive)
-	instanceResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetStartedInstance", nextState: "RestartInstance"}); err != nil {
+	if err := configurator.configureGetActiveInstanceStub(instanceResponse, instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Restart the instance
-	instanceResponse.Metadata.Verb = http.MethodPost
-	if err := configurePostStub(wm, scenario,
-		&stubConfig{url: instanceUrl + "/restart", params: params, responseBody: instanceResponse, currentState: "RestartInstance", nextState: "GetRestartedInstance"}); err != nil {
+	if err := configurator.configureInstanceOperationStub(instanceResponse, instanceUrl+"/restart", params); err != nil {
 		return nil, err
 	}
 
 	// Get the restarted instance
-	setInstanceState(instanceResponse.Status, schema.ResourceStateActive)
-	instanceResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetRestartedInstance", nextState: "DeleteInstance"}); err != nil {
+	if err := configurator.configureGetActiveInstanceStub(instanceResponse, instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the instance
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, currentState: "DeleteInstance", nextState: "GetDeletedInstance"}); err != nil {
+	if err := configurator.configureDeleteStub(instanceUrl, params, false); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted instance
-	if err := configureGetNotFoundStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, currentState: "GetDeletedInstance", nextState: "DeleteBlockStorage"}); err != nil {
+	if err := configurator.configureGetNotFoundStub(instanceUrl, params, false); err != nil {
 		return nil, err
 	}
 
 	// Delete the block storage
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, currentState: "DeleteBlockStorage", nextState: "GetDeletedBlockStorage"}); err != nil {
+	if err := configurator.configureDeleteStub(blockUrl, params, false); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted block storage
-	if err := configureGetNotFoundStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, currentState: "GetDeletedBlockStorage", nextState: "DeleteWorkspace"}); err != nil {
+	if err := configurator.configureGetNotFoundStub(blockUrl, params, false); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, currentState: "DeleteWorkspace", nextState: "GetDeletedWorkspace"}); err != nil {
+	if err := configurator.configureDeleteStub(workspaceUrl, params, false); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted workspace
-	if err := configureGetNotFoundStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, currentState: "GetDeletedWorkspace", nextState: startedScenarioState}); err != nil {
+	if err := configurator.configureGetNotFoundStub(workspaceUrl, params, true); err != nil {
 		return nil, err
 	}
 
-	return wm, nil
+	return configurator.client, nil
 }

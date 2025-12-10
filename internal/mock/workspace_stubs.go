@@ -8,7 +8,7 @@ import (
 
 // Workspace
 
-func configureCreateWorkspaceStub(configurator *scenarioConfigurator, response *schema.Workspace, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreateWorkspaceStub(response *schema.Workspace, url string, params HasParams) error {
 	setCreatedRegionalResourceMetadata(response.Metadata)
 	response.Status = newWorkspaceStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
@@ -19,7 +19,7 @@ func configureCreateWorkspaceStub(configurator *scenarioConfigurator, response *
 	return nil
 }
 
-func configureUpdateWorkspaceStub(configurator *scenarioConfigurator, response *schema.Workspace, url string, labels schema.Labels, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdateWorkspaceStubWithLabels(response *schema.Workspace, url string, params HasParams, labels schema.Labels) error {
 	setModifiedRegionalResourceMetadata(response.Metadata)
 	setWorkspaceState(response.Status, schema.ResourceStateUpdating)
 	response.Labels = labels
@@ -31,7 +31,7 @@ func configureUpdateWorkspaceStub(configurator *scenarioConfigurator, response *
 	return nil
 }
 
-func configureGetActiveWorkspaceStub(configurator *scenarioConfigurator, response *schema.Workspace, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActiveWorkspaceStub(response *schema.Workspace, url string, params HasParams) error {
 	setWorkspaceState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 

@@ -8,7 +8,7 @@ import (
 
 // Block storage
 
-func configureCreateBlockStorageStub(configurator *scenarioConfigurator, response *schema.BlockStorage, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreateBlockStorageStub(response *schema.BlockStorage, url string, params HasParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
 	response.Status = newBlockStorageStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
@@ -19,10 +19,9 @@ func configureCreateBlockStorageStub(configurator *scenarioConfigurator, respons
 	return nil
 }
 
-func configureUpdateBlockStorageStub(configurator *scenarioConfigurator, response *schema.BlockStorage, url string, labels schema.Labels, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdateBlockStorageStub(response *schema.BlockStorage, url string, params HasParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
 	setBlockStorageState(response.Status, schema.ResourceStateUpdating)
-	response.Labels = labels
 	response.Metadata.Verb = http.MethodPut
 
 	if err := configurator.configurePutStub(url, params, response, false); err != nil {
@@ -31,7 +30,7 @@ func configureUpdateBlockStorageStub(configurator *scenarioConfigurator, respons
 	return nil
 }
 
-func configureGetActiveBlockStorageStub(configurator *scenarioConfigurator, response *schema.BlockStorage, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActiveBlockStorageStub(response *schema.BlockStorage, url string, params HasParams) error {
 	setBlockStorageState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 
@@ -43,7 +42,7 @@ func configureGetActiveBlockStorageStub(configurator *scenarioConfigurator, resp
 
 // Image
 
-func configureCreateImageStub(configurator *scenarioConfigurator, response *schema.Image, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreateImageStub(response *schema.Image, url string, params HasParams) error {
 	setCreatedRegionalResourceMetadata(response.Metadata)
 	response.Status = newImageStatus(schema.ResourceStateCreating)
 	response.Metadata.Verb = http.MethodPut
@@ -54,10 +53,9 @@ func configureCreateImageStub(configurator *scenarioConfigurator, response *sche
 	return nil
 }
 
-func configureUpdateImageStub(configurator *scenarioConfigurator, response *schema.Image, url string, labels schema.Labels, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdateImageStub(response *schema.Image, url string, params HasParams) error {
 	setModifiedRegionalResourceMetadata(response.Metadata)
 	setImageState(response.Status, schema.ResourceStateUpdating)
-	response.Labels = labels
 	response.Metadata.Verb = http.MethodPut
 
 	if err := configurator.configurePutStub(url, params, response, false); err != nil {
@@ -66,7 +64,7 @@ func configureUpdateImageStub(configurator *scenarioConfigurator, response *sche
 	return nil
 }
 
-func configureGetActiveImageStub(configurator *scenarioConfigurator, response *schema.Image, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActiveImageStub(response *schema.Image, url string, params HasParams) error {
 	setImageState(response.Status, schema.ResourceStateActive)
 	response.Metadata.Verb = http.MethodGet
 

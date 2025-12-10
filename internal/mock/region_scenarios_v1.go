@@ -6,7 +6,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
-	regionV1 "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.region.v1"
+	region "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.region.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
@@ -14,10 +14,11 @@ import (
 func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
-	wm, err := newMockClient(params.MockURL)
+	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
 	if err != nil {
 		return nil, err
 	}
+
 	// Generate resource
 	regionsResource := generators.GenerateRegionResource("Regions")
 	regionResource := generators.GenerateRegionResource(params.Regions[0].Name)
@@ -31,7 +32,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 		authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + params.AuthToken,
 	}
 
-	regionsResponse := &regionV1.RegionIterator{
+	regionsResponse := &region.RegionIterator{
 		Metadata: schema.ResponseMetadata{
 			Provider: regionProviderV1,
 			Resource: regionsResource,
@@ -58,8 +59,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	regionsResponse.Items = regionsList
 
 	// 1 - Create ListRegions stub
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: regionsUrl, params: params, headers: headerParams, responseBody: regionsResponse, currentState: "", nextState: ""}); err != nil {
+	if err := configurator.configureGetStubWithHeaders(regionsUrl, params, headerParams, regionsResponse, false); err != nil {
 		return nil, err
 	}
 
@@ -76,10 +76,9 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 		Spec: regionsResponse.Items[0].Spec,
 	}
 
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: regionUrl, params: params, headers: headerParams, responseBody: singleRegionResponse, currentState: "", nextState: ""}); err != nil {
+	if err := configurator.configureGetStubWithHeaders(regionUrl, params, headerParams, singleRegionResponse, true); err != nil {
 		return nil, err
 	}
 
-	return wm, nil
+	return configurator.client, nil
 }

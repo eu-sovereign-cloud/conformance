@@ -2,18 +2,16 @@ package mock
 
 import (
 	"log/slog"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
 
 func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
-	wm, err := newMockClient(params.MockURL)
+	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
 	if err != nil {
 		return nil, err
 	}
@@ -46,20 +44,13 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Create Role
-	setCreatedGlobalTenantResourceMetadata(roleResponse.Metadata)
-	roleResponse.Status = newResourceStatus(schema.ResourceStateCreating)
-	roleResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: startedScenarioState, nextState: "GetCreatedRole"}); err != nil {
+	// Create a role
+	if err := configurator.configureCreateRoleStub(roleResponse, roleUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created role
-	setResourceState(roleResponse.Status, schema.ResourceStateActive)
-	roleResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, responseBody: roleResponse, currentState: "GetCreatedRole", nextState: "CreateRoleAssignment"}); err != nil {
+	if err := configurator.configureGetActiveRoleStub(roleResponse, roleUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -75,19 +66,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a role assignment
-	setCreatedGlobalTenantResourceMetadata(roleAssignResponse.Metadata)
-	roleAssignResponse.Status = newResourceStatus(schema.ResourceStateCreating)
-	roleAssignResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "CreateRoleAssignment", nextState: "GetCreatedRoleAssignment"}); err != nil {
+	if err := configurator.configureCreateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created role assignment
-	setResourceState(roleAssignResponse.Status, schema.ResourceStateActive)
-	roleAssignResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, responseBody: roleAssignResponse, currentState: "GetCreatedRoleAssignment", nextState: "CreateWorkspace"}); err != nil {
+	if err := configurator.configureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -103,19 +87,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a workspace
-	setCreatedRegionalResourceMetadata(workspaceResponse.Metadata)
-	workspaceResponse.Status = newWorkspaceStatus(schema.ResourceStateCreating)
-	workspaceResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "CreateWorkspace", nextState: "GetCreatedWorkspace"}); err != nil {
+	if err := configurator.configureCreateWorkspaceStub(workspaceResponse, workspaceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created workspace
-	setWorkspaceState(workspaceResponse.Status, schema.ResourceStateActive)
-	workspaceResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, responseBody: workspaceResponse, currentState: "GetCreatedWorkspace", nextState: "CreateImage"}); err != nil {
+	if err := configurator.configureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -133,19 +110,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create an image
-	setCreatedRegionalResourceMetadata(imageResponse.Metadata)
-	imageResponse.Status = newImageStatus(schema.ResourceStateCreating)
-	imageResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "CreateImage", nextState: "GetCreatedImage"}); err != nil {
+	if err := configurator.configureCreateImageStub(imageResponse, imageUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created image
-	setImageState(imageResponse.Status, schema.ResourceStateActive)
-	imageResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, responseBody: imageResponse, currentState: "GetCreatedImage", nextState: "CreateBlockStorage"}); err != nil {
+	if err := configurator.configureGetActiveImageStub(imageResponse, imageUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -161,19 +131,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a block storage
-	setCreatedRegionalWorkspaceResourceMetadata(blockResponse.Metadata)
-	blockResponse.Status = newBlockStorageStatus(schema.ResourceStateCreating)
-	blockResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "CreateBlockStorage", nextState: "GetCreatedBlockStorage"}); err != nil {
+	if err := configurator.configureCreateBlockStorageStub(blockResponse, blockUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created block storage
-	setBlockStorageState(blockResponse.Status, schema.ResourceStateActive)
-	blockResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, responseBody: blockResponse, currentState: "GetCreatedBlockStorage", nextState: "CreateNetwork"}); err != nil {
+	if err := configurator.configureGetActiveBlockStorageStub(blockResponse, blockUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -190,20 +153,13 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Create  Network
-	setCreatedRegionalWorkspaceResourceMetadata(networkResponse.Metadata)
-	networkResponse.Status = newNetworkStatus(schema.ResourceStateCreating)
-	networkResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "CreateNetwork", nextState: "GetNetwork"}); err != nil {
+	// Create a network
+	if err := configurator.configureCreateNetworkStub(networkResponse, networkUrl, params); err != nil {
 		return nil, err
 	}
 
-	// Get network
-	setNetworkState(networkResponse.Status, schema.ResourceStateActive)
-	networkResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: networkUrl, params: params, responseBody: networkResponse, currentState: "GetNetwork", nextState: "CreateInternetGateway"}); err != nil {
+	// Get the created network
+	if err := configurator.configureGetActiveNetworkStub(networkResponse, networkUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -218,20 +174,13 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Create internet gateway
-	setCreatedRegionalWorkspaceResourceMetadata(gatewayResponse.Metadata)
-	gatewayResponse.Status = newResourceStatus(schema.ResourceStateCreating)
-	gatewayResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "CreateInternetGateway", nextState: "GetInternetGateway"}); err != nil {
+	// Create an internet gateway
+	if err := configurator.configureCreateInternetGatewayStub(gatewayResponse, gatewayUrl, params); err != nil {
 		return nil, err
 	}
 
-	// Get internet-gateway
-	setResourceState(gatewayResponse.Status, schema.ResourceStateActive)
-	gatewayResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: gatewayUrl, params: params, responseBody: gatewayResponse, currentState: "GetInternetGateway", nextState: "CreateRouteTable"}); err != nil {
+	// Get the created internet gateway
+	if err := configurator.configureGetActiveInternetGatewayStub(gatewayResponse, gatewayUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -246,20 +195,13 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Create route-table
-	setCreatedRegionalNetworkResourceMetadata(routeResponse.Metadata)
-	routeResponse.Status = newRouteTableStatus(schema.ResourceStateCreating)
-	routeResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "CreateRouteTable", nextState: "GetRouteTable"}); err != nil {
+	// Create a route table
+	if err := configurator.configureCreateRouteTableStub(routeResponse, routeUrl, params); err != nil {
 		return nil, err
 	}
 
-	// Get route-table
-	setRouteTableState(routeResponse.Status, schema.ResourceStateActive)
-	routeResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: routeUrl, params: params, responseBody: routeResponse, currentState: "GetRouteTable", nextState: "CreateSubnet"}); err != nil {
+	// Get the created route table
+	if err := configurator.configureGetActiveRouteTableStub(routeResponse, routeUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -274,20 +216,13 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Create subnet
-	setCreatedRegionalNetworkResourceMetadata(subnetResponse.Metadata)
-	subnetResponse.Status = newSubnetStatus(schema.ResourceStateCreating)
-	subnetResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "CreateSubnet", nextState: "GetSubnet"}); err != nil {
+	// Create a subnet
+	if err := configurator.configureCreateSubnetStub(subnetResponse, subnetUrl, params); err != nil {
 		return nil, err
 	}
 
-	// Get subnet
-	setSubnetState(subnetResponse.Status, schema.ResourceStateActive)
-	subnetResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: subnetUrl, params: params, responseBody: subnetResponse, currentState: "GetSubnet", nextState: "CreateSecurityGroup"}); err != nil {
+	// Get the created subnet
+	if err := configurator.configureGetActiveSubnetStub(subnetResponse, subnetUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -302,24 +237,17 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Create security-group
-	setCreatedRegionalWorkspaceResourceMetadata(groupResponse.Metadata)
-	groupResponse.Status = newSecurityGroupStatus(schema.ResourceStateCreating)
-	groupResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "CreateSecurityGroup", nextState: "GetSecurityGroup"}); err != nil {
+	// Create a security group
+	if err := configurator.configureCreateSecurityGroupStub(groupResponse, groupUrl, params); err != nil {
 		return nil, err
 	}
 
-	// Get security-group
-	setSecurityGroupState(groupResponse.Status, schema.ResourceStateActive)
-	groupResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: groupUrl, params: params, responseBody: groupResponse, currentState: "GetSecurityGroup", nextState: "CreatePublicIp"}); err != nil {
+	// Get the created security group
+	if err := configurator.configureGetActiveSecurityGroupStub(groupResponse, groupUrl, params); err != nil {
 		return nil, err
 	}
 
-	// Public-ip
+	// Public ip
 	publicIpResponse, err := builders.NewPublicIpBuilder().
 		Name(params.PublicIp.Name).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
@@ -330,20 +258,13 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Create public-ip
-	setCreatedRegionalWorkspaceResourceMetadata(publicIpResponse.Metadata)
-	publicIpResponse.Status = newPublicIpStatus(schema.ResourceStateCreating)
-	publicIpResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "CreatePublicIp", nextState: "GetPublicIp"}); err != nil {
+	// Create a public ip
+	if err := configurator.configureCreatePublicIpStub(publicIpResponse, publicIpUrl, params); err != nil {
 		return nil, err
 	}
 
-	// Get public-ip
-	setPublicIpState(publicIpResponse.Status, schema.ResourceStateActive)
-	publicIpResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: publicIpUrl, params: params, responseBody: publicIpResponse, currentState: "GetPublicIp", nextState: "CreateNIC"}); err != nil {
+	// Get the created public ip
+	if err := configurator.configureGetActivePublicIpStub(publicIpResponse, publicIpUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -358,20 +279,13 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		return nil, err
 	}
 
-	// Create NIC
-	setCreatedRegionalWorkspaceResourceMetadata(nicResponse.Metadata)
-	nicResponse.Status = newNicStatus(schema.ResourceStateCreating)
-	nicResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "CreateNIC", nextState: "GetNIC"}); err != nil {
+	// Create a nic
+	if err := configurator.configureCreateNicStub(nicResponse, nicUrl, params); err != nil {
 		return nil, err
 	}
 
-	// Get NIC
-	setNicState(nicResponse.Status, schema.ResourceStateActive)
-	nicResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: nicUrl, params: params, responseBody: nicResponse, currentState: "GetNIC", nextState: "CreateInstance"}); err != nil {
+	// Get the created nic
+	if err := configurator.configureGetActiveNicStub(nicResponse, nicUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -389,101 +303,81 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create an instance
-	setCreatedRegionalWorkspaceResourceMetadata(instanceResponse.Metadata)
-	instanceResponse.Status = newInstanceStatus(schema.ResourceStateCreating)
-	instanceResponse.Metadata.Verb = http.MethodPut
-	if err := configurePutStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "CreateInstance", nextState: "GetCreatedInstance"}); err != nil {
+	if err := configurator.configureCreateInstanceStub(instanceResponse, instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the created instance
-	setInstanceState(instanceResponse.Status, schema.ResourceStateActive)
-	instanceResponse.Metadata.Verb = http.MethodGet
-	if err := configureGetStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, responseBody: instanceResponse, currentState: "GetCreatedInstance", nextState: "DeleteInstance"}); err != nil {
+	if err := configurator.configureGetActiveInstanceStub(instanceResponse, instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete all
 
-	// Delete instance
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: instanceUrl, params: params, currentState: "DeleteInstance", nextState: "DeleteSecurityGroup"}); err != nil {
+	// Delete the instance
+	if err := configurator.configureDeleteStub(instanceUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete Security Group
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: groupUrl, params: params, currentState: "DeleteSecurityGroup", nextState: "DeleteNic"}); err != nil {
+	// Delete the security Group
+	if err := configurator.configureDeleteStub(groupUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete nic
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: nicUrl, params: params, currentState: "DeleteNic", nextState: "DeletePublicIp"}); err != nil {
+	// Delete the nic
+	if err := configurator.configureDeleteStub(nicUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete public ip
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: publicIpUrl, params: params, currentState: "DeletePublicIp", nextState: "DeleteSubnet"}); err != nil {
+	// Delete the public ip
+	if err := configurator.configureDeleteStub(publicIpUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete subnet
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: subnetUrl, params: params, currentState: "DeleteSubnet", nextState: "DeleteRouteTable"}); err != nil {
+	// Delete the subnet
+	if err := configurator.configureDeleteStub(subnetUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete route-table
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: routeUrl, params: params, currentState: "DeleteRouteTable", nextState: "DeleteInternetGateway"}); err != nil {
+	// Delete the route-table
+	if err := configurator.configureDeleteStub(routeUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete internet-gateway
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: gatewayUrl, params: params, currentState: "DeleteInternetGateway", nextState: "DeleteNetwork"}); err != nil {
+	// Delete the internet gateway
+	if err := configurator.configureDeleteStub(gatewayUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete network
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: networkUrl, params: params, currentState: "DeleteNetwork", nextState: "DeleteBlockStorage"}); err != nil {
+	// Delete the network
+	if err := configurator.configureDeleteStub(networkUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete block-storage
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: blockUrl, params: params, currentState: "DeleteBlockStorage", nextState: "DeleteImage"}); err != nil {
+	// Delete the block storage
+	if err := configurator.configureDeleteStub(blockUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete image
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: imageUrl, params: params, currentState: "DeleteImage", nextState: "DeleteWorkspace"}); err != nil {
+	// Delete the image
+	if err := configurator.configureDeleteStub(imageUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete workspace
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: workspaceUrl, params: params, currentState: "DeleteWorkspace", nextState: "DeleteRoleAssignment"}); err != nil {
+	// Delete the workspace
+	if err := configurator.configureDeleteStub(workspaceUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete role assignment
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: roleAssignUrl, params: params, currentState: "DeleteRoleAssignment", nextState: "DeleteRole"}); err != nil {
+	// Delete the role assignment
+	if err := configurator.configureDeleteStub(roleAssignUrl, params, false); err != nil {
 		return nil, err
 	}
 
-	// Delete role
-	if err := configureDeleteStub(wm, scenario,
-		&stubConfig{url: roleUrl, params: params, currentState: "DeleteRole"}); err != nil {
+	// Delete the role
+	if err := configurator.configureDeleteStub(roleUrl, params, true); err != nil {
 		return nil, err
 	}
 
-	return wm, err
+	return configurator.client, err
 }
