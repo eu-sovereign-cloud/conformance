@@ -13,7 +13,7 @@ import (
 func CreateAuthorizationLifecycleScenarioV1(scenario string, params *AuthorizationParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
-	wm, err := newClient(params.MockURL)
+	wm, err := newMockClient(params.MockURL)
 	if err != nil {
 		return nil, err
 	}

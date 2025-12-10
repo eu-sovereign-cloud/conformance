@@ -14,7 +14,7 @@ import (
 func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
-	wm, err := newClient(params.MockURL)
+	wm, err := newMockClient(params.MockURL)
 	if err != nil {
 		return nil, err
 	}

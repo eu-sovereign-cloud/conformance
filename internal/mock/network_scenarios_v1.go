@@ -13,7 +13,7 @@ import (
 func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
-	wm, err := newClient(params.MockURL)
+	wm, err := newMockClient(params.MockURL)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +87,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	}
 
 	// Update the network
+	setModifiedRegionalWorkspaceResourceMetadata(networkResponse.Metadata)
 	setNetworkState(networkResponse.Status, schema.ResourceStateUpdating)
 	networkResponse.Spec = *params.Network.UpdatedSpec
 	networkResponse.Metadata.Verb = http.MethodPut
