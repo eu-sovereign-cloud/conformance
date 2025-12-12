@@ -8,7 +8,7 @@ import (
 
 // metadata
 
-type metadataBuilder[B any, K any] struct {
+type resourceMetadataBuilder[B any, K any] struct {
 	validator     *validator.Validate
 	parent        *B
 	setName       func(string)
@@ -17,7 +17,7 @@ type metadataBuilder[B any, K any] struct {
 	setKind       func(K)
 }
 
-type newMetadataBuilderParams[B any, K any] struct {
+type newResourceMetadataBuilderParams[B any, K any] struct {
 	parent        *B
 	setName       func(string)
 	setProvider   func(string)
@@ -25,8 +25,8 @@ type newMetadataBuilderParams[B any, K any] struct {
 	setKind       func(K)
 }
 
-func newMetadataBuilder[B any, K any](params newMetadataBuilderParams[B, K]) *metadataBuilder[B, K] {
-	return &metadataBuilder[B, K]{
+func newResourceMetadataBuilder[B any, K any](params newResourceMetadataBuilderParams[B, K]) *resourceMetadataBuilder[B, K] {
+	return &resourceMetadataBuilder[B, K]{
 		validator:     validator.New(),
 		parent:        params.parent,
 		setName:       params.setName,
@@ -36,22 +36,22 @@ func newMetadataBuilder[B any, K any](params newMetadataBuilderParams[B, K]) *me
 	}
 }
 
-func (builder *metadataBuilder[B, K]) Name(name string) *B {
+func (builder *resourceMetadataBuilder[B, K]) Name(name string) *B {
 	builder.setName(name)
 	return builder.parent
 }
 
-func (builder *metadataBuilder[B, K]) Provider(provider string) *B {
+func (builder *resourceMetadataBuilder[B, K]) Provider(provider string) *B {
 	builder.setProvider(provider)
 	return builder.parent
 }
 
-func (builder *metadataBuilder[B, K]) ApiVersion(apiVersion string) *B {
+func (builder *resourceMetadataBuilder[B, K]) ApiVersion(apiVersion string) *B {
 	builder.setApiVersion(apiVersion)
 	return builder.parent
 }
 
-func (builder *metadataBuilder[B, K]) kind(kind K) *B {
+func (builder *resourceMetadataBuilder[B, K]) kind(kind K) *B {
 	builder.setKind(kind)
 	return builder.parent
 }

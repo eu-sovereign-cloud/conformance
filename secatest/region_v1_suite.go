@@ -84,7 +84,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	expectedRegionMeta, err := builders.NewRegionMetadataBuilder().
 		Name(regions[0].Metadata.Name).
 		Provider(regionProviderV1).ApiVersion(apiVersion1).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}

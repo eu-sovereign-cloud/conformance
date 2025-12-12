@@ -124,7 +124,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		Name(workspaceName).
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -168,7 +168,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		Name(blockStorageName).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -219,7 +219,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		Name(instanceName).
 		Provider(computeProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}

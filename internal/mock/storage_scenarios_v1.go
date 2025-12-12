@@ -27,7 +27,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Spec(params.Image.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}

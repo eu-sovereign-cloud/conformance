@@ -39,7 +39,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.Role.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.RoleAssignment.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Spec(params.Image.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Network.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +169,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.InternetGateway.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +190,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.RouteTable.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.Subnet.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +232,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.SecurityGroup.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +253,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.PublicIp.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +274,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Nic.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -297,7 +297,7 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 		Provider(computeProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Instance.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}

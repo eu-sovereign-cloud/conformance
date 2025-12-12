@@ -17,16 +17,16 @@ func NewBlockStorageMetadataBuilder() *BlockStorageMetadataBuilder {
 	return builder
 }
 
-func (builder *BlockStorageMetadataBuilder) BuildResponse() (*schema.RegionalWorkspaceResourceMetadata, error) {
-	medatata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).buildResponse()
+func (builder *BlockStorageMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateBlockStorageResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type BlockStorageBuilder struct {
@@ -71,31 +71,18 @@ func (builder *BlockStorageBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *BlockStorageBuilder) BuildRequest() (*schema.BlockStorage, error) {
+func (builder *BlockStorageBuilder) Build() (*schema.BlockStorage, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.BlockStorage{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *BlockStorageBuilder) BuildResponse() (*schema.BlockStorage, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	medatata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
 
 	return &schema.BlockStorage{
-		Metadata: medatata,
+		Metadata: metadata,
 		Labels:   builder.labels,
 		Spec:     *builder.spec,
 		Status:   &schema.BlockStorageStatus{},
@@ -114,16 +101,16 @@ func NewImageMetadataBuilder() *ImageMetadataBuilder {
 	return builder
 }
 
-func (builder *ImageMetadataBuilder) BuildResponse() (*schema.RegionalResourceMetadata, error) {
-	medatata, err := builder.kind(schema.RegionalResourceMetadataKindResourceKindImage).buildResponse()
+func (builder *ImageMetadataBuilder) Build() (*schema.RegionalResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalResourceMetadataKindResourceKindImage).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateImageResource(builder.metadata.Tenant, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type ImageBuilder struct {
@@ -167,31 +154,18 @@ func (builder *ImageBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *ImageBuilder) BuildRequest() (*schema.Image, error) {
+func (builder *ImageBuilder) Build() (*schema.Image, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.Image{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *ImageBuilder) BuildResponse() (*schema.Image, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	medatata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
 
 	return &schema.Image{
-		Metadata: medatata,
+		Metadata: metadata,
 		Labels:   builder.labels,
 		Spec:     *builder.spec,
 		Status:   &schema.ImageStatus{},

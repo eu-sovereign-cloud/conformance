@@ -17,16 +17,16 @@ func NewRegionMetadataBuilder() *RegionMetadataBuilder {
 	return builder
 }
 
-func (builder *RegionMetadataBuilder) BuildResponse() (*schema.GlobalResourceMetadata, error) {
-	medatata, err := builder.kind(schema.GlobalResourceMetadataKindResourceKindRegion).buildResponse()
+func (builder *RegionMetadataBuilder) Build() (*schema.GlobalResourceMetadata, error) {
+	metadata, err := builder.kind(schema.GlobalResourceMetadataKindResourceKindRegion).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateRegionResource(builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type RegionBuilder struct {
@@ -75,29 +75,18 @@ func (builder *RegionBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *RegionBuilder) BuildRequest() (*schema.Region, error) {
+func (builder *RegionBuilder) Build() (*schema.Region, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.Region{
-		Metadata: nil,
-		Spec:     *builder.spec,
-	}, nil
-}
-
-func (builder *RegionBuilder) BuildResponse() (*schema.Region, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	medatata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
 
 	return &schema.Region{
-		Metadata: medatata,
+		Metadata: metadata,
 		Spec:     *builder.spec,
 	}, nil
 }

@@ -17,16 +17,16 @@ func NewWorkspaceMetadataBuilder() *WorkspaceMetadataBuilder {
 	return builder
 }
 
-func (builder *WorkspaceMetadataBuilder) BuildResponse() (*schema.RegionalResourceMetadata, error) {
-	medatata, err := builder.kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).buildResponse()
+func (builder *WorkspaceMetadataBuilder) Build() (*schema.RegionalResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateWorkspaceResource(builder.metadata.Tenant, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type WorkspaceBuilder struct {
@@ -55,23 +55,14 @@ func NewWorkspaceBuilder() *WorkspaceBuilder {
 	return builder
 }
 
-func (builder *WorkspaceBuilder) BuildRequest() (*schema.Workspace, error) {
-	return &schema.Workspace{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     schema.WorkspaceSpec{},
-		Status:   nil,
-	}, nil
-}
-
-func (builder *WorkspaceBuilder) BuildResponse() (*schema.Workspace, error) {
-	medatata, err := builder.metadata.BuildResponse()
+func (builder *WorkspaceBuilder) Build() (*schema.Workspace, error) {
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
 
 	return &schema.Workspace{
-		Metadata: medatata,
+		Metadata: metadata,
 		Labels:   builder.labels,
 		Spec:     schema.WorkspaceSpec{},
 		Status:   &schema.WorkspaceStatus{},

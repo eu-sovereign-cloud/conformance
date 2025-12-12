@@ -48,7 +48,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 			Name(region.Name).
 			Provider(regionProviderV1).ApiVersion(apiVersion1).
 			Spec(region.InitialSpec).
-			BuildResponse()
+			Build()
 		if err != nil {
 			return nil, err
 		}

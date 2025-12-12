@@ -32,7 +32,7 @@ func ConfigClientsInitScenario(params *ClientsInitParams) (*wiremock.Client, err
 		Name(params.Region).
 		Provider(regionProviderV1).ApiVersion(apiVersion1).
 		Spec(spec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}

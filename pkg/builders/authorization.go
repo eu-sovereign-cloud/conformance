@@ -17,16 +17,16 @@ func NewRoleMetadataBuilder() *RoleMetadataBuilder {
 	return builder
 }
 
-func (builder *RoleMetadataBuilder) BuildResponse() (*schema.GlobalTenantResourceMetadata, error) {
-	medatata, err := builder.kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).buildResponse()
+func (builder *RoleMetadataBuilder) Build() (*schema.GlobalTenantResourceMetadata, error) {
+	metadata, err := builder.kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateRoleResource(builder.metadata.Tenant, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type RoleBuilder struct {
@@ -79,31 +79,18 @@ func (builder *RoleBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *RoleBuilder) BuildRequest() (*schema.Role, error) {
+func (builder *RoleBuilder) Build() (*schema.Role, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.Role{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *RoleBuilder) BuildResponse() (*schema.Role, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	medatata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
 
 	return &schema.Role{
-		Metadata: medatata,
+		Metadata: metadata,
 		Labels:   builder.labels,
 		Spec:     *builder.spec,
 		Status:   &schema.RoleStatus{},
@@ -122,16 +109,16 @@ func NewRoleAssignmentMetadataBuilder() *RoleAssignmentMetadataBuilder {
 	return builder
 }
 
-func (builder *RoleAssignmentMetadataBuilder) BuildResponse() (*schema.GlobalTenantResourceMetadata, error) {
-	medatata, err := builder.kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).buildResponse()
+func (builder *RoleAssignmentMetadataBuilder) Build() (*schema.GlobalTenantResourceMetadata, error) {
+	metadata, err := builder.kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateRoleAssignmentResource(builder.metadata.Tenant, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type RoleAssignmentBuilder struct {
@@ -186,31 +173,18 @@ func (builder *RoleAssignmentBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *RoleAssignmentBuilder) BuildRequest() (*schema.RoleAssignment, error) {
+func (builder *RoleAssignmentBuilder) Build() (*schema.RoleAssignment, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.RoleAssignment{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *RoleAssignmentBuilder) BuildResponse() (*schema.RoleAssignment, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	medatata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
 
 	return &schema.RoleAssignment{
-		Metadata: medatata,
+		Metadata: metadata,
 		Labels:   builder.labels,
 		Spec:     *builder.spec,
 		Status:   &schema.RoleAssignmentStatus{},

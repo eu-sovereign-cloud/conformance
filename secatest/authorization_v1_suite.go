@@ -109,7 +109,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		Name(roleName).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -181,7 +181,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		Name(roleAssignmentName).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}

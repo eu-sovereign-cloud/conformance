@@ -17,16 +17,36 @@ func NewInstanceMetadataBuilder() *InstanceMetadataBuilder {
 	return builder
 }
 
-func (builder *InstanceMetadataBuilder) BuildResponse() (*schema.RegionalWorkspaceResourceMetadata, error) {
-	medatata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).buildResponse()
+func (builder *InstanceMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateInstanceResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
+}
+
+type InstanceListMetadataBuilder struct {
+	*responseMetadataBuilder
+}
+
+func NewInstanceListMetadataBuilder() *InstanceListMetadataBuilder {
+	return &InstanceListMetadataBuilder{
+		responseMetadataBuilder: NewResponseMetadataBuilder(),
+	}
+}
+
+func (builder *InstanceListMetadataBuilder) Build(tenant, workspace, name string) (*schema.ResponseMetadata, error) {
+	metadata, err := builder.build()
+	if err != nil {
+		return nil, err
+	}
+
+	metadata.Resource = generators.GenerateInstanceResource(tenant, workspace, name)
+	return metadata, nil
 }
 
 type InstanceBuilder struct {
@@ -73,31 +93,18 @@ func (builder *InstanceBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *InstanceBuilder) BuildRequest() (*schema.Instance, error) {
+func (builder *InstanceBuilder) Build() (*schema.Instance, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.Instance{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *InstanceBuilder) BuildResponse() (*schema.Instance, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	medatata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
 
 	return &schema.Instance{
-		Metadata: medatata,
+		Metadata: metadata,
 		Labels:   builder.labels,
 		Spec:     *builder.spec,
 		Status:   &schema.InstanceStatus{},

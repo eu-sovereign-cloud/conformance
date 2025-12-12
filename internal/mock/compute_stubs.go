@@ -31,7 +31,6 @@ func (configurator *scenarioConfigurator) configureUpdateInstanceStub(response *
 }
 
 func (configurator *scenarioConfigurator) configureInstanceOperationStub(response *schema.Instance, url string, params HasParams) error {
-
 	response.Metadata.Verb = http.MethodPost
 	if err := configurator.configurePostStub(url, params, response, false); err != nil {
 		return err

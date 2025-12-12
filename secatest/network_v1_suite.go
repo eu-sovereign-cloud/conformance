@@ -282,7 +282,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Name(workspaceName).
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -327,7 +327,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Name(networkName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -392,7 +392,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Name(internetGatewayName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -459,7 +459,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Name(routeTableName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Network(networkName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -533,7 +533,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(networkProviderV1).
 		ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Network(networkName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -603,7 +603,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Provider(networkProviderV1).
 		ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -672,7 +672,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Name(nicName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	expectNicSpec := &schema.NicSpec{
 		Addresses:    []string{nicAddress1},
 		PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
@@ -742,7 +742,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Name(securityGroupName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	expectGroupSpec := &schema.SecurityGroupSpec{
 		Rules: []schema.SecurityGroupRuleSpec{
 			{Direction: schema.SecurityGroupRuleDirectionIngress},
@@ -811,7 +811,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Name(blockStorageName).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	expectedBlockSpec := &schema.BlockStorageSpec{
 		SizeGB: blockStorageSize,
 		SkuRef: *storageSkuRefObj,
@@ -862,7 +862,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		Name(instanceName).
 		Provider(computeProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	expectInstanceSpec := &schema.InstanceSpec{
 		SkuRef: *instanceSkuRefObj,
 		Zone:   zone1,

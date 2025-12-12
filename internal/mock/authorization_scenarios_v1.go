@@ -25,7 +25,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.Role.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.RoleAssignment.InitialSpec).
-		BuildResponse()
+		Build()
 	if err != nil {
 		return nil, err
 	}

@@ -298,7 +298,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(roleName).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -350,7 +350,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(roleAssignmentName).
 		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -396,7 +396,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(workspaceName).
 		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -439,7 +439,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(imageName).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -486,7 +486,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(blockStorageName).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -535,7 +535,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(networkName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -580,7 +580,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(internetGatewayName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -627,7 +627,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(routeTableName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Network(networkName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -678,7 +678,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(subnetName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Network(networkName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -728,7 +728,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(securityGroupName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -777,7 +777,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(publicIpName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -826,7 +826,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(nicName).
 		Provider(networkProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -878,7 +878,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		Name(instanceName).
 		Provider(computeProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}

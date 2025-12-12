@@ -17,16 +17,16 @@ func NewNetworkMetadataBuilder() *NetworkMetadataBuilder {
 	return builder
 }
 
-func (builder *NetworkMetadataBuilder) BuildResponse() (*schema.RegionalWorkspaceResourceMetadata, error) {
-	medatata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork).buildResponse()
+func (builder *NetworkMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateNetworkResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type NetworkBuilder struct {
@@ -78,25 +78,12 @@ func (builder *NetworkBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *NetworkBuilder) BuildRequest() (*schema.Network, error) {
+func (builder *NetworkBuilder) Build() (*schema.Network, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.Network{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *NetworkBuilder) BuildResponse() (*schema.Network, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	metadata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
@@ -121,16 +108,16 @@ func NewInternetGatewayMetadataBuilder() *InternetGatewayMetadataBuilder {
 	return builder
 }
 
-func (builder *InternetGatewayMetadataBuilder) BuildResponse() (*schema.RegionalWorkspaceResourceMetadata, error) {
-	medatata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway).buildResponse()
+func (builder *InternetGatewayMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateInternetGatewayResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type InternetGatewayBuilder struct {
@@ -174,25 +161,12 @@ func (builder *InternetGatewayBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *InternetGatewayBuilder) BuildRequest() (*schema.InternetGateway, error) {
+func (builder *InternetGatewayBuilder) Build() (*schema.InternetGateway, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.InternetGateway{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *InternetGatewayBuilder) BuildResponse() (*schema.InternetGateway, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	metadata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
@@ -217,16 +191,16 @@ func NewRouteTableMetadataBuilder() *RouteTableMetadataBuilder {
 	return builder
 }
 
-func (builder *RouteTableMetadataBuilder) BuildResponse() (*schema.RegionalNetworkResourceMetadata, error) {
-	medatata, err := builder.kind(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable).buildResponse()
+func (builder *RouteTableMetadataBuilder) Build() (*schema.RegionalNetworkResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateRouteTableResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Network, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type RouteTableBuilder struct {
@@ -280,25 +254,12 @@ func (builder *RouteTableBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *RouteTableBuilder) BuildRequest() (*schema.RouteTable, error) {
+func (builder *RouteTableBuilder) Build() (*schema.RouteTable, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.RouteTable{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *RouteTableBuilder) BuildResponse() (*schema.RouteTable, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	metadata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
@@ -323,16 +284,16 @@ func NewSubnetMetadataBuilder() *SubnetMetadataBuilder {
 	return builder
 }
 
-func (builder *SubnetMetadataBuilder) BuildResponse() (*schema.RegionalNetworkResourceMetadata, error) {
-	medatata, err := builder.kind(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet).buildResponse()
+func (builder *SubnetMetadataBuilder) Build() (*schema.RegionalNetworkResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateSubnetResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Network, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type SubnetBuilder struct {
@@ -378,25 +339,12 @@ func (builder *SubnetBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *SubnetBuilder) BuildRequest() (*schema.Subnet, error) {
+func (builder *SubnetBuilder) Build() (*schema.Subnet, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.Subnet{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *SubnetBuilder) BuildResponse() (*schema.Subnet, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	metadata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
@@ -421,16 +369,16 @@ func NewPublicIpMetadataBuilder() *PublicIpMetadataBuilder {
 	return builder
 }
 
-func (builder *PublicIpMetadataBuilder) BuildResponse() (*schema.RegionalWorkspaceResourceMetadata, error) {
-	medatata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP).buildResponse()
+func (builder *PublicIpMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GeneratePublicIpResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type PublicIpBuilder struct {
@@ -474,25 +422,12 @@ func (builder *PublicIpBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *PublicIpBuilder) BuildRequest() (*schema.PublicIp, error) {
+func (builder *PublicIpBuilder) Build() (*schema.PublicIp, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.PublicIp{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *PublicIpBuilder) BuildResponse() (*schema.PublicIp, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	metadata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
@@ -517,16 +452,16 @@ func NewNicMetadataBuilder() *NicMetadataBuilder {
 	return builder
 }
 
-func (builder *NicMetadataBuilder) BuildResponse() (*schema.RegionalWorkspaceResourceMetadata, error) {
-	medatata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic).buildResponse()
+func (builder *NicMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateNicResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type NicBuilder struct {
@@ -571,25 +506,12 @@ func (builder *NicBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *NicBuilder) BuildRequest() (*schema.Nic, error) {
+func (builder *NicBuilder) Build() (*schema.Nic, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.Nic{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *NicBuilder) BuildResponse() (*schema.Nic, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	metadata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
@@ -614,16 +536,16 @@ func NewSecurityGroupMetadataBuilder() *SecurityGroupMetadataBuilder {
 	return builder
 }
 
-func (builder *SecurityGroupMetadataBuilder) BuildResponse() (*schema.RegionalWorkspaceResourceMetadata, error) {
-	medatata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup).buildResponse()
+func (builder *SecurityGroupMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup).build()
 	if err != nil {
 		return nil, err
 	}
 
 	resource := generators.GenerateSecurityGroupResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)
-	medatata.Resource = resource
+	metadata.Resource = resource
 
-	return medatata, nil
+	return metadata, nil
 }
 
 type SecurityGroupBuilder struct {
@@ -676,25 +598,12 @@ func (builder *SecurityGroupBuilder) validateSpec() error {
 	return nil
 }
 
-func (builder *SecurityGroupBuilder) BuildRequest() (*schema.SecurityGroup, error) {
+func (builder *SecurityGroupBuilder) Build() (*schema.SecurityGroup, error) {
 	if err := builder.validateSpec(); err != nil {
 		return nil, err
 	}
 
-	return &schema.SecurityGroup{
-		Metadata: nil,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   nil,
-	}, nil
-}
-
-func (builder *SecurityGroupBuilder) BuildResponse() (*schema.SecurityGroup, error) {
-	if err := builder.validateSpec(); err != nil {
-		return nil, err
-	}
-
-	metadata, err := builder.metadata.BuildResponse()
+	metadata, err := builder.metadata.Build()
 	if err != nil {
 		return nil, err
 	}
