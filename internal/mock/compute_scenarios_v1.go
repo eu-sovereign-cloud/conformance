@@ -19,6 +19,9 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	workspaceUrl := generators.GenerateWorkspaceURL(workspaceProviderV1, params.Tenant, params.Workspace.Name)
 	blockUrl := generators.GenerateBlockStorageURL(storageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
 	instanceUrl := generators.GenerateInstanceURL(computeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
+	instanceStartUrl := generators.GenerateInstanceStartURL(computeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
+	instanceStopUrl := generators.GenerateInstanceStopURL(computeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
+	instanceRestartUrl := generators.GenerateInstanceRestartURL(computeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
@@ -95,7 +98,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Stop the instance
-	if err := configurator.configureInstanceOperationStub(instanceResponse, instanceUrl+"/stop", params); err != nil {
+	if err := configurator.configureInstanceOperationStub(instanceResponse, instanceStopUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -105,7 +108,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Start the instance
-	if err := configurator.configureInstanceOperationStub(instanceResponse, instanceUrl+"/start", params); err != nil {
+	if err := configurator.configureInstanceOperationStub(instanceResponse, instanceStartUrl, params); err != nil {
 		return nil, err
 	}
 
@@ -115,7 +118,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	}
 
 	// Restart the instance
-	if err := configurator.configureInstanceOperationStub(instanceResponse, instanceUrl+"/restart", params); err != nil {
+	if err := configurator.configureInstanceOperationStub(instanceResponse, instanceRestartUrl, params); err != nil {
 		return nil, err
 	}
 

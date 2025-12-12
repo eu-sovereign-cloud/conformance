@@ -80,6 +80,18 @@ func GenerateInstanceListURL(provider, tenant, workspace string) string {
 	return fmt.Sprintf(instanceListURL, provider, tenant, workspace)
 }
 
+func GenerateInstanceStartURL(provider, tenant, workspace, instance string) string {
+	return fmt.Sprintf(instanceStartURL, provider, tenant, workspace, instance)
+}
+
+func GenerateInstanceStopURL(provider, tenant, workspace, instance string) string {
+	return fmt.Sprintf(instanceStopURL, provider, tenant, workspace, instance)
+}
+
+func GenerateInstanceRestartURL(provider, tenant, workspace, instance string) string {
+	return fmt.Sprintf(instanceRestartURL, provider, tenant, workspace, instance)
+}
+
 func GenerateNetworkURL(provider, tenant, workspace, network string) string {
 	return fmt.Sprintf(networkURL, provider, tenant, workspace, network)
 }

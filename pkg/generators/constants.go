@@ -1,6 +1,22 @@
 package generators
 
 const (
+	// Names
+	roleName            = "role-%d"
+	roleAssignmentName  = "role-assignment-%d"
+	regionName          = "region-%d"
+	workspaceName       = "workspace-%d"
+	blockStorageName    = "disk-%d"
+	imageName           = "image-%d"
+	instanceName        = "instance-%d"
+	networkName         = "network-%d"
+	internetGatewayName = "internet-gateway-%d"
+	routeTableName      = "route-table-%d"
+	subnetName          = "subnet-%d"
+	publicIpName        = "public-ip-%d"
+	nicName             = "nic-%d"
+	securityGroupName   = "security-group-%d"
+
 	// Endpoint URLs
 	urlProvidersPrefix = "/providers/"
 
@@ -16,6 +32,9 @@ const (
 	instanceSkuListURL     = urlProvidersPrefix + "%s/" + skuListResource
 	instanceURL            = urlProvidersPrefix + "%s/" + instanceResource
 	instanceListURL        = urlProvidersPrefix + "%s/" + instanceListResource
+	instanceStartURL       = urlProvidersPrefix + "%s/" + instanceResource + "/start"
+	instanceStopURL        = urlProvidersPrefix + "%s/" + instanceResource + "/stop"
+	instanceRestartURL     = urlProvidersPrefix + "%s/" + instanceResource + "/restart"
 	storageSkuURL          = urlProvidersPrefix + "%s/" + skuResource
 	storageSkuListURL      = urlProvidersPrefix + "%s/" + skuListResource
 	blockStorageURL        = urlProvidersPrefix + "%s/" + blockStorageResource
