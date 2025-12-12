@@ -1,7 +1,7 @@
 package mock
 
 import (
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
+	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 

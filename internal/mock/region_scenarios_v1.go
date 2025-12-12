@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/generators"
+	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	region "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.region.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
@@ -24,7 +24,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	regionResource := generators.GenerateRegionResource(params.Regions[0].Name)
 
 	// Generate URLs
-	regionsUrl := generators.GenerateRegionsURL(regionProviderV1)
+	regionsUrl := generators.GenerateRegionListURL(regionProviderV1)
 	regionUrl := generators.GenerateRegionURL(regionProviderV1, params.Regions[0].Name)
 
 	// Build headers

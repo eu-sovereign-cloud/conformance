@@ -3,7 +3,9 @@ module github.com/eu-sovereign-cloud/conformance
 go 1.24.0
 
 require (
-	github.com/eu-sovereign-cloud/go-sdk v0.3.29
+	github.com/apparentlymart/go-cidr v1.1.0
+	github.com/eu-sovereign-cloud/go-sdk v0.3.30
+	github.com/go-playground/validator/v10 v10.28.0
 	github.com/ozontech/allure-go/pkg/framework v0.7.6
 	github.com/spf13/cobra v1.10.1
 	github.com/wiremock/go-wiremock v1.14.0
@@ -12,13 +14,11 @@ require (
 
 require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
-	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.10 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.28.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
