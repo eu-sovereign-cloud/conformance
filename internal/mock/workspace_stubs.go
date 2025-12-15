@@ -3,6 +3,7 @@ package mock
 import (
 	"net/http"
 
+	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -36,6 +37,15 @@ func (configurator *scenarioConfigurator) configureGetActiveWorkspaceStub(respon
 	response.Metadata.Verb = http.MethodGet
 
 	if err := configurator.configureGetStub(url, params, response, false); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *scenarioConfigurator) configureGetListActiveWorkspaceStub(response *workspace.WorkspaceIterator, url string, params HasParams, pathParams map[string]string) error {
+	response.Metadata.Verb = http.MethodGet
+
+	if err := configurator.configureGetListStub(url, params, pathParams, response, false); err != nil {
 		return err
 	}
 	return nil

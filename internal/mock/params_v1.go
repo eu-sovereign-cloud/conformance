@@ -34,6 +34,13 @@ type WorkspaceParamsV1 struct {
 
 func (p WorkspaceParamsV1) getParams() *Params { return p.Params }
 
+type WorkspaceListParamsV1 struct {
+	*Params
+	Workspace *[]ResourceParams[schema.WorkspaceSpec]
+}
+
+func (p WorkspaceListParamsV1) getParams() *Params { return p.Params }
+
 type ComputeParamsV1 struct {
 	*Params
 	Workspace    *ResourceParams[schema.WorkspaceSpec]

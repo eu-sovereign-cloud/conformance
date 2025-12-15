@@ -68,3 +68,24 @@ func (builder *WorkspaceBuilder) Build() (*schema.Workspace, error) {
 		Status:   &schema.WorkspaceStatus{},
 	}, nil
 }
+
+// LIST
+type WorkspaceListMetadataBuilder struct {
+	*responseMetadataBuilder
+}
+
+func NewWorkspaceListMetadataBuilder() *WorkspaceListMetadataBuilder {
+	return &WorkspaceListMetadataBuilder{
+		responseMetadataBuilder: NewResponseMetadataBuilder(),
+	}
+}
+
+func (builder *WorkspaceListMetadataBuilder) Build(tenant, name string) (*schema.ResponseMetadata, error) {
+	metadata, err := builder.build()
+	if err != nil {
+		return nil, err
+	}
+
+	metadata.Resource = generators.GenerateWorkspaceResource(tenant, name)
+	return metadata, nil
+}

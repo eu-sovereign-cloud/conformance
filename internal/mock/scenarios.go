@@ -35,7 +35,7 @@ func (builder *scenarioConfigurator) configureStub(
 	stubFunc func(*wiremock.Client, string, *stubConfig) error,
 	url string,
 	params HasParams,
-	headers map[string]string,
+	pathParams map[string]string,
 	responseBody any,
 	restart bool,
 ) error {
@@ -51,7 +51,7 @@ func (builder *scenarioConfigurator) configureStub(
 	}
 
 	if err := stubFunc(builder.client, builder.scenarioName,
-		&stubConfig{url: url, params: params, headers: headers, responseBody: responseBody, currentState: builder.currentState, nextState: nextState}); err != nil {
+		&stubConfig{url: url, params: params, pathParams: pathParams, responseBody: responseBody, currentState: builder.currentState, nextState: nextState}); err != nil {
 		return err
 	}
 
@@ -80,7 +80,12 @@ func (builder *scenarioConfigurator) configureGetStub(url string, params HasPara
 	}
 	return nil
 }
-
+func (builder *scenarioConfigurator) configureGetListStub(url string, params HasParams, pathParams map[string]string, responseBody any, restart bool) error {
+	if err := builder.configureStub(configureGetStub, url, params, pathParams, responseBody, restart); err != nil {
+		return err
+	}
+	return nil
+}
 func (builder *scenarioConfigurator) configureGetStubWithHeaders(url string, params HasParams, headers map[string]string, responseBody any, restart bool) error {
 	if err := builder.configureStub(configureGetStub, url, params, headers, responseBody, restart); err != nil {
 		return err

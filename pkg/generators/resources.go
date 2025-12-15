@@ -24,6 +24,10 @@ func GenerateWorkspaceResource(tenant, workspace string) string {
 	return fmt.Sprintf(workspaceResource, tenant, workspace)
 }
 
+func GenerateWorkspaceListResource(tenant string) string {
+	return fmt.Sprintf(workspaceListResource, tenant)
+}
+
 func GenerateBlockStorageResource(tenant, workspace, blockStorage string) string {
 	return fmt.Sprintf(blockStorageResource, tenant, workspace, blockStorage)
 }
