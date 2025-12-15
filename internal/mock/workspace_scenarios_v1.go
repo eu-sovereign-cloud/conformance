@@ -49,12 +49,12 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Delete the workspace
-	if err := configurator.configureDeleteStub(url, params, false); err != nil {
+	if err := configurator.configureDeleteStub(url, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted workspace
-	if err := configurator.configureGetNotFoundStub(url, params, true); err != nil {
+	if err := configurator.configureGetNotFoundStub(url, params); err != nil {
 		return nil, err
 	}
 

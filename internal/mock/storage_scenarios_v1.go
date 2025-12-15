@@ -107,32 +107,32 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	}
 
 	// Delete the image
-	if err := configurator.configureDeleteStub(imageUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(imageUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted image
-	if err := configurator.configureGetNotFoundStub(imageUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(imageUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the block storage
-	if err := configurator.configureDeleteStub(blockUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(blockUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted block storage
-	if err := configurator.configureGetNotFoundStub(blockUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(blockUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
-	if err := configurator.configureDeleteStub(workspaceUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(workspaceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted workspace
-	if err := configurator.configureGetNotFoundStub(workspaceUrl, params, true); err != nil {
+	if err := configurator.configureGetNotFoundStub(workspaceUrl, params); err != nil {
 		return nil, err
 	}
 

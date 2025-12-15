@@ -1,3 +1,4 @@
+//nolint:dupl
 package secatest
 
 import (
@@ -10,7 +11,6 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-//nolint:dupl
 func (suite *testSuite) createOrUpdateWorkspaceV1Step(stepName string, t provider.T, api *secapi.WorkspaceV1, resource *schema.Workspace,
 	responseExpects responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) {
@@ -33,7 +33,6 @@ func (suite *testSuite) createOrUpdateWorkspaceV1Step(stepName string, t provide
 	)
 }
 
-//nolint:dupl
 func (suite *testSuite) getWorkspaceV1Step(stepName string, t provider.T, api *secapi.WorkspaceV1, tref secapi.TenantReference,
 	responseExpects responseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) *schema.Workspace {

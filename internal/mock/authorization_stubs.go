@@ -1,8 +1,7 @@
+//nolint:dupl
 package mock
 
 import (
-	"net/http"
-
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -11,9 +10,7 @@ import (
 func (configurator *scenarioConfigurator) configureCreateRoleStub(response *schema.Role, url string, params HasParams) error {
 	setCreatedGlobalTenantResourceMetadata(response.Metadata)
 	response.Status = newResourceStatus(schema.ResourceStateCreating)
-	response.Metadata.Verb = http.MethodPut
-
-	if err := configurator.configurePutStub(url, params, response, false); err != nil {
+	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -22,9 +19,7 @@ func (configurator *scenarioConfigurator) configureCreateRoleStub(response *sche
 func (configurator *scenarioConfigurator) configureUpdateRoleStub(response *schema.Role, url string, params HasParams) error {
 	setModifiedGlobalTenantResourceMetadata(response.Metadata)
 	setResourceState(response.Status, schema.ResourceStateUpdating)
-	response.Metadata.Verb = http.MethodPut
-
-	if err := configurator.configurePutStub(url, params, response, false); err != nil {
+	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -32,9 +27,7 @@ func (configurator *scenarioConfigurator) configureUpdateRoleStub(response *sche
 
 func (configurator *scenarioConfigurator) configureGetActiveRoleStub(response *schema.Role, url string, params HasParams) error {
 	setResourceState(response.Status, schema.ResourceStateActive)
-	response.Metadata.Verb = http.MethodGet
-
-	if err := configurator.configureGetStub(url, params, response, false); err != nil {
+	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -45,9 +38,7 @@ func (configurator *scenarioConfigurator) configureGetActiveRoleStub(response *s
 func (configurator *scenarioConfigurator) configureCreateRoleAssignmentStub(response *schema.RoleAssignment, url string, params HasParams) error {
 	setCreatedGlobalTenantResourceMetadata(response.Metadata)
 	response.Status = newResourceStatus(schema.ResourceStateCreating)
-	response.Metadata.Verb = http.MethodPut
-
-	if err := configurator.configurePutStub(url, params, response, false); err != nil {
+	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -56,9 +47,7 @@ func (configurator *scenarioConfigurator) configureCreateRoleAssignmentStub(resp
 func (configurator *scenarioConfigurator) configureUpdateRoleAssignmentStub(response *schema.RoleAssignment, url string, params HasParams) error {
 	setModifiedGlobalTenantResourceMetadata(response.Metadata)
 	setResourceState(response.Status, schema.ResourceStateUpdating)
-	response.Metadata.Verb = http.MethodPut
-
-	if err := configurator.configurePutStub(url, params, response, false); err != nil {
+	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -66,9 +55,7 @@ func (configurator *scenarioConfigurator) configureUpdateRoleAssignmentStub(resp
 
 func (configurator *scenarioConfigurator) configureGetActiveRoleAssignmentStub(response *schema.RoleAssignment, url string, params HasParams) error {
 	setResourceState(response.Status, schema.ResourceStateActive)
-	response.Metadata.Verb = http.MethodGet
-
-	if err := configurator.configureGetStub(url, params, response, false); err != nil {
+	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil

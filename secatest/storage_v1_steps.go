@@ -1,3 +1,4 @@
+//nolint:dupl
 package secatest
 
 import (
@@ -12,7 +13,6 @@ import (
 
 // BlockStorage
 
-//nolint:dupl
 func (suite *testSuite) createOrUpdateBlockStorageV1Step(stepName string, t provider.T, api *secapi.StorageV1, resource *schema.BlockStorage,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
 ) {
@@ -37,7 +37,6 @@ func (suite *testSuite) createOrUpdateBlockStorageV1Step(stepName string, t prov
 	)
 }
 
-//nolint:dupl
 func (suite *testSuite) getBlockStorageV1Step(stepName string, t provider.T, api *secapi.StorageV1, wref secapi.WorkspaceReference,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
 ) *schema.BlockStorage {
@@ -81,7 +80,6 @@ func (suite *testSuite) deleteBlockStorageV1Step(stepName string, t provider.T, 
 
 // Image
 
-//nolint:dupl
 func (suite *testSuite) createOrUpdateImageV1Step(stepName string, t provider.T, api *secapi.StorageV1, resource *schema.Image,
 	responseExpects responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
 ) {
@@ -105,7 +103,6 @@ func (suite *testSuite) createOrUpdateImageV1Step(stepName string, t provider.T,
 	)
 }
 
-//nolint:dupl
 func (suite *testSuite) getImageV1Step(stepName string, t provider.T, api *secapi.StorageV1, tref secapi.TenantReference,
 	responseExpects responseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
 ) *schema.Image {

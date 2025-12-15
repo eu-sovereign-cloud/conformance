@@ -59,7 +59,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	regionsResponse.Items = regionsList
 
 	// 1 - Create ListRegions stub
-	if err := configurator.configureGetStubWithHeaders(regionsUrl, params, headerParams, regionsResponse, false); err != nil {
+	if err := configurator.configureGetStubWithHeaders(regionsUrl, params, headerParams, nil, regionsResponse); err != nil {
 		return nil, err
 	}
 
@@ -76,7 +76,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 		Spec: regionsResponse.Items[0].Spec,
 	}
 
-	if err := configurator.configureGetStubWithHeaders(regionUrl, params, headerParams, singleRegionResponse, true); err != nil {
+	if err := configurator.configureGetStubWithHeaders(regionUrl, params, headerParams, nil, singleRegionResponse); err != nil {
 		return nil, err
 	}
 
