@@ -3,6 +3,7 @@ package mock
 import (
 	"net/http"
 
+	authorization "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.authorization.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -40,6 +41,15 @@ func (configurator *scenarioConfigurator) configureGetActiveRoleStub(response *s
 	return nil
 }
 
+func (configurator *scenarioConfigurator) configureGetListRoleStub(response *authorization.RoleIterator, url string, params HasParams, pathParams map[string]string) error {
+	response.Metadata.Verb = http.MethodGet
+
+	if err := configurator.configureGetListStub(url, params, pathParams, response, false); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Role assignment
 
 func (configurator *scenarioConfigurator) configureCreateRoleAssignmentStub(response *schema.RoleAssignment, url string, params HasParams) error {
@@ -69,6 +79,15 @@ func (configurator *scenarioConfigurator) configureGetActiveRoleAssignmentStub(r
 	response.Metadata.Verb = http.MethodGet
 
 	if err := configurator.configureGetStub(url, params, response, false); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *scenarioConfigurator) configureGetListRoleAssignmentStub(response *authorization.RoleAssignmentIterator, url string, params HasParams, pathParams map[string]string) error {
+	response.Metadata.Verb = http.MethodGet
+
+	if err := configurator.configureGetListStub(url, params, pathParams, response, false); err != nil {
 		return err
 	}
 	return nil

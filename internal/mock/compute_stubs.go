@@ -3,6 +3,7 @@ package mock
 import (
 	"net/http"
 
+	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -53,6 +54,23 @@ func (configurator *scenarioConfigurator) configureGetSuspendedInstanceStub(resp
 	response.Metadata.Verb = http.MethodGet
 
 	if err := configurator.configureGetStub(url, params, response, false); err != nil {
+		return err
+	}
+	return nil
+}
+func (configurator *scenarioConfigurator) configureGetListInstanceStub(response *compute.InstanceIterator, url string, params HasParams, pathParams map[string]string) error {
+	response.Metadata.Verb = http.MethodGet
+
+	if err := configurator.configureGetListStub(url, params, pathParams, response, false); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *scenarioConfigurator) configureGetListSkuStub(response *compute.SkuIterator, url string, params HasParams, pathParams map[string]string) error {
+	response.Metadata.Verb = http.MethodGet
+
+	if err := configurator.configureGetListStub(url, params, pathParams, response, false); err != nil {
 		return err
 	}
 	return nil

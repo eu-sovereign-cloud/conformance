@@ -20,6 +20,14 @@ type AuthorizationParamsV1 struct {
 
 func (p AuthorizationParamsV1) getParams() *Params { return p.Params }
 
+type AuthorizationListParamsV1 struct {
+	*Params
+	Role           *[]ResourceParams[schema.RoleSpec]
+	RoleAssignment *[]ResourceParams[schema.RoleAssignmentSpec]
+}
+
+func (p AuthorizationListParamsV1) getParams() *Params { return p.Params }
+
 type RegionParamsV1 struct {
 	*Params
 	Regions []ResourceParams[schema.RegionSpec]
@@ -49,6 +57,15 @@ type ComputeParamsV1 struct {
 }
 
 func (p ComputeParamsV1) getParams() *Params { return p.Params }
+
+type ComputeListParamsV1 struct {
+	*Params
+	Workspace    *ResourceParams[schema.WorkspaceSpec]
+	BlockStorage *ResourceParams[schema.BlockStorageSpec]
+	Instance     *[]ResourceParams[schema.InstanceSpec]
+}
+
+func (p ComputeListParamsV1) getParams() *Params { return p.Params }
 
 type StorageParamsV1 struct {
 	*Params
