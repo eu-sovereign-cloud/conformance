@@ -96,8 +96,8 @@ github.com/opencontainers/image-spec v1.1.0-rc5 h1:Ygwkfw9bpDvs+c9E34SdgGOj41dX/
 github.com/opencontainers/image-spec v1.1.0-rc5/go.mod h1:X4pATf0uXsnn3g5aiGIsVnJBR4mxhKzfwmvK/B2NTm8=
 github.com/ozontech/allure-go/pkg/allure v0.7.5 h1:ARPVnEXzp197ZUCVjKRyckBTtpFWRH0l17MISG9QZ/s=
 github.com/ozontech/allure-go/pkg/allure v0.7.5/go.mod h1:kM/K/js8tPzl9huIsmgnK1kM6XeqOr7WQu87BBno7ZE=
-github.com/ozontech/allure-go/pkg/framework v0.7.6 h1:7t+P96+xqOUd+l54yzVmWP7rkYc9FXxDZqkzf4u/Z6k=
-github.com/ozontech/allure-go/pkg/framework v0.7.6/go.mod h1:Jrh9sZCGg5ip56j/BNI0g62JWPGEERvMx/M1qs8pFRY=
+github.com/ozontech/allure-go/pkg/framework v0.8.0 h1:LozazzEpF4rlfON9ZTekRAn3PHahiECTIlWj1sPgP1s=
+github.com/ozontech/allure-go/pkg/framework v0.8.0/go.mod h1:Jrh9sZCGg5ip56j/BNI0g62JWPGEERvMx/M1qs8pFRY=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
