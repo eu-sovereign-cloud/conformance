@@ -1,6 +1,7 @@
 package mock
 
 import (
+	network "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.network.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -27,6 +28,14 @@ func (configurator *scenarioConfigurator) configureUpdateNetworkStub(response *s
 func (configurator *scenarioConfigurator) configureGetActiveNetworkStub(response *schema.Network, url string, params HasParams) error {
 	setNetworkState(response.Status, schema.ResourceStateActive)
 	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *scenarioConfigurator) configureGetListNetworkStub(response *network.NetworkIterator, url string, params HasParams, pathParams map[string]string) error {
+
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -60,6 +69,14 @@ func (configurator *scenarioConfigurator) configureGetActiveInternetGatewayStub(
 	return nil
 }
 
+func (configurator *scenarioConfigurator) configureGetListInternetGatewayStub(response *network.InternetGatewayIterator, url string, params HasParams, pathParams map[string]string) error {
+
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Route table
 
 func (configurator *scenarioConfigurator) configureCreateRouteTableStub(response *schema.RouteTable, url string, params HasParams) error {
@@ -83,6 +100,14 @@ func (configurator *scenarioConfigurator) configureUpdateRouteTableStub(response
 func (configurator *scenarioConfigurator) configureGetActiveRouteTableStub(response *schema.RouteTable, url string, params HasParams) error {
 	setRouteTableState(response.Status, schema.ResourceStateActive)
 	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *scenarioConfigurator) configureGetListRouteTableStub(response *network.RouteTableIterator, url string, params HasParams, pathParams map[string]string) error {
+
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -116,6 +141,14 @@ func (configurator *scenarioConfigurator) configureGetActiveSubnetStub(response 
 	return nil
 }
 
+func (configurator *scenarioConfigurator) configureGetListSubnetStub(response *network.SubnetIterator, url string, params HasParams, pathParams map[string]string) error {
+
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Public ip
 
 func (configurator *scenarioConfigurator) configureCreatePublicIpStub(response *schema.PublicIp, url string, params HasParams) error {
@@ -139,6 +172,14 @@ func (configurator *scenarioConfigurator) configureUpdatePublicIpStub(response *
 func (configurator *scenarioConfigurator) configureGetActivePublicIpStub(response *schema.PublicIp, url string, params HasParams) error {
 	setPublicIpState(response.Status, schema.ResourceStateActive)
 	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *scenarioConfigurator) configureGetListPublicIpStub(response *network.PublicIpIterator, url string, params HasParams, pathParams map[string]string) error {
+
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -172,6 +213,14 @@ func (configurator *scenarioConfigurator) configureGetActiveNicStub(response *sc
 	return nil
 }
 
+func (configurator *scenarioConfigurator) configureGetListNicStub(response *network.NicIterator, url string, params HasParams, pathParams map[string]string) error {
+
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Security group
 
 func (configurator *scenarioConfigurator) configureCreateSecurityGroupStub(response *schema.SecurityGroup, url string, params HasParams) error {
@@ -195,6 +244,14 @@ func (configurator *scenarioConfigurator) configureUpdateSecurityGroupStub(respo
 func (configurator *scenarioConfigurator) configureGetActiveSecurityGroupStub(response *schema.SecurityGroup, url string, params HasParams) error {
 	setSecurityGroupState(response.Status, schema.ResourceStateActive)
 	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *scenarioConfigurator) configureGetListSecurityGroupStub(response *network.SecurityGroupIterator, url string, params HasParams, pathParams map[string]string) error {
+
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil

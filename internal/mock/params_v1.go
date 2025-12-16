@@ -102,6 +102,23 @@ type NetworkParamsV1 struct {
 
 func (p NetworkParamsV1) getParams() *Params { return p.Params }
 
+type NetworkListParamsV1 struct {
+	*Params
+
+	Workspace       *ResourceParams[schema.WorkspaceSpec]
+	BlockStorage    *ResourceParams[schema.BlockStorageSpec]
+	Instance        *ResourceParams[schema.InstanceSpec]
+	Network         *[]ResourceParams[schema.NetworkSpec]
+	InternetGateway *[]ResourceParams[schema.InternetGatewaySpec]
+	RouteTable      *[]ResourceParams[schema.RouteTableSpec]
+	Subnet          *[]ResourceParams[schema.SubnetSpec]
+	Nic             *[]ResourceParams[schema.NicSpec]
+	PublicIp        *[]ResourceParams[schema.PublicIpSpec]
+	SecurityGroup   *[]ResourceParams[schema.SecurityGroupSpec]
+}
+
+func (p NetworkListParamsV1) getParams() *Params { return p.Params }
+
 type FoundationUsageParamsV1 struct {
 	*Params
 

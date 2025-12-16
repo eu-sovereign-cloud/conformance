@@ -68,26 +68,54 @@ func GenerateNetworkResource(tenant, workspace, network string) string {
 	return fmt.Sprintf(networkResource, tenant, workspace, network)
 }
 
+func GenerateNetworkListResource(tenant, workspace string) string {
+	return fmt.Sprintf(networkListResource, tenant, workspace)
+}
+
 func GenerateInternetGatewayResource(tenant, workspace, internetGateway string) string {
 	return fmt.Sprintf(internetGatewayResource, tenant, workspace, internetGateway)
+}
+
+func GenerateInternetGatewayListResource(tenant, workspace string) string {
+	return fmt.Sprintf(internetGatewayListResource, tenant, workspace)
 }
 
 func GenerateNicResource(tenant, workspace, nic string) string {
 	return fmt.Sprintf(nicResource, tenant, workspace, nic)
 }
 
+func GenerateNicListResource(tenant, workspace string) string {
+	return fmt.Sprintf(nicListResource, tenant, workspace)
+}
+
 func GeneratePublicIpResource(tenant, workspace, publicIp string) string {
 	return fmt.Sprintf(publicIpResource, tenant, workspace, publicIp)
+}
+
+func GeneratePublicIpListResource(tenant, workspace string) string {
+	return fmt.Sprintf(publicIpListResource, tenant, workspace)
 }
 
 func GenerateRouteTableResource(tenant, workspace, network, routeTable string) string {
 	return fmt.Sprintf(routeTableResource, tenant, workspace, network, routeTable)
 }
 
+func GenerateRouteTableListResource(tenant, workspace, network string) string {
+	return fmt.Sprintf(routeTableListResource, tenant, workspace, network)
+}
+
 func GenerateSubnetResource(tenant, workspace, network, subnet string) string {
 	return fmt.Sprintf(subnetResource, tenant, workspace, network, subnet)
 }
 
+func GenerateSubnetListResource(tenant, workspace, network string) string {
+	return fmt.Sprintf(subnetListResource, tenant, workspace, network)
+}
+
 func GenerateSecurityGroupResource(tenant, workspace, securityGroup string) string {
 	return fmt.Sprintf(securityGroupResource, tenant, workspace, securityGroup)
+}
+
+func GenerateSecurityGroupListResource(tenant, workspace string) string {
+	return fmt.Sprintf(securityGroupListResource, tenant, workspace)
 }
