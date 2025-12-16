@@ -49,6 +49,7 @@ func (configurator *scenarioConfigurator) configureGetSuspendedInstanceStub(resp
 	}
 	return nil
 }
+
 func (configurator *scenarioConfigurator) configureGetListInstanceStub(response *compute.InstanceIterator, url string, params HasParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 

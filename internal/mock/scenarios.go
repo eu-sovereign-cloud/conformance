@@ -82,6 +82,7 @@ func (builder *scenarioConfigurator) configureGetStub(url string, params HasPara
 	}
 	return nil
 }
+
 func (builder *scenarioConfigurator) configureGetListStub(url string, params HasParams, pathParams map[string]string, setMetadataVerbFunc func(string), responseBody any) error {
 	if setMetadataVerbFunc != nil {
 		setMetadataVerbFunc(http.MethodGet)

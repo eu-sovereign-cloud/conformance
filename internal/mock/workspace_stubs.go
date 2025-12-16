@@ -35,7 +35,6 @@ func (configurator *scenarioConfigurator) configureGetActiveWorkspaceStub(respon
 }
 
 func (configurator *scenarioConfigurator) configureGetListActiveWorkspaceStub(response *workspace.WorkspaceIterator, url string, params HasParams, pathParams map[string]string) error {
-
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

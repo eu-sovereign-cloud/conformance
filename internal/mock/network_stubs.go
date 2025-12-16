@@ -34,7 +34,6 @@ func (configurator *scenarioConfigurator) configureGetActiveNetworkStub(response
 }
 
 func (configurator *scenarioConfigurator) configureGetListNetworkStub(response *network.NetworkIterator, url string, params HasParams, pathParams map[string]string) error {
-
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -70,7 +69,6 @@ func (configurator *scenarioConfigurator) configureGetActiveInternetGatewayStub(
 }
 
 func (configurator *scenarioConfigurator) configureGetListInternetGatewayStub(response *network.InternetGatewayIterator, url string, params HasParams, pathParams map[string]string) error {
-
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -106,7 +104,6 @@ func (configurator *scenarioConfigurator) configureGetActiveRouteTableStub(respo
 }
 
 func (configurator *scenarioConfigurator) configureGetListRouteTableStub(response *network.RouteTableIterator, url string, params HasParams, pathParams map[string]string) error {
-
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -142,7 +139,6 @@ func (configurator *scenarioConfigurator) configureGetActiveSubnetStub(response 
 }
 
 func (configurator *scenarioConfigurator) configureGetListSubnetStub(response *network.SubnetIterator, url string, params HasParams, pathParams map[string]string) error {
-
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -178,7 +174,6 @@ func (configurator *scenarioConfigurator) configureGetActivePublicIpStub(respons
 }
 
 func (configurator *scenarioConfigurator) configureGetListPublicIpStub(response *network.PublicIpIterator, url string, params HasParams, pathParams map[string]string) error {
-
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -214,7 +209,6 @@ func (configurator *scenarioConfigurator) configureGetActiveNicStub(response *sc
 }
 
 func (configurator *scenarioConfigurator) configureGetListNicStub(response *network.NicIterator, url string, params HasParams, pathParams map[string]string) error {
-
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -250,7 +244,6 @@ func (configurator *scenarioConfigurator) configureGetActiveSecurityGroupStub(re
 }
 
 func (configurator *scenarioConfigurator) configureGetListSecurityGroupStub(response *network.SecurityGroupIterator, url string, params HasParams, pathParams map[string]string) error {
-
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

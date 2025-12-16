@@ -110,3 +110,60 @@ func (suite *testSuite) deleteInstanceV1Step(stepName string, t provider.T, api 
 		requireNoError(sCtx, err)
 	})
 }
+
+func (suite *testSuite) getListInstanceV1Step(
+	stepName string,
+	t provider.T,
+	api *secapi.ComputeV1,
+	wref secapi.WorkspaceReference,
+	opts *secapi.ListOptions,
+) []*schema.Instance {
+	var resp []*schema.Instance
+
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setComputeV1StepParams(sCtx, "ListInstances with parameters", wref.Name)
+		var iter *secapi.Iterator[schema.Instance]
+		var err error
+		if opts != nil {
+			iter, err = api.ListInstancesWithFilters(context.Background(), wref.Tenant, wref.Workspace, opts)
+		} else {
+			iter, err = api.ListInstances(context.Background(), wref.Tenant, wref.Workspace)
+		}
+		requireNoError(sCtx, err)
+		resp, err := iter.All(t.Context())
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, resp)
+		requireLenResponse(sCtx, len(resp))
+	})
+	return resp
+}
+
+func (suite *testSuite) getListSkusV1Step(
+	stepName string,
+	t provider.T,
+	api *secapi.ComputeV1,
+	tref secapi.TenantReference,
+	opts *secapi.ListOptions,
+) []*schema.InstanceSku {
+	var resp []*schema.InstanceSku
+
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setComputeV1StepParams(sCtx, "ListSkus", tref.Name)
+
+		var iter *secapi.Iterator[schema.InstanceSku]
+		var err error
+		if opts != nil {
+			iter, err = api.ListSkusWithFilters(t.Context(), tref.Tenant, opts)
+		} else {
+			iter, err = api.ListSkus(t.Context(), tref.Tenant)
+		}
+		requireNoError(sCtx, err)
+
+		// Iterate through all items
+		resp, err := iter.All(t.Context())
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, resp)
+		requireLenResponse(sCtx, len(resp))
+	})
+	return resp
+}

@@ -420,7 +420,7 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 	return configurator.client, nil
 }
 
-func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListParamsV1) (*wiremock.Client, error) {
+func ConfigNetworkListAndFilterScenarioV1(scenario string, params *NetworkListParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
@@ -449,11 +449,6 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 		return nil, err
 	}
 
-	// Get the created workspace
-	if err := configurator.configureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, params); err != nil {
-		return nil, err
-	}
-
 	// Network
 	var networkList []schema.Network
 	for _, network := range *params.Network {
@@ -463,6 +458,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 			Name(network.Name).
 			Provider(networkProviderV1).ApiVersion(apiVersion1).
 			Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
+			Labels(network.InitialLabels).
 			Spec(network.InitialSpec).
 			Build()
 		if err != nil {
@@ -525,6 +521,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 			Name(gateway.Name).
 			Provider(networkProviderV1).ApiVersion(apiVersion1).
 			Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
+			Labels(gateway.InitialLabels).
 			Spec(gateway.InitialSpec).
 			Build()
 		if err != nil {
@@ -590,6 +587,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 			Name(routeTable.Name).
 			Provider(networkProviderV1).ApiVersion(apiVersion1).
 			Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(networkGeneric[0].Metadata.Name).Region(params.Region).
+			Labels(routeTable.InitialLabels).
 			Spec(routeTable.InitialSpec).
 			Build()
 		if err != nil {
@@ -613,7 +611,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 		Items: routeTableList,
 	}
 
-	//List
+	// List
 	if err := configurator.configureGetListRouteTableStub(routeTableResponse, routeTableListUrl, params, nil); err != nil {
 		return nil, err
 	}
@@ -654,9 +652,9 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 			Name(subnet.Name).
 			Provider(networkProviderV1).ApiVersion(apiVersion1).
 			Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(networkGeneric[0].Metadata.Name).Region(params.Region).
+			Labels(subnet.InitialLabels).
 			Spec(subnet.InitialSpec).
 			Build()
-
 		if err != nil {
 			return nil, err
 		}
@@ -677,7 +675,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 		},
 		Items: subnetList,
 	}
-	//List
+	// List
 	if err := configurator.configureGetListSubnetStub(subnetResponse, subnetListUrl, params, nil); err != nil {
 		return nil, err
 	}
@@ -718,9 +716,9 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 			Name(publicIp.Name).
 			Provider(networkProviderV1).ApiVersion(apiVersion1).
 			Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
+			Labels(publicIp.InitialLabels).
 			Spec(publicIp.InitialSpec).
 			Build()
-
 		if err != nil {
 			return nil, err
 		}
@@ -731,7 +729,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 		publicIpList = append(publicIpList, *publicIpResponse)
 	}
 
-	//List
+	// List
 	publicIpListUrl := generators.GeneratePublicIpListURL(networkProviderV1, params.Tenant, params.Workspace.Name)
 	publicIpResource := generators.GeneratePublicIpListResource(params.Tenant, params.Workspace.Name)
 	publicIpResponse := &network.PublicIpIterator{
@@ -783,6 +781,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 			Name(nic.Name).
 			Provider(networkProviderV1).ApiVersion(apiVersion1).
 			Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
+			Labels(nic.InitialLabels).
 			Spec(nic.InitialSpec).
 			Build()
 		if err != nil {
@@ -795,7 +794,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 		nicList = append(nicList, *nicResponse)
 	}
 
-	//List
+	// List
 	nicListUrl := generators.GenerateNicListURL(networkProviderV1, params.Tenant, params.Workspace.Name)
 	nicResource := generators.GenerateNicListResource(params.Tenant, params.Workspace.Name)
 	nicResponse := &network.NicIterator{
@@ -847,6 +846,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 			Name(securityGroup.Name).
 			Provider(networkProviderV1).ApiVersion(apiVersion1).
 			Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
+			Labels(securityGroup.InitialLabels).
 			Spec(securityGroup.InitialSpec).
 			Build()
 		if err != nil {
@@ -858,7 +858,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 		}
 		securityGroupList = append(securityGroupList, *securityGroupResponse)
 	}
-	//List
+	// List
 	securityGroupListUrl := generators.GenerateSecurityGroupListURL(networkProviderV1, params.Tenant, params.Workspace.Name)
 	securityGroupResource := generators.GenerateSecurityGroupListResource(params.Tenant, params.Workspace.Name)
 	securityGroupResponse := &network.SecurityGroupIterator{
@@ -875,7 +875,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 
 	// List with Limit 1
 	securityGroupResponse.Items = securityGroupList[:1]
-	if err := configurator.configureGetListSecurityGroupStub(securityGroupResponse, nicListUrl, params, pathParamsLimit("1")); err != nil {
+	if err := configurator.configureGetListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, params, pathParamsLimit("1")); err != nil {
 		return nil, err
 	}
 
@@ -891,13 +891,13 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 	}
 
 	securityGroupResponse.Items = secGroupWithLabel(securityGroupList)
-	if err := configurator.configureGetListSecurityGroupStub(securityGroupResponse, nicListUrl, params, pathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.configureGetListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, params, pathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with Limit and Label
 	securityGroupResponse.Items = secGroupWithLabel(securityGroupList)[:1]
-	if err := configurator.configureGetListSecurityGroupStub(securityGroupResponse, nicListUrl, params, pathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.configureGetListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, params, pathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
@@ -906,6 +906,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 		Name(params.BlockStorage.Name).
 		Provider(storageProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
+		Labels(params.BlockStorage.InitialLabels).
 		Spec(params.BlockStorage.InitialSpec).
 		Build()
 	if err != nil {
@@ -922,6 +923,7 @@ func ConfigNetworkListLifecycleScenarioV1(scenario string, params *NetworkListPa
 		Name(params.Instance.Name).
 		Provider(computeProviderV1).ApiVersion(apiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
+		Labels(params.Instance.InitialLabels).
 		Spec(params.Instance.InitialSpec).
 		Build()
 	if err != nil {

@@ -163,7 +163,7 @@ func ConfigComputeLifecycleScenarioV1(scenario string, params *ComputeParamsV1) 
 	return configurator.client, nil
 }
 
-func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeListParamsV1) (*wiremock.Client, error) {
+func ConfigComputeListAndFilterScenarioV1(scenario string, params *ComputeListParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
@@ -211,11 +211,12 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeListPa
 	// Instance
 	var instanceList []schema.Instance
 	for _, instance := range *params.Instance {
-		instanceUrl := generators.GenerateInstanceListURL(computeProviderV1, params.Tenant, instance.Name)
+		instanceUrl := generators.GenerateInstanceURL(computeProviderV1, params.Tenant, params.Workspace.Name, instance.Name)
 		instanceResponse, err := builders.NewInstanceBuilder().
 			Name(instance.Name).
 			Provider(computeProviderV1).ApiVersion(apiVersion1).
 			Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
+			Labels(instance.InitialLabels).
 			Spec(instance.InitialSpec).
 			Build()
 		if err != nil {

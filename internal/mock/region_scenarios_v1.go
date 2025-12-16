@@ -11,7 +11,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*wiremock.Client, error) {
+func ConfigRegionListAndFilterScenarioV1(scenario string, params *RegionParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)

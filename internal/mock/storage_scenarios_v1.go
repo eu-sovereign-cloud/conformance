@@ -142,7 +142,7 @@ func ConfigStorageLifecycleScenarioV1(scenario string, params *StorageParamsV1) 
 	return configurator.client, nil
 }
 
-func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageListParamsV1) (*wiremock.Client, error) {
+func ConfigStorageListAndFilterScenarioV1(scenario string, params *StorageListParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
@@ -177,6 +177,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageListPa
 			Name(block.Name).
 			Provider(storageProviderV1).ApiVersion(apiVersion1).
 			Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
+			Labels(block.InitialLabels).
 			Spec(block.InitialSpec).
 			Build()
 		if err != nil {
@@ -244,6 +245,7 @@ func ConfigStorageListLifecycleScenarioV1(scenario string, params *StorageListPa
 			Name(image.Name).
 			Provider(storageProviderV1).ApiVersion(apiVersion1).
 			Tenant(params.Tenant).Region(params.Region).
+			Labels(image.InitialLabels).
 			Spec(image.InitialSpec).
 			Build()
 		if err != nil {

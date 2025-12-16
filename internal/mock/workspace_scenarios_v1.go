@@ -64,7 +64,7 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	return configurator.client, nil
 }
 
-func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspaceListParamsV1) (*wiremock.Client, error) {
+func ConfigWorkspaceListAndFilterScenarioV1(scenario string, params *WorkspaceListParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)

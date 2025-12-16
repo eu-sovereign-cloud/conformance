@@ -35,7 +35,6 @@ func (configurator *scenarioConfigurator) configureGetActiveBlockStorageStub(res
 }
 
 func (configurator *scenarioConfigurator) configureGetListBlockStorageStub(response storage.BlockStorageIterator, url string, params HasParams, pathParams map[string]string) error {
-
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -69,8 +68,8 @@ func (configurator *scenarioConfigurator) configureGetActiveImageStub(response *
 	}
 	return nil
 }
-func (configurator *scenarioConfigurator) configureGetListImageStub(response storage.ImageIterator, url string, params HasParams, pathParams map[string]string) error {
 
+func (configurator *scenarioConfigurator) configureGetListImageStub(response storage.ImageIterator, url string, params HasParams, pathParams map[string]string) error {
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -78,7 +77,6 @@ func (configurator *scenarioConfigurator) configureGetListImageStub(response sto
 }
 
 func (configurator *scenarioConfigurator) configureGetListStorageSkuStub(response storage.SkuIterator, url string, params HasParams, pathParams map[string]string) error {
-
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

@@ -68,7 +68,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 			},
 		}
 
-		wm, err := mock.ConfigRegionLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigRegionListAndFilterScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}

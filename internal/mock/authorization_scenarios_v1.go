@@ -109,7 +109,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	return configurator.client, nil
 }
 
-func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *AuthorizationListParamsV1) (*wiremock.Client, error) {
+func CreateAuthorizationListAndFilterScenarioV1(scenario string, params *AuthorizationListParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
@@ -127,6 +127,7 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 			Name(role.Name).
 			Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 			Tenant(params.Tenant).
+			Labels(role.InitialLabels).
 			Spec(role.InitialSpec).
 			Build()
 		if err != nil {
@@ -196,7 +197,6 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 			Labels(roleAssignment.InitialLabels).
 			Spec(roleAssignment.InitialSpec).
 			Build()
-
 		if err != nil {
 			return nil, err
 		}
