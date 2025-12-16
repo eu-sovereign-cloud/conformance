@@ -257,12 +257,12 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 		roleAssignUrl := generators.GenerateRoleAssignmentURL(authorizationProviderV1, params.Tenant, roleAssignment.Metadata.Name)
 
 		// Delete the role assignment
-		if err := configurator.configureDeleteStub(roleAssignUrl, params, false); err != nil {
+		if err := configurator.configureDeleteStub(roleAssignUrl, params); err != nil {
 			return nil, err
 		}
 
 		// Get the deleted workspace
-		if err := configurator.configureGetNotFoundStub(roleAssignUrl, params, true); err != nil {
+		if err := configurator.configureGetNotFoundStub(roleAssignUrl, params); err != nil {
 			return nil, err
 		}
 	}
@@ -272,12 +272,12 @@ func CreateAuthorizationListLifecycleScenarioV1(scenario string, params *Authori
 		roleUrl := generators.GenerateRoleURL(authorizationProviderV1, params.Tenant, role.Metadata.Name)
 
 		// Delete the role assignment
-		if err := configurator.configureDeleteStub(roleUrl, params, false); err != nil {
+		if err := configurator.configureDeleteStub(roleUrl, params); err != nil {
 			return nil, err
 		}
 
 		// Get the deleted workspace
-		if err := configurator.configureGetNotFoundStub(roleUrl, params, true); err != nil {
+		if err := configurator.configureGetNotFoundStub(roleUrl, params); err != nil {
 			return nil, err
 		}
 	}

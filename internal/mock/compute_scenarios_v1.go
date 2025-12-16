@@ -375,33 +375,33 @@ func ConfigComputeListLifecycleScenarioV1(scenario string, params *ComputeListPa
 	// Delete Instance
 	for _, instance := range instanceList {
 		url := generators.GenerateInstanceURL(computeProviderV1, params.Tenant, params.Workspace.Name, instance.Metadata.Name)
-		if err := configurator.configureDeleteStub(url, params, false); err != nil {
+		if err := configurator.configureDeleteStub(url, params); err != nil {
 			return nil, err
 		}
 
 		// Get the deleted instance
-		if err := configurator.configureGetNotFoundStub(url, params, true); err != nil {
+		if err := configurator.configureGetNotFoundStub(url, params); err != nil {
 			return nil, err
 		}
 	}
 
 	// Delete the block storage
-	if err := configurator.configureDeleteStub(blockUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(blockUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted workspace
-	if err := configurator.configureGetNotFoundStub(blockUrl, params, true); err != nil {
+	if err := configurator.configureGetNotFoundStub(blockUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
-	if err := configurator.configureDeleteStub(workspaceUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(workspaceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted workspace
-	if err := configurator.configureGetNotFoundStub(workspaceUrl, params, true); err != nil {
+	if err := configurator.configureGetNotFoundStub(workspaceUrl, params); err != nil {
 		return nil, err
 	}
 

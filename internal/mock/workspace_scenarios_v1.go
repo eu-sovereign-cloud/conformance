@@ -140,12 +140,12 @@ func ConfigWorkspaceListLifecycleScenarioV1(scenario string, params *WorkspaceLi
 		url := generators.GenerateWorkspaceURL(workspaceProviderV1, workspace.Metadata.Name, workspace.Metadata.Name)
 
 		// Delete the workspace
-		if err := configurator.configureDeleteStub(url, params, false); err != nil {
+		if err := configurator.configureDeleteStub(url, params); err != nil {
 			return nil, err
 		}
 
 		// Get the deleted workspace
-		if err := configurator.configureGetNotFoundStub(url, params, true); err != nil {
+		if err := configurator.configureGetNotFoundStub(url, params); err != nil {
 			return nil, err
 		}
 	}

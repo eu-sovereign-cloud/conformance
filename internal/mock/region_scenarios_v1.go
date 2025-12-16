@@ -27,11 +27,6 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	regionsUrl := generators.GenerateRegionListURL(regionProviderV1)
 	regionUrl := generators.GenerateRegionURL(regionProviderV1, params.Regions[0].Name)
 
-	// Build headers
-	headerParams := map[string]string{
-		authorizationHttpHeaderKey: authorizationHttpHeaderValuePrefix + params.AuthToken,
-	}
-
 	regionsResponse := &region.RegionIterator{
 		Metadata: schema.ResponseMetadata{
 			Provider: regionProviderV1,
@@ -59,7 +54,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 	regionsResponse.Items = regionsList
 
 	// 1 - Create ListRegions stub
-	if err := configurator.configureGetStubWithHeaders(regionsUrl, params, headerParams, nil, regionsResponse); err != nil {
+	if err := configurator.configureGetListRegionStub(regionsResponse, regionsUrl, params, nil); err != nil {
 		return nil, err
 	}
 
@@ -76,7 +71,7 @@ func ConfigRegionLifecycleScenarioV1(scenario string, params *RegionParamsV1) (*
 		Spec: regionsResponse.Items[0].Spec,
 	}
 
-	if err := configurator.configureGetStubWithHeaders(regionUrl, params, headerParams, nil, singleRegionResponse); err != nil {
+	if err := configurator.configureGetRegionStub(singleRegionResponse, regionUrl, params, nil); err != nil {
 		return nil, err
 	}
 
