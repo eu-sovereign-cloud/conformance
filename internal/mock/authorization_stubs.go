@@ -1,3 +1,4 @@
+//nolint:dupl
 package mock
 
 import (
@@ -12,9 +13,7 @@ import (
 func (configurator *scenarioConfigurator) configureCreateRoleStub(response *schema.Role, url string, params HasParams) error {
 	setCreatedGlobalTenantResourceMetadata(response.Metadata)
 	response.Status = newResourceStatus(schema.ResourceStateCreating)
-	response.Metadata.Verb = http.MethodPut
-
-	if err := configurator.configurePutStub(url, params, response, false); err != nil {
+	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -23,9 +22,7 @@ func (configurator *scenarioConfigurator) configureCreateRoleStub(response *sche
 func (configurator *scenarioConfigurator) configureUpdateRoleStub(response *schema.Role, url string, params HasParams) error {
 	setModifiedGlobalTenantResourceMetadata(response.Metadata)
 	setResourceState(response.Status, schema.ResourceStateUpdating)
-	response.Metadata.Verb = http.MethodPut
-
-	if err := configurator.configurePutStub(url, params, response, false); err != nil {
+	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -33,9 +30,7 @@ func (configurator *scenarioConfigurator) configureUpdateRoleStub(response *sche
 
 func (configurator *scenarioConfigurator) configureGetActiveRoleStub(response *schema.Role, url string, params HasParams) error {
 	setResourceState(response.Status, schema.ResourceStateActive)
-	response.Metadata.Verb = http.MethodGet
-
-	if err := configurator.configureGetStub(url, params, response, false); err != nil {
+	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -44,7 +39,7 @@ func (configurator *scenarioConfigurator) configureGetActiveRoleStub(response *s
 func (configurator *scenarioConfigurator) configureGetListRoleStub(response *authorization.RoleIterator, url string, params HasParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 
-	if err := configurator.configureGetListStub(url, params, pathParams, response, false); err != nil {
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -55,9 +50,7 @@ func (configurator *scenarioConfigurator) configureGetListRoleStub(response *aut
 func (configurator *scenarioConfigurator) configureCreateRoleAssignmentStub(response *schema.RoleAssignment, url string, params HasParams) error {
 	setCreatedGlobalTenantResourceMetadata(response.Metadata)
 	response.Status = newResourceStatus(schema.ResourceStateCreating)
-	response.Metadata.Verb = http.MethodPut
-
-	if err := configurator.configurePutStub(url, params, response, false); err != nil {
+	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -66,9 +59,7 @@ func (configurator *scenarioConfigurator) configureCreateRoleAssignmentStub(resp
 func (configurator *scenarioConfigurator) configureUpdateRoleAssignmentStub(response *schema.RoleAssignment, url string, params HasParams) error {
 	setModifiedGlobalTenantResourceMetadata(response.Metadata)
 	setResourceState(response.Status, schema.ResourceStateUpdating)
-	response.Metadata.Verb = http.MethodPut
-
-	if err := configurator.configurePutStub(url, params, response, false); err != nil {
+	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -76,9 +67,7 @@ func (configurator *scenarioConfigurator) configureUpdateRoleAssignmentStub(resp
 
 func (configurator *scenarioConfigurator) configureGetActiveRoleAssignmentStub(response *schema.RoleAssignment, url string, params HasParams) error {
 	setResourceState(response.Status, schema.ResourceStateActive)
-	response.Metadata.Verb = http.MethodGet
-
-	if err := configurator.configureGetStub(url, params, response, false); err != nil {
+	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -87,7 +76,7 @@ func (configurator *scenarioConfigurator) configureGetActiveRoleAssignmentStub(r
 func (configurator *scenarioConfigurator) configureGetListRoleAssignmentStub(response *authorization.RoleAssignmentIterator, url string, params HasParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 
-	if err := configurator.configureGetListStub(url, params, pathParams, response, false); err != nil {
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil

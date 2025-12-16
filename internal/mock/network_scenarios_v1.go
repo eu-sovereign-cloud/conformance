@@ -315,102 +315,102 @@ func ConfigNetworkLifecycleScenarioV1(scenario string, params *NetworkParamsV1) 
 		return nil, err
 	}
 	// Delete the instance
-	if err := configurator.configureDeleteStub(instanceUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted instance
-	if err := configurator.configureGetNotFoundStub(instanceUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the block storage
-	if err := configurator.configureDeleteStub(blockUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(blockUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted block storage
-	if err := configurator.configureGetNotFoundStub(blockUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(blockUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the security group
-	if err := configurator.configureDeleteStub(groupUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(groupUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted security group
-	if err := configurator.configureGetNotFoundStub(groupUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(groupUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the nic
-	if err := configurator.configureDeleteStub(nicUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(nicUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted nic
-	if err := configurator.configureGetNotFoundStub(nicUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(nicUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the public ip
-	if err := configurator.configureDeleteStub(publicIpUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(publicIpUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted public ip
-	if err := configurator.configureGetNotFoundStub(publicIpUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(publicIpUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the subnet
-	if err := configurator.configureDeleteStub(subnetUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(subnetUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted subnet
-	if err := configurator.configureGetNotFoundStub(subnetUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(subnetUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the route table
-	if err := configurator.configureDeleteStub(routeUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(routeUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted route table
-	if err := configurator.configureGetNotFoundStub(routeUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(routeUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the internet gateway
-	if err := configurator.configureDeleteStub(gatewayUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(gatewayUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted internet gateway
-	if err := configurator.configureGetNotFoundStub(gatewayUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(gatewayUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the network
-	if err := configurator.configureDeleteStub(networkUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(networkUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted network
-	if err := configurator.configureGetNotFoundStub(networkUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(networkUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
-	if err := configurator.configureDeleteStub(workspaceUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(workspaceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted workspace
-	if err := configurator.configureGetNotFoundStub(workspaceUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(workspaceUrl, params); err != nil {
 		return nil, err
 	}
 

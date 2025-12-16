@@ -315,67 +315,67 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	// Delete all
 
 	// Delete the instance
-	if err := configurator.configureDeleteStub(instanceUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(instanceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the security Group
-	if err := configurator.configureDeleteStub(groupUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(groupUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the nic
-	if err := configurator.configureDeleteStub(nicUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(nicUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the public ip
-	if err := configurator.configureDeleteStub(publicIpUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(publicIpUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the subnet
-	if err := configurator.configureDeleteStub(subnetUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(subnetUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the route-table
-	if err := configurator.configureDeleteStub(routeUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(routeUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the internet gateway
-	if err := configurator.configureDeleteStub(gatewayUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(gatewayUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the network
-	if err := configurator.configureDeleteStub(networkUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(networkUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the block storage
-	if err := configurator.configureDeleteStub(blockUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(blockUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the image
-	if err := configurator.configureDeleteStub(imageUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(imageUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
-	if err := configurator.configureDeleteStub(workspaceUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(workspaceUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the role assignment
-	if err := configurator.configureDeleteStub(roleAssignUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(roleAssignUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the role
-	if err := configurator.configureDeleteStub(roleUrl, params, true); err != nil {
+	if err := configurator.configureDeleteStub(roleUrl, params); err != nil {
 		return nil, err
 	}
 

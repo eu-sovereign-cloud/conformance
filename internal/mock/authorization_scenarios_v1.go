@@ -87,22 +87,22 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Delete the role assignment
-	if err := configurator.configureDeleteStub(roleAssignUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(roleAssignUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted role assignment
-	if err := configurator.configureGetNotFoundStub(roleAssignUrl, params, false); err != nil {
+	if err := configurator.configureGetNotFoundStub(roleAssignUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Delete the role
-	if err := configurator.configureDeleteStub(roleUrl, params, false); err != nil {
+	if err := configurator.configureDeleteStub(roleUrl, params); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted role
-	if err := configurator.configureGetNotFoundStub(roleUrl, params, true); err != nil {
+	if err := configurator.configureGetNotFoundStub(roleUrl, params); err != nil {
 		return nil, err
 	}
 

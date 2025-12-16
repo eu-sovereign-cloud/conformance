@@ -1,3 +1,4 @@
+//nolint:dupl
 package secatest
 
 import (
@@ -12,7 +13,6 @@ import (
 
 // Instance
 
-//nolint:dupl
 func (suite *testSuite) createOrUpdateInstanceV1Step(stepName string, t provider.T, api *secapi.ComputeV1, resource *schema.Instance,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
 ) {
@@ -37,7 +37,6 @@ func (suite *testSuite) createOrUpdateInstanceV1Step(stepName string, t provider
 	)
 }
 
-//nolint:dupl
 func (suite *testSuite) getInstanceV1Step(stepName string, t provider.T, api *secapi.ComputeV1, wref secapi.WorkspaceReference,
 	responseExpects responseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
 ) *schema.Instance {
