@@ -2,6 +2,7 @@
 package mock
 
 import (
+	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -33,6 +34,14 @@ func (configurator *scenarioConfigurator) configureGetActiveBlockStorageStub(res
 	return nil
 }
 
+func (configurator *scenarioConfigurator) configureGetListBlockStorageStub(response storage.BlockStorageIterator, url string, params HasParams, pathParams map[string]string) error {
+
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Image
 
 func (configurator *scenarioConfigurator) configureCreateImageStub(response *schema.Image, url string, params HasParams) error {
@@ -56,6 +65,21 @@ func (configurator *scenarioConfigurator) configureUpdateImageStub(response *sch
 func (configurator *scenarioConfigurator) configureGetActiveImageStub(response *schema.Image, url string, params HasParams) error {
 	setImageState(response.Status, schema.ResourceStateActive)
 	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+func (configurator *scenarioConfigurator) configureGetListImageStub(response storage.ImageIterator, url string, params HasParams, pathParams map[string]string) error {
+
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *scenarioConfigurator) configureGetListStorageSkuStub(response storage.SkuIterator, url string, params HasParams, pathParams map[string]string) error {
+
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil

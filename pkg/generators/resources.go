@@ -8,6 +8,10 @@ func GenerateSkuResource(tenant, sku string) string {
 	return fmt.Sprintf(skuResource, tenant, sku)
 }
 
+func GenerateSkuListResource(tenant string) string {
+	return fmt.Sprintf(skuListResource, tenant)
+}
+
 func GenerateRoleResource(tenant, role string) string {
 	return fmt.Sprintf(roleResource, tenant, role)
 }
@@ -40,8 +44,16 @@ func GenerateBlockStorageResource(tenant, workspace, blockStorage string) string
 	return fmt.Sprintf(blockStorageResource, tenant, workspace, blockStorage)
 }
 
+func GenerateBlockStorageListResource(tenant, workspace string) string {
+	return fmt.Sprintf(blockStorageListResource, tenant, workspace)
+}
+
 func GenerateImageResource(tenant, image string) string {
 	return fmt.Sprintf(imageResource, tenant, image)
+}
+
+func GenerateImageListResource(tenant string) string {
+	return fmt.Sprintf(imageListResource, tenant)
 }
 
 func GenerateInstanceResource(tenant, workspace, instance string) string {

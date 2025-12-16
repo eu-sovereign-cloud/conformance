@@ -76,6 +76,15 @@ type StorageParamsV1 struct {
 
 func (p StorageParamsV1) getParams() *Params { return p.Params }
 
+type StorageListParamsV1 struct {
+	*Params
+	Workspace    *ResourceParams[schema.WorkspaceSpec]
+	BlockStorage *[]ResourceParams[schema.BlockStorageSpec]
+	Image        *[]ResourceParams[schema.ImageSpec]
+}
+
+func (p StorageListParamsV1) getParams() *Params { return p.Params }
+
 type NetworkParamsV1 struct {
 	*Params
 
