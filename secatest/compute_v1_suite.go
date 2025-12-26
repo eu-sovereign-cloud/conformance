@@ -5,8 +5,8 @@ import (
 	"math/rand"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/secalib"
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -26,7 +26,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	configureTags(t, computeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	// Select skus
 	instanceSkuName := suite.instanceSkus[rand.Intn(len(suite.instanceSkus))]
@@ -37,32 +37,29 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	updatedInstanceZone := suite.availableZones[rand.Intn(len(suite.availableZones))]
 
 	// Generate scenario data
-	workspaceName := secalib.GenerateWorkspaceName()
-	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
-	instanceSkuRef := secalib.GenerateSkuRef(instanceSkuName)
+	workspaceName := generators.GenerateWorkspaceName()
+	instanceSkuRef := generators.GenerateSkuRef(instanceSkuName)
 	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
 	if err != nil {
-		t.Fatalf("Failed to build instanceSkuRef to URN: %v", err)
+		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	instanceName := secalib.GenerateInstanceName()
-	instanceResource := secalib.GenerateInstanceResource(suite.tenant, workspaceName, instanceName)
+	instanceName := generators.GenerateInstanceName()
 
-	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
+	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
 	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
 	if err != nil {
-		t.Fatalf("Failed to build storageSkuRef to URN: %v", err)
+		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	blockStorageName := secalib.GenerateBlockStorageName()
-	blockStorageResource := secalib.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
-	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
+	blockStorageName := generators.GenerateBlockStorageName()
+	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
 	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
 	if err != nil {
-		t.Fatalf("Failed to build blockStorageRef to URN: %v", err)
+		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	blockStorageSize := secalib.GenerateBlockStorageSize()
+	blockStorageSize := generators.GenerateBlockStorageSize()
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
@@ -123,15 +120,11 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectWorkspaceMeta, err := builders.NewRegionalResourceMetadataBuilder().
+	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
 		Name(workspaceName).
-		Provider(secalib.WorkspaceProviderV1).
-		Resource(workspaceResource).
-		ApiVersion(secalib.ApiVersion1).
-		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
-		Tenant(suite.tenant).
-		Region(suite.region).
-		BuildResponse()
+		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
+		Tenant(suite.tenant).Region(suite.region).
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -171,16 +164,11 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 			SkuRef: *storageSkuRefObj,
 		},
 	}
-	expectedBlockMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
+	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
 		Name(blockStorageName).
-		Provider(secalib.StorageProviderV1).
-		Resource(blockStorageResource).
-		ApiVersion(secalib.ApiVersion1).
-		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
-		Tenant(suite.tenant).
-		Workspace(workspaceName).
-		Region(suite.region).
-		BuildResponse()
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
+		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -227,16 +215,11 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 			},
 		},
 	}
-	expectInstanceMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
+	expectInstanceMeta, err := builders.NewInstanceMetadataBuilder().
 		Name(instanceName).
-		Provider(secalib.ComputeProviderV1).
-		Resource(instanceResource).
-		ApiVersion(secalib.ApiVersion1).
-		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).
-		Tenant(suite.tenant).
-		Workspace(workspaceName).
-		Region(suite.region).
-		BuildResponse()
+		Provider(computeProviderV1).ApiVersion(apiVersion1).
+		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -326,22 +309,15 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 		},
 	)
 
-	// Delete the instance
-	suite.deleteInstanceV1Step("Delete the instance", t, suite.client.ComputeV1, instance)
+	// Resources deletion
 
-	// Get the deleted instance
+	suite.deleteInstanceV1Step("Delete the instance", t, suite.client.ComputeV1, instance)
 	suite.getInstanceWithErrorV1Step("Get the deleted instance", t, suite.client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
 
-	// Delete the block storage
 	suite.deleteBlockStorageV1Step("Delete the block storage", t, suite.client.StorageV1, block)
-
-	// Get the deleted block storage
 	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
 
-	// Delete the workspace
 	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
-
-	// Get the deleted workspace
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)

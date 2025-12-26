@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/eu-sovereign-cloud/conformance/secalib"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -74,7 +73,7 @@ func (suite *testSuite) resetAllScenarios() {
 
 func (suite *testSuite) setAuthorizationV1StepParams(sctx provider.StepCtx, operation string) {
 	sctx.WithNewParameters(
-		providerStepParameter, secalib.AuthorizationProviderV1,
+		providerStepParameter, authorizationProviderV1,
 		operationStepParameter, operation,
 		tenantStepParameter, suite.tenant,
 	)
@@ -82,7 +81,7 @@ func (suite *testSuite) setAuthorizationV1StepParams(sctx provider.StepCtx, oper
 
 func (suite *testSuite) setRegionV1StepParams(sctx provider.StepCtx, operation string) {
 	sctx.WithNewParameters(
-		providerStepParameter, secalib.RegionProviderV1,
+		providerStepParameter, regionProviderV1,
 		operationStepParameter, operation,
 		tenantStepParameter, suite.tenant,
 	)
@@ -90,7 +89,7 @@ func (suite *testSuite) setRegionV1StepParams(sctx provider.StepCtx, operation s
 
 func (suite *testSuite) setWorkspaceV1StepParams(sctx provider.StepCtx, operation string) {
 	sctx.WithNewParameters(
-		providerStepParameter, secalib.WorkspaceProviderV1,
+		providerStepParameter, workspaceProviderV1,
 		operationStepParameter, operation,
 		tenantStepParameter, suite.tenant,
 	)
@@ -98,7 +97,7 @@ func (suite *testSuite) setWorkspaceV1StepParams(sctx provider.StepCtx, operatio
 
 func (suite *testSuite) setStorageV1StepParams(sctx provider.StepCtx, operation string) {
 	sctx.WithNewParameters(
-		providerStepParameter, secalib.StorageProviderV1,
+		providerStepParameter, storageProviderV1,
 		operationStepParameter, operation,
 		tenantStepParameter, suite.tenant,
 	)
@@ -106,7 +105,7 @@ func (suite *testSuite) setStorageV1StepParams(sctx provider.StepCtx, operation 
 
 func (suite *testSuite) setStorageWorkspaceV1StepParams(sctx provider.StepCtx, operation string, workspace string) {
 	sctx.WithNewParameters(
-		providerStepParameter, secalib.StorageProviderV1,
+		providerStepParameter, storageProviderV1,
 		operationStepParameter, operation,
 		tenantStepParameter, suite.tenant,
 		workspaceStepParameter, workspace,
@@ -115,7 +114,7 @@ func (suite *testSuite) setStorageWorkspaceV1StepParams(sctx provider.StepCtx, o
 
 func (suite *testSuite) setComputeV1StepParams(sctx provider.StepCtx, operation string, workspace string) {
 	sctx.WithNewParameters(
-		providerStepParameter, secalib.ComputeProviderV1,
+		providerStepParameter, computeProviderV1,
 		operationStepParameter, operation,
 		tenantStepParameter, suite.tenant,
 		workspaceStepParameter, workspace,
@@ -124,7 +123,7 @@ func (suite *testSuite) setComputeV1StepParams(sctx provider.StepCtx, operation 
 
 func (suite *testSuite) setNetworkV1StepParams(sctx provider.StepCtx, operation string, workspace string) {
 	sctx.WithNewParameters(
-		providerStepParameter, secalib.NetworkProviderV1,
+		providerStepParameter, networkProviderV1,
 		operationStepParameter, operation,
 		tenantStepParameter, suite.tenant,
 		workspaceStepParameter, workspace,
@@ -134,7 +133,7 @@ func (suite *testSuite) setNetworkV1StepParams(sctx provider.StepCtx, operation 
 // TODO Find a better name for this function
 func (suite *testSuite) setNetworkNetworkV1StepParams(sctx provider.StepCtx, operation string, workspace string, network string) {
 	sctx.WithNewParameters(
-		providerStepParameter, secalib.NetworkProviderV1,
+		providerStepParameter, networkProviderV1,
 		operationStepParameter, operation,
 		tenantStepParameter, suite.tenant,
 		workspaceStepParameter, workspace,

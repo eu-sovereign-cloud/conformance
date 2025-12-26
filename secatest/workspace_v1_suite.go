@@ -4,8 +4,8 @@ import (
 	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/secalib"
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -20,11 +20,10 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	configureTags(t, workspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	// Generate scenario data
-	workspaceName := secalib.GenerateWorkspaceName()
-	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
+	workspaceName := generators.GenerateWorkspaceName()
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
@@ -62,15 +61,11 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectMeta, err := builders.NewRegionalResourceMetadataBuilder().
+	expectMeta, err := builders.NewWorkspaceMetadataBuilder().
 		Name(workspaceName).
-		Provider(secalib.WorkspaceProviderV1).
-		Resource(workspaceResource).
-		ApiVersion(secalib.ApiVersion1).
-		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
-		Tenant(suite.tenant).
-		Region(suite.region).
-		BuildResponse()
+		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
+		Tenant(suite.tenant).Region(suite.region).
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -118,10 +113,9 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 		},
 	)
 
-	// Delete the workspace
-	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
+	// Resources deletion
 
-	// Get the deleted workspace
+	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *tref, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)

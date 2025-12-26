@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/secalib"
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -24,7 +24,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.AuthorizationProviderV1,
+	configureTags(t, authorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
@@ -34,14 +34,12 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 	roleAssignmentSub2 := suite.users[rand.Intn(len(suite.users))]
 
 	// Generate scenario data
-	roleName := secalib.GenerateRoleName()
-	roleResource := secalib.GenerateRoleResource(suite.tenant, roleName)
+	roleName := generators.GenerateRoleName()
 
-	roleAssignmentName := secalib.GenerateRoleAssignmentName()
-	roleAssignmentResource := secalib.GenerateRoleAssignmentResource(suite.tenant, roleAssignmentName)
+	roleAssignmentName := generators.GenerateRoleAssignmentName()
 
-	imageName := secalib.GenerateImageName()
-	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
+	imageName := generators.GenerateImageName()
+	imageResource := generators.GenerateImageResource(suite.tenant, imageName)
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
@@ -55,12 +53,12 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 				Name: roleName,
 				InitialSpec: &schema.RoleSpec{
 					Permissions: []schema.Permission{
-						{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+						{Provider: storageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 					},
 				},
 				UpdatedSpec: &schema.RoleSpec{
 					Permissions: []schema.Permission{
-						{Provider: secalib.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet, http.MethodPut}},
+						{Provider: storageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet, http.MethodPut}},
 					},
 				},
 			},
@@ -100,28 +98,25 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 		Spec: schema.RoleSpec{
 			Permissions: []schema.Permission{
 				{
-					Provider:  secalib.StorageProviderV1,
+					Provider:  storageProviderV1,
 					Resources: []string{imageResource},
 					Verb:      []string{http.MethodGet},
 				},
 			},
 		},
 	}
-	expectRoleMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
+	expectRoleMeta, err := builders.NewRoleMetadataBuilder().
 		Name(roleName).
-		Provider(secalib.AuthorizationProviderV1).
-		Resource(roleResource).
-		ApiVersion(secalib.ApiVersion1).
-		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).
+		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
 	expectRoleSpec := &schema.RoleSpec{
 		Permissions: []schema.Permission{
 			{
-				Provider:  secalib.StorageProviderV1,
+				Provider:  storageProviderV1,
 				Resources: []string{imageResource},
 				Verb:      []string{http.MethodGet},
 			},
@@ -182,14 +177,11 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 			Scopes: []schema.RoleAssignmentScope{{Tenants: &[]string{suite.tenant}}},
 		},
 	}
-	expectRoleAssignMeta, err := builders.NewGlobalTenantResourceMetadataBuilder().
+	expectRoleAssignMeta, err := builders.NewRoleAssignmentMetadataBuilder().
 		Name(roleAssignmentName).
-		Provider(secalib.AuthorizationProviderV1).
-		Resource(roleAssignmentResource).
-		ApiVersion(secalib.ApiVersion1).
-		Kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).
+		Provider(authorizationProviderV1).ApiVersion(apiVersion1).
 		Tenant(suite.tenant).
-		BuildResponse()
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -241,16 +233,10 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 
 	// Resources deletion
 
-	// Delete the role assignment
 	suite.deleteRoleAssignmentV1Step("Delete the role assignment", t, suite.client.AuthorizationV1, roleAssign)
-
-	// Get the deleted role assignment
 	suite.getRoleAssignmentWithErrorV1Step("Get the deleted role assignment", t, suite.client.AuthorizationV1, *roleAssignTRef, secapi.ErrResourceNotFound)
 
-	// Delete the role
 	suite.deleteRoleV1Step("Delete the role", t, suite.client.AuthorizationV1, role)
-
-	// Get the deleted role
 	suite.getRoleWithErrorV1Step("Get the deleted role", t, suite.client.AuthorizationV1, *roleTRef, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)

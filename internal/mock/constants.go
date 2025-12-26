@@ -13,6 +13,14 @@ const (
 
 	// Test Data
 
+	// Providers
+	authorizationProvider = "seca.authorization"
+	regionProvider        = "seca.region"
+	workspaceProvider     = "seca.workspace"
+	storageProvider       = "seca.storage"
+	computeProvider       = "seca.compute"
+	networkProvider       = "seca.network"
+
 	// Zones
 	zoneA = "a"
 	zoneB = "b"

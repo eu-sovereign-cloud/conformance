@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/secalib"
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -21,12 +21,12 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
+	configureTags(t, regionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
 	// Generate scenario Names
-	regionNameA := secalib.GenerateRegionName()
-	regionNameB := secalib.GenerateRegionName()
-	regionNameC := secalib.GenerateRegionName()
+	regionNameA := generators.GenerateRegionName()
+	regionNameB := generators.GenerateRegionName()
+	regionNameC := generators.GenerateRegionName()
 	// Configure Mock if enabled
 	if suite.mockEnabled {
 
@@ -41,28 +41,28 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 					Name: suite.regionName,
 					InitialSpec: &schema.RegionSpec{
 						AvailableZones: []string{zoneA, zoneB},
-						Providers:      secalib.GenerateProviderSpec(),
+						Providers:      mock.BuildProviderSpec(),
 					},
 				},
 				{
 					Name: regionNameA,
 					InitialSpec: &schema.RegionSpec{
 						AvailableZones: []string{zoneA, zoneB},
-						Providers:      secalib.GenerateProviderSpec(),
+						Providers:      mock.BuildProviderSpec(),
 					},
 				},
 				{
 					Name: regionNameB,
 					InitialSpec: &schema.RegionSpec{
 						AvailableZones: []string{zoneA, zoneB},
-						Providers:      secalib.GenerateProviderSpec(),
+						Providers:      mock.BuildProviderSpec(),
 					},
 				},
 				{
 					Name: regionNameC,
 					InitialSpec: &schema.RegionSpec{
 						AvailableZones: []string{zoneA, zoneB},
-						Providers:      secalib.GenerateProviderSpec(),
+						Providers:      mock.BuildProviderSpec(),
 					},
 				},
 			},
@@ -81,14 +81,10 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	regions := suite.listRegionsV1Step("List all regions", t, ctx, suite.client.RegionV1)
 
 	// Call Get Region and verify response
-	regionResource := secalib.GenerateRegionResource(regions[0].Metadata.Name)
-	expectedRegionMeta, err := builders.NewGlobalResourceMetadataBuilder().
+	expectedRegionMeta, err := builders.NewRegionMetadataBuilder().
 		Name(regions[0].Metadata.Name).
-		Provider(secalib.RegionProviderV1).
-		Resource(regionResource).
-		ApiVersion(secalib.ApiVersion1).
-		Kind(schema.GlobalResourceMetadataKindResourceKindRegion).
-		BuildResponse()
+		Provider(regionProviderV1).ApiVersion(apiVersion1).
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}

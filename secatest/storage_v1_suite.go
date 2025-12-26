@@ -5,8 +5,8 @@ import (
 	"math/rand"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/secalib"
-	"github.com/eu-sovereign-cloud/go-sdk/pkg/secalib/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -24,7 +24,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	slog.Info("Starting " + suite.scenarioName)
 
 	t.Title(suite.scenarioName)
-	configureTags(t, secalib.StorageProviderV1,
+	configureTags(t, storageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
 	)
@@ -33,28 +33,25 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
 
 	// Generate scenario data
-	workspaceName := secalib.GenerateWorkspaceName()
-	workspaceResource := secalib.GenerateWorkspaceResource(suite.tenant, workspaceName)
+	workspaceName := generators.GenerateWorkspaceName()
 
-	storageSkuRef := secalib.GenerateSkuRef(storageSkuName)
+	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
 	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	blockStorageName := secalib.GenerateBlockStorageName()
-	blockStorageResource := secalib.GenerateBlockStorageResource(suite.tenant, workspaceName, blockStorageName)
-	blockStorageRef := secalib.GenerateBlockStorageRef(blockStorageName)
+	blockStorageName := generators.GenerateBlockStorageName()
+	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
 	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	imageName := secalib.GenerateImageName()
-	imageResource := secalib.GenerateImageResource(suite.tenant, imageName)
+	imageName := generators.GenerateImageName()
 
-	initialStorageSize := secalib.GenerateBlockStorageSize()
-	updatedStorageSize := secalib.GenerateBlockStorageSize()
+	initialStorageSize := generators.GenerateBlockStorageSize()
+	updatedStorageSize := generators.GenerateBlockStorageSize()
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
@@ -113,15 +110,11 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			Name:   workspaceName,
 		},
 	}
-	expectWorkspaceMeta, err := builders.NewRegionalResourceMetadataBuilder().
+	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
 		Name(workspaceName).
-		Provider(secalib.WorkspaceProviderV1).
-		Resource(workspaceResource).
-		ApiVersion(secalib.ApiVersion1).
-		Kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
-		Tenant(suite.tenant).
-		Region(suite.region).
-		BuildResponse()
+		Provider(workspaceProviderV1).ApiVersion(apiVersion1).
+		Tenant(suite.tenant).Region(suite.region).
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -162,16 +155,11 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			SkuRef: *storageSkuRefObj,
 		},
 	}
-	expectedBlockMeta, err := builders.NewRegionalWorkspaceResourceMetadataBuilder().
+	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
 		Name(blockStorageName).
-		Provider(secalib.StorageProviderV1).
-		Resource(blockStorageResource).
-		ApiVersion(secalib.ApiVersion1).
-		Kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
-		Tenant(suite.tenant).
-		Workspace(workspaceName).
-		Region(suite.region).
-		BuildResponse()
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
+		Tenant(suite.tenant).Workspace(workspaceName).Region(suite.region).
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -234,15 +222,11 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 			CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
 		},
 	}
-	expectedImageMeta, err := builders.NewRegionalResourceMetadataBuilder().
+	expectedImageMeta, err := builders.NewImageMetadataBuilder().
 		Name(imageName).
-		Provider(secalib.StorageProviderV1).
-		Resource(imageResource).
-		ApiVersion(secalib.ApiVersion1).
-		Kind(schema.RegionalResourceMetadataKindResourceKindImage).
-		Tenant(suite.tenant).
-		Region(suite.region).
-		BuildResponse()
+		Provider(storageProviderV1).ApiVersion(apiVersion1).
+		Tenant(suite.tenant).Region(suite.region).
+		Build()
 	if err != nil {
 		t.Fatalf("Failed to build metadata: %v", err)
 	}
@@ -291,22 +275,15 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 		},
 	)
 
-	// Delete the image
-	suite.deleteImageV1Step("Delete the image", t, suite.client.StorageV1, image)
+	// Resources deletion
 
-	// Get the deleted image
+	suite.deleteImageV1Step("Delete the image", t, suite.client.StorageV1, image)
 	suite.getImageWithErrorV1Step("Get the deleted image", t, suite.client.StorageV1, *imageTRef, secapi.ErrResourceNotFound)
 
-	// Delete the block storage
 	suite.deleteBlockStorageV1Step("Delete the block storage", t, suite.client.StorageV1, block)
-
-	// Get the deleted block storage
 	suite.getBlockStorageWithErrorV1Step("Get the deleted block storage", t, suite.client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
 
-	// Delete the workspace
 	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
-
-	// Get the deleted workspace
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
 	slog.Info("Finishing " + suite.scenarioName)
