@@ -35,7 +35,7 @@ func newScenarioConfigurator(scenarioName, mockURL string) (*scenarioConfigurato
 func (builder *scenarioConfigurator) configureStub(
 	stubFunc func(*wiremock.Client, string, *stubConfig) error,
 	url string,
-	params HasParams,
+	params *BaseParams,
 	pathParams map[string]string,
 	responseBody any,
 ) error {
@@ -53,7 +53,7 @@ func (builder *scenarioConfigurator) configureStub(
 	return nil
 }
 
-func (builder *scenarioConfigurator) configurePutStub(url string, params HasParams, setMetadataVerbFunc func(string), responseBody any) error {
+func (builder *scenarioConfigurator) configurePutStub(url string, params *BaseParams, setMetadataVerbFunc func(string), responseBody any) error {
 	if setMetadataVerbFunc != nil {
 		setMetadataVerbFunc(http.MethodPut)
 	}
@@ -63,7 +63,7 @@ func (builder *scenarioConfigurator) configurePutStub(url string, params HasPara
 	return nil
 }
 
-func (builder *scenarioConfigurator) configurePostStub(url string, params HasParams, setMetadataVerbFunc func(string), responseBody any) error {
+func (builder *scenarioConfigurator) configurePostStub(url string, params *BaseParams, setMetadataVerbFunc func(string), responseBody any) error {
 	if setMetadataVerbFunc != nil {
 		setMetadataVerbFunc(http.MethodPost)
 	}
@@ -73,7 +73,7 @@ func (builder *scenarioConfigurator) configurePostStub(url string, params HasPar
 	return nil
 }
 
-func (builder *scenarioConfigurator) configureGetStub(url string, params HasParams, setMetadataVerbFunc func(string), responseBody any) error {
+func (builder *scenarioConfigurator) configureGetStub(url string, params *BaseParams, setMetadataVerbFunc func(string), responseBody any) error {
 	if setMetadataVerbFunc != nil {
 		setMetadataVerbFunc(http.MethodGet)
 	}
@@ -83,7 +83,7 @@ func (builder *scenarioConfigurator) configureGetStub(url string, params HasPara
 	return nil
 }
 
-func (builder *scenarioConfigurator) configureGetListStub(url string, params HasParams, pathParams map[string]string, setMetadataVerbFunc func(string), responseBody any) error {
+func (builder *scenarioConfigurator) configureGetListStub(url string, params *BaseParams, pathParams map[string]string, setMetadataVerbFunc func(string), responseBody any) error {
 	if setMetadataVerbFunc != nil {
 		setMetadataVerbFunc(http.MethodGet)
 	}
@@ -93,14 +93,14 @@ func (builder *scenarioConfigurator) configureGetListStub(url string, params Has
 	return nil
 }
 
-func (builder *scenarioConfigurator) configureGetNotFoundStub(url string, params HasParams) error {
+func (builder *scenarioConfigurator) configureGetNotFoundStub(url string, params *BaseParams) error {
 	if err := builder.configureStub(configureGetNotFoundStub, url, params, nil, nil); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (builder *scenarioConfigurator) configureDeleteStub(url string, params HasParams) error {
+func (builder *scenarioConfigurator) configureDeleteStub(url string, params *BaseParams) error {
 	if err := builder.configureStub(configureDeleteStub, url, params, nil, nil); err != nil {
 		return err
 	}

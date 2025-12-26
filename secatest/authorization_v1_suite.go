@@ -1,7 +1,6 @@
 package secatest
 
 import (
-	"log/slog"
 	"math/rand"
 	"net/http"
 
@@ -20,10 +19,8 @@ type AuthorizationV1TestSuite struct {
 	users []string
 }
 
-func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *AuthorizationV1TestSuite) TestLifeCycleScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t, authorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
@@ -43,8 +40,8 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		mockParams := &mock.AuthorizationParamsV1{
-			Params: &mock.Params{
+		mockParams := &mock.AuthorizationLifeCycleParamsV1{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
@@ -80,7 +77,7 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.CreateAuthorizationLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureAuthorizationLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -239,13 +236,11 @@ func (suite *AuthorizationV1TestSuite) TestSuite(t provider.T) {
 	suite.deleteRoleV1Step("Delete the role", t, suite.client.AuthorizationV1, role)
 	suite.getRoleWithErrorV1Step("Get the deleted role", t, suite.client.AuthorizationV1, *roleTRef, secapi.ErrResourceNotFound)
 
-	slog.Info("Finishing " + suite.scenarioName)
+	suite.finishScenario()
 }
 
-func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *AuthorizationV1TestSuite) TestListScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t, authorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
@@ -268,12 +263,12 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
 		mockParams := &mock.AuthorizationListParamsV1{
-			Params: &mock.Params{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
 			},
-			Role: &[]mock.ResourceParams[schema.RoleSpec]{
+			Roles: []mock.ResourceParams[schema.RoleSpec]{
 				{
 					Name: roleName1,
 
@@ -309,7 +304,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 					},
 				},
 			},
-			RoleAssignment: &[]mock.ResourceParams[schema.RoleAssignmentSpec]{
+			RoleAssignments: []mock.ResourceParams[schema.RoleAssignmentSpec]{
 				{
 					Name: roleAssignmentName1,
 					InitialLabels: schema.Labels{
@@ -351,7 +346,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.CreateAuthorizationListAndFilterScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureAuthorizationListScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -488,7 +483,6 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
 
 	// Role assignment
-
 	roleAssignments := []schema.RoleAssignment{
 		{
 			Metadata: &schema.GlobalTenantResourceMetadata{
@@ -539,8 +533,8 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 			},
 		},
 	}
-	// Create a RoleAssignments
 
+	// Create role assignments
 	for _, roleAssign := range roleAssignments {
 
 		expectRoleAssignMeta, err := builders.NewRoleAssignmentMetadataBuilder().
@@ -552,8 +546,9 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 			t.Fatalf("Failed to build metadata: %v", err)
 		}
 		expectRoleAssignSpec := &roleAssign.Spec
-		// Create RoleAssignement
-		suite.createOrUpdateRoleAssignmentV1Step("Create a role Assignment", t, suite.client.AuthorizationV1, &roleAssign,
+
+		// Create a role assignment
+		suite.createOrUpdateRoleAssignmentV1Step("Create a role assignment", t, suite.client.AuthorizationV1, &roleAssign,
 			responseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 				metadata:      expectRoleAssignMeta,
 				spec:          expectRoleAssignSpec,
@@ -561,11 +556,11 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 			},
 		)
 	}
-	roleAssignTRef := &secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.tenant),
-	}
+	roleAssignTRef := &secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)}
+
 	// List RoleAssignments
 	suite.getListRoleAssignmentsV1("Get list of role assignments", t, suite.client.AuthorizationV1, *roleAssignTRef, nil)
+
 	// List RoleAssignments with limit
 	suite.getListRoleAssignmentsV1("Get list of role assignments", t, suite.client.AuthorizationV1, *roleAssignTRef,
 		secapi.NewListOptions().WithLimit(1))
@@ -604,7 +599,7 @@ func (suite *AuthorizationV1TestSuite) TestSuiteListScenarios(t provider.T) {
 		suite.getRoleWithErrorV1Step("Get the deleted role", t, suite.client.AuthorizationV1, *roleTRefSingle, secapi.ErrResourceNotFound)
 	}
 
-	slog.Info("Finishing " + suite.scenarioName)
+	suite.finishScenario()
 }
 
 func (suite *AuthorizationV1TestSuite) AfterEach(t provider.T) {

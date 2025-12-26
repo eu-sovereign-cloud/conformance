@@ -1,7 +1,6 @@
 package secatest
 
 import (
-	"log/slog"
 	"math/rand"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
@@ -22,12 +21,11 @@ type ComputeV1TestSuite struct {
 	storageSkus    []string
 }
 
-func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
-	var err error
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *ComputeV1TestSuite) TestLifeCycleScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t, computeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+
+	var err error
 
 	// Select skus
 	instanceSkuName := suite.instanceSkus[rand.Intn(len(suite.instanceSkus))]
@@ -64,8 +62,8 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		mockParams := &mock.ComputeParamsV1{
-			Params: &mock.Params{
+		mockParams := &mock.ComputeLifeCycleParamsV1{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
@@ -102,7 +100,7 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigComputeLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureComputeLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -321,15 +319,14 @@ func (suite *ComputeV1TestSuite) TestSuite(t provider.T) {
 	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
-	slog.Info("Finishing " + suite.scenarioName)
+	suite.finishScenario()
 }
 
-func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
-	var err error
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *ComputeV1TestSuite) TestListScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t, computeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+
+	var err error
 
 	// Select skus
 	instanceSkuName := suite.instanceSkus[rand.Intn(len(suite.instanceSkus))]
@@ -371,7 +368,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
 		mockParams := &mock.ComputeListParamsV1{
-			Params: &mock.Params{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
@@ -393,7 +390,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 					SizeGB: blockStorageSize,
 				},
 			},
-			Instance: &[]mock.ResourceParams[schema.InstanceSpec]{
+			Instances: []mock.ResourceParams[schema.InstanceSpec]{
 				{
 					Name: instanceName1,
 					InitialLabels: map[string]string{
@@ -435,7 +432,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigComputeListAndFilterScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureComputeListScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -667,7 +664,7 @@ func (suite *ComputeV1TestSuite) TestListSuite(t provider.T) {
 	}
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
-	slog.Info("Finishing " + suite.scenarioName)
+	suite.finishScenario()
 }
 
 func (suite *ComputeV1TestSuite) AfterEach(t provider.T) {

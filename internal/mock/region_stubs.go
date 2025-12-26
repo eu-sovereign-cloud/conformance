@@ -8,7 +8,7 @@ import (
 )
 
 // Region
-func (configurator *scenarioConfigurator) configureGetListRegionStub(response *region.RegionIterator, url string, params HasParams, pathParams map[string]string) error {
+func (configurator *scenarioConfigurator) configureGetListRegionStub(response *region.RegionIterator, url string, params *BaseParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -17,7 +17,7 @@ func (configurator *scenarioConfigurator) configureGetListRegionStub(response *r
 	return nil
 }
 
-func (configurator *scenarioConfigurator) configureGetRegionStub(response *schema.Region, url string, params HasParams, pathParams map[string]string) error {
+func (configurator *scenarioConfigurator) configureGetRegionStub(response *schema.Region, url string, params *BaseParams) error {
 	response.Metadata.Verb = http.MethodGet
 
 	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {

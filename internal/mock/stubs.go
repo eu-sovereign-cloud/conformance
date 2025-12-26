@@ -54,7 +54,7 @@ func configureStub(wm *wiremock.Client, scenarioName string, stubConfig *stubCon
 		priority = stubConfig.priority
 	}
 
-	stubRule.WithHeader(authorizationHttpHeaderKey, wiremock.Matching(authorizationHttpHeaderValuePrefix+stubConfig.params.getParams().AuthToken))
+	stubRule.WithHeader(authorizationHttpHeaderKey, wiremock.Matching(authorizationHttpHeaderValuePrefix+stubConfig.params.AuthToken))
 
 	for key, value := range stubConfig.pathParams {
 		matcher := wiremock.Matching(value)

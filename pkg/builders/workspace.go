@@ -2,10 +2,13 @@ package builders
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-// workspace
+// Workspace
+
+/// WorkspaceMetadataBuilder
 
 type WorkspaceMetadataBuilder struct {
 	*regionalResourceMetadataBuilder[WorkspaceMetadataBuilder]
@@ -28,6 +31,8 @@ func (builder *WorkspaceMetadataBuilder) Build() (*schema.RegionalResourceMetada
 
 	return metadata, nil
 }
+
+/// WorkspaceBuilder
 
 type WorkspaceBuilder struct {
 	*regionalResourceBuilder[WorkspaceBuilder, schema.WorkspaceSpec]
@@ -69,23 +74,35 @@ func (builder *WorkspaceBuilder) Build() (*schema.Workspace, error) {
 	}, nil
 }
 
-// LIST
-type WorkspaceListMetadataBuilder struct {
-	*responseMetadataBuilder
+/// WorkspaceIteratorBuilder
+
+type WorkspaceIteratorBuilder struct {
+	*tenantResponseMetadataBuilder[WorkspaceIteratorBuilder]
+
+	items []schema.Workspace
 }
 
-func NewWorkspaceListMetadataBuilder() *WorkspaceListMetadataBuilder {
-	return &WorkspaceListMetadataBuilder{
-		responseMetadataBuilder: NewResponseMetadataBuilder(),
-	}
+func NewWorkspaceIteratorBuilder() *WorkspaceIteratorBuilder {
+	builder := &WorkspaceIteratorBuilder{}
+	builder.tenantResponseMetadataBuilder = newTenantResponseMetadataBuilder(builder)
+	return builder
 }
 
-func (builder *WorkspaceListMetadataBuilder) Build(tenant, name string) (*schema.ResponseMetadata, error) {
-	metadata, err := builder.build()
+func (builder *WorkspaceIteratorBuilder) Items(items []schema.Workspace) *WorkspaceIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *WorkspaceIteratorBuilder) Build() (*workspace.WorkspaceIterator, error) {
+	err := builder.validate()
 	if err != nil {
 		return nil, err
 	}
 
-	metadata.Resource = generators.GenerateWorkspaceResource(tenant, name)
-	return metadata, nil
+	builder.metadata.Resource = generators.GenerateWorkspaceListResource(builder.tenant)
+
+	return &workspace.WorkspaceIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
 }

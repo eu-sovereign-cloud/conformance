@@ -11,7 +11,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigRegionListAndFilterScenarioV1(scenario string, params *RegionParamsV1) (*wiremock.Client, error) {
+func ConfigureRegionListScenarioV1(scenario string, params *RegionListParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
@@ -20,6 +20,7 @@ func ConfigRegionListAndFilterScenarioV1(scenario string, params *RegionParamsV1
 	}
 
 	// Generate resource
+	// TODO Create a region list resource function
 	regionsResource := generators.GenerateRegionResource("Regions")
 	regionResource := generators.GenerateRegionResource(params.Regions[0].Name)
 
@@ -54,7 +55,7 @@ func ConfigRegionListAndFilterScenarioV1(scenario string, params *RegionParamsV1
 	regionsResponse.Items = regionsList
 
 	// 1 - Create ListRegions stub
-	if err := configurator.configureGetListRegionStub(regionsResponse, regionsUrl, params, nil); err != nil {
+	if err := configurator.configureGetListRegionStub(regionsResponse, regionsUrl, params.getBaseParams(), nil); err != nil {
 		return nil, err
 	}
 
@@ -71,7 +72,7 @@ func ConfigRegionListAndFilterScenarioV1(scenario string, params *RegionParamsV1
 		Spec: regionsResponse.Items[0].Spec,
 	}
 
-	if err := configurator.configureGetRegionStub(singleRegionResponse, regionUrl, params, nil); err != nil {
+	if err := configurator.configureGetRegionStub(singleRegionResponse, regionUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 

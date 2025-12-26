@@ -7,86 +7,66 @@ import (
 // Params
 
 type ClientsInitParams struct {
-	*Params
+	*BaseParams
 }
 
-func (p ClientsInitParams) getParams() *Params { return p.Params }
-
-type AuthorizationParamsV1 struct {
-	*Params
+type AuthorizationLifeCycleParamsV1 struct {
+	*BaseParams
 	Role           *ResourceParams[schema.RoleSpec]
 	RoleAssignment *ResourceParams[schema.RoleAssignmentSpec]
 }
 
-func (p AuthorizationParamsV1) getParams() *Params { return p.Params }
-
 type AuthorizationListParamsV1 struct {
-	*Params
-	Role           *[]ResourceParams[schema.RoleSpec]
-	RoleAssignment *[]ResourceParams[schema.RoleAssignmentSpec]
+	*BaseParams
+	Roles           []ResourceParams[schema.RoleSpec]
+	RoleAssignments []ResourceParams[schema.RoleAssignmentSpec]
 }
 
-func (p AuthorizationListParamsV1) getParams() *Params { return p.Params }
-
-type RegionParamsV1 struct {
-	*Params
+type RegionListParamsV1 struct {
+	*BaseParams
 	Regions []ResourceParams[schema.RegionSpec]
 }
 
-func (p RegionParamsV1) getParams() *Params { return p.Params }
-
-type WorkspaceParamsV1 struct {
-	*Params
+type WorkspaceLifeCycleParamsV1 struct {
+	*BaseParams
 	Workspace *ResourceParams[schema.WorkspaceSpec]
 }
 
-func (p WorkspaceParamsV1) getParams() *Params { return p.Params }
-
 type WorkspaceListParamsV1 struct {
-	*Params
-	Workspace *[]ResourceParams[schema.WorkspaceSpec]
+	*BaseParams
+	Workspaces []ResourceParams[schema.WorkspaceSpec]
 }
 
-func (p WorkspaceListParamsV1) getParams() *Params { return p.Params }
-
-type ComputeParamsV1 struct {
-	*Params
+type ComputeLifeCycleParamsV1 struct {
+	*BaseParams
 	Workspace    *ResourceParams[schema.WorkspaceSpec]
 	BlockStorage *ResourceParams[schema.BlockStorageSpec]
 	Instance     *ResourceParams[schema.InstanceSpec]
 }
 
-func (p ComputeParamsV1) getParams() *Params { return p.Params }
-
 type ComputeListParamsV1 struct {
-	*Params
+	*BaseParams
 	Workspace    *ResourceParams[schema.WorkspaceSpec]
 	BlockStorage *ResourceParams[schema.BlockStorageSpec]
-	Instance     *[]ResourceParams[schema.InstanceSpec]
+	Instances    []ResourceParams[schema.InstanceSpec]
 }
 
-func (p ComputeListParamsV1) getParams() *Params { return p.Params }
-
-type StorageParamsV1 struct {
-	*Params
+type StorageLifeCycleParamsV1 struct {
+	*BaseParams
 	Workspace    *ResourceParams[schema.WorkspaceSpec]
 	BlockStorage *ResourceParams[schema.BlockStorageSpec]
 	Image        *ResourceParams[schema.ImageSpec]
 }
 
-func (p StorageParamsV1) getParams() *Params { return p.Params }
-
 type StorageListParamsV1 struct {
-	*Params
-	Workspace    *ResourceParams[schema.WorkspaceSpec]
-	BlockStorage *[]ResourceParams[schema.BlockStorageSpec]
-	Image        *[]ResourceParams[schema.ImageSpec]
+	*BaseParams
+	Workspace     *ResourceParams[schema.WorkspaceSpec]
+	BlockStorages []ResourceParams[schema.BlockStorageSpec]
+	Images        []ResourceParams[schema.ImageSpec]
 }
 
-func (p StorageListParamsV1) getParams() *Params { return p.Params }
-
-type NetworkParamsV1 struct {
-	*Params
+type NetworkLifeCycleParamsV1 struct {
+	*BaseParams
 
 	Workspace       *ResourceParams[schema.WorkspaceSpec]
 	BlockStorage    *ResourceParams[schema.BlockStorageSpec]
@@ -100,27 +80,23 @@ type NetworkParamsV1 struct {
 	SecurityGroup   *ResourceParams[schema.SecurityGroupSpec]
 }
 
-func (p NetworkParamsV1) getParams() *Params { return p.Params }
-
 type NetworkListParamsV1 struct {
-	*Params
+	*BaseParams
 
-	Workspace       *ResourceParams[schema.WorkspaceSpec]
-	BlockStorage    *ResourceParams[schema.BlockStorageSpec]
-	Instance        *ResourceParams[schema.InstanceSpec]
-	Network         *[]ResourceParams[schema.NetworkSpec]
-	InternetGateway *[]ResourceParams[schema.InternetGatewaySpec]
-	RouteTable      *[]ResourceParams[schema.RouteTableSpec]
-	Subnet          *[]ResourceParams[schema.SubnetSpec]
-	Nic             *[]ResourceParams[schema.NicSpec]
-	PublicIp        *[]ResourceParams[schema.PublicIpSpec]
-	SecurityGroup   *[]ResourceParams[schema.SecurityGroupSpec]
+	Workspace        *ResourceParams[schema.WorkspaceSpec]
+	BlockStorage     *ResourceParams[schema.BlockStorageSpec]
+	Instance         *ResourceParams[schema.InstanceSpec]
+	Networks         []ResourceParams[schema.NetworkSpec]
+	InternetGateways []ResourceParams[schema.InternetGatewaySpec]
+	RouteTables      []ResourceParams[schema.RouteTableSpec]
+	Subnets          []ResourceParams[schema.SubnetSpec]
+	Nics             []ResourceParams[schema.NicSpec]
+	PublicIps        []ResourceParams[schema.PublicIpSpec]
+	SecurityGroups   []ResourceParams[schema.SecurityGroupSpec]
 }
 
-func (p NetworkListParamsV1) getParams() *Params { return p.Params }
-
 type FoundationUsageParamsV1 struct {
-	*Params
+	*BaseParams
 
 	Role            *ResourceParams[schema.RoleSpec]
 	RoleAssignment  *ResourceParams[schema.RoleAssignmentSpec]
@@ -136,5 +112,3 @@ type FoundationUsageParamsV1 struct {
 	Nic             *ResourceParams[schema.NicSpec]
 	Instance        *ResourceParams[schema.InstanceSpec]
 }
-
-func (p FoundationUsageParamsV1) getParams() *Params { return p.Params }

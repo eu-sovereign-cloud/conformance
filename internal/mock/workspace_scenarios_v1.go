@@ -2,16 +2,14 @@ package mock
 
 import (
 	"log/slog"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParamsV1) (*wiremock.Client, error) {
+func ConfigureWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceLifeCycleParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
@@ -32,86 +30,69 @@ func ConfigWorkspaceLifecycleScenarioV1(scenario string, params *WorkspaceParams
 	}
 
 	// Create a workspace
-	if err := configurator.configureCreateWorkspaceStub(response, url, params); err != nil {
+	if err := configurator.configureCreateWorkspaceStub(response, url, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created workspace
-	if err := configurator.configureGetActiveWorkspaceStub(response, url, params); err != nil {
+	if err := configurator.configureGetActiveWorkspaceStub(response, url, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Update the workspace
-	if err := configurator.configureUpdateWorkspaceStubWithLabels(response, url, params, params.Workspace.UpdatedLabels); err != nil {
+	if err := configurator.configureUpdateWorkspaceStubWithLabels(response, url, params.getBaseParams(), params.Workspace.UpdatedLabels); err != nil {
 		return nil, err
 	}
 
 	// Get the updated workspace
-	if err := configurator.configureGetActiveWorkspaceStub(response, url, params); err != nil {
+	if err := configurator.configureGetActiveWorkspaceStub(response, url, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
-	if err := configurator.configureDeleteStub(url, params); err != nil {
+	if err := configurator.configureDeleteStub(url, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted workspace
-	if err := configurator.configureGetNotFoundStub(url, params); err != nil {
+	if err := configurator.configureGetNotFoundStub(url, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	return configurator.client, nil
 }
 
-func ConfigWorkspaceListAndFilterScenarioV1(scenario string, params *WorkspaceListParamsV1) (*wiremock.Client, error) {
+func ConfigureWorkspaceListScenarioV1(scenario string, params *WorkspaceListParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
 	if err != nil {
 		return nil, err
 	}
-	var workspaceList []schema.Workspace
 
-	for _, workspace := range *params.Workspace {
-		url := generators.GenerateWorkspaceURL(workspaceProviderV1, params.Tenant, workspace.Name)
+	url := generators.GenerateWorkspaceListURL(workspaceProviderV1, params.Tenant)
 
-		response, err := builders.NewWorkspaceBuilder().
-			Name(workspace.Name).
-			Provider(workspaceProviderV1).ApiVersion(apiVersion1).
-			Tenant(params.Tenant).Region(params.Region).
-			Labels(workspace.InitialLabels).
-			Build()
-		if err != nil {
-			return nil, err
-		}
-
-		// Create a workspace
-		if err := configurator.configureCreateWorkspaceStub(response, url, params); err != nil {
-			return nil, err
-		}
-
-		workspaceList = append(workspaceList, *response)
+	// Create workspaces
+	workspaceList, err := bulkCreateWorkspacesStubV1(configurator, params.getBaseParams(), params.Workspaces)
+	if err != nil {
+		return nil, err
+	}
+	workspaceListResponse, err := builders.NewWorkspaceIteratorBuilder().
+		Provider(storageProviderV1).
+		Tenant(params.Tenant).
+		Items(workspaceList).
+		Build()
+	if err != nil {
+		return nil, err
 	}
 
-	// List workspaces
-	urlList := generators.GenerateWorkspaceListURL(workspaceProviderV1, params.Tenant)
-	workspaceResource := generators.GenerateWorkspaceListResource(params.Tenant)
-	workspaceListResponse := &workspace.WorkspaceIterator{
-		Metadata: schema.ResponseMetadata{
-			Provider: workspaceProviderV1,
-			Resource: workspaceResource,
-			Verb:     http.MethodGet,
-		},
-		Items: workspaceList,
-	}
-
-	if err := configurator.configureGetListActiveWorkspaceStub(workspaceListResponse, urlList, params, nil); err != nil {
+	// List
+	if err := configurator.configureGetListActiveWorkspaceStub(workspaceListResponse, url, params.getBaseParams(), nil); err != nil {
 		return nil, err
 	}
 
 	// List with limit
-	if err := configurator.configureGetListActiveWorkspaceStub(workspaceListResponse, urlList, params, pathParamsLimit("1")); err != nil {
+	if err := configurator.configureGetListActiveWorkspaceStub(workspaceListResponse, url, params.getBaseParams(), pathParamsLimit("1")); err != nil {
 		return nil, err
 	}
 
@@ -126,13 +107,13 @@ func ConfigWorkspaceListAndFilterScenarioV1(scenario string, params *WorkspaceLi
 		return filteredWorkspaces
 	}
 	workspaceListResponse.Items = workspaceWithLabel(workspaceList)
-	if err := configurator.configureGetListActiveWorkspaceStub(workspaceListResponse, urlList, params, pathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.configureGetListActiveWorkspaceStub(workspaceListResponse, url, params.getBaseParams(), pathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with limit & labels
 	workspaceListResponse.Items = workspaceWithLabel(workspaceList[:1])
-	if err := configurator.configureGetListActiveWorkspaceStub(workspaceListResponse, urlList, params, pathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.configureGetListActiveWorkspaceStub(workspaceListResponse, url, params.getBaseParams(), pathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
@@ -140,12 +121,12 @@ func ConfigWorkspaceListAndFilterScenarioV1(scenario string, params *WorkspaceLi
 		url := generators.GenerateWorkspaceURL(workspaceProviderV1, workspace.Metadata.Name, workspace.Metadata.Name)
 
 		// Delete the workspace
-		if err := configurator.configureDeleteStub(url, params); err != nil {
+		if err := configurator.configureDeleteStub(url, params.getBaseParams()); err != nil {
 			return nil, err
 		}
 
 		// Get the deleted workspace
-		if err := configurator.configureGetNotFoundStub(url, params); err != nil {
+		if err := configurator.configureGetNotFoundStub(url, params.getBaseParams()); err != nil {
 			return nil, err
 		}
 	}

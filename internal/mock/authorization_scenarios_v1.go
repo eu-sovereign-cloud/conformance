@@ -2,16 +2,14 @@ package mock
 
 import (
 	"log/slog"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	authorization "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.authorization.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/wiremock/go-wiremock"
 )
 
-func CreateAuthorizationLifecycleScenarioV1(scenario string, params *AuthorizationParamsV1) (*wiremock.Client, error) {
+func ConfigureAuthorizationLifecycleScenarioV1(scenario string, params *AuthorizationLifeCycleParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
@@ -19,6 +17,7 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 		return nil, err
 	}
 
+	// Generate URLs
 	roleUrl := generators.GenerateRoleURL(authorizationProviderV1, params.Tenant, params.Role.Name)
 	roleAssignUrl := generators.GenerateRoleAssignmentURL(authorizationProviderV1, params.Tenant, params.RoleAssignment.Name)
 
@@ -34,23 +33,23 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Create a role
-	if err := configurator.configureCreateRoleStub(roleResponse, roleUrl, params); err != nil {
+	if err := configurator.configureCreateRoleStub(roleResponse, roleUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created role
-	if err := configurator.configureGetActiveRoleStub(roleResponse, roleUrl, params); err != nil {
+	if err := configurator.configureGetActiveRoleStub(roleResponse, roleUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Update the role
 	roleResponse.Spec = *params.Role.UpdatedSpec
-	if err := configurator.configureUpdateRoleStub(roleResponse, roleUrl, params); err != nil {
+	if err := configurator.configureUpdateRoleStub(roleResponse, roleUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the updated role
-	if err := configurator.configureGetActiveRoleStub(roleResponse, roleUrl, params); err != nil {
+	if err := configurator.configureGetActiveRoleStub(roleResponse, roleUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -66,50 +65,50 @@ func CreateAuthorizationLifecycleScenarioV1(scenario string, params *Authorizati
 	}
 
 	// Create a role assignment
-	if err := configurator.configureCreateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
+	if err := configurator.configureCreateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created role assignment
-	if err := configurator.configureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
+	if err := configurator.configureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Update the role assignment
 	roleAssignResponse.Spec = *params.RoleAssignment.UpdatedSpec
-	if err := configurator.configureUpdateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
+	if err := configurator.configureUpdateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the updated role assignment
-	if err := configurator.configureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
+	if err := configurator.configureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the role assignment
-	if err := configurator.configureDeleteStub(roleAssignUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(roleAssignUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted role assignment
-	if err := configurator.configureGetNotFoundStub(roleAssignUrl, params); err != nil {
+	if err := configurator.configureGetNotFoundStub(roleAssignUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the role
-	if err := configurator.configureDeleteStub(roleUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(roleUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted role
-	if err := configurator.configureGetNotFoundStub(roleUrl, params); err != nil {
+	if err := configurator.configureGetNotFoundStub(roleUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	return configurator.client, nil
 }
 
-func CreateAuthorizationListAndFilterScenarioV1(scenario string, params *AuthorizationListParamsV1) (*wiremock.Client, error) {
+func ConfigureAuthorizationListScenarioV1(scenario string, params *AuthorizationListParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
@@ -117,48 +116,32 @@ func CreateAuthorizationListAndFilterScenarioV1(scenario string, params *Authori
 		return nil, err
 	}
 
-	var rolesList []schema.Role
+	// Generate URLs
+	roleUrl := generators.GenerateRoleListURL(authorizationProviderV1, params.Tenant)
+	roleAssignUrl := generators.GenerateRoleAssignmentListURL(authorizationProviderV1, params.Tenant)
 
-	// Role
-	for _, role := range *params.Role {
-		roleUrl := generators.GenerateRoleURL(authorizationProviderV1, params.Tenant, role.Name)
-
-		roleResponse, err := builders.NewRoleBuilder().
-			Name(role.Name).
-			Provider(authorizationProviderV1).ApiVersion(apiVersion1).
-			Tenant(params.Tenant).
-			Labels(role.InitialLabels).
-			Spec(role.InitialSpec).
-			Build()
-		if err != nil {
-			return nil, err
-		}
-		// Create a role
-		if err := configurator.configureCreateRoleStub(roleResponse, roleUrl, params); err != nil {
-			return nil, err
-		}
-		rolesList = append(rolesList, *roleResponse)
+	// Create roles
+	rolesList, err := bulkCreateRolesStubV1(configurator, params.getBaseParams(), params.Roles)
+	if err != nil {
+		return nil, err
+	}
+	rolesResponse, err := builders.NewRoleIteratorBuilder().
+		Provider(storageProviderV1).
+		Tenant(params.Tenant).
+		Items(rolesList).
+		Build()
+	if err != nil {
+		return nil, err
 	}
 
-	roleResource := generators.GenerateRoleResource(authorizationProviderV1, params.Tenant)
-	rolesResponse := &authorization.RoleIterator{
-		Metadata: schema.ResponseMetadata{
-			Provider: authorizationProviderV1,
-			Resource: roleResource,
-			Verb:     http.MethodGet,
-		},
-	}
-
-	rolesResponse.Items = rolesList
 	// List Roles
-	if err := configurator.configureGetListRoleStub(rolesResponse, generators.GenerateRoleListURL(authorizationProviderV1, params.Tenant), params, nil); err != nil {
+	if err := configurator.configureGetListRoleStub(rolesResponse, roleUrl, params.getBaseParams(), nil); err != nil {
 		return nil, err
 	}
 
 	// List Roles with limit 1
-
 	rolesResponse.Items = rolesList[:1]
-	if err := configurator.configureGetListRoleStub(rolesResponse, generators.GenerateRoleListURL(authorizationProviderV1, params.Tenant), params, pathParamsLimit("1")); err != nil {
+	if err := configurator.configureGetListRoleStub(rolesResponse, roleUrl, params.getBaseParams(), pathParamsLimit("1")); err != nil {
 		return nil, err
 	}
 
@@ -173,65 +156,42 @@ func CreateAuthorizationListAndFilterScenarioV1(scenario string, params *Authori
 		return filteredRoles
 	}
 	rolesResponse.Items = rolesListWithLabel(rolesList)
-	if err := configurator.configureGetListRoleStub(rolesResponse, generators.GenerateRoleListURL(authorizationProviderV1, params.Tenant), params, pathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.configureGetListRoleStub(rolesResponse, roleUrl, params.getBaseParams(), pathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
+
 	// List roles with limit and label
-
 	rolesResponse.Items = rolesListWithLabel(rolesList)[:1]
-	if err := configurator.configureGetListRoleStub(rolesResponse, generators.GenerateRoleListURL(authorizationProviderV1, params.Tenant), params, pathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.configureGetListRoleStub(rolesResponse, roleUrl, params.getBaseParams(), pathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
-	// RoleAssignment
-
-	var rolesAssignmentList []schema.RoleAssignment
-
-	for _, roleAssignment := range *params.RoleAssignment {
-		roleAssignmentUrl := generators.GenerateRoleAssignmentURL(authorizationProviderV1, params.Tenant, roleAssignment.Name)
-		roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
-			Name(roleAssignment.Name).
-			Provider(authorizationProviderV1).
-			ApiVersion(apiVersion1).
-			Tenant(params.Tenant).
-			Labels(roleAssignment.InitialLabels).
-			Spec(roleAssignment.InitialSpec).
-			Build()
-		if err != nil {
-			return nil, err
-		}
-
-		// Create a role assignment
-		if err := configurator.configureCreateRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, params); err != nil {
-			return nil, err
-		}
-
-		rolesAssignmentList = append(rolesAssignmentList, *roleAssignResponse)
+	// Create role assignments
+	roleAssignmentsList, err := bulkCreateRoleAssignmentsStubV1(configurator, params.getBaseParams(), params.RoleAssignments)
+	if err != nil {
+		return nil, err
 	}
-
-	roleAssignUrl := generators.GenerateRoleAssignmentListURL(authorizationProviderV1, params.Tenant)
-	roleAssignResource := generators.GenerateRoleAssignmentListResource(params.Tenant)
-	roleAssignResponse := &authorization.RoleAssignmentIterator{
-		Metadata: schema.ResponseMetadata{
-			Provider: authorizationProviderV1,
-			Resource: roleAssignResource,
-			Verb:     http.MethodGet,
-		},
-		Items: rolesAssignmentList,
+	roleAssignResponse, err := builders.NewRoleAssignmentIteratorBuilder().
+		Provider(storageProviderV1).
+		Tenant(params.Tenant).
+		Items(roleAssignmentsList).
+		Build()
+	if err != nil {
+		return nil, err
 	}
 
 	// List RoleAssignments
-	if err := configurator.configureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params, nil); err != nil {
+	if err := configurator.configureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.getBaseParams(), nil); err != nil {
 		return nil, err
 	}
+
 	// List Roles with limit 1
-
-	roleAssignResponse.Items = rolesAssignmentList[:1]
-	if err := configurator.configureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params, pathParamsLimit("1")); err != nil {
+	roleAssignResponse.Items = roleAssignmentsList[:1]
+	if err := configurator.configureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.getBaseParams(), pathParamsLimit("1")); err != nil {
 		return nil, err
 	}
-	// List roles with label
 
+	// List roles with label
 	rolesAssignWithLabel := func(rolesAssignList []schema.RoleAssignment) []schema.RoleAssignment {
 		var filteredRoles []schema.RoleAssignment
 		for _, roleAssign := range rolesAssignList {
@@ -241,43 +201,43 @@ func CreateAuthorizationListAndFilterScenarioV1(scenario string, params *Authori
 		}
 		return filteredRoles
 	}
-	roleAssignResponse.Items = rolesAssignWithLabel(rolesAssignmentList)
-	if err := configurator.configureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params, pathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	roleAssignResponse.Items = rolesAssignWithLabel(roleAssignmentsList)
+	if err := configurator.configureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.getBaseParams(), pathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
+
 	// List roles with limit and label
-
-	roleAssignResponse.Items = rolesAssignWithLabel(rolesAssignmentList)[:1]
-	if err := configurator.configureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params, pathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	roleAssignResponse.Items = rolesAssignWithLabel(roleAssignmentsList)[:1]
+	if err := configurator.configureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.getBaseParams(), pathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
-	// Delete RoleAssignments
-	for _, roleAssignment := range rolesAssignmentList {
+	// Delete role assignments
+	for _, roleAssignment := range roleAssignmentsList {
 		roleAssignUrl := generators.GenerateRoleAssignmentURL(authorizationProviderV1, params.Tenant, roleAssignment.Metadata.Name)
 
 		// Delete the role assignment
-		if err := configurator.configureDeleteStub(roleAssignUrl, params); err != nil {
+		if err := configurator.configureDeleteStub(roleAssignUrl, params.getBaseParams()); err != nil {
 			return nil, err
 		}
 
 		// Get the deleted workspace
-		if err := configurator.configureGetNotFoundStub(roleAssignUrl, params); err != nil {
+		if err := configurator.configureGetNotFoundStub(roleAssignUrl, params.getBaseParams()); err != nil {
 			return nil, err
 		}
 	}
 
-	// Delete Roles
+	// Delete roles
 	for _, role := range rolesList {
 		roleUrl := generators.GenerateRoleURL(authorizationProviderV1, params.Tenant, role.Metadata.Name)
 
 		// Delete the role assignment
-		if err := configurator.configureDeleteStub(roleUrl, params); err != nil {
+		if err := configurator.configureDeleteStub(roleUrl, params.getBaseParams()); err != nil {
 			return nil, err
 		}
 
 		// Get the deleted workspace
-		if err := configurator.configureGetNotFoundStub(roleUrl, params); err != nil {
+		if err := configurator.configureGetNotFoundStub(roleUrl, params.getBaseParams()); err != nil {
 			return nil, err
 		}
 	}

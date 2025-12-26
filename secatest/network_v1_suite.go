@@ -1,7 +1,6 @@
 package secatest
 
 import (
-	"log/slog"
 	"math/rand"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
@@ -25,11 +24,8 @@ type NetworkV1TestSuite struct {
 	networkSkus    []string
 }
 
-func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
-	var err error
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *NetworkV1TestSuite) TestLifeCycleScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t, networkProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway),
@@ -39,6 +35,8 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
 	)
+
+	var err error
 
 	// Generate the subnet cidr
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.networkCidr, 8, 1)
@@ -153,8 +151,8 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		mockParams := &mock.NetworkParamsV1{
-			Params: &mock.Params{
+		mockParams := &mock.NetworkLifeCycleParamsV1{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
@@ -259,7 +257,7 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigNetworkLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureNetworkLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -927,14 +925,11 @@ func (suite *NetworkV1TestSuite) TestSuite(t provider.T) {
 	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
-	slog.Info("Finishing " + suite.scenarioName)
+	suite.finishScenario()
 }
 
-func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
-	var err error
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *NetworkV1TestSuite) TestListScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t, networkProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway),
@@ -944,6 +939,8 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
 	)
+
+	var err error
 
 	// Generate the subnet cidr
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.networkCidr, 8, 1)
@@ -1047,7 +1044,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
 		mockParams := &mock.NetworkListParamsV1{
-			Params: &mock.Params{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
@@ -1082,7 +1079,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 					},
 				},
 			},
-			Network: &[]mock.ResourceParams[schema.NetworkSpec]{
+			Networks: []mock.ResourceParams[schema.NetworkSpec]{
 				{
 					Name: networkName,
 					InitialLabels: schema.Labels{
@@ -1106,7 +1103,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 					},
 				},
 			},
-			InternetGateway: &[]mock.ResourceParams[schema.InternetGatewaySpec]{
+			InternetGateways: []mock.ResourceParams[schema.InternetGatewaySpec]{
 				{
 					Name: internetGatewayName,
 					InitialLabels: schema.Labels{
@@ -1122,7 +1119,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
 				},
 			},
-			RouteTable: &[]mock.ResourceParams[schema.RouteTableSpec]{
+			RouteTables: []mock.ResourceParams[schema.RouteTableSpec]{
 				{
 					Name: routeTableName,
 					InitialLabels: schema.Labels{
@@ -1146,7 +1143,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 					},
 				},
 			},
-			Subnet: &[]mock.ResourceParams[schema.SubnetSpec]{
+			Subnets: []mock.ResourceParams[schema.SubnetSpec]{
 				{
 					Name: subnetName,
 					InitialLabels: schema.Labels{
@@ -1167,7 +1164,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 					},
 				},
 			},
-			Nic: &[]mock.ResourceParams[schema.NicSpec]{
+			Nics: []mock.ResourceParams[schema.NicSpec]{
 				{
 					Name: nicName,
 					InitialLabels: schema.Labels{
@@ -1191,7 +1188,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 					},
 				},
 			},
-			PublicIp: &[]mock.ResourceParams[schema.PublicIpSpec]{
+			PublicIps: []mock.ResourceParams[schema.PublicIpSpec]{
 				{
 					Name: publicIpName,
 					InitialLabels: schema.Labels{
@@ -1213,7 +1210,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 					},
 				},
 			},
-			SecurityGroup: &[]mock.ResourceParams[schema.SecurityGroupSpec]{
+			SecurityGroups: []mock.ResourceParams[schema.SecurityGroupSpec]{
 				{
 					Name: securityGroupName,
 					InitialLabels: schema.Labels{
@@ -1234,7 +1231,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigNetworkListAndFilterScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureNetworkListScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -1860,7 +1857,7 @@ func (suite *NetworkV1TestSuite) TestListSuite(t provider.T) {
 	}
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
-	slog.Info("Finishing " + suite.scenarioName)
+	suite.finishScenario()
 }
 
 func (suite *NetworkV1TestSuite) AfterEach(t provider.T) {

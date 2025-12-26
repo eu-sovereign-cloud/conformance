@@ -1,8 +1,6 @@
 package secatest
 
 import (
-	"log/slog"
-
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
@@ -17,10 +15,8 @@ type WorkspaceV1TestSuite struct {
 	regionalTestSuite
 }
 
-func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *WorkspaceV1TestSuite) TestLifeCycleScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t, workspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	// Generate scenario data
@@ -28,8 +24,8 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		mockParams := &mock.WorkspaceParamsV1{
-			Params: &mock.Params{
+		mockParams := &mock.WorkspaceLifeCycleParamsV1{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
@@ -45,7 +41,7 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigWorkspaceLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureWorkspaceLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -119,13 +115,11 @@ func (suite *WorkspaceV1TestSuite) TestSuite(t provider.T) {
 	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *tref, secapi.ErrResourceNotFound)
 
-	slog.Info("Finishing " + suite.scenarioName)
+	suite.finishScenario()
 }
 
-func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *WorkspaceV1TestSuite) TestListScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t, workspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	// Generate scenario data
@@ -135,13 +129,13 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
 		mockParams := &mock.WorkspaceListParamsV1{
-			Params: &mock.Params{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
 				Region:    suite.region,
 			},
-			Workspace: &[]mock.ResourceParams[schema.WorkspaceSpec]{
+			Workspaces: []mock.ResourceParams[schema.WorkspaceSpec]{
 				{
 					Name: workspaceName,
 					InitialLabels: schema.Labels{
@@ -156,7 +150,7 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigWorkspaceListAndFilterScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureWorkspaceListScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -232,7 +226,7 @@ func (suite *WorkspaceV1TestSuite) TestSuiteList(t provider.T) {
 		suite.getWorkspaceWithErrorV1Step("Get deleted workspace 1", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
 	}
-	slog.Info("Finishing " + suite.scenarioName)
+	suite.finishScenario()
 }
 
 func (suite *WorkspaceV1TestSuite) AfterEach(t provider.T) {

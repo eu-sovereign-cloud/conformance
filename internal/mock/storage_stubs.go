@@ -8,7 +8,7 @@ import (
 
 // Block storage
 
-func (configurator *scenarioConfigurator) configureCreateBlockStorageStub(response *schema.BlockStorage, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreateBlockStorageStub(response *schema.BlockStorage, url string, params *BaseParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
 	response.Status = newBlockStorageStatus(schema.ResourceStateCreating)
 	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -17,7 +17,7 @@ func (configurator *scenarioConfigurator) configureCreateBlockStorageStub(respon
 	return nil
 }
 
-func (configurator *scenarioConfigurator) configureUpdateBlockStorageStub(response *schema.BlockStorage, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdateBlockStorageStub(response *schema.BlockStorage, url string, params *BaseParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
 	setBlockStorageState(response.Status, schema.ResourceStateUpdating)
 	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -26,7 +26,7 @@ func (configurator *scenarioConfigurator) configureUpdateBlockStorageStub(respon
 	return nil
 }
 
-func (configurator *scenarioConfigurator) configureGetActiveBlockStorageStub(response *schema.BlockStorage, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActiveBlockStorageStub(response *schema.BlockStorage, url string, params *BaseParams) error {
 	setBlockStorageState(response.Status, schema.ResourceStateActive)
 	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -34,7 +34,7 @@ func (configurator *scenarioConfigurator) configureGetActiveBlockStorageStub(res
 	return nil
 }
 
-func (configurator *scenarioConfigurator) configureGetListBlockStorageStub(response storage.BlockStorageIterator, url string, params HasParams, pathParams map[string]string) error {
+func (configurator *scenarioConfigurator) configureGetListBlockStorageStub(response storage.BlockStorageIterator, url string, params *BaseParams, pathParams map[string]string) error {
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (configurator *scenarioConfigurator) configureGetListBlockStorageStub(respo
 
 // Image
 
-func (configurator *scenarioConfigurator) configureCreateImageStub(response *schema.Image, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureCreateImageStub(response *schema.Image, url string, params *BaseParams) error {
 	setCreatedRegionalResourceMetadata(response.Metadata)
 	response.Status = newImageStatus(schema.ResourceStateCreating)
 	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -52,7 +52,7 @@ func (configurator *scenarioConfigurator) configureCreateImageStub(response *sch
 	return nil
 }
 
-func (configurator *scenarioConfigurator) configureUpdateImageStub(response *schema.Image, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureUpdateImageStub(response *schema.Image, url string, params *BaseParams) error {
 	setModifiedRegionalResourceMetadata(response.Metadata)
 	setImageState(response.Status, schema.ResourceStateUpdating)
 	if err := configurator.configurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -61,7 +61,7 @@ func (configurator *scenarioConfigurator) configureUpdateImageStub(response *sch
 	return nil
 }
 
-func (configurator *scenarioConfigurator) configureGetActiveImageStub(response *schema.Image, url string, params HasParams) error {
+func (configurator *scenarioConfigurator) configureGetActiveImageStub(response *schema.Image, url string, params *BaseParams) error {
 	setImageState(response.Status, schema.ResourceStateActive)
 	if err := configurator.configureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -69,14 +69,14 @@ func (configurator *scenarioConfigurator) configureGetActiveImageStub(response *
 	return nil
 }
 
-func (configurator *scenarioConfigurator) configureGetListImageStub(response storage.ImageIterator, url string, params HasParams, pathParams map[string]string) error {
+func (configurator *scenarioConfigurator) configureGetListImageStub(response storage.ImageIterator, url string, params *BaseParams, pathParams map[string]string) error {
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *scenarioConfigurator) configureGetListStorageSkuStub(response storage.SkuIterator, url string, params HasParams, pathParams map[string]string) error {
+func (configurator *scenarioConfigurator) configureGetListStorageSkuStub(response storage.SkuIterator, url string, params *BaseParams, pathParams map[string]string) error {
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

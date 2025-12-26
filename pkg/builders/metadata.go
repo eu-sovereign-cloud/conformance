@@ -8,45 +8,177 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// ResponseMetadataBuilder
+// ResponseMetadata
 
-type responseMetadataBuilder struct {
+/// responseMetadataBuilder
+
+type responseMetadataBuilder[B any] struct {
 	validator *validator.Validate
+	parent    *B
 	metadata  *schema.ResponseMetadata
 }
 
-func NewResponseMetadataBuilder() *responseMetadataBuilder {
-	return &responseMetadataBuilder{
+func newResponseMetadataBuilder[B any](parent *B) *responseMetadataBuilder[B] {
+	return &responseMetadataBuilder[B]{
 		validator: validator.New(),
+		parent:    parent,
 		metadata: &schema.ResponseMetadata{
 			Verb: http.MethodGet,
 		},
 	}
 }
 
-func (builder *responseMetadataBuilder) Provider(provider string) *responseMetadataBuilder {
+func (builder *responseMetadataBuilder[B]) Provider(provider string) *B {
 	builder.metadata.Provider = provider
-	return builder
+	return builder.parent
 }
 
-func (builder *responseMetadataBuilder) SkipToken(skipToken string) *responseMetadataBuilder {
+func (builder *responseMetadataBuilder[B]) SkipToken(skipToken string) *B {
 	builder.metadata.SkipToken = &skipToken
-	return builder
+	return builder.parent
 }
 
-func (builder *responseMetadataBuilder) build() (*schema.ResponseMetadata, error) {
+func (builder *responseMetadataBuilder[B]) validate() error {
 	if err := validateRequired(builder.validator,
 		builder.metadata,
 		builder.metadata.Provider,
 		builder.metadata.Verb,
 	); err != nil {
-		return nil, err
+		return err
 	}
 
-	return builder.metadata, nil
+	return nil
 }
 
-// GlobalResourceMetadataBuilder
+// tenantResponseMetadataBuilder
+
+type tenantResponseMetadataBuilder[B any] struct {
+	*responseMetadataBuilder[B]
+
+	tenant string
+}
+
+func newTenantResponseMetadataBuilder[B any](parent *B) *tenantResponseMetadataBuilder[B] {
+	return &tenantResponseMetadataBuilder[B]{
+		responseMetadataBuilder: newResponseMetadataBuilder(parent),
+	}
+}
+
+func (builder *tenantResponseMetadataBuilder[B]) Tenant(tenant string) *B {
+	builder.tenant = tenant
+	return builder.parent
+}
+
+func (builder *tenantResponseMetadataBuilder[B]) validate() error {
+	// Validate response metadata
+	if err := builder.responseMetadataBuilder.validate(); err != nil {
+		return err
+	}
+
+	// Validate tenant response metadata
+	if err := validateRequired(builder.validator,
+		builder.tenant,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// workspaceResponseMetadataBuilder
+
+type workspaceResponseMetadataBuilder[B any] struct {
+	*responseMetadataBuilder[B]
+
+	tenant    string
+	workspace string
+}
+
+func newWorkspaceResponseMetadataBuilder[B any](parent *B) *workspaceResponseMetadataBuilder[B] {
+	return &workspaceResponseMetadataBuilder[B]{
+		responseMetadataBuilder: newResponseMetadataBuilder(parent),
+	}
+}
+
+func (builder *workspaceResponseMetadataBuilder[B]) Tenant(tenant string) *B {
+	builder.tenant = tenant
+	return builder.parent
+}
+
+func (builder *workspaceResponseMetadataBuilder[B]) Workspace(workspace string) *B {
+	builder.workspace = workspace
+	return builder.parent
+}
+
+func (builder *workspaceResponseMetadataBuilder[B]) validate() error {
+	// Validate response metadata
+	if err := builder.responseMetadataBuilder.validate(); err != nil {
+		return err
+	}
+
+	// Validate workspace response metadata
+	if err := validateRequired(builder.validator,
+		builder.tenant,
+		builder.workspace,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// networkResponseMetadataBuilder
+
+type networkResponseMetadataBuilder[B any] struct {
+	*responseMetadataBuilder[B]
+
+	tenant    string
+	workspace string
+	network   string
+}
+
+func newNetworkResponseMetadataBuilder[B any](parent *B) *networkResponseMetadataBuilder[B] {
+	return &networkResponseMetadataBuilder[B]{
+		responseMetadataBuilder: newResponseMetadataBuilder(parent),
+	}
+}
+
+func (builder *networkResponseMetadataBuilder[B]) Tenant(tenant string) *B {
+	builder.tenant = tenant
+	return builder.parent
+}
+
+func (builder *networkResponseMetadataBuilder[B]) Workspace(workspace string) *B {
+	builder.workspace = workspace
+	return builder.parent
+}
+
+func (builder *networkResponseMetadataBuilder[B]) Network(network string) *B {
+	builder.network = network
+	return builder.parent
+}
+
+func (builder *networkResponseMetadataBuilder[B]) validate() error {
+	// Validate response metadata
+	if err := builder.responseMetadataBuilder.validate(); err != nil {
+		return err
+	}
+
+	// Validate network response metadata
+	if err := validateRequired(builder.validator,
+		builder.tenant,
+		builder.workspace,
+		builder.network,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ResourceMetadata
+
+/// GlobalResourceMetadataBuilder
 
 type globalResourceMetadataBuilder[B any] struct {
 	*resourceMetadataBuilder[B, schema.GlobalResourceMetadataKind]
@@ -83,7 +215,7 @@ func (builder *globalResourceMetadataBuilder[B]) build() (*schema.GlobalResource
 	return builder.metadata, nil
 }
 
-// GlobalTenantResourceMetadataBuilder
+/// GlobalTenantResourceMetadataBuilder
 
 type globalTenantResourceMetadataBuilder[B any] struct {
 	*resourceMetadataBuilder[B, schema.GlobalTenantResourceMetadataKind]
@@ -126,7 +258,7 @@ func (builder *globalTenantResourceMetadataBuilder[B]) build() (*schema.GlobalTe
 	return builder.metadata, nil
 }
 
-// RegionalResourceMetadata
+/// RegionalResourceMetadata
 
 type regionalResourceMetadataBuilder[B any] struct {
 	*resourceMetadataBuilder[B, schema.RegionalResourceMetadataKind]
@@ -175,7 +307,7 @@ func (builder *regionalResourceMetadataBuilder[B]) build() (*schema.RegionalReso
 	return builder.metadata, nil
 }
 
-// RegionalWorkspaceResourceMetadata
+/// RegionalWorkspaceResourceMetadata
 
 type regionalWorkspaceResourceMetadataBuilder[B any] struct {
 	*resourceMetadataBuilder[B, schema.RegionalWorkspaceResourceMetadataKind]
@@ -230,7 +362,7 @@ func (builder *regionalWorkspaceResourceMetadataBuilder[B]) build() (*schema.Reg
 	return builder.metadata, nil
 }
 
-// RegionalNetworkResourceMetadata
+/// RegionalNetworkResourceMetadata
 
 type regionalNetworkResourceMetadataBuilder[B any] struct {
 	*resourceMetadataBuilder[B, schema.RegionalNetworkResourceMetadataKind]

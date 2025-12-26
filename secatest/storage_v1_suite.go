@@ -1,7 +1,6 @@
 package secatest
 
 import (
-	"log/slog"
 	"math/rand"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
@@ -19,15 +18,14 @@ type StorageV1TestSuite struct {
 	storageSkus []string
 }
 
-func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
-	var err error
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *StorageV1TestSuite) TestLifeCycleScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t, storageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
 	)
+
+	var err error
 
 	// Select sku
 	storageSkuName := suite.storageSkus[rand.Intn(len(suite.storageSkus))]
@@ -55,8 +53,8 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
-		mockParams := &mock.StorageParamsV1{
-			Params: &mock.Params{
+		mockParams := &mock.StorageLifeCycleParamsV1{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
@@ -91,7 +89,7 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigStorageLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureStorageLifecycleScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -286,14 +284,11 @@ func (suite *StorageV1TestSuite) TestSuite(t provider.T) {
 	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
-	slog.Info("Finishing " + suite.scenarioName)
+	suite.finishScenario()
 }
 
-func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
-	var err error
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *StorageV1TestSuite) TestListScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t, storageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
@@ -334,7 +329,7 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
 		mockParams := &mock.StorageListParamsV1{
-			Params: &mock.Params{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
@@ -346,7 +341,7 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 					generators.EnvLabel: generators.EnvConformanceLabel,
 				},
 			},
-			BlockStorage: &[]mock.ResourceParams[schema.BlockStorageSpec]{
+			BlockStorages: []mock.ResourceParams[schema.BlockStorageSpec]{
 				{
 					Name: blockStorageName1,
 					InitialLabels: map[string]string{
@@ -378,7 +373,7 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 					},
 				},
 			},
-			Image: &[]mock.ResourceParams[schema.ImageSpec]{
+			Images: []mock.ResourceParams[schema.ImageSpec]{
 				{
 					Name: imageName1,
 					InitialLabels: map[string]string{
@@ -411,7 +406,7 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigStorageListAndFilterScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureStorageListScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -489,6 +484,8 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 			},
 		},
 	}
+
+	// Create the block storages
 	for _, block := range *blocks {
 		expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
 			Name(block.Metadata.Name).
@@ -510,24 +507,25 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 			},
 		)
 	}
+
 	wref := secapi.WorkspaceReference{
-		Name:      workspaceName,
-		Workspace: secapi.WorkspaceID(workspaceName),
 		Tenant:    secapi.TenantID(suite.tenant),
+		Workspace: secapi.WorkspaceID(workspaceName),
 	}
-	// List blockstorage
+
+	// List block storages
 	suite.getListBlockStorageV1Step("GetList block storage", t, suite.client.StorageV1, wref, nil)
 
-	// List instances with limit
+	// List block storages with limit
 	suite.getListBlockStorageV1Step("Get List block storage with limit", t, suite.client.StorageV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List Instances with Label
+	// List block storages with label
 	suite.getListBlockStorageV1Step("Get list of block storage with label", t, suite.client.StorageV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
 
-	// List Instances with Limit and label
+	// List block storages with limit and label
 	suite.getListBlockStorageV1Step("Get list of block storage with limit and label", t, suite.client.StorageV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
@@ -661,7 +659,7 @@ func (suite *StorageV1TestSuite) TestListSuite(t provider.T) {
 	suite.deleteWorkspaceV1Step("Delete the workspace", t, suite.client.WorkspaceV1, workspace)
 	suite.getWorkspaceWithErrorV1Step("Get the deleted workspace", t, suite.client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
-	slog.Info("Finishing " + suite.scenarioName)
+	suite.finishScenario()
 }
 
 func (suite *StorageV1TestSuite) AfterEach(t provider.T) {
