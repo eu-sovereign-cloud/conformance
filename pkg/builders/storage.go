@@ -3,10 +3,48 @@ package builders
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
+// StorageSku
+
+/// StorageSkuIteratorBuilder
+
+type StorageSkuIteratorBuilder struct {
+	*tenantResponseMetadataBuilder[StorageSkuIteratorBuilder]
+
+	items []schema.StorageSku
+}
+
+func NewStorageSkuIteratorBuilder() *StorageSkuIteratorBuilder {
+	builder := &StorageSkuIteratorBuilder{}
+	builder.tenantResponseMetadataBuilder = newTenantResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *StorageSkuIteratorBuilder) Items(items []schema.StorageSku) *StorageSkuIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *StorageSkuIteratorBuilder) Build() (*storage.SkuIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateSkuListResource(builder.tenant)
+
+	return &storage.SkuIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
 // BlockStorage
+
+/// BlockStorageMetadataBuilder
 
 type BlockStorageMetadataBuilder struct {
 	*regionalWorkspaceResourceMetadataBuilder[BlockStorageMetadataBuilder]
@@ -29,6 +67,8 @@ func (builder *BlockStorageMetadataBuilder) Build() (*schema.RegionalWorkspaceRe
 
 	return metadata, nil
 }
+
+/// BlockStorageBuilder
 
 type BlockStorageBuilder struct {
 	*regionalWorkspaceResourceBuilder[BlockStorageBuilder, schema.BlockStorageSpec]
@@ -90,7 +130,42 @@ func (builder *BlockStorageBuilder) Build() (*schema.BlockStorage, error) {
 	}, nil
 }
 
+/// BlockStorageIteratorBuilder
+
+type BlockStorageIteratorBuilder struct {
+	*workspaceResponseMetadataBuilder[BlockStorageIteratorBuilder]
+
+	items []schema.BlockStorage
+}
+
+func NewBlockStorageIteratorBuilder() *BlockStorageIteratorBuilder {
+	builder := &BlockStorageIteratorBuilder{}
+	builder.workspaceResponseMetadataBuilder = newWorkspaceResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *BlockStorageIteratorBuilder) Items(items []schema.BlockStorage) *BlockStorageIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *BlockStorageIteratorBuilder) Build() (*storage.BlockStorageIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateBlockStorageListResource(builder.tenant, builder.workspace)
+
+	return &storage.BlockStorageIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
 // Image
+
+/// ImageMetadataBuilder
 
 type ImageMetadataBuilder struct {
 	*regionalResourceMetadataBuilder[ImageMetadataBuilder]
@@ -113,6 +188,8 @@ func (builder *ImageMetadataBuilder) Build() (*schema.RegionalResourceMetadata, 
 
 	return metadata, nil
 }
+
+/// ImageBuilder
 
 type ImageBuilder struct {
 	*regionalResourceBuilder[ImageBuilder, schema.ImageSpec]
@@ -170,5 +247,38 @@ func (builder *ImageBuilder) Build() (*schema.Image, error) {
 		Labels:   builder.labels,
 		Spec:     *builder.spec,
 		Status:   &schema.ImageStatus{},
+	}, nil
+}
+
+/// ImageIteratorBuilder
+
+type ImageIteratorBuilder struct {
+	*tenantResponseMetadataBuilder[ImageIteratorBuilder]
+
+	items []schema.Image
+}
+
+func NewImageIteratorBuilder() *ImageIteratorBuilder {
+	builder := &ImageIteratorBuilder{}
+	builder.tenantResponseMetadataBuilder = newTenantResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *ImageIteratorBuilder) Items(items []schema.Image) *ImageIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *ImageIteratorBuilder) Build() (*storage.ImageIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateImageListResource(builder.tenant)
+
+	return &storage.ImageIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
 	}, nil
 }

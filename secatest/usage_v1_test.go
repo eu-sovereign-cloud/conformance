@@ -6,8 +6,8 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
-func TestFoundationUsageV1Suite(t *testing.T) {
-	testSuite := &FoundationUsageV1TestSuite{
+func TestUsageV1Suite(t *testing.T) {
+	testSuite := &UsageV1TestSuite{
 		mixedTestSuite: mixedTestSuite{
 			testSuite: testSuite{
 				tenant:        config.clientTenant,

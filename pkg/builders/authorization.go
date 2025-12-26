@@ -3,10 +3,13 @@ package builders
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	authorization "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.authorization.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
 // Role
+
+/// RoleMetadataBuilder
 
 type RoleMetadataBuilder struct {
 	*globalTenantResourceMetadataBuilder[RoleMetadataBuilder]
@@ -29,6 +32,8 @@ func (builder *RoleMetadataBuilder) Build() (*schema.GlobalTenantResourceMetadat
 
 	return metadata, nil
 }
+
+/// RoleBuilder
 
 type RoleBuilder struct {
 	*globalTenantResourceBuilder[RoleBuilder, schema.RoleSpec]
@@ -98,7 +103,42 @@ func (builder *RoleBuilder) Build() (*schema.Role, error) {
 	}, nil
 }
 
+/// RoleIteratorBuilder
+
+type RoleIteratorBuilder struct {
+	*tenantResponseMetadataBuilder[RoleIteratorBuilder]
+
+	items []schema.Role
+}
+
+func NewRoleIteratorBuilder() *RoleIteratorBuilder {
+	builder := &RoleIteratorBuilder{}
+	builder.tenantResponseMetadataBuilder = newTenantResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *RoleIteratorBuilder) Items(items []schema.Role) *RoleIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *RoleIteratorBuilder) Build() (*authorization.RoleIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateRoleListResource(builder.tenant)
+
+	return &authorization.RoleIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
 // RoleAssignment
+
+/// RoleAssignmentMetadataBuilder
 
 type RoleAssignmentMetadataBuilder struct {
 	*globalTenantResourceMetadataBuilder[RoleAssignmentMetadataBuilder]
@@ -121,6 +161,8 @@ func (builder *RoleAssignmentMetadataBuilder) Build() (*schema.GlobalTenantResou
 
 	return metadata, nil
 }
+
+/// RoleAssignmentBuilder
 
 type RoleAssignmentBuilder struct {
 	*globalTenantResourceBuilder[RoleAssignmentBuilder, schema.RoleAssignmentSpec]
@@ -189,5 +231,38 @@ func (builder *RoleAssignmentBuilder) Build() (*schema.RoleAssignment, error) {
 		Labels:   builder.labels,
 		Spec:     *builder.spec,
 		Status:   &schema.RoleAssignmentStatus{},
+	}, nil
+}
+
+/// RoleAssignmentIteratorBuilder
+
+type RoleAssignmentIteratorBuilder struct {
+	*tenantResponseMetadataBuilder[RoleAssignmentIteratorBuilder]
+
+	items []schema.RoleAssignment
+}
+
+func NewRoleAssignmentIteratorBuilder() *RoleAssignmentIteratorBuilder {
+	builder := &RoleAssignmentIteratorBuilder{}
+	builder.tenantResponseMetadataBuilder = newTenantResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *RoleAssignmentIteratorBuilder) Items(items []schema.RoleAssignment) *RoleAssignmentIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *RoleAssignmentIteratorBuilder) Build() (*authorization.RoleAssignmentIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateRoleAssignmentListResource(builder.tenant)
+
+	return &authorization.RoleAssignmentIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
 	}, nil
 }

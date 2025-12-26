@@ -60,6 +60,29 @@ func (suite *testSuite) getBlockStorageV1Step(stepName string, t provider.T, api
 	)
 }
 
+func (suite *testSuite) getListBlockStorageV1Step(
+	stepName string,
+	t provider.T,
+	api *secapi.StorageV1,
+	wref secapi.WorkspaceReference,
+	opts *secapi.ListOptions,
+) {
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListBlockStorage", string(wref.Workspace))
+
+		var iter *secapi.Iterator[schema.BlockStorage]
+		var err error
+		if opts != nil {
+			iter, err = api.ListBlockStoragesWithFilters(t.Context(), wref.Tenant, wref.Workspace, opts)
+		} else {
+			iter, err = api.ListBlockStorages(t.Context(), wref.Tenant, wref.Workspace)
+		}
+		requireNoError(sCtx, err)
+
+		verifyIterListStep(sCtx, t, *iter)
+	})
+}
+
 func (suite *testSuite) getBlockStorageWithErrorV1Step(stepName string, t provider.T, api *secapi.StorageV1, wref secapi.WorkspaceReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageWorkspaceV1StepParams(sCtx, "GetBlockStorage", string(wref.Workspace))
@@ -126,6 +149,28 @@ func (suite *testSuite) getImageV1Step(stepName string, t provider.T, api *secap
 	)
 }
 
+func (suite *testSuite) getListImageV1Step(
+	stepName string,
+	t provider.T,
+	api *secapi.StorageV1,
+	tref secapi.TenantReference,
+	opts *secapi.ListOptions,
+) {
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListImage", tref.Name)
+		var iter *secapi.Iterator[schema.Image]
+		var err error
+		if opts != nil {
+			iter, err = api.ListImagesWithFilters(t.Context(), tref.Tenant, opts)
+		} else {
+			iter, err = api.ListImages(t.Context(), tref.Tenant)
+		}
+		requireNoError(sCtx, err)
+
+		verifyIterListStep(sCtx, t, *iter)
+	})
+}
+
 func (suite *testSuite) getImageWithErrorV1Step(stepName string, t provider.T, api *secapi.StorageV1, tref secapi.TenantReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setStorageV1StepParams(sCtx, "GetImage")
@@ -141,5 +186,27 @@ func (suite *testSuite) deleteImageV1Step(stepName string, t provider.T, api *se
 
 		err := api.DeleteImage(t.Context(), resource)
 		requireNoError(sCtx, err)
+	})
+}
+
+func (suite *testSuite) getListSkuV1Step(
+	stepName string,
+	t provider.T,
+	api *secapi.StorageV1,
+	tref secapi.TenantReference,
+	opts *secapi.ListOptions,
+) {
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListSku", tref.Name)
+		var iter *secapi.Iterator[schema.StorageSku]
+		var err error
+		if opts != nil {
+			iter, err = api.ListSkusWithFilters(t.Context(), tref.Tenant, opts)
+		} else {
+			iter, err = api.ListSkus(t.Context(), tref.Tenant)
+		}
+		requireNoError(sCtx, err)
+
+		verifyIterListStep(sCtx, t, *iter)
 	})
 }

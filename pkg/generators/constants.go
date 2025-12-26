@@ -105,4 +105,10 @@ const (
 
 	// Generators
 	maxBlockStorageSize = 1000000 // GB
+
+	// Labels
+	EnvLabel            = "env"
+	EnvDevelopmentLabel = "development"
+	EnvConformanceLabel = "conformance"
+	EnvProductionLabel  = "production"
 )

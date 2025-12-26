@@ -8,7 +8,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParamsV1) (*wiremock.Client, error) {
+func ConfigureFoundationUsageScenarioV1(scenario string, params *FoundationUsageParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
 	configurator, err := newScenarioConfigurator(scenario, params.MockURL)
@@ -45,12 +45,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a role
-	if err := configurator.configureCreateRoleStub(roleResponse, roleUrl, params); err != nil {
+	if err := configurator.configureCreateRoleStub(roleResponse, roleUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created role
-	if err := configurator.configureGetActiveRoleStub(roleResponse, roleUrl, params); err != nil {
+	if err := configurator.configureGetActiveRoleStub(roleResponse, roleUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -66,12 +66,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a role assignment
-	if err := configurator.configureCreateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
+	if err := configurator.configureCreateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created role assignment
-	if err := configurator.configureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params); err != nil {
+	if err := configurator.configureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -87,12 +87,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a workspace
-	if err := configurator.configureCreateWorkspaceStub(workspaceResponse, workspaceUrl, params); err != nil {
+	if err := configurator.configureCreateWorkspaceStub(workspaceResponse, workspaceUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created workspace
-	if err := configurator.configureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, params); err != nil {
+	if err := configurator.configureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -110,12 +110,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create an image
-	if err := configurator.configureCreateImageStub(imageResponse, imageUrl, params); err != nil {
+	if err := configurator.configureCreateImageStub(imageResponse, imageUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created image
-	if err := configurator.configureGetActiveImageStub(imageResponse, imageUrl, params); err != nil {
+	if err := configurator.configureGetActiveImageStub(imageResponse, imageUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -131,12 +131,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a block storage
-	if err := configurator.configureCreateBlockStorageStub(blockResponse, blockUrl, params); err != nil {
+	if err := configurator.configureCreateBlockStorageStub(blockResponse, blockUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created block storage
-	if err := configurator.configureGetActiveBlockStorageStub(blockResponse, blockUrl, params); err != nil {
+	if err := configurator.configureGetActiveBlockStorageStub(blockResponse, blockUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -154,12 +154,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a network
-	if err := configurator.configureCreateNetworkStub(networkResponse, networkUrl, params); err != nil {
+	if err := configurator.configureCreateNetworkStub(networkResponse, networkUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created network
-	if err := configurator.configureGetActiveNetworkStub(networkResponse, networkUrl, params); err != nil {
+	if err := configurator.configureGetActiveNetworkStub(networkResponse, networkUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -175,12 +175,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create an internet gateway
-	if err := configurator.configureCreateInternetGatewayStub(gatewayResponse, gatewayUrl, params); err != nil {
+	if err := configurator.configureCreateInternetGatewayStub(gatewayResponse, gatewayUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created internet gateway
-	if err := configurator.configureGetActiveInternetGatewayStub(gatewayResponse, gatewayUrl, params); err != nil {
+	if err := configurator.configureGetActiveInternetGatewayStub(gatewayResponse, gatewayUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -196,12 +196,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a route table
-	if err := configurator.configureCreateRouteTableStub(routeResponse, routeUrl, params); err != nil {
+	if err := configurator.configureCreateRouteTableStub(routeResponse, routeUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created route table
-	if err := configurator.configureGetActiveRouteTableStub(routeResponse, routeUrl, params); err != nil {
+	if err := configurator.configureGetActiveRouteTableStub(routeResponse, routeUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -217,12 +217,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a subnet
-	if err := configurator.configureCreateSubnetStub(subnetResponse, subnetUrl, params); err != nil {
+	if err := configurator.configureCreateSubnetStub(subnetResponse, subnetUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created subnet
-	if err := configurator.configureGetActiveSubnetStub(subnetResponse, subnetUrl, params); err != nil {
+	if err := configurator.configureGetActiveSubnetStub(subnetResponse, subnetUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -238,12 +238,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a security group
-	if err := configurator.configureCreateSecurityGroupStub(groupResponse, groupUrl, params); err != nil {
+	if err := configurator.configureCreateSecurityGroupStub(groupResponse, groupUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created security group
-	if err := configurator.configureGetActiveSecurityGroupStub(groupResponse, groupUrl, params); err != nil {
+	if err := configurator.configureGetActiveSecurityGroupStub(groupResponse, groupUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -259,12 +259,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a public ip
-	if err := configurator.configureCreatePublicIpStub(publicIpResponse, publicIpUrl, params); err != nil {
+	if err := configurator.configureCreatePublicIpStub(publicIpResponse, publicIpUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created public ip
-	if err := configurator.configureGetActivePublicIpStub(publicIpResponse, publicIpUrl, params); err != nil {
+	if err := configurator.configureGetActivePublicIpStub(publicIpResponse, publicIpUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -280,12 +280,12 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create a nic
-	if err := configurator.configureCreateNicStub(nicResponse, nicUrl, params); err != nil {
+	if err := configurator.configureCreateNicStub(nicResponse, nicUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created nic
-	if err := configurator.configureGetActiveNicStub(nicResponse, nicUrl, params); err != nil {
+	if err := configurator.configureGetActiveNicStub(nicResponse, nicUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
@@ -303,79 +303,79 @@ func ConfigFoundationUsageScenario(scenario string, params *FoundationUsageParam
 	}
 
 	// Create an instance
-	if err := configurator.configureCreateInstanceStub(instanceResponse, instanceUrl, params); err != nil {
+	if err := configurator.configureCreateInstanceStub(instanceResponse, instanceUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Get the created instance
-	if err := configurator.configureGetActiveInstanceStub(instanceResponse, instanceUrl, params); err != nil {
+	if err := configurator.configureGetActiveInstanceStub(instanceResponse, instanceUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete all
 
 	// Delete the instance
-	if err := configurator.configureDeleteStub(instanceUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(instanceUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the security Group
-	if err := configurator.configureDeleteStub(groupUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(groupUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the nic
-	if err := configurator.configureDeleteStub(nicUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(nicUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the public ip
-	if err := configurator.configureDeleteStub(publicIpUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(publicIpUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the subnet
-	if err := configurator.configureDeleteStub(subnetUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(subnetUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the route-table
-	if err := configurator.configureDeleteStub(routeUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(routeUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the internet gateway
-	if err := configurator.configureDeleteStub(gatewayUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(gatewayUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the network
-	if err := configurator.configureDeleteStub(networkUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(networkUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the block storage
-	if err := configurator.configureDeleteStub(blockUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(blockUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the image
-	if err := configurator.configureDeleteStub(imageUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(imageUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
-	if err := configurator.configureDeleteStub(workspaceUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(workspaceUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the role assignment
-	if err := configurator.configureDeleteStub(roleAssignUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(roleAssignUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 
 	// Delete the role
-	if err := configurator.configureDeleteStub(roleUrl, params); err != nil {
+	if err := configurator.configureDeleteStub(roleUrl, params.getBaseParams()); err != nil {
 		return nil, err
 	}
 

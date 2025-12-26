@@ -35,6 +35,15 @@ func (suite *testSuite) canRun(regexp *regexp.Regexp) bool {
 	}
 }
 
+func (suite *testSuite) startScenario(t provider.T) {
+	slog.Info("Starting " + suite.scenarioName)
+	t.Title(suite.scenarioName)
+}
+
+func (suite *testSuite) finishScenario() {
+	slog.Info("Finishing " + suite.scenarioName)
+}
+
 type mixedTestSuite struct {
 	testSuite
 

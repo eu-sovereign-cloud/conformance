@@ -3,10 +3,48 @@ package builders
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
+// InstanceSku
+
+/// InstanceSkuIteratorBuilder
+
+type InstanceSkuIteratorBuilder struct {
+	*tenantResponseMetadataBuilder[InstanceSkuIteratorBuilder]
+
+	items []schema.InstanceSku
+}
+
+func NewInstanceSkuIteratorBuilder() *InstanceSkuIteratorBuilder {
+	builder := &InstanceSkuIteratorBuilder{}
+	builder.tenantResponseMetadataBuilder = newTenantResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *InstanceSkuIteratorBuilder) Items(items []schema.InstanceSku) *InstanceSkuIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *InstanceSkuIteratorBuilder) Build() (*compute.SkuIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateSkuListResource(builder.tenant)
+
+	return &compute.SkuIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
 // Instance
+
+/// InstanceMetadataBuilder
 
 type InstanceMetadataBuilder struct {
 	*regionalWorkspaceResourceMetadataBuilder[InstanceMetadataBuilder]
@@ -30,25 +68,7 @@ func (builder *InstanceMetadataBuilder) Build() (*schema.RegionalWorkspaceResour
 	return metadata, nil
 }
 
-type InstanceListMetadataBuilder struct {
-	*responseMetadataBuilder
-}
-
-func NewInstanceListMetadataBuilder() *InstanceListMetadataBuilder {
-	return &InstanceListMetadataBuilder{
-		responseMetadataBuilder: NewResponseMetadataBuilder(),
-	}
-}
-
-func (builder *InstanceListMetadataBuilder) Build(tenant, workspace, name string) (*schema.ResponseMetadata, error) {
-	metadata, err := builder.build()
-	if err != nil {
-		return nil, err
-	}
-
-	metadata.Resource = generators.GenerateInstanceResource(tenant, workspace, name)
-	return metadata, nil
-}
+/// InstanceBuilder
 
 type InstanceBuilder struct {
 	*regionalWorkspaceResourceBuilder[InstanceBuilder, schema.InstanceSpec]
@@ -109,5 +129,38 @@ func (builder *InstanceBuilder) Build() (*schema.Instance, error) {
 		Labels:   builder.labels,
 		Spec:     *builder.spec,
 		Status:   &schema.InstanceStatus{},
+	}, nil
+}
+
+/// InstanceIteratorBuilder
+
+type InstanceIteratorBuilder struct {
+	*workspaceResponseMetadataBuilder[InstanceIteratorBuilder]
+
+	items []schema.Instance
+}
+
+func NewInstanceIteratorBuilder() *InstanceIteratorBuilder {
+	builder := &InstanceIteratorBuilder{}
+	builder.workspaceResponseMetadataBuilder = newWorkspaceResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *InstanceIteratorBuilder) Items(items []schema.Instance) *InstanceIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *InstanceIteratorBuilder) Build() (*compute.InstanceIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateInstanceListResource(builder.tenant, builder.workspace)
+
+	return &compute.InstanceIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
 	}, nil
 }

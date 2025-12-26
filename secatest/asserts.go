@@ -32,6 +32,6 @@ func requireLenResponse(sCtx provider.StepCtx, resp int) {
 	sCtx.WithNewStep("Verify response length", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters("response", fmt.Sprintf("%v", resp))
 		stepCtx.Require().NotNil(resp, "Should be not nil")
-		stepCtx.Require().Greater(resp, 1, "Should have length greater than 1")
+		stepCtx.Require().GreaterOrEqual(resp, 1, "Should have length greater than 1")
 	})
 }

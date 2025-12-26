@@ -59,6 +59,29 @@ func (suite *testSuite) getRoleV1Step(stepName string, t provider.T, api *secapi
 	)
 }
 
+func (suite *testSuite) getListRoleV1Step(stepName string,
+	t provider.T,
+	api *secapi.AuthorizationV1,
+	tref secapi.TenantReference,
+	opts *secapi.ListOptions,
+) {
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setAuthorizationV1StepParams(sCtx, "GetListRole")
+
+		var iter *secapi.Iterator[schema.Role]
+
+		var err error
+		if opts != nil {
+			iter, err = api.ListRolesWithFilters(t.Context(), tref.Tenant, opts)
+		} else {
+			iter, err = api.ListRoles(t.Context(), tref.Tenant)
+		}
+		requireNoError(sCtx, err)
+
+		verifyIterListStep(sCtx, t, *iter)
+	})
+}
+
 func (suite *testSuite) getRoleWithErrorV1Step(stepName string, t provider.T, api *secapi.AuthorizationV1, tref secapi.TenantReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setAuthorizationV1StepParams(sCtx, "GetRole")
@@ -123,6 +146,28 @@ func (suite *testSuite) getRoleAssignmentV1Step(stepName string, t provider.T, a
 			expectedResourceState: responseExpects.resourceState,
 		},
 	)
+}
+
+func (suite *testSuite) getListRoleAssignmentsV1(stepName string,
+	t provider.T,
+	api *secapi.AuthorizationV1,
+	tref secapi.TenantReference,
+	opts *secapi.ListOptions,
+) {
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setAuthorizationV1StepParams(sCtx, "GetListRoleAssignment")
+
+		var iter *secapi.Iterator[schema.RoleAssignment]
+		var err error
+		if opts != nil {
+			iter, err = api.ListRoleAssignmentsWithFilters(t.Context(), tref.Tenant, opts)
+		} else {
+			iter, err = api.ListRoleAssignments(t.Context(), tref.Tenant)
+		}
+		requireNoError(sCtx, err)
+
+		verifyIterListStep(sCtx, t, *iter)
+	})
 }
 
 func (suite *testSuite) getRoleAssignmentWithErrorV1Step(stepName string, t provider.T, api *secapi.AuthorizationV1, tref secapi.TenantReference, expectedError error) {

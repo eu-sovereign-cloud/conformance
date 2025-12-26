@@ -9,7 +9,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigClientsInitScenario(params *ClientsInitParams) (*wiremock.Client, error) {
+func ConfigureClientsInitScenario(params *ClientsInitParams) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to ClientsInit scenario")
 
 	wm, err := newMockClient(params.MockURL)
@@ -38,7 +38,7 @@ func ConfigClientsInitScenario(params *ClientsInitParams) (*wiremock.Client, err
 	}
 
 	if err := configureGetStub(wm, "ClientsInit",
-		&stubConfig{url: url, params: params, headers: headers, responseBody: response}); err != nil {
+		&stubConfig{url: url, params: params.getBaseParams(), headers: headers, responseBody: response}); err != nil {
 		return nil, err
 	}
 
