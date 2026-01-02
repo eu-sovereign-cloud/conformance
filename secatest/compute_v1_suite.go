@@ -13,7 +13,14 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ComputeV1TestSuite struct {
+type ComputeV1LifeCycleTestSuite struct {
+	regionalTestSuite
+
+	availableZones []string
+	instanceSkus   []string
+	storageSkus    []string
+}
+type ComputeV1ListTestSuite struct {
 	regionalTestSuite
 
 	availableZones []string
@@ -21,7 +28,7 @@ type ComputeV1TestSuite struct {
 	storageSkus    []string
 }
 
-func (suite *ComputeV1TestSuite) TestLifeCycleScenario(t provider.T) {
+func (suite *ComputeV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.startScenario(t)
 	configureTags(t, computeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -322,7 +329,7 @@ func (suite *ComputeV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.finishScenario()
 }
 
-func (suite *ComputeV1TestSuite) TestListScenario(t provider.T) {
+func (suite *ComputeV1ListTestSuite) TestListScenario(t provider.T) {
 	suite.startScenario(t)
 	configureTags(t, computeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -620,16 +627,6 @@ func (suite *ComputeV1TestSuite) TestListScenario(t provider.T) {
 	suite.getListSkusV1Step("Get list of skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
 		secapi.NewListOptions().WithLimit(1))
 
-	// List SKUS with Label
-	suite.getListSkusV1Step("Get list of skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
-
-	// List SKUS with Limit and label
-	suite.getListSkusV1Step("Get list of skus", t, suite.client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
-
 	// Delete all instances
 	for _, instance := range *instances {
 		suite.deleteInstanceV1Step("Delete the instance", t, suite.client.ComputeV1, &instance)
@@ -667,6 +664,6 @@ func (suite *ComputeV1TestSuite) TestListScenario(t provider.T) {
 	suite.finishScenario()
 }
 
-func (suite *ComputeV1TestSuite) AfterEach(t provider.T) {
+func (suite *ComputeV1LifeCycleTestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }

@@ -11,11 +11,15 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type WorkspaceV1TestSuite struct {
+type WorkspaceV1LifeCycleTestSuite struct {
 	regionalTestSuite
 }
 
-func (suite *WorkspaceV1TestSuite) TestLifeCycleScenario(t provider.T) {
+type WorkspaceV1ListTestSuite struct {
+	regionalTestSuite
+}
+
+func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.startScenario(t)
 	configureTags(t, workspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -118,7 +122,7 @@ func (suite *WorkspaceV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.finishScenario()
 }
 
-func (suite *WorkspaceV1TestSuite) TestListScenario(t provider.T) {
+func (suite *WorkspaceV1ListTestSuite) TestListScenario(t provider.T) {
 	suite.startScenario(t)
 	configureTags(t, workspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -229,6 +233,6 @@ func (suite *WorkspaceV1TestSuite) TestListScenario(t provider.T) {
 	suite.finishScenario()
 }
 
-func (suite *WorkspaceV1TestSuite) AfterEach(t provider.T) {
+func (suite *WorkspaceV1LifeCycleTestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }

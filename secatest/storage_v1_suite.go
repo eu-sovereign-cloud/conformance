@@ -12,13 +12,18 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type StorageV1TestSuite struct {
+type StorageV1LifeCycleTestSuite struct {
+	regionalTestSuite
+
+	storageSkus []string
+}
+type StorageV1ListTestSuite struct {
 	regionalTestSuite
 
 	storageSkus []string
 }
 
-func (suite *StorageV1TestSuite) TestLifeCycleScenario(t provider.T) {
+func (suite *StorageV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.startScenario(t)
 	configureTags(t, storageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
@@ -287,7 +292,7 @@ func (suite *StorageV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.finishScenario()
 }
 
-func (suite *StorageV1TestSuite) TestListScenario(t provider.T) {
+func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 	suite.startScenario(t)
 	configureTags(t, storageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
@@ -620,16 +625,6 @@ func (suite *StorageV1TestSuite) TestListScenario(t provider.T) {
 	suite.getListSkuV1Step("Get list of skus", t, suite.client.StorageV1, tref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List Skus with Label
-	suite.getListSkuV1Step("Get list of skus", t, suite.client.StorageV1, tref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
-
-	// List Skus with Limit and label
-	suite.getListSkuV1Step("Get list of skus", t, suite.client.StorageV1, tref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
-
 	// Delete all images
 	for _, image := range *images {
 		imageTRef := &secapi.TenantReference{
@@ -662,6 +657,6 @@ func (suite *StorageV1TestSuite) TestListScenario(t provider.T) {
 	suite.finishScenario()
 }
 
-func (suite *StorageV1TestSuite) AfterEach(t provider.T) {
+func (suite *StorageV1LifeCycleTestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }

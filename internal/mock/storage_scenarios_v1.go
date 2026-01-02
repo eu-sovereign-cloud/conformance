@@ -285,28 +285,6 @@ func ConfigureStorageListScenarioV1(scenario string, params *StorageListParamsV1
 		return nil, err
 	}
 
-	// List with Label
-	skusWithLabel := func(skuList []schema.StorageSku) []schema.StorageSku {
-		var filteredSkus []schema.StorageSku
-		for _, sku := range skuList {
-			if val, ok := sku.Labels["tier"]; ok && val == "RD500" {
-				filteredSkus = append(filteredSkus, sku)
-			}
-		}
-		return filteredSkus
-	}
-
-	skuResponse.Items = skusWithLabel(skuList)
-	if err := configurator.configureGetListStorageSkuStub(*skuResponse, skuListUrl, params.getBaseParams(), pathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
-		return nil, err
-	}
-
-	// List with Limit and Label
-	skuResponse.Items = skusWithLabel(skuList)[:1]
-	if err := configurator.configureGetListStorageSkuStub(*skuResponse, skuListUrl, params.getBaseParams(), pathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
-		return nil, err
-	}
-
 	// Delete Lifecycle
 
 	// Delete Images

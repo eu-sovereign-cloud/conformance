@@ -20,8 +20,8 @@ func generateStorageSkusV1(tenant string) []schema.StorageSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				"provider": "seca",
-				"tier":     "RD100",
+				labelsProvider: "seca",
+				labelsTier:     "RD100",
 			},
 			Spec: &schema.StorageSkuSpec{
 				Iops:          100,
@@ -38,8 +38,8 @@ func generateStorageSkusV1(tenant string) []schema.StorageSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				"provider": "seca",
-				"tier":     "RD500",
+				labelsProvider: "seca",
+				labelsTier:     "RD500",
 			},
 			Spec: &schema.StorageSkuSpec{
 				Iops:          500,
@@ -56,8 +56,8 @@ func generateStorageSkusV1(tenant string) []schema.StorageSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				"provider": "seca",
-				"tier":     "RD2k",
+				labelsProvider: "seca",
+				labelsTier:     "RD2k",
 			},
 			Spec: &schema.StorageSkuSpec{
 				Iops:          2000,
@@ -80,9 +80,9 @@ func generateInstanceSkusV1(tenant string) []schema.InstanceSku {
 			},
 			Labels: schema.Labels{
 				// TODO Create constants
-				"architecture": "amd64",
-				"provider":     "seca",
-				"tier":         "D2XS",
+				labelsArchitecture: "amd64",
+				labelsProvider:     "seca",
+				labelsTier:         "D2XS",
 			},
 			Spec: &schema.InstanceSkuSpec{
 				Ram:  1,
@@ -98,9 +98,9 @@ func generateInstanceSkusV1(tenant string) []schema.InstanceSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				"architecture": "amd64",
-				"provider":     "seca",
-				"tier":         "DXS",
+				labelsArchitecture: "amd64",
+				labelsProvider:     "seca",
+				labelsTier:         "DXS",
 			},
 			Spec: &schema.InstanceSkuSpec{
 				Ram:  2,
@@ -116,13 +116,69 @@ func generateInstanceSkusV1(tenant string) []schema.InstanceSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				"architecture": "amd64",
-				"provider":     "seca",
-				"tier":         "DS",
+				labelsArchitecture: "amd64",
+				labelsProvider:     "seca",
+				labelsTier:         "DS",
 			},
 			Spec: &schema.InstanceSkuSpec{
 				Ram:  4,
 				VCPU: 2,
+			},
+		},
+	}
+}
+
+func generateNetworkSkusV1(tenant string) []schema.NetworkSku {
+	return []schema.NetworkSku{
+		{
+			Metadata: &schema.SkuResourceMetadata{
+				Name:     "N1K",
+				Provider: networkProviderV1,
+				Resource: generators.GenerateSkuResource(tenant, "N1K"),
+				Verb:     http.MethodGet,
+				Tenant:   tenant,
+			},
+			Labels: schema.Labels{
+				labelsProvider: "seca",
+				labelsTier:     "N1K",
+			},
+			Spec: &schema.NetworkSkuSpec{
+				Bandwidth: 1000,
+				Packets:   10000,
+			},
+		},
+		{
+			Metadata: &schema.SkuResourceMetadata{
+				Name:     "N5K",
+				Provider: networkProviderV1,
+				Resource: generators.GenerateSkuResource(tenant, "N5K"),
+				Verb:     http.MethodGet,
+				Tenant:   tenant,
+			},
+			Labels: schema.Labels{
+				labelsProvider: "seca",
+				labelsTier:     "N5K",
+			},
+			Spec: &schema.NetworkSkuSpec{
+				Bandwidth: 5000,
+				Packets:   40000,
+			},
+		},
+		{
+			Metadata: &schema.SkuResourceMetadata{
+				Name:     "N10K",
+				Provider: networkProviderV1,
+				Resource: generators.GenerateSkuResource(tenant, "N10K"),
+				Verb:     http.MethodGet,
+				Tenant:   tenant,
+			},
+			Labels: schema.Labels{
+				labelsProvider: "seca",
+				labelsTier:     "N10K",
+			},
+			Spec: &schema.NetworkSkuSpec{
+				Bandwidth: 10000,
+				Packets:   80000,
 			},
 		},
 	}

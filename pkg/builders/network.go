@@ -7,6 +7,40 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
+// NetworkSku
+
+// / NetworkSkuIteratorBuilder
+type NetworkSkuIteratorBuilder struct {
+	*tenantResponseMetadataBuilder[NetworkSkuIteratorBuilder]
+
+	items []schema.NetworkSku
+}
+
+func NewNetworkSkuIteratorBuilder() *NetworkSkuIteratorBuilder {
+	builder := &NetworkSkuIteratorBuilder{}
+	builder.tenantResponseMetadataBuilder = newTenantResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *NetworkSkuIteratorBuilder) Items(items []schema.NetworkSku) *NetworkSkuIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *NetworkSkuIteratorBuilder) Build() (*network.SkuIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateSkuListResource(builder.tenant)
+
+	return &network.SkuIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
 // Network
 
 /// NetworkMetadataBuilder

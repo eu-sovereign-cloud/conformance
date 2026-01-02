@@ -13,7 +13,7 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type NetworkV1TestSuite struct {
+type NetworkLifeCycleV1TestSuite struct {
 	regionalTestSuite
 
 	networkCidr    string
@@ -24,7 +24,18 @@ type NetworkV1TestSuite struct {
 	networkSkus    []string
 }
 
-func (suite *NetworkV1TestSuite) TestLifeCycleScenario(t provider.T) {
+type NetworkListV1TestSuite struct {
+	regionalTestSuite
+
+	networkCidr    string
+	publicIpsRange string
+	regionZones    []string
+	storageSkus    []string
+	instanceSkus   []string
+	networkSkus    []string
+}
+
+func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.startScenario(t)
 	configureTags(t, networkProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
@@ -928,7 +939,7 @@ func (suite *NetworkV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.finishScenario()
 }
 
-func (suite *NetworkV1TestSuite) TestListScenario(t provider.T) {
+func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	suite.startScenario(t)
 	configureTags(t, networkProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
@@ -1342,6 +1353,14 @@ func (suite *NetworkV1TestSuite) TestListScenario(t provider.T) {
 	suite.getListNetworkV1Step("Get list of Network with limit and label", t, suite.client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+
+	// Network Skus
+	// List SKUS
+	suite.getListNetworkSkusV1Step("List skus", t, suite.client.NetworkV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)}, nil)
+
+	// List SKUS with limit
+	suite.getListNetworkSkusV1Step("Get list of skus", t, suite.client.NetworkV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.tenant)},
+		secapi.NewListOptions().WithLimit(1))
 
 	// Internet gateway
 
@@ -1860,6 +1879,6 @@ func (suite *NetworkV1TestSuite) TestListScenario(t provider.T) {
 	suite.finishScenario()
 }
 
-func (suite *NetworkV1TestSuite) AfterEach(t provider.T) {
+func (suite *NetworkLifeCycleV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }

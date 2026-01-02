@@ -635,3 +635,33 @@ func (suite *testSuite) deleteSecurityGroupV1Step(stepName string, t provider.T,
 		requireNoError(sCtx, err)
 	})
 }
+
+func (suite *testSuite) getListNetworkSkusV1Step(
+	stepName string,
+	t provider.T,
+	api *secapi.NetworkV1,
+	tref secapi.TenantReference,
+	opts *secapi.ListOptions,
+) []*schema.NetworkSku {
+	var resp []*schema.NetworkSku
+
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setComputeV1StepParams(sCtx, "ListSkus", tref.Name)
+
+		var iter *secapi.Iterator[schema.NetworkSku]
+		var err error
+		if opts != nil {
+			iter, err = api.ListSkusWithFilters(t.Context(), tref.Tenant, opts)
+		} else {
+			iter, err = api.ListSkus(t.Context(), tref.Tenant)
+		}
+		requireNoError(sCtx, err)
+
+		// Iterate through all items
+		resp, err := iter.All(t.Context())
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, resp)
+		requireLenResponse(sCtx, len(resp))
+	})
+	return resp
+}

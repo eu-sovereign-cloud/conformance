@@ -7,24 +7,38 @@ import (
 )
 
 func TestAuthorizationV1Suite(t *testing.T) {
-	testSuite := &AuthorizationV1TestSuite{
-		globalTestSuite: globalTestSuite{
-			testSuite: testSuite{
-				tenant:        config.clientTenant,
-				authToken:     config.clientAuthToken,
-				mockEnabled:   config.mockEnabled,
-				mockServerURL: &config.mockServerURL,
-				scenarioName:  authorizationV1LifeCycleSuiteName,
-				baseDelay:     config.baseDelay,
-				baseInterval:  config.baseInterval,
-				maxAttempts:   config.maxAttempts,
-			},
-			client: clients.globalClient,
+	globalTestSuite := globalTestSuite{
+		testSuite: testSuite{
+			tenant:        config.clientTenant,
+			authToken:     config.clientAuthToken,
+			mockEnabled:   config.mockEnabled,
+			mockServerURL: &config.mockServerURL,
+			scenarioName:  authorizationV1LifeCycleSuiteName,
+			baseDelay:     config.baseDelay,
+			baseInterval:  config.baseInterval,
+			maxAttempts:   config.maxAttempts,
 		},
-		users: config.scenariosUsers,
+		client: clients.globalClient,
 	}
 
-	if testSuite.canRun(config.scenariosRegexp) {
-		suite.RunSuite(t, testSuite)
+	// LifeCycle Suite
+	testLifeCycleSuite := &AuthorizationV1LifeCycleTestSuite{
+		globalTestSuite: globalTestSuite,
+		users:           config.scenariosUsers,
+	}
+
+	if testLifeCycleSuite.canRun(config.scenariosRegexp) {
+		suite.RunSuite(t, testLifeCycleSuite)
+	}
+
+	// List Suite
+	globalTestSuite.testSuite.scenarioName = authorizationV1ListSuiteName
+	testListSuite := &AuthorizationV1ListTestSuite{
+		globalTestSuite: globalTestSuite,
+		users:           config.scenariosUsers,
+	}
+
+	if testListSuite.canRun(config.scenariosRegexp) {
+		suite.RunSuite(t, testListSuite)
 	}
 }

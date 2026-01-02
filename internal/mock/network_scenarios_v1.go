@@ -435,6 +435,7 @@ func ConfigureNetworkListScenarioV1(scenario string, params *NetworkListParamsV1
 	publicIpListUrl := generators.GeneratePublicIpListURL(networkProviderV1, params.Tenant, params.Workspace.Name)
 	nicListUrl := generators.GenerateNicListURL(networkProviderV1, params.Tenant, params.Workspace.Name)
 	securityGroupListUrl := generators.GenerateSecurityGroupListURL(networkProviderV1, params.Tenant, params.Workspace.Name)
+	skuListUrl := generators.GenerateNetworkSkuListURL(networkProviderV1, params.Tenant)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
@@ -495,6 +496,24 @@ func ConfigureNetworkListScenarioV1(scenario string, params *NetworkListParamsV1
 	// List with Limit and Label
 	networkResponse.Items = networksWithLabel(networkList)[:1]
 	if err := configurator.configureGetListNetworkStub(networkResponse, networkListUrl, params.getBaseParams(), pathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+		return nil, err
+	}
+
+	// Test Network Skus
+	// Create skus
+	skusList := generateNetworkSkusV1(params.getBaseParams().Tenant)
+	skuResponse, err := builders.NewNetworkSkuIteratorBuilder().Provider(storageProviderV1).Tenant(params.Tenant).Items(skusList).Build()
+	if err != nil {
+		return nil, err
+	}
+
+	// List skus
+	if err := configurator.configureGetListNetworkSkuStub(skuResponse, skuListUrl, params.getBaseParams(), nil); err != nil {
+		return nil, err
+	}
+
+	// List skus with limit 1
+	if err := configurator.configureGetListNetworkSkuStub(skuResponse, skuListUrl, params.getBaseParams(), pathParamsLimit("1")); err != nil {
 		return nil, err
 	}
 

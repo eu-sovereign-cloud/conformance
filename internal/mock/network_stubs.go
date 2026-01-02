@@ -1,6 +1,8 @@
 package mock
 
 import (
+	"net/http"
+
 	network "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.network.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
@@ -244,6 +246,15 @@ func (configurator *scenarioConfigurator) configureGetActiveSecurityGroupStub(re
 }
 
 func (configurator *scenarioConfigurator) configureGetListSecurityGroupStub(response *network.SecurityGroupIterator, url string, params *BaseParams, pathParams map[string]string) error {
+	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *scenarioConfigurator) configureGetListNetworkSkuStub(response *network.SkuIterator, url string, params *BaseParams, pathParams map[string]string) error {
+	response.Metadata.Verb = http.MethodGet
+
 	if err := configurator.configureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

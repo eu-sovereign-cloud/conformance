@@ -3,11 +3,16 @@ package secatest
 const (
 	// Suite Names
 	authorizationV1LifeCycleSuiteName = "Authorization.V1.LifeCycle"
+	authorizationV1ListSuiteName      = "Authorization.V1.List"
 	regionV1LifeCycleSuiteName        = "Region.V1.LifeCycle"
 	computeV1LifeCycleSuiteName       = "Compute.V1.LifeCycle"
+	computeV1ListSuiteName            = "Compute.V1.List"
 	networkV1LifeCycleSuiteName       = "Network.V1.LifeCycle"
+	networkV1ListSuiteName            = "Network.V1.List"
 	storageV1LifeCycleSuiteName       = "Storage.V1.LifeCycle"
+	storageV1ListSuiteName            = "Storage.V1.List"
 	workspaceV1LifeCycleSuiteName     = "Workspace.V1.LifeCycle"
+	workspaceV1ListSuiteName          = "Workspace.V1.List"
 	foundationV1UsageSuiteName        = "Foundation.V1.Usage"
 
 	// Test Data

@@ -12,6 +12,9 @@ const (
 	contentTypeHttpHeaderValue         = "application/json"
 	limitHeaderKey                     = "Limit"
 	labelsHeaderKey                    = "Labels"
+	labelsProvider                     = "Provider"
+	labelsTier                         = "Tier"
+	labelsArchitecture                 = "Architecture"
 
 	// Test Data
 
