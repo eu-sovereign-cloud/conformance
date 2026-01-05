@@ -1,0 +1,167 @@
+package conformance
+
+import (
+	"context"
+	"fmt"
+	"sync"
+
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/clients"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+
+	"github.com/wiremock/go-wiremock"
+)
+
+type ClientsHolder struct {
+	GlobalClient   *secapi.GlobalClient
+	RegionalClient *secapi.RegionalClient
+
+	RegionZones  []string
+	InstanceSkus []string
+	StorageSkus  []string
+	NetworkSkus  []string
+}
+
+var (
+	Clients     *ClientsHolder
+	clientsLock sync.Mutex
+)
+
+func InitClients(ctx context.Context) error {
+	var err error
+
+	clientsLock.Lock()
+	defer clientsLock.Unlock()
+
+	if Clients != nil {
+		return nil
+	}
+
+	// Setup mock, if configured to use
+	var wm *wiremock.Client
+	if Config.MockEnabled {
+		params := mock.ClientsInitParams{
+			BaseParams: &mock.BaseParams{
+				MockURL:   Config.MockServerURL,
+				AuthToken: Config.ClientAuthToken,
+				Region:    Config.ClientRegion,
+			},
+		}
+		wm, err = clients.ConfigureInitScenario(&params)
+		if err != nil {
+			return fmt.Errorf("failed to configure mock scenario: %w", err)
+		}
+	}
+
+	Clients = &ClientsHolder{}
+
+	// Initialize global client
+	Clients.GlobalClient, err = secapi.NewGlobalClient(&secapi.GlobalConfig{
+		AuthToken: Config.ClientAuthToken,
+		Endpoints: secapi.GlobalEndpoints{
+			RegionV1:        Config.ProviderRegionV1,
+			AuthorizationV1: Config.ProviderAuthorizationV1,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create global client: %w", err)
+	}
+
+	// Initialize regional client
+	Clients.RegionalClient, err = Clients.GlobalClient.NewRegionalClient(ctx, Config.ClientRegion)
+	if err != nil {
+		return fmt.Errorf("failed to create regional client: %w", err)
+	}
+
+	// Load region available zones
+	regionResp, err := Clients.GlobalClient.RegionV1.GetRegion(ctx, Config.ClientRegion)
+	if err != nil {
+		return fmt.Errorf("failed to get region: %w", err)
+	}
+	Clients.RegionZones = regionResp.Spec.AvailableZones
+
+	// Load available instance skus
+	Clients.InstanceSkus, err = loadInstanceSkus(ctx, Clients.RegionalClient)
+	if err != nil {
+		return fmt.Errorf("failed to list instance skus: %w", err)
+	}
+
+	// Load available storage skus
+	Clients.StorageSkus, err = loadStorageSkus(ctx, Clients.RegionalClient)
+	if err != nil {
+		return fmt.Errorf("failed to list storage skus: %w", err)
+	}
+
+	// Load available network skus
+	Clients.NetworkSkus, err = loadNetworkSkus(ctx, Clients.RegionalClient)
+	if err != nil {
+		return fmt.Errorf("failed to list network skus: %w", err)
+	}
+
+	// Cleanup configured mock scenarios
+	if Config.MockEnabled {
+		if err := wm.ResetAllScenarios(); err != nil {
+			return fmt.Errorf("failed to reset scenarios: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// TODO Convert these load skus functions to a generic one
+func loadInstanceSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
+	resp, err := regionalClient.ComputeV1.ListSkus(ctx, secapi.TenantID(Config.ClientTenant))
+	if err != nil {
+		return nil, err
+	}
+
+	skus, err := resp.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var available []string
+	for _, sku := range skus {
+		available = append(available, sku.Metadata.Name)
+	}
+
+	return available, nil
+}
+
+func loadStorageSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
+	resp, err := regionalClient.StorageV1.ListSkus(ctx, secapi.TenantID(Config.ClientTenant))
+	if err != nil {
+		return nil, err
+	}
+
+	skus, err := resp.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var available []string
+	for _, sku := range skus {
+		available = append(available, sku.Metadata.Name)
+	}
+
+	return available, nil
+}
+
+func loadNetworkSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
+	resp, err := regionalClient.NetworkV1.ListSkus(ctx, secapi.TenantID(Config.ClientTenant))
+	if err != nil {
+		return nil, err
+	}
+
+	skus, err := resp.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var available []string
+	for _, sku := range skus {
+		available = append(available, sku.Metadata.Name)
+	}
+
+	return available, nil
+}

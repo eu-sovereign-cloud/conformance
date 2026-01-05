@@ -7,31 +7,31 @@ import (
 
 // Region
 
-func BuildProviderSpec() []schema.Provider {
+func BuildProviderSpecV1() []schema.Provider {
 	return []schema.Provider{
 		{
 			Name:    authorizationProvider,
-			Version: apiVersion1,
+			Version: ApiVersion1,
 			Url:     generators.GenerateRegionProviderUrl(authorizationProvider),
 		},
 		{
 			Name:    computeProvider,
-			Version: apiVersion1,
+			Version: ApiVersion1,
 			Url:     generators.GenerateRegionProviderUrl(computeProvider),
 		},
 		{
 			Name:    networkProvider,
-			Version: apiVersion1,
+			Version: ApiVersion1,
 			Url:     generators.GenerateRegionProviderUrl(networkProvider),
 		},
 		{
 			Name:    storageProvider,
-			Version: apiVersion1,
+			Version: ApiVersion1,
 			Url:     generators.GenerateRegionProviderUrl(storageProvider),
 		},
 		{
 			Name:    workspaceProvider,
-			Version: apiVersion1,
+			Version: ApiVersion1,
 			Url:     generators.GenerateRegionProviderUrl(workspaceProvider),
 		},
 	}

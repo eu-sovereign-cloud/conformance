@@ -2,13 +2,13 @@ package mock
 
 const (
 	// Test Data
-	apiVersion1 = "v1"
+	ApiVersion1 = "v1"
 
 	// Providers
-	authorizationProviderV1 = authorizationProvider + "/" + apiVersion1
-	regionProviderV1        = regionProvider + "/" + apiVersion1
-	workspaceProviderV1     = workspaceProvider + "/" + apiVersion1
-	computeProviderV1       = computeProvider + "/" + apiVersion1
-	storageProviderV1       = storageProvider + "/" + apiVersion1
-	networkProviderV1       = networkProvider + "/" + apiVersion1
+	AuthorizationProviderV1 = authorizationProvider + "/" + ApiVersion1
+	RegionProviderV1        = regionProvider + "/" + ApiVersion1
+	WorkspaceProviderV1     = workspaceProvider + "/" + ApiVersion1
+	ComputeProviderV1       = computeProvider + "/" + ApiVersion1
+	StorageProviderV1       = storageProvider + "/" + ApiVersion1
+	NetworkProviderV1       = networkProvider + "/" + ApiVersion1
 )

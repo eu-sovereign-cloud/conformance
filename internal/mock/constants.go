@@ -1,20 +1,9 @@
 package mock
 
 const (
-	// Scenario Priorities
-	startedScenarioState    = "Started"
-	defaultScenarioPriority = 1
-
 	// Http Headers
-	authorizationHttpHeaderKey         = "Authorization"
-	authorizationHttpHeaderValuePrefix = "Bearer "
-	contentTypeHttpHeaderKey           = "Content-Type"
-	contentTypeHttpHeaderValue         = "application/json"
-	limitHeaderKey                     = "Limit"
-	labelsHeaderKey                    = "Labels"
-	labelsProvider                     = "Provider"
-	labelsTier                         = "Tier"
-	labelsArchitecture                 = "Architecture"
+	limitHeaderKey  = "Limit"
+	labelsHeaderKey = "Labels"
 
 	// Test Data
 
@@ -27,6 +16,6 @@ const (
 	networkProvider       = "seca.network"
 
 	// Zones
-	zoneA = "a"
-	zoneB = "b"
+	ZoneA = "a"
+	ZoneB = "b"
 )
