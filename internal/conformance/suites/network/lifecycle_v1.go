@@ -3,9 +3,9 @@ package network
 import (
 	"math/rand"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -29,7 +29,7 @@ type NetworkLifeCycleV1TestSuite struct {
 
 func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, conformance.NetworkProviderV1,
+	suite.ConfigureTags(t, constants.NetworkProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic),
@@ -164,7 +164,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					conformance.EnvLabel: conformance.EnvDevelopmentLabel,
+					constants.EnvLabel: constants.EnvDevelopmentLabel,
 				},
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
@@ -206,12 +206,12 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 				Name: routeTableName,
 				InitialSpec: &schema.RouteTableSpec{
 					Routes: []schema.RouteSpec{
-						{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+						{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 					},
 				},
 				UpdatedSpec: &schema.RouteTableSpec{
 					Routes: []schema.RouteSpec{
-						{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *instanceRefObj},
+						{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *instanceRefObj},
 					},
 				},
 			},
@@ -274,7 +274,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			conformance.EnvLabel: conformance.EnvDevelopmentLabel,
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.Tenant,
@@ -283,13 +283,13 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
 		Name(workspaceName).
-		Provider(conformance.WorkspaceProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{conformance.EnvLabel: conformance.EnvDevelopmentLabel}
+	expectWorkspaceLabels := schema.Labels{constants.EnvLabel: constants.EnvDevelopmentLabel}
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
@@ -328,7 +328,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectNetworkMeta, err := builders.NewNetworkMetadataBuilder().
 		Name(networkName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -393,7 +393,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectGatewayMeta, err := builders.NewInternetGatewayMetadataBuilder().
 		Name(internetGatewayName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -454,13 +454,13 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 		},
 		Spec: schema.RouteTableSpec{
 			Routes: []schema.RouteSpec{
-				{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+				{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 			},
 		},
 	}
 	expectRouteMeta, err := builders.NewRouteTableMetadataBuilder().
 		Name(routeTableName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Network(networkName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -468,7 +468,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectRouteSpec := &schema.RouteTableSpec{
 		Routes: []schema.RouteSpec{
-			{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+			{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 		},
 	}
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, route,
@@ -496,7 +496,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 
 	// Update the route table
 	route.Spec.Routes = []schema.RouteSpec{
-		{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *instanceRefObj},
+		{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *instanceRefObj},
 	}
 	expectRouteSpec.Routes = route.Spec.Routes
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Update the route table", suite.Client.NetworkV1, route,
@@ -533,8 +533,8 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectSubnetMeta, err := builders.NewSubnetMetadataBuilder().
 		Name(subnetName).
-		Provider(conformance.NetworkProviderV1).
-		ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).
+		ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Network(networkName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -603,8 +603,8 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectPublicIpMeta, err := builders.NewPublicIpMetadataBuilder().
 		Name(publicIpName).
-		Provider(conformance.NetworkProviderV1).
-		ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).
+		ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -673,7 +673,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectNicMeta, err := builders.NewNicMetadataBuilder().
 		Name(nicName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	expectNicSpec := &schema.NicSpec{
@@ -743,7 +743,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectGroupMeta, err := builders.NewSecurityGroupMetadataBuilder().
 		Name(securityGroupName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	expectGroupSpec := &schema.SecurityGroupSpec{
@@ -812,7 +812,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
 		Name(blockStorageName).
-		Provider(conformance.StorageProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	expectedBlockSpec := &schema.BlockStorageSpec{
@@ -863,7 +863,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectInstanceMeta, err := builders.NewInstanceMetadataBuilder().
 		Name(instanceName).
-		Provider(conformance.ComputeProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	expectInstanceSpec := &schema.InstanceSpec{

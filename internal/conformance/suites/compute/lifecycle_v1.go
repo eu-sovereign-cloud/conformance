@@ -3,9 +3,9 @@ package compute
 import (
 	"math/rand"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/compute"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -26,7 +26,7 @@ type ComputeV1LifeCycleTestSuite struct {
 
 func (suite *ComputeV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, conformance.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	var err error
 
@@ -75,7 +75,7 @@ func (suite *ComputeV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					conformance.EnvLabel: conformance.EnvDevelopmentLabel,
+					constants.EnvLabel: constants.EnvDevelopmentLabel,
 				},
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
@@ -117,7 +117,7 @@ func (suite *ComputeV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			conformance.EnvLabel: conformance.EnvDevelopmentLabel,
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.Tenant,
@@ -126,13 +126,13 @@ func (suite *ComputeV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
 		Name(workspaceName).
-		Provider(conformance.WorkspaceProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{conformance.EnvLabel: conformance.EnvDevelopmentLabel}
+	expectWorkspaceLabels := schema.Labels{constants.EnvLabel: constants.EnvDevelopmentLabel}
 
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
@@ -170,7 +170,7 @@ func (suite *ComputeV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
 		Name(blockStorageName).
-		Provider(conformance.StorageProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -221,7 +221,7 @@ func (suite *ComputeV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 	expectInstanceMeta, err := builders.NewInstanceMetadataBuilder().
 		Name(instanceName).
-		Provider(conformance.ComputeProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {

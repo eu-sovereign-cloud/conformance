@@ -1,4 +1,4 @@
-package conformance
+package config
 
 import (
 	"context"
@@ -39,12 +39,12 @@ func InitClients(ctx context.Context) error {
 
 	// Setup mock, if configured to use
 	var wm *wiremock.Client
-	if Config.MockEnabled {
+	if Parameters.MockEnabled {
 		params := mock.ClientsInitParams{
 			BaseParams: &mock.BaseParams{
-				MockURL:   Config.MockServerURL,
-				AuthToken: Config.ClientAuthToken,
-				Region:    Config.ClientRegion,
+				MockURL:   Parameters.MockServerURL,
+				AuthToken: Parameters.ClientAuthToken,
+				Region:    Parameters.ClientRegion,
 			},
 		}
 		wm, err = clients.ConfigureInitScenario(&params)
@@ -57,10 +57,10 @@ func InitClients(ctx context.Context) error {
 
 	// Initialize global client
 	Clients.GlobalClient, err = secapi.NewGlobalClient(&secapi.GlobalConfig{
-		AuthToken: Config.ClientAuthToken,
+		AuthToken: Parameters.ClientAuthToken,
 		Endpoints: secapi.GlobalEndpoints{
-			RegionV1:        Config.ProviderRegionV1,
-			AuthorizationV1: Config.ProviderAuthorizationV1,
+			RegionV1:        Parameters.ProviderRegionV1,
+			AuthorizationV1: Parameters.ProviderAuthorizationV1,
 		},
 	})
 	if err != nil {
@@ -68,13 +68,13 @@ func InitClients(ctx context.Context) error {
 	}
 
 	// Initialize regional client
-	Clients.RegionalClient, err = Clients.GlobalClient.NewRegionalClient(ctx, Config.ClientRegion)
+	Clients.RegionalClient, err = Clients.GlobalClient.NewRegionalClient(ctx, Parameters.ClientRegion)
 	if err != nil {
 		return fmt.Errorf("failed to create regional client: %w", err)
 	}
 
 	// Load region available zones
-	regionResp, err := Clients.GlobalClient.RegionV1.GetRegion(ctx, Config.ClientRegion)
+	regionResp, err := Clients.GlobalClient.RegionV1.GetRegion(ctx, Parameters.ClientRegion)
 	if err != nil {
 		return fmt.Errorf("failed to get region: %w", err)
 	}
@@ -99,7 +99,7 @@ func InitClients(ctx context.Context) error {
 	}
 
 	// Cleanup configured mock scenarios
-	if Config.MockEnabled {
+	if Parameters.MockEnabled {
 		if err := wm.ResetAllScenarios(); err != nil {
 			return fmt.Errorf("failed to reset scenarios: %w", err)
 		}
@@ -110,7 +110,7 @@ func InitClients(ctx context.Context) error {
 
 // TODO Convert these load skus functions to a generic one
 func loadInstanceSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
-	resp, err := regionalClient.ComputeV1.ListSkus(ctx, secapi.TenantID(Config.ClientTenant))
+	resp, err := regionalClient.ComputeV1.ListSkus(ctx, secapi.TenantID(Parameters.ClientTenant))
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func loadInstanceSkus(ctx context.Context, regionalClient *secapi.RegionalClient
 }
 
 func loadStorageSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
-	resp, err := regionalClient.StorageV1.ListSkus(ctx, secapi.TenantID(Config.ClientTenant))
+	resp, err := regionalClient.StorageV1.ListSkus(ctx, secapi.TenantID(Parameters.ClientTenant))
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func loadStorageSkus(ctx context.Context, regionalClient *secapi.RegionalClient)
 }
 
 func loadNetworkSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
-	resp, err := regionalClient.NetworkV1.ListSkus(ctx, secapi.TenantID(Config.ClientTenant))
+	resp, err := regionalClient.NetworkV1.ListSkus(ctx, secapi.TenantID(Parameters.ClientTenant))
 	if err != nil {
 		return nil, err
 	}

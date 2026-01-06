@@ -3,9 +3,9 @@ package storage
 import (
 	"math/rand"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/storage"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -25,7 +25,7 @@ type StorageV1ListTestSuite struct {
 
 func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, conformance.StorageProviderV1,
+	suite.ConfigureTags(t, constants.StorageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
 	)
@@ -74,14 +74,14 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					generators.EnvLabel: generators.EnvConformanceLabel,
+					constants.EnvLabel: constants.EnvConformanceLabel,
 				},
 			},
 			BlockStorages: []mock.ResourceParams[schema.BlockStorageSpec]{
 				{
 					Name: blockStorageName1,
 					InitialLabels: map[string]string{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.BlockStorageSpec{
 						SkuRef: *storageSkuRefObj,
@@ -91,7 +91,7 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 				{
 					Name: blockStorageName2,
 					InitialLabels: map[string]string{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.BlockStorageSpec{
 						SkuRef: *storageSkuRefObj,
@@ -101,7 +101,7 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 				{
 					Name: blockStorageName3,
 					InitialLabels: map[string]string{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.BlockStorageSpec{
 						SkuRef: *storageSkuRefObj,
@@ -113,7 +113,7 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 				{
 					Name: imageName1,
 					InitialLabels: map[string]string{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.ImageSpec{
 						BlockStorageRef: *blockStorageRefObj,
@@ -123,7 +123,7 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 				{
 					Name: imageName2,
 					InitialLabels: map[string]string{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.ImageSpec{
 						BlockStorageRef: *blockStorageRefObj,
@@ -133,7 +133,7 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 				{
 					Name: imageName3,
 					InitialLabels: map[string]string{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.ImageSpec{
 						BlockStorageRef: *blockStorageRefObj,
@@ -156,7 +156,7 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			generators.EnvLabel: generators.EnvConformanceLabel,
+			constants.EnvLabel: constants.EnvConformanceLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.Tenant,
@@ -165,13 +165,13 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 	}
 	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
 		Name(workspaceName).
-		Provider(conformance.WorkspaceProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{generators.EnvLabel: generators.EnvConformanceLabel}
+	expectWorkspaceLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
 
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
@@ -227,7 +227,7 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 	for _, block := range *blocks {
 		expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
 			Name(block.Metadata.Name).
-			Provider(conformance.StorageProviderV1).ApiVersion(conformance.ApiVersion1).
+			Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 			Build()
 		if err != nil {
@@ -261,12 +261,12 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 	// List block storages with label
 	stepsBuilder.GetListBlockStorageV1Step("Get list of block storage with label", t, suite.Client.StorageV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(conformance.EnvLabel, conformance.EnvDevelopmentLabel)))
+			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
 
 	// List block storages with limit and label
 	stepsBuilder.GetListBlockStorageV1Step("Get list of block storage with limit and label", t, suite.Client.StorageV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(conformance.EnvLabel, conformance.EnvDevelopmentLabel)))
+			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
 
 	// Image
 
@@ -311,7 +311,7 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 
 		expectedImageMeta, err := builders.NewImageMetadataBuilder().
 			Name(image.Metadata.Name).
-			Provider(conformance.StorageProviderV1).ApiVersion(conformance.ApiVersion1).
+			Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(suite.Tenant).Region(suite.Region).
 			Build()
 		if err != nil {
@@ -343,12 +343,12 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 	// List image with Label
 	stepsBuilder.GetListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List image with Limit and label
 	stepsBuilder.GetListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Skus
 	// List Skus

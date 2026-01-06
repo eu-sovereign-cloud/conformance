@@ -4,9 +4,9 @@ import (
 	"math/rand"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/authorization"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -26,7 +26,7 @@ type AuthorizationV1LifeCycleTestSuite struct {
 func (suite *AuthorizationV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.StartScenario(t)
 	// TODO Find a better package to place the constants
-	suite.ConfigureTags(t, conformance.AuthorizationProviderV1,
+	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
@@ -55,12 +55,12 @@ func (suite *AuthorizationV1LifeCycleTestSuite) TestLifeCycleScenario(t provider
 				Name: roleName,
 				InitialSpec: &schema.RoleSpec{
 					Permissions: []schema.Permission{
-						{Provider: conformance.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+						{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 					},
 				},
 				UpdatedSpec: &schema.RoleSpec{
 					Permissions: []schema.Permission{
-						{Provider: conformance.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet, http.MethodPut}},
+						{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet, http.MethodPut}},
 					},
 				},
 			},
@@ -102,7 +102,7 @@ func (suite *AuthorizationV1LifeCycleTestSuite) TestLifeCycleScenario(t provider
 		Spec: schema.RoleSpec{
 			Permissions: []schema.Permission{
 				{
-					Provider:  conformance.StorageProviderV1,
+					Provider:  constants.StorageProviderV1,
 					Resources: []string{imageResource},
 					Verb:      []string{http.MethodGet},
 				},
@@ -111,7 +111,7 @@ func (suite *AuthorizationV1LifeCycleTestSuite) TestLifeCycleScenario(t provider
 	}
 	expectRoleMeta, err := builders.NewRoleMetadataBuilder().
 		Name(roleName).
-		Provider(conformance.AuthorizationProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).
 		Build()
 	if err != nil {
@@ -120,7 +120,7 @@ func (suite *AuthorizationV1LifeCycleTestSuite) TestLifeCycleScenario(t provider
 	expectRoleSpec := &schema.RoleSpec{
 		Permissions: []schema.Permission{
 			{
-				Provider:  conformance.StorageProviderV1,
+				Provider:  constants.StorageProviderV1,
 				Resources: []string{imageResource},
 				Verb:      []string{http.MethodGet},
 			},
@@ -183,7 +183,7 @@ func (suite *AuthorizationV1LifeCycleTestSuite) TestLifeCycleScenario(t provider
 	}
 	expectRoleAssignMeta, err := builders.NewRoleAssignmentMetadataBuilder().
 		Name(roleAssignmentName).
-		Provider(conformance.AuthorizationProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).
 		Build()
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -21,17 +22,17 @@ func ConfigureListScenarioV1(scenario string, params *mock.ComputeListParamsV1) 
 	}
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(mock.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
-	instanceListUrl := generators.GenerateInstanceListURL(mock.ComputeProviderV1, params.Tenant, params.Workspace.Name)
-	skuListUrl := generators.GenerateInstanceSkuListURL(mock.ComputeProviderV1, params.Tenant)
-	blockListUrl := generators.GenerateBlockStorageURL(mock.StorageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
+	instanceListUrl := generators.GenerateInstanceListURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Name)
+	skuListUrl := generators.GenerateInstanceSkuListURL(constants.ComputeProviderV1, params.Tenant)
+	blockListUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
 
 	// Workspace
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(params.Workspace.Name).
-		Provider(mock.WorkspaceProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		Build()
@@ -47,7 +48,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.ComputeListParamsV1) 
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
 		Name(params.BlockStorage.Name).
-		Provider(mock.StorageProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
 		Build()
@@ -66,7 +67,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.ComputeListParamsV1) 
 		return nil, err
 	}
 	instanceResponse, err := builders.NewInstanceIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).
 		Items(instancesList).
 		Build()
@@ -89,26 +90,26 @@ func ConfigureListScenarioV1(scenario string, params *mock.ComputeListParamsV1) 
 	instancesWithLabel := func(instancesList []schema.Instance) []schema.Instance {
 		var filteredInstances []schema.Instance
 		for _, instance := range instancesList {
-			if val, ok := instance.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := instance.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredInstances = append(filteredInstances, instance)
 			}
 		}
 		return filteredInstances
 	}
 	instanceResponse.Items = instancesWithLabel(instancesList)
-	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List instances with limit and label
 	instanceResponse.Items = instancesWithLabel(instancesList)[:1]
-	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// Create skus
 	skusList := steps.GenerateInstanceSkusV1(params.GetBaseParams().Tenant)
-	skuResponse, err := builders.NewInstanceSkuIteratorBuilder().Provider(mock.StorageProviderV1).Tenant(params.Tenant).Items(skusList).Build()
+	skuResponse, err := builders.NewInstanceSkuIteratorBuilder().Provider(constants.StorageProviderV1).Tenant(params.Tenant).Items(skusList).Build()
 	if err != nil {
 		return nil, err
 	}
@@ -134,18 +135,18 @@ func ConfigureListScenarioV1(scenario string, params *mock.ComputeListParamsV1) 
 		return filteredSkus
 	}
 	skuResponse.Items = skusWithLabel(skusList)
-	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List sku with limit and label
-	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// Delete instances
 	for _, instance := range instancesList {
-		url := generators.GenerateInstanceURL(mock.ComputeProviderV1, params.Tenant, params.Workspace.Name, instance.Metadata.Name)
+		url := generators.GenerateInstanceURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Name, instance.Metadata.Name)
 		if err := configurator.ConfigureDeleteStub(url, params.GetBaseParams()); err != nil {
 			return nil, err
 		}

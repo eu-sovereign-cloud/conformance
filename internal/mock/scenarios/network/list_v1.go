@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -22,20 +23,20 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	}
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(mock.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
-	blockUrl := generators.GenerateBlockStorageURL(mock.StorageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	instanceUrl := generators.GenerateInstanceURL(mock.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
-	networkListUrl := generators.GenerateNetworkListURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name)
-	gatewayListUrl := generators.GenerateInternetGatewayListURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name)
-	publicIpListUrl := generators.GeneratePublicIpListURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name)
-	nicListUrl := generators.GenerateNicListURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name)
-	securityGroupListUrl := generators.GenerateSecurityGroupListURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name)
-	skuListUrl := generators.GenerateNetworkSkuListURL(mock.NetworkProviderV1, params.Tenant)
+	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
+	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
+	networkListUrl := generators.GenerateNetworkListURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name)
+	gatewayListUrl := generators.GenerateInternetGatewayListURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name)
+	publicIpListUrl := generators.GeneratePublicIpListURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name)
+	nicListUrl := generators.GenerateNicListURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name)
+	securityGroupListUrl := generators.GenerateSecurityGroupListURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name)
+	skuListUrl := generators.GenerateNetworkSkuListURL(constants.NetworkProviderV1, params.Tenant)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(params.Workspace.Name).
-		Provider(mock.WorkspaceProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		Build()
@@ -54,7 +55,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 		return nil, err
 	}
 	networkResponse, err := builders.NewNetworkIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).
 		Items(networkList).
 		Build()
@@ -77,27 +78,27 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	networksWithLabel := func(networkList []schema.Network) []schema.Network {
 		var filteredNetworks []schema.Network
 		for _, network := range networkList {
-			if val, ok := network.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := network.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredNetworks = append(filteredNetworks, network)
 			}
 		}
 		return filteredNetworks
 	}
 	networkResponse.Items = networksWithLabel(networkList)
-	if err := configurator.ConfigureGetListNetworkStub(networkResponse, networkListUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListNetworkStub(networkResponse, networkListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with Limit and Label
 	networkResponse.Items = networksWithLabel(networkList)[:1]
-	if err := configurator.ConfigureGetListNetworkStub(networkResponse, networkListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListNetworkStub(networkResponse, networkListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// Test Network Skus
 	// Create skus
 	skusList := steps.GenerateNetworkSkusV1(params.GetBaseParams().Tenant)
-	skuResponse, err := builders.NewNetworkSkuIteratorBuilder().Provider(mock.StorageProviderV1).Tenant(params.Tenant).Items(skusList).Build()
+	skuResponse, err := builders.NewNetworkSkuIteratorBuilder().Provider(constants.StorageProviderV1).Tenant(params.Tenant).Items(skusList).Build()
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +119,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 		return nil, err
 	}
 	gatewayResponse, err := builders.NewInternetGatewayIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).
 		Items(gatewayList).
 		Build()
@@ -141,20 +142,20 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	gatewayWithLabel := func(gatewayList []schema.InternetGateway) []schema.InternetGateway {
 		var filteredGateway []schema.InternetGateway
 		for _, gateway := range gatewayList {
-			if val, ok := gateway.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := gateway.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredGateway = append(filteredGateway, gateway)
 			}
 		}
 		return filteredGateway
 	}
 	gatewayResponse.Items = gatewayWithLabel(gatewayList)
-	if err := configurator.ConfigureGetListInternetGatewayStub(gatewayResponse, gatewayListUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListInternetGatewayStub(gatewayResponse, gatewayListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with Limit and Label
 	gatewayResponse.Items = gatewayWithLabel(gatewayList)[:1]
-	if err := configurator.ConfigureGetListInternetGatewayStub(gatewayResponse, gatewayListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListInternetGatewayStub(gatewayResponse, gatewayListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
@@ -167,7 +168,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 		return nil, err
 	}
 	routeTableResponse, err := builders.NewRouteTableIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(networkName).
 		Items(routeTableList).
 		Build()
@@ -176,7 +177,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	}
 
 	// List
-	routeTableListUrl := generators.GenerateRouteTableListURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, networkName)
+	routeTableListUrl := generators.GenerateRouteTableListURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, networkName)
 	if err := configurator.ConfigureGetListRouteTableStub(routeTableResponse, routeTableListUrl, params.GetBaseParams(), nil); err != nil {
 		return nil, err
 	}
@@ -191,7 +192,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	routeTableWithLabel := func(routeTableList []schema.RouteTable) []schema.RouteTable {
 		var filteredRouteTable []schema.RouteTable
 		for _, routeTable := range routeTableList {
-			if val, ok := routeTable.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := routeTable.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredRouteTable = append(filteredRouteTable, routeTable)
 			}
 		}
@@ -199,13 +200,13 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	}
 
 	routeTableResponse.Items = routeTableWithLabel(routeTableList)
-	if err := configurator.ConfigureGetListRouteTableStub(routeTableResponse, routeTableListUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListRouteTableStub(routeTableResponse, routeTableListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with Limit and Label
 	routeTableResponse.Items = routeTableWithLabel(routeTableList)[:1]
-	if err := configurator.ConfigureGetListRouteTableStub(routeTableResponse, routeTableListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListRouteTableStub(routeTableResponse, routeTableListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
@@ -215,7 +216,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 		return nil, err
 	}
 	subnetResponse, err := builders.NewSubnetIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(networkName).
 		Items(subnetList).
 		Build()
@@ -224,7 +225,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	}
 
 	// List
-	subnetListUrl := generators.GenerateSubnetListURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, networkName)
+	subnetListUrl := generators.GenerateSubnetListURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, networkName)
 	if err := configurator.ConfigureGetListSubnetStub(subnetResponse, subnetListUrl, params.GetBaseParams(), nil); err != nil {
 		return nil, err
 	}
@@ -239,20 +240,20 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	subnetWithLabel := func(subnetList []schema.Subnet) []schema.Subnet {
 		var filteredSubnet []schema.Subnet
 		for _, subnet := range subnetList {
-			if val, ok := subnet.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := subnet.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredSubnet = append(filteredSubnet, subnet)
 			}
 		}
 		return filteredSubnet
 	}
 	subnetResponse.Items = subnetWithLabel(subnetList)
-	if err := configurator.ConfigureGetListSubnetStub(subnetResponse, subnetListUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListSubnetStub(subnetResponse, subnetListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with Limit and Label
 	subnetResponse.Items = subnetWithLabel(subnetList)[:1]
-	if err := configurator.ConfigureGetListSubnetStub(subnetResponse, subnetListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListSubnetStub(subnetResponse, subnetListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
@@ -262,7 +263,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 		return nil, err
 	}
 	publicIpResponse, err := builders.NewPublicIpIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).
 		Items(publicIpList).
 		Build()
@@ -285,20 +286,20 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	publicIpWithLabel := func(publicIpList []schema.PublicIp) []schema.PublicIp {
 		var filteredPublicIp []schema.PublicIp
 		for _, publicIp := range publicIpList {
-			if val, ok := publicIp.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := publicIp.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredPublicIp = append(filteredPublicIp, publicIp)
 			}
 		}
 		return filteredPublicIp
 	}
 	publicIpResponse.Items = publicIpWithLabel(publicIpList)
-	if err := configurator.ConfigureGetListPublicIpStub(publicIpResponse, publicIpListUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListPublicIpStub(publicIpResponse, publicIpListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with Limit and Label
 	publicIpResponse.Items = publicIpWithLabel(publicIpList)[:1]
-	if err := configurator.ConfigureGetListPublicIpStub(publicIpResponse, publicIpListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListPublicIpStub(publicIpResponse, publicIpListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
@@ -308,7 +309,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 		return nil, err
 	}
 	nicResponse, err := builders.NewNicIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).
 		Items(nicList).
 		Build()
@@ -331,20 +332,20 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	nicWithLabel := func(nicList []schema.Nic) []schema.Nic {
 		var filteredNic []schema.Nic
 		for _, nic := range nicList {
-			if val, ok := nic.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := nic.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredNic = append(filteredNic, nic)
 			}
 		}
 		return filteredNic
 	}
 	nicResponse.Items = nicWithLabel(nicList)
-	if err := configurator.ConfigureGetListNicStub(nicResponse, nicListUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListNicStub(nicResponse, nicListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with Limit and Label
 	nicResponse.Items = nicWithLabel(nicList)[:1]
-	if err := configurator.ConfigureGetListNicStub(nicResponse, nicListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListNicStub(nicResponse, nicListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
@@ -354,7 +355,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 		return nil, err
 	}
 	securityGroupResponse, err := builders.NewSecurityGroupIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).
 		Items(securityGroupList).
 		Build()
@@ -377,7 +378,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	secGroupWithLabel := func(securityGroupList []schema.SecurityGroup) []schema.SecurityGroup {
 		var filteredSecurity []schema.SecurityGroup
 		for _, sec := range securityGroupList {
-			if val, ok := sec.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := sec.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredSecurity = append(filteredSecurity, sec)
 			}
 		}
@@ -385,20 +386,20 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	}
 
 	securityGroupResponse.Items = secGroupWithLabel(securityGroupList)
-	if err := configurator.ConfigureGetListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with Limit and Label
 	securityGroupResponse.Items = secGroupWithLabel(securityGroupList)[:1]
-	if err := configurator.ConfigureGetListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
 		Name(params.BlockStorage.Name).
-		Provider(mock.StorageProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Labels(params.BlockStorage.InitialLabels).
 		Spec(params.BlockStorage.InitialSpec).
@@ -415,7 +416,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 	// Instance
 	instanceResponse, err := builders.NewInstanceBuilder().
 		Name(params.Instance.Name).
-		Provider(mock.ComputeProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Labels(params.Instance.InitialLabels).
 		Spec(params.Instance.InitialSpec).
@@ -458,7 +459,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 
 	// Delete the security groups
 	for _, securityGroup := range params.SecurityGroups {
-		securityGroupUrl := generators.GenerateSecurityGroupURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, securityGroup.Name)
+		securityGroupUrl := generators.GenerateSecurityGroupURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, securityGroup.Name)
 
 		// Delete the security group
 		if err := configurator.ConfigureDeleteStub(securityGroupUrl, params.GetBaseParams()); err != nil {
@@ -473,7 +474,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 
 	// Delete the nics
 	for _, nic := range params.Nics {
-		nicUrl := generators.GenerateNicURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, nic.Name)
+		nicUrl := generators.GenerateNicURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, nic.Name)
 
 		// Delete the nic
 		if err := configurator.ConfigureDeleteStub(nicUrl, params.GetBaseParams()); err != nil {
@@ -488,7 +489,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 
 	// Delete the public ips
 	for _, publicIp := range params.PublicIps {
-		publicIpUrl := generators.GeneratePublicIpURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, publicIp.Name)
+		publicIpUrl := generators.GeneratePublicIpURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, publicIp.Name)
 
 		// Delete the public ip
 		if err := configurator.ConfigureDeleteStub(publicIpUrl, params.GetBaseParams()); err != nil {
@@ -503,7 +504,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 
 	// Delete the subnets
 	for _, subnet := range params.Subnets {
-		subnetUrl := generators.GenerateSubnetURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, networkName, subnet.Name)
+		subnetUrl := generators.GenerateSubnetURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, networkName, subnet.Name)
 
 		// Delete the subnet
 		if err := configurator.ConfigureDeleteStub(subnetUrl, params.GetBaseParams()); err != nil {
@@ -518,7 +519,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 
 	// Delete the route tables
 	for _, routeTable := range params.RouteTables {
-		routeTableUrl := generators.GenerateRouteTableURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, networkName, routeTable.Name)
+		routeTableUrl := generators.GenerateRouteTableURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, networkName, routeTable.Name)
 
 		// Delete the route table
 		if err := configurator.ConfigureDeleteStub(routeTableUrl, params.GetBaseParams()); err != nil {
@@ -533,7 +534,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 
 	// Delete the internet gateways
 	for _, gateway := range params.InternetGateways {
-		gatewayUrl := generators.GenerateInternetGatewayURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, gateway.Name)
+		gatewayUrl := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, gateway.Name)
 
 		// Delete the internet gateway
 		if err := configurator.ConfigureDeleteStub(gatewayUrl, params.GetBaseParams()); err != nil {
@@ -548,7 +549,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.NetworkListParamsV1) 
 
 	// Delete the networks
 	for _, network := range params.Networks {
-		networkUrl := generators.GenerateInternetGatewayURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, network.Name)
+		networkUrl := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, network.Name)
 
 		// Delete the network
 		if err := configurator.ConfigureDeleteStub(networkUrl, params.GetBaseParams()); err != nil {

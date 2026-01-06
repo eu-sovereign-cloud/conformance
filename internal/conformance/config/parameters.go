@@ -1,4 +1,4 @@
-package conformance
+package config
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-type ConfigHolder struct {
+type ParametersHolder struct {
 	ProviderRegionV1        string
 	ProviderAuthorizationV1 string
 
@@ -32,31 +32,31 @@ type ConfigHolder struct {
 }
 
 var (
-	Config     *ConfigHolder
-	configLock sync.Mutex
+	Parameters     *ParametersHolder
+	parametersLock sync.Mutex
 )
 
-func InitConfig() {
-	configLock.Lock()
-	defer configLock.Unlock()
+func InitParameters() {
+	parametersLock.Lock()
+	defer parametersLock.Unlock()
 
-	if Config != nil {
+	if Parameters != nil {
 		return
 	}
 
-	Config = &ConfigHolder{}
+	Parameters = &ParametersHolder{}
 }
 
-func ProcessConfig() error {
-	configLock.Lock()
-	defer configLock.Unlock()
+func ProcessParameters() error {
+	parametersLock.Lock()
+	defer parametersLock.Unlock()
 
-	if Config.ScenariosFilter != "" {
-		re, err := regexp.Compile(Config.ScenariosFilter)
+	if Parameters.ScenariosFilter != "" {
+		expr, err := regexp.Compile(Parameters.ScenariosFilter)
 		if err != nil {
 			return fmt.Errorf("invalid scenarios.filter expression: %w", err)
 		}
-		Config.ScenariosRegexp = re
+		Parameters.ScenariosRegexp = expr
 	}
 
 	return nil

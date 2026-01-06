@@ -3,6 +3,7 @@ package usage
 import (
 	"log/slog"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -19,26 +20,26 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	}
 
 	// Generate URLs
-	roleUrl := generators.GenerateRoleURL(mock.AuthorizationProviderV1, params.Tenant, params.Role.Name)
-	roleAssignUrl := generators.GenerateRoleAssignmentURL(mock.AuthorizationProviderV1, params.Tenant, params.RoleAssignment.Name)
-	workspaceUrl := generators.GenerateWorkspaceURL(mock.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
-	blockUrl := generators.GenerateBlockStorageURL(mock.StorageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	imageUrl := generators.GenerateImageURL(mock.StorageProviderV1, params.Tenant, params.Image.Name)
-	instanceUrl := generators.GenerateInstanceURL(mock.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
-	networkUrl := generators.GenerateNetworkURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name)
-	gatewayUrl := generators.GenerateInternetGatewayURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicUrl := generators.GenerateNicURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Nic.Name)
-	publicIpUrl := generators.GeneratePublicIpURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.PublicIp.Name)
-	routeUrl := generators.GenerateRouteTableURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
-	subnetUrl := generators.GenerateSubnetURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
-	groupUrl := generators.GenerateSecurityGroupURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
+	roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, params.Tenant, params.Role.Name)
+	roleAssignUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, params.Tenant, params.RoleAssignment.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
+	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	imageUrl := generators.GenerateImageURL(constants.StorageProviderV1, params.Tenant, params.Image.Name)
+	instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
+	networkUrl := generators.GenerateNetworkURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name)
+	gatewayUrl := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
+	nicUrl := generators.GenerateNicURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Nic.Name)
+	publicIpUrl := generators.GeneratePublicIpURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.PublicIp.Name)
+	routeUrl := generators.GenerateRouteTableURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
+	subnetUrl := generators.GenerateSubnetURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
+	groupUrl := generators.GenerateSecurityGroupURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
 
 	// Authorization
 
 	// Role
 	roleResponse, err := builders.NewRoleBuilder().
 		Name(params.Role.Name).
-		Provider(mock.AuthorizationProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.Role.InitialSpec).
 		Build()
@@ -59,7 +60,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// Role assignment
 	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
 		Name(params.RoleAssignment.Name).
-		Provider(mock.AuthorizationProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.RoleAssignment.InitialSpec).
 		Build()
@@ -80,7 +81,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(params.Workspace.Name).
-		Provider(mock.WorkspaceProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		Build()
@@ -103,7 +104,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// Image
 	imageResponse, err := builders.NewImageBuilder().
 		Name(params.Image.Name).
-		Provider(mock.StorageProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Spec(params.Image.InitialSpec).
 		Build()
@@ -124,7 +125,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
 		Name(params.BlockStorage.Name).
-		Provider(mock.StorageProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
 		Build()
@@ -147,7 +148,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// Network
 	networkResponse, err := builders.NewNetworkBuilder().
 		Name(params.Network.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Network.InitialSpec).
 		Build()
@@ -168,7 +169,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// Internet gateway
 	gatewayResponse, err := builders.NewInternetGatewayBuilder().
 		Name(params.InternetGateway.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.InternetGateway.InitialSpec).
 		Build()
@@ -189,7 +190,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// Route table
 	routeResponse, err := builders.NewRouteTableBuilder().
 		Name(params.RouteTable.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.RouteTable.InitialSpec).
 		Build()
@@ -210,7 +211,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// Subnet
 	subnetResponse, err := builders.NewSubnetBuilder().
 		Name(params.Subnet.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.Subnet.InitialSpec).
 		Build()
@@ -231,7 +232,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// Security group
 	groupResponse, err := builders.NewSecurityGroupBuilder().
 		Name(params.SecurityGroup.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.SecurityGroup.InitialSpec).
 		Build()
@@ -252,7 +253,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// Public ip
 	publicIpResponse, err := builders.NewPublicIpBuilder().
 		Name(params.PublicIp.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.PublicIp.InitialSpec).
 		Build()
@@ -273,7 +274,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// NIC
 	nicResponse, err := builders.NewNicBuilder().
 		Name(params.Nic.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Nic.InitialSpec).
 		Build()
@@ -296,7 +297,7 @@ func ConfigureFoundationScenarioV1(scenario string, params *mock.FoundationUsage
 	// Instance
 	instanceResponse, err := builders.NewInstanceBuilder().
 		Name(params.Instance.Name).
-		Provider(mock.ComputeProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Instance.InitialSpec).
 		Build()

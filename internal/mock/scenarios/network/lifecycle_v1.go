@@ -3,6 +3,7 @@ package network
 import (
 	"log/slog"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -20,21 +21,21 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.NetworkLifeCycle
 	}
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(mock.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
-	blockUrl := generators.GenerateBlockStorageURL(mock.StorageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	instanceUrl := generators.GenerateInstanceURL(mock.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
-	networkUrl := generators.GenerateNetworkURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name)
-	gatewayUrl := generators.GenerateInternetGatewayURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
-	nicUrl := generators.GenerateNicURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Nic.Name)
-	publicIpUrl := generators.GeneratePublicIpURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.PublicIp.Name)
-	routeUrl := generators.GenerateRouteTableURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
-	subnetUrl := generators.GenerateSubnetURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
-	groupUrl := generators.GenerateSecurityGroupURL(mock.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
+	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
+	networkUrl := generators.GenerateNetworkURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name)
+	gatewayUrl := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.InternetGateway.Name)
+	nicUrl := generators.GenerateNicURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Nic.Name)
+	publicIpUrl := generators.GeneratePublicIpURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.PublicIp.Name)
+	routeUrl := generators.GenerateRouteTableURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.RouteTable.Name)
+	subnetUrl := generators.GenerateSubnetURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.Network.Name, params.Subnet.Name)
+	groupUrl := generators.GenerateSecurityGroupURL(constants.NetworkProviderV1, params.Tenant, params.Workspace.Name, params.SecurityGroup.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(params.Workspace.Name).
-		Provider(mock.WorkspaceProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		Build()
@@ -55,7 +56,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.NetworkLifeCycle
 	// Network
 	networkResponse, err := builders.NewNetworkBuilder().
 		Name(params.Network.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Network.InitialSpec).
 		Build()
@@ -87,7 +88,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.NetworkLifeCycle
 	// Internet gateway
 	gatewayResponse, err := builders.NewInternetGatewayBuilder().
 		Name(params.InternetGateway.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.InternetGateway.InitialSpec).
 		Build()
@@ -119,7 +120,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.NetworkLifeCycle
 	// Route table
 	routeResponse, err := builders.NewRouteTableBuilder().
 		Name(params.RouteTable.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.RouteTable.InitialSpec).
 		Build()
@@ -151,7 +152,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.NetworkLifeCycle
 	// Subnet
 	subnetResponse, err := builders.NewSubnetBuilder().
 		Name(params.Subnet.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Network(params.Network.Name).Region(params.Region).
 		Spec(params.Subnet.InitialSpec).
 		Build()
@@ -183,7 +184,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.NetworkLifeCycle
 	// Public ip
 	publicIpResponse, err := builders.NewPublicIpBuilder().
 		Name(params.PublicIp.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.PublicIp.InitialSpec).
 		Build()
@@ -215,7 +216,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.NetworkLifeCycle
 	// Nic
 	nicResponse, err := builders.NewNicBuilder().
 		Name(params.Nic.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Nic.InitialSpec).
 		Build()
@@ -247,7 +248,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.NetworkLifeCycle
 	// Security group
 	groupResponse, err := builders.NewSecurityGroupBuilder().
 		Name(params.SecurityGroup.Name).
-		Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.SecurityGroup.InitialSpec).
 		Build()
@@ -279,7 +280,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.NetworkLifeCycle
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
 		Name(params.BlockStorage.Name).
-		Provider(mock.StorageProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
 		Build()
@@ -300,7 +301,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.NetworkLifeCycle
 	// Instance
 	instanceResponse, err := builders.NewInstanceBuilder().
 		Name(params.Instance.Name).
-		Provider(mock.ComputeProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Instance.InitialSpec).
 		Build()

@@ -4,9 +4,9 @@ import (
 	"math/rand"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/authorization"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -26,7 +26,7 @@ type AuthorizationV1ListTestSuite struct {
 
 func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, conformance.AuthorizationProviderV1,
+	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
@@ -58,33 +58,33 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 					Name: roleName1,
 
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleSpec{
 						Permissions: []schema.Permission{
-							{Provider: conformance.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+							{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 						},
 					},
 				},
 				{
 					Name: roleName2,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleSpec{
 						Permissions: []schema.Permission{
-							{Provider: conformance.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+							{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 						},
 					},
 				},
 				{
 					Name: roleName3,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleSpec{
 						Permissions: []schema.Permission{
-							{Provider: conformance.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+							{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 						},
 					},
 				},
@@ -93,7 +93,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 				{
 					Name: roleAssignmentName1,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleAssignmentSpec{
 						Roles: []string{roleName1},
@@ -106,7 +106,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 				{
 					Name: roleAssignmentName2,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleAssignmentSpec{
 						Roles: []string{roleName2},
@@ -119,7 +119,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 				{
 					Name: roleAssignmentName3,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RoleAssignmentSpec{
 						Roles: []string{roleName3},
@@ -148,12 +148,12 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 				Name:   roleName1,
 			},
 			Labels: map[string]string{
-				generators.EnvLabel: generators.EnvConformanceLabel,
+				constants.EnvLabel: constants.EnvConformanceLabel,
 			},
 			Spec: schema.RoleSpec{
 				Permissions: []schema.Permission{
 					{
-						Provider:  conformance.StorageProviderV1,
+						Provider:  constants.StorageProviderV1,
 						Resources: []string{imageResource},
 						Verb:      []string{http.MethodGet},
 					},
@@ -166,12 +166,12 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 				Name:   roleName2,
 			},
 			Labels: map[string]string{
-				generators.EnvLabel: generators.EnvConformanceLabel,
+				constants.EnvLabel: constants.EnvConformanceLabel,
 			},
 			Spec: schema.RoleSpec{
 				Permissions: []schema.Permission{
 					{
-						Provider:  conformance.StorageProviderV1,
+						Provider:  constants.StorageProviderV1,
 						Resources: []string{imageResource},
 						Verb:      []string{http.MethodGet},
 					},
@@ -184,12 +184,12 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 				Name:   roleName3,
 			},
 			Labels: map[string]string{
-				generators.EnvLabel: generators.EnvConformanceLabel,
+				constants.EnvLabel: constants.EnvConformanceLabel,
 			},
 			Spec: schema.RoleSpec{
 				Permissions: []schema.Permission{
 					{
-						Provider:  conformance.StorageProviderV1,
+						Provider:  constants.StorageProviderV1,
 						Resources: []string{imageResource},
 						Verb:      []string{http.MethodGet},
 					},
@@ -207,12 +207,12 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 				Name:   role.Metadata.Name,
 			},
 			Labels: map[string]string{
-				generators.EnvLabel: generators.EnvConformanceLabel,
+				constants.EnvLabel: constants.EnvConformanceLabel,
 			},
 			Spec: schema.RoleSpec{
 				Permissions: []schema.Permission{
 					{
-						Provider:  conformance.StorageProviderV1,
+						Provider:  constants.StorageProviderV1,
 						Resources: []string{imageResource},
 						Verb:      []string{http.MethodGet},
 					},
@@ -221,7 +221,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 		}
 		expectRoleMeta, err := builders.NewRoleMetadataBuilder().
 			Name(role.Metadata.Name).
-			Provider(conformance.AuthorizationProviderV1).ApiVersion(conformance.ApiVersion1).
+			Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(suite.Tenant).
 			Build()
 		if err != nil {
@@ -231,7 +231,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 		expectRoleSpec := &schema.RoleSpec{
 			Permissions: []schema.Permission{
 				{
-					Provider:  conformance.StorageProviderV1,
+					Provider:  constants.StorageProviderV1,
 					Resources: []string{imageResource},
 					Verb:      []string{http.MethodGet},
 				},
@@ -256,17 +256,17 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 
 	// List Roles with limit
 	stepsBuilder.GetListRoleV1Step("Get list of roles with limit", suite.Client.AuthorizationV1, *roleTRef,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Label
 	stepsBuilder.GetListRoleV1Step("Get list of roles with label", suite.Client.AuthorizationV1, *roleTRef,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Limit and label
 	stepsBuilder.GetListRoleV1Step("Get list of roles with limit and label", suite.Client.AuthorizationV1, *roleTRef,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Role assignment
 	roleAssignments := []schema.RoleAssignment{
@@ -276,7 +276,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 				Name:   roleAssignmentName1,
 			},
 			Labels: map[string]string{
-				generators.EnvLabel: generators.EnvConformanceLabel,
+				constants.EnvLabel: constants.EnvConformanceLabel,
 			},
 			Spec: schema.RoleAssignmentSpec{
 				Roles: []string{roleName1},
@@ -292,7 +292,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 				Name:   roleAssignmentName2,
 			},
 			Labels: map[string]string{
-				generators.EnvLabel: generators.EnvConformanceLabel,
+				constants.EnvLabel: constants.EnvConformanceLabel,
 			},
 			Spec: schema.RoleAssignmentSpec{
 				Roles: []string{roleName2},
@@ -308,7 +308,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 				Name:   roleAssignmentName3,
 			},
 			Labels: map[string]string{
-				generators.EnvLabel: generators.EnvConformanceLabel,
+				constants.EnvLabel: constants.EnvConformanceLabel,
 			},
 			Spec: schema.RoleAssignmentSpec{
 				Roles: []string{roleName3},
@@ -325,7 +325,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 
 		expectRoleAssignMeta, err := builders.NewRoleAssignmentMetadataBuilder().
 			Name(roleAssign.Metadata.Name).
-			Provider(conformance.AuthorizationProviderV1).ApiVersion(conformance.ApiVersion1).
+			Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(suite.Tenant).
 			Build()
 		if err != nil {
@@ -354,12 +354,12 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 	// List RoleAssignments with Label
 	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List RoleAssignments with Limit and label
 	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all role assignments
 	for _, roleAssign := range roleAssignments {

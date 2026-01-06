@@ -3,9 +3,9 @@ package network
 import (
 	"math/rand"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -31,7 +31,7 @@ type NetworkListV1TestSuite struct {
 
 func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, conformance.NetworkProviderV1,
+	suite.ConfigureTags(t, constants.NetworkProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic),
@@ -154,13 +154,13 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					generators.EnvLabel: generators.EnvConformanceLabel,
+					constants.EnvLabel: constants.EnvConformanceLabel,
 				},
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
 				Name: blockStorageName,
 				InitialLabels: schema.Labels{
-					generators.EnvLabel: generators.EnvConformanceLabel,
+					constants.EnvLabel: constants.EnvConformanceLabel,
 				},
 				InitialSpec: &schema.BlockStorageSpec{
 					SkuRef: *storageSkuRefObj,
@@ -170,7 +170,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 			Instance: &mock.ResourceParams[schema.InstanceSpec]{
 				Name: instanceName,
 				InitialLabels: schema.Labels{
-					generators.EnvLabel: generators.EnvConformanceLabel,
+					constants.EnvLabel: constants.EnvConformanceLabel,
 				},
 				InitialSpec: &schema.InstanceSpec{
 					SkuRef: *instanceSkuRefObj,
@@ -184,7 +184,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: networkName,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.NetworkSpec{
 						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.NetworkCidr)},
@@ -195,7 +195,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: networkName2,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.NetworkSpec{
 						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.NetworkCidr)},
@@ -208,14 +208,14 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: internetGatewayName,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
 				},
 				{
 					Name: internetGatewayName2,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
 				},
@@ -224,22 +224,22 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: routeTableName,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RouteTableSpec{
 						Routes: []schema.RouteSpec{
-							{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+							{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 						},
 					},
 				},
 				{
 					Name: routeTableName2,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.RouteTableSpec{
 						Routes: []schema.RouteSpec{
-							{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+							{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 						},
 					},
 				},
@@ -248,7 +248,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: subnetName,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.SubnetSpec{
 						Cidr: schema.Cidr{Ipv4: &subnetCidr},
@@ -257,7 +257,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				}, {
 					Name: subnetName2,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.SubnetSpec{
 						Cidr: schema.Cidr{Ipv4: &subnetCidr},
@@ -269,7 +269,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: nicName,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.NicSpec{
 						Addresses:    []string{nicAddress1},
@@ -280,7 +280,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: nicName2,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.NicSpec{
 						Addresses:    []string{nicAddress1},
@@ -293,7 +293,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: publicIpName,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.PublicIpSpec{
 						Version: schema.IPVersionIPv4,
@@ -303,7 +303,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: publicIpName2,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.PublicIpSpec{
 						Version: schema.IPVersionIPv4,
@@ -315,7 +315,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: securityGroupName,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.SecurityGroupSpec{
 						Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
@@ -324,7 +324,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: securityGroupName2,
 					InitialLabels: schema.Labels{
-						generators.EnvLabel: generators.EnvConformanceLabel,
+						constants.EnvLabel: constants.EnvConformanceLabel,
 					},
 					InitialSpec: &schema.SecurityGroupSpec{
 						Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
@@ -346,7 +346,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			generators.EnvLabel: generators.EnvConformanceLabel,
+			constants.EnvLabel: constants.EnvConformanceLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.Tenant,
@@ -355,13 +355,13 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	}
 	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
 		Name(workspaceName).
-		Provider(conformance.WorkspaceProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{generators.EnvLabel: generators.EnvConformanceLabel}
+	expectWorkspaceLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
@@ -403,7 +403,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 
 		expectNetworkMeta, err := builders.NewNetworkMetadataBuilder().
 			Name(network.Metadata.Name).
-			Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 			Build()
 		if err != nil {
@@ -439,12 +439,12 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	// List Network with Label
 	stepsBuilder.GetListNetworkV1Step("Get list of Network with label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Network with Limit and label
 	stepsBuilder.GetListNetworkV1Step("Get list of Network with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Network Skus
 	// List SKUS
@@ -477,7 +477,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	for _, gateway := range *gateways {
 		expectGatewayMeta, err := builders.NewInternetGatewayMetadataBuilder().
 			Name(gateway.Metadata.Name).
-			Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 			Build()
 		if err != nil {
@@ -504,12 +504,12 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	// List Internet Gateway with Label
 	stepsBuilder.GetListInternetGatewayV1Step("Get list of Internet Gateway with label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Internet Gateway with Limit and label
 	stepsBuilder.GetListInternetGatewayV1Step("Get list of Internet Gateway with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Route table
 
@@ -524,7 +524,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 			},
 			Spec: schema.RouteTableSpec{
 				Routes: []schema.RouteSpec{
-					{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+					{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 				},
 			},
 		},
@@ -537,7 +537,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 			},
 			Spec: schema.RouteTableSpec{
 				Routes: []schema.RouteSpec{
-					{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+					{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 				},
 			},
 		},
@@ -545,7 +545,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	for _, route := range *routes {
 		expectRouteMeta, err := builders.NewRouteTableMetadataBuilder().
 			Name(route.Metadata.Name).
-			Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(suite.Tenant).Workspace(workspaceName).Network(networkName).Region(suite.Region).
 			Build()
 		if err != nil {
@@ -553,7 +553,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 		}
 		expectRouteSpec := &schema.RouteTableSpec{
 			Routes: []schema.RouteSpec{
-				{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+				{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 			},
 		}
 		stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, &route,
@@ -581,12 +581,12 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	// List Route table with Label
 	stepsBuilder.GetListRouteTableV1Step("Get list of Route table with label", suite.Client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Route table with Limit and label
 	stepsBuilder.GetListRouteTableV1Step("Get list of Route table with limit and label", suite.Client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 	// Subnet
 
 	// Create a subnet
@@ -621,8 +621,8 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 
 		expectSubnetMeta, err := builders.NewSubnetMetadataBuilder().
 			Name(subnet.Metadata.Name).
-			Provider(conformance.NetworkProviderV1).
-			ApiVersion(conformance.ApiVersion1).
+			Provider(constants.NetworkProviderV1).
+			ApiVersion(constants.ApiVersion1).
 			Tenant(suite.Tenant).Workspace(workspaceName).Network(networkName).Region(suite.Region).
 			Build()
 		if err != nil {
@@ -651,12 +651,12 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	// List Subnet with Label
 	stepsBuilder.GetListSubnetV1Step("Get list of Subnet with label", suite.Client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Subnet with Limit and label
 	stepsBuilder.GetListSubnetV1Step("Get list of Subnet with limit and label", suite.Client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Public ip
 
@@ -689,8 +689,8 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	for _, publicIp := range *publicIps {
 		expectPublicIpMeta, err := builders.NewPublicIpMetadataBuilder().
 			Name(publicIp.Metadata.Name).
-			Provider(conformance.NetworkProviderV1).
-			ApiVersion(conformance.ApiVersion1).
+			Provider(constants.NetworkProviderV1).
+			ApiVersion(constants.ApiVersion1).
 			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 			Build()
 		if err != nil {
@@ -719,12 +719,12 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	// List PublicIP with Label
 	stepsBuilder.GetListPublicIpV1Step("Get list of PublicIP with label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List PublicIP with Limit and label
 	stepsBuilder.GetListPublicIpV1Step("Get list of PublicIP with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Nic
 
@@ -760,7 +760,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 
 		expectNicMeta, err := builders.NewNicMetadataBuilder().
 			Name(nic.Metadata.Name).
-			Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 			Build()
 		expectNicSpec := &schema.NicSpec{
@@ -789,12 +789,12 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	// List Nic with Label
 	stepsBuilder.GetListNicV1Step("Get list of Nic with label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Nic with Limit and label
 	stepsBuilder.GetListNicV1Step("Get list of Nic with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Security Group
 
@@ -829,7 +829,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	for _, group := range *groups {
 		expectGroupMeta, err := builders.NewSecurityGroupMetadataBuilder().
 			Name(group.Metadata.Name).
-			Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 			Build()
 		expectGroupSpec := &schema.SecurityGroupSpec{
@@ -858,12 +858,12 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	// List Security Group with Label
 	stepsBuilder.GetListSecurityGroupV1Step("Get list of Security Group with label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Nic with Limit and label
 	stepsBuilder.GetListSecurityGroupV1Step("Get list of Security Group with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(generators.EnvLabel, generators.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all security groups
 	for _, group := range *groups {

@@ -3,6 +3,7 @@ package workspace
 import (
 	"log/slog"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -18,11 +19,11 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.WorkspaceLifeCyc
 		return nil, err
 	}
 
-	url := generators.GenerateWorkspaceURL(mock.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
+	url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
 
 	response, err := builders.NewWorkspaceBuilder().
 		Name(params.Workspace.Name).
-		Provider(mock.WorkspaceProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		Build()

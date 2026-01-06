@@ -3,7 +3,7 @@ package steps
 import (
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
@@ -17,14 +17,14 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "RD100",
-				Provider: conformance.StorageProviderV1,
+				Provider: constants.StorageProviderV1,
 				Resource: generators.GenerateSkuResource(tenant, "RD100"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				conformance.ProviderLabel: "seca",
-				conformance.TierLabel:     "RD100",
+				constants.ProviderLabel: "seca",
+				constants.TierLabel:     "RD100",
 			},
 			Spec: &schema.StorageSkuSpec{
 				Iops:          100,
@@ -35,14 +35,14 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "RD500",
-				Provider: conformance.StorageProviderV1,
+				Provider: constants.StorageProviderV1,
 				Resource: generators.GenerateSkuResource(tenant, "RD500"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				conformance.ProviderLabel: "seca",
-				conformance.TierLabel:     "RD500",
+				constants.ProviderLabel: "seca",
+				constants.TierLabel:     "RD500",
 			},
 			Spec: &schema.StorageSkuSpec{
 				Iops:          500,
@@ -53,14 +53,14 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "RD2K",
-				Provider: conformance.StorageProviderV1,
+				Provider: constants.StorageProviderV1,
 				Resource: generators.GenerateSkuResource(tenant, "RD2K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				conformance.ProviderLabel: "seca",
-				conformance.TierLabel:     "RD2k",
+				constants.ProviderLabel: "seca",
+				constants.TierLabel:     "RD2k",
 			},
 			Spec: &schema.StorageSkuSpec{
 				Iops:          2000,
@@ -76,16 +76,16 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "D2XS",
-				Provider: conformance.ComputeProviderV1,
+				Provider: constants.ComputeProviderV1,
 				Resource: generators.GenerateSkuResource(tenant, "D2XS"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
 				// TODO Create constants
-				conformance.ArchitectureLabel: "amd64",
-				conformance.ProviderLabel:     "seca",
-				conformance.TierLabel:         "D2XS",
+				constants.ArchitectureLabel: "amd64",
+				constants.ProviderLabel:     "seca",
+				constants.TierLabel:         "D2XS",
 			},
 			Spec: &schema.InstanceSkuSpec{
 				Ram:  1,
@@ -95,15 +95,15 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "DXS",
-				Provider: conformance.ComputeProviderV1,
+				Provider: constants.ComputeProviderV1,
 				Resource: generators.GenerateSkuResource(tenant, "DXS"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				conformance.ArchitectureLabel: "amd64",
-				conformance.ProviderLabel:     "seca",
-				conformance.TierLabel:         "DXS",
+				constants.ArchitectureLabel: "amd64",
+				constants.ProviderLabel:     "seca",
+				constants.TierLabel:         "DXS",
 			},
 			Spec: &schema.InstanceSkuSpec{
 				Ram:  2,
@@ -113,15 +113,15 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "DS",
-				Provider: conformance.ComputeProviderV1,
+				Provider: constants.ComputeProviderV1,
 				Resource: generators.GenerateSkuResource(tenant, "DS"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				conformance.ArchitectureLabel: "amd64",
-				conformance.ProviderLabel:     "seca",
-				conformance.TierLabel:         "DS",
+				constants.ArchitectureLabel: "amd64",
+				constants.ProviderLabel:     "seca",
+				constants.TierLabel:         "DS",
 			},
 			Spec: &schema.InstanceSkuSpec{
 				Ram:  4,
@@ -136,14 +136,14 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "N1K",
-				Provider: conformance.NetworkProviderV1,
+				Provider: constants.NetworkProviderV1,
 				Resource: generators.GenerateSkuResource(tenant, "N1K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				conformance.ProviderLabel: "seca",
-				conformance.TierLabel:     "N1K",
+				constants.ProviderLabel: "seca",
+				constants.TierLabel:     "N1K",
 			},
 			Spec: &schema.NetworkSkuSpec{
 				Bandwidth: 1000,
@@ -153,14 +153,14 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "N5K",
-				Provider: conformance.NetworkProviderV1,
+				Provider: constants.NetworkProviderV1,
 				Resource: generators.GenerateSkuResource(tenant, "N5K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				conformance.ProviderLabel: "seca",
-				conformance.TierLabel:     "N5K",
+				constants.ProviderLabel: "seca",
+				constants.TierLabel:     "N5K",
 			},
 			Spec: &schema.NetworkSkuSpec{
 				Bandwidth: 5000,
@@ -170,14 +170,14 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "N10K",
-				Provider: conformance.NetworkProviderV1,
+				Provider: constants.NetworkProviderV1,
 				Resource: generators.GenerateSkuResource(tenant, "N10K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				conformance.ProviderLabel: "seca",
-				conformance.TierLabel:     "N10K",
+				constants.ProviderLabel: "seca",
+				constants.TierLabel:     "N10K",
 			},
 			Spec: &schema.NetworkSkuSpec{
 				Bandwidth: 10000,

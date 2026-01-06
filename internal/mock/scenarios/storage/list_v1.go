@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -21,15 +22,15 @@ func ConfigureListScenarioV1(scenario string, params *mock.StorageListParamsV1) 
 	}
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(mock.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
-	skuListUrl := generators.GenerateStorageSkuListURL(mock.StorageProviderV1, params.Tenant)
-	blockListUrl := generators.GenerateBlockStorageListURL(mock.StorageProviderV1, params.Tenant, params.Workspace.Name)
-	imageListUrl := generators.GenerateImageListURL(mock.StorageProviderV1, params.Tenant)
+	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
+	skuListUrl := generators.GenerateStorageSkuListURL(constants.StorageProviderV1, params.Tenant)
+	blockListUrl := generators.GenerateBlockStorageListURL(constants.StorageProviderV1, params.Tenant, params.Workspace.Name)
+	imageListUrl := generators.GenerateImageListURL(constants.StorageProviderV1, params.Tenant)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(params.Workspace.Name).
-		Provider(mock.WorkspaceProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		Build()
@@ -48,7 +49,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.StorageListParamsV1) 
 		return nil, err
 	}
 	blockListResponse, err := builders.NewBlockStorageIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).
 		Items(blockList).
 		Build()
@@ -71,20 +72,20 @@ func ConfigureListScenarioV1(scenario string, params *mock.StorageListParamsV1) 
 	blocksWithLabel := func(blockList []schema.BlockStorage) []schema.BlockStorage {
 		var filteredInstances []schema.BlockStorage
 		for _, instance := range blockList {
-			if val, ok := instance.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := instance.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredInstances = append(filteredInstances, instance)
 			}
 		}
 		return filteredInstances
 	}
 	blockListResponse.Items = blocksWithLabel(blockList)
-	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with Limit and Label
 	blockListResponse.Items = blocksWithLabel(blockList)[:1]
-	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
@@ -94,7 +95,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.StorageListParamsV1) 
 		return nil, err
 	}
 	imageListResponse, err := builders.NewImageIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).
 		Items(imageList).
 		Build()
@@ -117,7 +118,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.StorageListParamsV1) 
 	imagesWithLabel := func(imageList []schema.Image) []schema.Image {
 		var filteredImages []schema.Image
 		for _, image := range imageList {
-			if val, ok := image.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := image.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredImages = append(filteredImages, image)
 			}
 		}
@@ -125,20 +126,20 @@ func ConfigureListScenarioV1(scenario string, params *mock.StorageListParamsV1) 
 	}
 
 	imageListResponse.Items = imagesWithLabel(imageList)
-	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with Limit and Label
 	imageListResponse.Items = imagesWithLabel(imageList)[:1]
-	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// Create storage skus
 	skuList := steps.GenerateStorageSkusV1(params.Tenant)
 	skuResponse, err := builders.NewStorageSkuIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).
 		Items(skuList).
 		Build()
@@ -161,7 +162,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.StorageListParamsV1) 
 
 	// Delete Images
 	for _, image := range params.Images {
-		url := generators.GenerateImageURL(mock.StorageProviderV1, params.Tenant, image.Name)
+		url := generators.GenerateImageURL(constants.StorageProviderV1, params.Tenant, image.Name)
 
 		// Delete the Image
 		if err := configurator.ConfigureDeleteStub(url, params.GetBaseParams()); err != nil {
@@ -176,7 +177,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.StorageListParamsV1) 
 
 	// Delete BlockStorages
 	for _, block := range params.BlockStorages {
-		url := generators.GenerateBlockStorageURL(mock.StorageProviderV1, params.Tenant, params.Workspace.Name, block.Name)
+		url := generators.GenerateBlockStorageURL(constants.StorageProviderV1, params.Tenant, params.Workspace.Name, block.Name)
 
 		// Delete the BlockStorages
 		if err := configurator.ConfigureDeleteStub(url, params.GetBaseParams()); err != nil {

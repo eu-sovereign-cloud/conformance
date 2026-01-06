@@ -2,6 +2,7 @@
 package stubs
 
 import (
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
@@ -19,11 +20,11 @@ func BulkCreateRolesStubV1(configurator *scenarioConfigurator,
 	var roles []schema.Role
 
 	for _, role := range roleParams {
-		roleUrl := generators.GenerateRoleURL(mock.AuthorizationProviderV1, baseParams.Tenant, role.Name)
+		roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, baseParams.Tenant, role.Name)
 
 		roleResponse, err := builders.NewRoleBuilder().
 			Name(role.Name).
-			Provider(mock.AuthorizationProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).
 			Labels(role.InitialLabels).
 			Spec(role.InitialSpec).
@@ -48,11 +49,11 @@ func BulkCreateRoleAssignmentsStubV1(configurator *scenarioConfigurator,
 	var assignments []schema.RoleAssignment
 
 	for _, roleAssignment := range roleAssignmentParams {
-		roleAssignmentUrl := generators.GenerateRoleAssignmentURL(mock.AuthorizationProviderV1, baseParams.Tenant, roleAssignment.Name)
+		roleAssignmentUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, baseParams.Tenant, roleAssignment.Name)
 		roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
 			Name(roleAssignment.Name).
-			Provider(mock.AuthorizationProviderV1).
-			ApiVersion(mock.ApiVersion1).
+			Provider(constants.AuthorizationProviderV1).
+			ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).
 			Labels(roleAssignment.InitialLabels).
 			Spec(roleAssignment.InitialSpec).
@@ -81,11 +82,11 @@ func BulkCreateWorkspacesStubV1(configurator *scenarioConfigurator,
 	var workspaces []schema.Workspace
 
 	for _, workspace := range workspaceParams {
-		url := generators.GenerateWorkspaceURL(mock.WorkspaceProviderV1, baseParams.Tenant, workspace.Name)
+		url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, baseParams.Tenant, workspace.Name)
 
 		response, err := builders.NewWorkspaceBuilder().
 			Name(workspace.Name).
-			Provider(mock.WorkspaceProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).Region(baseParams.Region).
 			Labels(workspace.InitialLabels).
 			Build()
@@ -111,10 +112,10 @@ func BulkCreateInstancesStubV1(configurator *scenarioConfigurator,
 	var instances []schema.Instance
 
 	for _, instance := range instanceParams {
-		instanceUrl := generators.GenerateInstanceURL(mock.ComputeProviderV1, baseParams.Tenant, workspace, instance.Name)
+		instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, baseParams.Tenant, workspace, instance.Name)
 		instanceResponse, err := builders.NewInstanceBuilder().
 			Name(instance.Name).
-			Provider(mock.ComputeProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
 			Labels(instance.InitialLabels).
 			Spec(instance.InitialSpec).
@@ -144,7 +145,7 @@ func BulkCreateBlockStoragesStubV1(configurator *scenarioConfigurator,
 	for _, block := range blockStorageParams {
 		blockResponse, err := builders.NewBlockStorageBuilder().
 			Name(block.Name).
-			Provider(mock.StorageProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
 			Labels(block.InitialLabels).
 			Spec(block.InitialSpec).
@@ -154,7 +155,7 @@ func BulkCreateBlockStoragesStubV1(configurator *scenarioConfigurator,
 		}
 
 		// Create a block storage
-		blockUrl := generators.GenerateBlockStorageURL(mock.StorageProviderV1, baseParams.Tenant, workspace, block.Name)
+		blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, baseParams.Tenant, workspace, block.Name)
 		if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockUrl, baseParams); err != nil {
 			return nil, err
 		}
@@ -171,10 +172,10 @@ func BulkCreateImagesStubV1(configurator *scenarioConfigurator,
 	var images []schema.Image
 
 	for _, image := range imageParams {
-		imageUrl := generators.GenerateImageURL(mock.StorageProviderV1, baseParams.Tenant, image.Name)
+		imageUrl := generators.GenerateImageURL(constants.StorageProviderV1, baseParams.Tenant, image.Name)
 		imageResponse, err := builders.NewImageBuilder().
 			Name(image.Name).
-			Provider(mock.StorageProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).Region(baseParams.Region).
 			Labels(image.InitialLabels).
 			Spec(image.InitialSpec).
@@ -202,11 +203,11 @@ func BulkCreateNetworksStubV1(configurator *scenarioConfigurator,
 	var networks []schema.Network
 
 	for _, network := range networkParams {
-		networkUrl := generators.GenerateNetworkURL(mock.NetworkProviderV1, baseParams.Tenant, workspace, network.Name)
+		networkUrl := generators.GenerateNetworkURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, network.Name)
 
 		networkResponse, err := builders.NewNetworkBuilder().
 			Name(network.Name).
-			Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
 			Labels(network.InitialLabels).
 			Spec(network.InitialSpec).
@@ -231,10 +232,10 @@ func BulkCreateInternetGatewaysStubV1(configurator *scenarioConfigurator,
 	var gateways []schema.InternetGateway
 
 	for _, gateway := range internetGatewayParams {
-		gatewayUrl := generators.GenerateInternetGatewayURL(mock.NetworkProviderV1, baseParams.Tenant, workspace, gateway.Name)
+		gatewayUrl := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, gateway.Name)
 		gatewayResponse, err := builders.NewInternetGatewayBuilder().
 			Name(gateway.Name).
-			Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
 			Labels(gateway.InitialLabels).
 			Spec(gateway.InitialSpec).
@@ -260,10 +261,10 @@ func BulkCreateRouteTableStubV1(configurator *scenarioConfigurator,
 	var routeTables []schema.RouteTable
 
 	for _, routeTable := range routeTableParams {
-		routeTableUrl := generators.GenerateRouteTableURL(mock.NetworkProviderV1, baseParams.Tenant, workspace, network, routeTable.Name)
+		routeTableUrl := generators.GenerateRouteTableURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, network, routeTable.Name)
 		routeTableResponse, err := builders.NewRouteTableBuilder().
 			Name(routeTable.Name).
-			Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).Workspace(workspace).Network(network).Region(baseParams.Region).
 			Labels(routeTable.InitialLabels).
 			Spec(routeTable.InitialSpec).
@@ -288,10 +289,10 @@ func BulkCreateSubnetsStubV1(configurator *scenarioConfigurator,
 	var subnets []schema.Subnet
 
 	for _, subnet := range subnetParams {
-		subnetUrl := generators.GenerateSubnetURL(mock.NetworkProviderV1, baseParams.Tenant, workspace, network, subnet.Name)
+		subnetUrl := generators.GenerateSubnetURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, network, subnet.Name)
 		subnetResponse, err := builders.NewSubnetBuilder().
 			Name(subnet.Name).
-			Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).Workspace(workspace).Network(network).Region(baseParams.Region).
 			Labels(subnet.InitialLabels).
 			Spec(subnet.InitialSpec).
@@ -316,10 +317,10 @@ func BulkCreatePublicIpsStubV1(configurator *scenarioConfigurator,
 	var publicIps []schema.PublicIp
 
 	for _, publicIp := range publicIpParams {
-		publicIpUrl := generators.GeneratePublicIpURL(mock.NetworkProviderV1, baseParams.Tenant, workspace, publicIp.Name)
+		publicIpUrl := generators.GeneratePublicIpURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, publicIp.Name)
 		publicIpResponse, err := builders.NewPublicIpBuilder().
 			Name(publicIp.Name).
-			Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
 			Labels(publicIp.InitialLabels).
 			Spec(publicIp.InitialSpec).
@@ -344,10 +345,10 @@ func BulkCreateNicsStubV1(configurator *scenarioConfigurator,
 	var nics []schema.Nic
 
 	for _, nic := range nicParams {
-		nicUrl := generators.GenerateNicURL(mock.NetworkProviderV1, baseParams.Tenant, workspace, nic.Name)
+		nicUrl := generators.GenerateNicURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, nic.Name)
 		nicResponse, err := builders.NewNicBuilder().
 			Name(nic.Name).
-			Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
 			Labels(nic.InitialLabels).
 			Spec(nic.InitialSpec).
@@ -372,10 +373,10 @@ func BulkCreateSecurityGroupsStubV1(configurator *scenarioConfigurator,
 	var securityGroups []schema.SecurityGroup
 
 	for _, securityGroup := range securityGroupParams {
-		securityGroupUrl := generators.GenerateSecurityGroupURL(mock.NetworkProviderV1, baseParams.Tenant, workspace, securityGroup.Name)
+		securityGroupUrl := generators.GenerateSecurityGroupURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, securityGroup.Name)
 		securityGroupResponse, err := builders.NewSecurityGroupBuilder().
 			Name(securityGroup.Name).
-			Provider(mock.NetworkProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
 			Labels(securityGroup.InitialLabels).
 			Spec(securityGroup.InitialSpec).

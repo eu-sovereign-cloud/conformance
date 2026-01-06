@@ -8,7 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 
 	"github.com/spf13/cobra"
 )
@@ -16,7 +17,7 @@ import (
 func TestMain(m *testing.M) {
 	setupLogger()
 
-	conformance.InitConfig()
+	config.InitParameters()
 
 	rootCmd := initCommands(m)
 
@@ -41,10 +42,10 @@ func newRootCmd() *cobra.Command {
 		Short: "SECA Conformance Tests",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Use == "run" {
-				if err := conformance.ProcessConfig(); err != nil {
+				if err := config.ProcessParameters(); err != nil {
 					return err
 				}
-				if err := conformance.InitClients(cmd.Context()); err != nil {
+				if err := config.InitClients(cmd.Context()); err != nil {
 					return err
 				}
 			}
@@ -75,18 +76,18 @@ func newListCmd() *cobra.Command {
 		Short: "List Command",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			println("Available Test Scenarios:")
-			println(conformance.AuthorizationV1LifeCycleSuiteName)
-			println(conformance.AuthorizationV1ListSuiteName)
-			println(conformance.RegionV1LifeCycleSuiteName)
-			println(conformance.ComputeV1LifeCycleSuiteName)
-			println(conformance.ComputeV1ListSuiteName)
-			println(conformance.NetworkV1LifeCycleSuiteName)
-			println(conformance.NetworkV1ListSuiteName)
-			println(conformance.StorageV1LifeCycleSuiteName)
-			println(conformance.StorageV1ListSuiteName)
-			println(conformance.WorkspaceV1LifeCycleSuiteName)
-			println(conformance.WorkspaceV1ListSuiteName)
-			println(conformance.FoundationV1UsageSuiteName)
+			println(constants.AuthorizationV1LifeCycleSuiteName)
+			println(constants.AuthorizationV1ListSuiteName)
+			println(constants.RegionV1ListSuiteName)
+			println(constants.ComputeV1LifeCycleSuiteName)
+			println(constants.ComputeV1ListSuiteName)
+			println(constants.NetworkV1LifeCycleSuiteName)
+			println(constants.NetworkV1ListSuiteName)
+			println(constants.StorageV1LifeCycleSuiteName)
+			println(constants.StorageV1ListSuiteName)
+			println(constants.WorkspaceV1LifeCycleSuiteName)
+			println(constants.WorkspaceV1ListSuiteName)
+			println(constants.FoundationV1UsageSuiteName)
 
 			return nil
 		},
@@ -122,26 +123,26 @@ func initCommands(m *testing.M) *cobra.Command {
 
 	runCmd := newRunCmd(m)
 
-	runCmd.Flags().StringVar(&conformance.Config.ProviderRegionV1, "provider.region.v1", "", "Region V1 Provider Base URL")
-	runCmd.Flags().StringVar(&conformance.Config.ProviderAuthorizationV1, "provider.authorization.v1", "", "Authorization V1 Provider Base URL")
+	runCmd.Flags().StringVar(&config.Parameters.ProviderRegionV1, "provider.region.v1", "", "Region V1 Provider Base URL")
+	runCmd.Flags().StringVar(&config.Parameters.ProviderAuthorizationV1, "provider.authorization.v1", "", "Authorization V1 Provider Base URL")
 
-	runCmd.Flags().StringVar(&conformance.Config.ClientAuthToken, "client.auth.token", "", "Client Authentication Token")
-	runCmd.Flags().StringVar(&conformance.Config.ClientRegion, "client.region", "", "Client Region Name")
-	runCmd.Flags().StringVar(&conformance.Config.ClientTenant, "client.tenant", "", "Client Tenant Name")
+	runCmd.Flags().StringVar(&config.Parameters.ClientAuthToken, "client.auth.token", "", "Client Authentication Token")
+	runCmd.Flags().StringVar(&config.Parameters.ClientRegion, "client.region", "", "Client Region Name")
+	runCmd.Flags().StringVar(&config.Parameters.ClientTenant, "client.tenant", "", "Client Tenant Name")
 
-	runCmd.Flags().StringVar(&conformance.Config.ScenariosFilter, "scenarios.filter", "", "Regular expression to filter scenarios to run")
-	runCmd.Flags().StringSliceVar(&conformance.Config.ScenariosUsers, "scenarios.users", nil, "Scenario Available Users")
-	runCmd.Flags().StringVar(&conformance.Config.ScenariosCidr, "scenarios.cidr", "", "Scenario Available Network CIDR")
-	runCmd.Flags().StringVar(&conformance.Config.ScenariosPublicIps, "scenarios.public.ips", "", "Scenario Public IPs Range")
+	runCmd.Flags().StringVar(&config.Parameters.ScenariosFilter, "scenarios.filter", "", "Regular expression to filter scenarios to run")
+	runCmd.Flags().StringSliceVar(&config.Parameters.ScenariosUsers, "scenarios.users", nil, "Scenario Available Users")
+	runCmd.Flags().StringVar(&config.Parameters.ScenariosCidr, "scenarios.cidr", "", "Scenario Available Network CIDR")
+	runCmd.Flags().StringVar(&config.Parameters.ScenariosPublicIps, "scenarios.public.ips", "", "Scenario Public IPs Range")
 
-	runCmd.Flags().StringVar(&conformance.Config.ReportResultsPath, "report.results.path", "", "Report Results Path")
+	runCmd.Flags().StringVar(&config.Parameters.ReportResultsPath, "report.results.path", "", "Report Results Path")
 
-	runCmd.Flags().BoolVar(&conformance.Config.MockEnabled, "mock.enabled", false, "Enable Mock Usage")
-	runCmd.Flags().StringVar(&conformance.Config.MockServerURL, "mock.server.url", "", "Mock Server URL")
+	runCmd.Flags().BoolVar(&config.Parameters.MockEnabled, "mock.enabled", false, "Enable Mock Usage")
+	runCmd.Flags().StringVar(&config.Parameters.MockServerURL, "mock.server.url", "", "Mock Server URL")
 
-	runCmd.Flags().IntVar(&conformance.Config.BaseDelay, "retry.base.delay", 5, "Retry Base Delay in seconds")
-	runCmd.Flags().IntVar(&conformance.Config.BaseInterval, "retry.base.interval", 30, "Retry Base Interval in seconds")
-	runCmd.Flags().IntVar(&conformance.Config.MaxAttempts, "retry.max.attempts", 10, "Retry Max Attempts")
+	runCmd.Flags().IntVar(&config.Parameters.BaseDelay, "retry.base.delay", 5, "Retry Base Delay in seconds")
+	runCmd.Flags().IntVar(&config.Parameters.BaseInterval, "retry.base.interval", 30, "Retry Base Interval in seconds")
+	runCmd.Flags().IntVar(&config.Parameters.MaxAttempts, "retry.max.attempts", 10, "Retry Max Attempts")
 
 	runCmd.MarkFlagsRequiredTogether(
 		"provider.region.v1",
@@ -169,7 +170,7 @@ func initCommands(m *testing.M) *cobra.Command {
 }
 
 func configureReports() {
-	resultsPath := conformance.Config.ReportResultsPath
+	resultsPath := config.Parameters.ReportResultsPath
 
 	outputPath := filepath.Dir(resultsPath)
 	if err := os.Setenv("ALLURE_OUTPUT_PATH", outputPath); err != nil {

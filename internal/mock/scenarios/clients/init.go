@@ -3,6 +3,7 @@ package clients
 import (
 	"log/slog"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -19,16 +20,16 @@ func ConfigureInitScenario(params *mock.ClientsInitParams) (*wiremock.Client, er
 		return nil, err
 	}
 
-	url := generators.GenerateRegionURL(mock.RegionProviderV1, params.Region)
+	url := generators.GenerateRegionURL(constants.RegionProviderV1, params.Region)
 
 	spec := &schema.RegionSpec{
-		AvailableZones: []string{mock.ZoneA, mock.ZoneB},
+		AvailableZones: []string{constants.ZoneA, constants.ZoneB},
 		Providers:      mock.BuildProviderSpecV1(),
 	}
 
 	response, err := builders.NewRegionBuilder().
 		Name(params.Region).
-		Provider(mock.RegionProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
 		Spec(spec).
 		Build()
 	if err != nil {

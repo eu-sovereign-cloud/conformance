@@ -3,8 +3,9 @@ package network
 import (
 	"testing"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
@@ -12,46 +13,47 @@ import (
 func TestNetworkLifecycleV1Suite(t *testing.T) {
 	regionalTest := suites.RegionalTestSuite{
 		TestSuite: suites.TestSuite{
-			Tenant:        conformance.Config.ClientTenant,
-			AuthToken:     conformance.Config.ClientAuthToken,
-			MockEnabled:   conformance.Config.MockEnabled,
-			MockServerURL: &conformance.Config.MockServerURL,
-			ScenarioName:  conformance.NetworkV1LifeCycleSuiteName,
-			BaseDelay:     conformance.Config.BaseDelay,
-			BaseInterval:  conformance.Config.BaseInterval,
-			MaxAttempts:   conformance.Config.MaxAttempts,
+			Tenant:        config.Parameters.ClientTenant,
+			AuthToken:     config.Parameters.ClientAuthToken,
+			MockEnabled:   config.Parameters.MockEnabled,
+			MockServerURL: &config.Parameters.MockServerURL,
+			ScenarioName:  constants.NetworkV1LifeCycleSuiteName,
+			BaseDelay:     config.Parameters.BaseDelay,
+			BaseInterval:  config.Parameters.BaseInterval,
+			MaxAttempts:   config.Parameters.MaxAttempts,
 		},
-		Region: conformance.Config.ClientRegion,
-		Client: conformance.Clients.RegionalClient,
+		Region: config.Parameters.ClientRegion,
+		Client: config.Clients.RegionalClient,
 	}
 
 	// LifeCycle Suite
 	testLifeCycleSuite := &NetworkLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTest,
-		NetworkCidr:       conformance.Config.ScenariosCidr,
-		publicIpsRange:    conformance.Config.ScenariosPublicIps,
-		RegionZones:       conformance.Clients.RegionZones,
-		InstanceSkus:      conformance.Clients.InstanceSkus,
-		StorageSkus:       conformance.Clients.StorageSkus,
-		NetworkSkus:       conformance.Clients.NetworkSkus,
+		NetworkCidr:       config.Parameters.ScenariosCidr,
+		publicIpsRange:    config.Parameters.ScenariosPublicIps,
+		RegionZones:       config.Clients.RegionZones,
+		InstanceSkus:      config.Clients.InstanceSkus,
+		StorageSkus:       config.Clients.StorageSkus,
+		NetworkSkus:       config.Clients.NetworkSkus,
 	}
 
-	if testLifeCycleSuite.CanRun(conformance.Config.ScenariosRegexp) {
+	if testLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, testLifeCycleSuite)
 	}
 
 	// List Suite
 	testListSuite := &NetworkListV1TestSuite{
 		RegionalTestSuite: regionalTest,
-		NetworkCidr:       conformance.Config.ScenariosCidr,
-		PublicIpsRange:    conformance.Config.ScenariosPublicIps,
-		RegionZones:       conformance.Clients.RegionZones,
-		InstanceSkus:      conformance.Clients.InstanceSkus,
-		StorageSkus:       conformance.Clients.StorageSkus,
-		NetworkSkus:       conformance.Clients.NetworkSkus,
+		NetworkCidr:       config.Parameters.ScenariosCidr,
+		PublicIpsRange:    config.Parameters.ScenariosPublicIps,
+		RegionZones:       config.Clients.RegionZones,
+		InstanceSkus:      config.Clients.InstanceSkus,
+		StorageSkus:       config.Clients.StorageSkus,
+		NetworkSkus:       config.Clients.NetworkSkus,
 	}
-	testListSuite.RegionalTestSuite.TestSuite.ScenarioName = conformance.NetworkV1ListSuiteName
-	if testListSuite.CanRun(conformance.Config.ScenariosRegexp) {
+	testListSuite.RegionalTestSuite.TestSuite.ScenarioName = constants.NetworkV1ListSuiteName
+
+	if testListSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, testListSuite)
 	}
 }

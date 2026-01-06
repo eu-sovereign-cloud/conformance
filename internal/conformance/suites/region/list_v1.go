@@ -3,9 +3,9 @@ package region
 import (
 	"context"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/region"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -23,7 +23,7 @@ type RegionV1TestSuite struct {
 
 func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, conformance.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
+	suite.ConfigureTags(t, constants.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
 	// Generate scenario Names
 	regionNameA := generators.GenerateRegionName()
@@ -42,28 +42,28 @@ func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: suite.RegionName,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{conformance.ZoneA, conformance.ZoneA},
+						AvailableZones: []string{constants.ZoneA, constants.ZoneA},
 						Providers:      mock.BuildProviderSpecV1(),
 					},
 				},
 				{
 					Name: regionNameA,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{conformance.ZoneA, conformance.ZoneA},
+						AvailableZones: []string{constants.ZoneA, constants.ZoneA},
 						Providers:      mock.BuildProviderSpecV1(),
 					},
 				},
 				{
 					Name: regionNameB,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{conformance.ZoneA, conformance.ZoneA},
+						AvailableZones: []string{constants.ZoneA, constants.ZoneA},
 						Providers:      mock.BuildProviderSpecV1(),
 					},
 				},
 				{
 					Name: regionNameC,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{conformance.ZoneA, conformance.ZoneA},
+						AvailableZones: []string{constants.ZoneA, constants.ZoneA},
 						Providers:      mock.BuildProviderSpecV1(),
 					},
 				},
@@ -87,7 +87,7 @@ func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
 	// Call Get Region and verify response
 	expectedRegionMeta, err := builders.NewRegionMetadataBuilder().
 		Name(regions[0].Metadata.Name).
-		Provider(conformance.RegionProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)

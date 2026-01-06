@@ -3,6 +3,7 @@ package authorization
 import (
 	"log/slog"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -21,8 +22,8 @@ func ConfigureListScenarioV1(scenario string, params *mock.AuthorizationListPara
 	}
 
 	// Generate URLs
-	roleUrl := generators.GenerateRoleListURL(mock.AuthorizationProviderV1, params.Tenant)
-	roleAssignUrl := generators.GenerateRoleAssignmentListURL(mock.AuthorizationProviderV1, params.Tenant)
+	roleUrl := generators.GenerateRoleListURL(constants.AuthorizationProviderV1, params.Tenant)
+	roleAssignUrl := generators.GenerateRoleAssignmentListURL(constants.AuthorizationProviderV1, params.Tenant)
 
 	// Create roles
 	rolesList, err := stubs.BulkCreateRolesStubV1(configurator, params.GetBaseParams(), params.Roles)
@@ -30,7 +31,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.AuthorizationListPara
 		return nil, err
 	}
 	rolesResponse, err := builders.NewRoleIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).
 		Items(rolesList).
 		Build()
@@ -53,20 +54,20 @@ func ConfigureListScenarioV1(scenario string, params *mock.AuthorizationListPara
 	rolesListWithLabel := func(rolesList []schema.Role) []schema.Role {
 		var filteredRoles []schema.Role
 		for _, role := range rolesList {
-			if val, ok := role.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := role.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredRoles = append(filteredRoles, role)
 			}
 		}
 		return filteredRoles
 	}
 	rolesResponse.Items = rolesListWithLabel(rolesList)
-	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List roles with limit and label
 	rolesResponse.Items = rolesListWithLabel(rolesList)[:1]
-	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
@@ -76,7 +77,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.AuthorizationListPara
 		return nil, err
 	}
 	roleAssignResponse, err := builders.NewRoleAssignmentIteratorBuilder().
-		Provider(mock.StorageProviderV1).
+		Provider(constants.StorageProviderV1).
 		Tenant(params.Tenant).
 		Items(roleAssignmentsList).
 		Build()
@@ -99,26 +100,26 @@ func ConfigureListScenarioV1(scenario string, params *mock.AuthorizationListPara
 	rolesAssignWithLabel := func(rolesAssignList []schema.RoleAssignment) []schema.RoleAssignment {
 		var filteredRoles []schema.RoleAssignment
 		for _, roleAssign := range rolesAssignList {
-			if val, ok := roleAssign.Labels[generators.EnvLabel]; ok && val == generators.EnvConformanceLabel {
+			if val, ok := roleAssign.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
 				filteredRoles = append(filteredRoles, roleAssign)
 			}
 		}
 		return filteredRoles
 	}
 	roleAssignResponse.Items = rolesAssignWithLabel(roleAssignmentsList)
-	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.GetBaseParams(), mock.PathParamsLabel(generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List roles with limit and label
 	roleAssignResponse.Items = rolesAssignWithLabel(roleAssignmentsList)[:1]
-	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", generators.EnvLabel, generators.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// Delete role assignments
 	for _, roleAssignment := range roleAssignmentsList {
-		roleAssignUrl := generators.GenerateRoleAssignmentURL(mock.AuthorizationProviderV1, params.Tenant, roleAssignment.Metadata.Name)
+		roleAssignUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, params.Tenant, roleAssignment.Metadata.Name)
 
 		// Delete the role assignment
 		if err := configurator.ConfigureDeleteStub(roleAssignUrl, params.GetBaseParams()); err != nil {
@@ -133,7 +134,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.AuthorizationListPara
 
 	// Delete roles
 	for _, role := range rolesList {
-		roleUrl := generators.GenerateRoleURL(mock.AuthorizationProviderV1, params.Tenant, role.Metadata.Name)
+		roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, params.Tenant, role.Metadata.Name)
 
 		// Delete the role assignment
 		if err := configurator.ConfigureDeleteStub(roleUrl, params.GetBaseParams()); err != nil {

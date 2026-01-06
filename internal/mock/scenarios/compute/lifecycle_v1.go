@@ -3,6 +3,7 @@ package compute
 import (
 	"log/slog"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -19,17 +20,17 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.ComputeLifeCycle
 	}
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(mock.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
-	blockUrl := generators.GenerateBlockStorageURL(mock.StorageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	instanceUrl := generators.GenerateInstanceURL(mock.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
-	instanceStartUrl := generators.GenerateInstanceStartURL(mock.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
-	instanceStopUrl := generators.GenerateInstanceStopURL(mock.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
-	instanceRestartUrl := generators.GenerateInstanceRestartURL(mock.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
+	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
+	instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
+	instanceStartUrl := generators.GenerateInstanceStartURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
+	instanceStopUrl := generators.GenerateInstanceStopURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
+	instanceRestartUrl := generators.GenerateInstanceRestartURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Name, params.Instance.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(params.Workspace.Name).
-		Provider(mock.WorkspaceProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Region(params.Region).
 		Labels(params.Workspace.InitialLabels).
 		Build()
@@ -50,7 +51,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.ComputeLifeCycle
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
 		Name(params.BlockStorage.Name).
-		Provider(mock.StorageProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.BlockStorage.InitialSpec).
 		Build()
@@ -71,7 +72,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.ComputeLifeCycle
 	// Instance
 	instanceResponse, err := builders.NewInstanceBuilder().
 		Name(params.Instance.Name).
-		Provider(mock.ComputeProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
 		Spec(params.Instance.InitialSpec).
 		Build()

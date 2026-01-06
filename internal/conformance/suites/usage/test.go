@@ -3,39 +3,40 @@ package usage
 import (
 	"testing"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 func TestUsageV1Suite(t *testing.T) {
-	TestSuite := &UsageV1TestSuite{
+	TestSuite := &FoundationUsageV1TestSuite{
 		MixedTestSuite: suites.MixedTestSuite{
 			TestSuite: suites.TestSuite{
-				Tenant:        conformance.Config.ClientTenant,
-				AuthToken:     conformance.Config.ClientAuthToken,
-				MockEnabled:   conformance.Config.MockEnabled,
-				MockServerURL: &conformance.Config.MockServerURL,
-				ScenarioName:  conformance.FoundationV1UsageSuiteName,
-				BaseDelay:     conformance.Config.BaseDelay,
-				BaseInterval:  conformance.Config.BaseInterval,
-				MaxAttempts:   conformance.Config.MaxAttempts,
+				Tenant:        config.Parameters.ClientTenant,
+				AuthToken:     config.Parameters.ClientAuthToken,
+				MockEnabled:   config.Parameters.MockEnabled,
+				MockServerURL: &config.Parameters.MockServerURL,
+				ScenarioName:  constants.FoundationV1UsageSuiteName,
+				BaseDelay:     config.Parameters.BaseDelay,
+				BaseInterval:  config.Parameters.BaseInterval,
+				MaxAttempts:   config.Parameters.MaxAttempts,
 			},
-			GlobalClient:   conformance.Clients.GlobalClient,
-			RegionalClient: conformance.Clients.RegionalClient,
-			Region:         conformance.Config.ClientRegion,
+			GlobalClient:   config.Clients.GlobalClient,
+			RegionalClient: config.Clients.RegionalClient,
+			Region:         config.Parameters.ClientRegion,
 		},
-		Users:          conformance.Config.ScenariosUsers,
-		NetworkCidr:    conformance.Config.ScenariosCidr,
-		PublicIpsRange: conformance.Config.ScenariosPublicIps,
-		RegionZones:    conformance.Clients.RegionZones,
-		InstanceSkus:   conformance.Clients.InstanceSkus,
-		StorageSkus:    conformance.Clients.StorageSkus,
-		NetworkSkus:    conformance.Clients.NetworkSkus,
+		Users:          config.Parameters.ScenariosUsers,
+		NetworkCidr:    config.Parameters.ScenariosCidr,
+		PublicIpsRange: config.Parameters.ScenariosPublicIps,
+		RegionZones:    config.Clients.RegionZones,
+		InstanceSkus:   config.Clients.InstanceSkus,
+		StorageSkus:    config.Clients.StorageSkus,
+		NetworkSkus:    config.Clients.NetworkSkus,
 	}
 
-	if TestSuite.CanRun(conformance.Config.ScenariosRegexp) {
+	if TestSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, TestSuite)
 	}
 }

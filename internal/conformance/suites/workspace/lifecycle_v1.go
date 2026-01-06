@@ -1,9 +1,9 @@
 package workspace
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/workspace"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -20,7 +20,7 @@ type WorkspaceV1LifeCycleTestSuite struct {
 
 func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, conformance.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
@@ -37,10 +37,10 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					conformance.EnvLabel: conformance.EnvDevelopmentLabel,
+					constants.EnvLabel: constants.EnvDevelopmentLabel,
 				},
 				UpdatedLabels: schema.Labels{
-					conformance.EnvLabel: conformance.EnvProductionLabel,
+					constants.EnvLabel: constants.EnvProductionLabel,
 				},
 			},
 		}
@@ -56,7 +56,7 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			conformance.EnvLabel: conformance.EnvDevelopmentLabel,
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.Tenant,
@@ -65,13 +65,13 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 	}
 	expectMeta, err := builders.NewWorkspaceMetadataBuilder().
 		Name(workspaceName).
-		Provider(conformance.WorkspaceProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
-	expectLabels := schema.Labels{conformance.EnvLabel: conformance.EnvDevelopmentLabel}
+	expectLabels := schema.Labels{constants.EnvLabel: constants.EnvDevelopmentLabel}
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectLabels,
@@ -95,7 +95,7 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 
 	// Update the workspace labels
 	workspace.Labels = schema.Labels{
-		conformance.EnvLabel: conformance.EnvProductionLabel,
+		constants.EnvLabel: constants.EnvProductionLabel,
 	}
 	expectLabels = workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Update the workspace", suite.Client.WorkspaceV1, workspace,

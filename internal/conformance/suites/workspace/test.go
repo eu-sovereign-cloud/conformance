@@ -3,8 +3,9 @@ package workspace
 import (
 	"testing"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
@@ -12,17 +13,17 @@ import (
 func TestWorkspaceV1LifeCycleSuite(t *testing.T) {
 	regionalTest := suites.RegionalTestSuite{
 		TestSuite: suites.TestSuite{
-			Tenant:        conformance.Config.ClientTenant,
-			AuthToken:     conformance.Config.ClientAuthToken,
-			MockEnabled:   conformance.Config.MockEnabled,
-			MockServerURL: &conformance.Config.MockServerURL,
-			ScenarioName:  conformance.WorkspaceV1LifeCycleSuiteName,
-			BaseDelay:     conformance.Config.BaseDelay,
-			BaseInterval:  conformance.Config.BaseInterval,
-			MaxAttempts:   conformance.Config.MaxAttempts,
+			Tenant:        config.Parameters.ClientTenant,
+			AuthToken:     config.Parameters.ClientAuthToken,
+			MockEnabled:   config.Parameters.MockEnabled,
+			MockServerURL: &config.Parameters.MockServerURL,
+			ScenarioName:  constants.WorkspaceV1LifeCycleSuiteName,
+			BaseDelay:     config.Parameters.BaseDelay,
+			BaseInterval:  config.Parameters.BaseInterval,
+			MaxAttempts:   config.Parameters.MaxAttempts,
 		},
-		Region: conformance.Config.ClientRegion,
-		Client: conformance.Clients.RegionalClient,
+		Region: config.Parameters.ClientRegion,
+		Client: config.Clients.RegionalClient,
 	}
 
 	// LifeCycle Suite
@@ -30,7 +31,7 @@ func TestWorkspaceV1LifeCycleSuite(t *testing.T) {
 		RegionalTestSuite: regionalTest,
 	}
 
-	if testLifeCycleSuite.CanRun(conformance.Config.ScenariosRegexp) {
+	if testLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, testLifeCycleSuite)
 	}
 
@@ -38,8 +39,9 @@ func TestWorkspaceV1LifeCycleSuite(t *testing.T) {
 	testListSuite := &WorkspaceV1ListTestSuite{
 		RegionalTestSuite: regionalTest,
 	}
-	testListSuite.RegionalTestSuite.TestSuite.ScenarioName = conformance.WorkspaceV1ListSuiteName
-	if testListSuite.CanRun(conformance.Config.ScenariosRegexp) {
+	testListSuite.RegionalTestSuite.TestSuite.ScenarioName = constants.WorkspaceV1ListSuiteName
+
+	if testListSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, testListSuite)
 	}
 }

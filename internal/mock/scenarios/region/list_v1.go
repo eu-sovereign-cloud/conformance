@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -29,12 +29,12 @@ func ConfigureListScenarioV1(scenario string, params *mock.RegionListParamsV1) (
 	regionResource := generators.GenerateRegionResource(params.Regions[0].Name)
 
 	// Generate URLs
-	regionsUrl := generators.GenerateRegionListURL(conformance.RegionProviderV1)
-	regionUrl := generators.GenerateRegionURL(conformance.RegionProviderV1, params.Regions[0].Name)
+	regionsUrl := generators.GenerateRegionListURL(constants.RegionProviderV1)
+	regionUrl := generators.GenerateRegionURL(constants.RegionProviderV1, params.Regions[0].Name)
 
 	regionsResponse := &region.RegionIterator{
 		Metadata: schema.ResponseMetadata{
-			Provider: conformance.RegionProviderV1,
+			Provider: constants.RegionProviderV1,
 			Resource: regionsResource,
 			Verb:     http.MethodGet,
 		},
@@ -46,7 +46,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.RegionListParamsV1) (
 
 		regionResponse, err := builders.NewRegionBuilder().
 			Name(region.Name).
-			Provider(conformance.RegionProviderV1).ApiVersion(mock.ApiVersion1).
+			Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
 			Spec(region.InitialSpec).
 			Build()
 		if err != nil {
@@ -67,9 +67,9 @@ func ConfigureListScenarioV1(scenario string, params *mock.RegionListParamsV1) (
 	singleRegionResponse := &schema.Region{
 		Metadata: &schema.GlobalResourceMetadata{
 			Name:       params.Regions[0].Name,
-			Provider:   conformance.RegionProviderV1,
+			Provider:   constants.RegionProviderV1,
 			Resource:   regionResource,
-			ApiVersion: mock.ApiVersion1,
+			ApiVersion: constants.ApiVersion1,
 			Kind:       schema.GlobalResourceMetadataKindResourceKindRegion,
 			Verb:       http.MethodGet,
 		},

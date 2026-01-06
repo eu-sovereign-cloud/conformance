@@ -5,9 +5,9 @@ import (
 	"math/rand"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/usage"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -19,7 +19,7 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type UsageV1TestSuite struct {
+type FoundationUsageV1TestSuite struct {
 	suites.MixedTestSuite
 
 	Users          []string
@@ -31,18 +31,18 @@ type UsageV1TestSuite struct {
 	NetworkSkus    []string
 }
 
-func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
+func (suite * FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t,
-		conformance.AuthorizationProviderV1,
+		constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
-		conformance.WorkspaceProviderV1,
+		constants.WorkspaceProviderV1,
 		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
-		conformance.StorageProviderV1,
+		constants.StorageProviderV1,
 		string(schema.RegionalResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalResourceMetadataKindResourceKindImage),
-		conformance.NetworkProviderV1,
+		constants.NetworkProviderV1,
 		string(schema.RegionalResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
 		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
@@ -55,7 +55,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
-		conformance.ComputeProviderV1,
+		constants.ComputeProviderV1,
 		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 	)
 
@@ -178,7 +178,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 				Name: roleName,
 				InitialSpec: &schema.RoleSpec{
 					Permissions: []schema.Permission{
-						{Provider: conformance.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+						{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 					},
 				},
 			},
@@ -195,7 +195,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
-					conformance.EnvLabel: conformance.EnvDevelopmentLabel,
+					constants.EnvLabel: constants.EnvDevelopmentLabel,
 				},
 			},
 			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
@@ -228,7 +228,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 				Name: routeTableName,
 				InitialSpec: &schema.RouteTableSpec{
 					Routes: []schema.RouteSpec{
-						{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+						{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 					},
 				},
 			},
@@ -292,7 +292,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 		Spec: schema.RoleSpec{
 			Permissions: []schema.Permission{
 				{
-					Provider:  conformance.StorageProviderV1,
+					Provider:  constants.StorageProviderV1,
 					Resources: []string{imageResource},
 					Verb:      []string{http.MethodGet},
 				},
@@ -301,7 +301,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectRoleMeta, err := builders.NewRoleMetadataBuilder().
 		Name(roleName).
-		Provider(conformance.AuthorizationProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).
 		Build()
 	if err != nil {
@@ -310,7 +310,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	expectRoleSpec := &schema.RoleSpec{
 		Permissions: []schema.Permission{
 			{
-				Provider:  conformance.StorageProviderV1,
+				Provider:  constants.StorageProviderV1,
 				Resources: []string{imageResource},
 				Verb:      []string{http.MethodGet},
 			},
@@ -353,7 +353,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectRoleAssignMeta, err := builders.NewRoleAssignmentMetadataBuilder().
 		Name(roleAssignmentName).
-		Provider(conformance.AuthorizationProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).
 		Build()
 	if err != nil {
@@ -390,7 +390,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	// Create a workspace
 	workspace := &schema.Workspace{
 		Labels: schema.Labels{
-			conformance.EnvLabel: conformance.EnvDevelopmentLabel,
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		},
 		Metadata: &schema.RegionalResourceMetadata{
 			Tenant: suite.Tenant,
@@ -399,13 +399,13 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
 		Name(workspaceName).
-		Provider(conformance.WorkspaceProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{conformance.EnvLabel: conformance.EnvDevelopmentLabel}
+	expectWorkspaceLabels := schema.Labels{constants.EnvLabel: constants.EnvDevelopmentLabel}
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.RegionalClient.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
@@ -442,7 +442,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectedImageMeta, err := builders.NewImageMetadataBuilder().
 		Name(imageName).
-		Provider(conformance.StorageProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -489,7 +489,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
 		Name(blockStorageName).
-		Provider(conformance.StorageProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -538,7 +538,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectNetworkMeta, err := builders.NewNetworkMetadataBuilder().
 		Name(networkName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -583,7 +583,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectGatewayMeta, err := builders.NewInternetGatewayMetadataBuilder().
 		Name(internetGatewayName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -624,13 +624,13 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 		},
 		Spec: schema.RouteTableSpec{
 			Routes: []schema.RouteSpec{
-				{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+				{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 			},
 		},
 	}
 	expectRouteMeta, err := builders.NewRouteTableMetadataBuilder().
 		Name(routeTableName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Network(networkName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -638,7 +638,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectRouteSpec := &schema.RouteTableSpec{
 		Routes: []schema.RouteSpec{
-			{DestinationCidrBlock: conformance.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+			{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
 		},
 	}
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.RegionalClient.NetworkV1, route,
@@ -681,7 +681,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectSubnetMeta, err := builders.NewSubnetMetadataBuilder().
 		Name(subnetName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Network(networkName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -731,7 +731,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectGroupMeta, err := builders.NewSecurityGroupMetadataBuilder().
 		Name(securityGroupName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -780,7 +780,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectPublicIpMeta, err := builders.NewPublicIpMetadataBuilder().
 		Name(publicIpName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -829,7 +829,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectNicMeta, err := builders.NewNicMetadataBuilder().
 		Name(nicName).
-		Provider(conformance.NetworkProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -881,7 +881,7 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	}
 	expectInstanceMeta, err := builders.NewInstanceMetadataBuilder().
 		Name(instanceName).
-		Provider(conformance.ComputeProviderV1).ApiVersion(conformance.ApiVersion1).
+		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Build()
 	if err != nil {
@@ -949,6 +949,6 @@ func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *UsageV1TestSuite) AfterEach(t provider.T) {
+func (suite * FoundationUsageV1TestSuite) AfterEach(t provider.T) {
 	suite.ResetAllScenarios()
 }

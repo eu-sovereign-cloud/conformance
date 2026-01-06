@@ -1,15 +1,22 @@
-package conformance
+package constants
 
 const (
-	// Labels
+	// Test Data
+
+	/// Labels
 	EnvLabel            = "env"
 	EnvDevelopmentLabel = "development"
 	EnvProductionLabel  = "production"
+	EnvConformanceLabel = "conformance"
 
 	ProviderLabel     = "Provider"
 	TierLabel         = "Tier"
 	ArchitectureLabel = "Architecture"
 
-	// Network
+	/// Zones
+	ZoneA = "a"
+	ZoneB = "b"
+
+	/// Routes
 	RouteTableDefaultDestination = "0.0.0.0/0"
 )

@@ -3,6 +3,7 @@ package authorization
 import (
 	"log/slog"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -20,13 +21,13 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.AuthorizationLif
 	}
 
 	// Generate URLs
-	roleUrl := generators.GenerateRoleURL(mock.AuthorizationProviderV1, params.Tenant, params.Role.Name)
-	roleAssignUrl := generators.GenerateRoleAssignmentURL(mock.AuthorizationProviderV1, params.Tenant, params.RoleAssignment.Name)
+	roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, params.Tenant, params.Role.Name)
+	roleAssignUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, params.Tenant, params.RoleAssignment.Name)
 
 	// Role
 	roleResponse, err := builders.NewRoleBuilder().
 		Name(params.Role.Name).
-		Provider(mock.AuthorizationProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.Role.InitialSpec).
 		Build()
@@ -58,7 +59,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *mock.AuthorizationLif
 	// Role assignment
 	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
 		Name(params.RoleAssignment.Name).
-		Provider(mock.AuthorizationProviderV1).ApiVersion(mock.ApiVersion1).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(params.Tenant).
 		Spec(params.RoleAssignment.InitialSpec).
 		Build()
