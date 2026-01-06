@@ -55,6 +55,28 @@ func (suite *testSuite) getWorkspaceV1Step(stepName string, t provider.T, api *s
 	)
 }
 
+func (suite *testSuite) getListWorkspaceV1Step(
+	stepName string,
+	t provider.T,
+	api *secapi.WorkspaceV1,
+	tref secapi.TenantReference,
+	opts *secapi.ListOptions,
+) {
+	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		suite.setStorageWorkspaceV1StepParams(sCtx, "GetListWorkspace", string(tref.Tenant))
+		var iter *secapi.Iterator[schema.Workspace]
+		var err error
+		if opts != nil {
+			iter, err = api.ListWorkspacesWithFilters(t.Context(), tref.Tenant, opts)
+		} else {
+			iter, err = api.ListWorkspaces(t.Context(), tref.Tenant)
+		}
+		requireNoError(sCtx, err)
+
+		verifyIterListStep(sCtx, t, *iter)
+	})
+}
+
 func (suite *testSuite) getWorkspaceWithErrorV1Step(stepName string, t provider.T, api *secapi.WorkspaceV1, tref secapi.TenantReference, expectedError error) {
 	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		suite.setWorkspaceV1StepParams(sCtx, "GetWorkspace")

@@ -15,7 +15,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type FoundationUsageV1TestSuite struct {
+type UsageV1TestSuite struct {
 	mixedTestSuite
 
 	users          []string
@@ -27,11 +27,8 @@ type FoundationUsageV1TestSuite struct {
 	networkSkus    []string
 }
 
-func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
-	var err error
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *UsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t,
 		authorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
@@ -57,6 +54,8 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 		computeProviderV1,
 		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 	)
+
+	var err error
 
 	// Generate the subnet cidr
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.networkCidr, 8, 1)
@@ -165,7 +164,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 	// Setup mock, if configured to use
 	if suite.mockEnabled {
 		mockParams := &mock.FoundationUsageParamsV1{
-			Params: &mock.Params{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
@@ -268,7 +267,7 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 				},
 			},
 		}
-		wm, err := mock.ConfigFoundationUsageScenario(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureFoundationUsageScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -941,9 +940,9 @@ func (suite *FoundationUsageV1TestSuite) TestSuite(t provider.T) {
 
 	suite.deleteRoleV1Step("Delete the role", t, suite.globalClient.AuthorizationV1, role)
 
-	slog.Info("Finishing " + suite.scenarioName)
+	suite.finishScenario()
 }
 
-func (suite *FoundationUsageV1TestSuite) AfterEach(t provider.T) {
+func (suite *UsageV1TestSuite) AfterEach(t provider.T) {
 	suite.resetAllScenarios()
 }

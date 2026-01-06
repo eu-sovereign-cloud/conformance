@@ -74,11 +74,16 @@ func newListCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			println("Available Test Scenarios:")
 			println(authorizationV1LifeCycleSuiteName)
+			println(authorizationV1ListSuiteName)
 			println(regionV1LifeCycleSuiteName)
 			println(computeV1LifeCycleSuiteName)
+			println(computeV1ListSuiteName)
 			println(networkV1LifeCycleSuiteName)
+			println(networkV1ListSuiteName)
 			println(storageV1LifeCycleSuiteName)
+			println(storageV1ListSuiteName)
 			println(workspaceV1LifeCycleSuiteName)
+			println(workspaceV1ListSuiteName)
 			println(foundationV1UsageSuiteName)
 
 			return nil

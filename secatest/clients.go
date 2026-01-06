@@ -39,13 +39,13 @@ func initClients(ctx context.Context) error {
 	var wm *wiremock.Client
 	if config.mockEnabled {
 		params := mock.ClientsInitParams{
-			Params: &mock.Params{
+			BaseParams: &mock.BaseParams{
 				MockURL:   config.mockServerURL,
 				AuthToken: config.clientAuthToken,
 				Region:    config.clientRegion,
 			},
 		}
-		wm, err = mock.ConfigClientsInitScenario(&params)
+		wm, err = mock.ConfigureClientsInitScenario(&params)
 		if err != nil {
 			return fmt.Errorf("failed to configure mock scenario: %w", err)
 		}

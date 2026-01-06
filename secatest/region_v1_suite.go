@@ -2,7 +2,6 @@ package secatest
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -17,10 +16,8 @@ type RegionV1TestSuite struct {
 	regionName string
 }
 
-func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
-	slog.Info("Starting " + suite.scenarioName)
-
-	t.Title(suite.scenarioName)
+func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
+	suite.startScenario(t)
 	configureTags(t, regionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
 	// Generate scenario Names
@@ -30,8 +27,8 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	// Configure Mock if enabled
 	if suite.mockEnabled {
 
-		mockParams := &mock.RegionParamsV1{
-			Params: &mock.Params{
+		mockParams := &mock.RegionListParamsV1{
+			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.mockServerURL,
 				AuthToken: suite.authToken,
 				Tenant:    suite.tenant,
@@ -68,7 +65,7 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 			},
 		}
 
-		wm, err := mock.ConfigRegionLifecycleScenarioV1(suite.scenarioName, mockParams)
+		wm, err := mock.ConfigureRegionListScenarioV1(suite.scenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -90,6 +87,8 @@ func (suite *RegionV1TestSuite) TestSuite(t provider.T) {
 	}
 
 	suite.getRegionV1Step("Get region "+regions[0].Metadata.Name, t, ctx, suite.client.RegionV1, expectedRegionMeta)
+
+	suite.finishScenario()
 }
 
 func (suite *RegionV1TestSuite) AfterEach(t provider.T) {

@@ -3,10 +3,47 @@ package builders
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	network "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.network.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
+// NetworkSku
+
+// / NetworkSkuIteratorBuilder
+type NetworkSkuIteratorBuilder struct {
+	*tenantResponseMetadataBuilder[NetworkSkuIteratorBuilder]
+
+	items []schema.NetworkSku
+}
+
+func NewNetworkSkuIteratorBuilder() *NetworkSkuIteratorBuilder {
+	builder := &NetworkSkuIteratorBuilder{}
+	builder.tenantResponseMetadataBuilder = newTenantResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *NetworkSkuIteratorBuilder) Items(items []schema.NetworkSku) *NetworkSkuIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *NetworkSkuIteratorBuilder) Build() (*network.SkuIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateSkuListResource(builder.tenant)
+
+	return &network.SkuIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
 // Network
+
+/// NetworkMetadataBuilder
 
 type NetworkMetadataBuilder struct {
 	*regionalWorkspaceResourceMetadataBuilder[NetworkMetadataBuilder]
@@ -29,6 +66,8 @@ func (builder *NetworkMetadataBuilder) Build() (*schema.RegionalWorkspaceResourc
 
 	return metadata, nil
 }
+
+/// NetworkBuilder
 
 type NetworkBuilder struct {
 	*regionalWorkspaceResourceBuilder[NetworkBuilder, schema.NetworkSpec]
@@ -97,7 +136,42 @@ func (builder *NetworkBuilder) Build() (*schema.Network, error) {
 	}, nil
 }
 
-// Internet Gateway
+/// NetworkIteratorBuilder
+
+type NetworkIteratorBuilder struct {
+	*workspaceResponseMetadataBuilder[NetworkIteratorBuilder]
+
+	items []schema.Network
+}
+
+func NewNetworkIteratorBuilder() *NetworkIteratorBuilder {
+	builder := &NetworkIteratorBuilder{}
+	builder.workspaceResponseMetadataBuilder = newWorkspaceResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *NetworkIteratorBuilder) Items(items []schema.Network) *NetworkIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *NetworkIteratorBuilder) Build() (*network.NetworkIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateNetworkListResource(builder.tenant, builder.workspace)
+
+	return &network.NetworkIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
+// InternetGateway
+
+/// InternetGatewayMetadataBuilder
 
 type InternetGatewayMetadataBuilder struct {
 	*regionalWorkspaceResourceMetadataBuilder[InternetGatewayMetadataBuilder]
@@ -120,6 +194,8 @@ func (builder *InternetGatewayMetadataBuilder) Build() (*schema.RegionalWorkspac
 
 	return metadata, nil
 }
+
+/// InternetGatewayBuilder
 
 type InternetGatewayBuilder struct {
 	*regionalWorkspaceResourceBuilder[InternetGatewayBuilder, schema.InternetGatewaySpec]
@@ -180,7 +256,42 @@ func (builder *InternetGatewayBuilder) Build() (*schema.InternetGateway, error) 
 	}, nil
 }
 
-// Route Table
+/// InternetGatewayIteratorBuilder
+
+type InternetGatewayIteratorBuilder struct {
+	*workspaceResponseMetadataBuilder[InternetGatewayIteratorBuilder]
+
+	items []schema.InternetGateway
+}
+
+func NewInternetGatewayIteratorBuilder() *InternetGatewayIteratorBuilder {
+	builder := &InternetGatewayIteratorBuilder{}
+	builder.workspaceResponseMetadataBuilder = newWorkspaceResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *InternetGatewayIteratorBuilder) Items(items []schema.InternetGateway) *InternetGatewayIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *InternetGatewayIteratorBuilder) Build() (*network.InternetGatewayIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateInternetGatewayListResource(builder.tenant, builder.workspace)
+
+	return &network.InternetGatewayIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
+// RouteTable
+
+/// RouteTableMetadataBuilder
 
 type RouteTableMetadataBuilder struct {
 	*regionalNetworkResourceMetadataBuilder[RouteTableMetadataBuilder]
@@ -203,6 +314,8 @@ func (builder *RouteTableMetadataBuilder) Build() (*schema.RegionalNetworkResour
 
 	return metadata, nil
 }
+
+/// RouteTableBuilder
 
 type RouteTableBuilder struct {
 	*regionalNetworkResourceBuilder[RouteTableBuilder, schema.RouteTableSpec]
@@ -273,7 +386,42 @@ func (builder *RouteTableBuilder) Build() (*schema.RouteTable, error) {
 	}, nil
 }
 
+/// RouteTableIteratorBuilder
+
+type RouteTableIteratorBuilder struct {
+	*networkResponseMetadataBuilder[RouteTableIteratorBuilder]
+
+	items []schema.RouteTable
+}
+
+func NewRouteTableIteratorBuilder() *RouteTableIteratorBuilder {
+	builder := &RouteTableIteratorBuilder{}
+	builder.networkResponseMetadataBuilder = newNetworkResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *RouteTableIteratorBuilder) Items(items []schema.RouteTable) *RouteTableIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *RouteTableIteratorBuilder) Build() (*network.RouteTableIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateRouteTableListResource(builder.tenant, builder.workspace, builder.network)
+
+	return &network.RouteTableIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
 // Subnet
+
+/// SubnetMetadataBuilder
 
 type SubnetMetadataBuilder struct {
 	*regionalNetworkResourceMetadataBuilder[SubnetMetadataBuilder]
@@ -296,6 +444,8 @@ func (builder *SubnetMetadataBuilder) Build() (*schema.RegionalNetworkResourceMe
 
 	return metadata, nil
 }
+
+/// SubnetBuilder
 
 type SubnetBuilder struct {
 	*regionalNetworkResourceBuilder[SubnetBuilder, schema.SubnetSpec]
@@ -358,7 +508,42 @@ func (builder *SubnetBuilder) Build() (*schema.Subnet, error) {
 	}, nil
 }
 
-// Public Ip
+/// SubnetIteratorBuilder
+
+type SubnetIteratorBuilder struct {
+	*networkResponseMetadataBuilder[SubnetIteratorBuilder]
+
+	items []schema.Subnet
+}
+
+func NewSubnetIteratorBuilder() *SubnetIteratorBuilder {
+	builder := &SubnetIteratorBuilder{}
+	builder.networkResponseMetadataBuilder = newNetworkResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *SubnetIteratorBuilder) Items(items []schema.Subnet) *SubnetIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *SubnetIteratorBuilder) Build() (*network.SubnetIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateSubnetListResource(builder.tenant, builder.workspace, builder.network)
+
+	return &network.SubnetIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
+// PublicIp
+
+/// PublicIpMetadataBuilder
 
 type PublicIpMetadataBuilder struct {
 	*regionalWorkspaceResourceMetadataBuilder[PublicIpMetadataBuilder]
@@ -381,6 +566,8 @@ func (builder *PublicIpMetadataBuilder) Build() (*schema.RegionalWorkspaceResour
 
 	return metadata, nil
 }
+
+/// PublicIpBuilder
 
 type PublicIpBuilder struct {
 	*regionalWorkspaceResourceBuilder[PublicIpBuilder, schema.PublicIpSpec]
@@ -441,7 +628,42 @@ func (builder *PublicIpBuilder) Build() (*schema.PublicIp, error) {
 	}, nil
 }
 
+/// PublicIpIteratorBuilder
+
+type PublicIpIteratorBuilder struct {
+	*workspaceResponseMetadataBuilder[PublicIpIteratorBuilder]
+
+	items []schema.PublicIp
+}
+
+func NewPublicIpIteratorBuilder() *PublicIpIteratorBuilder {
+	builder := &PublicIpIteratorBuilder{}
+	builder.workspaceResponseMetadataBuilder = newWorkspaceResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *PublicIpIteratorBuilder) Items(items []schema.PublicIp) *PublicIpIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *PublicIpIteratorBuilder) Build() (*network.PublicIpIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GeneratePublicIpListResource(builder.tenant, builder.workspace)
+
+	return &network.PublicIpIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
 // Nic
+
+/// NicMetadataBuilder
 
 type NicMetadataBuilder struct {
 	*regionalWorkspaceResourceMetadataBuilder[NicMetadataBuilder]
@@ -464,6 +686,8 @@ func (builder *NicMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMet
 
 	return metadata, nil
 }
+
+/// NicBuilder
 
 type NicBuilder struct {
 	*regionalWorkspaceResourceBuilder[NicBuilder, schema.NicSpec]
@@ -525,7 +749,42 @@ func (builder *NicBuilder) Build() (*schema.Nic, error) {
 	}, nil
 }
 
-// Security Group
+/// NicIteratorBuilder
+
+type NicIteratorBuilder struct {
+	*workspaceResponseMetadataBuilder[NicIteratorBuilder]
+
+	items []schema.Nic
+}
+
+func NewNicIteratorBuilder() *NicIteratorBuilder {
+	builder := &NicIteratorBuilder{}
+	builder.workspaceResponseMetadataBuilder = newWorkspaceResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *NicIteratorBuilder) Items(items []schema.Nic) *NicIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *NicIteratorBuilder) Build() (*network.NicIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateNicListResource(builder.tenant, builder.workspace)
+
+	return &network.NicIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
+// SecurityGroup
+
+/// SecurityGroupMetadataBuilder
 
 type SecurityGroupMetadataBuilder struct {
 	*regionalWorkspaceResourceMetadataBuilder[SecurityGroupMetadataBuilder]
@@ -548,6 +807,8 @@ func (builder *SecurityGroupMetadataBuilder) Build() (*schema.RegionalWorkspaceR
 
 	return metadata, nil
 }
+
+/// SecurityGroupBuilder
 
 type SecurityGroupBuilder struct {
 	*regionalWorkspaceResourceBuilder[SecurityGroupBuilder, schema.SecurityGroupSpec]
@@ -614,5 +875,38 @@ func (builder *SecurityGroupBuilder) Build() (*schema.SecurityGroup, error) {
 		Labels:   builder.labels,
 		Spec:     *builder.spec,
 		Status:   &schema.SecurityGroupStatus{},
+	}, nil
+}
+
+/// SecurityGroupIteratorBuilder
+
+type SecurityGroupIteratorBuilder struct {
+	*workspaceResponseMetadataBuilder[SecurityGroupIteratorBuilder]
+
+	items []schema.SecurityGroup
+}
+
+func NewSecurityGroupIteratorBuilder() *SecurityGroupIteratorBuilder {
+	builder := &SecurityGroupIteratorBuilder{}
+	builder.workspaceResponseMetadataBuilder = newWorkspaceResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *SecurityGroupIteratorBuilder) Items(items []schema.SecurityGroup) *SecurityGroupIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *SecurityGroupIteratorBuilder) Build() (*network.SecurityGroupIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateSecurityGroupListResource(builder.tenant, builder.workspace)
+
+	return &network.SecurityGroupIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
 	}, nil
 }

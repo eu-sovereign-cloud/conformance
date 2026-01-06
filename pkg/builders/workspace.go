@@ -2,10 +2,13 @@ package builders
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-// workspace
+// Workspace
+
+/// WorkspaceMetadataBuilder
 
 type WorkspaceMetadataBuilder struct {
 	*regionalResourceMetadataBuilder[WorkspaceMetadataBuilder]
@@ -28,6 +31,8 @@ func (builder *WorkspaceMetadataBuilder) Build() (*schema.RegionalResourceMetada
 
 	return metadata, nil
 }
+
+/// WorkspaceBuilder
 
 type WorkspaceBuilder struct {
 	*regionalResourceBuilder[WorkspaceBuilder, schema.WorkspaceSpec]
@@ -66,5 +71,38 @@ func (builder *WorkspaceBuilder) Build() (*schema.Workspace, error) {
 		Labels:   builder.labels,
 		Spec:     schema.WorkspaceSpec{},
 		Status:   &schema.WorkspaceStatus{},
+	}, nil
+}
+
+/// WorkspaceIteratorBuilder
+
+type WorkspaceIteratorBuilder struct {
+	*tenantResponseMetadataBuilder[WorkspaceIteratorBuilder]
+
+	items []schema.Workspace
+}
+
+func NewWorkspaceIteratorBuilder() *WorkspaceIteratorBuilder {
+	builder := &WorkspaceIteratorBuilder{}
+	builder.tenantResponseMetadataBuilder = newTenantResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *WorkspaceIteratorBuilder) Items(items []schema.Workspace) *WorkspaceIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *WorkspaceIteratorBuilder) Build() (*workspace.WorkspaceIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateWorkspaceListResource(builder.tenant)
+
+	return &workspace.WorkspaceIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
 	}, nil
 }
