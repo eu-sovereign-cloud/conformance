@@ -12,7 +12,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureInitScenario(params *mock.ClientsInitParams) (*wiremock.Client, error) {
+func ConfigureInitScenarioV1(params *mock.ClientsInitParams) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to ClientsInit scenario")
 
 	configurator, err := stubs.NewStubConfigurator("ClientsInit", params.MockURL)

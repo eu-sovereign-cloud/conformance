@@ -1,23 +1,23 @@
-package compute
+package main
 
 import (
 	"testing"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites/storage"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
-func TestComputeV1Suite(t *testing.T) {
+func TestStorageV1Suites(t *testing.T) {
 	regionalTestSuite := suites.RegionalTestSuite{
 		TestSuite: suites.TestSuite{
 			Tenant:        config.Parameters.ClientTenant,
 			AuthToken:     config.Parameters.ClientAuthToken,
 			MockEnabled:   config.Parameters.MockEnabled,
 			MockServerURL: &config.Parameters.MockServerURL,
-			ScenarioName:  constants.ComputeV1LifeCycleSuiteName,
 			BaseDelay:     config.Parameters.BaseDelay,
 			BaseInterval:  config.Parameters.BaseInterval,
 			MaxAttempts:   config.Parameters.MaxAttempts,
@@ -27,26 +27,21 @@ func TestComputeV1Suite(t *testing.T) {
 	}
 
 	// LifeCycle Suite
-	testLifeCycleSuite := &ComputeV1LifeCycleTestSuite{
+	testLifeCycleSuite := &storage.StorageV1LifeCycleTestSuite{
 		RegionalTestSuite: regionalTestSuite,
-		AvailableZones:    config.Clients.RegionZones,
-		InstanceSkus:      config.Clients.InstanceSkus,
 		StorageSkus:       config.Clients.StorageSkus,
 	}
-
+	testLifeCycleSuite.ScenarioName = constants.StorageV1LifeCycleSuiteName
 	if testLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, testLifeCycleSuite)
 	}
 
 	// List Suite
-	testListSuite := &ComputeV1ListTestSuite{
+	testListSuite := &storage.StorageV1ListTestSuite{
 		RegionalTestSuite: regionalTestSuite,
-		AvailableZones:    config.Clients.RegionZones,
-		InstanceSkus:      config.Clients.InstanceSkus,
 		StorageSkus:       config.Clients.StorageSkus,
 	}
-	testListSuite.RegionalTestSuite.ScenarioName = constants.ComputeV1ListSuiteName
-
+	testListSuite.ScenarioName = constants.StorageV1ListSuiteName
 	if testListSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, testListSuite)
 	}

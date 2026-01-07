@@ -8,7 +8,10 @@ import (
 // Clients
 
 func (configurator *stubConfigurator) ConfigureClientsInitStub(response *schema.Region, url string, params *mock.BaseParams) error {
-	// setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
+	setCreatedGlobalResourceMetadata(response.Metadata)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

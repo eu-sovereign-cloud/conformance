@@ -20,7 +20,7 @@ type NetworkLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	NetworkCidr    string
-	publicIpsRange string
+	PublicIpsRange string
 	RegionZones    []string
 	StorageSkus    []string
 	InstanceSkus   []string
@@ -58,11 +58,11 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	}
 
 	// Generate the public ips
-	publicIpAddress1, err := generators.GeneratePublicIp(suite.publicIpsRange, 1)
+	publicIpAddress1, err := generators.GeneratePublicIp(suite.PublicIpsRange, 1)
 	if err != nil {
 		t.Fatalf("Failed to generate public ip: %v", err)
 	}
-	publicIpAddress2, err := generators.GeneratePublicIp(suite.publicIpsRange, 2)
+	publicIpAddress2, err := generators.GeneratePublicIp(suite.PublicIpsRange, 2)
 	if err != nil {
 		t.Fatalf("Failed to generate public ip: %v", err)
 	}

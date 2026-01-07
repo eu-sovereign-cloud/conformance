@@ -252,19 +252,19 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 	}
 
 	// List block storages
-	stepsBuilder.GetListBlockStorageV1Step("GetList block storage", t, suite.Client.StorageV1, wref, nil)
+	stepsBuilder.GetListBlockStorageV1Step("GetList block storage", suite.Client.StorageV1, wref, nil)
 
 	// List block storages with limit
-	stepsBuilder.GetListBlockStorageV1Step("Get List block storage with limit", t, suite.Client.StorageV1, wref,
+	stepsBuilder.GetListBlockStorageV1Step("Get List block storage with limit", suite.Client.StorageV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List block storages with label
-	stepsBuilder.GetListBlockStorageV1Step("Get list of block storage with label", t, suite.Client.StorageV1, wref,
+	stepsBuilder.GetListBlockStorageV1Step("Get list of block storage with label", suite.Client.StorageV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
 
 	// List block storages with limit and label
-	stepsBuilder.GetListBlockStorageV1Step("Get list of block storage with limit and label", t, suite.Client.StorageV1, wref,
+	stepsBuilder.GetListBlockStorageV1Step("Get list of block storage with limit and label", suite.Client.StorageV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
 
@@ -352,10 +352,10 @@ func (suite *StorageV1ListTestSuite) TestListScenario(t provider.T) {
 
 	// Skus
 	// List Skus
-	stepsBuilder.GetListSkuV1Step("List skus", t, suite.Client.StorageV1, tref, nil)
+	stepsBuilder.GetListSkuV1Step("List skus", suite.Client.StorageV1, tref, nil)
 
 	// List Skus with limit
-	stepsBuilder.GetListSkuV1Step("Get list of skus", t, suite.Client.StorageV1, tref,
+	stepsBuilder.GetListSkuV1Step("Get list of skus", suite.Client.StorageV1, tref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// Delete all images

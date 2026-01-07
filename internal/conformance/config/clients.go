@@ -47,7 +47,7 @@ func InitClients(ctx context.Context) error {
 				Region:    Parameters.ClientRegion,
 			},
 		}
-		wm, err = clients.ConfigureInitScenario(&params)
+		wm, err = clients.ConfigureInitScenarioV1(&params)
 		if err != nil {
 			return fmt.Errorf("failed to configure mock scenario: %w", err)
 		}

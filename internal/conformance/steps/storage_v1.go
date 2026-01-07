@@ -61,25 +61,24 @@ func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, ap
 }
 
 func (configurator *StepsConfigurator) GetListBlockStorageV1Step(
-	stepName string,
-	t provider.T,
+	stepName string,	
 	api *secapi.StorageV1,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListBlockStorage", string(wref.Workspace))
 
 		var iter *secapi.Iterator[schema.BlockStorage]
 		var err error
 		if opts != nil {
-			iter, err = api.ListBlockStoragesWithFilters(t.Context(), wref.Tenant, wref.Workspace, opts)
+			iter, err = api.ListBlockStoragesWithFilters(configurator.t.Context(), wref.Tenant, wref.Workspace, opts)
 		} else {
-			iter, err = api.ListBlockStorages(t.Context(), wref.Tenant, wref.Workspace)
+			iter, err = api.ListBlockStorages(configurator.t.Context(), wref.Tenant, wref.Workspace)
 		}
 		requireNoError(sCtx, err)
 
-		verifyIterListStep(sCtx, t, *iter)
+		verifyIterListStep(sCtx, configurator.t, *iter)
 	})
 }
 
@@ -190,22 +189,21 @@ func (configurator *StepsConfigurator) DeleteImageV1Step(stepName string, api *s
 
 func (configurator *StepsConfigurator) GetListSkuV1Step(
 	stepName string,
-	t provider.T,
 	api *secapi.StorageV1,
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) {
-	t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListSku", tref.Name)
 		var iter *secapi.Iterator[schema.StorageSku]
 		var err error
 		if opts != nil {
-			iter, err = api.ListSkusWithFilters(t.Context(), tref.Tenant, opts)
+			iter, err = api.ListSkusWithFilters(configurator.t.Context(), tref.Tenant, opts)
 		} else {
-			iter, err = api.ListSkus(t.Context(), tref.Tenant)
+			iter, err = api.ListSkus(configurator.t.Context(), tref.Tenant)
 		}
 		requireNoError(sCtx, err)
 
-		verifyIterListStep(sCtx, t, *iter)
+		verifyIterListStep(sCtx, configurator.t, *iter)
 	})
 }

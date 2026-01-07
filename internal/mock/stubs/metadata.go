@@ -6,6 +6,14 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
+// GlobalResourceMetadata
+
+func setCreatedGlobalResourceMetadata(metadata *schema.GlobalResourceMetadata) {
+	metadata.CreatedAt = time.Now()
+	metadata.LastModifiedAt = time.Now()
+	metadata.ResourceVersion = 1
+}
+
 // GlobalTenantResourceMetadata
 
 func setCreatedGlobalTenantResourceMetadata(metadata *schema.GlobalTenantResourceMetadata) {
