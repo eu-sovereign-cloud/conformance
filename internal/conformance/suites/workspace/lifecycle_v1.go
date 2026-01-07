@@ -51,7 +51,7 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 		suite.MockClient = wm
 	}
 
-	stepsBuilder := steps.NewBuilder(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
 
 	// Create a workspace
 	workspace := &schema.Workspace{

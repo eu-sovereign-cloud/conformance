@@ -15,7 +15,7 @@ import (
 func ConfigureInitScenario(params *mock.ClientsInitParams) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to ClientsInit scenario")
 
-	configurator, err := stubs.NewScenarioConfigurator("ClientsInit", params.MockURL)
+	configurator, err := stubs.NewStubConfigurator("ClientsInit", params.MockURL)
 	if err != nil {
 		return nil, err
 	}

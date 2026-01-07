@@ -15,7 +15,7 @@ import (
 func ConfigureLifecycleScenarioV1(scenario string, params *mock.AuthorizationLifeCycleParamsV1) (*wiremock.Client, error) {
 	slog.Info("Configuring mock to scenario " + scenario)
 
-	configurator, err := stubs.NewScenarioConfigurator(scenario, params.MockURL)
+	configurator, err := stubs.NewStubConfigurator(scenario, params.MockURL)
 	if err != nil {
 		return nil, err
 	}

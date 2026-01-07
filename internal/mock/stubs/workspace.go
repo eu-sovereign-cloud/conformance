@@ -8,7 +8,7 @@ import (
 
 // Workspace
 
-func (configurator *scenarioConfigurator) ConfigureCreateWorkspaceStub(response *schema.Workspace, url string, params *mock.BaseParams) error {
+func (configurator *stubConfigurator) ConfigureCreateWorkspaceStub(response *schema.Workspace, url string, params *mock.BaseParams) error {
 	setCreatedRegionalResourceMetadata(response.Metadata)
 	response.Status = newWorkspaceStatus(schema.ResourceStateCreating)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -17,7 +17,7 @@ func (configurator *scenarioConfigurator) ConfigureCreateWorkspaceStub(response 
 	return nil
 }
 
-func (configurator *scenarioConfigurator) ConfigureUpdateWorkspaceStubWithLabels(response *schema.Workspace, url string, params *mock.BaseParams, labels schema.Labels) error {
+func (configurator *stubConfigurator) ConfigureUpdateWorkspaceStubWithLabels(response *schema.Workspace, url string, params *mock.BaseParams, labels schema.Labels) error {
 	setModifiedRegionalResourceMetadata(response.Metadata)
 	setWorkspaceState(response.Status, schema.ResourceStateUpdating)
 	response.Labels = labels
@@ -27,7 +27,7 @@ func (configurator *scenarioConfigurator) ConfigureUpdateWorkspaceStubWithLabels
 	return nil
 }
 
-func (configurator *scenarioConfigurator) ConfigureGetActiveWorkspaceStub(response *schema.Workspace, url string, params *mock.BaseParams) error {
+func (configurator *stubConfigurator) ConfigureGetActiveWorkspaceStub(response *schema.Workspace, url string, params *mock.BaseParams) error {
 	setWorkspaceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -35,7 +35,7 @@ func (configurator *scenarioConfigurator) ConfigureGetActiveWorkspaceStub(respon
 	return nil
 }
 
-func (configurator *scenarioConfigurator) ConfigureGetListActiveWorkspaceStub(response *workspace.WorkspaceIterator, url string, params *mock.BaseParams, pathParams map[string]string) error {
+func (configurator *stubConfigurator) ConfigureGetListActiveWorkspaceStub(response *workspace.WorkspaceIterator, url string, params *mock.BaseParams, pathParams map[string]string) error {
 	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

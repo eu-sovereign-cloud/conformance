@@ -89,7 +89,7 @@ func (suite *AuthorizationV1LifeCycleTestSuite) TestLifeCycleScenario(t provider
 		suite.MockClient = wm
 	}
 
-	stepsBuilder := steps.NewBuilder(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
 
 	// Role
 

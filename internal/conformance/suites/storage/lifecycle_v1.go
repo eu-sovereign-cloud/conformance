@@ -99,7 +99,7 @@ func (suite *StorageV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 		suite.MockClient = wm
 	}
 
-	stepsBuilder := steps.NewBuilder(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
 
 	// Workspace
 

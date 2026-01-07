@@ -138,7 +138,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 		suite.MockClient = wm
 	}
 
-	stepsBuilder := steps.NewBuilder(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
 
 	// Role
 	roles := []schema.Role{

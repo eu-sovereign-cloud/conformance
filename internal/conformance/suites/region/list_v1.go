@@ -77,7 +77,7 @@ func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
 		suite.MockClient = wm
 	}
 
-	stepsBuilder := steps.NewBuilder(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
 
 	ctx := context.Background()
 

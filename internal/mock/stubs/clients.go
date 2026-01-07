@@ -7,7 +7,7 @@ import (
 
 // Clients
 
-func (configurator *scenarioConfigurator) ConfigureClientsInitStub(response *schema.Region, url string, params *mock.BaseParams) error {
+func (configurator *stubConfigurator) ConfigureClientsInitStub(response *schema.Region, url string, params *mock.BaseParams) error {
 	// setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err

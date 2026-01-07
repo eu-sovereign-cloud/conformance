@@ -13,7 +13,7 @@ import (
 
 // Authorization
 
-func BulkCreateRolesStubV1(configurator *scenarioConfigurator,
+func BulkCreateRolesStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams,
 	roleParams []mock.ResourceParams[schema.RoleSpec],
 ) ([]schema.Role, error) {
@@ -42,7 +42,7 @@ func BulkCreateRolesStubV1(configurator *scenarioConfigurator,
 	return roles, nil
 }
 
-func BulkCreateRoleAssignmentsStubV1(configurator *scenarioConfigurator,
+func BulkCreateRoleAssignmentsStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams,
 	roleAssignmentParams []mock.ResourceParams[schema.RoleAssignmentSpec],
 ) ([]schema.RoleAssignment, error) {
@@ -75,7 +75,7 @@ func BulkCreateRoleAssignmentsStubV1(configurator *scenarioConfigurator,
 
 // Workspace
 
-func BulkCreateWorkspacesStubV1(configurator *scenarioConfigurator,
+func BulkCreateWorkspacesStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams,
 	workspaceParams []mock.ResourceParams[schema.WorkspaceSpec],
 ) ([]schema.Workspace, error) {
@@ -105,7 +105,7 @@ func BulkCreateWorkspacesStubV1(configurator *scenarioConfigurator,
 
 // Compute
 
-func BulkCreateInstancesStubV1(configurator *scenarioConfigurator,
+func BulkCreateInstancesStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams, workspace string,
 	instanceParams []mock.ResourceParams[schema.InstanceSpec],
 ) ([]schema.Instance, error) {
@@ -136,7 +136,7 @@ func BulkCreateInstancesStubV1(configurator *scenarioConfigurator,
 
 // Storage
 
-func BulkCreateBlockStoragesStubV1(configurator *scenarioConfigurator,
+func BulkCreateBlockStoragesStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams, workspace string,
 	blockStorageParams []mock.ResourceParams[schema.BlockStorageSpec],
 ) ([]schema.BlockStorage, error) {
@@ -165,7 +165,7 @@ func BulkCreateBlockStoragesStubV1(configurator *scenarioConfigurator,
 	return blocks, nil
 }
 
-func BulkCreateImagesStubV1(configurator *scenarioConfigurator,
+func BulkCreateImagesStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams,
 	imageParams []mock.ResourceParams[schema.ImageSpec],
 ) ([]schema.Image, error) {
@@ -196,7 +196,7 @@ func BulkCreateImagesStubV1(configurator *scenarioConfigurator,
 
 // Network
 
-func BulkCreateNetworksStubV1(configurator *scenarioConfigurator,
+func BulkCreateNetworksStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams, workspace string,
 	networkParams []mock.ResourceParams[schema.NetworkSpec],
 ) ([]schema.Network, error) {
@@ -225,7 +225,7 @@ func BulkCreateNetworksStubV1(configurator *scenarioConfigurator,
 	return networks, nil
 }
 
-func BulkCreateInternetGatewaysStubV1(configurator *scenarioConfigurator,
+func BulkCreateInternetGatewaysStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams, workspace string,
 	internetGatewayParams []mock.ResourceParams[schema.InternetGatewaySpec],
 ) ([]schema.InternetGateway, error) {
@@ -254,7 +254,7 @@ func BulkCreateInternetGatewaysStubV1(configurator *scenarioConfigurator,
 	return gateways, nil
 }
 
-func BulkCreateRouteTableStubV1(configurator *scenarioConfigurator,
+func BulkCreateRouteTableStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams, workspace, network string,
 	routeTableParams []mock.ResourceParams[schema.RouteTableSpec],
 ) ([]schema.RouteTable, error) {
@@ -282,7 +282,7 @@ func BulkCreateRouteTableStubV1(configurator *scenarioConfigurator,
 	return routeTables, nil
 }
 
-func BulkCreateSubnetsStubV1(configurator *scenarioConfigurator,
+func BulkCreateSubnetsStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams, workspace, network string,
 	subnetParams []mock.ResourceParams[schema.SubnetSpec],
 ) ([]schema.Subnet, error) {
@@ -310,7 +310,7 @@ func BulkCreateSubnetsStubV1(configurator *scenarioConfigurator,
 	return subnets, nil
 }
 
-func BulkCreatePublicIpsStubV1(configurator *scenarioConfigurator,
+func BulkCreatePublicIpsStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams, workspace string,
 	publicIpParams []mock.ResourceParams[schema.PublicIpSpec],
 ) ([]schema.PublicIp, error) {
@@ -338,7 +338,7 @@ func BulkCreatePublicIpsStubV1(configurator *scenarioConfigurator,
 	return publicIps, nil
 }
 
-func BulkCreateNicsStubV1(configurator *scenarioConfigurator,
+func BulkCreateNicsStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams, workspace string,
 	nicParams []mock.ResourceParams[schema.NicSpec],
 ) ([]schema.Nic, error) {
@@ -366,7 +366,7 @@ func BulkCreateNicsStubV1(configurator *scenarioConfigurator,
 	return nics, nil
 }
 
-func BulkCreateSecurityGroupsStubV1(configurator *scenarioConfigurator,
+func BulkCreateSecurityGroupsStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams, workspace string,
 	securityGroupParams []mock.ResourceParams[schema.SecurityGroupSpec],
 ) ([]schema.SecurityGroup, error) {

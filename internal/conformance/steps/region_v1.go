@@ -10,30 +10,30 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-func (builder *Builder) GetRegionV1Step(stepName string, ctx context.Context, api *secapi.RegionV1, expectedMeta *schema.GlobalResourceMetadata) *schema.Region {
+func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx context.Context, api *secapi.RegionV1, expectedMeta *schema.GlobalResourceMetadata) *schema.Region {
 	var resp *schema.Region
 	var err error
 
-	builder.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		builder.suite.SetRegionV1StepParams(sCtx, "GetRegion")
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetRegionV1StepParams(sCtx, "GetRegion")
 
 		resp, err = api.GetRegion(ctx, expectedMeta.Name)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
 		expectedMeta.Verb = http.MethodGet
-		builder.suite.VerifyGlobalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
+		configurator.suite.VerifyGlobalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
 
-		builder.suite.VerifyRegionSpecStep(sCtx, &resp.Spec)
+		configurator.suite.VerifyRegionSpecStep(sCtx, &resp.Spec)
 	})
 	return resp
 }
 
-func (builder *Builder) ListRegionsV1Step(stepName string, ctx context.Context, api *secapi.RegionV1) []*schema.Region {
+func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx context.Context, api *secapi.RegionV1) []*schema.Region {
 	var resp []*schema.Region
 
-	builder.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		builder.suite.SetRegionV1StepParams(sCtx, "ListRegions")
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetRegionV1StepParams(sCtx, "ListRegions")
 
 		iter, err := api.ListRegions(ctx)
 		requireNoError(sCtx, err)

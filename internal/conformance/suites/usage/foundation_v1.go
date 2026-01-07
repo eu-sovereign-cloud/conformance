@@ -31,7 +31,7 @@ type FoundationUsageV1TestSuite struct {
 	NetworkSkus    []string
 }
 
-func (suite * FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
+func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t,
 		constants.AuthorizationProviderV1,
@@ -279,7 +279,7 @@ func (suite * FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider
 		suite.MockClient = wm
 	}
 
-	stepsBuilder := steps.NewBuilder(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
 
 	// Role
 
@@ -949,6 +949,6 @@ func (suite * FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider
 	suite.FinishScenario()
 }
 
-func (suite * FoundationUsageV1TestSuite) AfterEach(t provider.T) {
+func (suite *FoundationUsageV1TestSuite) AfterEach(t provider.T) {
 	suite.ResetAllScenarios()
 }

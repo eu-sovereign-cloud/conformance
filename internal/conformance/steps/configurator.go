@@ -6,13 +6,13 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type Builder struct {
+type StepsConfigurator struct {
 	suite *suites.TestSuite
 	t     provider.T
 }
 
-func NewBuilder(suite *suites.TestSuite, t provider.T) *Builder {
-	return &Builder{
+func NewStepsConfigurator(suite *suites.TestSuite, t provider.T) *StepsConfigurator {
+	return &StepsConfigurator{
 		suite: suite,
 		t:     t,
 	}
