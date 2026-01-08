@@ -24,8 +24,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.RegionListParamsV1) (
 	}
 
 	// Generate resource
-	// TODO Create a region list resource function
-	regionsResource := generators.GenerateRegionResource("Regions")
+	regionsResource := generators.GenerateRegionListResource()
 	regionResource := generators.GenerateRegionResource(params.Regions[0].Name)
 
 	// Generate URLs

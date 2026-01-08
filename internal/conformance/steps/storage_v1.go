@@ -61,7 +61,7 @@ func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, ap
 }
 
 func (configurator *StepsConfigurator) GetListBlockStorageV1Step(
-	stepName string,	
+	stepName string,
 	api *secapi.StorageV1,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,

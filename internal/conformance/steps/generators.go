@@ -10,8 +10,7 @@ import (
 
 // Skus
 
-// TODO Find a better package to these methods
-
+// TODO Find a better package to it
 func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 	return []schema.StorageSku{
 		{
@@ -23,7 +22,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				constants.ProviderLabel: "seca",
+				constants.ProviderLabel: constants.ProviderSecaLabel,
 				constants.TierLabel:     "RD100",
 			},
 			Spec: &schema.StorageSkuSpec{
@@ -41,7 +40,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				constants.ProviderLabel: "seca",
+				constants.ProviderLabel: constants.ProviderSecaLabel,
 				constants.TierLabel:     "RD500",
 			},
 			Spec: &schema.StorageSkuSpec{
@@ -59,7 +58,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				constants.ProviderLabel: "seca",
+				constants.ProviderLabel: constants.ProviderSecaLabel,
 				constants.TierLabel:     "RD2k",
 			},
 			Spec: &schema.StorageSkuSpec{
@@ -82,9 +81,8 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				// TODO Create constants
-				constants.ArchitectureLabel: "amd64",
-				constants.ProviderLabel:     "seca",
+				constants.ArchitectureLabel: constants.ArchitectureAmd64Label,
+				constants.ProviderLabel:     constants.ProviderSecaLabel,
 				constants.TierLabel:         "D2XS",
 			},
 			Spec: &schema.InstanceSkuSpec{
@@ -101,8 +99,8 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				constants.ArchitectureLabel: "amd64",
-				constants.ProviderLabel:     "seca",
+				constants.ArchitectureLabel: constants.ArchitectureAmd64Label,
+				constants.ProviderLabel:     constants.ProviderSecaLabel,
 				constants.TierLabel:         "DXS",
 			},
 			Spec: &schema.InstanceSkuSpec{
@@ -119,8 +117,8 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				constants.ArchitectureLabel: "amd64",
-				constants.ProviderLabel:     "seca",
+				constants.ArchitectureLabel: constants.ArchitectureAmd64Label,
+				constants.ProviderLabel:     constants.ProviderSecaLabel,
 				constants.TierLabel:         "DS",
 			},
 			Spec: &schema.InstanceSkuSpec{
@@ -142,7 +140,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				constants.ProviderLabel: "seca",
+				constants.ProviderLabel: constants.ProviderSecaLabel,
 				constants.TierLabel:     "N1K",
 			},
 			Spec: &schema.NetworkSkuSpec{
@@ -159,7 +157,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				constants.ProviderLabel: "seca",
+				constants.ProviderLabel: constants.ProviderSecaLabel,
 				constants.TierLabel:     "N5K",
 			},
 			Spec: &schema.NetworkSkuSpec{
@@ -176,7 +174,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 				Tenant:   tenant,
 			},
 			Labels: schema.Labels{
-				constants.ProviderLabel: "seca",
+				constants.ProviderLabel: constants.ProviderSecaLabel,
 				constants.TierLabel:     "N10K",
 			},
 			Spec: &schema.NetworkSkuSpec{

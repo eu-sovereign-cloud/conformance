@@ -25,7 +25,6 @@ type AuthorizationV1LifeCycleTestSuite struct {
 
 func (suite *AuthorizationV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	suite.StartScenario(t)
-	// TODO Find a better package to place the constants
 	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),

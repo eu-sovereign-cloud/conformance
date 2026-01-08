@@ -10,8 +10,12 @@ const (
 	EnvConformanceLabel = "conformance"
 
 	ProviderLabel     = "Provider"
-	TierLabel         = "Tier"
-	ArchitectureLabel = "Architecture"
+	ProviderSecaLabel = "seca"
+
+	TierLabel = "Tier"
+
+	ArchitectureLabel      = "Architecture"
+	ArchitectureAmd64Label = "amd64"
 
 	/// Zones
 	ZoneA = "a"

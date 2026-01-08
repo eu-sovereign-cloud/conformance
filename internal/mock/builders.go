@@ -8,6 +8,7 @@ import (
 
 // Region
 
+// TODO Find a better package to it
 func BuildProviderSpecV1() []schema.Provider {
 	return []schema.Provider{
 		{

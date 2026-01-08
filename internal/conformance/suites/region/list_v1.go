@@ -29,9 +29,9 @@ func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
 	regionNameA := generators.GenerateRegionName()
 	regionNameB := generators.GenerateRegionName()
 	regionNameC := generators.GenerateRegionName()
+
 	// Configure Mock if enabled
 	if suite.MockEnabled {
-
 		mockParams := &mock.RegionListParamsV1{
 			BaseParams: &mock.BaseParams{
 				MockURL:   *suite.MockServerURL,
@@ -42,28 +42,28 @@ func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
 				{
 					Name: suite.RegionName,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{constants.ZoneA, constants.ZoneA},
+						AvailableZones: []string{constants.ZoneA, constants.ZoneB},
 						Providers:      mock.BuildProviderSpecV1(),
 					},
 				},
 				{
 					Name: regionNameA,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{constants.ZoneA, constants.ZoneA},
+						AvailableZones: []string{constants.ZoneA, constants.ZoneB},
 						Providers:      mock.BuildProviderSpecV1(),
 					},
 				},
 				{
 					Name: regionNameB,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{constants.ZoneA, constants.ZoneA},
+						AvailableZones: []string{constants.ZoneA, constants.ZoneB},
 						Providers:      mock.BuildProviderSpecV1(),
 					},
 				},
 				{
 					Name: regionNameC,
 					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{constants.ZoneA, constants.ZoneA},
+						AvailableZones: []string{constants.ZoneA, constants.ZoneB},
 						Providers:      mock.BuildProviderSpecV1(),
 					},
 				},

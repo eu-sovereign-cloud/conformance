@@ -9,10 +9,9 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-// TODO Review if the right package of these methods are stubs
-
 // Authorization
 
+// TODO Find a better package to it
 func BulkCreateRolesStubV1(configurator *stubConfigurator,
 	baseParams *mock.BaseParams,
 	roleParams []mock.ResourceParams[schema.RoleSpec],
