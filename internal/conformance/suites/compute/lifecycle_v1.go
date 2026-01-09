@@ -121,15 +121,13 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	params := &params.ComputeLifeCycleParamsV1{
-		BaseParams: &params.BaseParams{
-			MockParams: &mock.MockParams{
-				ServerURL: *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-			},
+		MockParams: &mock.MockParams{
+			ServerURL: *suite.MockServerURL,
+			AuthToken: suite.AuthToken,
 		},
 		Workspace:       workspace,
 		BlockStorage:    blockStorage,
-		CreatedInstance: initialInstance,
+		InitialInstance: initialInstance,
 		UpdatedInstance: updatedInstance,
 	}
 	suite.params = params
@@ -244,18 +242,18 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Metadata: &schema.RegionalWorkspaceResourceMetadata{
 			Tenant:    suite.Tenant,
 			Workspace: suite.params.Workspace.Metadata.Name,
-			Name:      suite.params.CreatedInstance.Metadata.Name,
+			Name:      suite.params.InitialInstance.Metadata.Name,
 		},
 		Spec: schema.InstanceSpec{
-			SkuRef: suite.params.CreatedInstance.Spec.SkuRef,
-			Zone:   suite.params.CreatedInstance.Spec.Zone,
+			SkuRef: suite.params.InitialInstance.Spec.SkuRef,
+			Zone:   suite.params.InitialInstance.Spec.Zone,
 			BootVolume: schema.VolumeReference{
-				DeviceRef: suite.params.CreatedInstance.Spec.BootVolume.DeviceRef,
+				DeviceRef: suite.params.InitialInstance.Spec.BootVolume.DeviceRef,
 			},
 		},
 	}
 	expectInstanceMeta, err := builders.NewInstanceMetadataBuilder().
-		Name(suite.params.CreatedInstance.Metadata.Name).
+		Name(suite.params.InitialInstance.Metadata.Name).
 		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(suite.params.Workspace.Metadata.Name).Region(suite.Region).
 		Build()
@@ -263,10 +261,10 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
 	expectInstanceSpec := &schema.InstanceSpec{
-		SkuRef: suite.params.CreatedInstance.Spec.SkuRef,
-		Zone:   suite.params.CreatedInstance.Spec.Zone,
+		SkuRef: suite.params.InitialInstance.Spec.SkuRef,
+		Zone:   suite.params.InitialInstance.Spec.Zone,
 		BootVolume: schema.VolumeReference{
-			DeviceRef: suite.params.CreatedInstance.Spec.BootVolume.DeviceRef,
+			DeviceRef: suite.params.InitialInstance.Spec.BootVolume.DeviceRef,
 		},
 	}
 	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.Client.ComputeV1, instance,
@@ -281,7 +279,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	instanceWRef := &secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(suite.Tenant),
 		Workspace: secapi.WorkspaceID(suite.params.Workspace.Metadata.Name),
-		Name:      suite.params.CreatedInstance.Metadata.Name,
+		Name:      suite.params.InitialInstance.Metadata.Name,
 	}
 	instance = stepsBuilder.GetInstanceV1Step("Get the created instance", suite.Client.ComputeV1, *instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{

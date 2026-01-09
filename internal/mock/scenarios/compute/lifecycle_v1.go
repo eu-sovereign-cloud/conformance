@@ -13,9 +13,9 @@ import (
 func ConfigureLifecycleScenarioV1(scenario string, params *params.ComputeLifeCycleParamsV1) (*wiremock.Client, error) {
 	scenarios.LogScenarioMocking(scenario)
 
-	workspaceResponse := *params.Workspace
-	blockStorageResponse := *params.BlockStorage
-	instanceResponse := *params.CreatedInstance
+	workspace := *params.Workspace
+	blockStorage := *params.BlockStorage
+	instance := *params.InitialInstance
 
 	configurator, err := stubs.NewStubConfigurator(scenario, params.MockParams)
 	if err != nil {
@@ -23,81 +23,81 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.ComputeLifeCyc
 	}
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.Tenant, params.Workspace.Metadata.Name)
-	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, params.Tenant, params.Workspace.Metadata.Name, params.BlockStorage.Metadata.Name)
-	instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Metadata.Name, params.CreatedInstance.Metadata.Name)
-	instanceStartUrl := generators.GenerateInstanceStartURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Metadata.Name, params.CreatedInstance.Metadata.Name)
-	instanceStopUrl := generators.GenerateInstanceStopURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Metadata.Name, params.CreatedInstance.Metadata.Name)
-	instanceRestartUrl := generators.GenerateInstanceRestartURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Metadata.Name, params.CreatedInstance.Metadata.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, blockStorage.Metadata.Tenant, workspace.Metadata.Name, blockStorage.Metadata.Name)
+	instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
+	instanceStartUrl := generators.GenerateInstanceStartURL(constants.ComputeProviderV1, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
+	instanceStopUrl := generators.GenerateInstanceStopURL(constants.ComputeProviderV1, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
+	instanceRestartUrl := generators.GenerateInstanceRestartURL(constants.ComputeProviderV1, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
 
 	// Create a workspace
-	if err := configurator.ConfigureCreateWorkspaceStub(&workspaceResponse, workspaceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureCreateWorkspaceStub(&workspace, workspaceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the created workspace
-	if err := configurator.ConfigureGetActiveWorkspaceStub(&workspaceResponse, workspaceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveWorkspaceStub(&workspace, workspaceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Create a block storage
-	if err := configurator.ConfigureCreateBlockStorageStub(&blockStorageResponse, blockUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureCreateBlockStorageStub(&blockStorage, blockUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the created block storage
-	if err := configurator.ConfigureGetActiveBlockStorageStub(&blockStorageResponse, blockUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveBlockStorageStub(&blockStorage, blockUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Create an instance
-	if err := configurator.ConfigureCreateInstanceStub(&instanceResponse, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureCreateInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the created instance
-	if err := configurator.ConfigureGetActiveInstanceStub(&instanceResponse, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Update the instance
-	instanceResponse.Spec = params.UpdatedInstance.Spec
-	if err := configurator.ConfigureUpdateInstanceStub(&instanceResponse, instanceUrl, params.MockParams); err != nil {
+	instance.Spec = params.UpdatedInstance.Spec
+	if err := configurator.ConfigureUpdateInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the updated instance
-	if err := configurator.ConfigureGetActiveInstanceStub(&instanceResponse, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Stop the instance
-	if err := configurator.ConfigureInstanceOperationStub(&instanceResponse, instanceStopUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureInstanceOperationStub(&instance, instanceStopUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the stopped instance
-	if err := configurator.ConfigureGetSuspendedInstanceStub(&instanceResponse, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetSuspendedInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Start the instance
-	if err := configurator.ConfigureInstanceOperationStub(&instanceResponse, instanceStartUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureInstanceOperationStub(&instance, instanceStartUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the started instance
-	if err := configurator.ConfigureGetActiveInstanceStub(&instanceResponse, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Restart the instance
-	if err := configurator.ConfigureInstanceOperationStub(&instanceResponse, instanceRestartUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureInstanceOperationStub(&instance, instanceRestartUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the restarted instance
-	if err := configurator.ConfigureGetActiveInstanceStub(&instanceResponse, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 

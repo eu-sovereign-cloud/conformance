@@ -1,6 +1,7 @@
 package params
 
 import (
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -9,6 +10,8 @@ import (
 type ClientsInitParams struct {
 	*BaseParams
 }
+
+// Authorization
 
 type AuthorizationLifeCycleParamsV1 struct {
 	*BaseParams
@@ -22,10 +25,14 @@ type AuthorizationListParamsV1 struct {
 	RoleAssignments []ResourceParams[schema.RoleAssignmentSpec]
 }
 
+// Region
+
 type RegionListParamsV1 struct {
 	*BaseParams
 	Regions []ResourceParams[schema.RegionSpec]
 }
+
+// Workspace
 
 type WorkspaceLifeCycleParamsV1 struct {
 	*BaseParams
@@ -37,11 +44,13 @@ type WorkspaceListParamsV1 struct {
 	Workspaces []ResourceParams[schema.WorkspaceSpec]
 }
 
+// Compute
+
 type ComputeLifeCycleParamsV1 struct {
-	*BaseParams
+	*mock.MockParams
 	Workspace       *schema.Workspace
 	BlockStorage    *schema.BlockStorage
-	CreatedInstance *schema.Instance
+	InitialInstance *schema.Instance
 	UpdatedInstance *schema.Instance
 }
 
@@ -51,6 +60,8 @@ type ComputeListParamsV1 struct {
 	BlockStorage *ResourceParams[schema.BlockStorageSpec]
 	Instances    []ResourceParams[schema.InstanceSpec]
 }
+
+// Storage
 
 type StorageLifeCycleParamsV1 struct {
 	*BaseParams
@@ -65,6 +76,8 @@ type StorageListParamsV1 struct {
 	BlockStorages []ResourceParams[schema.BlockStorageSpec]
 	Images        []ResourceParams[schema.ImageSpec]
 }
+
+// Network
 
 type NetworkLifeCycleParamsV1 struct {
 	*BaseParams
@@ -95,6 +108,8 @@ type NetworkListParamsV1 struct {
 	PublicIps        []ResourceParams[schema.PublicIpSpec]
 	SecurityGroups   []ResourceParams[schema.SecurityGroupSpec]
 }
+
+// Usage
 
 type FoundationUsageParamsV1 struct {
 	*BaseParams
