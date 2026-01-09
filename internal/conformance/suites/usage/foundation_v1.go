@@ -5,11 +5,12 @@ import (
 	"math/rand"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/usage"
+	mockusage "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/usage"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -19,7 +20,7 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type FoundationUsageV1TestSuite struct {
+type FoundationV1TestSuite struct {
 	suites.MixedTestSuite
 
 	Users          []string
@@ -31,7 +32,7 @@ type FoundationUsageV1TestSuite struct {
 	NetworkSkus    []string
 }
 
-func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.T) {
+func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t,
 		constants.AuthorizationProviderV1,
@@ -100,15 +101,14 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 
 	roleAssignmentName := generators.GenerateRoleAssignmentName()
 
-	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
-	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
+	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
-	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
+
+	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
@@ -117,16 +117,14 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 	imageName := generators.GenerateImageName()
 	imageResource := generators.GenerateImageResource(suite.Tenant, imageName)
 
-	instanceSkuRef := generators.GenerateSkuRef(instanceSkuName)
-	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
+	instanceSkuRefObj, err := generators.GenerateSkuRefObject(instanceSkuName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
 	instanceName := generators.GenerateInstanceName()
 
-	networkSkuRef1 := generators.GenerateSkuRef(networkSkuName)
-	networkSkuRefObj, err := secapi.BuildReferenceFromURN(networkSkuRef1)
+	networkSkuRefObj, err := generators.GenerateSkuRefObject(networkSkuName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
@@ -134,22 +132,19 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 	networkName := generators.GenerateNetworkName()
 
 	internetGatewayName := generators.GenerateInternetGatewayName()
-	internetGatewayRef := generators.GenerateInternetGatewayRef(internetGatewayName)
-	internetGatewayRefObj, err := secapi.BuildReferenceFromURN(internetGatewayRef)
+	internetGatewayRefObj, err := generators.GenerateInternetGatewayRefObject(internetGatewayName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
 	routeTableName := generators.GenerateRouteTableName()
-	routeTableRef := generators.GenerateRouteTableRef(routeTableName)
-	routeTableRefObj, err := secapi.BuildReferenceFromURN(routeTableRef)
+	routeTableRefObj, err := generators.GenerateRouteTableRefObject(routeTableName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
 	subnetName := generators.GenerateSubnetName()
-	subnetRef := generators.GenerateSubnetRef(subnetName)
-	subnetRefObj, err := secapi.BuildReferenceFromURN(subnetRef)
+	subnetRefObj, err := generators.GenerateSubnetRefObject(subnetName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
@@ -157,8 +152,7 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 	nicName := generators.GenerateNicName()
 
 	publicIpName := generators.GeneratePublicIpName()
-	publicIpRef := generators.GeneratePublicIpRef(publicIpName)
-	publicIpRefObj, err := secapi.BuildReferenceFromURN(publicIpRef)
+	publicIpRefObj, err := generators.GeneratePublicIpRefObject(publicIpName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
@@ -167,14 +161,16 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
-		mockParams := &mock.FoundationUsageParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
-				Region:    suite.Region,
+		mockParams := &params.FoundationUsageParamsV1{
+			BaseParams: &params.BaseParams{
+				Tenant: suite.Tenant,
+				Region: suite.Region,
+				MockParams: &mock.MockParams{
+					ServerURL: *suite.MockServerURL,
+					AuthToken: suite.AuthToken,
+				},
 			},
-			Role: &mock.ResourceParams[schema.RoleSpec]{
+			Role: &params.ResourceParams[schema.RoleSpec]{
 				Name: roleName,
 				InitialSpec: &schema.RoleSpec{
 					Permissions: []schema.Permission{
@@ -182,7 +178,7 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 					},
 				},
 			},
-			RoleAssignment: &mock.ResourceParams[schema.RoleAssignmentSpec]{
+			RoleAssignment: &params.ResourceParams[schema.RoleAssignmentSpec]{
 				Name: roleAssignmentName,
 				InitialSpec: &schema.RoleAssignmentSpec{
 					Roles: []string{roleName},
@@ -192,27 +188,27 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 					},
 				},
 			},
-			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
+			Workspace: &params.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
 					constants.EnvLabel: constants.EnvDevelopmentLabel,
 				},
 			},
-			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
+			BlockStorage: &params.ResourceParams[schema.BlockStorageSpec]{
 				Name: blockStorageName,
 				InitialSpec: &schema.BlockStorageSpec{
 					SkuRef: *storageSkuRefObj,
 					SizeGB: initialStorageSize,
 				},
 			},
-			Image: &mock.ResourceParams[schema.ImageSpec]{
+			Image: &params.ResourceParams[schema.ImageSpec]{
 				Name: imageName,
 				InitialSpec: &schema.ImageSpec{
 					BlockStorageRef: *blockStorageRefObj,
 					CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
 				},
 			},
-			Network: &mock.ResourceParams[schema.NetworkSpec]{
+			Network: &params.ResourceParams[schema.NetworkSpec]{
 				Name: networkName,
 				InitialSpec: &schema.NetworkSpec{
 					Cidr:          schema.Cidr{Ipv4: ptr.To(suite.NetworkCidr)},
@@ -220,11 +216,11 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 					RouteTableRef: *routeTableRefObj,
 				},
 			},
-			InternetGateway: &mock.ResourceParams[schema.InternetGatewaySpec]{
+			InternetGateway: &params.ResourceParams[schema.InternetGatewaySpec]{
 				Name:        internetGatewayName,
 				InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
 			},
-			RouteTable: &mock.ResourceParams[schema.RouteTableSpec]{
+			RouteTable: &params.ResourceParams[schema.RouteTableSpec]{
 				Name: routeTableName,
 				InitialSpec: &schema.RouteTableSpec{
 					Routes: []schema.RouteSpec{
@@ -232,14 +228,14 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 					},
 				},
 			},
-			Subnet: &mock.ResourceParams[schema.SubnetSpec]{
+			Subnet: &params.ResourceParams[schema.SubnetSpec]{
 				Name: subnetName,
 				InitialSpec: &schema.SubnetSpec{
 					Cidr: schema.Cidr{Ipv4: &subnetCidr},
 					Zone: zone,
 				},
 			},
-			Nic: &mock.ResourceParams[schema.NicSpec]{
+			Nic: &params.ResourceParams[schema.NicSpec]{
 				Name: nicName,
 				InitialSpec: &schema.NicSpec{
 					Addresses:    []string{nicAddress1},
@@ -247,20 +243,20 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 					SubnetRef:    *subnetRefObj,
 				},
 			},
-			PublicIp: &mock.ResourceParams[schema.PublicIpSpec]{
+			PublicIp: &params.ResourceParams[schema.PublicIpSpec]{
 				Name: publicIpName,
 				InitialSpec: &schema.PublicIpSpec{
 					Version: schema.IPVersionIPv4,
 					Address: ptr.To(publicIpAddress1),
 				},
 			},
-			SecurityGroup: &mock.ResourceParams[schema.SecurityGroupSpec]{
+			SecurityGroup: &params.ResourceParams[schema.SecurityGroupSpec]{
 				Name: securityGroupName,
 				InitialSpec: &schema.SecurityGroupSpec{
 					Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 				},
 			},
-			Instance: &mock.ResourceParams[schema.InstanceSpec]{
+			Instance: &params.ResourceParams[schema.InstanceSpec]{
 				Name: instanceName,
 				InitialSpec: &schema.InstanceSpec{
 					SkuRef: *instanceSkuRefObj,
@@ -271,7 +267,7 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 				},
 			},
 		}
-		wm, err := usage.ConfigureFoundationScenarioV1(suite.ScenarioName, mockParams)
+		wm, err := mockusage.ConfigureFoundationScenarioV1(suite.ScenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -919,36 +915,27 @@ func (suite *FoundationUsageV1TestSuite) TestFoundationUsageScenario(t provider.
 	)
 
 	// Resources deletion
-
 	stepsBuilder.DeleteInstanceV1Step("Delete the instance", suite.RegionalClient.ComputeV1, instance)
 
 	stepsBuilder.DeleteSecurityGroupV1Step("Delete the security group", suite.RegionalClient.NetworkV1, group)
-
 	stepsBuilder.DeleteNicV1Step("Delete the nic", suite.RegionalClient.NetworkV1, nic)
-
 	stepsBuilder.DeletePublicIpV1Step("Delete the public ip", suite.RegionalClient.NetworkV1, publicIp)
-
 	stepsBuilder.DeleteSubnetV1Step("Delete the subnet", suite.RegionalClient.NetworkV1, subnet)
-
 	stepsBuilder.DeleteRouteTableV1Step("Delete the route table", suite.RegionalClient.NetworkV1, route)
-
 	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.RegionalClient.NetworkV1, gateway)
-
 	stepsBuilder.DeleteNetworkV1Step("Delete the network", suite.RegionalClient.NetworkV1, network)
 
 	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.RegionalClient.StorageV1, block)
-
 	stepsBuilder.DeleteImageV1Step("Delete the image", suite.RegionalClient.StorageV1, image)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.RegionalClient.WorkspaceV1, workspace)
 
 	stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.GlobalClient.AuthorizationV1, roleAssign)
-
 	stepsBuilder.DeleteRoleV1Step("Delete the role", suite.GlobalClient.AuthorizationV1, role)
 
 	suite.FinishScenario()
 }
 
-func (suite *FoundationUsageV1TestSuite) AfterEach(t provider.T) {
+func (suite *FoundationV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

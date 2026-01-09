@@ -4,11 +4,12 @@ import (
 	"math/rand"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/authorization"
+	mockauthorization "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/authorization"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -18,13 +19,13 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type AuthorizationV1ListTestSuite struct {
+type ListV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	Users []string
 }
 
-func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
+func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
@@ -47,13 +48,15 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
-		mockParams := &mock.AuthorizationListParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
+		mockParams := &params.AuthorizationListParamsV1{
+			BaseParams: &params.BaseParams{
+				Tenant: suite.Tenant,
+				MockParams: &mock.MockParams{
+					ServerURL: *suite.MockServerURL,
+					AuthToken: suite.AuthToken,
+				},
 			},
-			Roles: []mock.ResourceParams[schema.RoleSpec]{
+			Roles: []params.ResourceParams[schema.RoleSpec]{
 				{
 					Name: roleName1,
 
@@ -89,7 +92,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 					},
 				},
 			},
-			RoleAssignments: []mock.ResourceParams[schema.RoleAssignmentSpec]{
+			RoleAssignments: []params.ResourceParams[schema.RoleAssignmentSpec]{
 				{
 					Name: roleAssignmentName1,
 					InitialLabels: schema.Labels{
@@ -131,7 +134,7 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 				},
 			},
 		}
-		wm, err := authorization.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
+		wm, err := mockauthorization.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -383,11 +386,11 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 			Name:   role.Metadata.Name,
 		}
 		stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, *roleTRefSingle, secapi.ErrResourceNotFound)
-	}
 
-	suite.FinishScenario()
+		suite.FinishScenario()
+	}
 }
 
-func (suite *AuthorizationV1LifeCycleTestSuite) AfterEach(t provider.T) {
+func (suite *ListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

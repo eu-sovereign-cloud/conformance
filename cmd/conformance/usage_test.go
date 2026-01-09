@@ -28,7 +28,7 @@ func TestUsageV1Suites(t *testing.T) {
 	}
 
 	// Foundation Suite
-	testFoundationSuite := &usage.FoundationUsageV1TestSuite{
+	testFoundationSuite := &usage.FoundationV1TestSuite{
 		MixedTestSuite: mixedTestSuite,
 		Users:          config.Parameters.ScenariosUsers,
 		NetworkCidr:    config.Parameters.ScenariosCidr,

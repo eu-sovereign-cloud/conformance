@@ -1,11 +1,12 @@
 package workspace
 
 import (
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/workspace"
+	mockworkspace "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/workspace"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -14,11 +15,11 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type WorkspaceV1LifeCycleTestSuite struct {
+type LifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 }
 
-func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
+func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -27,14 +28,16 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
-		mockParams := &mock.WorkspaceLifeCycleParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
-				Region:    suite.Region,
+		mockParams := &params.WorkspaceLifeCycleParamsV1{
+			BaseParams: &params.BaseParams{
+				Tenant: suite.Tenant,
+				Region: suite.Region,
+				MockParams: &mock.MockParams{
+					ServerURL: *suite.MockServerURL,
+					AuthToken: suite.AuthToken,
+				},
 			},
-			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
+			Workspace: &params.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
 					constants.EnvLabel: constants.EnvDevelopmentLabel,
@@ -44,7 +47,7 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 				},
 			},
 		}
-		wm, err := workspace.ConfigureLifecycleScenarioV1(suite.ScenarioName, mockParams)
+		wm, err := mockworkspace.ConfigureLifecycleScenarioV1(suite.ScenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -116,9 +119,12 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 	)
 
 	// Resources deletion
-
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
 	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *tref, secapi.ErrResourceNotFound)
 
 	suite.FinishScenario()
+}
+
+func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
+	suite.ResetAllScenarios()
 }

@@ -1,11 +1,11 @@
-package region
+package mockregion
 
 import (
-	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
@@ -15,10 +15,10 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureListScenarioV1(scenario string, params *mock.RegionListParamsV1) (*wiremock.Client, error) {
-	slog.Info("Configuring mock to scenario " + scenario)
+func ConfigureListScenarioV1(scenario string, params *params.RegionListParamsV1) (*wiremock.Client, error) {
+	scenarios.LogScenarioMocking(scenario)
 
-	configurator, err := stubs.NewStubConfigurator(scenario, params.MockURL)
+	configurator, err := stubs.NewStubConfigurator(scenario, params.MockParams)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.RegionListParamsV1) (
 	regionsResponse.Items = regionsList
 
 	// 1 - Create ListRegions stub
-	if err := configurator.ConfigureGetListRegionStub(regionsResponse, regionsUrl, params.GetBaseParams(), nil); err != nil {
+	if err := configurator.ConfigureGetListRegionStub(regionsResponse, regionsUrl, params.MockParams, nil); err != nil {
 		return nil, err
 	}
 
@@ -75,7 +75,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.RegionListParamsV1) (
 		Spec: regionsResponse.Items[0].Spec,
 	}
 
-	if err := configurator.ConfigureGetRegionStub(singleRegionResponse, regionUrl, params.GetBaseParams()); err != nil {
+	if err := configurator.ConfigureGetRegionStub(singleRegionResponse, regionUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 

@@ -3,11 +3,12 @@ package region
 import (
 	"context"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/region"
+	mockregion "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/region"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -15,13 +16,13 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type RegionV1TestSuite struct {
+type ListV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	RegionName string
 }
 
-func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
+func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
@@ -32,13 +33,15 @@ func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
 
 	// Configure Mock if enabled
 	if suite.MockEnabled {
-		mockParams := &mock.RegionListParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
+		mockParams := &params.RegionListParamsV1{
+			BaseParams: &params.BaseParams{
+				Tenant: suite.Tenant,
+				MockParams: &mock.MockParams{
+					ServerURL: *suite.MockServerURL,
+					AuthToken: suite.AuthToken,
+				},
 			},
-			Regions: []mock.ResourceParams[schema.RegionSpec]{
+			Regions: []params.ResourceParams[schema.RegionSpec]{
 				{
 					Name: suite.RegionName,
 					InitialSpec: &schema.RegionSpec{
@@ -70,7 +73,7 @@ func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
 			},
 		}
 
-		wm, err := region.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
+		wm, err := mockregion.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -92,12 +95,11 @@ func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
-
 	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, expectedRegionMeta)
 
 	suite.FinishScenario()
 }
 
-func (suite *RegionV1TestSuite) AfterEach(t provider.T) {
+func (suite *ListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

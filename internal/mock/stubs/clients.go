@@ -7,7 +7,7 @@ import (
 
 // Clients
 
-func (configurator *stubConfigurator) ConfigureClientsInitStub(response *schema.Region, url string, params *mock.BaseParams) error {
+func (configurator *stubConfigurator) ConfigureClientsInitStub(response *schema.Region, url string, params *mock.MockParams) error {
 	setCreatedGlobalResourceMetadata(response.Metadata)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err

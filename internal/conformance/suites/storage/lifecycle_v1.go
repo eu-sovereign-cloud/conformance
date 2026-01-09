@@ -3,11 +3,12 @@ package storage
 import (
 	"math/rand"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/storage"
+	mockstorage "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/storage"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -15,13 +16,13 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type StorageV1LifeCycleTestSuite struct {
+type LifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	StorageSkus []string
 }
 
-func (suite *StorageV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
+func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.StorageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
@@ -36,15 +37,13 @@ func (suite *StorageV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
-	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
-	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
+	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
-	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
+	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
@@ -56,20 +55,22 @@ func (suite *StorageV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
-		mockParams := &mock.StorageLifeCycleParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
-				Region:    suite.Region,
+		mockParams := &params.StorageLifeCycleParamsV1{
+			BaseParams: &params.BaseParams{
+				Tenant: suite.Tenant,
+				Region: suite.Region,
+				MockParams: &mock.MockParams{
+					ServerURL: *suite.MockServerURL,
+					AuthToken: suite.AuthToken,
+				},
 			},
-			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
+			Workspace: &params.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
 					constants.EnvLabel: constants.EnvDevelopmentLabel,
 				},
 			},
-			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
+			BlockStorage: &params.ResourceParams[schema.BlockStorageSpec]{
 				Name: blockStorageName,
 				InitialSpec: &schema.BlockStorageSpec{
 					SkuRef: *storageSkuRefObj,
@@ -80,7 +81,7 @@ func (suite *StorageV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 					SizeGB: updatedStorageSize,
 				},
 			},
-			Image: &mock.ResourceParams[schema.ImageSpec]{
+			Image: &params.ResourceParams[schema.ImageSpec]{
 				Name: imageName,
 				InitialSpec: &schema.ImageSpec{
 					BlockStorageRef: *blockStorageRefObj,
@@ -92,7 +93,7 @@ func (suite *StorageV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 				},
 			},
 		}
-		wm, err := storage.ConfigureLifecycleScenarioV1(suite.ScenarioName, mockParams)
+		wm, err := mockstorage.ConfigureLifecycleScenarioV1(suite.ScenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -290,4 +291,8 @@ func (suite *StorageV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
 	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
 	suite.FinishScenario()
+}
+
+func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
+	suite.ResetAllScenarios()
 }

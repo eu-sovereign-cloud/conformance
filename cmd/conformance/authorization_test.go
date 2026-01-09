@@ -25,7 +25,7 @@ func TestAuthorizationV1Suites(t *testing.T) {
 	}
 
 	// LifeCycle Suite
-	testLifeCycleSuite := &authorization.AuthorizationV1LifeCycleTestSuite{
+	testLifeCycleSuite := &authorization.LifeCycleV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		Users:           config.Parameters.ScenariosUsers,
 	}
@@ -35,7 +35,7 @@ func TestAuthorizationV1Suites(t *testing.T) {
 	}
 
 	// List Suite
-	testListSuite := &authorization.AuthorizationV1ListTestSuite{
+	testListSuite := &authorization.ListV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		Users:           config.Parameters.ScenariosUsers,
 	}

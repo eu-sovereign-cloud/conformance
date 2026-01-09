@@ -2,8 +2,8 @@
 package stubs
 
 import (
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -13,8 +13,8 @@ import (
 
 // TODO Find a better package to it
 func BulkCreateRolesStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams,
-	roleParams []mock.ResourceParams[schema.RoleSpec],
+	baseParams *params.BaseParams,
+	roleParams []params.ResourceParams[schema.RoleSpec],
 ) ([]schema.Role, error) {
 	var roles []schema.Role
 
@@ -32,7 +32,7 @@ func BulkCreateRolesStubV1(configurator *stubConfigurator,
 			return nil, err
 		}
 		// Create a role
-		if err := configurator.ConfigureCreateRoleStub(roleResponse, roleUrl, baseParams); err != nil {
+		if err := configurator.ConfigureCreateRoleStub(roleResponse, roleUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		roles = append(roles, *roleResponse)
@@ -42,8 +42,8 @@ func BulkCreateRolesStubV1(configurator *stubConfigurator,
 }
 
 func BulkCreateRoleAssignmentsStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams,
-	roleAssignmentParams []mock.ResourceParams[schema.RoleAssignmentSpec],
+	baseParams *params.BaseParams,
+	roleAssignmentParams []params.ResourceParams[schema.RoleAssignmentSpec],
 ) ([]schema.RoleAssignment, error) {
 	var assignments []schema.RoleAssignment
 
@@ -62,7 +62,7 @@ func BulkCreateRoleAssignmentsStubV1(configurator *stubConfigurator,
 		}
 
 		// Create a role assignment
-		if err := configurator.ConfigureCreateRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, baseParams); err != nil {
+		if err := configurator.ConfigureCreateRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 
@@ -75,8 +75,8 @@ func BulkCreateRoleAssignmentsStubV1(configurator *stubConfigurator,
 // Workspace
 
 func BulkCreateWorkspacesStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams,
-	workspaceParams []mock.ResourceParams[schema.WorkspaceSpec],
+	baseParams *params.BaseParams,
+	workspaceParams []params.ResourceParams[schema.WorkspaceSpec],
 ) ([]schema.Workspace, error) {
 	var workspaces []schema.Workspace
 
@@ -94,7 +94,7 @@ func BulkCreateWorkspacesStubV1(configurator *stubConfigurator,
 		}
 
 		// Create a workspace
-		if err := configurator.ConfigureCreateWorkspaceStub(response, url, baseParams); err != nil {
+		if err := configurator.ConfigureCreateWorkspaceStub(response, url, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		workspaces = append(workspaces, *response)
@@ -105,8 +105,8 @@ func BulkCreateWorkspacesStubV1(configurator *stubConfigurator,
 // Compute
 
 func BulkCreateInstancesStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams, workspace string,
-	instanceParams []mock.ResourceParams[schema.InstanceSpec],
+	baseParams *params.BaseParams, workspace string,
+	instanceParams []params.ResourceParams[schema.InstanceSpec],
 ) ([]schema.Instance, error) {
 	var instances []schema.Instance
 
@@ -124,7 +124,7 @@ func BulkCreateInstancesStubV1(configurator *stubConfigurator,
 		}
 
 		// Create an instance
-		if err := configurator.ConfigureCreateInstanceStub(instanceResponse, instanceUrl, baseParams); err != nil {
+		if err := configurator.ConfigureCreateInstanceStub(instanceResponse, instanceUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		instances = append(instances, *instanceResponse)
@@ -136,8 +136,8 @@ func BulkCreateInstancesStubV1(configurator *stubConfigurator,
 // Storage
 
 func BulkCreateBlockStoragesStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams, workspace string,
-	blockStorageParams []mock.ResourceParams[schema.BlockStorageSpec],
+	baseParams *params.BaseParams, workspace string,
+	blockStorageParams []params.ResourceParams[schema.BlockStorageSpec],
 ) ([]schema.BlockStorage, error) {
 	var blocks []schema.BlockStorage
 
@@ -155,7 +155,7 @@ func BulkCreateBlockStoragesStubV1(configurator *stubConfigurator,
 
 		// Create a block storage
 		blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, baseParams.Tenant, workspace, block.Name)
-		if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockUrl, baseParams); err != nil {
+		if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		blocks = append(blocks, *blockResponse)
@@ -165,8 +165,8 @@ func BulkCreateBlockStoragesStubV1(configurator *stubConfigurator,
 }
 
 func BulkCreateImagesStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams,
-	imageParams []mock.ResourceParams[schema.ImageSpec],
+	baseParams *params.BaseParams,
+	imageParams []params.ResourceParams[schema.ImageSpec],
 ) ([]schema.Image, error) {
 	var images []schema.Image
 
@@ -184,7 +184,7 @@ func BulkCreateImagesStubV1(configurator *stubConfigurator,
 		}
 
 		// Create an image
-		if err := configurator.ConfigureCreateImageStub(imageResponse, imageUrl, baseParams); err != nil {
+		if err := configurator.ConfigureCreateImageStub(imageResponse, imageUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		images = append(images, *imageResponse)
@@ -196,8 +196,8 @@ func BulkCreateImagesStubV1(configurator *stubConfigurator,
 // Network
 
 func BulkCreateNetworksStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams, workspace string,
-	networkParams []mock.ResourceParams[schema.NetworkSpec],
+	baseParams *params.BaseParams, workspace string,
+	networkParams []params.ResourceParams[schema.NetworkSpec],
 ) ([]schema.Network, error) {
 	var networks []schema.Network
 
@@ -215,7 +215,7 @@ func BulkCreateNetworksStubV1(configurator *stubConfigurator,
 			return nil, err
 		}
 		// Create a network
-		if err := configurator.ConfigureCreateNetworkStub(networkResponse, networkUrl, baseParams); err != nil {
+		if err := configurator.ConfigureCreateNetworkStub(networkResponse, networkUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		networks = append(networks, *networkResponse)
@@ -225,8 +225,8 @@ func BulkCreateNetworksStubV1(configurator *stubConfigurator,
 }
 
 func BulkCreateInternetGatewaysStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams, workspace string,
-	internetGatewayParams []mock.ResourceParams[schema.InternetGatewaySpec],
+	baseParams *params.BaseParams, workspace string,
+	internetGatewayParams []params.ResourceParams[schema.InternetGatewaySpec],
 ) ([]schema.InternetGateway, error) {
 	var gateways []schema.InternetGateway
 
@@ -244,7 +244,7 @@ func BulkCreateInternetGatewaysStubV1(configurator *stubConfigurator,
 		}
 
 		// Create an internet gateway
-		if err := configurator.ConfigureCreateInternetGatewayStub(gatewayResponse, gatewayUrl, baseParams); err != nil {
+		if err := configurator.ConfigureCreateInternetGatewayStub(gatewayResponse, gatewayUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		gateways = append(gateways, *gatewayResponse)
@@ -254,8 +254,8 @@ func BulkCreateInternetGatewaysStubV1(configurator *stubConfigurator,
 }
 
 func BulkCreateRouteTableStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams, workspace, network string,
-	routeTableParams []mock.ResourceParams[schema.RouteTableSpec],
+	baseParams *params.BaseParams, workspace, network string,
+	routeTableParams []params.ResourceParams[schema.RouteTableSpec],
 ) ([]schema.RouteTable, error) {
 	var routeTables []schema.RouteTable
 
@@ -272,7 +272,7 @@ func BulkCreateRouteTableStubV1(configurator *stubConfigurator,
 			return nil, err
 		}
 		// Create a route table
-		if err := configurator.ConfigureCreateRouteTableStub(routeTableResponse, routeTableUrl, baseParams); err != nil {
+		if err := configurator.ConfigureCreateRouteTableStub(routeTableResponse, routeTableUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		routeTables = append(routeTables, *routeTableResponse)
@@ -282,8 +282,8 @@ func BulkCreateRouteTableStubV1(configurator *stubConfigurator,
 }
 
 func BulkCreateSubnetsStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams, workspace, network string,
-	subnetParams []mock.ResourceParams[schema.SubnetSpec],
+	baseParams *params.BaseParams, workspace, network string,
+	subnetParams []params.ResourceParams[schema.SubnetSpec],
 ) ([]schema.Subnet, error) {
 	var subnets []schema.Subnet
 
@@ -300,7 +300,7 @@ func BulkCreateSubnetsStubV1(configurator *stubConfigurator,
 			return nil, err
 		}
 		// Create a RouteTable
-		if err := configurator.ConfigureCreateSubnetStub(subnetResponse, subnetUrl, baseParams); err != nil {
+		if err := configurator.ConfigureCreateSubnetStub(subnetResponse, subnetUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		subnets = append(subnets, *subnetResponse)
@@ -310,8 +310,8 @@ func BulkCreateSubnetsStubV1(configurator *stubConfigurator,
 }
 
 func BulkCreatePublicIpsStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams, workspace string,
-	publicIpParams []mock.ResourceParams[schema.PublicIpSpec],
+	baseParams *params.BaseParams, workspace string,
+	publicIpParams []params.ResourceParams[schema.PublicIpSpec],
 ) ([]schema.PublicIp, error) {
 	var publicIps []schema.PublicIp
 
@@ -328,7 +328,7 @@ func BulkCreatePublicIpsStubV1(configurator *stubConfigurator,
 			return nil, err
 		}
 		// Create a public ip
-		if err := configurator.ConfigureCreatePublicIpStub(publicIpResponse, publicIpUrl, baseParams.GetBaseParams()); err != nil {
+		if err := configurator.ConfigureCreatePublicIpStub(publicIpResponse, publicIpUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		publicIps = append(publicIps, *publicIpResponse)
@@ -338,8 +338,8 @@ func BulkCreatePublicIpsStubV1(configurator *stubConfigurator,
 }
 
 func BulkCreateNicsStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams, workspace string,
-	nicParams []mock.ResourceParams[schema.NicSpec],
+	baseParams *params.BaseParams, workspace string,
+	nicParams []params.ResourceParams[schema.NicSpec],
 ) ([]schema.Nic, error) {
 	var nics []schema.Nic
 
@@ -356,7 +356,7 @@ func BulkCreateNicsStubV1(configurator *stubConfigurator,
 			return nil, err
 		}
 		// Create a nic
-		if err := configurator.ConfigureCreateNicStub(nicResponse, nicUrl, baseParams.GetBaseParams()); err != nil {
+		if err := configurator.ConfigureCreateNicStub(nicResponse, nicUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		nics = append(nics, *nicResponse)
@@ -366,8 +366,8 @@ func BulkCreateNicsStubV1(configurator *stubConfigurator,
 }
 
 func BulkCreateSecurityGroupsStubV1(configurator *stubConfigurator,
-	baseParams *mock.BaseParams, workspace string,
-	securityGroupParams []mock.ResourceParams[schema.SecurityGroupSpec],
+	baseParams *params.BaseParams, workspace string,
+	securityGroupParams []params.ResourceParams[schema.SecurityGroupSpec],
 ) ([]schema.SecurityGroup, error) {
 	var securityGroups []schema.SecurityGroup
 
@@ -385,7 +385,7 @@ func BulkCreateSecurityGroupsStubV1(configurator *stubConfigurator,
 		}
 
 		// Create a security group
-		if err := configurator.ConfigureCreateSecurityGroupStub(securityGroupResponse, securityGroupUrl, baseParams.GetBaseParams()); err != nil {
+		if err := configurator.ConfigureCreateSecurityGroupStub(securityGroupResponse, securityGroupUrl, baseParams.MockParams); err != nil {
 			return nil, err
 		}
 		securityGroups = append(securityGroups, *securityGroupResponse)

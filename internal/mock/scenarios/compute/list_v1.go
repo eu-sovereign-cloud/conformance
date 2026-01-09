@@ -1,22 +1,23 @@
-package compute
+package mockcompute
 
 import (
-	"log/slog"
-
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureListScenarioV1(scenario string, params *mock.ComputeListParamsV1) (*wiremock.Client, error) {
-	slog.Info("Configuring mock to scenario " + scenario)
+func ConfigureListScenarioV1(scenario string, params *params.ComputeListParamsV1) (*wiremock.Client, error) {
+	scenarios.LogScenarioMocking(scenario)
 
-	configurator, err := stubs.NewStubConfigurator(scenario, params.MockURL)
+	configurator, err := stubs.NewStubConfigurator(scenario, params.MockParams)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +42,7 @@ func ConfigureListScenarioV1(scenario string, params *mock.ComputeListParamsV1) 
 	}
 
 	// Create a workspace
-	if err := configurator.ConfigureCreateWorkspaceStub(workspaceResponse, workspaceUrl, params.GetBaseParams()); err != nil {
+	if err := configurator.ConfigureCreateWorkspaceStub(workspaceResponse, workspaceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
@@ -57,12 +58,12 @@ func ConfigureListScenarioV1(scenario string, params *mock.ComputeListParamsV1) 
 	}
 
 	// Create a block storage
-	if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockListUrl, params.GetBaseParams()); err != nil {
+	if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockListUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Instance
-	instancesList, err := stubs.BulkCreateInstancesStubV1(configurator, params.GetBaseParams(), params.Workspace.Name, params.Instances)
+	instancesList, err := stubs.BulkCreateInstancesStubV1(configurator, params.BaseParams, params.Workspace.Name, params.Instances)
 	if err != nil {
 		return nil, err
 	}
@@ -76,13 +77,13 @@ func ConfigureListScenarioV1(scenario string, params *mock.ComputeListParamsV1) 
 	}
 
 	// List instances
-	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.GetBaseParams(), nil); err != nil {
+	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.MockParams, nil); err != nil {
 		return nil, err
 	}
 
 	// List roles with limit 1
 	instanceResponse.Items = instancesList[:1]
-	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.GetBaseParams(), mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return nil, err
 	}
 
@@ -97,30 +98,30 @@ func ConfigureListScenarioV1(scenario string, params *mock.ComputeListParamsV1) 
 		return filteredInstances
 	}
 	instanceResponse.Items = instancesWithLabel(instancesList)
-	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List instances with limit and label
 	instanceResponse.Items = instancesWithLabel(instancesList)[:1]
-	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListInstanceStub(instanceResponse, instanceListUrl, params.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// Create skus
-	skusList := steps.GenerateInstanceSkusV1(params.GetBaseParams().Tenant)
+	skusList := steps.GenerateInstanceSkusV1(params.Tenant)
 	skuResponse, err := builders.NewInstanceSkuIteratorBuilder().Provider(constants.StorageProviderV1).Tenant(params.Tenant).Items(skusList).Build()
 	if err != nil {
 		return nil, err
 	}
 
 	// List skus
-	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.GetBaseParams(), nil); err != nil {
+	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.MockParams, nil); err != nil {
 		return nil, err
 	}
 
 	// List skus with limit 1
-	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.GetBaseParams(), mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return nil, err
 	}
 
@@ -135,45 +136,45 @@ func ConfigureListScenarioV1(scenario string, params *mock.ComputeListParamsV1) 
 		return filteredSkus
 	}
 	skuResponse.Items = skusWithLabel(skusList)
-	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.GetBaseParams(), mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List sku with limit and label
-	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.GetBaseParams(), mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, params.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// Delete instances
 	for _, instance := range instancesList {
 		url := generators.GenerateInstanceURL(constants.ComputeProviderV1, params.Tenant, params.Workspace.Name, instance.Metadata.Name)
-		if err := configurator.ConfigureDeleteStub(url, params.GetBaseParams()); err != nil {
+		if err := configurator.ConfigureDeleteStub(url, params.MockParams); err != nil {
 			return nil, err
 		}
 
 		// Get the deleted instance
-		if err := configurator.ConfigureGetNotFoundStub(url, params.GetBaseParams()); err != nil {
+		if err := configurator.ConfigureGetNotFoundStub(url, params.MockParams); err != nil {
 			return nil, err
 		}
 	}
 
 	// Delete the block storage
-	if err := configurator.ConfigureDeleteStub(blockListUrl, params.GetBaseParams()); err != nil {
+	if err := configurator.ConfigureDeleteStub(blockListUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted workspace
-	if err := configurator.ConfigureGetNotFoundStub(blockListUrl, params.GetBaseParams()); err != nil {
+	if err := configurator.ConfigureGetNotFoundStub(blockListUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
-	if err := configurator.ConfigureDeleteStub(workspaceUrl, params.GetBaseParams()); err != nil {
+	if err := configurator.ConfigureDeleteStub(workspaceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted workspace
-	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, params.GetBaseParams()); err != nil {
+	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, params.MockParams); err != nil {
 		return nil, err
 	}
 

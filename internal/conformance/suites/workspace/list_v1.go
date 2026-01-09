@@ -1,11 +1,12 @@
 package workspace
 
 import (
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/workspace"
+	mockworkspace "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/workspace"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -15,11 +16,11 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type WorkspaceV1ListTestSuite struct {
+type ListV1TestSuite struct {
 	suites.RegionalTestSuite
 }
 
-func (suite *WorkspaceV1ListTestSuite) TestListScenario(t provider.T) {
+func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -29,14 +30,16 @@ func (suite *WorkspaceV1ListTestSuite) TestListScenario(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
-		mockParams := &mock.WorkspaceListParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
-				Region:    suite.Region,
+		mockParams := &params.WorkspaceListParamsV1{
+			BaseParams: &params.BaseParams{
+				Tenant: suite.Tenant,
+				Region: suite.Region,
+				MockParams: &mock.MockParams{
+					ServerURL: *suite.MockServerURL,
+					AuthToken: suite.AuthToken,
+				},
 			},
-			Workspaces: []mock.ResourceParams[schema.WorkspaceSpec]{
+			Workspaces: []params.ResourceParams[schema.WorkspaceSpec]{
 				{
 					Name: workspaceName,
 					InitialLabels: schema.Labels{
@@ -51,7 +54,7 @@ func (suite *WorkspaceV1ListTestSuite) TestListScenario(t provider.T) {
 				},
 			},
 		}
-		wm, err := workspace.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
+		wm, err := mockworkspace.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -105,19 +108,15 @@ func (suite *WorkspaceV1ListTestSuite) TestListScenario(t provider.T) {
 	}
 
 	// List workspaces
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
-		nil)
+	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, nil)
 	// List workspaces with limit
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
-		secapi.NewListOptions().WithLimit(1))
+	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, secapi.NewListOptions().WithLimit(1))
 	// List workspaces with label
 	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 	// List workspaces with label and limit
 	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all workspaces
 	for _, workspace := range *workspaces {
@@ -127,11 +126,11 @@ func (suite *WorkspaceV1ListTestSuite) TestListScenario(t provider.T) {
 		}
 		stepsBuilder.DeleteWorkspaceV1Step("Delete workspace 1", suite.Client.WorkspaceV1, &workspace)
 		stepsBuilder.GetWorkspaceWithErrorV1Step("Get deleted workspace 1", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
-
 	}
+
 	suite.FinishScenario()
 }
 
-func (suite *WorkspaceV1LifeCycleTestSuite) AfterEach(t provider.T) {
+func (suite *ListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

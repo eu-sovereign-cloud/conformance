@@ -36,12 +36,12 @@ func (suite *TestSuite) CanRun(regexp *regexp.Regexp) bool {
 }
 
 func (suite *TestSuite) StartScenario(t provider.T) {
-	slog.Info("Starting " + suite.ScenarioName)
+	slog.Info("Starting execution of scenario " + suite.ScenarioName)
 	t.Title(suite.ScenarioName)
 }
 
 func (suite *TestSuite) FinishScenario() {
-	slog.Info("Finishing " + suite.ScenarioName)
+	slog.Info("Finishing execution of scenario " + suite.ScenarioName)
 }
 
 type MixedTestSuite struct {
@@ -78,4 +78,16 @@ func (suite *TestSuite) ResetAllScenarios() {
 			slog.Error("Failed to reset scenarios", "error", err)
 		}
 	}
+}
+
+func SetupMock[P any](suite *TestSuite, configFunc func(string, *P) (*wiremock.Client, error), params *P) error {
+	// Setup mock, if configured to use
+	if suite.MockEnabled {
+		wm, err := configFunc(suite.ScenarioName, params)
+		if err != nil {
+			return err
+		}
+		suite.MockClient = wm
+	}
+	return nil
 }

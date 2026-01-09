@@ -3,11 +3,12 @@ package network
 import (
 	"math/rand"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
+	mocknetowork "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -18,7 +19,7 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type NetworkListV1TestSuite struct {
+type ListV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	NetworkCidr    string
@@ -29,7 +30,7 @@ type NetworkListV1TestSuite struct {
 	NetworkSkus    []string
 }
 
-func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
+func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.NetworkProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
@@ -72,29 +73,25 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
-	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
-	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
+	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
-	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
+	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	instanceSkuRef := generators.GenerateSkuRef(instanceSkuName)
-	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
+	instanceSkuRefObj, err := generators.GenerateSkuRefObject(instanceSkuName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	instanceName := generators.GenerateInstanceName()
 
-	networkSkuRef1 := generators.GenerateSkuRef(networkSkuName1)
-	networkSkuRefObj, err := secapi.BuildReferenceFromURN(networkSkuRef1)
+	networkSkuRefObj, err := generators.GenerateSkuRefObject(networkSkuName1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,24 +101,21 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 
 	internetGatewayName := generators.GenerateInternetGatewayName()
 	internetGatewayName2 := generators.GenerateInternetGatewayName()
-	internetGatewayRef := generators.GenerateInternetGatewayRef(internetGatewayName)
-	internetGatewayRefObj, err := secapi.BuildReferenceFromURN(internetGatewayRef)
+	internetGatewayRefObj, err := generators.GenerateInternetGatewayRefObject(internetGatewayName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	routeTableName := generators.GenerateRouteTableName()
 	routeTableName2 := generators.GenerateRouteTableName()
-	routeTableRef := generators.GenerateRouteTableRef(routeTableName)
-	routeTableRefObj, err := secapi.BuildReferenceFromURN(routeTableRef)
+	routeTableRefObj, err := generators.GenerateRouteTableRefObject(routeTableName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	subnetName := generators.GenerateSubnetName()
 	subnetName2 := generators.GenerateSubnetName()
-	subnetRef := generators.GenerateSubnetRef(subnetName)
-	subnetRefObj, err := secapi.BuildReferenceFromURN(subnetRef)
+	subnetRefObj, err := generators.GenerateSubnetRefObject(subnetName)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -131,8 +125,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 
 	publicIpName := generators.GeneratePublicIpName()
 	publicIpName2 := generators.GeneratePublicIpName()
-	publicIpRef := generators.GeneratePublicIpRef(publicIpName)
-	publicIpRefObj, err := secapi.BuildReferenceFromURN(publicIpRef)
+	publicIpRefObj, err := generators.GeneratePublicIpRefObject(publicIpName)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -144,20 +137,22 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
-		mockParams := &mock.NetworkListParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
-				Region:    suite.Region,
+		mockParams := &params.NetworkListParamsV1{
+			BaseParams: &params.BaseParams{
+				Tenant: suite.Tenant,
+				Region: suite.Region,
+				MockParams: &mock.MockParams{
+					ServerURL: *suite.MockServerURL,
+					AuthToken: suite.AuthToken,
+				},
 			},
-			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
+			Workspace: &params.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
 					constants.EnvLabel: constants.EnvConformanceLabel,
 				},
 			},
-			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
+			BlockStorage: &params.ResourceParams[schema.BlockStorageSpec]{
 				Name: blockStorageName,
 				InitialLabels: schema.Labels{
 					constants.EnvLabel: constants.EnvConformanceLabel,
@@ -167,7 +162,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 					SizeGB: blockStorageSize,
 				},
 			},
-			Instance: &mock.ResourceParams[schema.InstanceSpec]{
+			Instance: &params.ResourceParams[schema.InstanceSpec]{
 				Name: instanceName,
 				InitialLabels: schema.Labels{
 					constants.EnvLabel: constants.EnvConformanceLabel,
@@ -180,7 +175,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 					},
 				},
 			},
-			Networks: []mock.ResourceParams[schema.NetworkSpec]{
+			Networks: []params.ResourceParams[schema.NetworkSpec]{
 				{
 					Name: networkName,
 					InitialLabels: schema.Labels{
@@ -204,7 +199,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 					},
 				},
 			},
-			InternetGateways: []mock.ResourceParams[schema.InternetGatewaySpec]{
+			InternetGateways: []params.ResourceParams[schema.InternetGatewaySpec]{
 				{
 					Name: internetGatewayName,
 					InitialLabels: schema.Labels{
@@ -220,7 +215,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
 				},
 			},
-			RouteTables: []mock.ResourceParams[schema.RouteTableSpec]{
+			RouteTables: []params.ResourceParams[schema.RouteTableSpec]{
 				{
 					Name: routeTableName,
 					InitialLabels: schema.Labels{
@@ -244,7 +239,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 					},
 				},
 			},
-			Subnets: []mock.ResourceParams[schema.SubnetSpec]{
+			Subnets: []params.ResourceParams[schema.SubnetSpec]{
 				{
 					Name: subnetName,
 					InitialLabels: schema.Labels{
@@ -265,7 +260,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 					},
 				},
 			},
-			Nics: []mock.ResourceParams[schema.NicSpec]{
+			Nics: []params.ResourceParams[schema.NicSpec]{
 				{
 					Name: nicName,
 					InitialLabels: schema.Labels{
@@ -289,7 +284,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 					},
 				},
 			},
-			PublicIps: []mock.ResourceParams[schema.PublicIpSpec]{
+			PublicIps: []params.ResourceParams[schema.PublicIpSpec]{
 				{
 					Name: publicIpName,
 					InitialLabels: schema.Labels{
@@ -311,7 +306,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 					},
 				},
 			},
-			SecurityGroups: []mock.ResourceParams[schema.SecurityGroupSpec]{
+			SecurityGroups: []params.ResourceParams[schema.SecurityGroupSpec]{
 				{
 					Name: securityGroupName,
 					InitialLabels: schema.Labels{
@@ -332,7 +327,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 				},
 			},
 		}
-		wm, err := network.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
+		wm, err := mocknetowork.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -971,6 +966,6 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *NetworkLifeCycleV1TestSuite) AfterEach(t provider.T) {
+func (suite *ListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

@@ -1,4 +1,4 @@
-package mock
+package params
 
 import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -39,9 +39,10 @@ type WorkspaceListParamsV1 struct {
 
 type ComputeLifeCycleParamsV1 struct {
 	*BaseParams
-	Workspace    *ResourceParams[schema.WorkspaceSpec]
-	BlockStorage *ResourceParams[schema.BlockStorageSpec]
-	Instance     *ResourceParams[schema.InstanceSpec]
+	Workspace       *schema.Workspace
+	BlockStorage    *schema.BlockStorage
+	CreatedInstance *schema.Instance
+	UpdatedInstance *schema.Instance
 }
 
 type ComputeListParamsV1 struct {

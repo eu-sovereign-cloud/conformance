@@ -3,11 +3,12 @@ package network
 import (
 	"math/rand"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
+	mocknetowork "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -16,7 +17,7 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type NetworkLifeCycleV1TestSuite struct {
+type LifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	NetworkCidr    string
@@ -27,7 +28,7 @@ type NetworkLifeCycleV1TestSuite struct {
 	NetworkSkus    []string
 }
 
-func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
+func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.NetworkProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
@@ -79,39 +80,36 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
-	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
-	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
+
+	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
-	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
+	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	instanceSkuRef := generators.GenerateSkuRef(instanceSkuName)
-	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
+	instanceSkuRefObj, err := generators.GenerateSkuRefObject(instanceSkuName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
 	instanceName := generators.GenerateInstanceName()
-	instanceRef := generators.GenerateInstanceRef(instanceName)
-	instanceRefObj, err := secapi.BuildReferenceFromURN(instanceRef)
+
+	instanceRefObj, err := generators.GenerateInstanceRefObject(instanceName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	networkSkuRef1 := generators.GenerateSkuRef(networkSkuName1)
-	networkSkuRefObj, err := secapi.BuildReferenceFromURN(networkSkuRef1)
+	networkSkuRefObj, err := generators.GenerateSkuRefObject(networkSkuName1)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
-	networkSkuRef2 := generators.GenerateSkuRef(networkSkuName2)
-	networkSkuRef2Obj, err := secapi.BuildReferenceFromURN(networkSkuRef2)
+
+	networkSkuRef2Obj, err := generators.GenerateSkuRefObject(networkSkuName2)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
@@ -119,22 +117,19 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	networkName := generators.GenerateNetworkName()
 
 	internetGatewayName := generators.GenerateInternetGatewayName()
-	internetGatewayRef := generators.GenerateInternetGatewayRef(internetGatewayName)
-	internetGatewayRefObj, err := secapi.BuildReferenceFromURN(internetGatewayRef)
+	internetGatewayRefObj, err := generators.GenerateInternetGatewayRefObject(internetGatewayName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
 	routeTableName := generators.GenerateRouteTableName()
-	routeTableRef := generators.GenerateRouteTableRef(routeTableName)
-	routeTableRefObj, err := secapi.BuildReferenceFromURN(routeTableRef)
+	routeTableRefObj, err := generators.GenerateRouteTableRefObject(routeTableName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
 	subnetName := generators.GenerateSubnetName()
-	subnetRef := generators.GenerateSubnetRef(subnetName)
-	subnetRefObj, err := secapi.BuildReferenceFromURN(subnetRef)
+	subnetRefObj, err := generators.GenerateSubnetRefObject(subnetName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
@@ -142,8 +137,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	nicName := generators.GenerateNicName()
 
 	publicIpName := generators.GeneratePublicIpName()
-	publicIpRef := generators.GeneratePublicIpRef(publicIpName)
-	publicIpRefObj, err := secapi.BuildReferenceFromURN(publicIpRef)
+	publicIpRefObj, err := generators.GeneratePublicIpRefObject(publicIpName)
 	if err != nil {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
@@ -154,27 +148,29 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
-		mockParams := &mock.NetworkLifeCycleParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
-				Region:    suite.Region,
+		mockParams := &params.NetworkLifeCycleParamsV1{
+			BaseParams: &params.BaseParams{
+				Tenant: suite.Tenant,
+				Region: suite.Region,
+				MockParams: &mock.MockParams{
+					ServerURL: *suite.MockServerURL,
+					AuthToken: suite.AuthToken,
+				},
 			},
-			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
+			Workspace: &params.ResourceParams[schema.WorkspaceSpec]{
 				Name: workspaceName,
 				InitialLabels: schema.Labels{
 					constants.EnvLabel: constants.EnvDevelopmentLabel,
 				},
 			},
-			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
+			BlockStorage: &params.ResourceParams[schema.BlockStorageSpec]{
 				Name: blockStorageName,
 				InitialSpec: &schema.BlockStorageSpec{
 					SkuRef: *storageSkuRefObj,
 					SizeGB: blockStorageSize,
 				},
 			},
-			Instance: &mock.ResourceParams[schema.InstanceSpec]{
+			Instance: &params.ResourceParams[schema.InstanceSpec]{
 				Name: instanceName,
 				InitialSpec: &schema.InstanceSpec{
 					SkuRef: *instanceSkuRefObj,
@@ -184,7 +180,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 					},
 				},
 			},
-			Network: &mock.ResourceParams[schema.NetworkSpec]{
+			Network: &params.ResourceParams[schema.NetworkSpec]{
 				Name: networkName,
 				InitialSpec: &schema.NetworkSpec{
 					Cidr:          schema.Cidr{Ipv4: ptr.To(suite.NetworkCidr)},
@@ -197,12 +193,12 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 					RouteTableRef: *routeTableRefObj,
 				},
 			},
-			InternetGateway: &mock.ResourceParams[schema.InternetGatewaySpec]{
+			InternetGateway: &params.ResourceParams[schema.InternetGatewaySpec]{
 				Name:        internetGatewayName,
 				InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
 				UpdatedSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(true)},
 			},
-			RouteTable: &mock.ResourceParams[schema.RouteTableSpec]{
+			RouteTable: &params.ResourceParams[schema.RouteTableSpec]{
 				Name: routeTableName,
 				InitialSpec: &schema.RouteTableSpec{
 					Routes: []schema.RouteSpec{
@@ -215,7 +211,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 					},
 				},
 			},
-			Subnet: &mock.ResourceParams[schema.SubnetSpec]{
+			Subnet: &params.ResourceParams[schema.SubnetSpec]{
 				Name: subnetName,
 				InitialSpec: &schema.SubnetSpec{
 					Cidr: schema.Cidr{Ipv4: &subnetCidr},
@@ -226,7 +222,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 					Zone: zone2,
 				},
 			},
-			Nic: &mock.ResourceParams[schema.NicSpec]{
+			Nic: &params.ResourceParams[schema.NicSpec]{
 				Name: nicName,
 				InitialSpec: &schema.NicSpec{
 					Addresses:    []string{nicAddress1},
@@ -239,7 +235,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 					SubnetRef:    *subnetRefObj,
 				},
 			},
-			PublicIp: &mock.ResourceParams[schema.PublicIpSpec]{
+			PublicIp: &params.ResourceParams[schema.PublicIpSpec]{
 				Name: publicIpName,
 				InitialSpec: &schema.PublicIpSpec{
 					Version: schema.IPVersionIPv4,
@@ -250,7 +246,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 					Address: ptr.To(publicIpAddress2),
 				},
 			},
-			SecurityGroup: &mock.ResourceParams[schema.SecurityGroupSpec]{
+			SecurityGroup: &params.ResourceParams[schema.SecurityGroupSpec]{
 				Name: securityGroupName,
 				InitialSpec: &schema.SecurityGroupSpec{
 					Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
@@ -260,7 +256,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 				},
 			},
 		}
-		wm, err := network.ConfigureLifecycleScenarioV1(suite.ScenarioName, mockParams)
+		wm, err := mocknetowork.ConfigureLifecycleScenarioV1(suite.ScenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}
@@ -931,4 +927,8 @@ func (suite *NetworkLifeCycleV1TestSuite) TestLifeCycleScenario(t provider.T) {
 	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
 	suite.FinishScenario()
+}
+
+func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
+	suite.ResetAllScenarios()
 }
