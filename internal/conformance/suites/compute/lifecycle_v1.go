@@ -132,7 +132,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 	suite.params = params
 
-	err = suites.SetupMock(&suite.TestSuite, mockcompute.ConfigureLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(&suite.TestSuite, mockcompute.ConfigureLifecycleScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -204,7 +204,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
 		Name(suite.params.BlockStorage.Metadata.Name).
 		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(suite.params.Workspace.Metadata.Name).Region(suite.Region).
+		Tenant(suite.Tenant).Workspace(workspace.Metadata.Name).Region(suite.Region).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)

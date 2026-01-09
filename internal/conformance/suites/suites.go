@@ -80,7 +80,7 @@ func (suite *TestSuite) ResetAllScenarios() {
 	}
 }
 
-func SetupMock[P any](suite *TestSuite, configFunc func(string, *P) (*wiremock.Client, error), params *P) error {
+func SetupMockIfEnabled[P any](suite *TestSuite, configFunc func(string, *P) (*wiremock.Client, error), params *P) error {
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
 		wm, err := configFunc(suite.ScenarioName, params)
