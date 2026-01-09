@@ -5,12 +5,6 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-// Params
-
-type ClientsInitParams struct {
-	*BaseParams
-}
-
 // Authorization
 
 type AuthorizationLifeCycleParamsV1 struct {

@@ -18,3 +18,9 @@ type ResourceParams[T any] struct {
 	InitialSpec   *T
 	UpdatedSpec   *T
 }
+
+// Clients
+
+type ClientsInitParams struct {
+	*BaseParams
+}
