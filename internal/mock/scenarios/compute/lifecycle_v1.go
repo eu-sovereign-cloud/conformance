@@ -3,6 +3,7 @@ package mockcompute
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
@@ -10,14 +11,14 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureLifecycleScenarioV1(scenario string, params *params.ComputeLifeCycleParamsV1) (*wiremock.Client, error) {
+func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.ComputeLifeCycleParamsV1) (*wiremock.Client, error) {
 	scenarios.LogScenarioMocking(scenario)
 
-	workspace := *params.Workspace
-	blockStorage := *params.BlockStorage
-	instance := *params.InitialInstance
+	workspace := *suiteParams.Workspace
+	blockStorage := *suiteParams.BlockStorage
+	instance := *suiteParams.InitialInstance
 
-	configurator, err := stubs.NewStubConfigurator(scenario, params.MockParams)
+	configurator, err := stubs.NewStubConfigurator(scenario, mockParams)
 	if err != nil {
 		return nil, err
 	}
@@ -31,103 +32,103 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.ComputeLifeCyc
 	instanceRestartUrl := generators.GenerateInstanceRestartURL(constants.ComputeProviderV1, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
 
 	// Create a workspace
-	if err := configurator.ConfigureCreateWorkspaceStub(&workspace, workspaceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureCreateWorkspaceStub(&workspace, workspaceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the created workspace
-	if err := configurator.ConfigureGetActiveWorkspaceStub(&workspace, workspaceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveWorkspaceStub(&workspace, workspaceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Create a block storage
-	if err := configurator.ConfigureCreateBlockStorageStub(&blockStorage, blockUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureCreateBlockStorageStub(&blockStorage, blockUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the created block storage
-	if err := configurator.ConfigureGetActiveBlockStorageStub(&blockStorage, blockUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveBlockStorageStub(&blockStorage, blockUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Create an instance
-	if err := configurator.ConfigureCreateInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureCreateInstanceStub(&instance, instanceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the created instance
-	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Update the instance
-	instance.Spec = params.UpdatedInstance.Spec
-	if err := configurator.ConfigureUpdateInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
+	instance.Spec = suiteParams.UpdatedInstance.Spec
+	if err := configurator.ConfigureUpdateInstanceStub(&instance, instanceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the updated instance
-	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Stop the instance
-	if err := configurator.ConfigureInstanceOperationStub(&instance, instanceStopUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureInstanceOperationStub(&instance, instanceStopUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the stopped instance
-	if err := configurator.ConfigureGetSuspendedInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetSuspendedInstanceStub(&instance, instanceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Start the instance
-	if err := configurator.ConfigureInstanceOperationStub(&instance, instanceStartUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureInstanceOperationStub(&instance, instanceStartUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the started instance
-	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Restart the instance
-	if err := configurator.ConfigureInstanceOperationStub(&instance, instanceRestartUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureInstanceOperationStub(&instance, instanceRestartUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the restarted instance
-	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Delete the instance
-	if err := configurator.ConfigureDeleteStub(instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureDeleteStub(instanceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted instance
-	if err := configurator.ConfigureGetNotFoundStub(instanceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetNotFoundStub(instanceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Delete the block storage
-	if err := configurator.ConfigureDeleteStub(blockUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureDeleteStub(blockUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted block storage
-	if err := configurator.ConfigureGetNotFoundStub(blockUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetNotFoundStub(blockUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
-	if err := configurator.ConfigureDeleteStub(workspaceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureDeleteStub(workspaceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted workspace
-	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, mockParams); err != nil {
 		return nil, err
 	}
 

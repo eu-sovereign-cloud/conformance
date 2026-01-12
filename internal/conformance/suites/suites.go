@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -80,10 +81,15 @@ func (suite *TestSuite) ResetAllScenarios() {
 	}
 }
 
-func SetupMockIfEnabled[P any](suite *TestSuite, configFunc func(string, *P) (*wiremock.Client, error), params *P) error {
+func SetupMockIfEnabled[P any](suite *TestSuite, configFunc func(string, *mock.MockParams, *P) (*wiremock.Client, error), suiteParams *P) error {
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
-		wm, err := configFunc(suite.ScenarioName, params)
+		mockParams := &mock.MockParams{
+			ServerURL: *suite.MockServerURL,
+			AuthToken: suite.AuthToken,
+		}
+
+		wm, err := configFunc(suite.ScenarioName, mockParams, suiteParams)
 		if err != nil {
 			return err
 		}
