@@ -31,8 +31,9 @@ type RegionListParamsV1 struct {
 // Workspace
 
 type WorkspaceLifeCycleParamsV1 struct {
-	*BaseParams
-	Workspace *ResourceParams[schema.WorkspaceSpec]
+	*mock.MockParams
+	WorkspaceInitial *schema.Workspace
+	WorkspaceUpdated *schema.Workspace
 }
 
 type WorkspaceListParamsV1 struct {

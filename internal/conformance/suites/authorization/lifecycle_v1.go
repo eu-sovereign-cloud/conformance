@@ -1,7 +1,6 @@
 package authorization
 
 import (
-	"fmt"
 	"math/rand"
 	"net/http"
 
@@ -29,7 +28,6 @@ type LifeCycleV1TestSuite struct {
 
 func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	var err error
-	fmt.Println("vou configurar o auth")
 
 	// Select subs
 	roleAssignmentSub1 := suite.Users[rand.Intn(len(suite.Users))]
@@ -55,7 +53,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		}).
 		Build()
 	if err != nil {
-		t.Fatalf("Failed to build Instance: %v", err)
+		t.Fatalf("Failed to build Role: %v", err)
 	}
 	RoleUpdated, err := builders.NewRoleBuilder().
 		Name(roleName).
@@ -68,7 +66,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		}).
 		Build()
 	if err != nil {
-		t.Fatalf("Failed to build Instance: %v", err)
+		t.Fatalf("Failed to build Role: %v", err)
 	}
 	RoleAssignmentInitial, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignmentName).
@@ -82,7 +80,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 			},
 		}).Build()
 	if err != nil {
-		t.Fatalf("Failed to build Instance: %v", err)
+		t.Fatalf("Failed to build RoleAssignment: %v", err)
 	}
 	RoleAssignmentUpdated, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignmentName).
@@ -96,7 +94,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 			},
 		}).Build()
 	if err != nil {
-		t.Fatalf("Failed to build Instance: %v", err)
+		t.Fatalf("Failed to build RoleAssignment: %v", err)
 	}
 
 	params := &params.AuthorizationLifeCycleParamsV1{

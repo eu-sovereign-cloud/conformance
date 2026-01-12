@@ -18,13 +18,13 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.WorkspaceLifeC
 		return nil, err
 	}
 
-	url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
+	url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.WorkspaceInitial.Metadata.Tenant, params.WorkspaceInitial.Metadata.Name)
 
 	response, err := builders.NewWorkspaceBuilder().
-		Name(params.Workspace.Name).
+		Name(params.WorkspaceInitial.Metadata.Name).
 		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(params.Tenant).Region(params.Region).
-		Labels(params.Workspace.InitialLabels).
+		Tenant(params.WorkspaceInitial.Metadata.Tenant).Region(params.WorkspaceInitial.Metadata.Region).
+		Labels(params.WorkspaceInitial.Labels).
 		Build()
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.WorkspaceLifeC
 	}
 
 	// Update the workspace
-	if err := configurator.ConfigureUpdateWorkspaceStubWithLabels(response, url, params.MockParams, params.Workspace.UpdatedLabels); err != nil {
+	if err := configurator.ConfigureUpdateWorkspaceStubWithLabels(response, url, params.MockParams, params.WorkspaceUpdated.Labels); err != nil {
 		return nil, err
 	}
 
