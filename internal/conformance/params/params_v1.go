@@ -1,7 +1,6 @@
 package params
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -44,7 +43,6 @@ type WorkspaceListParamsV1 struct {
 // Compute
 
 type ComputeLifeCycleParamsV1 struct {
-	*mock.MockParams
 	Workspace       *schema.Workspace
 	BlockStorage    *schema.BlockStorage
 	InitialInstance *schema.Instance
