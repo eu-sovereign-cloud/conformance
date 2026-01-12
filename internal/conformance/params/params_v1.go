@@ -7,7 +7,6 @@ import (
 // Authorization
 
 type AuthorizationLifeCycleParamsV1 struct {
-	*mock.MockParams
 	RoleInitial           *schema.Role
 	RoleUpdated           *schema.Role
 	RoleAssignmentInitial *schema.RoleAssignment
@@ -30,7 +29,6 @@ type RegionListParamsV1 struct {
 // Workspace
 
 type WorkspaceLifeCycleParamsV1 struct {
-	*mock.MockParams
 	WorkspaceInitial *schema.Workspace
 	WorkspaceUpdated *schema.Workspace
 }
@@ -59,7 +57,6 @@ type ComputeListParamsV1 struct {
 // Storage
 
 type StorageLifeCycleParamsV1 struct {
-	*mock.MockParams
 	Workspace           *schema.Workspace
 	BlockStorageInitial *schema.BlockStorage
 	BlockStorageUpdated *schema.BlockStorage
@@ -77,18 +74,23 @@ type StorageListParamsV1 struct {
 // Network
 
 type NetworkLifeCycleParamsV1 struct {
-	*BaseParams
-
-	Workspace       *ResourceParams[schema.WorkspaceSpec]
-	BlockStorage    *ResourceParams[schema.BlockStorageSpec]
-	Instance        *ResourceParams[schema.InstanceSpec]
-	Network         *ResourceParams[schema.NetworkSpec]
-	InternetGateway *ResourceParams[schema.InternetGatewaySpec]
-	RouteTable      *ResourceParams[schema.RouteTableSpec]
-	Subnet          *ResourceParams[schema.SubnetSpec]
-	Nic             *ResourceParams[schema.NicSpec]
-	PublicIp        *ResourceParams[schema.PublicIpSpec]
-	SecurityGroup   *ResourceParams[schema.SecurityGroupSpec]
+	Workspace              *schema.Workspace
+	BlockStorage           *schema.BlockStorage
+	Instance               *schema.Instance
+	NetworkInitial         *schema.Network
+	NetworkUpdated         *schema.Network
+	InternetGatewayInitial *schema.InternetGateway
+	InternetGatewayUpdated *schema.InternetGateway
+	RouteTableInitial      *schema.RouteTable
+	RouteTableUpdated      *schema.RouteTable
+	SubnetInitial          *schema.Subnet
+	SubnetUpdated          *schema.Subnet
+	NicInitial             *schema.Nic
+	NicUpdated             *schema.Nic
+	PublicIpInitial        *schema.PublicIp
+	PublicIpUpdated        *schema.PublicIp
+	SecurityGroupInitial   *schema.SecurityGroup
+	SecurityGroupUpdated   *schema.SecurityGroup
 }
 
 type NetworkListParamsV1 struct {

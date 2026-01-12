@@ -142,15 +142,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Workspace
 
 	// Create a workspace
-	workspace := &schema.Workspace{
-		Labels: schema.Labels{
-			constants.EnvLabel: constants.EnvDevelopmentLabel,
-		},
-		Metadata: &schema.RegionalResourceMetadata{
-			Tenant: suite.Tenant,
-			Name:   suite.params.Workspace.Metadata.Name,
-		},
-	}
+	workspace := suite.params.Workspace
 	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
 		Name(suite.params.Workspace.Metadata.Name).
 		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
