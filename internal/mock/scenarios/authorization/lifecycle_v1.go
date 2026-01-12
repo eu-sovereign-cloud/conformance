@@ -20,15 +20,15 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.AuthorizationL
 	}
 
 	// Generate URLs
-	roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, params.Tenant, params.Role.Name)
-	roleAssignUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, params.Tenant, params.RoleAssignment.Name)
+	roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, params.RoleInitial.Metadata.Tenant, params.RoleInitial.Metadata.Name)
+	roleAssignUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, params.RoleAssignmentInitial.Metadata.Tenant, params.RoleAssignmentInitial.Metadata.Name)
 
 	// Role
 	roleResponse, err := builders.NewRoleBuilder().
-		Name(params.Role.Name).
+		Name(params.RoleInitial.Metadata.Name).
 		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(params.Tenant).
-		Spec(params.Role.InitialSpec).
+		Tenant(params.RoleInitial.Metadata.Tenant).
+		Spec(&params.RoleInitial.Spec).
 		Build()
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.AuthorizationL
 	}
 
 	// Update the role
-	roleResponse.Spec = *params.Role.UpdatedSpec
+	roleResponse.Spec = params.RoleUpdated.Spec
 	if err := configurator.ConfigureUpdateRoleStub(roleResponse, roleUrl, params.MockParams); err != nil {
 		return nil, err
 	}
@@ -57,10 +57,10 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.AuthorizationL
 
 	// Role assignment
 	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
-		Name(params.RoleAssignment.Name).
+		Name(params.RoleAssignmentInitial.Metadata.Name).
 		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(params.Tenant).
-		Spec(params.RoleAssignment.InitialSpec).
+		Tenant(params.RoleAssignmentInitial.Metadata.Tenant).
+		Spec(&params.RoleAssignmentInitial.Spec).
 		Build()
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.AuthorizationL
 	}
 
 	// Update the role assignment
-	roleAssignResponse.Spec = *params.RoleAssignment.UpdatedSpec
+	roleAssignResponse.Spec = params.RoleAssignmentUpdated.Spec
 	if err := configurator.ConfigureUpdateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, params.MockParams); err != nil {
 		return nil, err
 	}

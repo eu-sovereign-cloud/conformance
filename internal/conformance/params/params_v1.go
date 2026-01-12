@@ -8,9 +8,11 @@ import (
 // Authorization
 
 type AuthorizationLifeCycleParamsV1 struct {
-	*BaseParams
-	Role           *ResourceParams[schema.RoleSpec]
-	RoleAssignment *ResourceParams[schema.RoleAssignmentSpec]
+	*mock.MockParams
+	RoleInitial           *schema.Role
+	RoleUpdated           *schema.Role
+	RoleAssignmentInitial *schema.RoleAssignment
+	RoleAssignmentUpdated *schema.RoleAssignment
 }
 
 type AuthorizationListParamsV1 struct {
