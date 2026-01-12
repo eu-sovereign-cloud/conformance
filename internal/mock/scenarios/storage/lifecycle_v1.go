@@ -19,16 +19,16 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.StorageLifeCyc
 	}
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.Tenant, params.Workspace.Name)
-	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, params.Tenant, params.Workspace.Name, params.BlockStorage.Name)
-	imageUrl := generators.GenerateImageURL(constants.StorageProviderV1, params.Tenant, params.Image.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.Workspace.Metadata.Tenant, params.Workspace.Metadata.Name)
+	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, params.BlockStorageInitial.Metadata.Tenant, params.BlockStorageInitial.Metadata.Workspace, params.BlockStorageInitial.Metadata.Name)
+	imageUrl := generators.GenerateImageURL(constants.StorageProviderV1, params.ImageInitial.Metadata.Tenant, params.ImageInitial.Metadata.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
-		Name(params.Workspace.Name).
+		Name(params.Workspace.Metadata.Name).
 		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(params.Tenant).Region(params.Region).
-		Labels(params.Workspace.InitialLabels).
+		Tenant(params.Workspace.Metadata.Tenant).Region(params.Workspace.Metadata.Region).
+		Labels(params.Workspace.Labels).
 		Build()
 	if err != nil {
 		return nil, err
@@ -46,10 +46,10 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.StorageLifeCyc
 
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
-		Name(params.BlockStorage.Name).
+		Name(params.BlockStorageInitial.Metadata.Name).
 		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(params.Tenant).Workspace(params.Workspace.Name).Region(params.Region).
-		Spec(params.BlockStorage.InitialSpec).
+		Tenant(params.BlockStorageInitial.Metadata.Tenant).Workspace(params.BlockStorageInitial.Metadata.Workspace).Region(params.BlockStorageInitial.Metadata.Region).
+		Spec(&params.BlockStorageInitial.Spec).
 		Build()
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.StorageLifeCyc
 	}
 
 	// Update the block storage
-	blockResponse.Spec = *params.BlockStorage.UpdatedSpec
+	blockResponse.Spec = params.BlockStorageUpdated.Spec
 	if err := configurator.ConfigureUpdateBlockStorageStub(blockResponse, blockUrl, params.MockParams); err != nil {
 		return nil, err
 	}
@@ -78,10 +78,10 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.StorageLifeCyc
 
 	// Image
 	imageResponse, err := builders.NewImageBuilder().
-		Name(params.Image.Name).
+		Name(params.ImageInitial.Metadata.Name).
 		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(params.Tenant).Region(params.Region).
-		Spec(params.Image.InitialSpec).
+		Tenant(params.ImageInitial.Metadata.Tenant).Region(params.ImageInitial.Metadata.Region).
+		Spec(&params.ImageInitial.Spec).
 		Build()
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func ConfigureLifecycleScenarioV1(scenario string, params *params.StorageLifeCyc
 	}
 
 	// Update the image
-	imageResponse.Spec = *params.Image.UpdatedSpec
+	imageResponse.Spec = params.ImageUpdated.Spec
 	if err := configurator.ConfigureUpdateImageStub(imageResponse, imageUrl, params.MockParams); err != nil {
 		return nil, err
 	}

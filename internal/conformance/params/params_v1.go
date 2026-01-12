@@ -61,10 +61,12 @@ type ComputeListParamsV1 struct {
 // Storage
 
 type StorageLifeCycleParamsV1 struct {
-	*BaseParams
-	Workspace    *ResourceParams[schema.WorkspaceSpec]
-	BlockStorage *ResourceParams[schema.BlockStorageSpec]
-	Image        *ResourceParams[schema.ImageSpec]
+	*mock.MockParams
+	Workspace           *schema.Workspace
+	BlockStorageInitial *schema.BlockStorage
+	BlockStorageUpdated *schema.BlockStorage
+	ImageInitial        *schema.Image
+	ImageUpdated        *schema.Image
 }
 
 type StorageListParamsV1 struct {
