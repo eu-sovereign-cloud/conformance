@@ -8,7 +8,6 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	mockauthorization "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/authorization"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
@@ -98,10 +97,6 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	params := &params.AuthorizationLifeCycleParamsV1{
-		MockParams: &mock.MockParams{
-			ServerURL: *suite.MockServerURL,
-			AuthToken: suite.AuthToken,
-		},
 		RoleInitial:           RoleInitial,
 		RoleUpdated:           RoleUpdated,
 		RoleAssignmentInitial: RoleAssignmentInitial,

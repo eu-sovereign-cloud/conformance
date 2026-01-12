@@ -3,6 +3,7 @@ package mockworkspace
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -10,53 +11,55 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureLifecycleScenarioV1(scenario string, params *params.WorkspaceLifeCycleParamsV1) (*wiremock.Client, error) {
+func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.WorkspaceLifeCycleParamsV1) (*wiremock.Client, error) {
 	scenarios.LogScenarioMocking(scenario)
 
-	configurator, err := stubs.NewStubConfigurator(scenario, params.MockParams)
+	workspace := *suiteParams.WorkspaceInitial
+
+	configurator, err := stubs.NewStubConfigurator(scenario, mockParams)
 	if err != nil {
 		return nil, err
 	}
 
-	url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, params.WorkspaceInitial.Metadata.Tenant, params.WorkspaceInitial.Metadata.Name)
+	url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
 
 	response, err := builders.NewWorkspaceBuilder().
-		Name(params.WorkspaceInitial.Metadata.Name).
+		Name(workspace.Metadata.Name).
 		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(params.WorkspaceInitial.Metadata.Tenant).Region(params.WorkspaceInitial.Metadata.Region).
-		Labels(params.WorkspaceInitial.Labels).
+		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
+		Labels(workspace.Labels).
 		Build()
 	if err != nil {
 		return nil, err
 	}
 
 	// Create a workspace
-	if err := configurator.ConfigureCreateWorkspaceStub(response, url, params.MockParams); err != nil {
+	if err := configurator.ConfigureCreateWorkspaceStub(response, url, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the created workspace
-	if err := configurator.ConfigureGetActiveWorkspaceStub(response, url, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveWorkspaceStub(response, url, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Update the workspace
-	if err := configurator.ConfigureUpdateWorkspaceStubWithLabels(response, url, params.MockParams, params.WorkspaceUpdated.Labels); err != nil {
+	if err := configurator.ConfigureUpdateWorkspaceStubWithLabels(response, url, mockParams, suiteParams.WorkspaceUpdated.Labels); err != nil {
 		return nil, err
 	}
 
 	// Get the updated workspace
-	if err := configurator.ConfigureGetActiveWorkspaceStub(response, url, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveWorkspaceStub(response, url, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Delete the workspace
-	if err := configurator.ConfigureDeleteStub(url, params.MockParams); err != nil {
+	if err := configurator.ConfigureDeleteStub(url, mockParams); err != nil {
 		return nil, err
 	}
 
 	// Get the deleted workspace
-	if err := configurator.ConfigureGetNotFoundStub(url, params.MockParams); err != nil {
+	if err := configurator.ConfigureGetNotFoundStub(url, mockParams); err != nil {
 		return nil, err
 	}
 
