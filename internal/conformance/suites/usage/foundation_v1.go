@@ -35,6 +35,7 @@ type FoundationV1TestSuite struct {
 
 func (suite *FoundationV1TestSuite) BeforeAll(t provider.T) {
 	var err error
+	
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.NetworkCidr, 8, 1)
 	if err != nil {
 		slog.Error("Failed to generate subnet cidr", "error", err)

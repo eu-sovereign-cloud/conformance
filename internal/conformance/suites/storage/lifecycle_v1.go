@@ -25,6 +25,7 @@ type LifeCycleV1TestSuite struct {
 
 func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	var err error
+	
 	// Select sku
 	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
 
@@ -106,6 +107,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build Image: %v", err)
 	}
+
 	params := &params.StorageLifeCycleParamsV1{
 		Workspace:           workspace,
 		BlockStorageInitial: blockStorageInitial,

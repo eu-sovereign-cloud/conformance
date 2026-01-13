@@ -60,8 +60,6 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build URN: %v", err)
 	}
 
-	// Generate scenario params
-
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
 		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).

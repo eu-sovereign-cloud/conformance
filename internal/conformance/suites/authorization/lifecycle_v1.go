@@ -31,6 +31,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	// Select subs
 	roleAssignmentSub1 := suite.Users[rand.Intn(len(suite.Users))]
 	roleAssignmentSub2 := suite.Users[rand.Intn(len(suite.Users))]
+
 	// Generate scenario data
 	roleName := generators.GenerateRoleName()
 
@@ -39,9 +40,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	imageName := generators.GenerateImageName()
 	imageResource := generators.GenerateImageResource(suite.Tenant, imageName)
 
-	// Setup mock, if configured to use
-
-	RoleInitial, err := builders.NewRoleBuilder().
+	roleInitial, err := builders.NewRoleBuilder().
 		Name(roleName).
 		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).
@@ -54,7 +53,8 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build Role: %v", err)
 	}
-	RoleUpdated, err := builders.NewRoleBuilder().
+
+	roleUpdated, err := builders.NewRoleBuilder().
 		Name(roleName).
 		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).
@@ -67,7 +67,8 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build Role: %v", err)
 	}
-	RoleAssignmentInitial, err := builders.NewRoleAssignmentBuilder().
+
+	roleAssignmentInitial, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignmentName).
 		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).
@@ -81,7 +82,8 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build RoleAssignment: %v", err)
 	}
-	RoleAssignmentUpdated, err := builders.NewRoleAssignmentBuilder().
+
+	roleAssignmentUpdated, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignmentName).
 		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).
@@ -97,10 +99,10 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	params := &params.AuthorizationLifeCycleParamsV1{
-		RoleInitial:           RoleInitial,
-		RoleUpdated:           RoleUpdated,
-		RoleAssignmentInitial: RoleAssignmentInitial,
-		RoleAssignmentUpdated: RoleAssignmentUpdated,
+		RoleInitial:           roleInitial,
+		RoleUpdated:           roleUpdated,
+		RoleAssignmentInitial: roleAssignmentInitial,
+		RoleAssignmentUpdated: roleAssignmentUpdated,
 	}
 	suite.params = params
 	err = suites.SetupMockIfEnabled(&suite.TestSuite, mockauthorization.ConfigureLifecycleScenarioV1, params)

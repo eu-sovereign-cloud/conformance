@@ -21,7 +21,10 @@ type LifeCycleV1TestSuite struct {
 
 func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	var err error
+
+	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
+
 	workspaceInitial, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
 		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
