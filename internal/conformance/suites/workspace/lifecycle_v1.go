@@ -64,15 +64,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a workspace
 	workspace := suite.params.WorkspaceInitial
-
-	expectMeta, err := builders.NewWorkspaceMetadataBuilder().
-		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
+	expectMeta := workspace.Metadata
 	expectLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
@@ -83,11 +75,11 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Get the created Workspace
-	tref := &secapi.TenantReference{
+	tref := secapi.TenantReference{
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
 	}
-	workspace = stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, *tref,
+	workspace = stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, tref,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectLabels,
 			Metadata:      expectMeta,
@@ -107,7 +99,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Get the updated workspace
-	workspace = stepsBuilder.GetWorkspaceV1Step("Get the updated workspace", suite.Client.WorkspaceV1, *tref,
+	workspace = stepsBuilder.GetWorkspaceV1Step("Get the updated workspace", suite.Client.WorkspaceV1, tref,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectLabels,
 			Metadata:      expectMeta,
@@ -117,7 +109,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *tref, secapi.ErrResourceNotFound)
+	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, tref, secapi.ErrResourceNotFound)
 
 	suite.FinishScenario()
 }

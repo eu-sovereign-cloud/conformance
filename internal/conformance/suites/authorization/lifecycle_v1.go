@@ -124,53 +124,45 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a role
 	role := suite.params.RoleInitial
-
-	expectRoleMeta, err := builders.NewRoleMetadataBuilder().
-		Name(role.Metadata.Name).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(suite.Tenant).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build metadata: %v", err)
-	}
-	expectRoleSpec := role.Spec
+	expectRoleMeta := role.Metadata
+	expectRoleSpec := &role.Spec
 	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:      expectRoleMeta,
-			Spec:          &expectRoleSpec,
+			Spec:          expectRoleSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created role
-	roleTRef := &secapi.TenantReference{
+	roleTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 		Name:   role.Metadata.Name,
 	}
-	role = stepsBuilder.GetRoleV1Step("Get the created role", suite.Client.AuthorizationV1, *roleTRef,
+	role = stepsBuilder.GetRoleV1Step("Get the created role", suite.Client.AuthorizationV1, roleTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:      expectRoleMeta,
-			Spec:          &expectRoleSpec,
+			Spec:          expectRoleSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
 
 	// Update the role
 	role.Spec = suite.params.RoleUpdated.Spec
-	expectRoleSpec = role.Spec
+	expectRoleSpec = &role.Spec
 	stepsBuilder.CreateOrUpdateRoleV1Step("Update the role", suite.Client.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:      expectRoleMeta,
-			Spec:          &expectRoleSpec,
+			Spec:          expectRoleSpec,
 			ResourceState: schema.ResourceStateUpdating,
 		},
 	)
 
 	// Get the updated role
-	role = stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, *roleTRef,
+	role = stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:      expectRoleMeta,
-			Spec:          &expectRoleSpec,
+			Spec:          expectRoleSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -179,32 +171,25 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a role assignment
 	roleAssign := suite.params.RoleAssignmentInitial
-	expectRoleAssignMeta, err := builders.NewRoleAssignmentMetadataBuilder().
-		Name(roleAssign.Metadata.Name).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(suite.Tenant).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build metadata: %v", err)
-	}
-	expectRoleAssignSpec := roleAssign.Spec
+	expectRoleAssignMeta := roleAssign.Metadata
+	expectRoleAssignSpec := &roleAssign.Spec
 	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.Client.AuthorizationV1, roleAssign,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:      expectRoleAssignMeta,
-			Spec:          &expectRoleAssignSpec,
+			Spec:          expectRoleAssignSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created role assignment
-	roleAssignTRef := &secapi.TenantReference{
+	roleAssignTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 		Name:   roleAssign.Metadata.Name,
 	}
-	roleAssign = stepsBuilder.GetRoleAssignmentV1Step("Get the created role assignment", suite.Client.AuthorizationV1, *roleAssignTRef,
+	roleAssign = stepsBuilder.GetRoleAssignmentV1Step("Get the created role assignment", suite.Client.AuthorizationV1, roleAssignTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:      expectRoleAssignMeta,
-			Spec:          &expectRoleAssignSpec,
+			Spec:          expectRoleAssignSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -215,16 +200,16 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Update the role assignment", suite.Client.AuthorizationV1, roleAssign,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:      expectRoleAssignMeta,
-			Spec:          &expectRoleAssignSpec,
+			Spec:          expectRoleAssignSpec,
 			ResourceState: schema.ResourceStateUpdating,
 		},
 	)
 
 	// Get the updated role assignment
-	roleAssign = stepsBuilder.GetRoleAssignmentV1Step("Get the updated role assignment", suite.Client.AuthorizationV1, *roleAssignTRef,
+	roleAssign = stepsBuilder.GetRoleAssignmentV1Step("Get the updated role assignment", suite.Client.AuthorizationV1, roleAssignTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:      expectRoleAssignMeta,
-			Spec:          &expectRoleAssignSpec,
+			Spec:          expectRoleAssignSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -232,10 +217,10 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Resources deletion
 
 	stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, roleAssign)
-	stepsBuilder.GetRoleAssignmentWithErrorV1Step("Get the deleted role assignment", suite.Client.AuthorizationV1, *roleAssignTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.GetRoleAssignmentWithErrorV1Step("Get the deleted role assignment", suite.Client.AuthorizationV1, roleAssignTRef, secapi.ErrResourceNotFound)
 
 	stepsBuilder.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, role)
-	stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, *roleTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, roleTRef, secapi.ErrResourceNotFound)
 
 	suite.FinishScenario()
 }

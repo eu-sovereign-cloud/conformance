@@ -25,7 +25,7 @@ type LifeCycleV1TestSuite struct {
 
 func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	var err error
-	
+
 	// Select sku
 	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
 
@@ -131,22 +131,13 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
 	)
 
-	var err error
-
 	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
 
 	// Workspace
 
 	// Create a workspace
 	workspace := suite.params.Workspace
-	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
-		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(suite.Tenant).Region(suite.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
+	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
 
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
@@ -158,11 +149,11 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Get the created Workspace
-	workspaceTRef := &secapi.TenantReference{
+	workspaceTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
 	}
-	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, *workspaceTRef,
+	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
 			Metadata:      expectWorkspaceMeta,
@@ -174,33 +165,26 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a block storage
 	block := suite.params.BlockStorageInitial
-	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
-		Name(block.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(block.Metadata.Tenant).Workspace(block.Metadata.Workspace).Region(block.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	expectedBlockSpec := block.Spec
+	expectedBlockMeta := block.Metadata
+	expectedBlockSpec := &block.Spec
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:      expectedBlockMeta,
-			Spec:          &expectedBlockSpec,
+			Spec:          expectedBlockSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created block storage
-	blockWRef := &secapi.WorkspaceReference{
+	blockWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(block.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
 		Name:      block.Metadata.Name,
 	}
-	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, *blockWRef,
+	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:      expectedBlockMeta,
-			Spec:          &expectedBlockSpec,
+			Spec:          expectedBlockSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -211,16 +195,16 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Update the block storage", suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:      expectedBlockMeta,
-			Spec:          &expectedBlockSpec,
+			Spec:          expectedBlockSpec,
 			ResourceState: schema.ResourceStateUpdating,
 		},
 	)
 
 	// Get the updated block storage
-	block = stepsBuilder.GetBlockStorageV1Step("Get the updated block storage", suite.Client.StorageV1, *blockWRef,
+	block = stepsBuilder.GetBlockStorageV1Step("Get the updated block storage", suite.Client.StorageV1, blockWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:      expectedBlockMeta,
-			Spec:          &expectedBlockSpec,
+			Spec:          expectedBlockSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -229,32 +213,25 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Create an image
 	image := suite.params.ImageInitial
-	expectedImageMeta, err := builders.NewImageMetadataBuilder().
-		Name(image.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(image.Metadata.Tenant).Region(image.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	expectedImageSpec := image.Spec
+	expectedImageMeta := image.Metadata
+	expectedImageSpec := &image.Spec
 	stepsBuilder.CreateOrUpdateImageV1Step("Create an image", suite.Client.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:      expectedImageMeta,
-			Spec:          &expectedImageSpec,
+			Spec:          expectedImageSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created image
-	imageTRef := &secapi.TenantReference{
+	imageTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(image.Metadata.Tenant),
 		Name:   image.Metadata.Name,
 	}
-	image = stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, *imageTRef,
+	image = stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:      expectedImageMeta,
-			Spec:          &expectedImageSpec,
+			Spec:          expectedImageSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -265,16 +242,16 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.CreateOrUpdateImageV1Step("Update the image", suite.Client.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:      expectedImageMeta,
-			Spec:          &expectedImageSpec,
+			Spec:          expectedImageSpec,
 			ResourceState: schema.ResourceStateUpdating,
 		},
 	)
 
 	// Get the updated image
-	image = stepsBuilder.GetImageV1Step("Get the updated image", suite.Client.StorageV1, *imageTRef,
+	image = stepsBuilder.GetImageV1Step("Get the updated image", suite.Client.StorageV1, imageTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:      expectedImageMeta,
-			Spec:          &expectedImageSpec,
+			Spec:          expectedImageSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -282,13 +259,13 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Resources deletion
 
 	stepsBuilder.DeleteImageV1Step("Delete the image", suite.Client.StorageV1, image)
-	stepsBuilder.GetImageWithErrorV1Step("Get the deleted image", suite.Client.StorageV1, *imageTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.GetImageWithErrorV1Step("Get the deleted image", suite.Client.StorageV1, imageTRef, secapi.ErrResourceNotFound)
 
 	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
-	stepsBuilder.GetBlockStorageWithErrorV1Step("Get the deleted block storage", suite.Client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
+	stepsBuilder.GetBlockStorageWithErrorV1Step("Get the deleted block storage", suite.Client.StorageV1, blockWRef, secapi.ErrResourceNotFound)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
 
 	suite.FinishScenario()
 }

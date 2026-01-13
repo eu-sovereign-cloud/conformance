@@ -332,34 +332,34 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteInstanceV1Step("Delete the instance", suite.Client.ComputeV1, &instance)
 
 		// Get the deleted instance
-		instanceWRef := &secapi.WorkspaceReference{
+		instanceWRef := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(suite.Tenant),
 			Workspace: secapi.WorkspaceID(workspaceName),
 			Name:      instance.Metadata.Name,
 		}
-		stepsBuilder.GetInstanceWithErrorV1Step("Get the deleted instance", suite.Client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
+		stepsBuilder.GetInstanceWithErrorV1Step("Get the deleted instance", suite.Client.ComputeV1, instanceWRef, secapi.ErrResourceNotFound)
 	}
 
 	// Delete the block storage
 	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
 
 	// Get the deleted block storage
-	blockWRef := &secapi.WorkspaceReference{
+	blockWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(suite.Tenant),
 		Workspace: secapi.WorkspaceID(workspaceName),
 		Name:      blockStorageName,
 	}
-	stepsBuilder.GetBlockStorageWithErrorV1Step("Get the deleted block storage", suite.Client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
+	stepsBuilder.GetBlockStorageWithErrorV1Step("Get the deleted block storage", suite.Client.StorageV1, blockWRef, secapi.ErrResourceNotFound)
 
 	// Delete the workspace
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
 
 	// Get the deleted workspace
-	workspaceTRef := &secapi.TenantReference{
+	workspaceTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 		Name:   workspaceName,
 	}
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
 
 	suite.FinishScenario()
 }

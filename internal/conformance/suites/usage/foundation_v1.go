@@ -35,7 +35,7 @@ type FoundationV1TestSuite struct {
 
 func (suite *FoundationV1TestSuite) BeforeAll(t provider.T) {
 	var err error
-	
+
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.NetworkCidr, 8, 1)
 	if err != nil {
 		slog.Error("Failed to generate subnet cidr", "error", err)
@@ -357,33 +357,25 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a role
 	role := suite.params.Role
-	expectRoleMeta, err := builders.NewRoleMetadataBuilder().
-		Name(role.Metadata.Name).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(suite.Tenant).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-
-	expectRoleSpec := role.Spec
+	expectRoleMeta := role.Metadata
+	expectRoleSpec := &role.Spec
 	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.GlobalClient.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:      expectRoleMeta,
-			Spec:          &expectRoleSpec,
+			Spec:          expectRoleSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created role
-	roleTRef := &secapi.TenantReference{
+	roleTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 		Name:   role.Metadata.Name,
 	}
-	role = stepsBuilder.GetRoleV1Step("Get the created role", suite.GlobalClient.AuthorizationV1, *roleTRef,
+	role = stepsBuilder.GetRoleV1Step("Get the created role", suite.GlobalClient.AuthorizationV1, roleTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:      expectRoleMeta,
-			Spec:          &expectRoleSpec,
+			Spec:          expectRoleSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -392,33 +384,25 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a role assignment
 	roleAssign := suite.params.RoleAssignment
-	expectRoleAssignMeta, err := builders.NewRoleAssignmentMetadataBuilder().
-		Name(roleAssign.Metadata.Name).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(suite.Tenant).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build metadata: %v", err)
-	}
-	expectRoleAssignSpec := roleAssign.Spec
-
+	expectRoleAssignMeta := roleAssign.Metadata
+	expectRoleAssignSpec := &roleAssign.Spec
 	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.GlobalClient.AuthorizationV1, roleAssign,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:      expectRoleAssignMeta,
-			Spec:          &expectRoleAssignSpec,
+			Spec:          expectRoleAssignSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created role assignment
-	roleAssignTRef := &secapi.TenantReference{
+	roleAssignTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 		Name:   roleAssign.Metadata.Name,
 	}
-	roleAssign = stepsBuilder.GetRoleAssignmentV1Step("Get the created role assignment", suite.GlobalClient.AuthorizationV1, *roleAssignTRef,
+	roleAssign = stepsBuilder.GetRoleAssignmentV1Step("Get the created role assignment", suite.GlobalClient.AuthorizationV1, roleAssignTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:      expectRoleAssignMeta,
-			Spec:          &expectRoleAssignSpec,
+			Spec:          expectRoleAssignSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -427,14 +411,7 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a workspace
 	workspace := suite.params.Workspace
-	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
-		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
+	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.RegionalClient.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
@@ -445,11 +422,11 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Get the created Workspace
-	workspaceTRef := &secapi.TenantReference{
+	workspaceTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
 	}
-	workspace = stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.RegionalClient.WorkspaceV1, *workspaceTRef,
+	workspace = stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.RegionalClient.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
 			Metadata:      expectWorkspaceMeta,
@@ -461,32 +438,25 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create an image
 	image := suite.params.Image
-	expectedImageMeta, err := builders.NewImageMetadataBuilder().
-		Name(image.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(image.Metadata.Tenant).Region(image.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	expectedImageSpec := image.Spec
+	expectedImageMeta := image.Metadata
+	expectedImageSpec := &image.Spec
 	stepsBuilder.CreateOrUpdateImageV1Step("Create an image", suite.RegionalClient.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:      expectedImageMeta,
-			Spec:          &expectedImageSpec,
+			Spec:          expectedImageSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created image
-	imageTRef := &secapi.TenantReference{
+	imageTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(image.Metadata.Tenant),
 		Name:   image.Metadata.Name,
 	}
-	image = stepsBuilder.GetImageV1Step("Get the created image", suite.RegionalClient.StorageV1, *imageTRef,
+	image = stepsBuilder.GetImageV1Step("Get the created image", suite.RegionalClient.StorageV1, imageTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:      expectedImageMeta,
-			Spec:          &expectedImageSpec,
+			Spec:          expectedImageSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -495,33 +465,26 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a block storage
 	block := suite.params.BlockStorage
-	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
-		Name(block.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(block.Metadata.Tenant).Workspace(block.Metadata.Workspace).Region(block.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	expectedBlockSpec := block.Spec
+	expectedBlockMeta := block.Metadata
+	expectedBlockSpec := &block.Spec
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.RegionalClient.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:      expectedBlockMeta,
-			Spec:          &expectedBlockSpec,
+			Spec:          expectedBlockSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created block storage
-	blockWRef := &secapi.WorkspaceReference{
+	blockWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(block.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
 		Name:      block.Metadata.Name,
 	}
-	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.RegionalClient.StorageV1, *blockWRef,
+	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.RegionalClient.StorageV1, blockWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:      expectedBlockMeta,
-			Spec:          &expectedBlockSpec,
+			Spec:          expectedBlockSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -530,33 +493,26 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a network
 	network := suite.params.Network
-	expectNetworkMeta, err := builders.NewNetworkMetadataBuilder().
-		Name(network.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(network.Metadata.Tenant).Workspace(network.Metadata.Workspace).Region(network.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	expectNetworkSpec := network.Spec
+	expectNetworkMeta := network.Metadata
+	expectNetworkSpec := &network.Spec
 	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.RegionalClient.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Metadata:      expectNetworkMeta,
-			Spec:          &expectNetworkSpec,
+			Spec:          expectNetworkSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created network
-	networkWRef := &secapi.WorkspaceReference{
+	networkWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(network.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
 		Name:      network.Metadata.Name,
 	}
-	stepsBuilder.GetNetworkV1Step("Get the created network", suite.RegionalClient.NetworkV1, *networkWRef,
+	stepsBuilder.GetNetworkV1Step("Get the created network", suite.RegionalClient.NetworkV1, networkWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Metadata:      expectNetworkMeta,
-			Spec:          &expectNetworkSpec,
+			Spec:          expectNetworkSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -565,33 +521,26 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create an internet gateway
 	gateway := suite.params.InternetGateway
-	expectGatewayMeta, err := builders.NewInternetGatewayMetadataBuilder().
-		Name(gateway.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(gateway.Metadata.Tenant).Workspace(gateway.Metadata.Workspace).Region(gateway.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	expectGatewaySpec := gateway.Spec
+	expectGatewayMeta := gateway.Metadata
+	expectGatewaySpec := &gateway.Spec
 	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.RegionalClient.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:      expectGatewayMeta,
-			Spec:          &expectGatewaySpec,
+			Spec:          expectGatewaySpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created internet gateway
-	gatewayWRef := &secapi.WorkspaceReference{
+	gatewayWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(gateway.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(gateway.Metadata.Workspace),
 		Name:      gateway.Metadata.Name,
 	}
-	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.RegionalClient.NetworkV1, *gatewayWRef,
+	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.RegionalClient.NetworkV1, gatewayWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:      expectGatewayMeta,
-			Spec:          &expectGatewaySpec,
+			Spec:          expectGatewaySpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -600,34 +549,27 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a route table
 	route := suite.params.RouteTable
-	expectRouteMeta, err := builders.NewRouteTableMetadataBuilder().
-		Name(route.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(route.Metadata.Tenant).Workspace(route.Metadata.Workspace).Network(route.Metadata.Network).Region(suite.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	expectRouteSpec := route.Spec
+	expectRouteMeta := route.Metadata
+	expectRouteSpec := &route.Spec
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.RegionalClient.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:      expectRouteMeta,
-			Spec:          &expectRouteSpec,
+			Spec:          expectRouteSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created route table
-	routeNRef := &secapi.NetworkReference{
+	routeNRef := secapi.NetworkReference{
 		Tenant:    secapi.TenantID(route.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(route.Metadata.Workspace),
 		Network:   secapi.NetworkID(route.Metadata.Network),
 		Name:      route.Metadata.Name,
 	}
-	stepsBuilder.GetRouteTableV1Step("Get the created route table", suite.RegionalClient.NetworkV1, *routeNRef,
+	stepsBuilder.GetRouteTableV1Step("Get the created route table", suite.RegionalClient.NetworkV1, routeNRef,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:      expectRouteMeta,
-			Spec:          &expectRouteSpec,
+			Spec:          expectRouteSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -636,35 +578,27 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a subnet
 	subnet := suite.params.Subnet
-	expectSubnetMeta, err := builders.NewSubnetMetadataBuilder().
-		Name(subnet.Metadata.Name).
-		Provider(constants.NetworkProviderV1).
-		ApiVersion(constants.ApiVersion1).
-		Tenant(subnet.Metadata.Tenant).Workspace(subnet.Metadata.Workspace).Network(subnet.Metadata.Network).Region(suite.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	expectSubnetSpec := subnet.Spec
+	expectSubnetMeta := subnet.Metadata
+	expectSubnetSpec := &subnet.Spec
 	stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", suite.RegionalClient.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Metadata:      expectSubnetMeta,
-			Spec:          &expectSubnetSpec,
+			Spec:          expectSubnetSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created subnet
-	subnetNRef := &secapi.NetworkReference{
+	subnetNRef := secapi.NetworkReference{
 		Tenant:    secapi.TenantID(subnet.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(subnet.Metadata.Workspace),
 		Network:   secapi.NetworkID(subnet.Metadata.Network),
 		Name:      subnet.Metadata.Name,
 	}
-	stepsBuilder.GetSubnetV1Step("Get the created subnet", suite.RegionalClient.NetworkV1, *subnetNRef,
+	stepsBuilder.GetSubnetV1Step("Get the created subnet", suite.RegionalClient.NetworkV1, subnetNRef,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Metadata:      expectSubnetMeta,
-			Spec:          &expectSubnetSpec,
+			Spec:          expectSubnetSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -673,19 +607,8 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a security group
 	group := suite.params.SecurityGroup
-	expectGroupMeta, err := builders.NewSecurityGroupMetadataBuilder().
-		Name(group.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(group.Metadata.Tenant).Workspace(group.Metadata.Workspace).Region(group.Metadata.Region).
-		Build()
-	expectGroupSpec := &schema.SecurityGroupSpec{
-		Rules: []schema.SecurityGroupRuleSpec{
-			{Direction: schema.SecurityGroupRuleDirectionIngress},
-		},
-	}
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
+	expectGroupMeta := group.Metadata
+	expectGroupSpec := &group.Spec
 	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", suite.RegionalClient.NetworkV1, group,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			Metadata:      expectGroupMeta,
@@ -695,12 +618,12 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Get the created security group
-	groupWRef := &secapi.WorkspaceReference{
+	groupWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(group.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(group.Metadata.Workspace),
 		Name:      group.Metadata.Name,
 	}
-	stepsBuilder.GetSecurityGroupV1Step("Get the created security group", suite.RegionalClient.NetworkV1, *groupWRef,
+	stepsBuilder.GetSecurityGroupV1Step("Get the created security group", suite.RegionalClient.NetworkV1, groupWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			Metadata:      expectGroupMeta,
 			Spec:          expectGroupSpec,
@@ -712,34 +635,26 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a public ip
 	publicIp := suite.params.PublicIp
-	expectPublicIpMeta, err := builders.NewPublicIpMetadataBuilder().
-		Name(publicIp.Metadata.Name).
-		Provider(constants.NetworkProviderV1).
-		ApiVersion(constants.ApiVersion1).
-		Tenant(publicIp.Metadata.Tenant).Workspace(publicIp.Metadata.Workspace).Region(suite.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	expectPublicIpSpec := publicIp.Spec
+	expectPublicIpMeta := publicIp.Metadata
+	expectPublicIpSpec := &publicIp.Spec
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.RegionalClient.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Metadata:      expectPublicIpMeta,
-			Spec:          &expectPublicIpSpec,
+			Spec:          expectPublicIpSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created public ip
-	publicIpWRef := &secapi.WorkspaceReference{
+	publicIpWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(publicIp.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(publicIp.Metadata.Workspace),
 		Name:      publicIp.Metadata.Name,
 	}
-	stepsBuilder.GetPublicIpV1Step("Get the created public ip", suite.RegionalClient.NetworkV1, *publicIpWRef,
+	stepsBuilder.GetPublicIpV1Step("Get the created public ip", suite.RegionalClient.NetworkV1, publicIpWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Metadata:      expectPublicIpMeta,
-			Spec:          &expectPublicIpSpec,
+			Spec:          expectPublicIpSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -748,33 +663,26 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a nic
 	nic := suite.params.Nic
-	expectNicMeta, err := builders.NewNicMetadataBuilder().
-		Name(nic.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(nic.Metadata.Tenant).Workspace(nic.Metadata.Workspace).Region(suite.Region).
-		Build()
-	expectNicSpec := nic.Spec
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
+	expectNicMeta := nic.Metadata
+	expectNicSpec := &nic.Spec
 	stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", suite.RegionalClient.NetworkV1, nic,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			Metadata:      expectNicMeta,
-			Spec:          &expectNicSpec,
+			Spec:          expectNicSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created nic
-	nicWRef := &secapi.WorkspaceReference{
+	nicWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(nic.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(nic.Metadata.Workspace),
 		Name:      nic.Metadata.Name,
 	}
-	stepsBuilder.GetNicV1Step("Get the created nic", suite.RegionalClient.NetworkV1, *nicWRef,
+	stepsBuilder.GetNicV1Step("Get the created nic", suite.RegionalClient.NetworkV1, nicWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			Metadata:      expectNicMeta,
-			Spec:          &expectNicSpec,
+			Spec:          expectNicSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -783,33 +691,29 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 
 	// Create an instance
 	instance := suite.params.Instance
-	expectInstanceMeta, err := builders.NewInstanceMetadataBuilder().
-		Name(instance.Metadata.Name).
-		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(instance.Metadata.Tenant).Workspace(instance.Metadata.Workspace).Region(instance.Metadata.Region).
-		Build()
-	expectInstanceSpec := instance.Spec
+	expectInstanceMeta := instance.Metadata
+	expectInstanceSpec := &instance.Spec
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
 	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.RegionalClient.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
-			Spec:          &expectInstanceSpec,
+			Spec:          expectInstanceSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
 
 	// Get the created instance
-	instanceWRef := &secapi.WorkspaceReference{
+	instanceWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(instance.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(instance.Metadata.Workspace),
 		Name:      instance.Metadata.Name,
 	}
-	instance = stepsBuilder.GetInstanceV1Step("Get the created instance", suite.RegionalClient.ComputeV1, *instanceWRef,
+	instance = stepsBuilder.GetInstanceV1Step("Get the created instance", suite.RegionalClient.ComputeV1, instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
-			Spec:          &expectInstanceSpec,
+			Spec:          expectInstanceSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
