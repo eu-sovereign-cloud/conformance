@@ -31,6 +31,7 @@ type LifeCycleV1TestSuite struct {
 
 func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	var err error
+
 	// Generate the subnet cidr
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.NetworkCidr, 8, 1)
 	if err != nil {
@@ -324,7 +325,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Public IP: %v", err)
 	}
 
-	secuGroupInitial, err := builders.NewSecurityGroupBuilder().
+	securityGroupInitial, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupName).
 		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
@@ -335,7 +336,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Security Group: %v", err)
 	}
 
-	secuGroupUpdated, err := builders.NewSecurityGroupBuilder().
+	securityGroupUpdated, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupName).
 		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
@@ -362,8 +363,8 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		NicUpdated:             nicUpdated,
 		PublicIpInitial:        publicIpInitial,
 		PublicIpUpdated:        publicIpUpdated,
-		SecurityGroupInitial:   secuGroupInitial,
-		SecurityGroupUpdated:   secuGroupUpdated,
+		SecurityGroupInitial:   securityGroupInitial,
+		SecurityGroupUpdated:   securityGroupUpdated,
 	}
 	suite.params = params
 	err = suites.SetupMockIfEnabled(&suite.TestSuite, mocknetwork.ConfigureLifecycleScenarioV1, params)
@@ -371,6 +372,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
+
 func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.NetworkProviderV1,

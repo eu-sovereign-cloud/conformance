@@ -154,8 +154,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the role
-	role = suite.params.RoleUpdated
-	role.Spec.Permissions[0].Verb = []string{http.MethodGet, http.MethodPut}
+	role.Spec = suite.params.RoleUpdated.Spec
 	expectRoleSpec = role.Spec
 	stepsBuilder.CreateOrUpdateRoleV1Step("Update the role", suite.Client.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
@@ -209,7 +208,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the role assignment
-	roleAssign = suite.params.RoleAssignmentUpdated
+	roleAssign.Spec = suite.params.RoleAssignmentUpdated.Spec
 	expectRoleAssignSpec.Subs = roleAssign.Spec.Subs
 	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Update the role assignment", suite.Client.AuthorizationV1, roleAssign,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{

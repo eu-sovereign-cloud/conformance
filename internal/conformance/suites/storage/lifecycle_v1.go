@@ -94,6 +94,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build Image: %v", err)
 	}
+
 	imageUpdated, err := builders.NewImageBuilder().
 		Name(imageName).
 		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
@@ -120,6 +121,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
+
 func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.StorageProviderV1,

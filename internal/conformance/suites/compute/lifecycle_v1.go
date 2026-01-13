@@ -177,17 +177,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Block storage
 
 	// Create a block storage
-	block := &schema.BlockStorage{
-		Metadata: &schema.RegionalWorkspaceResourceMetadata{
-			Tenant:    suite.Tenant,
-			Workspace: suite.params.Workspace.Metadata.Name,
-			Name:      suite.params.BlockStorage.Metadata.Name,
-		},
-		Spec: schema.BlockStorageSpec{
-			SizeGB: suite.params.BlockStorage.Spec.SizeGB,
-			SkuRef: suite.params.BlockStorage.Spec.SkuRef,
-		},
-	}
+	block := suite.params.BlockStorage
 	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
 		Name(suite.params.BlockStorage.Metadata.Name).
 		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
@@ -196,14 +186,11 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
-	expectedBlockSpec := &schema.BlockStorageSpec{
-		SizeGB: suite.params.BlockStorage.Spec.SizeGB,
-		SkuRef: suite.params.BlockStorage.Spec.SkuRef,
-	}
+	expectedBlockSpec := block.Spec
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
+			Spec:          &expectedBlockSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
@@ -217,7 +204,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, *blockWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
+			Spec:          &expectedBlockSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -225,20 +212,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Instance
 
 	// Create an instance
-	instance := &schema.Instance{
-		Metadata: &schema.RegionalWorkspaceResourceMetadata{
-			Tenant:    suite.Tenant,
-			Workspace: suite.params.Workspace.Metadata.Name,
-			Name:      suite.params.InitialInstance.Metadata.Name,
-		},
-		Spec: schema.InstanceSpec{
-			SkuRef: suite.params.InitialInstance.Spec.SkuRef,
-			Zone:   suite.params.InitialInstance.Spec.Zone,
-			BootVolume: schema.VolumeReference{
-				DeviceRef: suite.params.InitialInstance.Spec.BootVolume.DeviceRef,
-			},
-		},
-	}
+	instance := suite.params.InitialInstance
 	expectInstanceMeta, err := builders.NewInstanceMetadataBuilder().
 		Name(suite.params.InitialInstance.Metadata.Name).
 		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
@@ -247,17 +221,11 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
-	expectInstanceSpec := &schema.InstanceSpec{
-		SkuRef: suite.params.InitialInstance.Spec.SkuRef,
-		Zone:   suite.params.InitialInstance.Spec.Zone,
-		BootVolume: schema.VolumeReference{
-			DeviceRef: suite.params.InitialInstance.Spec.BootVolume.DeviceRef,
-		},
-	}
+	expectInstanceSpec := instance.Spec
 	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.Client.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
+			Spec:          &expectInstanceSpec,
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
@@ -271,7 +239,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	instance = stepsBuilder.GetInstanceV1Step("Get the created instance", suite.Client.ComputeV1, *instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
+			Spec:          &expectInstanceSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -282,7 +250,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.CreateOrUpdateInstanceV1Step("Update the instance", suite.Client.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
+			Spec:          &expectInstanceSpec,
 			ResourceState: schema.ResourceStateUpdating,
 		},
 	)
@@ -291,7 +259,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	instance = stepsBuilder.GetInstanceV1Step("Get the updated instance", suite.Client.ComputeV1, *instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
+			Spec:          &expectInstanceSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -303,7 +271,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	instance = stepsBuilder.GetInstanceV1Step("Get the updated instance", suite.Client.ComputeV1, *instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
+			Spec:          &expectInstanceSpec,
 			ResourceState: schema.ResourceStateSuspended,
 		},
 	)
@@ -315,7 +283,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	instance = stepsBuilder.GetInstanceV1Step("Get the started instance", suite.Client.ComputeV1, *instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
+			Spec:          &expectInstanceSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -328,7 +296,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	instance = stepsBuilder.GetInstanceV1Step("Get the updated instance", suite.Client.ComputeV1, *instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
+			Spec:          &expectInstanceSpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)

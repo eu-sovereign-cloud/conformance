@@ -85,7 +85,7 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 	}
 
 	// Update the network
-	networkResponse.Spec = *&suiteParams.NetworkUpdated.Spec
+	networkResponse.Spec = suiteParams.NetworkUpdated.Spec
 	if err := configurator.ConfigureUpdateNetworkStub(networkResponse, networkUrl, mockParams); err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 	}
 
 	// Update the internet gateway
-	gatewayResponse.Spec = *&suiteParams.InternetGatewayUpdated.Spec
+	gatewayResponse.Spec = suiteParams.InternetGatewayUpdated.Spec
 	if err := configurator.ConfigureUpdateInternetGatewayStub(gatewayResponse, gatewayUrl, mockParams); err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 	}
 
 	// Update the route table
-	routeResponse.Spec = *&suiteParams.RouteTableUpdated.Spec
+	routeResponse.Spec = suiteParams.RouteTableUpdated.Spec
 	if err := configurator.ConfigureUpdateRouteTableStub(routeResponse, routeUrl, mockParams); err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 	}
 
 	// Update the subnet
-	subnetResponse.Spec = *&suiteParams.SubnetUpdated.Spec
+	subnetResponse.Spec = suiteParams.SubnetUpdated.Spec
 	if err := configurator.ConfigureUpdateSubnetStub(subnetResponse, subnetUrl, mockParams); err != nil {
 		return nil, err
 	}
@@ -213,7 +213,7 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 	}
 
 	// Update the public ip
-	publicIpResponse.Spec = *&suiteParams.PublicIpUpdated.Spec
+	publicIpResponse.Spec = suiteParams.PublicIpUpdated.Spec
 	if err := configurator.ConfigureUpdatePublicIpStub(publicIpResponse, publicIpUrl, mockParams); err != nil {
 		return nil, err
 	}
@@ -245,7 +245,7 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 	}
 
 	// Update the nic
-	nicResponse.Spec = *&suiteParams.NicUpdated.Spec
+	nicResponse.Spec = suiteParams.NicUpdated.Spec
 	if err := configurator.ConfigureUpdateNicStub(nicResponse, nicUrl, mockParams); err != nil {
 		return nil, err
 	}
@@ -277,7 +277,7 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 	}
 
 	// Update the security group
-	groupResponse.Spec = *&suiteParams.SecurityGroupUpdated.Spec
+	groupResponse.Spec = suiteParams.SecurityGroupUpdated.Spec
 	if err := configurator.ConfigureUpdateSecurityGroupStub(groupResponse, groupUrl, mockParams); err != nil {
 		return nil, err
 	}

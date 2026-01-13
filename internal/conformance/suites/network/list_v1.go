@@ -8,7 +8,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	mocknetowork "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
+	mockNetwork "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -327,7 +327,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 				},
 			},
 		}
-		wm, err := mocknetowork.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
+		wm, err := mockNetwork.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
 		if err != nil {
 			t.Fatalf("Failed to configure mock scenario: %v", err)
 		}

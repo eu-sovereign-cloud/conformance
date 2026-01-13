@@ -113,17 +113,17 @@ type NetworkListParamsV1 struct {
 type FoundationUsageParamsV1 struct {
 	*BaseParams
 
-	Role            *ResourceParams[schema.RoleSpec]
-	RoleAssignment  *ResourceParams[schema.RoleAssignmentSpec]
-	Workspace       *ResourceParams[schema.WorkspaceSpec]
-	Image           *ResourceParams[schema.ImageSpec]
-	BlockStorage    *ResourceParams[schema.BlockStorageSpec]
-	Network         *ResourceParams[schema.NetworkSpec]
-	InternetGateway *ResourceParams[schema.InternetGatewaySpec]
-	RouteTable      *ResourceParams[schema.RouteTableSpec]
-	Subnet          *ResourceParams[schema.SubnetSpec]
-	SecurityGroup   *ResourceParams[schema.SecurityGroupSpec]
-	PublicIp        *ResourceParams[schema.PublicIpSpec]
-	Nic             *ResourceParams[schema.NicSpec]
-	Instance        *ResourceParams[schema.InstanceSpec]
+	Role            *schema.Role
+	RoleAssignment  *schema.RoleAssignment
+	Workspace       *schema.Workspace
+	Image           *schema.Image
+	BlockStorage    *schema.BlockStorage
+	Network         *schema.Network
+	InternetGateway *schema.InternetGateway
+	RouteTable      *schema.RouteTable
+	Subnet          *schema.Subnet
+	SecurityGroup   *schema.SecurityGroup
+	PublicIp        *schema.PublicIp
+	Nic             *schema.Nic
+	Instance        *schema.Instance
 }
