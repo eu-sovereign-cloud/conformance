@@ -1,38 +1,40 @@
 package mock
 
 import (
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
 // Region
 
-func BuildProviderSpec() []schema.Provider {
+// TODO Find a better package to it
+func BuildProviderSpecV1() []schema.Provider {
 	return []schema.Provider{
 		{
-			Name:    authorizationProvider,
-			Version: apiVersion1,
-			Url:     generators.GenerateRegionProviderUrl(authorizationProvider),
+			Name:    constants.AuthorizationProvider,
+			Version: constants.ApiVersion1,
+			Url:     generators.GenerateRegionProviderUrl(constants.AuthorizationProvider),
 		},
 		{
-			Name:    computeProvider,
-			Version: apiVersion1,
-			Url:     generators.GenerateRegionProviderUrl(computeProvider),
+			Name:    constants.ComputeProvider,
+			Version: constants.ApiVersion1,
+			Url:     generators.GenerateRegionProviderUrl(constants.ComputeProvider),
 		},
 		{
-			Name:    networkProvider,
-			Version: apiVersion1,
-			Url:     generators.GenerateRegionProviderUrl(networkProvider),
+			Name:    constants.NetworkProvider,
+			Version: constants.ApiVersion1,
+			Url:     generators.GenerateRegionProviderUrl(constants.NetworkProvider),
 		},
 		{
-			Name:    storageProvider,
-			Version: apiVersion1,
-			Url:     generators.GenerateRegionProviderUrl(storageProvider),
+			Name:    constants.StorageProvider,
+			Version: constants.ApiVersion1,
+			Url:     generators.GenerateRegionProviderUrl(constants.StorageProvider),
 		},
 		{
-			Name:    workspaceProvider,
-			Version: apiVersion1,
-			Url:     generators.GenerateRegionProviderUrl(workspaceProvider),
+			Name:    constants.WorkspaceProvider,
+			Version: constants.ApiVersion1,
+			Url:     generators.GenerateRegionProviderUrl(constants.WorkspaceProvider),
 		},
 	}
 }

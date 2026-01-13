@@ -11,7 +11,7 @@ type BaseParams struct {
 	Region string
 }
 
-func (p BaseParams) getBaseParams() *BaseParams {
+func (p BaseParams) GetBaseParams() *BaseParams {
 	return &p
 }
 
@@ -21,17 +21,4 @@ type ResourceParams[T any] struct {
 	UpdatedLabels schema.Labels
 	InitialSpec   *T
 	UpdatedSpec   *T
-}
-
-type stubConfig struct {
-	url          string
-	httpMethod   string
-	httpStatus   int
-	params       *BaseParams
-	pathParams   map[string]string
-	headers      map[string]string
-	responseBody any
-	currentState string
-	nextState    string
-	priority     int
 }

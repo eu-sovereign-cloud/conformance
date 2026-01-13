@@ -18,7 +18,7 @@ default: $(DIST_BIN)
 .PHONY: $(DIST_BIN)
 $(DIST_BIN):
 	@echo "Building conformance tool..."
-	$(GO) test -c -o $(DIST_BIN) ./secatest
+	$(GO) test -c -o $(DIST_BIN) ./cmd/conformance
 
 .PHONY: install
 install:
@@ -74,7 +74,7 @@ list:
 .PHONY: test
 test:
 	@echo "Running tests..."
-	$(GO) test -count=1 -v ./secatest -args run \
+	$(GO) test -count=1 -v ./cmd/conformance -args run \
 	  --provider.region.v1=http://localhost:8080/providers/seca.region \
 	  --provider.authorization.v1=http://localhost:8080/providers/seca.authorization \
 	  --client.auth.token=test-token \

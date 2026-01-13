@@ -32,6 +32,10 @@ func GenerateRegionResource(region string) string {
 	return fmt.Sprintf(regionResource, region)
 }
 
+func GenerateRegionListResource() string {
+	return regionListResource
+}
+
 func GenerateWorkspaceResource(tenant, workspace string) string {
 	return fmt.Sprintf(workspaceResource, tenant, workspace)
 }
