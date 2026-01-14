@@ -13,37 +13,39 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureListScenarioV1(scenario string, params *params.WorkspaceListParamsV1) (*wiremock.Client, error) {
+func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.WorkspaceListParamsV1) (*wiremock.Client, error) {
 	scenarios.LogScenarioMocking(scenario)
 
-	configurator, err := stubs.NewStubConfigurator(scenario, params.MockParams)
+	workspaces := suiteParams.Workspaces
+	workspace := workspaces[0]
+	configurator, err := stubs.NewStubConfigurator(scenario, mockParams)
 	if err != nil {
 		return nil, err
 	}
 
-	url := generators.GenerateWorkspaceListURL(constants.WorkspaceProviderV1, params.Tenant)
+	url := generators.GenerateWorkspaceListURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant)
 
 	// Create workspaces
-	workspaceList, err := stubs.BulkCreateWorkspacesStubV1(configurator, params.BaseParams, params.Workspaces)
+	err = stubs.BulkCreateWorkspacesStubV1(configurator, mockParams, workspaces)
 	if err != nil {
 		return nil, err
 	}
 	workspaceListResponse, err := builders.NewWorkspaceIteratorBuilder().
-		Provider(constants.StorageProviderV1).
-		Tenant(params.Tenant).
-		Items(workspaceList).
+		Provider(constants.WorkspaceProviderV1).
+		Tenant(workspace.Metadata.Tenant).
+		Items(workspaces).
 		Build()
 	if err != nil {
 		return nil, err
 	}
 
 	// List
-	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, params.MockParams, nil); err != nil {
+	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, mockParams, nil); err != nil {
 		return nil, err
 	}
 
 	// List with limit
-	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, params.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, mockParams, mock.PathParamsLimit("1")); err != nil {
 		return nil, err
 	}
 
@@ -57,27 +59,27 @@ func ConfigureListScenarioV1(scenario string, params *params.WorkspaceListParams
 		}
 		return filteredWorkspaces
 	}
-	workspaceListResponse.Items = workspaceWithLabel(workspaceList)
-	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, params.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	workspaceListResponse.Items = workspaceWithLabel(workspaces)
+	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, mockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
 	// List with limit & labels
-	workspaceListResponse.Items = workspaceWithLabel(workspaceList[:1])
-	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, params.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	workspaceListResponse.Items = workspaceWithLabel(workspaces[:1])
+	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, mockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return nil, err
 	}
 
-	for _, workspace := range workspaceList {
+	for _, workspace := range workspaces {
 		url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Name, workspace.Metadata.Name)
 
 		// Delete the workspace
-		if err := configurator.ConfigureDeleteStub(url, params.MockParams); err != nil {
+		if err := configurator.ConfigureDeleteStub(url, mockParams); err != nil {
 			return nil, err
 		}
 
 		// Get the deleted workspace
-		if err := configurator.ConfigureGetNotFoundStub(url, params.MockParams); err != nil {
+		if err := configurator.ConfigureGetNotFoundStub(url, mockParams); err != nil {
 			return nil, err
 		}
 	}

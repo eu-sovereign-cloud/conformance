@@ -14,16 +14,14 @@ type AuthorizationLifeCycleParamsV1 struct {
 }
 
 type AuthorizationListParamsV1 struct {
-	*BaseParams
-	Roles           []ResourceParams[schema.RoleSpec]
-	RoleAssignments []ResourceParams[schema.RoleAssignmentSpec]
+	Roles           []schema.Role
+	RoleAssignments []schema.RoleAssignment
 }
 
 // Region
 
 type RegionListParamsV1 struct {
-	*BaseParams
-	Regions []ResourceParams[schema.RegionSpec]
+	Regions []schema.Region
 }
 
 // Workspace
@@ -34,8 +32,7 @@ type WorkspaceLifeCycleParamsV1 struct {
 }
 
 type WorkspaceListParamsV1 struct {
-	*BaseParams
-	Workspaces []ResourceParams[schema.WorkspaceSpec]
+	Workspaces []schema.Workspace
 }
 
 // Compute
@@ -48,10 +45,9 @@ type ComputeLifeCycleParamsV1 struct {
 }
 
 type ComputeListParamsV1 struct {
-	*BaseParams
-	Workspace    *ResourceParams[schema.WorkspaceSpec]
-	BlockStorage *ResourceParams[schema.BlockStorageSpec]
-	Instances    []ResourceParams[schema.InstanceSpec]
+	Workspace    *schema.Workspace
+	BlockStorage *schema.BlockStorage
+	Instances    []schema.Instance
 }
 
 // Storage
@@ -65,10 +61,9 @@ type StorageLifeCycleParamsV1 struct {
 }
 
 type StorageListParamsV1 struct {
-	*BaseParams
-	Workspace     *ResourceParams[schema.WorkspaceSpec]
-	BlockStorages []ResourceParams[schema.BlockStorageSpec]
-	Images        []ResourceParams[schema.ImageSpec]
+	Workspace     *schema.Workspace
+	BlockStorages []schema.BlockStorage
+	Images        []schema.Image
 }
 
 // Network
@@ -94,25 +89,21 @@ type NetworkLifeCycleParamsV1 struct {
 }
 
 type NetworkListParamsV1 struct {
-	*BaseParams
-
-	Workspace        *ResourceParams[schema.WorkspaceSpec]
-	BlockStorage     *ResourceParams[schema.BlockStorageSpec]
-	Instance         *ResourceParams[schema.InstanceSpec]
-	Networks         []ResourceParams[schema.NetworkSpec]
-	InternetGateways []ResourceParams[schema.InternetGatewaySpec]
-	RouteTables      []ResourceParams[schema.RouteTableSpec]
-	Subnets          []ResourceParams[schema.SubnetSpec]
-	Nics             []ResourceParams[schema.NicSpec]
-	PublicIps        []ResourceParams[schema.PublicIpSpec]
-	SecurityGroups   []ResourceParams[schema.SecurityGroupSpec]
+	Workspace        *schema.Workspace
+	BlockStorage     *schema.BlockStorage
+	Instance         *schema.Instance
+	Networks         []schema.Network
+	InternetGateways []schema.InternetGateway
+	RouteTables      []schema.RouteTable
+	Subnets          []schema.Subnet
+	Nics             []schema.Nic
+	PublicIps        []schema.PublicIp
+	SecurityGroups   []schema.SecurityGroup
 }
 
 // Usage
 
 type FoundationUsageParamsV1 struct {
-	*BaseParams
-
 	Role            *schema.Role
 	RoleAssignment  *schema.RoleAssignment
 	Workspace       *schema.Workspace

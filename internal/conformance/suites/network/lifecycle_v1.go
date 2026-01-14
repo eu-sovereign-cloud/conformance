@@ -7,7 +7,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	mocknetwork "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
+	mockNetwork "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -367,7 +367,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		SecurityGroupUpdated:   securityGroupUpdated,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(&suite.TestSuite, mocknetwork.ConfigureLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(&suite.TestSuite, mockNetwork.ConfigureLifecycleScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}

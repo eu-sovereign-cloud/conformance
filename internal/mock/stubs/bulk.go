@@ -2,8 +2,8 @@
 package stubs
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -13,383 +13,345 @@ import (
 
 // TODO Find a better package to it
 func BulkCreateRolesStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams,
-	roleParams []params.ResourceParams[schema.RoleSpec],
-) ([]schema.Role, error) {
-	var roles []schema.Role
-
-	for _, role := range roleParams {
-		roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, baseParams.Tenant, role.Name)
+	mockParams *mock.MockParams,
+	rolesParams []schema.Role,
+) error {
+	for _, role := range rolesParams {
+		roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, role.Metadata.Tenant, role.Metadata.Name)
 
 		roleResponse, err := builders.NewRoleBuilder().
-			Name(role.Name).
+			Name(role.Metadata.Name).
 			Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).
-			Labels(role.InitialLabels).
-			Spec(role.InitialSpec).
+			Tenant(role.Metadata.Tenant).
+			Labels(role.Labels).
+			Spec(&role.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		// Create a role
-		if err := configurator.ConfigureCreateRoleStub(roleResponse, roleUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreateRoleStub(roleResponse, roleUrl, mockParams); err != nil {
+			return err
 		}
-		roles = append(roles, *roleResponse)
 	}
 
-	return roles, nil
+	return nil
 }
 
 func BulkCreateRoleAssignmentsStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams,
-	roleAssignmentParams []params.ResourceParams[schema.RoleAssignmentSpec],
-) ([]schema.RoleAssignment, error) {
-	var assignments []schema.RoleAssignment
-
+	mockParams *mock.MockParams,
+	roleAssignmentParams []schema.RoleAssignment,
+) error {
 	for _, roleAssignment := range roleAssignmentParams {
-		roleAssignmentUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, baseParams.Tenant, roleAssignment.Name)
+		roleAssignmentUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, roleAssignment.Metadata.Tenant, roleAssignment.Metadata.Name)
 		roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
-			Name(roleAssignment.Name).
+			Name(roleAssignment.Metadata.Name).
 			Provider(constants.AuthorizationProviderV1).
 			ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).
-			Labels(roleAssignment.InitialLabels).
-			Spec(roleAssignment.InitialSpec).
+			Tenant(roleAssignment.Metadata.Tenant).
+			Labels(roleAssignment.Labels).
+			Spec(&roleAssignment.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		// Create a role assignment
-		if err := configurator.ConfigureCreateRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreateRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, mockParams); err != nil {
+			return err
 		}
-
-		assignments = append(assignments, *roleAssignResponse)
 	}
 
-	return assignments, nil
+	return nil
 }
 
 // Workspace
 
 func BulkCreateWorkspacesStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams,
-	workspaceParams []params.ResourceParams[schema.WorkspaceSpec],
-) ([]schema.Workspace, error) {
-	var workspaces []schema.Workspace
-
+	mockParams *mock.MockParams,
+	workspaceParams []schema.Workspace,
+) error {
 	for _, workspace := range workspaceParams {
-		url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, baseParams.Tenant, workspace.Name)
+		url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
 
 		response, err := builders.NewWorkspaceBuilder().
-			Name(workspace.Name).
+			Name(workspace.Metadata.Name).
 			Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).Region(baseParams.Region).
-			Labels(workspace.InitialLabels).
+			Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
+			Labels(workspace.Labels).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		// Create a workspace
-		if err := configurator.ConfigureCreateWorkspaceStub(response, url, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreateWorkspaceStub(response, url, mockParams); err != nil {
+			return err
 		}
-		workspaces = append(workspaces, *response)
 	}
-	return workspaces, nil
+	return nil
 }
 
 // Compute
 
 func BulkCreateInstancesStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams, workspace string,
-	instanceParams []params.ResourceParams[schema.InstanceSpec],
-) ([]schema.Instance, error) {
-	var instances []schema.Instance
-
+	mockParams *mock.MockParams,
+	instanceParams []schema.Instance,
+) error {
 	for _, instance := range instanceParams {
-		instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, baseParams.Tenant, workspace, instance.Name)
+		instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, instance.Metadata.Tenant, instance.Metadata.Workspace, instance.Metadata.Name)
 		instanceResponse, err := builders.NewInstanceBuilder().
-			Name(instance.Name).
+			Name(instance.Metadata.Name).
 			Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
-			Labels(instance.InitialLabels).
-			Spec(instance.InitialSpec).
+			Tenant(instance.Metadata.Tenant).Workspace(instance.Metadata.Workspace).Region(instance.Metadata.Region).
+			Labels(instance.Labels).
+			Spec(&instance.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		// Create an instance
-		if err := configurator.ConfigureCreateInstanceStub(instanceResponse, instanceUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreateInstanceStub(instanceResponse, instanceUrl, mockParams); err != nil {
+			return err
 		}
-		instances = append(instances, *instanceResponse)
 	}
 
-	return instances, nil
+	return nil
 }
 
 // Storage
 
 func BulkCreateBlockStoragesStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams, workspace string,
-	blockStorageParams []params.ResourceParams[schema.BlockStorageSpec],
-) ([]schema.BlockStorage, error) {
-	var blocks []schema.BlockStorage
-
+	mockParams *mock.MockParams,
+	blockStorageParams []schema.BlockStorage,
+) error {
 	for _, block := range blockStorageParams {
 		blockResponse, err := builders.NewBlockStorageBuilder().
-			Name(block.Name).
+			Name(block.Metadata.Name).
 			Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
-			Labels(block.InitialLabels).
-			Spec(block.InitialSpec).
+			Tenant(block.Metadata.Tenant).Workspace(block.Metadata.Workspace).Region(block.Metadata.Region).
+			Labels(block.Labels).
+			Spec(&block.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		// Create a block storage
-		blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, baseParams.Tenant, workspace, block.Name)
-		if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, block.Metadata.Tenant, block.Metadata.Workspace, block.Metadata.Name)
+		if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockUrl, mockParams); err != nil {
+			return err
 		}
-		blocks = append(blocks, *blockResponse)
+
 	}
 
-	return blocks, nil
+	return nil
 }
 
 func BulkCreateImagesStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams,
-	imageParams []params.ResourceParams[schema.ImageSpec],
-) ([]schema.Image, error) {
-	var images []schema.Image
-
+	mockParams *mock.MockParams,
+	imageParams []schema.Image,
+) error {
 	for _, image := range imageParams {
-		imageUrl := generators.GenerateImageURL(constants.StorageProviderV1, baseParams.Tenant, image.Name)
+		imageUrl := generators.GenerateImageURL(constants.StorageProviderV1, image.Metadata.Tenant, image.Metadata.Name)
 		imageResponse, err := builders.NewImageBuilder().
-			Name(image.Name).
+			Name(image.Metadata.Name).
 			Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).Region(baseParams.Region).
-			Labels(image.InitialLabels).
-			Spec(image.InitialSpec).
+			Tenant(image.Metadata.Tenant).Region(image.Metadata.Region).
+			Labels(image.Labels).
+			Spec(&image.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		// Create an image
-		if err := configurator.ConfigureCreateImageStub(imageResponse, imageUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreateImageStub(imageResponse, imageUrl, mockParams); err != nil {
+			return err
 		}
-		images = append(images, *imageResponse)
 	}
 
-	return images, nil
+	return nil
 }
 
 // Network
 
 func BulkCreateNetworksStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams, workspace string,
-	networkParams []params.ResourceParams[schema.NetworkSpec],
-) ([]schema.Network, error) {
-	var networks []schema.Network
-
+	mockParams *mock.MockParams,
+	networkParams []schema.Network,
+) error {
 	for _, network := range networkParams {
-		networkUrl := generators.GenerateNetworkURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, network.Name)
+		networkUrl := generators.GenerateNetworkURL(constants.NetworkProviderV1, network.Metadata.Tenant, network.Metadata.Workspace, network.Metadata.Name)
 
 		networkResponse, err := builders.NewNetworkBuilder().
-			Name(network.Name).
+			Name(network.Metadata.Name).
 			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
-			Labels(network.InitialLabels).
-			Spec(network.InitialSpec).
+			Tenant(network.Metadata.Tenant).Workspace(network.Metadata.Workspace).Region(network.Metadata.Region).
+			Labels(network.Labels).
+			Spec(&network.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		// Create a network
-		if err := configurator.ConfigureCreateNetworkStub(networkResponse, networkUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreateNetworkStub(networkResponse, networkUrl, mockParams); err != nil {
+			return err
 		}
-		networks = append(networks, *networkResponse)
 	}
 
-	return networks, nil
+	return nil
 }
 
 func BulkCreateInternetGatewaysStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams, workspace string,
-	internetGatewayParams []params.ResourceParams[schema.InternetGatewaySpec],
-) ([]schema.InternetGateway, error) {
-	var gateways []schema.InternetGateway
-
+	mockParams *mock.MockParams,
+	internetGatewayParams []schema.InternetGateway,
+) error {
 	for _, gateway := range internetGatewayParams {
-		gatewayUrl := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, gateway.Name)
+		gatewayUrl := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, gateway.Metadata.Tenant, gateway.Metadata.Workspace, gateway.Metadata.Name)
 		gatewayResponse, err := builders.NewInternetGatewayBuilder().
-			Name(gateway.Name).
+			Name(gateway.Metadata.Name).
 			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
-			Labels(gateway.InitialLabels).
-			Spec(gateway.InitialSpec).
+			Tenant(gateway.Metadata.Tenant).Workspace(gateway.Metadata.Workspace).Region(gateway.Metadata.Region).
+			Labels(gateway.Labels).
+			Spec(&gateway.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		// Create an internet gateway
-		if err := configurator.ConfigureCreateInternetGatewayStub(gatewayResponse, gatewayUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreateInternetGatewayStub(gatewayResponse, gatewayUrl, mockParams); err != nil {
+			return err
 		}
-		gateways = append(gateways, *gatewayResponse)
-	}
 
-	return gateways, nil
+	}
+	return nil
 }
 
 func BulkCreateRouteTableStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams, workspace, network string,
-	routeTableParams []params.ResourceParams[schema.RouteTableSpec],
-) ([]schema.RouteTable, error) {
-	var routeTables []schema.RouteTable
-
+	mockParams *mock.MockParams,
+	routeTableParams []schema.RouteTable,
+) error {
 	for _, routeTable := range routeTableParams {
-		routeTableUrl := generators.GenerateRouteTableURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, network, routeTable.Name)
+		routeTableUrl := generators.GenerateRouteTableURL(constants.NetworkProviderV1, routeTable.Metadata.Tenant, routeTable.Metadata.Workspace, routeTable.Metadata.Network, routeTable.Metadata.Name)
 		routeTableResponse, err := builders.NewRouteTableBuilder().
-			Name(routeTable.Name).
+			Name(routeTable.Metadata.Name).
 			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).Workspace(workspace).Network(network).Region(baseParams.Region).
-			Labels(routeTable.InitialLabels).
-			Spec(routeTable.InitialSpec).
+			Tenant(routeTable.Metadata.Tenant).Workspace(routeTable.Metadata.Workspace).Network(routeTable.Metadata.Network).Region(routeTable.Metadata.Region).
+			Labels(routeTable.Labels).
+			Spec(&routeTable.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		// Create a route table
-		if err := configurator.ConfigureCreateRouteTableStub(routeTableResponse, routeTableUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreateRouteTableStub(routeTableResponse, routeTableUrl, mockParams); err != nil {
+			return err
 		}
-		routeTables = append(routeTables, *routeTableResponse)
 	}
 
-	return routeTables, nil
+	return nil
 }
 
 func BulkCreateSubnetsStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams, workspace, network string,
-	subnetParams []params.ResourceParams[schema.SubnetSpec],
-) ([]schema.Subnet, error) {
-	var subnets []schema.Subnet
-
+	mockParams *mock.MockParams,
+	subnetParams []schema.Subnet,
+) error {
 	for _, subnet := range subnetParams {
-		subnetUrl := generators.GenerateSubnetURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, network, subnet.Name)
+		subnetUrl := generators.GenerateSubnetURL(constants.NetworkProviderV1, subnet.Metadata.Tenant, subnet.Metadata.Workspace, subnet.Metadata.Network, subnet.Metadata.Name)
 		subnetResponse, err := builders.NewSubnetBuilder().
-			Name(subnet.Name).
+			Name(subnet.Metadata.Name).
 			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).Workspace(workspace).Network(network).Region(baseParams.Region).
-			Labels(subnet.InitialLabels).
-			Spec(subnet.InitialSpec).
+			Tenant(subnet.Metadata.Tenant).Workspace(subnet.Metadata.Workspace).Network(subnet.Metadata.Network).Region(subnet.Metadata.Region).
+			Labels(subnet.Labels).
+			Spec(&subnet.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		// Create a RouteTable
-		if err := configurator.ConfigureCreateSubnetStub(subnetResponse, subnetUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreateSubnetStub(subnetResponse, subnetUrl, mockParams); err != nil {
+			return err
 		}
-		subnets = append(subnets, *subnetResponse)
 	}
 
-	return subnets, nil
+	return nil
 }
 
 func BulkCreatePublicIpsStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams, workspace string,
-	publicIpParams []params.ResourceParams[schema.PublicIpSpec],
-) ([]schema.PublicIp, error) {
-	var publicIps []schema.PublicIp
+	mockParams *mock.MockParams,
+	publicIpParams []schema.PublicIp,
+) error {
 
 	for _, publicIp := range publicIpParams {
-		publicIpUrl := generators.GeneratePublicIpURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, publicIp.Name)
+		publicIpUrl := generators.GeneratePublicIpURL(constants.NetworkProviderV1, publicIp.Metadata.Tenant, publicIp.Metadata.Workspace, publicIp.Metadata.Name)
 		publicIpResponse, err := builders.NewPublicIpBuilder().
-			Name(publicIp.Name).
+			Name(publicIp.Metadata.Name).
 			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
-			Labels(publicIp.InitialLabels).
-			Spec(publicIp.InitialSpec).
+			Tenant(publicIp.Metadata.Tenant).Workspace(publicIp.Metadata.Workspace).Region(publicIp.Metadata.Region).
+			Labels(publicIp.Labels).
+			Spec(&publicIp.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		// Create a public ip
-		if err := configurator.ConfigureCreatePublicIpStub(publicIpResponse, publicIpUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreatePublicIpStub(publicIpResponse, publicIpUrl, mockParams); err != nil {
+			return err
 		}
-		publicIps = append(publicIps, *publicIpResponse)
 	}
 
-	return publicIps, nil
+	return nil
 }
 
 func BulkCreateNicsStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams, workspace string,
-	nicParams []params.ResourceParams[schema.NicSpec],
-) ([]schema.Nic, error) {
-	var nics []schema.Nic
-
+	mockParams *mock.MockParams,
+	nicParams []schema.Nic,
+) error {
 	for _, nic := range nicParams {
-		nicUrl := generators.GenerateNicURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, nic.Name)
+		nicUrl := generators.GenerateNicURL(constants.NetworkProviderV1, nic.Metadata.Tenant, nic.Metadata.Workspace, nic.Metadata.Name)
 		nicResponse, err := builders.NewNicBuilder().
-			Name(nic.Name).
+			Name(nic.Metadata.Name).
 			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
-			Labels(nic.InitialLabels).
-			Spec(nic.InitialSpec).
+			Tenant(nic.Metadata.Tenant).Workspace(nic.Metadata.Workspace).Region(nic.Metadata.Region).
+			Labels(nic.Labels).
+			Spec(&nic.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		// Create a nic
-		if err := configurator.ConfigureCreateNicStub(nicResponse, nicUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreateNicStub(nicResponse, nicUrl, mockParams); err != nil {
+			return err
 		}
-		nics = append(nics, *nicResponse)
 	}
 
-	return nics, nil
+	return nil
 }
 
 func BulkCreateSecurityGroupsStubV1(configurator *stubConfigurator,
-	baseParams *params.BaseParams, workspace string,
-	securityGroupParams []params.ResourceParams[schema.SecurityGroupSpec],
-) ([]schema.SecurityGroup, error) {
-	var securityGroups []schema.SecurityGroup
-
+	mockParams *mock.MockParams,
+	securityGroupParams []schema.SecurityGroup,
+) error {
 	for _, securityGroup := range securityGroupParams {
-		securityGroupUrl := generators.GenerateSecurityGroupURL(constants.NetworkProviderV1, baseParams.Tenant, workspace, securityGroup.Name)
+		securityGroupUrl := generators.GenerateSecurityGroupURL(constants.NetworkProviderV1, securityGroup.Metadata.Tenant, securityGroup.Metadata.Workspace, securityGroup.Metadata.Name)
 		securityGroupResponse, err := builders.NewSecurityGroupBuilder().
-			Name(securityGroup.Name).
+			Name(securityGroup.Metadata.Name).
 			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(baseParams.Tenant).Workspace(workspace).Region(baseParams.Region).
-			Labels(securityGroup.InitialLabels).
-			Spec(securityGroup.InitialSpec).
+			Tenant(securityGroup.Metadata.Tenant).Workspace(securityGroup.Metadata.Workspace).Region(securityGroup.Metadata.Region).
+			Labels(securityGroup.Labels).
+			Spec(&securityGroup.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		// Create a security group
-		if err := configurator.ConfigureCreateSecurityGroupStub(securityGroupResponse, securityGroupUrl, baseParams.MockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureCreateSecurityGroupStub(securityGroupResponse, securityGroupUrl, mockParams); err != nil {
+			return err
 		}
-		securityGroups = append(securityGroups, *securityGroupResponse)
 	}
 
-	return securityGroups, nil
+	return nil
 }
