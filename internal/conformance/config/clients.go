@@ -42,13 +42,11 @@ func InitClients(ctx context.Context) error {
 	var wm *wiremock.Client
 	if Parameters.MockEnabled {
 		params := params.ClientsInitParams{
-			BaseParams: &params.BaseParams{
-				Region: Parameters.ClientRegion,
-				MockParams: &mock.MockParams{
-					ServerURL: Parameters.MockServerURL,
-					AuthToken: Parameters.ClientAuthToken,
-				},
+			MockParams: &mock.MockParams{
+				ServerURL: Parameters.MockServerURL,
+				AuthToken: Parameters.ClientAuthToken,
 			},
+			Region: Parameters.ClientRegion,
 		}
 		wm, err = mockclients.ConfigureInitScenarioV1(&params)
 		if err != nil {

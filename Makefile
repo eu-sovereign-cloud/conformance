@@ -57,7 +57,7 @@ run:
 	  --report.results.path=$(RESULTS_PATH) \
 	  --retry.base.delay=0 \
 	  --retry.base.interval=1 \
-	  --retry.max.attempts=4 \
+	  --retry.max.attempts=3 \
 	  --mock.enabled=true \
 	  --mock.server.url=http://localhost:8080
 
@@ -86,7 +86,7 @@ test:
 	  --report.results.path=$(RESULTS_PATH) \
 	  --retry.base.delay=0 \
       --retry.base.interval=1 \
-      --retry.max.attempts=4 \
+      --retry.max.attempts=3 \
 	  --mock.enabled=true \
 	  --mock.server.url=http://localhost:8080
 
