@@ -166,8 +166,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
-	var err error
-
 	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
 
 	// Workspace
@@ -175,14 +173,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a workspace
 
-	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
-		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
+	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
 
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
@@ -198,14 +189,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a block storage
 
-	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
-		Name(block.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(block.Metadata.Tenant).Workspace(block.Metadata.Workspace).Region(block.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
+	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block, steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 		Metadata:      expectedBlockMeta,
@@ -219,14 +203,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	// Create instances
 	for _, instance := range instances {
-		expectInstanceMeta, err := builders.NewInstanceMetadataBuilder().
-			Name(instance.Metadata.Name).
-			Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(instance.Metadata.Tenant).Workspace(instance.Metadata.Workspace).Region(instance.Metadata.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+		expectInstanceMeta := instance.Metadata
 
 		expectInstanceSpec := &instance.Spec
 		stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.Client.ComputeV1, &instance,

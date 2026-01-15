@@ -195,14 +195,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 
 	// Create a workspace
-	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
-		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
+	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
 
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
@@ -220,14 +213,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	// Create the block storages
 	for _, block := range blocks {
-		expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
-			Name(block.Metadata.Name).
-			Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(block.Metadata.Tenant).Workspace(block.Metadata.Workspace).Region(block.Metadata.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+		expectedBlockMeta := block.Metadata
 		expectedBlockSpec := &block.Spec
 		stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, &block,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
@@ -267,15 +253,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	for _, image := range images {
 
-		expectedImageMeta, err := builders.NewImageMetadataBuilder().
-			Name(image.Metadata.Name).
-			Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(image.Metadata.Tenant).Region(image.Metadata.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
-
+		expectedImageMeta := image.Metadata
 		expectedImageSpec := &image.Spec
 
 		stepsBuilder.CreateOrUpdateImageV1Step("Create an image", suite.Client.StorageV1, &image,

@@ -283,7 +283,6 @@ func BulkCreatePublicIpsStubV1(configurator *stubConfigurator,
 	mockParams *mock.MockParams,
 	publicIpParams []schema.PublicIp,
 ) error {
-
 	for _, publicIp := range publicIpParams {
 		publicIpUrl := generators.GeneratePublicIpURL(constants.NetworkProviderV1, publicIp.Metadata.Tenant, publicIp.Metadata.Workspace, publicIp.Metadata.Name)
 		publicIpResponse, err := builders.NewPublicIpBuilder().

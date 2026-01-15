@@ -431,8 +431,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
 	)
 
-	var err error
-
 	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
 
 	// Workspace
@@ -440,14 +438,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	// Create a workspace
 
-	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
-		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
+	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
@@ -463,14 +454,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	for _, network := range networks {
 
-		expectNetworkMeta, err := builders.NewNetworkMetadataBuilder().
-			Name(network.Metadata.Name).
-			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(network.Metadata.Tenant).Workspace(network.Metadata.Workspace).Region(network.Metadata.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+		expectNetworkMeta := network.Metadata
 		expectNetworkSpec := &network.Spec
 		stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.Client.NetworkV1, &network,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
@@ -518,14 +502,8 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	gateways := suite.params.InternetGateways
 
 	for _, gateway := range gateways {
-		expectGatewayMeta, err := builders.NewInternetGatewayMetadataBuilder().
-			Name(gateway.Metadata.Name).
-			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(gateway.Metadata.Tenant).Workspace(gateway.Metadata.Workspace).Region(gateway.Metadata.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+
+		expectGatewayMeta := gateway.Metadata
 		expectGatewaySpec := &gateway.Spec
 		stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, &gateway,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
@@ -559,14 +537,8 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	// Create a route table
 	routes := suite.params.RouteTables
 	for _, route := range routes {
-		expectRouteMeta, err := builders.NewRouteTableMetadataBuilder().
-			Name(route.Metadata.Name).
-			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(route.Metadata.Tenant).Workspace(route.Metadata.Workspace).Network(route.Metadata.Network).Region(route.Metadata.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+
+		expectRouteMeta := route.Metadata
 		expectRouteSpec := &route.Spec
 		stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, &route,
 			steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
@@ -606,15 +578,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	for _, subnet := range subnets {
 
-		expectSubnetMeta, err := builders.NewSubnetMetadataBuilder().
-			Name(subnet.Metadata.Name).
-			Provider(constants.NetworkProviderV1).
-			ApiVersion(constants.ApiVersion1).
-			Tenant(subnet.Metadata.Tenant).Workspace(subnet.Metadata.Workspace).Network(subnet.Metadata.Network).Region(subnet.Metadata.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+		expectSubnetMeta := subnet.Metadata
 		expectSubnetSpec := &subnet.Spec
 		stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", suite.Client.NetworkV1, &subnet,
 			steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
@@ -648,15 +612,8 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	publicIps := suite.params.PublicIps
 
 	for _, publicIp := range publicIps {
-		expectPublicIpMeta, err := builders.NewPublicIpMetadataBuilder().
-			Name(publicIp.Metadata.Name).
-			Provider(constants.NetworkProviderV1).
-			ApiVersion(constants.ApiVersion1).
-			Tenant(publicIp.Metadata.Tenant).Workspace(publicIp.Metadata.Workspace).Region(publicIp.Metadata.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+
+		expectPublicIpMeta := publicIp.Metadata
 		expectPublicIpSpec := &publicIp.Spec
 		stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.Client.NetworkV1, &publicIp,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
@@ -691,15 +648,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	for _, nic := range nics {
 
-		expectNicMeta, err := builders.NewNicMetadataBuilder().
-			Name(nic.Metadata.Name).
-			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(nic.Metadata.Tenant).Workspace(nic.Metadata.Workspace).Region(nic.Metadata.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
-
+		expectNicMeta := nic.Metadata
 		expectNicSpec := &nic.Spec
 		stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", suite.Client.NetworkV1, &nic,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
@@ -732,15 +681,8 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	groups := suite.params.SecurityGroups
 
 	for _, group := range groups {
-		expectGroupMeta, err := builders.NewSecurityGroupMetadataBuilder().
-			Name(group.Metadata.Name).
-			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(group.Metadata.Tenant).Workspace(group.Metadata.Workspace).Region(group.Metadata.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
 
+		expectGroupMeta := group.Metadata
 		expectGroupSpec := &group.Spec
 		stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", suite.Client.NetworkV1, &group,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{

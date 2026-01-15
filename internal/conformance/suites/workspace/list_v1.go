@@ -70,14 +70,8 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	// Create a workspace
 
 	for _, workspace := range workspaces {
-		expectMeta, err := builders.NewWorkspaceMetadataBuilder().
-			Name(workspace.Metadata.Name).
-			Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+
+		expectMeta := workspace.Metadata
 		expectLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
 		stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, &workspace,
 			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{

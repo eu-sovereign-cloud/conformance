@@ -169,15 +169,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	// Create roles
 	for _, role := range roles {
 
-		expectRoleMeta, err := builders.NewRoleMetadataBuilder().
-			Name(role.Metadata.Name).
-			Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
-
+		expectRoleMeta := role.Metadata
 		expectRoleSpec := role.Spec
 
 		// Create Role
@@ -216,14 +208,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	// Create role assignments
 	for _, roleAssign := range roleAssignments {
 
-		expectRoleAssignMeta, err := builders.NewRoleAssignmentMetadataBuilder().
-			Name(roleAssign.Metadata.Name).
-			Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+		expectRoleAssignMeta := roleAssign.Metadata
 		expectRoleAssignSpec := &roleAssign.Spec
 
 		// Create a role assignment
