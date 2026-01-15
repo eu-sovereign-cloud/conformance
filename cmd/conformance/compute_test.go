@@ -1,17 +1,17 @@
+//nolint:dupl
 package main
 
 import (
 	"testing"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites/compute"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-
-	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 func TestComputeV1Suites(t *testing.T) {
-	regionalTestSuite := createRegionalTestSuite(config.Parameters, config.Clients)
+	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
 
 	// LifeCycle Suite
 	lifeCycleTestSuite := &compute.ComputeLifeCycleV1TestSuite{
@@ -20,10 +20,9 @@ func TestComputeV1Suites(t *testing.T) {
 		InstanceSkus:      config.Clients.InstanceSkus,
 		StorageSkus:       config.Clients.StorageSkus,
 	}
-	lifeCycleTestSuite.ScenarioName = constants.ComputeV1LifeCycleSuiteName
-	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, lifeCycleTestSuite)
-	}
+	lifeCycleTestSuite.RunSuite(t, config.Parameters.ScenariosRegexp,
+		func() { lifeCycleTestSuite.ScenarioName = constants.ComputeV1LifeCycleSuiteName },
+	)
 
 	// List Suite
 	listTestSuite := &compute.ComputeListV1TestSuite{
@@ -32,8 +31,7 @@ func TestComputeV1Suites(t *testing.T) {
 		InstanceSkus:      config.Clients.InstanceSkus,
 		StorageSkus:       config.Clients.StorageSkus,
 	}
-	listTestSuite.ScenarioName = constants.ComputeV1ListSuiteName
-	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, listTestSuite)
-	}
+	listTestSuite.RunSuite(t, config.Parameters.ScenariosRegexp,
+		func() { listTestSuite.ScenarioName = constants.ComputeV1ListSuiteName },
+	)
 }
