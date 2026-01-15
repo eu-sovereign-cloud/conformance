@@ -17,7 +17,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ListV1TestSuite struct {
+type StorageListV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	StorageSkus []string
@@ -25,7 +25,7 @@ type ListV1TestSuite struct {
 	params *params.StorageListParamsV1
 }
 
-func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+func (suite *StorageListV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Select sku
@@ -182,7 +182,7 @@ func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *ListV1TestSuite) TestScenario(t provider.T) {
+func (suite *StorageListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.StorageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
@@ -197,7 +197,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	// Create a workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
-
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
@@ -207,8 +206,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Block storage
-
-	// Create a block storage
 	blocks := suite.params.BlockStorages
 
 	// Create the block storages
@@ -224,12 +221,11 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 		)
 	}
 
+	// List block storages
 	wref := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
 	}
-
-	// List block storages
 	stepsBuilder.GetListBlockStorageV1Step("GetList block storage", suite.Client.StorageV1, wref, nil)
 
 	// List block storages with limit
@@ -247,15 +243,12 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
 
 	// Image
-
-	// Create an image
 	images := suite.params.Images
 
+	// Create images
 	for _, image := range images {
-
 		expectedImageMeta := image.Metadata
 		expectedImageSpec := &image.Spec
-
 		stepsBuilder.CreateOrUpdateImageV1Step("Create an image", suite.Client.StorageV1, &image,
 			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 				Metadata:      expectedImageMeta,
@@ -264,28 +257,30 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 			},
 		)
 	}
+
+	// List images
 	tref := secapi.TenantReference{
 		Name:   workspace.Metadata.Tenant,
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 	}
-	// List image
 	stepsBuilder.GetListImageV1Step("List image", suite.Client.StorageV1, tref, nil)
 
-	// List image with limit
+	// List images with limit
 	stepsBuilder.GetListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List image with Label
+	// List images with label
 	stepsBuilder.GetListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// List image with Limit and label
+	// List images with limit and label
 	stepsBuilder.GetListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Skus
+
 	// List Skus
 	stepsBuilder.GetListSkuV1Step("List skus", suite.Client.StorageV1, tref, nil)
 
@@ -295,22 +290,26 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	// Delete all images
 	for _, image := range images {
+		stepsBuilder.DeleteImageV1Step("Delete image", suite.Client.StorageV1, &image)
+
+		// Get the deleted image
 		imageTRef := &secapi.TenantReference{
 			Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 			Name:   image.Metadata.Name,
 		}
-
-		stepsBuilder.DeleteImageV1Step("Delete image", suite.Client.StorageV1, &image)
 		stepsBuilder.GetImageWithErrorV1Step("Get deleted image ", suite.Client.StorageV1, *imageTRef, secapi.ErrResourceNotFound)
 	}
+
 	// Delete all block storages
 	for _, block := range blocks {
+		stepsBuilder.DeleteBlockStorageV1Step("Delete block storage 1", suite.Client.StorageV1, &block)
+
+		// Get the deleted block storage
 		blockWRef := &secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(block.Metadata.Tenant),
 			Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
 			Name:      block.Metadata.Name,
 		}
-		stepsBuilder.DeleteBlockStorageV1Step("Delete block storage 1", suite.Client.StorageV1, &block)
 		stepsBuilder.GetBlockStorageWithErrorV1Step("Get deleted block storage 1", suite.Client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
 	}
 
@@ -325,6 +324,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ListV1TestSuite) AfterAll(t provider.T) {
+func (suite *StorageListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

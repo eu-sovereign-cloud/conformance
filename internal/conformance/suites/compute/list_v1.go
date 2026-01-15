@@ -17,7 +17,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ListV1TestSuite struct {
+type ComputeListV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	AvailableZones []string
@@ -26,7 +26,7 @@ type ListV1TestSuite struct {
 	params         *params.ComputeListParamsV1
 }
 
-func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ComputeListV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Select skus
@@ -162,7 +162,7 @@ func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *ListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ComputeListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -172,10 +172,8 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 
 	// Create a workspace
-
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
-
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
@@ -188,14 +186,14 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	block := suite.params.BlockStorage
 
 	// Create a block storage
-
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
-	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block, steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-		Metadata:      expectedBlockMeta,
-		Spec:          expectedBlockSpec,
-		ResourceState: schema.ResourceStateCreating,
-	},
+	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			Metadata:      expectedBlockMeta,
+			Spec:          expectedBlockSpec,
+			ResourceState: schema.ResourceStateCreating,
+		},
 	)
 
 	// Instance
@@ -204,7 +202,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	// Create instances
 	for _, instance := range instances {
 		expectInstanceMeta := instance.Metadata
-
 		expectInstanceSpec := &instance.Spec
 		stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.Client.ComputeV1, &instance,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
@@ -215,33 +212,34 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 		)
 	}
 
+	// List instances
 	wref := secapi.WorkspaceReference{
 		Name:      workspace.Metadata.Name,
 		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
 	}
-	// List instances
 	stepsBuilder.GetListInstanceV1Step("List instances", suite.Client.ComputeV1, wref, nil)
 
 	// List instances with limit
 	stepsBuilder.GetListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List Instances with Label
+	// List Instances with label
 	stepsBuilder.GetListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// List Instances with Limit and label
+	// List Instances with limit and label
 	stepsBuilder.GetListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// SKUS
-	// List SKUS
+	// Skus
+
+	// List skus
 	stepsBuilder.GetListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
 
-	// List SKUS with limit
+	// List skus with limit
 	stepsBuilder.GetListSkusV1Step("Get list of skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1))
 
@@ -282,6 +280,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ComputeListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

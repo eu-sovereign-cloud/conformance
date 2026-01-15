@@ -64,12 +64,12 @@ run:
 .PHONY: report
 report:
 	@echo "Viewing report..."
-	$(DIST_BIN) report $(RESULTS_PATH)
+	$(GO) test -count=1 -v ./cmd/conformance -args report $(RESULTS_PATH)
 
 .PHONY: list
 list:
 	@echo "Listing scenarios..."
-	$(DIST_BIN) list
+	$(GO) test -count=1 -v ./cmd/conformance -args list
 
 .PHONY: test
 test:

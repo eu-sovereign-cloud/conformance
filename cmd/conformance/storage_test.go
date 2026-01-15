@@ -27,7 +27,7 @@ func TestStorageV1Suites(t *testing.T) {
 	}
 
 	// LifeCycle Suite
-	testLifeCycleSuite := &storage.LifeCycleV1TestSuite{
+	testLifeCycleSuite := &storage.StorageLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		StorageSkus:       config.Clients.StorageSkus,
 	}
@@ -37,7 +37,7 @@ func TestStorageV1Suites(t *testing.T) {
 	}
 
 	// List Suite
-	testListSuite := &storage.ListV1TestSuite{
+	testListSuite := &storage.StorageListV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		StorageSkus:       config.Clients.StorageSkus,
 	}

@@ -17,7 +17,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type LifeCycleV1TestSuite struct {
+type AuthorizationLifeCycleV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	Users []string
@@ -25,7 +25,7 @@ type LifeCycleV1TestSuite struct {
 	params *params.AuthorizationLifeCycleParamsV1
 }
 
-func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
+func (suite *AuthorizationLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Select subs
@@ -111,7 +111,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
+func (suite *AuthorizationLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
@@ -225,6 +225,6 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
+func (suite *AuthorizationLifeCycleV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

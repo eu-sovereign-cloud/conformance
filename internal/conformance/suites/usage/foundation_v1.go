@@ -19,7 +19,7 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type FoundationV1TestSuite struct {
+type FoundationUsageV1TestSuite struct {
 	suites.MixedTestSuite
 
 	Users          []string
@@ -33,7 +33,7 @@ type FoundationV1TestSuite struct {
 	params *params.FoundationUsageParamsV1
 }
 
-func (suite *FoundationV1TestSuite) BeforeAll(t provider.T) {
+func (suite *FoundationUsageV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.NetworkCidr, 8, 1)
@@ -321,7 +321,7 @@ func (suite *FoundationV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
+func (suite *FoundationUsageV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t,
 		constants.AuthorizationProviderV1,
@@ -348,8 +348,6 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 		constants.ComputeProviderV1,
 		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 	)
-
-	var err error
 
 	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
 
@@ -693,9 +691,6 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 	instance := suite.params.Instance
 	expectInstanceMeta := instance.Metadata
 	expectInstanceSpec := &instance.Spec
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
 	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.RegionalClient.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
@@ -740,6 +735,6 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *FoundationV1TestSuite) AfterAll(t provider.T) {
+func (suite *FoundationUsageV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

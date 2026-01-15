@@ -25,7 +25,7 @@ func TestRegionV1Suites(t *testing.T) {
 	}
 
 	// List Suite
-	testListSuite := &region.ListV1TestSuite{
+	testListSuite := &region.RegionListV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		RegionName:      config.Parameters.ClientRegion,
 	}

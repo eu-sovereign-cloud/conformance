@@ -15,13 +15,13 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ListV1TestSuite struct {
+type WorkspaceListV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	params params.WorkspaceListParamsV1
 }
 
-func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+func (suite *WorkspaceListV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Generate scenario data
@@ -59,18 +59,17 @@ func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *ListV1TestSuite) TestScenario(t provider.T) {
+func (suite *WorkspaceListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
 
+	// Workspace
 	workspaces := suite.params.Workspaces
 
-	// Create a workspace
-
+	// Create workspaces
 	for _, workspace := range workspaces {
-
 		expectMeta := workspace.Metadata
 		expectLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
 		stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, &workspace,
@@ -82,34 +81,39 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 		)
 
 	}
+
+	// List workspaces
 	tref := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
-
-	// List workspaces
 	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, nil)
+
 	// List workspaces with limit
 	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, secapi.NewListOptions().WithLimit(1))
+
 	// List workspaces with label
 	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+
 	// List workspaces with label and limit
 	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all workspaces
 	for _, workspace := range workspaces {
+		stepsBuilder.DeleteWorkspaceV1Step("Delete workspace 1", suite.Client.WorkspaceV1, &workspace)
+
+		// Get the deleted workspace
 		workspaceTRef := &secapi.TenantReference{
 			Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 			Name:   workspace.Metadata.Name,
 		}
-		stepsBuilder.DeleteWorkspaceV1Step("Delete workspace 1", suite.Client.WorkspaceV1, &workspace)
 		stepsBuilder.GetWorkspaceWithErrorV1Step("Get deleted workspace 1", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 	}
 
 	suite.FinishScenario()
 }
 
-func (suite *ListV1TestSuite) AfterAll(t provider.T) {
+func (suite *WorkspaceListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

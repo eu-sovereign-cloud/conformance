@@ -16,7 +16,7 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type LifeCycleV1TestSuite struct {
+type NetworkLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	NetworkCidr    string
@@ -29,7 +29,7 @@ type LifeCycleV1TestSuite struct {
 	params *params.NetworkLifeCycleParamsV1
 }
 
-func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
+func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Generate the subnet cidr
@@ -373,7 +373,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
+func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.NetworkProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
@@ -842,6 +842,6 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
+func (suite *NetworkLifeCycleV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

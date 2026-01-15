@@ -15,7 +15,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type LifeCycleV1TestSuite struct {
+type StorageLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	StorageSkus []string
@@ -23,7 +23,7 @@ type LifeCycleV1TestSuite struct {
 	params *params.StorageLifeCycleParamsV1
 }
 
-func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
+func (suite *StorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Select sku
@@ -124,7 +124,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
+func (suite *StorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.StorageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
@@ -270,6 +270,6 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
+func (suite *StorageLifeCycleV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

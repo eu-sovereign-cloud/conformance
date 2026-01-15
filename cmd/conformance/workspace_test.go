@@ -28,7 +28,7 @@ func TestWorkspaceV1Suites(t *testing.T) {
 	}
 
 	// LifeCycle Suite
-	testLifeCycleSuite := &workspace.LifeCycleV1TestSuite{
+	testLifeCycleSuite := &workspace.WorkspaceLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTest,
 	}
 	testLifeCycleSuite.ScenarioName = constants.WorkspaceV1LifeCycleSuiteName
@@ -37,7 +37,7 @@ func TestWorkspaceV1Suites(t *testing.T) {
 	}
 
 	// List Suite
-	testListSuite := &workspace.ListV1TestSuite{
+	testListSuite := &workspace.WorkspaceListV1TestSuite{
 		RegionalTestSuite: regionalTest,
 	}
 	testListSuite.ScenarioName = constants.WorkspaceV1ListSuiteName

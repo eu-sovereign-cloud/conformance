@@ -18,7 +18,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ListV1TestSuite struct {
+type AuthorizationListV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	Users []string
@@ -26,7 +26,7 @@ type ListV1TestSuite struct {
 	params *params.AuthorizationListParamsV1
 }
 
-func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+func (suite *AuthorizationListV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Select subs
@@ -155,7 +155,7 @@ func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *ListV1TestSuite) TestScenario(t provider.T) {
+func (suite *AuthorizationListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
@@ -168,7 +168,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	roles := suite.params.Roles
 	// Create roles
 	for _, role := range roles {
-
 		expectRoleMeta := role.Metadata
 		expectRoleSpec := role.Spec
 
@@ -181,6 +180,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 			},
 		)
 	}
+
 	roleTRef := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 		Name:   suite.Tenant,
@@ -207,7 +207,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	// Create role assignments
 	for _, roleAssign := range roleAssignments {
-
 		expectRoleAssignMeta := roleAssign.Metadata
 		expectRoleAssignSpec := &roleAssign.Spec
 
@@ -261,11 +260,10 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 			Name:   role.Metadata.Name,
 		}
 		stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, *roleTRefSingle, secapi.ErrResourceNotFound)
-
-		suite.FinishScenario()
 	}
+	suite.FinishScenario()
 }
 
-func (suite *ListV1TestSuite) AfterAll(t provider.T) {
+func (suite *AuthorizationListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

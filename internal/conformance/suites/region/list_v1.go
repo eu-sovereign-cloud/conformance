@@ -17,7 +17,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ListV1TestSuite struct {
+type RegionListV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	RegionName string
@@ -25,7 +25,7 @@ type ListV1TestSuite struct {
 	params *params.RegionListParamsV1
 }
 
-func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+func (suite *RegionListV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Generate scenario Names
@@ -81,7 +81,7 @@ func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *ListV1TestSuite) TestScenario(t provider.T) {
+func (suite *RegionListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
@@ -105,6 +105,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ListV1TestSuite) AfterAll(t provider.T) {
+func (suite *RegionListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }
