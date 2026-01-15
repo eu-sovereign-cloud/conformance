@@ -149,7 +149,7 @@ func (suite *AuthorizationListV1TestSuite) BeforeAll(t provider.T) {
 		RoleAssignments: roleAssignments,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(&suite.TestSuite, mockauthorization.ConfigureListScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureListScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -162,7 +162,7 @@ func (suite *AuthorizationListV1TestSuite) TestScenario(t provider.T) {
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
 
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Role
 	roles := suite.params.Roles

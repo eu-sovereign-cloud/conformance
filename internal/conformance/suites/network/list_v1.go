@@ -413,7 +413,7 @@ func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 		SecurityGroups:   securityGroups,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(&suite.TestSuite, mockNetwork.ConfigureListScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureListScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -431,7 +431,7 @@ func (suite *NetworkListV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
 	)
 
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Workspace
 	workspace := suite.params.Workspace

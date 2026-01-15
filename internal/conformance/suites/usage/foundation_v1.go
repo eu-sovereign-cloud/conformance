@@ -315,7 +315,7 @@ func (suite *FoundationUsageV1TestSuite) BeforeAll(t provider.T) {
 		SecurityGroup:   securityGroup,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(&suite.TestSuite, mockUsage.ConfigureFoundationScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockUsage.ConfigureFoundationScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -349,7 +349,7 @@ func (suite *FoundationUsageV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 	)
 
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Role
 

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites/storage"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 
@@ -12,37 +11,25 @@ import (
 )
 
 func TestStorageV1Suites(t *testing.T) {
-	regionalTestSuite := suites.RegionalTestSuite{
-		TestSuite: suites.TestSuite{
-			Tenant:        config.Parameters.ClientTenant,
-			AuthToken:     config.Parameters.ClientAuthToken,
-			MockEnabled:   config.Parameters.MockEnabled,
-			MockServerURL: &config.Parameters.MockServerURL,
-			BaseDelay:     config.Parameters.BaseDelay,
-			BaseInterval:  config.Parameters.BaseInterval,
-			MaxAttempts:   config.Parameters.MaxAttempts,
-		},
-		Region: config.Parameters.ClientRegion,
-		Client: config.Clients.RegionalClient,
-	}
+	regionalTestSuite := createRegionalTestSuite(config.Parameters, config.Clients)
 
 	// LifeCycle Suite
-	testLifeCycleSuite := &storage.StorageLifeCycleV1TestSuite{
+	lifeCycleTestSuite := &storage.StorageLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		StorageSkus:       config.Clients.StorageSkus,
 	}
-	testLifeCycleSuite.ScenarioName = constants.StorageV1LifeCycleSuiteName
-	if testLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, testLifeCycleSuite)
+	lifeCycleTestSuite.ScenarioName = constants.StorageV1LifeCycleSuiteName
+	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, lifeCycleTestSuite)
 	}
 
 	// List Suite
-	testListSuite := &storage.StorageListV1TestSuite{
+	listTestSuite := &storage.StorageListV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		StorageSkus:       config.Clients.StorageSkus,
 	}
-	testListSuite.ScenarioName = constants.StorageV1ListSuiteName
-	if testListSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, testListSuite)
+	listTestSuite.ScenarioName = constants.StorageV1ListSuiteName
+	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, listTestSuite)
 	}
 }

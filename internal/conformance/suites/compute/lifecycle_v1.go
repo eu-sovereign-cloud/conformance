@@ -125,7 +125,7 @@ func (suite *ComputeLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 	suite.params = params
 
-	err = suites.SetupMockIfEnabled(&suite.TestSuite, mockcompute.ConfigureLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockcompute.ConfigureLifecycleScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -135,7 +135,7 @@ func (suite *ComputeLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Workspace
 

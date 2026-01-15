@@ -46,7 +46,7 @@ func (suite *TestSuite) FinishScenario() {
 }
 
 type MixedTestSuite struct {
-	TestSuite
+	*TestSuite
 
 	GlobalClient *secapi.GlobalClient
 
@@ -55,12 +55,12 @@ type MixedTestSuite struct {
 }
 
 type GlobalTestSuite struct {
-	TestSuite
+	*TestSuite
 	Client *secapi.GlobalClient
 }
 
 type RegionalTestSuite struct {
-	TestSuite
+	*TestSuite
 	Region string
 	Client *secapi.RegionalClient
 }

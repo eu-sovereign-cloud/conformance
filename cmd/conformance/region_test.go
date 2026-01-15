@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites/region"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 
@@ -12,25 +11,15 @@ import (
 )
 
 func TestRegionV1Suites(t *testing.T) {
-	globalTestSuite := suites.GlobalTestSuite{
-		TestSuite: suites.TestSuite{
-			AuthToken:     config.Parameters.ClientAuthToken,
-			MockEnabled:   config.Parameters.MockEnabled,
-			MockServerURL: &config.Parameters.MockServerURL,
-			BaseDelay:     config.Parameters.BaseDelay,
-			BaseInterval:  config.Parameters.BaseInterval,
-			MaxAttempts:   config.Parameters.MaxAttempts,
-		},
-		Client: config.Clients.GlobalClient,
-	}
+	globalTestSuite := createGlobalTestSuite(config.Parameters, config.Clients)
 
 	// List Suite
-	testListSuite := &region.RegionListV1TestSuite{
+	listTestSuite := &region.RegionListV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		RegionName:      config.Parameters.ClientRegion,
 	}
-	testListSuite.ScenarioName = constants.RegionV1ListSuiteName
-	if testListSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, testListSuite)
+	listTestSuite.ScenarioName = constants.RegionV1ListSuiteName
+	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, listTestSuite)
 	}
 }

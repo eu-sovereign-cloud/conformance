@@ -75,7 +75,7 @@ func (suite *RegionListV1TestSuite) BeforeAll(t provider.T) {
 		Regions: regions,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(&suite.TestSuite, mockRegion.ConfigureListScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockRegion.ConfigureListScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -85,7 +85,7 @@ func (suite *RegionListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	ctx := context.Background()
 

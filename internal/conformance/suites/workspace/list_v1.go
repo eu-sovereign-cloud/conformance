@@ -53,7 +53,7 @@ func (suite *WorkspaceListV1TestSuite) BeforeAll(t provider.T) {
 		Workspaces: workspaces,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(&suite.TestSuite, mockWorkspace.ConfigureListScenarioV1, &suite.params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockWorkspace.ConfigureListScenarioV1, &suite.params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -63,7 +63,7 @@ func (suite *WorkspaceListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Workspace
 	workspaces := suite.params.Workspaces

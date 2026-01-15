@@ -118,7 +118,7 @@ func (suite *StorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	suite.params = params
 
-	err = suites.SetupMockIfEnabled(&suite.TestSuite, mockstorage.ConfigureLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockstorage.ConfigureLifecycleScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -131,7 +131,7 @@ func (suite *StorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
 	)
 
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Workspace
 

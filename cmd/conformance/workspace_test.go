@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites/workspace"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 
@@ -12,36 +11,23 @@ import (
 )
 
 func TestWorkspaceV1Suites(t *testing.T) {
-	regionalTest := suites.RegionalTestSuite{
-		TestSuite: suites.TestSuite{
-			Tenant:        config.Parameters.ClientTenant,
-			AuthToken:     config.Parameters.ClientAuthToken,
-			MockEnabled:   config.Parameters.MockEnabled,
-			MockServerURL: &config.Parameters.MockServerURL,
-			ScenarioName:  constants.WorkspaceV1LifeCycleSuiteName,
-			BaseDelay:     config.Parameters.BaseDelay,
-			BaseInterval:  config.Parameters.BaseInterval,
-			MaxAttempts:   config.Parameters.MaxAttempts,
-		},
-		Region: config.Parameters.ClientRegion,
-		Client: config.Clients.RegionalClient,
-	}
+	regionalTestSuite := createRegionalTestSuite(config.Parameters, config.Clients)
 
 	// LifeCycle Suite
-	testLifeCycleSuite := &workspace.WorkspaceLifeCycleV1TestSuite{
-		RegionalTestSuite: regionalTest,
+	lifeCycleTestSuite := &workspace.WorkspaceLifeCycleV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
 	}
-	testLifeCycleSuite.ScenarioName = constants.WorkspaceV1LifeCycleSuiteName
-	if testLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, testLifeCycleSuite)
+	lifeCycleTestSuite.ScenarioName = constants.WorkspaceV1LifeCycleSuiteName
+	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, lifeCycleTestSuite)
 	}
 
 	// List Suite
-	testListSuite := &workspace.WorkspaceListV1TestSuite{
-		RegionalTestSuite: regionalTest,
+	listTestSuite := &workspace.WorkspaceListV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
 	}
-	testListSuite.ScenarioName = constants.WorkspaceV1ListSuiteName
-	if testListSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, testListSuite)
+	listTestSuite.ScenarioName = constants.WorkspaceV1ListSuiteName
+	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, listTestSuite)
 	}
 }
