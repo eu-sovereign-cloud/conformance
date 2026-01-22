@@ -22,6 +22,11 @@ import (
 type FoundationUsageV1TestSuite struct {
 	suites.MixedTestSuite
 
+	config *FoundationUsageV1Config
+	params *params.FoundationUsageV1Params
+}
+
+type FoundationUsageV1Config struct {
 	Users          []string
 	NetworkCidr    string
 	PublicIpsRange string
@@ -29,14 +34,21 @@ type FoundationUsageV1TestSuite struct {
 	StorageSkus    []string
 	InstanceSkus   []string
 	NetworkSkus    []string
+}
 
-	params *params.FoundationUsageParamsV1
+func CreateFoundationV1TestSuite(mixedTestSuite suites.MixedTestSuite, config *FoundationUsageV1Config) *FoundationUsageV1TestSuite {
+	suite := &FoundationUsageV1TestSuite{
+		MixedTestSuite: mixedTestSuite,
+		config:         config,
+	}
+	suite.ScenarioName = constants.FoundationUsageV1SuiteName
+	return suite
 }
 
 func (suite *FoundationUsageV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
-	subnetCidr, err := generators.GenerateSubnetCidr(suite.NetworkCidr, 8, 1)
+	subnetCidr, err := generators.GenerateSubnetCidr(suite.config.NetworkCidr, 8, 1)
 	if err != nil {
 		slog.Error("Failed to generate subnet cidr", "error", err)
 		return
@@ -50,22 +62,22 @@ func (suite *FoundationUsageV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	// Generate the public ips
-	publicIpAddress1, err := generators.GeneratePublicIp(suite.PublicIpsRange, 1)
+	publicIpAddress1, err := generators.GeneratePublicIp(suite.config.PublicIpsRange, 1)
 	if err != nil {
 		slog.Error("Failed to generate public ip", "error", err)
 		return
 	}
 
 	// Select zones
-	zone := suite.RegionZones[rand.Intn(len(suite.RegionZones))]
+	zone := suite.config.RegionZones[rand.Intn(len(suite.config.RegionZones))]
 
 	// Select subs
-	roleAssignmentSub := suite.Users[rand.Intn(len(suite.Users))]
+	roleAssignmentSub := suite.config.Users[rand.Intn(len(suite.config.Users))]
 
 	// Select skus
-	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
-	instanceSkuName := suite.InstanceSkus[rand.Intn(len(suite.InstanceSkus))]
-	networkSkuName := suite.NetworkSkus[rand.Intn(len(suite.NetworkSkus))]
+	storageSkuName := suite.config.StorageSkus[rand.Intn(len(suite.config.StorageSkus))]
+	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
+	networkSkuName := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
@@ -219,7 +231,7 @@ func (suite *FoundationUsageV1TestSuite) BeforeAll(t provider.T) {
 		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
 			SkuRef:        *networkSkuRefObj,
 			RouteTableRef: *routeTableRefObj,
 		}).Build()
@@ -299,7 +311,7 @@ func (suite *FoundationUsageV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Security Group: %v", err)
 	}
 
-	params := &params.FoundationUsageParamsV1{
+	params := &params.FoundationUsageV1Params{
 		Role:            Role,
 		RoleAssignment:  RoleAssignment,
 		Workspace:       workspace,

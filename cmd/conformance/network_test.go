@@ -1,4 +1,3 @@
-//nolint:dupl
 package main
 
 import (
@@ -7,37 +6,39 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites/network"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 func TestNetworkV1Suites(t *testing.T) {
 	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
 
 	// LifeCycle Suite
-	lifeCycleTestSuite := &network.NetworkLifeCycleV1TestSuite{
-		RegionalTestSuite: regionalTestSuite,
-		NetworkCidr:       config.Parameters.ScenariosCidr,
-		PublicIpsRange:    config.Parameters.ScenariosPublicIps,
-		RegionZones:       config.Clients.RegionZones,
-		InstanceSkus:      config.Clients.InstanceSkus,
-		StorageSkus:       config.Clients.StorageSkus,
-		NetworkSkus:       config.Clients.NetworkSkus,
-	}
-	lifeCycleTestSuite.RunSuite(t, config.Parameters.ScenariosRegexp,
-		func() { lifeCycleTestSuite.ScenarioName = constants.NetworkV1LifeCycleSuiteName },
+	lifeCycleTestSuite := network.CreateLifeCycleV1TestSuite(regionalTestSuite,
+		&network.NetworkLifeCycleV1Config{
+			NetworkCidr:    config.Parameters.ScenariosCidr,
+			PublicIpsRange: config.Parameters.ScenariosPublicIps,
+			RegionZones:    config.Clients.RegionZones,
+			InstanceSkus:   config.Clients.InstanceSkus,
+			StorageSkus:    config.Clients.StorageSkus,
+			NetworkSkus:    config.Clients.NetworkSkus,
+		},
 	)
+	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, lifeCycleTestSuite)
+	}
 
 	// List Suite
-	listTestSuite := &network.NetworkListV1TestSuite{
-		RegionalTestSuite: regionalTestSuite,
-		NetworkCidr:       config.Parameters.ScenariosCidr,
-		PublicIpsRange:    config.Parameters.ScenariosPublicIps,
-		RegionZones:       config.Clients.RegionZones,
-		InstanceSkus:      config.Clients.InstanceSkus,
-		StorageSkus:       config.Clients.StorageSkus,
-		NetworkSkus:       config.Clients.NetworkSkus,
-	}
-	listTestSuite.RunSuite(t, config.Parameters.ScenariosRegexp,
-		func() { listTestSuite.ScenarioName = constants.NetworkV1ListSuiteName },
+	listTestSuite := network.CreateListV1TestSuite(regionalTestSuite,
+		&network.NetworkListV1Config{
+			NetworkCidr:    config.Parameters.ScenariosCidr,
+			PublicIpsRange: config.Parameters.ScenariosPublicIps,
+			RegionZones:    config.Clients.RegionZones,
+			InstanceSkus:   config.Clients.InstanceSkus,
+			StorageSkus:    config.Clients.StorageSkus,
+			NetworkSkus:    config.Clients.NetworkSkus,
+		},
 	)
+	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, listTestSuite)
+	}
 }

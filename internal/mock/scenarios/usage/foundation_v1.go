@@ -11,7 +11,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureFoundationScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.FoundationUsageParamsV1) (*wiremock.Client, error) {
+func ConfigureFoundationScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.FoundationUsageV1Params) (*wiremock.Client, error) {
 	scenarios.LogScenarioMocking(scenario)
 	role := *suiteParams.Role
 	roleAssignment := *suiteParams.RoleAssignment

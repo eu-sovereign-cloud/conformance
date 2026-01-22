@@ -23,7 +23,16 @@ type AuthorizationListV1TestSuite struct {
 
 	Users []string
 
-	params *params.AuthorizationListParamsV1
+	params *params.AuthorizationListV1Params
+}
+
+func CreateListV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *AuthorizationListV1TestSuite {
+	suite := &AuthorizationListV1TestSuite{
+		GlobalTestSuite: globalTestSuite,
+		Users:           users,
+	}
+	suite.ScenarioName = constants.AuthorizationV1ListSuiteName
+	return suite
 }
 
 func (suite *AuthorizationListV1TestSuite) BeforeAll(t provider.T) {
@@ -144,7 +153,7 @@ func (suite *AuthorizationListV1TestSuite) BeforeAll(t provider.T) {
 		*roleAssignment2,
 		*roleAssignment3,
 	}
-	params := &params.AuthorizationListParamsV1{
+	params := &params.AuthorizationListV1Params{
 		Roles:           roles,
 		RoleAssignments: roleAssignments,
 	}

@@ -19,23 +19,35 @@ import (
 type ComputeLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
+	config *ComputeLifeCycleV1Config
+	params *params.ComputeLifeCycleV1Params
+}
+
+type ComputeLifeCycleV1Config struct {
 	AvailableZones []string
 	InstanceSkus   []string
 	StorageSkus    []string
+}
 
-	params *params.ComputeLifeCycleParamsV1
+func CreateLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ComputeLifeCycleV1Config) *ComputeLifeCycleV1TestSuite {
+	suite := &ComputeLifeCycleV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
+		config:            config,
+	}
+	suite.ScenarioName = constants.ComputeV1LifeCycleSuiteName
+	return suite
 }
 
 func (suite *ComputeLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Select skus
-	instanceSkuName := suite.InstanceSkus[rand.Intn(len(suite.InstanceSkus))]
-	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
+	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
+	storageSkuName := suite.config.StorageSkus[rand.Intn(len(suite.config.StorageSkus))]
 
 	// Select zones
-	initialInstanceZone := suite.AvailableZones[rand.Intn(len(suite.AvailableZones))]
-	updatedInstanceZone := suite.AvailableZones[rand.Intn(len(suite.AvailableZones))]
+	initialInstanceZone := suite.config.AvailableZones[rand.Intn(len(suite.config.AvailableZones))]
+	updatedInstanceZone := suite.config.AvailableZones[rand.Intn(len(suite.config.AvailableZones))]
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
@@ -117,7 +129,7 @@ func (suite *ComputeLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Instance: %v", err)
 	}
 
-	params := &params.ComputeLifeCycleParamsV1{
+	params := &params.ComputeLifeCycleV1Params{
 		Workspace:       workspace,
 		BlockStorage:    blockStorage,
 		InitialInstance: initialInstance,

@@ -22,7 +22,16 @@ type StorageListV1TestSuite struct {
 
 	StorageSkus []string
 
-	params *params.StorageListParamsV1
+	params *params.StorageListV1Params
+}
+
+func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *StorageListV1TestSuite {
+	suite := &StorageListV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
+		StorageSkus:       storageSkus,
+	}
+	suite.ScenarioName = constants.StorageV1ListSuiteName
+	return suite
 }
 
 func (suite *StorageListV1TestSuite) BeforeAll(t provider.T) {
@@ -169,7 +178,7 @@ func (suite *StorageListV1TestSuite) BeforeAll(t provider.T) {
 	}
 	images := []schema.Image{*image1, *image2, *image3}
 
-	params := &params.StorageListParamsV1{
+	params := &params.StorageListV1Params{
 		Workspace:     workspace,
 		BlockStorages: blockStorages,
 		Images:        images,

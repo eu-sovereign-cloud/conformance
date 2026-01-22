@@ -22,7 +22,16 @@ type RegionListV1TestSuite struct {
 
 	RegionName string
 
-	params *params.RegionListParamsV1
+	params *params.RegionListV1Params
+}
+
+func CreateListV1TestSuite(globalTestSuite suites.GlobalTestSuite, regionName string) *RegionListV1TestSuite {
+	suite := &RegionListV1TestSuite{
+		GlobalTestSuite: globalTestSuite,
+		RegionName:      regionName,
+	}
+	suite.ScenarioName = constants.RegionV1ListSuiteName
+	return suite
 }
 
 func (suite *RegionListV1TestSuite) BeforeAll(t provider.T) {
@@ -71,7 +80,7 @@ func (suite *RegionListV1TestSuite) BeforeAll(t provider.T) {
 
 	regions := []schema.Region{*region, *region2, *region3}
 
-	params := &params.RegionListParamsV1{
+	params := &params.RegionListV1Params{
 		Regions: regions,
 	}
 	suite.params = params

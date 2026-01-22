@@ -20,7 +20,16 @@ type StorageLifeCycleV1TestSuite struct {
 
 	StorageSkus []string
 
-	params *params.StorageLifeCycleParamsV1
+	params *params.StorageLifeCycleV1Params
+}
+
+func CreateLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *StorageLifeCycleV1TestSuite {
+	suite := &StorageLifeCycleV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
+		StorageSkus:       storageSkus,
+	}
+	suite.ScenarioName = constants.StorageV1LifeCycleSuiteName
+	return suite
 }
 
 func (suite *StorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
@@ -108,7 +117,7 @@ func (suite *StorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Image: %v", err)
 	}
 
-	params := &params.StorageLifeCycleParamsV1{
+	params := &params.StorageLifeCycleV1Params{
 		Workspace:           workspace,
 		BlockStorageInitial: blockStorageInitial,
 		BlockStorageUpdated: blockStorageUpdated,

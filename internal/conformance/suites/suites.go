@@ -9,15 +9,15 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
-	allureprovider "github.com/ozontech/allure-go/pkg/framework/provider"
-	alluresuite "github.com/ozontech/allure-go/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 	"github.com/wiremock/go-wiremock"
 )
 
 // Test Suite
 
 type TestSuite struct {
-	alluresuite.Suite
+	suite.Suite
 	Tenant        string
 	AuthToken     string
 	MockEnabled   bool
@@ -43,7 +43,7 @@ func createTestSuite(params *config.ParametersHolder) *TestSuite {
 	}
 }
 
-func (suite *TestSuite) canRun(regexp *regexp.Regexp) bool {
+func (suite *TestSuite) CanRun(regexp *regexp.Regexp) bool {
 	if regexp == nil {
 		return true
 	} else {
@@ -51,15 +51,7 @@ func (suite *TestSuite) canRun(regexp *regexp.Regexp) bool {
 	}
 }
 
-func (suite *TestSuite) RunSuite(t allureprovider.TestingT, regexp *regexp.Regexp, setScenarioFunc func()) {
-	setScenarioFunc()
-
-	if suite.canRun(regexp) {
-		alluresuite.RunSuite(t, suite)
-	}
-}
-
-func (suite *TestSuite) StartScenario(t allureprovider.T) {
+func (suite *TestSuite) StartScenario(t provider.T) {
 	slog.Info("Starting execution of scenario " + suite.ScenarioName)
 	t.Title(suite.ScenarioName)
 }
@@ -68,7 +60,7 @@ func (suite *TestSuite) FinishScenario() {
 	slog.Info("Finishing execution of scenario " + suite.ScenarioName)
 }
 
-func (suite *TestSuite) ConfigureTags(t allureprovider.T, provider string, kinds ...string) {
+func (suite *TestSuite) ConfigureTags(t provider.T, provider string, kinds ...string) {
 	t.Tags(
 		"provider:"+provider,
 		"resources:"+strings.Join(kinds, ", "),

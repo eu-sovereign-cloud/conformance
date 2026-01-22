@@ -20,22 +20,34 @@ import (
 type ComputeListV1TestSuite struct {
 	suites.RegionalTestSuite
 
+	config *ComputeListV1Config
+	params *params.ComputeListV1Params
+}
+
+type ComputeListV1Config struct {
 	AvailableZones []string
 	InstanceSkus   []string
 	StorageSkus    []string
-	params         *params.ComputeListParamsV1
+}
+
+func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ComputeListV1Config) *ComputeListV1TestSuite {
+	suite := &ComputeListV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
+		config:            config,
+	}
+	suite.ScenarioName = constants.ComputeV1ListSuiteName
+	return suite
 }
 
 func (suite *ComputeListV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Select skus
-	instanceSkuName := suite.InstanceSkus[rand.Intn(len(suite.InstanceSkus))]
-	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
+	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
+	storageSkuName := suite.config.StorageSkus[rand.Intn(len(suite.config.StorageSkus))]
 
 	// Select zones
-	zone := suite.AvailableZones[rand.Intn(len(suite.AvailableZones))]
-
+	zone := suite.config.AvailableZones[rand.Intn(len(suite.config.AvailableZones))]
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
@@ -149,7 +161,7 @@ func (suite *ComputeListV1TestSuite) BeforeAll(t provider.T) {
 
 	instances := []schema.Instance{*instance1, *instance2, *instance3}
 
-	params := &params.ComputeListParamsV1{
+	params := &params.ComputeListV1Params{
 		Workspace:    workspace,
 		BlockStorage: blockStorage,
 		Instances:    instances,

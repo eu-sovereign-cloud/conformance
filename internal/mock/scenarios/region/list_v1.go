@@ -16,7 +16,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.RegionListParamsV1) (*wiremock.Client, error) {
+func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.RegionListV1Params) (*wiremock.Client, error) {
 	scenarios.LogScenarioMocking(scenario)
 
 	regions := suiteParams.Regions

@@ -18,7 +18,15 @@ import (
 type WorkspaceListV1TestSuite struct {
 	suites.RegionalTestSuite
 
-	params params.WorkspaceListParamsV1
+	params params.WorkspaceListV1Params
+}
+
+func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *WorkspaceListV1TestSuite {
+	suite := &WorkspaceListV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
+	}
+	suite.ScenarioName = constants.WorkspaceV1ListSuiteName
+	return suite
 }
 
 func (suite *WorkspaceListV1TestSuite) BeforeAll(t provider.T) {
@@ -49,7 +57,7 @@ func (suite *WorkspaceListV1TestSuite) BeforeAll(t provider.T) {
 
 	workspaces := []schema.Workspace{*workspace, *workspace2}
 
-	params := params.WorkspaceListParamsV1{
+	params := params.WorkspaceListV1Params{
 		Workspaces: workspaces,
 	}
 	suite.params = params

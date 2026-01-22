@@ -22,7 +22,16 @@ type AuthorizationLifeCycleV1TestSuite struct {
 
 	Users []string
 
-	params *params.AuthorizationLifeCycleParamsV1
+	params *params.AuthorizationLifeCycleV1Params
+}
+
+func CreateLifeCycleV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *AuthorizationLifeCycleV1TestSuite {
+	suite := &AuthorizationLifeCycleV1TestSuite{
+		GlobalTestSuite: globalTestSuite,
+		Users:           users,
+	}
+	suite.ScenarioName = constants.AuthorizationV1LifeCycleSuiteName
+	return suite
 }
 
 func (suite *AuthorizationLifeCycleV1TestSuite) BeforeAll(t provider.T) {
@@ -98,7 +107,7 @@ func (suite *AuthorizationLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build RoleAssignment: %v", err)
 	}
 
-	params := &params.AuthorizationLifeCycleParamsV1{
+	params := &params.AuthorizationLifeCycleV1Params{
 		RoleInitial:           roleInitial,
 		RoleUpdated:           roleUpdated,
 		RoleAssignmentInitial: roleAssignmentInitial,

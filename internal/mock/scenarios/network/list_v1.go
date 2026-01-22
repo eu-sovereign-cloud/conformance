@@ -14,7 +14,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.NetworkListParamsV1) (*wiremock.Client, error) {
+func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.NetworkListV1Params) (*wiremock.Client, error) {
 	scenarios.LogScenarioMocking(scenario)
 	workspace := *suiteParams.Workspace
 	blockStorage := *suiteParams.BlockStorage

@@ -16,7 +16,15 @@ import (
 
 type WorkspaceLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
-	params *params.WorkspaceLifeCycleParamsV1
+	params *params.WorkspaceLifeCycleV1Params
+}
+
+func CreateLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *WorkspaceLifeCycleV1TestSuite {
+	suite := &WorkspaceLifeCycleV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
+	}
+	suite.ScenarioName = constants.WorkspaceV1LifeCycleSuiteName
+	return suite
 }
 
 func (suite *WorkspaceLifeCycleV1TestSuite) BeforeAll(t provider.T) {
@@ -45,7 +53,7 @@ func (suite *WorkspaceLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Workspace: %v", err)
 	}
 
-	params := &params.WorkspaceLifeCycleParamsV1{
+	params := &params.WorkspaceLifeCycleV1Params{
 		WorkspaceInitial: workspaceInitial,
 		WorkspaceUpdated: workspaceUpdated,
 	}

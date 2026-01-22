@@ -21,21 +21,33 @@ import (
 type NetworkListV1TestSuite struct {
 	suites.RegionalTestSuite
 
+	config *NetworkListV1Config
+	params *params.NetworkListV1Params
+}
+
+type NetworkListV1Config struct {
 	NetworkCidr    string
 	PublicIpsRange string
 	RegionZones    []string
 	StorageSkus    []string
 	InstanceSkus   []string
 	NetworkSkus    []string
+}
 
-	params *params.NetworkListParamsV1
+func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *NetworkListV1Config) *NetworkListV1TestSuite {
+	suite := &NetworkListV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
+		config:            config,
+	}
+	suite.ScenarioName = constants.NetworkV1ListSuiteName
+	return suite
 }
 
 func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Generate the subnet cidr
-	subnetCidr, err := generators.GenerateSubnetCidr(suite.NetworkCidr, 8, 1)
+	subnetCidr, err := generators.GenerateSubnetCidr(suite.config.NetworkCidr, 8, 1)
 	if err != nil {
 		t.Fatalf("Failed to generate subnet cidr: %v", err)
 	}
@@ -47,18 +59,18 @@ func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	// Generate the public ips
-	publicIpAddress1, err := generators.GeneratePublicIp(suite.PublicIpsRange, 1)
+	publicIpAddress1, err := generators.GeneratePublicIp(suite.config.PublicIpsRange, 1)
 	if err != nil {
 		t.Fatalf("Failed to generate public ip: %v", err)
 	}
 
 	// Select zones
-	zone := suite.RegionZones[rand.Intn(len(suite.RegionZones))]
+	zone := suite.config.RegionZones[rand.Intn(len(suite.config.RegionZones))]
 
 	// Select skus
-	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
-	instanceSkuName := suite.InstanceSkus[rand.Intn(len(suite.InstanceSkus))]
-	networkSkuName1 := suite.NetworkSkus[rand.Intn(len(suite.NetworkSkus))]
+	storageSkuName := suite.config.StorageSkus[rand.Intn(len(suite.config.StorageSkus))]
+	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
+	networkSkuName1 := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
@@ -180,7 +192,7 @@ func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
 			SkuRef:        *networkSkuRefObj,
 			RouteTableRef: *routeTableRefObj,
 		}).
@@ -197,7 +209,7 @@ func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
 			SkuRef:        *networkSkuRefObj,
 			RouteTableRef: *routeTableRefObj,
 		}).
@@ -400,7 +412,7 @@ func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 
 	securityGroups := []schema.SecurityGroup{*securityGroup, *securityGroup2}
 
-	params := &params.NetworkListParamsV1{
+	params := &params.NetworkListV1Params{
 		Workspace:        workspace,
 		BlockStorage:     blockStorage,
 		Instance:         instance,

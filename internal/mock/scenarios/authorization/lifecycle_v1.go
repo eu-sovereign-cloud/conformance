@@ -12,7 +12,7 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.AuthorizationLifeCycleParamsV1) (*wiremock.Client, error) {
+func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.AuthorizationLifeCycleV1Params) (*wiremock.Client, error) {
 	scenarios.LogScenarioMocking(scenario)
 
 	role := *suiteParams.RoleInitial

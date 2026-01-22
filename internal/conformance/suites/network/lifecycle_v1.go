@@ -19,21 +19,33 @@ import (
 type NetworkLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
+	config *NetworkLifeCycleV1Config
+	params *params.NetworkLifeCycleV1Params
+}
+
+type NetworkLifeCycleV1Config struct {
 	NetworkCidr    string
 	PublicIpsRange string
 	RegionZones    []string
 	StorageSkus    []string
 	InstanceSkus   []string
 	NetworkSkus    []string
+}
 
-	params *params.NetworkLifeCycleParamsV1
+func CreateLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *NetworkLifeCycleV1Config) *NetworkLifeCycleV1TestSuite {
+	suite := &NetworkLifeCycleV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
+		config:            config,
+	}
+	suite.ScenarioName = constants.NetworkV1LifeCycleSuiteName
+	return suite
 }
 
 func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Generate the subnet cidr
-	subnetCidr, err := generators.GenerateSubnetCidr(suite.NetworkCidr, 8, 1)
+	subnetCidr, err := generators.GenerateSubnetCidr(suite.config.NetworkCidr, 8, 1)
 	if err != nil {
 		t.Fatalf("Failed to generate subnet cidr: %v", err)
 	}
@@ -49,24 +61,24 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	// Generate the public ips
-	publicIpAddress1, err := generators.GeneratePublicIp(suite.PublicIpsRange, 1)
+	publicIpAddress1, err := generators.GeneratePublicIp(suite.config.PublicIpsRange, 1)
 	if err != nil {
 		t.Fatalf("Failed to generate public ip: %v", err)
 	}
-	publicIpAddress2, err := generators.GeneratePublicIp(suite.PublicIpsRange, 2)
+	publicIpAddress2, err := generators.GeneratePublicIp(suite.config.PublicIpsRange, 2)
 	if err != nil {
 		t.Fatalf("Failed to generate public ip: %v", err)
 	}
 
 	// Select zones
-	zone1 := suite.RegionZones[rand.Intn(len(suite.RegionZones))]
-	zone2 := suite.RegionZones[rand.Intn(len(suite.RegionZones))]
+	zone1 := suite.config.RegionZones[rand.Intn(len(suite.config.RegionZones))]
+	zone2 := suite.config.RegionZones[rand.Intn(len(suite.config.RegionZones))]
 
 	// Select skus
-	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
-	instanceSkuName := suite.InstanceSkus[rand.Intn(len(suite.InstanceSkus))]
-	networkSkuName1 := suite.NetworkSkus[rand.Intn(len(suite.NetworkSkus))]
-	networkSkuName2 := suite.NetworkSkus[rand.Intn(len(suite.NetworkSkus))]
+	storageSkuName := suite.config.StorageSkus[rand.Intn(len(suite.config.StorageSkus))]
+	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
+	networkSkuName1 := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
+	networkSkuName2 := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
@@ -182,7 +194,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
 			SkuRef:        *networkSkuRefObj,
 			RouteTableRef: *routeTableRefObj,
 		}).Build()
@@ -195,7 +207,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
 			SkuRef:        *networkSkuRef2Obj,
 			RouteTableRef: *routeTableRefObj,
 		}).Build()
@@ -347,7 +359,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Security Group: %v", err)
 	}
 
-	params := &params.NetworkLifeCycleParamsV1{
+	params := &params.NetworkLifeCycleV1Params{
 		Workspace:              workspace,
 		BlockStorage:           blockStorage,
 		Instance:               instance,

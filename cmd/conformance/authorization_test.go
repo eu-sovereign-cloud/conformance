@@ -1,4 +1,3 @@
-//nolint:dupl
 package main
 
 import (
@@ -7,27 +6,21 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites/authorization"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 func TestAuthorizationV1Suites(t *testing.T) {
 	globalTestSuite := suites.CreateGlobalTestSuite(config.Parameters, config.Clients)
 
 	// LifeCycle Suite
-	lifeCycleTestSuite := &authorization.AuthorizationLifeCycleV1TestSuite{
-		GlobalTestSuite: globalTestSuite,
-		Users:           config.Parameters.ScenariosUsers,
+	lifeCycleTestSuite := authorization.CreateLifeCycleV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
+	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, lifeCycleTestSuite)
 	}
-	lifeCycleTestSuite.RunSuite(t, config.Parameters.ScenariosRegexp,
-		func() { lifeCycleTestSuite.ScenarioName = constants.AuthorizationV1LifeCycleSuiteName },
-	)
 
 	// List Suite
-	listTestSuite := &authorization.AuthorizationListV1TestSuite{
-		GlobalTestSuite: globalTestSuite,
-		Users:           config.Parameters.ScenariosUsers,
+	listTestSuite := authorization.CreateListV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
+	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, listTestSuite)
 	}
-	listTestSuite.RunSuite(t, config.Parameters.ScenariosRegexp,
-		func() { listTestSuite.ScenarioName = constants.AuthorizationV1ListSuiteName },
-	)
 }
