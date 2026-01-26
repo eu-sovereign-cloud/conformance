@@ -4,11 +4,11 @@ import (
 	"math/rand"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/authorization"
+	mockauthorization "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/authorization"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -18,18 +18,25 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type AuthorizationV1ListTestSuite struct {
+type AuthorizationListV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	Users []string
+
+	params *params.AuthorizationListV1Params
 }
 
-func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
-		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
-		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
-	)
+func CreateListV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *AuthorizationListV1TestSuite {
+	suite := &AuthorizationListV1TestSuite{
+		GlobalTestSuite: globalTestSuite,
+		Users:           users,
+	}
+	suite.ScenarioName = constants.AuthorizationV1ListSuiteName
+	return suite
+}
+
+func (suite *AuthorizationListV1TestSuite) BeforeAll(t provider.T) {
+	var err error
 
 	// Select subs
 	roleAssignmentSub1 := suite.Users[rand.Intn(len(suite.Users))]
@@ -45,208 +52,144 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 	imageName := generators.GenerateImageName()
 	imageResource := generators.GenerateImageResource(suite.Tenant, imageName)
 
-	// Setup mock, if configured to use
-	if suite.MockEnabled {
-		mockParams := &mock.AuthorizationListParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
+	// Roles
+	role1, err := builders.NewRoleBuilder().
+		Name(roleName1).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).
+		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+		Spec(&schema.RoleSpec{
+			Permissions: []schema.Permission{
+				{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 			},
-			Roles: []mock.ResourceParams[schema.RoleSpec]{
-				{
-					Name: roleName1,
-
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.RoleSpec{
-						Permissions: []schema.Permission{
-							{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
-						},
-					},
-				},
-				{
-					Name: roleName2,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.RoleSpec{
-						Permissions: []schema.Permission{
-							{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
-						},
-					},
-				},
-				{
-					Name: roleName3,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.RoleSpec{
-						Permissions: []schema.Permission{
-							{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
-						},
-					},
-				},
-			},
-			RoleAssignments: []mock.ResourceParams[schema.RoleAssignmentSpec]{
-				{
-					Name: roleAssignmentName1,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.RoleAssignmentSpec{
-						Roles: []string{roleName1},
-						Subs:  []string{roleAssignmentSub1},
-						Scopes: []schema.RoleAssignmentScope{
-							{Tenants: &[]string{suite.Tenant}},
-						},
-					},
-				},
-				{
-					Name: roleAssignmentName2,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.RoleAssignmentSpec{
-						Roles: []string{roleName2},
-						Subs:  []string{roleAssignmentSub1},
-						Scopes: []schema.RoleAssignmentScope{
-							{Tenants: &[]string{suite.Tenant}},
-						},
-					},
-				},
-				{
-					Name: roleAssignmentName3,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.RoleAssignmentSpec{
-						Roles: []string{roleName3},
-						Subs:  []string{roleAssignmentSub1},
-						Scopes: []schema.RoleAssignmentScope{
-							{Tenants: &[]string{suite.Tenant}},
-						},
-					},
-				},
-			},
-		}
-		wm, err := authorization.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
-		if err != nil {
-			t.Fatalf("Failed to configure mock scenario: %v", err)
-		}
-		suite.MockClient = wm
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Role: %v", err)
 	}
 
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
+	role2, err := builders.NewRoleBuilder().
+		Name(roleName2).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).
+		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+		Spec(&schema.RoleSpec{
+			Permissions: []schema.Permission{
+				{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+			},
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Role: %v", err)
+	}
+	role3, err := builders.NewRoleBuilder().
+		Name(roleName3).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).
+		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+		Spec(&schema.RoleSpec{
+			Permissions: []schema.Permission{
+				{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+			},
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Role: %v", err)
+	}
+	roles := []schema.Role{
+		*role1,
+		*role2,
+		*role3,
+	}
+
+	// Roles Assignment
+	roleAssignment1, err := builders.NewRoleAssignmentBuilder().
+		Name(roleAssignmentName1).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).
+		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+		Spec(&schema.RoleAssignmentSpec{
+			Roles: []string{roleName2},
+			Subs:  []string{roleAssignmentSub1},
+			Scopes: []schema.RoleAssignmentScope{
+				{Tenants: &[]string{suite.Tenant}},
+			},
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build RoleAssignment: %v", err)
+	}
+	roleAssignment2, err := builders.NewRoleAssignmentBuilder().
+		Name(roleAssignmentName2).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).
+		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+		Spec(&schema.RoleAssignmentSpec{
+			Roles: []string{roleName2},
+			Subs:  []string{roleAssignmentSub1},
+			Scopes: []schema.RoleAssignmentScope{
+				{Tenants: &[]string{suite.Tenant}},
+			},
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build RoleAssignment: %v", err)
+	}
+	roleAssignment3, err := builders.NewRoleAssignmentBuilder().
+		Name(roleAssignmentName3).
+		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).
+		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+		Spec(&schema.RoleAssignmentSpec{
+			Roles: []string{roleName3},
+			Subs:  []string{roleAssignmentSub1},
+			Scopes: []schema.RoleAssignmentScope{
+				{Tenants: &[]string{suite.Tenant}},
+			},
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build RoleAssignment: %v", err)
+	}
+	roleAssignments := []schema.RoleAssignment{
+		*roleAssignment1,
+		*roleAssignment2,
+		*roleAssignment3,
+	}
+	params := &params.AuthorizationListV1Params{
+		Roles:           roles,
+		RoleAssignments: roleAssignments,
+	}
+	suite.params = params
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureListScenarioV1, params)
+	if err != nil {
+		t.Fatalf("Failed to setup mock: %v", err)
+	}
+}
+
+func (suite *AuthorizationListV1TestSuite) TestScenario(t provider.T) {
+	suite.StartScenario(t)
+	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
+		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
+		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
+	)
+
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Role
-	roles := []schema.Role{
-		{
-			Metadata: &schema.GlobalTenantResourceMetadata{
-				Tenant: suite.Tenant,
-				Name:   roleName1,
-			},
-			Labels: map[string]string{
-				constants.EnvLabel: constants.EnvConformanceLabel,
-			},
-			Spec: schema.RoleSpec{
-				Permissions: []schema.Permission{
-					{
-						Provider:  constants.StorageProviderV1,
-						Resources: []string{imageResource},
-						Verb:      []string{http.MethodGet},
-					},
-				},
-			},
-		},
-		{
-			Metadata: &schema.GlobalTenantResourceMetadata{
-				Tenant: suite.Tenant,
-				Name:   roleName2,
-			},
-			Labels: map[string]string{
-				constants.EnvLabel: constants.EnvConformanceLabel,
-			},
-			Spec: schema.RoleSpec{
-				Permissions: []schema.Permission{
-					{
-						Provider:  constants.StorageProviderV1,
-						Resources: []string{imageResource},
-						Verb:      []string{http.MethodGet},
-					},
-				},
-			},
-		},
-		{
-			Metadata: &schema.GlobalTenantResourceMetadata{
-				Tenant: suite.Tenant,
-				Name:   roleName3,
-			},
-			Labels: map[string]string{
-				constants.EnvLabel: constants.EnvConformanceLabel,
-			},
-			Spec: schema.RoleSpec{
-				Permissions: []schema.Permission{
-					{
-						Provider:  constants.StorageProviderV1,
-						Resources: []string{imageResource},
-						Verb:      []string{http.MethodGet},
-					},
-				},
-			},
-		},
-	}
-
+	roles := suite.params.Roles
 	// Create roles
 	for _, role := range roles {
-
-		role := &schema.Role{
-			Metadata: &schema.GlobalTenantResourceMetadata{
-				Tenant: suite.Tenant,
-				Name:   role.Metadata.Name,
-			},
-			Labels: map[string]string{
-				constants.EnvLabel: constants.EnvConformanceLabel,
-			},
-			Spec: schema.RoleSpec{
-				Permissions: []schema.Permission{
-					{
-						Provider:  constants.StorageProviderV1,
-						Resources: []string{imageResource},
-						Verb:      []string{http.MethodGet},
-					},
-				},
-			},
-		}
-		expectRoleMeta, err := builders.NewRoleMetadataBuilder().
-			Name(role.Metadata.Name).
-			Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
-
-		expectRoleSpec := &schema.RoleSpec{
-			Permissions: []schema.Permission{
-				{
-					Provider:  constants.StorageProviderV1,
-					Resources: []string{imageResource},
-					Verb:      []string{http.MethodGet},
-				},
-			},
-		}
+		expectRoleMeta := role.Metadata
+		expectRoleSpec := role.Spec
 
 		// Create Role
-		stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, role,
+		stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, &role,
 			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 				Metadata:      expectRoleMeta,
-				Spec:          expectRoleSpec,
+				Spec:          &expectRoleSpec,
 				ResourceState: schema.ResourceStateCreating,
 			},
 		)
 	}
+
 	roleTRef := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 		Name:   suite.Tenant,
@@ -269,68 +212,11 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Role assignment
-	roleAssignments := []schema.RoleAssignment{
-		{
-			Metadata: &schema.GlobalTenantResourceMetadata{
-				Tenant: suite.Tenant,
-				Name:   roleAssignmentName1,
-			},
-			Labels: map[string]string{
-				constants.EnvLabel: constants.EnvConformanceLabel,
-			},
-			Spec: schema.RoleAssignmentSpec{
-				Roles: []string{roleName1},
-				Subs:  []string{roleAssignmentSub1},
-				Scopes: []schema.RoleAssignmentScope{
-					{Tenants: &[]string{suite.Tenant}},
-				},
-			},
-		},
-		{
-			Metadata: &schema.GlobalTenantResourceMetadata{
-				Tenant: suite.Tenant,
-				Name:   roleAssignmentName2,
-			},
-			Labels: map[string]string{
-				constants.EnvLabel: constants.EnvConformanceLabel,
-			},
-			Spec: schema.RoleAssignmentSpec{
-				Roles: []string{roleName2},
-				Subs:  []string{roleAssignmentSub1},
-				Scopes: []schema.RoleAssignmentScope{
-					{Tenants: &[]string{suite.Tenant}},
-				},
-			},
-		},
-		{
-			Metadata: &schema.GlobalTenantResourceMetadata{
-				Tenant: suite.Tenant,
-				Name:   roleAssignmentName3,
-			},
-			Labels: map[string]string{
-				constants.EnvLabel: constants.EnvConformanceLabel,
-			},
-			Spec: schema.RoleAssignmentSpec{
-				Roles: []string{roleName3},
-				Subs:  []string{roleAssignmentSub1},
-				Scopes: []schema.RoleAssignmentScope{
-					{Tenants: &[]string{suite.Tenant}},
-				},
-			},
-		},
-	}
+	roleAssignments := suite.params.RoleAssignments
 
 	// Create role assignments
 	for _, roleAssign := range roleAssignments {
-
-		expectRoleAssignMeta, err := builders.NewRoleAssignmentMetadataBuilder().
-			Name(roleAssign.Metadata.Name).
-			Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+		expectRoleAssignMeta := roleAssign.Metadata
 		expectRoleAssignSpec := &roleAssign.Spec
 
 		// Create a role assignment
@@ -384,10 +270,9 @@ func (suite *AuthorizationV1ListTestSuite) TestListScenario(t provider.T) {
 		}
 		stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, *roleTRefSingle, secapi.ErrResourceNotFound)
 	}
-
 	suite.FinishScenario()
 }
 
-func (suite *AuthorizationV1LifeCycleTestSuite) AfterEach(t provider.T) {
+func (suite *AuthorizationListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

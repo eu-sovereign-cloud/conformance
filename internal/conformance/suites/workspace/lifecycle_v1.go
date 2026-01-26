@@ -1,11 +1,11 @@
 package workspace
 
 import (
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/workspace"
+	mockWorkspace "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/workspace"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -14,64 +14,66 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type WorkspaceV1LifeCycleTestSuite struct {
+type WorkspaceLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
+	params *params.WorkspaceLifeCycleV1Params
 }
 
-func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+func CreateLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *WorkspaceLifeCycleV1TestSuite {
+	suite := &WorkspaceLifeCycleV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
+	}
+	suite.ScenarioName = constants.WorkspaceV1LifeCycleSuiteName
+	return suite
+}
+
+func (suite *WorkspaceLifeCycleV1TestSuite) BeforeAll(t provider.T) {
+	var err error
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
-	// Setup mock, if configured to use
-	if suite.MockEnabled {
-		mockParams := &mock.WorkspaceLifeCycleParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
-				Region:    suite.Region,
-			},
-			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
-				Name: workspaceName,
-				InitialLabels: schema.Labels{
-					constants.EnvLabel: constants.EnvDevelopmentLabel,
-				},
-				UpdatedLabels: schema.Labels{
-					constants.EnvLabel: constants.EnvProductionLabel,
-				},
-			},
-		}
-		wm, err := workspace.ConfigureLifecycleScenarioV1(suite.ScenarioName, mockParams)
-		if err != nil {
-			t.Fatalf("Failed to configure mock scenario: %v", err)
-		}
-		suite.MockClient = wm
-	}
-
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
-
-	// Create a workspace
-	workspace := &schema.Workspace{
-		Labels: schema.Labels{
-			constants.EnvLabel: constants.EnvDevelopmentLabel,
-		},
-		Metadata: &schema.RegionalResourceMetadata{
-			Tenant: suite.Tenant,
-			Name:   workspaceName,
-		},
-	}
-	expectMeta, err := builders.NewWorkspaceMetadataBuilder().
+	workspaceInitial, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
 		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
+		Labels(schema.Labels{constants.EnvLabel: constants.EnvDevelopmentLabel}).
 		Build()
 	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
+		t.Fatalf("Failed to build Workspace: %v", err)
 	}
-	expectLabels := schema.Labels{constants.EnvLabel: constants.EnvDevelopmentLabel}
+
+	workspaceUpdated, err := builders.NewWorkspaceBuilder().
+		Name(workspaceName).
+		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Region(suite.Region).
+		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Workspace: %v", err)
+	}
+
+	params := &params.WorkspaceLifeCycleV1Params{
+		WorkspaceInitial: workspaceInitial,
+		WorkspaceUpdated: workspaceUpdated,
+	}
+	suite.params = params
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockWorkspace.ConfigureLifecycleScenarioV1, params)
+	if err != nil {
+		t.Fatalf("Failed to setup mock: %v", err)
+	}
+}
+
+func (suite *WorkspaceLifeCycleV1TestSuite) TestScenario(t provider.T) {
+	suite.StartScenario(t)
+	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
+
+	// Create a workspace
+	workspace := suite.params.WorkspaceInitial
+	expectMeta := workspace.Metadata
+	expectLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectLabels,
@@ -81,11 +83,11 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 	)
 
 	// Get the created Workspace
-	tref := &secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   workspaceName,
+	tref := secapi.TenantReference{
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+		Name:   workspace.Metadata.Name,
 	}
-	workspace = stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, *tref,
+	workspace = stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, tref,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectLabels,
 			Metadata:      expectMeta,
@@ -94,9 +96,7 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 	)
 
 	// Update the workspace labels
-	workspace.Labels = schema.Labels{
-		constants.EnvLabel: constants.EnvProductionLabel,
-	}
+	workspace.Labels = suite.params.WorkspaceUpdated.Labels
 	expectLabels = workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Update the workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
@@ -107,7 +107,7 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 	)
 
 	// Get the updated workspace
-	workspace = stepsBuilder.GetWorkspaceV1Step("Get the updated workspace", suite.Client.WorkspaceV1, *tref,
+	workspace = stepsBuilder.GetWorkspaceV1Step("Get the updated workspace", suite.Client.WorkspaceV1, tref,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectLabels,
 			Metadata:      expectMeta,
@@ -116,9 +116,12 @@ func (suite *WorkspaceV1LifeCycleTestSuite) TestLifeCycleScenario(t provider.T) 
 	)
 
 	// Resources deletion
-
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *tref, secapi.ErrResourceNotFound)
+	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, tref, secapi.ErrResourceNotFound)
 
 	suite.FinishScenario()
+}
+
+func (suite *WorkspaceLifeCycleV1TestSuite) AfterAll(t provider.T) {
+	suite.ResetAllScenarios()
 }

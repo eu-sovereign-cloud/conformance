@@ -14,7 +14,7 @@ type stubConfig struct {
 	url          string
 	httpMethod   string
 	httpStatus   int
-	params       *mock.BaseParams
+	params       *mock.MockParams
 	pathParams   map[string]string
 	responseBody any
 	currentState string

@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/clients"
+	mockclients "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/clients"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/wiremock/go-wiremock"
@@ -40,14 +41,14 @@ func InitClients(ctx context.Context) error {
 	// Setup mock, if configured to use
 	var wm *wiremock.Client
 	if Parameters.MockEnabled {
-		params := mock.ClientsInitParams{
-			BaseParams: &mock.BaseParams{
-				MockURL:   Parameters.MockServerURL,
+		params := params.ClientsInitParams{
+			MockParams: &mock.MockParams{
+				ServerURL: Parameters.MockServerURL,
 				AuthToken: Parameters.ClientAuthToken,
-				Region:    Parameters.ClientRegion,
 			},
+			Region: Parameters.ClientRegion,
 		}
-		wm, err = clients.ConfigureInitScenarioV1(&params)
+		wm, err = mockclients.ConfigureInitScenarioV1(&params)
 		if err != nil {
 			return fmt.Errorf("failed to configure mock scenario: %w", err)
 		}

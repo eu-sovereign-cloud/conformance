@@ -57,19 +57,19 @@ run:
 	  --report.results.path=$(RESULTS_PATH) \
 	  --retry.base.delay=0 \
 	  --retry.base.interval=1 \
-	  --retry.max.attempts=4 \
+	  --retry.max.attempts=3 \
 	  --mock.enabled=true \
 	  --mock.server.url=http://localhost:8080
 
 .PHONY: report
 report:
 	@echo "Viewing report..."
-	$(DIST_BIN) report $(RESULTS_PATH)
+	$(GO) test -count=1 -v ./cmd/conformance -args report $(RESULTS_PATH)
 
 .PHONY: list
 list:
 	@echo "Listing scenarios..."
-	$(DIST_BIN) list
+	$(GO) test -count=1 -v ./cmd/conformance -args list
 
 .PHONY: test
 test:
@@ -86,7 +86,7 @@ test:
 	  --report.results.path=$(RESULTS_PATH) \
 	  --retry.base.delay=0 \
       --retry.base.interval=1 \
-      --retry.max.attempts=4 \
+      --retry.max.attempts=3 \
 	  --mock.enabled=true \
 	  --mock.server.url=http://localhost:8080
 

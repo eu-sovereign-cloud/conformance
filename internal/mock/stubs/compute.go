@@ -10,7 +10,7 @@ import (
 
 // Instance
 
-func (configurator *stubConfigurator) ConfigureCreateInstanceStub(response *schema.Instance, url string, params *mock.BaseParams) error {
+func (configurator *stubConfigurator) ConfigureCreateInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
 	response.Status = newInstanceStatus(schema.ResourceStateCreating)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -19,7 +19,7 @@ func (configurator *stubConfigurator) ConfigureCreateInstanceStub(response *sche
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureUpdateInstanceStub(response *schema.Instance, url string, params *mock.BaseParams) error {
+func (configurator *stubConfigurator) ConfigureUpdateInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
 	setInstanceState(response.Status, schema.ResourceStateUpdating)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -28,14 +28,14 @@ func (configurator *stubConfigurator) ConfigureUpdateInstanceStub(response *sche
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureInstanceOperationStub(response *schema.Instance, url string, params *mock.BaseParams) error {
+func (configurator *stubConfigurator) ConfigureInstanceOperationStub(response *schema.Instance, url string, params *mock.MockParams) error {
 	if err := configurator.ConfigurePostStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetActiveInstanceStub(response *schema.Instance, url string, params *mock.BaseParams) error {
+func (configurator *stubConfigurator) ConfigureGetActiveInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
 	setInstanceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -43,7 +43,7 @@ func (configurator *stubConfigurator) ConfigureGetActiveInstanceStub(response *s
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetSuspendedInstanceStub(response *schema.Instance, url string, params *mock.BaseParams) error {
+func (configurator *stubConfigurator) ConfigureGetSuspendedInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
 	setInstanceState(response.Status, schema.ResourceStateSuspended)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -51,7 +51,7 @@ func (configurator *stubConfigurator) ConfigureGetSuspendedInstanceStub(response
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetListInstanceStub(response *compute.InstanceIterator, url string, params *mock.BaseParams, pathParams map[string]string) error {
+func (configurator *stubConfigurator) ConfigureGetListInstanceStub(response *compute.InstanceIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 
 	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -60,7 +60,7 @@ func (configurator *stubConfigurator) ConfigureGetListInstanceStub(response *com
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetListSkuStub(response *compute.SkuIterator, url string, params *mock.BaseParams, pathParams map[string]string) error {
+func (configurator *stubConfigurator) ConfigureGetListSkuStub(response *compute.SkuIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 
 	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {

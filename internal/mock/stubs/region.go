@@ -9,7 +9,7 @@ import (
 )
 
 // Region
-func (configurator *stubConfigurator) ConfigureGetListRegionStub(response *region.RegionIterator, url string, params *mock.BaseParams, pathParams map[string]string) error {
+func (configurator *stubConfigurator) ConfigureGetListRegionStub(response *region.RegionIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 
 	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -18,7 +18,7 @@ func (configurator *stubConfigurator) ConfigureGetListRegionStub(response *regio
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetRegionStub(response *schema.Region, url string, params *mock.BaseParams) error {
+func (configurator *stubConfigurator) ConfigureGetRegionStub(response *schema.Region, url string, params *mock.MockParams) error {
 	response.Metadata.Verb = http.MethodGet
 
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {

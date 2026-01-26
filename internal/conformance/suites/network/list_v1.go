@@ -3,11 +3,11 @@ package network
 import (
 	"math/rand"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
+	mockNetwork "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -21,6 +21,11 @@ import (
 type NetworkListV1TestSuite struct {
 	suites.RegionalTestSuite
 
+	config *NetworkListV1Config
+	params *params.NetworkListV1Params
+}
+
+type NetworkListV1Config struct {
 	NetworkCidr    string
 	PublicIpsRange string
 	RegionZones    []string
@@ -29,22 +34,20 @@ type NetworkListV1TestSuite struct {
 	NetworkSkus    []string
 }
 
-func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.NetworkProviderV1,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway),
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic),
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
-	)
+func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *NetworkListV1Config) *NetworkListV1TestSuite {
+	suite := &NetworkListV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
+		config:            config,
+	}
+	suite.ScenarioName = constants.NetworkV1ListSuiteName
+	return suite
+}
 
+func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Generate the subnet cidr
-	subnetCidr, err := generators.GenerateSubnetCidr(suite.NetworkCidr, 8, 1)
+	subnetCidr, err := generators.GenerateSubnetCidr(suite.config.NetworkCidr, 8, 1)
 	if err != nil {
 		t.Fatalf("Failed to generate subnet cidr: %v", err)
 	}
@@ -56,45 +59,41 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 	}
 
 	// Generate the public ips
-	publicIpAddress1, err := generators.GeneratePublicIp(suite.PublicIpsRange, 1)
+	publicIpAddress1, err := generators.GeneratePublicIp(suite.config.PublicIpsRange, 1)
 	if err != nil {
 		t.Fatalf("Failed to generate public ip: %v", err)
 	}
 
 	// Select zones
-	zone1 := suite.RegionZones[rand.Intn(len(suite.RegionZones))]
+	zone := suite.config.RegionZones[rand.Intn(len(suite.config.RegionZones))]
 
 	// Select skus
-	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
-	instanceSkuName := suite.InstanceSkus[rand.Intn(len(suite.InstanceSkus))]
-	networkSkuName1 := suite.NetworkSkus[rand.Intn(len(suite.NetworkSkus))]
+	storageSkuName := suite.config.StorageSkus[rand.Intn(len(suite.config.StorageSkus))]
+	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
+	networkSkuName1 := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
-	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
-	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
+	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
-	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
+	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	instanceSkuRef := generators.GenerateSkuRef(instanceSkuName)
-	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
+	instanceSkuRefObj, err := generators.GenerateSkuRefObject(instanceSkuName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	instanceName := generators.GenerateInstanceName()
 
-	networkSkuRef1 := generators.GenerateSkuRef(networkSkuName1)
-	networkSkuRefObj, err := secapi.BuildReferenceFromURN(networkSkuRef1)
+	networkSkuRefObj, err := generators.GenerateSkuRefObject(networkSkuName1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,24 +103,21 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 
 	internetGatewayName := generators.GenerateInternetGatewayName()
 	internetGatewayName2 := generators.GenerateInternetGatewayName()
-	internetGatewayRef := generators.GenerateInternetGatewayRef(internetGatewayName)
-	internetGatewayRefObj, err := secapi.BuildReferenceFromURN(internetGatewayRef)
+	internetGatewayRefObj, err := generators.GenerateInternetGatewayRefObject(internetGatewayName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	routeTableName := generators.GenerateRouteTableName()
 	routeTableName2 := generators.GenerateRouteTableName()
-	routeTableRef := generators.GenerateRouteTableRef(routeTableName)
-	routeTableRefObj, err := secapi.BuildReferenceFromURN(routeTableRef)
+	routeTableRefObj, err := generators.GenerateRouteTableRefObject(routeTableName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	subnetName := generators.GenerateSubnetName()
 	subnetName2 := generators.GenerateSubnetName()
-	subnetRef := generators.GenerateSubnetRef(subnetName)
-	subnetRefObj, err := secapi.BuildReferenceFromURN(subnetRef)
+	subnetRefObj, err := generators.GenerateSubnetRefObject(subnetName)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -131,8 +127,7 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 
 	publicIpName := generators.GeneratePublicIpName()
 	publicIpName2 := generators.GeneratePublicIpName()
-	publicIpRef := generators.GeneratePublicIpRef(publicIpName)
-	publicIpRefObj, err := secapi.BuildReferenceFromURN(publicIpRef)
+	publicIpRefObj, err := generators.GeneratePublicIpRefObject(publicIpName)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -142,226 +137,320 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 
 	blockStorageSize := generators.GenerateBlockStorageSize()
 
-	// Setup mock, if configured to use
-	if suite.MockEnabled {
-		mockParams := &mock.NetworkListParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
-				Region:    suite.Region,
-			},
-			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
-				Name: workspaceName,
-				InitialLabels: schema.Labels{
-					constants.EnvLabel: constants.EnvConformanceLabel,
-				},
-			},
-			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
-				Name: blockStorageName,
-				InitialLabels: schema.Labels{
-					constants.EnvLabel: constants.EnvConformanceLabel,
-				},
-				InitialSpec: &schema.BlockStorageSpec{
-					SkuRef: *storageSkuRefObj,
-					SizeGB: blockStorageSize,
-				},
-			},
-			Instance: &mock.ResourceParams[schema.InstanceSpec]{
-				Name: instanceName,
-				InitialLabels: schema.Labels{
-					constants.EnvLabel: constants.EnvConformanceLabel,
-				},
-				InitialSpec: &schema.InstanceSpec{
-					SkuRef: *instanceSkuRefObj,
-					Zone:   zone1,
-					BootVolume: schema.VolumeReference{
-						DeviceRef: *blockStorageRefObj,
-					},
-				},
-			},
-			Networks: []mock.ResourceParams[schema.NetworkSpec]{
-				{
-					Name: networkName,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.NetworkSpec{
-						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.NetworkCidr)},
-						SkuRef:        *networkSkuRefObj,
-						RouteTableRef: *routeTableRefObj,
-					},
-				},
-				{
-					Name: networkName2,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.NetworkSpec{
-						Cidr:          schema.Cidr{Ipv4: ptr.To(suite.NetworkCidr)},
-						SkuRef:        *networkSkuRefObj,
-						RouteTableRef: *routeTableRefObj,
-					},
-				},
-			},
-			InternetGateways: []mock.ResourceParams[schema.InternetGatewaySpec]{
-				{
-					Name: internetGatewayName,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
-				},
-				{
-					Name: internetGatewayName2,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)},
-				},
-			},
-			RouteTables: []mock.ResourceParams[schema.RouteTableSpec]{
-				{
-					Name: routeTableName,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.RouteTableSpec{
-						Routes: []schema.RouteSpec{
-							{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
-						},
-					},
-				},
-				{
-					Name: routeTableName2,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.RouteTableSpec{
-						Routes: []schema.RouteSpec{
-							{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
-						},
-					},
-				},
-			},
-			Subnets: []mock.ResourceParams[schema.SubnetSpec]{
-				{
-					Name: subnetName,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.SubnetSpec{
-						Cidr: schema.Cidr{Ipv4: &subnetCidr},
-						Zone: zone1,
-					},
-				}, {
-					Name: subnetName2,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.SubnetSpec{
-						Cidr: schema.Cidr{Ipv4: &subnetCidr},
-						Zone: zone1,
-					},
-				},
-			},
-			Nics: []mock.ResourceParams[schema.NicSpec]{
-				{
-					Name: nicName,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.NicSpec{
-						Addresses:    []string{nicAddress1},
-						PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
-						SubnetRef:    *subnetRefObj,
-					},
-				},
-				{
-					Name: nicName2,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.NicSpec{
-						Addresses:    []string{nicAddress1},
-						PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
-						SubnetRef:    *subnetRefObj,
-					},
-				},
-			},
-			PublicIps: []mock.ResourceParams[schema.PublicIpSpec]{
-				{
-					Name: publicIpName,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.PublicIpSpec{
-						Version: schema.IPVersionIPv4,
-						Address: ptr.To(publicIpAddress1),
-					},
-				},
-				{
-					Name: publicIpName2,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.PublicIpSpec{
-						Version: schema.IPVersionIPv4,
-						Address: ptr.To(publicIpAddress1),
-					},
-				},
-			},
-			SecurityGroups: []mock.ResourceParams[schema.SecurityGroupSpec]{
-				{
-					Name: securityGroupName,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.SecurityGroupSpec{
-						Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
-					},
-				},
-				{
-					Name: securityGroupName2,
-					InitialLabels: schema.Labels{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.SecurityGroupSpec{
-						Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
-					},
-				},
-			},
-		}
-		wm, err := network.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
-		if err != nil {
-			t.Fatalf("Failed to configure mock scenario: %v", err)
-		}
-		suite.MockClient = wm
-	}
-
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
-
 	// Workspace
-
-	// Create a workspace
-	workspace := &schema.Workspace{
-		Labels: schema.Labels{
-			constants.EnvLabel: constants.EnvConformanceLabel,
-		},
-		Metadata: &schema.RegionalResourceMetadata{
-			Tenant: suite.Tenant,
-			Name:   workspaceName,
-		},
-	}
-	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
+	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
 		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
 		Build()
 	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
+		t.Fatalf("Failed to build Workspace: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
+
+	blockStorage, err := builders.NewBlockStorageBuilder().
+		Name(blockStorageName).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.BlockStorageSpec{
+			SkuRef: *storageSkuRefObj,
+			SizeGB: blockStorageSize,
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build BlockStorage: %v", err)
+	}
+	instance, err := builders.NewInstanceBuilder().
+		Name(instanceName).
+		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.InstanceSpec{
+			SkuRef: *instanceSkuRefObj,
+			Zone:   zone,
+			BootVolume: schema.VolumeReference{
+				DeviceRef: *blockStorageRefObj,
+			},
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Instance: %v", err)
+	}
+
+	network, err := builders.NewNetworkBuilder().
+		Name(networkName).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.NetworkSpec{
+			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
+			SkuRef:        *networkSkuRefObj,
+			RouteTableRef: *routeTableRefObj,
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Network: %v", err)
+	}
+
+	network2, err := builders.NewNetworkBuilder().
+		Name(networkName2).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.NetworkSpec{
+			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
+			SkuRef:        *networkSkuRefObj,
+			RouteTableRef: *routeTableRefObj,
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Network: %v", err)
+	}
+
+	networks := []schema.Network{*network, *network2}
+
+	internetGateway, err := builders.NewInternetGatewayBuilder().
+		Name(internetGatewayName).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.InternetGatewaySpec{
+			EgressOnly: ptr.To(false),
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Internet Gateway: %v", err)
+	}
+
+	internetGateway2, err := builders.NewInternetGatewayBuilder().
+		Name(internetGatewayName2).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.InternetGatewaySpec{
+			EgressOnly: ptr.To(false),
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Internet Gateway: %v", err)
+	}
+
+	internetGateways := []schema.InternetGateway{*internetGateway, *internetGateway2}
+
+	routeTable, err := builders.NewRouteTableBuilder().
+		Name(routeTableName).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.RouteTableSpec{
+			Routes: []schema.RouteSpec{
+				{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+			},
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Route Table: %v", err)
+	}
+
+	routeTable2, err := builders.NewRouteTableBuilder().
+		Name(routeTableName2).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.RouteTableSpec{
+			Routes: []schema.RouteSpec{
+				{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+			},
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Route Table: %v", err)
+	}
+
+	routeTables := []schema.RouteTable{*routeTable, *routeTable2}
+
+	subnet, err := builders.NewSubnetBuilder().
+		Name(subnetName).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.SubnetSpec{
+			Cidr: schema.Cidr{Ipv4: &subnetCidr},
+			Zone: zone,
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Subnet: %v", err)
+	}
+
+	subnet2, err := builders.NewSubnetBuilder().
+		Name(subnetName2).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.SubnetSpec{
+			Cidr: schema.Cidr{Ipv4: &subnetCidr},
+			Zone: zone,
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Subnet: %v", err)
+	}
+
+	subnets := []schema.Subnet{*subnet, *subnet2}
+
+	nic, err := builders.NewNicBuilder().
+		Name(nicName).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.NicSpec{
+			Addresses:    []string{nicAddress1},
+			PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+			SubnetRef:    *subnetRefObj,
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Nic: %v", err)
+	}
+
+	nic2, err := builders.NewNicBuilder().
+		Name(nicName2).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.NicSpec{
+			Addresses:    []string{nicAddress1},
+			PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+			SubnetRef:    *subnetRefObj,
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Nic: %v", err)
+	}
+
+	nics := []schema.Nic{*nic, *nic2}
+
+	publicIp, err := builders.NewPublicIpBuilder().
+		Name(publicIpName).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.PublicIpSpec{
+			Version: schema.IPVersionIPv4,
+			Address: ptr.To(publicIpAddress1),
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Public IP: %v", err)
+	}
+
+	publicIp2, err := builders.NewPublicIpBuilder().
+		Name(publicIpName2).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.PublicIpSpec{
+			Version: schema.IPVersionIPv4,
+			Address: ptr.To(publicIpAddress1),
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Public IP: %v", err)
+	}
+
+	publicIps := []schema.PublicIp{*publicIp, *publicIp2}
+
+	securityGroup, err := builders.NewSecurityGroupBuilder().
+		Name(securityGroupName).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.SecurityGroupSpec{
+			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Security Group: %v", err)
+	}
+
+	securityGroup2, err := builders.NewSecurityGroupBuilder().
+		Name(securityGroupName2).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.SecurityGroupSpec{
+			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Security Group: %v", err)
+	}
+
+	securityGroups := []schema.SecurityGroup{*securityGroup, *securityGroup2}
+
+	params := &params.NetworkListV1Params{
+		Workspace:        workspace,
+		BlockStorage:     blockStorage,
+		Instance:         instance,
+		Networks:         networks,
+		InternetGateways: internetGateways,
+		RouteTables:      routeTables,
+		Subnets:          subnets,
+		Nics:             nics,
+		PublicIps:        publicIps,
+		SecurityGroups:   securityGroups,
+	}
+	suite.params = params
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureListScenarioV1, params)
+	if err != nil {
+		t.Fatalf("Failed to setup mock: %v", err)
+	}
+}
+
+func (suite *NetworkListV1TestSuite) TestScenario(t provider.T) {
+	suite.StartScenario(t)
+	suite.ConfigureTags(t, constants.NetworkProviderV1,
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP),
+		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
+		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
+	)
+
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
+
+	// Workspace
+	workspace := suite.params.Workspace
+
+	// Create a workspace
+	expectWorkspaceMeta := workspace.Metadata
+	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
@@ -369,51 +458,14 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 			ResourceState: schema.ResourceStateCreating,
 		},
 	)
+
 	// Network
+	networks := suite.params.Networks
 
-	// Create a network
-	networks := &[]schema.Network{
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      networkName,
-			},
-			Spec: schema.NetworkSpec{
-				Cidr:          schema.Cidr{Ipv4: &suite.NetworkCidr},
-				SkuRef:        *networkSkuRefObj,
-				RouteTableRef: *routeTableRefObj,
-			},
-		},
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      networkName2,
-			},
-			Spec: schema.NetworkSpec{
-				Cidr:          schema.Cidr{Ipv4: &suite.NetworkCidr},
-				SkuRef:        *networkSkuRefObj,
-				RouteTableRef: *routeTableRefObj,
-			},
-		},
-	}
-
-	for _, network := range *networks {
-
-		expectNetworkMeta, err := builders.NewNetworkMetadataBuilder().
-			Name(network.Metadata.Name).
-			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
-		expectNetworkSpec := &schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: &suite.NetworkCidr},
-			SkuRef:        *networkSkuRefObj,
-			RouteTableRef: *routeTableRefObj,
-		}
+	// Create networks
+	for _, network := range networks {
+		expectNetworkMeta := network.Metadata
+		expectNetworkSpec := &network.Spec
 		stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.Client.NetworkV1, &network,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 				Metadata:      expectNetworkMeta,
@@ -423,67 +475,44 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 		)
 	}
 
+	// List networks
 	wref := secapi.WorkspaceReference{
-		Name:      workspaceName,
-		Workspace: secapi.WorkspaceID(workspaceName),
-		Tenant:    secapi.TenantID(suite.Tenant),
+		Name:      workspace.Metadata.Name,
+		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
 	}
-
-	// List Network
 	stepsBuilder.GetListNetworkV1Step("List Network", suite.Client.NetworkV1, wref, nil)
 
-	// List Network with limit
+	// List networks with limit
 	stepsBuilder.GetListNetworkV1Step("Get list of Network with limit", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List Network with Label
+	// List networks with label
 	stepsBuilder.GetListNetworkV1Step("Get list of Network with label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// List Network with Limit and label
+	// List networks with limit and label
 	stepsBuilder.GetListNetworkV1Step("Get list of Network with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// Network Skus
-	// List SKUS
-	stepsBuilder.GetListNetworkSkusV1Step("List skus", suite.Client.NetworkV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.Tenant)}, nil)
+	// Skus
 
-	// List SKUS with limit
-	stepsBuilder.GetListNetworkSkusV1Step("Get list of skus", suite.Client.NetworkV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.Tenant)},
+	// List skus
+	stepsBuilder.GetListNetworkSkusV1Step("List skus", suite.Client.NetworkV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
+
+	// List skus with limit
+	stepsBuilder.GetListNetworkSkusV1Step("Get list of skus", suite.Client.NetworkV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1))
 
 	// Internet gateway
+	gateways := suite.params.InternetGateways
 
-	// Create an internet gateway
-	gateways := &[]schema.InternetGateway{
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      internetGatewayName,
-			},
-		},
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      internetGatewayName2,
-			},
-		},
-	}
-
-	for _, gateway := range *gateways {
-		expectGatewayMeta, err := builders.NewInternetGatewayMetadataBuilder().
-			Name(gateway.Metadata.Name).
-			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
-		expectGatewaySpec := &schema.InternetGatewaySpec{EgressOnly: ptr.To(false)}
+	// Create internet gateways
+	for _, gateway := range gateways {
+		expectGatewayMeta := gateway.Metadata
+		expectGatewaySpec := &gateway.Spec
 		stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, &gateway,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 				Metadata:      expectGatewayMeta,
@@ -494,68 +523,30 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 
 	}
 
-	// List Internet Gateway
+	// List internet gateways
 	stepsBuilder.GetListInternetGatewayV1Step("List Internet Gateway", suite.Client.NetworkV1, wref, nil)
 
-	// List Internet Gateway with limit
+	// List internet gateways with limit
 	stepsBuilder.GetListInternetGatewayV1Step("Get list of Internet Gateway with limit", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List Internet Gateway with Label
+	// List internet gateways with label
 	stepsBuilder.GetListInternetGatewayV1Step("Get list of Internet Gateway with label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// List Internet Gateway with Limit and label
+	// List internet gateways with limit and label
 	stepsBuilder.GetListInternetGatewayV1Step("Get list of Internet Gateway with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Route table
+	routes := suite.params.RouteTables
 
-	// Create a route table
-	routes := &[]schema.RouteTable{
-		{
-			Metadata: &schema.RegionalNetworkResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Network:   networkName,
-				Name:      routeTableName,
-			},
-			Spec: schema.RouteTableSpec{
-				Routes: []schema.RouteSpec{
-					{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
-				},
-			},
-		},
-		{
-			Metadata: &schema.RegionalNetworkResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Network:   networkName,
-				Name:      routeTableName2,
-			},
-			Spec: schema.RouteTableSpec{
-				Routes: []schema.RouteSpec{
-					{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
-				},
-			},
-		},
-	}
-	for _, route := range *routes {
-		expectRouteMeta, err := builders.NewRouteTableMetadataBuilder().
-			Name(route.Metadata.Name).
-			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).Workspace(workspaceName).Network(networkName).Region(suite.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
-		expectRouteSpec := &schema.RouteTableSpec{
-			Routes: []schema.RouteSpec{
-				{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
-			},
-		}
+	// Create route tables
+	for _, route := range routes {
+		expectRouteMeta := route.Metadata
+		expectRouteSpec := &route.Spec
 		stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, &route,
 			steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 				Metadata:      expectRouteMeta,
@@ -564,74 +555,37 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 			},
 		)
 	}
-	// Get the created route table
+
+	// List route tables
 	nref := &secapi.NetworkReference{
-		Tenant:    secapi.TenantID(suite.Tenant),
-		Workspace: secapi.WorkspaceID(workspaceName),
-		Network:   secapi.NetworkID(networkName),
-		Name:      routeTableName,
+		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID((workspace.Metadata.Name)),
+		Network:   secapi.NetworkID(networks[0].Metadata.Name),
+		Name:      routes[0].Metadata.Name,
 	}
-	// List Route table
 	stepsBuilder.GetListRouteTableV1Step("List Route table", suite.Client.NetworkV1, *nref, nil)
 
-	// List Route table with limit
+	// List route tables with limit
 	stepsBuilder.GetListRouteTableV1Step("Get list of Route table with limit", suite.Client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List Route table with Label
+	// List route tables with label
 	stepsBuilder.GetListRouteTableV1Step("Get list of Route table with label", suite.Client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// List Route table with Limit and label
+	// List route tables with limit and label
 	stepsBuilder.GetListRouteTableV1Step("Get list of Route table with limit and label", suite.Client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+
 	// Subnet
+	subnets := suite.params.Subnets
 
-	// Create a subnet
-	subnets := &[]schema.Subnet{
-		{
-			Metadata: &schema.RegionalNetworkResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Network:   networkName,
-				Name:      subnetName,
-			},
-			Spec: schema.SubnetSpec{
-				Cidr: schema.Cidr{Ipv4: &subnetCidr},
-				Zone: zone1,
-			},
-		},
-		{
-			Metadata: &schema.RegionalNetworkResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Network:   networkName,
-				Name:      subnetName2,
-			},
-			Spec: schema.SubnetSpec{
-				Cidr: schema.Cidr{Ipv4: &subnetCidr},
-				Zone: zone1,
-			},
-		},
-	}
-
-	for _, subnet := range *subnets {
-
-		expectSubnetMeta, err := builders.NewSubnetMetadataBuilder().
-			Name(subnet.Metadata.Name).
-			Provider(constants.NetworkProviderV1).
-			ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).Workspace(workspaceName).Network(networkName).Region(suite.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
-		expectSubnetSpec := &schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: &subnetCidr},
-			Zone: zone1,
-		}
+	// Create subnets
+	for _, subnet := range subnets {
+		expectSubnetMeta := subnet.Metadata
+		expectSubnetSpec := &subnet.Spec
 		stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", suite.Client.NetworkV1, &subnet,
 			steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 				Metadata:      expectSubnetMeta,
@@ -641,65 +595,30 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 		)
 	}
 
-	// List Subnet
+	// List subnets
 	stepsBuilder.GetListSubnetV1Step("List Subnet", suite.Client.NetworkV1, *nref, nil)
 
-	// List Subnet with limit
+	// List subnets with limit
 	stepsBuilder.GetListSubnetV1Step("Get list of Subnet with limit", suite.Client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List Subnet with Label
+	// List subnets with label
 	stepsBuilder.GetListSubnetV1Step("Get list of Subnet with label", suite.Client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// List Subnet with Limit and label
+	// List subnets with limit and label
 	stepsBuilder.GetListSubnetV1Step("Get list of Subnet with limit and label", suite.Client.NetworkV1, *nref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Public ip
+	publicIps := suite.params.PublicIps
 
-	// Create a public ip
-	publicIps := &[]schema.PublicIp{
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      publicIpName,
-			},
-			Spec: schema.PublicIpSpec{
-				Address: &publicIpAddress1,
-				Version: schema.IPVersionIPv4,
-			},
-		},
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      publicIpName2,
-			},
-			Spec: schema.PublicIpSpec{
-				Address: &publicIpAddress1,
-				Version: schema.IPVersionIPv4,
-			},
-		},
-	}
-
-	for _, publicIp := range *publicIps {
-		expectPublicIpMeta, err := builders.NewPublicIpMetadataBuilder().
-			Name(publicIp.Metadata.Name).
-			Provider(constants.NetworkProviderV1).
-			ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
-		expectPublicIpSpec := &schema.PublicIpSpec{
-			Address: &publicIpAddress1,
-			Version: schema.IPVersionIPv4,
-		}
+	// Create public ips
+	for _, publicIp := range publicIps {
+		expectPublicIpMeta := publicIp.Metadata
+		expectPublicIpSpec := &publicIp.Spec
 		stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.Client.NetworkV1, &publicIp,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 				Metadata:      expectPublicIpMeta,
@@ -709,68 +628,30 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 		)
 	}
 
-	// List PublicIP
+	// List public ips
 	stepsBuilder.GetListPublicIpV1Step("List PublicIP", suite.Client.NetworkV1, wref, nil)
 
-	// List PublicIP with limit
+	// List public ips with limit
 	stepsBuilder.GetListPublicIpV1Step("Get list of PublicIP with limit", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List PublicIP with Label
+	// List public ips with label
 	stepsBuilder.GetListPublicIpV1Step("Get list of PublicIP with label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// List PublicIP with Limit and label
+	// List public ips with limit and label
 	stepsBuilder.GetListPublicIpV1Step("Get list of PublicIP with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Nic
+	nics := suite.params.Nics
 
-	// Create a nic
-	nics := &[]schema.Nic{
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      nicName,
-			},
-			Spec: schema.NicSpec{
-				Addresses:    []string{nicAddress1},
-				PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
-				SubnetRef:    *subnetRefObj,
-			},
-		},
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      nicName2,
-			},
-			Spec: schema.NicSpec{
-				Addresses:    []string{nicAddress1},
-				PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
-				SubnetRef:    *subnetRefObj,
-			},
-		},
-	}
-
-	for _, nic := range *nics {
-
-		expectNicMeta, err := builders.NewNicMetadataBuilder().
-			Name(nic.Metadata.Name).
-			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-			Build()
-		expectNicSpec := &schema.NicSpec{
-			Addresses:    []string{nicAddress1},
-			PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
-			SubnetRef:    *subnetRefObj,
-		}
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+	// Create nics
+	for _, nic := range nics {
+		expectNicMeta := nic.Metadata
+		expectNicSpec := &nic.Spec
 		stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", suite.Client.NetworkV1, &nic,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 				Metadata:      expectNicMeta,
@@ -779,67 +660,31 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 			},
 		)
 	}
-	// List Nic
+
+	// List nics
 	stepsBuilder.GetListNicV1Step("List Nic", suite.Client.NetworkV1, wref, nil)
 
-	// List Nic with limit
+	// List nics with limit
 	stepsBuilder.GetListNicV1Step("Get list of Nic with limit", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List Nic with Label
+	// List nics with label
 	stepsBuilder.GetListNicV1Step("Get list of Nic with label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// List Nic with Limit and label
+	// List nics with limit and label
 	stepsBuilder.GetListNicV1Step("Get list of Nic with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Security Group
+	groups := suite.params.SecurityGroups
 
-	// Create a security group
-	groups := &[]schema.SecurityGroup{
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      securityGroupName,
-			},
-			Spec: schema.SecurityGroupSpec{
-				Rules: []schema.SecurityGroupRuleSpec{
-					{Direction: schema.SecurityGroupRuleDirectionIngress},
-				},
-			},
-		},
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      securityGroupName2,
-			},
-			Spec: schema.SecurityGroupSpec{
-				Rules: []schema.SecurityGroupRuleSpec{
-					{Direction: schema.SecurityGroupRuleDirectionIngress},
-				},
-			},
-		},
-	}
-
-	for _, group := range *groups {
-		expectGroupMeta, err := builders.NewSecurityGroupMetadataBuilder().
-			Name(group.Metadata.Name).
-			Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-			Build()
-		expectGroupSpec := &schema.SecurityGroupSpec{
-			Rules: []schema.SecurityGroupRuleSpec{
-				{Direction: schema.SecurityGroupRuleDirectionIngress},
-			},
-		}
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
+	// Create security groups
+	for _, group := range groups {
+		expectGroupMeta := group.Metadata
+		expectGroupSpec := &group.Spec
 		stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", suite.Client.NetworkV1, &group,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 				Metadata:      expectGroupMeta,
@@ -848,111 +693,112 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 			},
 		)
 	}
-	// List Security Group
+
+	// List security groups
 	stepsBuilder.GetListSecurityGroupV1Step("List Security Group", suite.Client.NetworkV1, wref, nil)
 
-	// List Security Group with limit
+	// List security groups with limit
 	stepsBuilder.GetListSecurityGroupV1Step("Get list of Security Group with limit", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List Security Group with Label
+	// List security groups with label
 	stepsBuilder.GetListSecurityGroupV1Step("Get list of Security Group with label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// List Nic with Limit and label
+	// List security groups with limit and label
 	stepsBuilder.GetListSecurityGroupV1Step("Get list of Security Group with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all security groups
-	for _, group := range *groups {
+	for _, group := range groups {
 		stepsBuilder.DeleteSecurityGroupV1Step("Delete the security group", suite.Client.NetworkV1, &group)
 
 		// Get deleted security group
 		groupWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.Tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
+			Tenant:    secapi.TenantID(group.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(group.Metadata.Workspace),
 			Name:      group.Metadata.Name,
 		}
 		stepsBuilder.GetSecurityGroupWithErrorV1Step("Get deleted security group", suite.Client.NetworkV1, *groupWRef, secapi.ErrResourceNotFound)
 	}
 
-	// Delete all NICs
-	for _, nic := range *nics {
+	// Delete all nics
+	for _, nic := range nics {
 		stepsBuilder.DeleteNicV1Step("Delete the nic", suite.Client.NetworkV1, &nic)
 
 		// Get the deleted nic
 		nicWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.Tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
+			Tenant:    secapi.TenantID(nic.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(nic.Metadata.Workspace),
 			Name:      nic.Metadata.Name,
 		}
 		stepsBuilder.GetNicWithErrorV1Step("Get deleted nic", suite.Client.NetworkV1, *nicWRef, secapi.ErrResourceNotFound)
 	}
 
-	// Delete all public IPs
-	for _, publicIp := range *publicIps {
+	// Delete all public ips
+	for _, publicIp := range publicIps {
 		stepsBuilder.DeletePublicIpV1Step("Delete the public ip", suite.Client.NetworkV1, &publicIp)
 
 		// Get the deleted public ip
 		publicIpWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.Tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
+			Tenant:    secapi.TenantID(publicIp.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(publicIp.Metadata.Workspace),
 			Name:      publicIp.Metadata.Name,
 		}
 		stepsBuilder.GetPublicIpWithErrorV1Step("Get deleted public ip", suite.Client.NetworkV1, *publicIpWRef, secapi.ErrResourceNotFound)
 	}
 
 	// Delete all subnets
-	for _, subnet := range *subnets {
+	for _, subnet := range subnets {
 		stepsBuilder.DeleteSubnetV1Step("Delete the subnet", suite.Client.NetworkV1, &subnet)
 
 		// Get the deleted subnet
 		subnetNRef := &secapi.NetworkReference{
-			Tenant:    secapi.TenantID(suite.Tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Network:   secapi.NetworkID(networkName),
+			Tenant:    secapi.TenantID(subnet.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(subnet.Metadata.Workspace),
+			Network:   secapi.NetworkID(subnet.Metadata.Network),
 			Name:      subnet.Metadata.Name,
 		}
 		stepsBuilder.GetSubnetWithErrorV1Step("Get deleted subnet", suite.Client.NetworkV1, *subnetNRef, secapi.ErrResourceNotFound)
 	}
 
 	// Delete all route tables
-	for _, route := range *routes {
+	for _, route := range routes {
 		stepsBuilder.DeleteRouteTableV1Step("Delete the route table", suite.Client.NetworkV1, &route)
 
 		// Get the deleted route table
 		routeNRef := &secapi.NetworkReference{
-			Tenant:    secapi.TenantID(suite.Tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
-			Network:   secapi.NetworkID(networkName),
+			Tenant:    secapi.TenantID(route.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(route.Metadata.Workspace),
+			Network:   secapi.NetworkID(route.Metadata.Network),
 			Name:      route.Metadata.Name,
 		}
 		stepsBuilder.GetRouteTableWithErrorV1Step("Get deleted route table", suite.Client.NetworkV1, *routeNRef, secapi.ErrResourceNotFound)
 	}
 
 	// Delete all internet gateways
-	for _, gateway := range *gateways {
+	for _, gateway := range gateways {
 		stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.Client.NetworkV1, &gateway)
 
 		// Get the deleted internet gateway
 		gatewayWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.Tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
+			Tenant:    secapi.TenantID(gateway.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(gateway.Metadata.Workspace),
 			Name:      gateway.Metadata.Name,
 		}
 		stepsBuilder.GetInternetGatewayWithErrorV1Step("Get deleted internet gateway", suite.Client.NetworkV1, *gatewayWRef, secapi.ErrResourceNotFound)
 	}
 
 	// Delete all networks
-	for _, network := range *networks {
+	for _, network := range networks {
 		stepsBuilder.DeleteNetworkV1Step("Delete the network", suite.Client.NetworkV1, &network)
 
 		// Get the deleted network
 		networkWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.Tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
+			Tenant:    secapi.TenantID(network.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
 			Name:      network.Metadata.Name,
 		}
 		stepsBuilder.GetNetworkWithErrorV1Step("Get deleted network", suite.Client.NetworkV1, *networkWRef, secapi.ErrResourceNotFound)
@@ -963,14 +809,14 @@ func (suite *NetworkListV1TestSuite) TestListScenario(t provider.T) {
 
 	// Get the deleted workspace
 	workspaceTRef := &secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   workspaceName,
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
 
 	suite.FinishScenario()
 }
 
-func (suite *NetworkLifeCycleV1TestSuite) AfterEach(t provider.T) {
+func (suite *NetworkListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

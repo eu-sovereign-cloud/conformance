@@ -3,11 +3,13 @@ package region
 import (
 	"context"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	mockRegion "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/region"
+
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/region"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -15,69 +17,84 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type RegionV1TestSuite struct {
+type RegionListV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	RegionName string
+
+	params *params.RegionListV1Params
 }
 
-func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
+func CreateListV1TestSuite(globalTestSuite suites.GlobalTestSuite, regionName string) *RegionListV1TestSuite {
+	suite := &RegionListV1TestSuite{
+		GlobalTestSuite: globalTestSuite,
+		RegionName:      regionName,
+	}
+	suite.ScenarioName = constants.RegionV1ListSuiteName
+	return suite
+}
+
+func (suite *RegionListV1TestSuite) BeforeAll(t provider.T) {
+	var err error
+
+	// Generate scenario Names
+	regionName := generators.GenerateRegionName()
+	regionName2 := generators.GenerateRegionName()
+	regionName3 := generators.GenerateRegionName()
+
+	region, err := builders.NewRegionBuilder().
+		Name(regionName).
+		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
+		Spec(&schema.RegionSpec{
+			AvailableZones: []string{constants.ZoneA, constants.ZoneB},
+			Providers:      mock.BuildProviderSpecV1(),
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Region: %v", err)
+	}
+
+	region2, err := builders.NewRegionBuilder().
+		Name(regionName2).
+		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
+		Spec(&schema.RegionSpec{
+			AvailableZones: []string{constants.ZoneA, constants.ZoneB},
+			Providers:      mock.BuildProviderSpecV1(),
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Region: %v", err)
+	}
+
+	region3, err := builders.NewRegionBuilder().
+		Name(regionName3).
+		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
+		Spec(&schema.RegionSpec{
+			AvailableZones: []string{constants.ZoneA, constants.ZoneB},
+			Providers:      mock.BuildProviderSpecV1(),
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Region: %v", err)
+	}
+
+	regions := []schema.Region{*region, *region2, *region3}
+
+	params := &params.RegionListV1Params{
+		Regions: regions,
+	}
+	suite.params = params
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockRegion.ConfigureListScenarioV1, params)
+	if err != nil {
+		t.Fatalf("Failed to setup mock: %v", err)
+	}
+}
+
+func (suite *RegionListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
-	// Generate scenario Names
-	regionNameA := generators.GenerateRegionName()
-	regionNameB := generators.GenerateRegionName()
-	regionNameC := generators.GenerateRegionName()
-
-	// Configure Mock if enabled
-	if suite.MockEnabled {
-		mockParams := &mock.RegionListParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
-			},
-			Regions: []mock.ResourceParams[schema.RegionSpec]{
-				{
-					Name: suite.RegionName,
-					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{constants.ZoneA, constants.ZoneB},
-						Providers:      mock.BuildProviderSpecV1(),
-					},
-				},
-				{
-					Name: regionNameA,
-					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{constants.ZoneA, constants.ZoneB},
-						Providers:      mock.BuildProviderSpecV1(),
-					},
-				},
-				{
-					Name: regionNameB,
-					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{constants.ZoneA, constants.ZoneB},
-						Providers:      mock.BuildProviderSpecV1(),
-					},
-				},
-				{
-					Name: regionNameC,
-					InitialSpec: &schema.RegionSpec{
-						AvailableZones: []string{constants.ZoneA, constants.ZoneB},
-						Providers:      mock.BuildProviderSpecV1(),
-					},
-				},
-			},
-		}
-
-		wm, err := region.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
-		if err != nil {
-			t.Fatalf("Failed to configure mock scenario: %v", err)
-		}
-		suite.MockClient = wm
-	}
-
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	ctx := context.Background()
 
@@ -92,12 +109,11 @@ func (suite *RegionV1TestSuite) TestListScenario(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build Metadata: %v", err)
 	}
-
 	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, expectedRegionMeta)
 
 	suite.FinishScenario()
 }
 
-func (suite *RegionV1TestSuite) AfterEach(t provider.T) {
+func (suite *RegionListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

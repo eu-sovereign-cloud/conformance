@@ -3,11 +3,11 @@ package compute
 import (
 	"math/rand"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/compute"
+	mockCompute "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/compute"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -17,156 +17,175 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ComputeV1ListTestSuite struct {
+type ComputeListV1TestSuite struct {
 	suites.RegionalTestSuite
 
+	config *ComputeListV1Config
+	params *params.ComputeListV1Params
+}
+
+type ComputeListV1Config struct {
 	AvailableZones []string
 	InstanceSkus   []string
 	StorageSkus    []string
 }
 
-func (suite *ComputeV1ListTestSuite) TestListScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ComputeListV1Config) *ComputeListV1TestSuite {
+	suite := &ComputeListV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
+		config:            config,
+	}
+	suite.ScenarioName = constants.ComputeV1ListSuiteName
+	return suite
+}
 
+func (suite *ComputeListV1TestSuite) BeforeAll(t provider.T) {
 	var err error
 
 	// Select skus
-	instanceSkuName := suite.InstanceSkus[rand.Intn(len(suite.InstanceSkus))]
-	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
+	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
+	storageSkuName := suite.config.StorageSkus[rand.Intn(len(suite.config.StorageSkus))]
 
 	// Select zones
-	initialInstanceZone := suite.AvailableZones[rand.Intn(len(suite.AvailableZones))]
-
+	zone := suite.config.AvailableZones[rand.Intn(len(suite.config.AvailableZones))]
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
-	instanceSkuRef := generators.GenerateSkuRef(instanceSkuName)
-	instanceSkuRefObj, err := secapi.BuildReferenceFromURN(instanceSkuRef)
+
+	instanceSkuRefObj, err := generators.GenerateSkuRefObject(instanceSkuName)
 	if err != nil {
 		t.Fatalf("Failed to build instanceSkuRef to URN: %v", err)
 	}
 
 	instanceName1 := generators.GenerateInstanceName()
-	instanceResource1 := generators.GenerateInstanceResource(suite.Tenant, workspaceName, instanceName1)
 	instanceName2 := generators.GenerateInstanceName()
-	instanceResource2 := generators.GenerateInstanceResource(suite.Tenant, workspaceName, instanceName2)
 	instanceName3 := generators.GenerateInstanceName()
-	instanceResource3 := generators.GenerateInstanceResource(suite.Tenant, workspaceName, instanceName3)
 
-	storageSkuRef := generators.GenerateSkuRef(storageSkuName)
-	storageSkuRefObj, err := secapi.BuildReferenceFromURN(storageSkuRef)
+	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
 	if err != nil {
 		t.Fatalf("Failed to build storageSkuRef to URN: %v", err)
 	}
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageRef := generators.GenerateBlockStorageRef(blockStorageName)
-	blockStorageRefObj, err := secapi.BuildReferenceFromURN(blockStorageRef)
+
+	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName)
 	if err != nil {
 		t.Fatalf("Failed to build blockStorageRef to URN: %v", err)
 	}
 
 	blockStorageSize := generators.GenerateBlockStorageSize()
 
-	// Setup mock, if configured to use
-	if suite.MockEnabled {
-		mockParams := &mock.ComputeListParamsV1{
-			BaseParams: &mock.BaseParams{
-				MockURL:   *suite.MockServerURL,
-				AuthToken: suite.AuthToken,
-				Tenant:    suite.Tenant,
-				Region:    suite.Region,
-			},
-			Workspace: &mock.ResourceParams[schema.WorkspaceSpec]{
-				Name: workspaceName,
-				InitialLabels: schema.Labels{
-					constants.EnvLabel: constants.EnvConformanceLabel,
-				},
-			},
-			BlockStorage: &mock.ResourceParams[schema.BlockStorageSpec]{
-				Name: blockStorageName,
-				InitialLabels: map[string]string{
-					constants.EnvLabel: constants.EnvConformanceLabel,
-				},
-				InitialSpec: &schema.BlockStorageSpec{
-					SkuRef: *storageSkuRefObj,
-					SizeGB: blockStorageSize,
-				},
-			},
-			Instances: []mock.ResourceParams[schema.InstanceSpec]{
-				{
-					Name: instanceName1,
-					InitialLabels: map[string]string{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.InstanceSpec{
-						SkuRef: *instanceSkuRefObj,
-						Zone:   initialInstanceZone,
-						BootVolume: schema.VolumeReference{
-							DeviceRef: *blockStorageRefObj,
-						},
-					},
-				},
-				{
-					Name: instanceName2,
-					InitialLabels: map[string]string{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.InstanceSpec{
-						SkuRef: *instanceSkuRefObj,
-						Zone:   initialInstanceZone,
-						BootVolume: schema.VolumeReference{
-							DeviceRef: *blockStorageRefObj,
-						},
-					},
-				},
-				{
-					Name: instanceName3,
-					InitialLabels: map[string]string{
-						constants.EnvLabel: constants.EnvConformanceLabel,
-					},
-					InitialSpec: &schema.InstanceSpec{
-						SkuRef: *instanceSkuRefObj,
-						Zone:   initialInstanceZone,
-						BootVolume: schema.VolumeReference{
-							DeviceRef: *blockStorageRefObj,
-						},
-					},
-				},
-			},
-		}
-		wm, err := compute.ConfigureListScenarioV1(suite.ScenarioName, mockParams)
-		if err != nil {
-			t.Fatalf("Failed to configure mock scenario: %v", err)
-		}
-		suite.MockClient = wm
-	}
-
-	stepsBuilder := steps.NewStepsConfigurator(&suite.TestSuite, t)
-
-	// Workspace
-
-	// Create a workspace
-	workspace := &schema.Workspace{
-		Labels: schema.Labels{
-			constants.EnvLabel: constants.EnvConformanceLabel,
-		},
-		Metadata: &schema.RegionalResourceMetadata{
-			Tenant: suite.Tenant,
-			Name:   workspaceName,
-		},
-	}
-
-	expectWorkspaceMeta, err := builders.NewWorkspaceMetadataBuilder().
+	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
 		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
 		Build()
 	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
+		t.Fatalf("Failed to build Workspace: %v", err)
 	}
-	expectWorkspaceLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
 
+	blockStorage, err := builders.NewBlockStorageBuilder().
+		Name(blockStorageName).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.BlockStorageSpec{
+			SkuRef: *storageSkuRefObj,
+			SizeGB: blockStorageSize,
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build BlockStorage: %v", err)
+	}
+
+	instance1, err := builders.NewInstanceBuilder().
+		Name(instanceName1).
+		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.InstanceSpec{
+			SkuRef: *instanceSkuRefObj,
+			Zone:   zone,
+			BootVolume: schema.VolumeReference{
+				DeviceRef: *blockStorageRefObj,
+			},
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Instance: %v", err)
+	}
+
+	instance2, err := builders.NewInstanceBuilder().
+		Name(instanceName2).
+		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.InstanceSpec{
+			SkuRef: *instanceSkuRefObj,
+			Zone:   zone,
+			BootVolume: schema.VolumeReference{
+				DeviceRef: *blockStorageRefObj,
+			},
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Instance: %v", err)
+	}
+
+	instance3, err := builders.NewInstanceBuilder().
+		Name(instanceName3).
+		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.InstanceSpec{
+			SkuRef: *instanceSkuRefObj,
+			Zone:   zone,
+			BootVolume: schema.VolumeReference{
+				DeviceRef: *blockStorageRefObj,
+			},
+		}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Instance: %v", err)
+	}
+
+	instances := []schema.Instance{*instance1, *instance2, *instance3}
+
+	params := &params.ComputeListV1Params{
+		Workspace:    workspace,
+		BlockStorage: blockStorage,
+		Instances:    instances,
+	}
+
+	suite.params = params
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockCompute.ConfigureListScenarioV1, params)
+	if err != nil {
+		t.Fatalf("Failed to setup mock: %v", err)
+	}
+}
+
+func (suite *ComputeListV1TestSuite) TestScenario(t provider.T) {
+	suite.StartScenario(t)
+	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
+
+	// Workspace
+	workspace := suite.params.Workspace
+
+	// Create a workspace
+	expectWorkspaceMeta := workspace.Metadata
+	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
@@ -176,116 +195,26 @@ func (suite *ComputeV1ListTestSuite) TestListScenario(t provider.T) {
 	)
 
 	// Block storage
+	block := suite.params.BlockStorage
 
 	// Create a block storage
-	block := &schema.BlockStorage{
-		Metadata: &schema.RegionalWorkspaceResourceMetadata{
-			Tenant:    suite.Tenant,
-			Workspace: workspaceName,
-			Name:      blockStorageName,
+	expectedBlockMeta := block.Metadata
+	expectedBlockSpec := &block.Spec
+	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			Metadata:      expectedBlockMeta,
+			Spec:          expectedBlockSpec,
+			ResourceState: schema.ResourceStateCreating,
 		},
-		Spec: schema.BlockStorageSpec{
-			SizeGB: blockStorageSize,
-			SkuRef: *storageSkuRefObj,
-		},
-	}
-
-	expectedBlockMeta, err := builders.NewBlockStorageMetadataBuilder().
-		Name(blockStorageName).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	expectedBlockSpec := &schema.BlockStorageSpec{
-		SizeGB: blockStorageSize,
-		SkuRef: *storageSkuRefObj,
-	}
-	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block, steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-		Metadata:      expectedBlockMeta,
-		Spec:          expectedBlockSpec,
-		ResourceState: schema.ResourceStateCreating,
-	},
 	)
 
 	// Instance
+	instances := suite.params.Instances
 
-	// Create an instance
-	instances := &[]schema.Instance{
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      instanceName1,
-				Resource:  instanceResource1,
-			},
-			Labels: map[string]string{
-				constants.EnvLabel: constants.EnvConformanceLabel,
-			},
-			Spec: schema.InstanceSpec{
-				SkuRef: *instanceSkuRefObj,
-				Zone:   initialInstanceZone,
-				BootVolume: schema.VolumeReference{
-					DeviceRef: *blockStorageRefObj,
-				},
-			},
-		},
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      instanceName2,
-				Resource:  instanceResource2,
-			},
-			Labels: map[string]string{
-				constants.EnvLabel: constants.EnvConformanceLabel,
-			},
-			Spec: schema.InstanceSpec{
-				SkuRef: *instanceSkuRefObj,
-				Zone:   initialInstanceZone,
-				BootVolume: schema.VolumeReference{
-					DeviceRef: *blockStorageRefObj,
-				},
-			},
-		},
-		{
-			Metadata: &schema.RegionalWorkspaceResourceMetadata{
-				Tenant:    suite.Tenant,
-				Workspace: workspaceName,
-				Name:      instanceName3,
-				Resource:  instanceResource3,
-			},
-			Labels: map[string]string{
-				constants.EnvLabel: constants.EnvConformanceLabel,
-			},
-			Spec: schema.InstanceSpec{
-				SkuRef: *instanceSkuRefObj,
-				Zone:   initialInstanceZone,
-				BootVolume: schema.VolumeReference{
-					DeviceRef: *blockStorageRefObj,
-				},
-			},
-		},
-	}
 	// Create instances
-	for _, instance := range *instances {
-		expectInstanceMeta, err := builders.NewInstanceMetadataBuilder().
-			Name(instance.Metadata.Name).
-			Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
-			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-			Build()
-		if err != nil {
-			t.Fatalf("Failed to build Metadata: %v", err)
-		}
-
-		expectInstanceSpec := &schema.InstanceSpec{
-			SkuRef: *instanceSkuRefObj,
-			Zone:   initialInstanceZone,
-			BootVolume: schema.VolumeReference{
-				DeviceRef: *blockStorageRefObj,
-			},
-		}
+	for _, instance := range instances {
+		expectInstanceMeta := instance.Metadata
+		expectInstanceSpec := &instance.Spec
 		stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.Client.ComputeV1, &instance,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 				Metadata:      expectInstanceMeta,
@@ -295,73 +224,74 @@ func (suite *ComputeV1ListTestSuite) TestListScenario(t provider.T) {
 		)
 	}
 
-	wref := secapi.WorkspaceReference{
-		Name:      workspaceName,
-		Workspace: secapi.WorkspaceID(workspaceName),
-		Tenant:    secapi.TenantID(suite.Tenant),
-	}
 	// List instances
+	wref := secapi.WorkspaceReference{
+		Name:      workspace.Metadata.Name,
+		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
+	}
 	stepsBuilder.GetListInstanceV1Step("List instances", suite.Client.ComputeV1, wref, nil)
 
 	// List instances with limit
 	stepsBuilder.GetListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
-	// List Instances with Label
+	// List Instances with label
 	stepsBuilder.GetListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// List Instances with Limit and label
+	// List Instances with limit and label
 	stepsBuilder.GetListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
-	// SKUS
-	// List SKUS
-	stepsBuilder.GetListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.Tenant)}, nil)
+	// Skus
 
-	// List SKUS with limit
-	stepsBuilder.GetListSkusV1Step("Get list of skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(suite.Tenant)},
+	// List skus
+	stepsBuilder.GetListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
+
+	// List skus with limit
+	stepsBuilder.GetListSkusV1Step("Get list of skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1))
 
 	// Delete all instances
-	for _, instance := range *instances {
+	for _, instance := range instances {
 		stepsBuilder.DeleteInstanceV1Step("Delete the instance", suite.Client.ComputeV1, &instance)
 
 		// Get the deleted instance
-		instanceWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(suite.Tenant),
-			Workspace: secapi.WorkspaceID(workspaceName),
+		instanceWRef := secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(instance.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(instance.Metadata.Workspace),
 			Name:      instance.Metadata.Name,
 		}
-		stepsBuilder.GetInstanceWithErrorV1Step("Get the deleted instance", suite.Client.ComputeV1, *instanceWRef, secapi.ErrResourceNotFound)
+		stepsBuilder.GetInstanceWithErrorV1Step("Get the deleted instance", suite.Client.ComputeV1, instanceWRef, secapi.ErrResourceNotFound)
 	}
 
 	// Delete the block storage
 	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
 
 	// Get the deleted block storage
-	blockWRef := &secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(suite.Tenant),
-		Workspace: secapi.WorkspaceID(workspaceName),
-		Name:      blockStorageName,
+	blockWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(block.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
+		Name:      block.Metadata.Name,
 	}
-	stepsBuilder.GetBlockStorageWithErrorV1Step("Get the deleted block storage", suite.Client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
+	stepsBuilder.GetBlockStorageWithErrorV1Step("Get the deleted block storage", suite.Client.StorageV1, blockWRef, secapi.ErrResourceNotFound)
 
 	// Delete the workspace
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
 
 	// Get the deleted workspace
-	workspaceTRef := &secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   workspaceName,
+	workspaceTRef := secapi.TenantReference{
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+		Name:   workspace.Metadata.Name,
 	}
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
 
 	suite.FinishScenario()
 }
 
-func (suite *ComputeV1LifeCycleTestSuite) AfterEach(t provider.T) {
+func (suite *ComputeListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

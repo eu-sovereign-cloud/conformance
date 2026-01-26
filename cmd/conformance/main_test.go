@@ -87,7 +87,7 @@ func newListCmd() *cobra.Command {
 			println(constants.StorageV1ListSuiteName)
 			println(constants.WorkspaceV1LifeCycleSuiteName)
 			println(constants.WorkspaceV1ListSuiteName)
-			println(constants.FoundationV1UsageSuiteName)
+			println(constants.FoundationUsageV1SuiteName)
 
 			return nil
 		},

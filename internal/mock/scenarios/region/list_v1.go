@@ -1,11 +1,12 @@
-package region
+package mockregion
 
 import (
-	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
@@ -15,22 +16,23 @@ import (
 	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureListScenarioV1(scenario string, params *mock.RegionListParamsV1) (*wiremock.Client, error) {
-	slog.Info("Configuring mock to scenario " + scenario)
+func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.RegionListV1Params) (*wiremock.Client, error) {
+	scenarios.LogScenarioMocking(scenario)
 
-	configurator, err := stubs.NewStubConfigurator(scenario, params.MockURL)
+	regions := suiteParams.Regions
+
+	configurator, err := stubs.NewStubConfigurator(scenario, mockParams)
 	if err != nil {
 		return nil, err
 	}
 
 	// Generate resource
 	regionsResource := generators.GenerateRegionListResource()
-	regionResource := generators.GenerateRegionResource(params.Regions[0].Name)
+	regionResource := generators.GenerateRegionResource(regions[0].Metadata.Name)
 
 	// Generate URLs
 	regionsUrl := generators.GenerateRegionListURL(constants.RegionProviderV1)
-	regionUrl := generators.GenerateRegionURL(constants.RegionProviderV1, params.Regions[0].Name)
-
+	regionUrl := generators.GenerateRegionURL(constants.RegionProviderV1, regions[0].Metadata.Name)
 	regionsResponse := &region.RegionIterator{
 		Metadata: schema.ResponseMetadata{
 			Provider: constants.RegionProviderV1,
@@ -41,12 +43,12 @@ func ConfigureListScenarioV1(scenario string, params *mock.RegionListParamsV1) (
 	var regionsList []schema.Region
 
 	// Create Regions to be listed
-	for _, region := range params.Regions {
+	for _, region := range regions {
 
 		regionResponse, err := builders.NewRegionBuilder().
-			Name(region.Name).
+			Name(region.Metadata.Name).
 			Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
-			Spec(region.InitialSpec).
+			Spec(&region.Spec).
 			Build()
 		if err != nil {
 			return nil, err
@@ -58,24 +60,25 @@ func ConfigureListScenarioV1(scenario string, params *mock.RegionListParamsV1) (
 	regionsResponse.Items = regionsList
 
 	// 1 - Create ListRegions stub
-	if err := configurator.ConfigureGetListRegionStub(regionsResponse, regionsUrl, params.GetBaseParams(), nil); err != nil {
+	if err := configurator.ConfigureGetListRegionStub(regionsResponse, regionsUrl, mockParams, nil); err != nil {
 		return nil, err
 	}
 
 	// 2 - Create GetRegion stubs
+	region := regions[0]
 	singleRegionResponse := &schema.Region{
 		Metadata: &schema.GlobalResourceMetadata{
-			Name:       params.Regions[0].Name,
+			Name:       region.Metadata.Name,
 			Provider:   constants.RegionProviderV1,
 			Resource:   regionResource,
 			ApiVersion: constants.ApiVersion1,
 			Kind:       schema.GlobalResourceMetadataKindResourceKindRegion,
 			Verb:       http.MethodGet,
 		},
-		Spec: regionsResponse.Items[0].Spec,
+		Spec: region.Spec,
 	}
 
-	if err := configurator.ConfigureGetRegionStub(singleRegionResponse, regionUrl, params.GetBaseParams()); err != nil {
+	if err := configurator.ConfigureGetRegionStub(singleRegionResponse, regionUrl, mockParams); err != nil {
 		return nil, err
 	}
 

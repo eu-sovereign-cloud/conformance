@@ -6,42 +6,23 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites/workspace"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 func TestWorkspaceV1Suites(t *testing.T) {
-	regionalTest := suites.RegionalTestSuite{
-		TestSuite: suites.TestSuite{
-			Tenant:        config.Parameters.ClientTenant,
-			AuthToken:     config.Parameters.ClientAuthToken,
-			MockEnabled:   config.Parameters.MockEnabled,
-			MockServerURL: &config.Parameters.MockServerURL,
-			ScenarioName:  constants.WorkspaceV1LifeCycleSuiteName,
-			BaseDelay:     config.Parameters.BaseDelay,
-			BaseInterval:  config.Parameters.BaseInterval,
-			MaxAttempts:   config.Parameters.MaxAttempts,
-		},
-		Region: config.Parameters.ClientRegion,
-		Client: config.Clients.RegionalClient,
-	}
+	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
 
 	// LifeCycle Suite
-	testLifeCycleSuite := &workspace.WorkspaceV1LifeCycleTestSuite{
-		RegionalTestSuite: regionalTest,
-	}
-	testLifeCycleSuite.ScenarioName = constants.WorkspaceV1LifeCycleSuiteName
-	if testLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, testLifeCycleSuite)
+	lifeCycleTestSuite := workspace.CreateLifeCycleV1TestSuite(regionalTestSuite)
+	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, lifeCycleTestSuite)
 	}
 
 	// List Suite
-	testListSuite := &workspace.WorkspaceV1ListTestSuite{
-		RegionalTestSuite: regionalTest,
+	listTestSuite := &workspace.WorkspaceListV1TestSuite{
+		RegionalTestSuite: regionalTestSuite,
 	}
-	testListSuite.ScenarioName = constants.WorkspaceV1ListSuiteName
-	if testListSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, testListSuite)
+	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, listTestSuite)
 	}
 }

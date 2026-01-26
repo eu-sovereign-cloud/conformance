@@ -20,5 +20,5 @@ const (
 	NetworkV1LifeCycleSuiteName = "Network.V1.LifeCycle"
 	NetworkV1ListSuiteName      = "Network.V1.List"
 
-	FoundationV1UsageSuiteName = "Foundation.V1.Usage"
+	FoundationUsageV1SuiteName = "Foundation.V1.Usage"
 )
