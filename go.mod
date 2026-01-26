@@ -8,7 +8,7 @@ require (
 	github.com/go-playground/validator/v10 v10.30.1
 	github.com/ozontech/allure-go/pkg/framework v0.7.7
 	github.com/spf13/cobra v1.10.2
-	github.com/wiremock/go-wiremock v1.14.0
+	github.com/wiremock/go-wiremock v1.15.0
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
 )
 
