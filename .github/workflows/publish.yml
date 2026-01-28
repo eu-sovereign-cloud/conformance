@@ -2,6 +2,9 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write
+
 name: Publish
 jobs:
   build:
