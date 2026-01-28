@@ -260,7 +260,7 @@ func (suite *ComputeLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
 			Spec:          expectInstanceSpec,
-			ResourceState: schema.ResourceStateSuspended,
+			ResourceState: schema.ResourceStateActive,
 		},
 	)
 

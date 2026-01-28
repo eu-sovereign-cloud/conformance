@@ -48,6 +48,7 @@ func (suite *ComputeListV1TestSuite) BeforeAll(t provider.T) {
 
 	// Select zones
 	zone := suite.config.AvailableZones[rand.Intn(len(suite.config.AvailableZones))]
+	
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
