@@ -29,12 +29,12 @@ type ComputeLifeCycleV1Config struct {
 	StorageSkus    []string
 }
 
-func CreateLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ComputeLifeCycleV1Config) *ComputeLifeCycleV1TestSuite {
+func NewLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ComputeLifeCycleV1Config) *ComputeLifeCycleV1TestSuite {
 	suite := &ComputeLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
-	suite.ScenarioName = constants.ComputeV1LifeCycleSuiteName
+	suite.ScenarioName = constants.ComputeLifeCycleV1SuiteName.String()
 	return suite
 }
 

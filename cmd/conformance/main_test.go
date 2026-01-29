@@ -76,19 +76,9 @@ func newListCmd() *cobra.Command {
 		Short: "List Command",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			println("Available Test Scenarios:")
-			println(constants.AuthorizationV1LifeCycleSuiteName)
-			println(constants.AuthorizationV1ListSuiteName)
-			println(constants.RegionV1ListSuiteName)
-			println(constants.ComputeV1LifeCycleSuiteName)
-			println(constants.ComputeV1ListSuiteName)
-			println(constants.NetworkV1LifeCycleSuiteName)
-			println(constants.NetworkV1ListSuiteName)
-			println(constants.StorageV1LifeCycleSuiteName)
-			println(constants.StorageV1ListSuiteName)
-			println(constants.WorkspaceV1LifeCycleSuiteName)
-			println(constants.WorkspaceV1ListSuiteName)
-			println(constants.FoundationUsageV1SuiteName)
-
+			for _, name := range constants.AllSuiteNames {
+				println(string(name))
+			}
 			return nil
 		},
 	}

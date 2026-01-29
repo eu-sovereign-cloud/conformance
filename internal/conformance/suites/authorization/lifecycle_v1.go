@@ -25,12 +25,12 @@ type AuthorizationLifeCycleV1TestSuite struct {
 	params *params.AuthorizationLifeCycleV1Params
 }
 
-func CreateLifeCycleV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *AuthorizationLifeCycleV1TestSuite {
+func NewLifeCycleV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *AuthorizationLifeCycleV1TestSuite {
 	suite := &AuthorizationLifeCycleV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		Users:           users,
 	}
-	suite.ScenarioName = constants.AuthorizationV1LifeCycleSuiteName
+	suite.ScenarioName = constants.AuthorizationLifeCycleV1SuiteName.String()
 	return suite
 }
 

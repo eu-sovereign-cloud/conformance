@@ -34,12 +34,12 @@ type NetworkListV1Config struct {
 	NetworkSkus    []string
 }
 
-func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *NetworkListV1Config) *NetworkListV1TestSuite {
+func NewListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *NetworkListV1Config) *NetworkListV1TestSuite {
 	suite := &NetworkListV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
-	suite.ScenarioName = constants.NetworkV1ListSuiteName
+	suite.ScenarioName = constants.NetworkListV1SuiteName.String()
 	return suite
 }
 

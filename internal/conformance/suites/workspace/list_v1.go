@@ -21,11 +21,11 @@ type WorkspaceListV1TestSuite struct {
 	params params.WorkspaceListV1Params
 }
 
-func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *WorkspaceListV1TestSuite {
+func NewListV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *WorkspaceListV1TestSuite {
 	suite := &WorkspaceListV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 	}
-	suite.ScenarioName = constants.WorkspaceV1ListSuiteName
+	suite.ScenarioName = constants.WorkspaceListV1SuiteName.String()
 	return suite
 }
 

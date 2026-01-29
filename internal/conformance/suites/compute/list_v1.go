@@ -30,12 +30,12 @@ type ComputeListV1Config struct {
 	StorageSkus    []string
 }
 
-func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ComputeListV1Config) *ComputeListV1TestSuite {
+func NewListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ComputeListV1Config) *ComputeListV1TestSuite {
 	suite := &ComputeListV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
-	suite.ScenarioName = constants.ComputeV1ListSuiteName
+	suite.ScenarioName = constants.ComputeListV1SuiteName.String()
 	return suite
 }
 

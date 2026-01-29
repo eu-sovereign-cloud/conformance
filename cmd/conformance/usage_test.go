@@ -10,10 +10,10 @@ import (
 )
 
 func TestUsageV1Suites(t *testing.T) {
-	mixedTestSuite := suites.CreateMixedTestSuite(config.Parameters, config.Clients)
+	mixedTestSuite := suites.NewMixedTestSuite(config.Parameters, config.Clients)
 
 	// Foundation Suite
-	foundationTestSuite := usage.CreateFoundationV1TestSuite(mixedTestSuite,
+	foundationTestSuite := usage.NewFoundationV1TestSuite(mixedTestSuite,
 		&usage.FoundationUsageV1Config{
 			Users:          config.Parameters.ScenariosUsers,
 			NetworkCidr:    config.Parameters.ScenariosCidr,

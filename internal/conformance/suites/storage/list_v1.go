@@ -25,12 +25,12 @@ type StorageListV1TestSuite struct {
 	params *params.StorageListV1Params
 }
 
-func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *StorageListV1TestSuite {
+func NewListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *StorageListV1TestSuite {
 	suite := &StorageListV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		StorageSkus:       storageSkus,
 	}
-	suite.ScenarioName = constants.StorageV1ListSuiteName
+	suite.ScenarioName = constants.StorageListV1SuiteName.String()
 	return suite
 }
 

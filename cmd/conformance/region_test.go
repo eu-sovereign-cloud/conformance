@@ -11,10 +11,10 @@ import (
 )
 
 func TestRegionV1Suites(t *testing.T) {
-	globalTestSuite := suites.CreateGlobalTestSuite(config.Parameters, config.Clients)
+	globalTestSuite := suites.NewGlobalTestSuite(config.Parameters, config.Clients)
 
 	// List Suite
-	listTestSuite := region.CreateListV1TestSuite(globalTestSuite, config.Parameters.ClientRegion)
+	listTestSuite := region.NewListV1TestSuite(globalTestSuite, config.Parameters.ClientRegion)
 	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, listTestSuite)
 	}

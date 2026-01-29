@@ -25,12 +25,12 @@ type RegionListV1TestSuite struct {
 	params *params.RegionListV1Params
 }
 
-func CreateListV1TestSuite(globalTestSuite suites.GlobalTestSuite, regionName string) *RegionListV1TestSuite {
+func NewListV1TestSuite(globalTestSuite suites.GlobalTestSuite, regionName string) *RegionListV1TestSuite {
 	suite := &RegionListV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		RegionName:      regionName,
 	}
-	suite.ScenarioName = constants.RegionV1ListSuiteName
+	suite.ScenarioName = constants.RegionListV1SuiteName.String()
 	return suite
 }
 

@@ -10,10 +10,10 @@ import (
 )
 
 func TestComputeV1Suites(t *testing.T) {
-	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
+	regionalTestSuite := suites.NewRegionalTestSuite(config.Parameters, config.Clients)
 
 	// LifeCycle Suite
-	lifeCycleTestSuite := compute.CreateLifeCycleV1TestSuite(regionalTestSuite,
+	lifeCycleTestSuite := compute.NewLifeCycleV1TestSuite(regionalTestSuite,
 		&compute.ComputeLifeCycleV1Config{
 			AvailableZones: config.Clients.RegionZones,
 			InstanceSkus:   config.Clients.InstanceSkus,
@@ -25,7 +25,7 @@ func TestComputeV1Suites(t *testing.T) {
 	}
 
 	// List Suite
-	listTestSuite := compute.CreateListV1TestSuite(regionalTestSuite,
+	listTestSuite := compute.NewListV1TestSuite(regionalTestSuite,
 		&compute.ComputeListV1Config{
 			AvailableZones: config.Clients.RegionZones,
 			InstanceSkus:   config.Clients.InstanceSkus,

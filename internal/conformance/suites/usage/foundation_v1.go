@@ -36,12 +36,12 @@ type FoundationUsageV1Config struct {
 	NetworkSkus    []string
 }
 
-func CreateFoundationV1TestSuite(mixedTestSuite suites.MixedTestSuite, config *FoundationUsageV1Config) *FoundationUsageV1TestSuite {
+func NewFoundationV1TestSuite(mixedTestSuite suites.MixedTestSuite, config *FoundationUsageV1Config) *FoundationUsageV1TestSuite {
 	suite := &FoundationUsageV1TestSuite{
 		MixedTestSuite: mixedTestSuite,
 		config:         config,
 	}
-	suite.ScenarioName = constants.FoundationUsageV1SuiteName
+	suite.ScenarioName = constants.FoundationUsageV1SuiteName.String()
 	return suite
 }
 

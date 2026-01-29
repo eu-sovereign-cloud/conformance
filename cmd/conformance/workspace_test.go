@@ -10,19 +10,23 @@ import (
 )
 
 func TestWorkspaceV1Suites(t *testing.T) {
-	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
+	regionalTestSuite := suites.NewRegionalTestSuite(config.Parameters, config.Clients)
 
 	// LifeCycle Suite
-	lifeCycleTestSuite := workspace.CreateLifeCycleV1TestSuite(regionalTestSuite)
+	lifeCycleTestSuite := workspace.NewLifeCycleV1TestSuite(regionalTestSuite)
 	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, lifeCycleTestSuite)
 	}
 
 	// List Suite
-	listTestSuite := &workspace.WorkspaceListV1TestSuite{
-		RegionalTestSuite: regionalTestSuite,
-	}
+	listTestSuite := workspace.NewListV1TestSuite(regionalTestSuite)
 	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, listTestSuite)
+	}
+
+	// Create Workspace Suite
+	createWorkspaceTestSuite := workspace.NewCreateWorkspaceV1TestSuite(regionalTestSuite)
+	if createWorkspaceTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, createWorkspaceTestSuite)
 	}
 }
