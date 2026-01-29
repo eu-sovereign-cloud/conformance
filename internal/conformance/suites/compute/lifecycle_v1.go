@@ -16,21 +16,21 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ComputeLifeCycleV1TestSuite struct {
+type LifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
-	config *ComputeLifeCycleV1Config
+	config *LifeCycleV1Config
 	params *params.ComputeLifeCycleV1Params
 }
 
-type ComputeLifeCycleV1Config struct {
+type LifeCycleV1Config struct {
 	AvailableZones []string
 	InstanceSkus   []string
 	StorageSkus    []string
 }
 
-func NewLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ComputeLifeCycleV1Config) *ComputeLifeCycleV1TestSuite {
-	suite := &ComputeLifeCycleV1TestSuite{
+func NewLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *LifeCycleV1Config) *LifeCycleV1TestSuite {
+	suite := &LifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
@@ -38,8 +38,8 @@ func NewLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config 
 	return suite
 }
 
-func (suite *ComputeLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	var err error
+func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
+	t.AddParentSuite("compute")
 
 	// Select skus
 	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
@@ -143,7 +143,7 @@ func (suite *ComputeLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *ComputeLifeCycleV1TestSuite) TestScenario(t provider.T) {
+func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -303,6 +303,6 @@ func (suite *ComputeLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ComputeLifeCycleV1TestSuite) AfterAll(t provider.T) {
+func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

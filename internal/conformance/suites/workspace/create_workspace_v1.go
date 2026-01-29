@@ -28,7 +28,7 @@ func NewCreateWorkspaceV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *
 }
 
 func (suite *CreateWorkspaceV1TestSuite) BeforeAll(t provider.T) {
-	var err error
+	t.AddParentSuite("workspace")
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()

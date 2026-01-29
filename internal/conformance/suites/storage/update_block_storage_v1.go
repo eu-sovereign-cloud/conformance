@@ -33,7 +33,7 @@ func NewUpdateBlockStorageV1TestSuite(regionalTestSuite suites.RegionalTestSuite
 }
 
 func (suite *UpdateBlockStorageV1TestSuite) BeforeAll(t provider.T) {
-	var err error
+	t.AddParentSuite("storage")
 
 	// Select sku
 	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]

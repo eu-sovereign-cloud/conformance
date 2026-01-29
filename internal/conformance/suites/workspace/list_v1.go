@@ -15,22 +15,22 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type WorkspaceListV1TestSuite struct {
+type ListV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	params params.WorkspaceListV1Params
 }
 
-func NewListV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *WorkspaceListV1TestSuite {
-	suite := &WorkspaceListV1TestSuite{
+func NewListV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *ListV1TestSuite {
+	suite := &ListV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 	}
 	suite.ScenarioName = constants.WorkspaceListV1SuiteName.String()
 	return suite
 }
 
-func (suite *WorkspaceListV1TestSuite) BeforeAll(t provider.T) {
-	var err error
+func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+	t.AddParentSuite("workspace")
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
@@ -67,7 +67,7 @@ func (suite *WorkspaceListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *WorkspaceListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -122,6 +122,6 @@ func (suite *WorkspaceListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *WorkspaceListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

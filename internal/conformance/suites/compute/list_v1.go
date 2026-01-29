@@ -17,21 +17,21 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ComputeListV1TestSuite struct {
+type ListV1TestSuite struct {
 	suites.RegionalTestSuite
 
-	config *ComputeListV1Config
+	config *ListV1Config
 	params *params.ComputeListV1Params
 }
 
-type ComputeListV1Config struct {
+type ListV1Config struct {
 	AvailableZones []string
 	InstanceSkus   []string
 	StorageSkus    []string
 }
 
-func NewListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ComputeListV1Config) *ComputeListV1TestSuite {
-	suite := &ComputeListV1TestSuite{
+func NewListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ListV1Config) *ListV1TestSuite {
+	suite := &ListV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
@@ -39,8 +39,8 @@ func NewListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *Comp
 	return suite
 }
 
-func (suite *ComputeListV1TestSuite) BeforeAll(t provider.T) {
-	var err error
+func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+	t.AddParentSuite("compute")
 
 	// Select skus
 	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
@@ -175,7 +175,7 @@ func (suite *ComputeListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *ComputeListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -293,6 +293,6 @@ func (suite *ComputeListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ComputeListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }
