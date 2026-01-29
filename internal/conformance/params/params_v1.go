@@ -35,6 +35,10 @@ type WorkspaceListV1Params struct {
 	Workspaces []schema.Workspace
 }
 
+type CreateWorkspaceV1Params struct {
+	Workspace *schema.Workspace
+}
+
 // Compute
 
 type ComputeLifeCycleV1Params struct {
@@ -64,6 +68,17 @@ type StorageListV1Params struct {
 	Workspace     *schema.Workspace
 	BlockStorages []schema.BlockStorage
 	Images        []schema.Image
+}
+
+type CreateBlockStorageV1Params struct {
+	Workspace    *schema.Workspace
+	BlockStorage *schema.BlockStorage
+}
+
+type UpdateBlockStorageV1Params struct {
+	Workspace           *schema.Workspace
+	BlockStorageInitial *schema.BlockStorage
+	BlockStorageUpdated *schema.BlockStorage
 }
 
 // Network

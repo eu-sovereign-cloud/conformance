@@ -30,7 +30,7 @@ type TestSuite struct {
 	MaxAttempts  int
 }
 
-func createTestSuite(params *config.ParametersHolder) *TestSuite {
+func newTestSuite(params *config.ParametersHolder) *TestSuite {
 	return &TestSuite{
 		Tenant:        params.ClientTenant,
 		AuthToken:     params.ClientAuthToken,
@@ -99,9 +99,9 @@ type GlobalTestSuite struct {
 	Client *secapi.GlobalClient
 }
 
-func CreateGlobalTestSuite(params *config.ParametersHolder, clients *config.ClientsHolder) GlobalTestSuite {
+func NewGlobalTestSuite(params *config.ParametersHolder, clients *config.ClientsHolder) GlobalTestSuite {
 	return GlobalTestSuite{
-		TestSuite: createTestSuite(params),
+		TestSuite: newTestSuite(params),
 		Client:    clients.GlobalClient,
 	}
 }
@@ -114,9 +114,9 @@ type RegionalTestSuite struct {
 	Client *secapi.RegionalClient
 }
 
-func CreateRegionalTestSuite(params *config.ParametersHolder, clients *config.ClientsHolder) RegionalTestSuite {
+func NewRegionalTestSuite(params *config.ParametersHolder, clients *config.ClientsHolder) RegionalTestSuite {
 	return RegionalTestSuite{
-		TestSuite: createTestSuite(params),
+		TestSuite: newTestSuite(params),
 		Region:    params.ClientRegion,
 		Client:    clients.RegionalClient,
 	}
@@ -133,9 +133,9 @@ type MixedTestSuite struct {
 	RegionalClient *secapi.RegionalClient
 }
 
-func CreateMixedTestSuite(params *config.ParametersHolder, clients *config.ClientsHolder) MixedTestSuite {
+func NewMixedTestSuite(params *config.ParametersHolder, clients *config.ClientsHolder) MixedTestSuite {
 	return MixedTestSuite{
-		TestSuite:      createTestSuite(params),
+		TestSuite:      newTestSuite(params),
 		Region:         params.ClientRegion,
 		GlobalClient:   clients.GlobalClient,
 		RegionalClient: clients.RegionalClient,
