@@ -43,14 +43,6 @@ func (configurator *stubConfigurator) ConfigureGetActiveInstanceStub(response *s
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetSuspendedInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
-	setInstanceState(response.Status, schema.ResourceStateSuspended)
-	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (configurator *stubConfigurator) ConfigureGetListInstanceStub(response *compute.InstanceIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 

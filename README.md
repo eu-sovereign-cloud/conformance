@@ -12,7 +12,9 @@ SECA Conformance ensure that CSP implementations comply with the standardized AP
 - Make Build Tool;
 - Git SCM;
 - [Go](https://go.dev/doc/install) 1.24 or higher;
-- [Allure Report](https://allurereport.org/docs/install/).
+- [JQ] (https://jqlang.org/);
+- [Docker] (https://docs.docker.com/engine/install/);
+- [Allure Report V2](https://allurereport.org/docs/v2/install/).
 
 ### Installation
 

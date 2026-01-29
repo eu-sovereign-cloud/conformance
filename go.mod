@@ -4,11 +4,11 @@ go 1.24.0
 
 require (
 	github.com/apparentlymart/go-cidr v1.1.0
-	github.com/eu-sovereign-cloud/go-sdk v0.3.31
+	github.com/eu-sovereign-cloud/go-sdk v0.3.33
 	github.com/go-playground/validator/v10 v10.30.1
 	github.com/ozontech/allure-go/pkg/framework v0.7.7
 	github.com/spf13/cobra v1.10.2
-	github.com/wiremock/go-wiremock v1.14.0
+	github.com/wiremock/go-wiremock v1.15.0
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
 )
 
