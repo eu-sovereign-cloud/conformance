@@ -10,11 +10,11 @@ import (
 )
 
 func TestNetworkV1Suites(t *testing.T) {
-	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
+	regionalTestSuite := suites.NewRegionalTestSuite(config.Parameters, config.Clients)
 
 	// LifeCycle Suite
-	lifeCycleTestSuite := network.CreateLifeCycleV1TestSuite(regionalTestSuite,
-		&network.NetworkLifeCycleV1Config{
+	lifeCycleTestSuite := network.NewLifeCycleV1TestSuite(regionalTestSuite,
+		&network.LifeCycleV1Config{
 			NetworkCidr:    config.Parameters.ScenariosCidr,
 			PublicIpsRange: config.Parameters.ScenariosPublicIps,
 			RegionZones:    config.Clients.RegionZones,
@@ -28,8 +28,8 @@ func TestNetworkV1Suites(t *testing.T) {
 	}
 
 	// List Suite
-	listTestSuite := network.CreateListV1TestSuite(regionalTestSuite,
-		&network.NetworkListV1Config{
+	listTestSuite := network.NewListV1TestSuite(regionalTestSuite,
+		&network.ListV1Config{
 			NetworkCidr:    config.Parameters.ScenariosCidr,
 			PublicIpsRange: config.Parameters.ScenariosPublicIps,
 			RegionZones:    config.Clients.RegionZones,

@@ -10,17 +10,29 @@ import (
 )
 
 func TestStorageV1Suites(t *testing.T) {
-	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
+	regionalTestSuite := suites.NewRegionalTestSuite(config.Parameters, config.Clients)
 
 	// LifeCycle Suite
-	lifeCycleTestSuite := storage.CreateLifeCycleV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	lifeCycleTestSuite := storage.NewLifeCycleV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
 	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, lifeCycleTestSuite)
 	}
 
 	// List Suite
-	listTestSuite := storage.CreateListV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	listTestSuite := storage.NewListV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
 	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, listTestSuite)
+	}
+
+	// Create Block Storage  Suite
+	createBlockStorageTestSuite := storage.NewCreateBlockStorageV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if createBlockStorageTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, createBlockStorageTestSuite)
+	}
+
+	// Update Block Storage Suite
+	updateBlockStorageTestSuite := storage.NewUpdateBlockStorageV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if updateBlockStorageTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, updateBlockStorageTestSuite)
 	}
 }

@@ -18,7 +18,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type AuthorizationListV1TestSuite struct {
+type ListV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	Users []string
@@ -26,17 +26,17 @@ type AuthorizationListV1TestSuite struct {
 	params *params.AuthorizationListV1Params
 }
 
-func CreateListV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *AuthorizationListV1TestSuite {
-	suite := &AuthorizationListV1TestSuite{
+func NewListV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *ListV1TestSuite {
+	suite := &ListV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		Users:           users,
 	}
-	suite.ScenarioName = constants.AuthorizationV1ListSuiteName
+	suite.ScenarioName = constants.AuthorizationListV1SuiteName.String()
 	return suite
 }
 
-func (suite *AuthorizationListV1TestSuite) BeforeAll(t provider.T) {
-	var err error
+func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+	t.AddParentSuite("authorization")
 
 	// Select subs
 	roleAssignmentSub1 := suite.Users[rand.Intn(len(suite.Users))]
@@ -164,7 +164,7 @@ func (suite *AuthorizationListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *AuthorizationListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
@@ -273,6 +273,6 @@ func (suite *AuthorizationListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *AuthorizationListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }
