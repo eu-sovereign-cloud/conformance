@@ -132,6 +132,9 @@ func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatal(err)
 	}
 
+	securityGroupRuleName := generators.GenerateSecurityGroupRuleName()
+	securityGroupRuleName2 := generators.GenerateSecurityGroupRuleName()
+
 	securityGroupName := generators.GenerateSecurityGroupName()
 	securityGroupName2 := generators.GenerateSecurityGroupName()
 
@@ -382,6 +385,37 @@ func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 
 	publicIps := []schema.PublicIp{*publicIp, *publicIp2}
 
+	securityGroupRule, err := builders.NewSecurityGroupRulesBuilder().
+		Name(securityGroupRuleName).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.SecurityGroupRuleSpec{
+			Direction: schema.SecurityGroupRuleDirectionEgress,
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Security Group Rule: %v", err)
+	}
+
+	securityGroupRule2, err := builders.NewSecurityGroupRulesBuilder().
+		Name(securityGroupRuleName2).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.SecurityGroupRuleSpec{
+			Direction: schema.SecurityGroupRuleDirectionIngress,
+		}).Build()
+
+	if err != nil {
+		t.Fatalf("Failed to build Security Group: %v", err)
+	}
+
+	securityGroupRules := []schema.SecurityGroupRule{*securityGroupRule, *securityGroupRule2}
+
 	securityGroup, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupName).
 		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
@@ -413,16 +447,17 @@ func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 	securityGroups := []schema.SecurityGroup{*securityGroup, *securityGroup2}
 
 	params := &params.NetworkListV1Params{
-		Workspace:        workspace,
-		BlockStorage:     blockStorage,
-		Instance:         instance,
-		Networks:         networks,
-		InternetGateways: internetGateways,
-		RouteTables:      routeTables,
-		Subnets:          subnets,
-		Nics:             nics,
-		PublicIps:        publicIps,
-		SecurityGroups:   securityGroups,
+		Workspace:          workspace,
+		BlockStorage:       blockStorage,
+		Instance:           instance,
+		Networks:           networks,
+		InternetGateways:   internetGateways,
+		RouteTables:        routeTables,
+		Subnets:            subnets,
+		Nics:               nics,
+		PublicIps:          publicIps,
+		SecurityGroupRules: securityGroupRules,
+		SecurityGroups:     securityGroups,
 	}
 	suite.params = params
 	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureListScenarioV1, params)
@@ -677,6 +712,65 @@ func (suite *NetworkListV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.GetListNicV1Step("Get list of Nic with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+
+	// Security Group rules
+	groupRules := suite.params.SecurityGroups
+
+	// Create security group rules
+	for _, rule := range groupRules {
+		expectGroupRuleMeta := rule.Metadata
+		expectGroupRuleSpec := &rule.Spec
+		stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group rules", suite.Client.NetworkV1, &rule,
+			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+				Metadata:      expectGroupRuleMeta,
+				Spec:          expectGroupRuleSpec,
+				ResourceState: schema.ResourceStateCreating,
+			},
+		)
+	}
+
+	// List security groups
+	stepsBuilder.GetListSecurityGroupRulesV1Step("List Security Group Rules", suite.Client.NetworkV1, wref, nil)
+
+	// List security groups with limit
+	stepsBuilder.GetListSecurityGroupRulesV1Step("Get list of Security Group Rules with limit", suite.Client.NetworkV1, wref,
+		secapi.NewListOptions().WithLimit(1))
+
+	// List security groups with label
+	stepsBuilder.GetListSecurityGroupRulesV1Step("Get list of Security Group Rules with label", suite.Client.NetworkV1, wref,
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+
+	// List security groups with limit and label
+	stepsBuilder.GetListSecurityGroupRulesV1Step("Get list of Security Group Rules with limit and label", suite.Client.NetworkV1, wref,
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+
+	// Delete all security groups
+	for _, rule := range groupRules {
+		stepsBuilder.DeleteSecurityGroupV1Step("Delete the security group rule", suite.Client.NetworkV1, &rule)
+
+		// Get deleted security group
+		groupWRef := &secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(rule.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(rule.Metadata.Workspace),
+			Name:      rule.Metadata.Name,
+		}
+		stepsBuilder.GetSecurityGroupRuleWithErrorV1Step("Get deleted security group rule", suite.Client.NetworkV1, *groupWRef, secapi.ErrResourceNotFound)
+	}
+
+	// Create security groups
+	for _, group := range groupRules {
+		expectGroupMeta := group.Metadata
+		expectGroupSpec := &group.Spec
+		stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", suite.Client.NetworkV1, &group,
+			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+				Metadata:      expectGroupMeta,
+				Spec:          expectGroupSpec,
+				ResourceState: schema.ResourceStateCreating,
+			},
+		)
+	}
 
 	// Security Group
 	groups := suite.params.SecurityGroups

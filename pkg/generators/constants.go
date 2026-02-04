@@ -2,20 +2,21 @@ package generators
 
 const (
 	// Names
-	roleName            = "role-%d"
-	roleAssignmentName  = "role-assignment-%d"
-	regionName          = "region-%d"
-	workspaceName       = "workspace-%d"
-	blockStorageName    = "disk-%d"
-	imageName           = "image-%d"
-	instanceName        = "instance-%d"
-	networkName         = "network-%d"
-	internetGatewayName = "internet-gateway-%d"
-	routeTableName      = "route-table-%d"
-	subnetName          = "subnet-%d"
-	publicIpName        = "public-ip-%d"
-	nicName             = "nic-%d"
-	securityGroupName   = "security-group-%d"
+	roleName               = "role-%d"
+	roleAssignmentName     = "role-assignment-%d"
+	regionName             = "region-%d"
+	workspaceName          = "workspace-%d"
+	blockStorageName       = "disk-%d"
+	imageName              = "image-%d"
+	instanceName           = "instance-%d"
+	networkName            = "network-%d"
+	internetGatewayName    = "internet-gateway-%d"
+	routeTableName         = "route-table-%d"
+	subnetName             = "subnet-%d"
+	publicIpName           = "public-ip-%d"
+	nicName                = "nic-%d"
+	securityGroupRulesName = "security-group-rules-%d"
+	securityGroupName      = "security-group-%d"
 
 	// Endpoint URLs
 	urlProvidersPrefix = "/providers/"
@@ -94,14 +95,15 @@ const (
 	securityGroupListResource   = resourceWorkspacesPrefix + "/security-groups"
 
 	// References
-	skuRef             = "skus/%s"
-	instanceRef        = "instances/%s"
-	blockStorageRef    = "block-storages/%s"
-	internetGatewayRef = "internet-gateways/%s"
-	networkRef         = "networks/%s"
-	routeTableRef      = "route-tables/%s"
-	subnetRef          = "subnets/%s"
-	publicIpRef        = "public-ips/%s"
+	skuRef                = "skus/%s"
+	instanceRef           = "instances/%s"
+	blockStorageRef       = "block-storages/%s"
+	internetGatewayRef    = "internet-gateways/%s"
+	networkRef            = "networks/%s"
+	routeTableRef         = "route-tables/%s"
+	subnetRef             = "subnets/%s"
+	publicIpRef           = "public-ips/%s"
+	securityGroupRulesRef = "security-group-rules/%s"
 
 	// Generators
 	maxBlockStorageSize = 1000000 // GB

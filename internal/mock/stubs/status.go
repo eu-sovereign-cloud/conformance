@@ -141,6 +141,18 @@ func setNicState(status *schema.NicStatus, state schema.ResourceState) {
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
+func newSecurityGroupRuleStatus(state schema.ResourceState) *schema.SecurityGroupRuleStatus {
+	return &schema.SecurityGroupRuleStatus{
+		State:      &state,
+		Conditions: []schema.StatusCondition{},
+	}
+}
+
+func setSecurityGroupRuleState(status *schema.SecurityGroupRuleStatus, state schema.ResourceState) {
+	status.State = &state
+	status.Conditions = addStatusCondition(status.Conditions, state)
+}
+
 func newSecurityGroupStatus(state schema.ResourceState) *schema.SecurityGroupStatus {
 	return &schema.SecurityGroupStatus{
 		State:      &state,

@@ -255,6 +255,38 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 		return nil, err
 	}
 
+	// Security group rule
+	groupRuleResponse, err := builders.NewSecurityGroupRuleBuilder().
+		Name(securityGroup.Metadata.Name).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(securityGroup.Metadata.Tenant).Workspace(securityGroup.Metadata.Workspace).Region(securityGroup.Metadata.Region).
+		Spec(&securityGroup.Spec).
+		Build()
+	if err != nil {
+		return nil, err
+	}
+
+	// Create a security group rule
+	if err := configurator.ConfigureCreateSecurityGroupRuleStub(groupRuleResponse, groupUrl, mockParams); err != nil {
+		return nil, err
+	}
+
+	// Get the created security group rule
+	if err := configurator.ConfigureGetActiveSecurityGroupRuleStub(groupRuleResponse, groupUrl, mockParams); err != nil {
+		return nil, err
+	}
+
+	// Update the security group rule
+	groupRuleResponse.Spec = suiteParams.SecurityGroupUpdated.Spec
+	if err := configurator.ConfigureUpdateSecurityGroupRuleStub(groupRuleResponse, groupUrl, mockParams); err != nil {
+		return nil, err
+	}
+
+	// Get the updated security group rule
+	if err := configurator.ConfigureGetActiveSecurityGroupRuleStub(groupRuleResponse, groupUrl, mockParams); err != nil {
+		return nil, err
+	}
+
 	// Security group
 	groupResponse, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroup.Metadata.Name).

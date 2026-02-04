@@ -231,6 +231,14 @@ func (suite *TestSuite) VerifyNicSpecStep(ctx provider.StepCtx, expected *schema
 	})
 }
 
+func (suite *TestSuite) VerifySecurityGroupRuleSpecStep(ctx provider.StepCtx, expected *schema.SecurityGroupRuleSpec, actual *schema.SecurityGroupRuleSpec) {
+	ctx.WithNewStep("Verify SecurityGroupSpec", func(stepCtx provider.StepCtx) {
+
+		stepCtx.Require().Equal(expected.Direction, actual.Direction, fmt.Sprintf("Rule [%d] Direction should match expected"))
+
+	})
+}
+
 func (suite *TestSuite) VerifySecurityGroupSpecStep(ctx provider.StepCtx, expected *schema.SecurityGroupSpec, actual *schema.SecurityGroupSpec) {
 	ctx.WithNewStep("Verify SecurityGroupSpec", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(len(expected.Rules), len(actual.Rules), "Rule list length should match expected")

@@ -58,6 +58,11 @@ func GenerateNicName() string {
 	return fmt.Sprintf(nicName, rand.Intn(math.MaxInt32))
 }
 
+func GenerateSecurityGroupRuleName() string {
+	return fmt.Sprintf(securityGroupRulesName, rand.Intn(math.MaxInt32))
+}
+
+
 func GenerateSecurityGroupName() string {
 	return fmt.Sprintf(securityGroupName, rand.Intn(math.MaxInt32))
 }

@@ -69,36 +69,39 @@ type StorageListV1Params struct {
 // Network
 
 type NetworkLifeCycleV1Params struct {
-	Workspace              *schema.Workspace
-	BlockStorage           *schema.BlockStorage
-	Instance               *schema.Instance
-	NetworkInitial         *schema.Network
-	NetworkUpdated         *schema.Network
-	InternetGatewayInitial *schema.InternetGateway
-	InternetGatewayUpdated *schema.InternetGateway
-	RouteTableInitial      *schema.RouteTable
-	RouteTableUpdated      *schema.RouteTable
-	SubnetInitial          *schema.Subnet
-	SubnetUpdated          *schema.Subnet
-	NicInitial             *schema.Nic
-	NicUpdated             *schema.Nic
-	PublicIpInitial        *schema.PublicIp
-	PublicIpUpdated        *schema.PublicIp
-	SecurityGroupInitial   *schema.SecurityGroup
-	SecurityGroupUpdated   *schema.SecurityGroup
+	Workspace                 *schema.Workspace
+	BlockStorage              *schema.BlockStorage
+	Instance                  *schema.Instance
+	NetworkInitial            *schema.Network
+	NetworkUpdated            *schema.Network
+	InternetGatewayInitial    *schema.InternetGateway
+	InternetGatewayUpdated    *schema.InternetGateway
+	RouteTableInitial         *schema.RouteTable
+	RouteTableUpdated         *schema.RouteTable
+	SubnetInitial             *schema.Subnet
+	SubnetUpdated             *schema.Subnet
+	NicInitial                *schema.Nic
+	NicUpdated                *schema.Nic
+	PublicIpInitial           *schema.PublicIp
+	PublicIpUpdated           *schema.PublicIp
+	SecurityGroupRulesInitial *schema.SecurityGroupRule
+	SecurityGroupRulesUpdated *schema.SecurityGroupRule
+	SecurityGroupInitial      *schema.SecurityGroup
+	SecurityGroupUpdated      *schema.SecurityGroup
 }
 
 type NetworkListV1Params struct {
-	Workspace        *schema.Workspace
-	BlockStorage     *schema.BlockStorage
-	Instance         *schema.Instance
-	Networks         []schema.Network
-	InternetGateways []schema.InternetGateway
-	RouteTables      []schema.RouteTable
-	Subnets          []schema.Subnet
-	Nics             []schema.Nic
-	PublicIps        []schema.PublicIp
-	SecurityGroups   []schema.SecurityGroup
+	Workspace          *schema.Workspace
+	BlockStorage       *schema.BlockStorage
+	Instance           *schema.Instance
+	Networks           []schema.Network
+	InternetGateways   []schema.InternetGateway
+	RouteTables        []schema.RouteTable
+	Subnets            []schema.Subnet
+	Nics               []schema.Nic
+	PublicIps          []schema.PublicIp
+	SecurityGroupRules []schema.SecurityGroupRule
+	SecurityGroups     []schema.SecurityGroup
 }
 
 // Usage

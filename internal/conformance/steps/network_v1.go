@@ -541,6 +541,76 @@ func (configurator *StepsConfigurator) DeleteNicV1Step(stepName string, api *sec
 	})
 }
 
+// Security Group Rules
+
+func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRulesV1Step(stepName string, api *secapi.NetworkV1, resource *schema.SecurityGroupRule,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
+		createOrUpdateWorkspaceResourceParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  "CreateOrUpdateSecurityGroupRule",
+			workspace:      resource.Metadata.Workspace,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.SecurityGroupRule) (*stepFuncResponse[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec], error) {
+				resp, err := api.CreateOrUpdateSecurityGroupRule(configurator.t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.Metadata,
+			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.Spec,
+			verifySpecFunc:        configurator.suite.VerifySecurityGroupRuleSpecStep,
+			expectedResourceState: responseExpects.ResourceState,
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) GetSecurityGroupRulesV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec],
+) *schema.SecurityGroupRule {
+	responseExpects.Metadata.Verb = http.MethodGet
+	return getWorkspaceResourceStep(configurator.t, configurator.suite,
+		getWorkspaceResourceParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  "GetSecurityGroupRule",
+			wref:           wref,
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec], error) {
+				resp, err := api.GetSecurityGroupRuleUntilState(ctx, wref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+			},
+			expectedMetadata:      responseExpects.Metadata,
+			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:          responseExpects.Spec,
+			verifySpecFunc:        configurator.suite.VerifySecurityGroupSpecStep,
+			expectedResourceState: responseExpects.ResourceState,
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) GetListSecurityGroupRulesV1Step(
+	stepName string,
+	api *secapi.NetworkV1,
+	wref secapi.WorkspaceReference,
+	opts *secapi.ListOptions,
+) {
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListSecurityGroupRules", wref.Name)
+		var iter *secapi.Iterator[schema.SecurityGroupRule]
+		var err error
+		if opts != nil {
+			iter, err = api.ListSecurityGroupRulesWithFilters(configurator.t.Context(), wref.Tenant, wref.Workspace, opts)
+		} else {
+			iter, err = api.ListSecurityGroupRules(configurator.t.Context(), wref.Tenant, wref.Workspace)
+		}
+		requireNoError(sCtx, err)
+
+		verifyIterListStep(sCtx, configurator.t, *iter)
+	})
+}
+
 // Security Group
 
 func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepName string, api *secapi.NetworkV1, resource *schema.SecurityGroup,

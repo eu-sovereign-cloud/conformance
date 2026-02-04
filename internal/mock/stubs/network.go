@@ -218,6 +218,41 @@ func (configurator *stubConfigurator) ConfigureGetListNicStub(response *network.
 	return nil
 }
 
+// Security group rules
+
+func (configurator *stubConfigurator) ConfigureCreateSecurityGroupRuleStub(response *schema.SecurityGroupRule, url string, params *mock.MockParams) error {
+	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
+	response.Status = newSecurityGroupRuleStatus(schema.ResourceStateCreating)
+	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *stubConfigurator) ConfigureUpdateSecurityGroupRuleStub(response *schema.SecurityGroupRule, url string, params *mock.MockParams) error {
+	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
+	setSecurityGroupRuleState(response.Status, schema.ResourceStateUpdating)
+	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *stubConfigurator) ConfigureGetActiveSecurityGroupRuleStub(response *schema.SecurityGroupRule, url string, params *mock.MockParams) error {
+	setSecurityGroupRuleState(response.Status, schema.ResourceStateActive)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *stubConfigurator) ConfigureGetListSecurityGroupRuleStub(response *network.SecurityGroupRuleIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Security group
 
 func (configurator *stubConfigurator) ConfigureCreateSecurityGroupStub(response *schema.SecurityGroup, url string, params *mock.MockParams) error {

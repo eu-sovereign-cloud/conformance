@@ -118,3 +118,17 @@ func GeneratePublicIpRefObject(name string) (*schema.Reference, error) {
 	}
 	return ref, nil
 }
+
+func generateSecurityGroupRulesRef(securityGroupRulesName string) string {
+	return fmt.Sprintf(securityGroupRulesRef, securityGroupRulesName)
+}
+
+func GenerateSecurityGroupRulesObject(name string) (*schema.Reference, error) {
+	urn := generateSecurityGroupRulesRef(name)
+
+	ref, err := secapi.BuildReferenceFromURN(urn)
+	if err != nil {
+		return nil, fmt.Errorf("error building reference %s: %s", urn, err)
+	}
+	return ref, nil
+}
