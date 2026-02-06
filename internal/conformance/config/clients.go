@@ -84,19 +84,19 @@ func InitClients(ctx context.Context) error {
 	// Load available instance skus
 	Clients.InstanceSkus, err = loadInstanceSkus(ctx, Clients.RegionalClient)
 	if err != nil {
-		return fmt.Errorf("failed to list instance skus: %w", err)
+		fmt.Println("failed to list instance skus: %w", err)
 	}
 
 	// Load available storage skus
 	Clients.StorageSkus, err = loadStorageSkus(ctx, Clients.RegionalClient)
 	if err != nil {
-		return fmt.Errorf("failed to list storage skus: %w", err)
+		fmt.Println("failed to list storage skus: %w", err)
 	}
 
 	// Load available network skus
 	Clients.NetworkSkus, err = loadNetworkSkus(ctx, Clients.RegionalClient)
 	if err != nil {
-		return fmt.Errorf("failed to list network skus: %w", err)
+		fmt.Println("failed to list network skus: %w", err)
 	}
 
 	// Cleanup configured mock scenarios

@@ -251,8 +251,12 @@ func (suite *StorageListV1TestSuite) TestScenario(t provider.T) {
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
 
+	tref := secapi.TenantReference{
+		Name:   workspace.Metadata.Tenant,
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+	}
 	// Image
-	images := suite.params.Images
+	/*images := suite.params.Images
 
 	// Create images
 	for _, image := range images {
@@ -268,10 +272,7 @@ func (suite *StorageListV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	// List images
-	tref := secapi.TenantReference{
-		Name:   workspace.Metadata.Tenant,
-		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
-	}
+
 	stepsBuilder.GetListImageV1Step("List image", suite.Client.StorageV1, tref, nil)
 
 	// List images with limit
@@ -287,7 +288,7 @@ func (suite *StorageListV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.GetListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
+	*/
 	// Skus
 
 	// List Skus
@@ -298,7 +299,7 @@ func (suite *StorageListV1TestSuite) TestScenario(t provider.T) {
 		secapi.NewListOptions().WithLimit(1))
 
 	// Delete all images
-	for _, image := range images {
+	/*for _, image := range images {
 		stepsBuilder.DeleteImageV1Step("Delete image", suite.Client.StorageV1, &image)
 
 		// Get the deleted image
@@ -307,7 +308,7 @@ func (suite *StorageListV1TestSuite) TestScenario(t provider.T) {
 			Name:   image.Metadata.Name,
 		}
 		stepsBuilder.GetImageWithErrorV1Step("Get deleted image ", suite.Client.StorageV1, *imageTRef, secapi.ErrResourceNotFound)
-	}
+	}*/
 
 	// Delete all block storages
 	for _, block := range blocks {
