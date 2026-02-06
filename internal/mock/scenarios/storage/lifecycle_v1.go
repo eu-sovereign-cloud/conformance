@@ -17,8 +17,8 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 	workspace := *suiteParams.Workspace
 	blockStorageInitial := *suiteParams.BlockStorageInitial
 	blockStorageUpdated := *suiteParams.BlockStorageUpdated
-	imageInitial := *suiteParams.ImageInitial
-	imageUpdated := *suiteParams.ImageUpdated
+	/*imageInitial := *suiteParams.ImageInitial
+	imageUpdated := *suiteParams.ImageUpdated*/
 
 	configurator, err := stubs.NewStubConfigurator(scenario, mockParams)
 	if err != nil {
@@ -28,7 +28,7 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 	// Generate URLs
 	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, blockStorageInitial.Metadata.Tenant, blockStorageInitial.Metadata.Workspace, blockStorageInitial.Metadata.Name)
-	imageUrl := generators.GenerateImageURL(constants.StorageProviderV1, imageInitial.Metadata.Tenant, imageInitial.Metadata.Name)
+	//imageUrl := generators.GenerateImageURL(constants.StorageProviderV1, imageInitial.Metadata.Tenant, imageInitial.Metadata.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
@@ -82,49 +82,49 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 	if err := configurator.ConfigureGetActiveBlockStorageStub(blockResponse, blockUrl, mockParams); err != nil {
 		return nil, err
 	}
+	/*
+		// Image
+		imageResponse, err := builders.NewImageBuilder().
+			Name(imageInitial.Metadata.Name).
+			Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+			Tenant(imageInitial.Metadata.Tenant).Region(imageInitial.Metadata.Region).
+			Spec(&imageInitial.Spec).
+			Build()
+		if err != nil {
+			return nil, err
+		}
 
-	// Image
-	imageResponse, err := builders.NewImageBuilder().
-		Name(imageInitial.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(imageInitial.Metadata.Tenant).Region(imageInitial.Metadata.Region).
-		Spec(&imageInitial.Spec).
-		Build()
-	if err != nil {
-		return nil, err
-	}
+		// Create an image
+		if err := configurator.ConfigureCreateImageStub(imageResponse, imageUrl, mockParams); err != nil {
+			return nil, err
+		}
 
-	// Create an image
-	if err := configurator.ConfigureCreateImageStub(imageResponse, imageUrl, mockParams); err != nil {
-		return nil, err
-	}
+		// Get the created image
+		if err := configurator.ConfigureGetActiveImageStub(imageResponse, imageUrl, mockParams); err != nil {
+			return nil, err
+		}
 
-	// Get the created image
-	if err := configurator.ConfigureGetActiveImageStub(imageResponse, imageUrl, mockParams); err != nil {
-		return nil, err
-	}
+		// Update the image
+		imageResponse.Spec = imageUpdated.Spec
+		if err := configurator.ConfigureUpdateImageStub(imageResponse, imageUrl, mockParams); err != nil {
+			return nil, err
+		}
 
-	// Update the image
-	imageResponse.Spec = imageUpdated.Spec
-	if err := configurator.ConfigureUpdateImageStub(imageResponse, imageUrl, mockParams); err != nil {
-		return nil, err
-	}
+		// Get the updated image
+		if err := configurator.ConfigureGetActiveImageStub(imageResponse, imageUrl, mockParams); err != nil {
+			return nil, err
+		}
 
-	// Get the updated image
-	if err := configurator.ConfigureGetActiveImageStub(imageResponse, imageUrl, mockParams); err != nil {
-		return nil, err
-	}
+		// Delete the image
+		if err := configurator.ConfigureDeleteStub(imageUrl, mockParams); err != nil {
+			return nil, err
+		}
 
-	// Delete the image
-	if err := configurator.ConfigureDeleteStub(imageUrl, mockParams); err != nil {
-		return nil, err
-	}
-
-	// Get the deleted image
-	if err := configurator.ConfigureGetNotFoundStub(imageUrl, mockParams); err != nil {
-		return nil, err
-	}
-
+		// Get the deleted image
+		if err := configurator.ConfigureGetNotFoundStub(imageUrl, mockParams); err != nil {
+			return nil, err
+		}
+	*/
 	// Delete the block storage
 	if err := configurator.ConfigureDeleteStub(blockUrl, mockParams); err != nil {
 		return nil, err

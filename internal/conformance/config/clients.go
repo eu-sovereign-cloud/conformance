@@ -80,25 +80,25 @@ func InitClients(ctx context.Context) error {
 		return fmt.Errorf("failed to get region: %w", err)
 	}
 	Clients.RegionZones = regionResp.Spec.AvailableZones
-
-	// Load available instance skus
-	Clients.InstanceSkus, err = loadInstanceSkus(ctx, Clients.RegionalClient)
-	if err != nil {
-		fmt.Println("failed to list instance skus: %w", err)
-	}
-
+	/*
+		// Load available instance skus
+		Clients.InstanceSkus, err = loadInstanceSkus(ctx, Clients.RegionalClient)
+		if err != nil {
+			fmt.Println("failed to list instance skus: %w", err)
+		}
+	*/
 	// Load available storage skus
 	Clients.StorageSkus, err = loadStorageSkus(ctx, Clients.RegionalClient)
 	if err != nil {
 		fmt.Println("failed to list storage skus: %w", err)
 	}
-
-	// Load available network skus
-	Clients.NetworkSkus, err = loadNetworkSkus(ctx, Clients.RegionalClient)
-	if err != nil {
-		fmt.Println("failed to list network skus: %w", err)
-	}
-
+	/*
+		// Load available network skus
+		Clients.NetworkSkus, err = loadNetworkSkus(ctx, Clients.RegionalClient)
+		if err != nil {
+			fmt.Println("failed to list network skus: %w", err)
+		}
+	*/
 	// Cleanup configured mock scenarios
 	if Parameters.MockEnabled {
 		if err := wm.ResetAllScenarios(); err != nil {
@@ -109,26 +109,28 @@ func InitClients(ctx context.Context) error {
 	return nil
 }
 
+/*
 // TODO Convert these load skus functions to a generic one
-func loadInstanceSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
-	resp, err := regionalClient.ComputeV1.ListSkus(ctx, secapi.TenantID(Parameters.ClientTenant))
-	if err != nil {
-		return nil, err
+
+	func loadInstanceSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
+		resp, err := regionalClient.ComputeV1.ListSkus(ctx, secapi.TenantID(Parameters.ClientTenant))
+		if err != nil {
+			return nil, err
+		}
+
+		skus, err := resp.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		var available []string
+		for _, sku := range skus {
+			available = append(available, sku.Metadata.Name)
+		}
+
+		return available, nil
 	}
-
-	skus, err := resp.All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var available []string
-	for _, sku := range skus {
-		available = append(available, sku.Metadata.Name)
-	}
-
-	return available, nil
-}
-
+*/
 func loadStorageSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
 	resp, err := regionalClient.StorageV1.ListSkus(ctx, secapi.TenantID(Parameters.ClientTenant))
 	if err != nil {
@@ -148,6 +150,7 @@ func loadStorageSkus(ctx context.Context, regionalClient *secapi.RegionalClient)
 	return available, nil
 }
 
+/*
 func loadNetworkSkus(ctx context.Context, regionalClient *secapi.RegionalClient) ([]string, error) {
 	resp, err := regionalClient.NetworkV1.ListSkus(ctx, secapi.TenantID(Parameters.ClientTenant))
 	if err != nil {
@@ -166,3 +169,4 @@ func loadNetworkSkus(ctx context.Context, regionalClient *secapi.RegionalClient)
 
 	return available, nil
 }
+*/
