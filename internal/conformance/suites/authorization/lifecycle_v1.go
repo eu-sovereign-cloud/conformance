@@ -127,109 +127,109 @@ func (suite *AuthorizationLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
 
-	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
-
 	// Role
-
-	// Create a role
 	role := suite.params.RoleInitial
 	expectRoleMeta := role.Metadata
 	expectRoleSpec := &role.Spec
-	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, role,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateCreating,
-		},
-	)
-
-	// Get the created role
 	roleTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 		Name:   role.Metadata.Name,
 	}
-	role = stepsBuilder.GetRoleV1Step("Get the created role", suite.Client.AuthorizationV1, roleTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
 
-	// Update the role
-	role.Spec = suite.params.RoleUpdated.Spec
-	expectRoleSpec = &role.Spec
-	stepsBuilder.CreateOrUpdateRoleV1Step("Update the role", suite.Client.AuthorizationV1, role,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateUpdating,
-		},
-	)
+	t.WithNewStep("Role", func(roleCtx provider.StepCtx) {
+		roleSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, roleCtx)
 
-	// Get the updated role
-	role = stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
+		roleSteps.CreateOrUpdateRoleV1Step("Create", suite.Client.AuthorizationV1, role,
+			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+				Metadata:      expectRoleMeta,
+				Spec:          expectRoleSpec,
+				ResourceState: schema.ResourceStateCreating,
+			},
+		)
+
+		role = roleSteps.GetRoleV1Step("Get", suite.Client.AuthorizationV1, roleTRef,
+			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+				Metadata:      expectRoleMeta,
+				Spec:          expectRoleSpec,
+				ResourceState: schema.ResourceStateActive,
+			},
+		)
+
+		role.Spec = suite.params.RoleUpdated.Spec
+		expectRoleSpec = &role.Spec
+		roleSteps.CreateOrUpdateRoleV1Step("Update", suite.Client.AuthorizationV1, role,
+			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+				Metadata:      expectRoleMeta,
+				Spec:          expectRoleSpec,
+				ResourceState: schema.ResourceStateUpdating,
+			},
+		)
+
+		role = roleSteps.GetRoleV1Step("GetUpdated", suite.Client.AuthorizationV1, roleTRef,
+			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+				Metadata:      expectRoleMeta,
+				Spec:          expectRoleSpec,
+				ResourceState: schema.ResourceStateActive,
+			},
+		)
+	})
 
 	// Role assignment
-
-	// Create a role assignment
 	roleAssign := suite.params.RoleAssignmentInitial
 	expectRoleAssignMeta := roleAssign.Metadata
 	expectRoleAssignSpec := &roleAssign.Spec
-	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.Client.AuthorizationV1, roleAssign,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-			Metadata:      expectRoleAssignMeta,
-			Spec:          expectRoleAssignSpec,
-			ResourceState: schema.ResourceStateCreating,
-		},
-	)
-
-	// Get the created role assignment
 	roleAssignTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 		Name:   roleAssign.Metadata.Name,
 	}
-	roleAssign = stepsBuilder.GetRoleAssignmentV1Step("Get the created role assignment", suite.Client.AuthorizationV1, roleAssignTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-			Metadata:      expectRoleAssignMeta,
-			Spec:          expectRoleAssignSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
 
-	// Update the role assignment
-	roleAssign.Spec = suite.params.RoleAssignmentUpdated.Spec
-	expectRoleAssignSpec.Subs = roleAssign.Spec.Subs
-	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Update the role assignment", suite.Client.AuthorizationV1, roleAssign,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-			Metadata:      expectRoleAssignMeta,
-			Spec:          expectRoleAssignSpec,
-			ResourceState: schema.ResourceStateUpdating,
-		},
-	)
+	t.WithNewStep("RoleAssignment", func(raCtx provider.StepCtx) {
+		raSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, raCtx)
 
-	// Get the updated role assignment
-	roleAssign = stepsBuilder.GetRoleAssignmentV1Step("Get the updated role assignment", suite.Client.AuthorizationV1, roleAssignTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-			Metadata:      expectRoleAssignMeta,
-			Spec:          expectRoleAssignSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
+		raSteps.CreateOrUpdateRoleAssignmentV1Step("Create", suite.Client.AuthorizationV1, roleAssign,
+			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+				Metadata:      expectRoleAssignMeta,
+				Spec:          expectRoleAssignSpec,
+				ResourceState: schema.ResourceStateCreating,
+			},
+		)
 
-	// Resources deletion
+		roleAssign = raSteps.GetRoleAssignmentV1Step("Get", suite.Client.AuthorizationV1, roleAssignTRef,
+			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+				Metadata:      expectRoleAssignMeta,
+				Spec:          expectRoleAssignSpec,
+				ResourceState: schema.ResourceStateActive,
+			},
+		)
 
-	stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, roleAssign)
-	stepsBuilder.GetRoleAssignmentWithErrorV1Step("Get the deleted role assignment", suite.Client.AuthorizationV1, roleAssignTRef, secapi.ErrResourceNotFound)
+		roleAssign.Spec = suite.params.RoleAssignmentUpdated.Spec
+		expectRoleAssignSpec.Subs = roleAssign.Spec.Subs
+		raSteps.CreateOrUpdateRoleAssignmentV1Step("Update", suite.Client.AuthorizationV1, roleAssign,
+			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+				Metadata:      expectRoleAssignMeta,
+				Spec:          expectRoleAssignSpec,
+				ResourceState: schema.ResourceStateUpdating,
+			},
+		)
 
-	stepsBuilder.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, role)
-	stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, roleTRef, secapi.ErrResourceNotFound)
+		roleAssign = raSteps.GetRoleAssignmentV1Step("GetUpdated", suite.Client.AuthorizationV1, roleAssignTRef,
+			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+				Metadata:      expectRoleAssignMeta,
+				Spec:          expectRoleAssignSpec,
+				ResourceState: schema.ResourceStateActive,
+			},
+		)
+	})
+
+	t.WithNewStep("Deletes", func(delctx provider.StepCtx) {
+		delStep := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delctx)
+
+		delStep.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, roleAssign)
+		delStep.GetRoleAssignmentWithErrorV1Step("Get the deleted role assignment", suite.Client.AuthorizationV1, roleAssignTRef, secapi.ErrResourceNotFound)
+
+		delStep.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, role)
+		delStep.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, roleTRef, secapi.ErrResourceNotFound)
+	})
 
 	suite.FinishScenario()
 }

@@ -17,7 +17,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
+	createOrUpdateWorkspaceResourceStep(configurator,
 		createOrUpdateWorkspaceResourceParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageWorkspaceV1StepParams,
@@ -33,15 +33,14 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName
 			expectedSpec:          responseExpects.Spec,
 			verifySpecFunc:        configurator.suite.VerifyBlockStorageSpecStep,
 			expectedResourceState: responseExpects.ResourceState,
-		},
-	)
+		})
 }
 
 func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, api *secapi.StorageV1, wref secapi.WorkspaceReference,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
 ) *schema.BlockStorage {
 	responseExpects.Metadata.Verb = http.MethodGet
-	return getWorkspaceResourceStep(configurator.t, configurator.suite,
+	return getWorkspaceResourceStep(configurator,
 		getWorkspaceResourceParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageWorkspaceV1StepParams,
@@ -56,8 +55,7 @@ func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, ap
 			expectedSpec:          responseExpects.Spec,
 			verifySpecFunc:        configurator.suite.VerifyBlockStorageSpecStep,
 			expectedResourceState: responseExpects.ResourceState,
-		},
-	)
+		})
 }
 
 func (configurator *StepsConfigurator) GetListBlockStorageV1Step(
@@ -66,7 +64,7 @@ func (configurator *StepsConfigurator) GetListBlockStorageV1Step(
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListBlockStorage", string(wref.Workspace))
 
 		var iter *secapi.Iterator[schema.BlockStorage]
@@ -83,7 +81,7 @@ func (configurator *StepsConfigurator) GetListBlockStorageV1Step(
 }
 
 func (configurator *StepsConfigurator) GetBlockStorageWithErrorV1Step(stepName string, api *secapi.StorageV1, wref secapi.WorkspaceReference, expectedError error) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetBlockStorage", string(wref.Workspace))
 
 		_, err := api.GetBlockStorage(configurator.t.Context(), wref)
@@ -92,7 +90,7 @@ func (configurator *StepsConfigurator) GetBlockStorageWithErrorV1Step(stepName s
 }
 
 func (configurator *StepsConfigurator) DeleteBlockStorageV1Step(stepName string, api *secapi.StorageV1, resource *schema.BlockStorage) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "DeleteBlockStorage", resource.Metadata.Workspace)
 
 		err := api.DeleteBlockStorage(configurator.t.Context(), resource)
@@ -106,7 +104,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateTenantResourceStep(configurator.t, configurator.suite,
+	createOrUpdateTenantResourceStep(configurator,
 		createOrUpdateTenantResourceParams[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageV1StepParams,
@@ -129,7 +127,7 @@ func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api *seca
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
 ) *schema.Image {
 	responseExpects.Metadata.Verb = http.MethodGet
-	return getTenantResourceStep(configurator.t, configurator.suite,
+	return getTenantResourceStep(configurator,
 		getTenantResourceParams[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageV1StepParams,
@@ -154,7 +152,7 @@ func (configurator *StepsConfigurator) GetListImageV1Step(
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListImage", tref.Name)
 		var iter *secapi.Iterator[schema.Image]
 		var err error
@@ -166,11 +164,12 @@ func (configurator *StepsConfigurator) GetListImageV1Step(
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)
+
 	})
 }
 
 func (configurator *StepsConfigurator) GetImageWithErrorV1Step(stepName string, api *secapi.StorageV1, tref secapi.TenantReference, expectedError error) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageV1StepParams(sCtx, "GetImage")
 
 		_, err := api.GetImage(configurator.t.Context(), tref)
@@ -179,7 +178,7 @@ func (configurator *StepsConfigurator) GetImageWithErrorV1Step(stepName string, 
 }
 
 func (configurator *StepsConfigurator) DeleteImageV1Step(stepName string, api *secapi.StorageV1, resource *schema.Image) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageV1StepParams(sCtx, "DeleteImage")
 
 		err := api.DeleteImage(configurator.t.Context(), resource)
@@ -193,7 +192,7 @@ func (configurator *StepsConfigurator) GetListSkuV1Step(
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListSku", tref.Name)
 		var iter *secapi.Iterator[schema.StorageSku]
 		var err error

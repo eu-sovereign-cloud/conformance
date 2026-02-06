@@ -15,7 +15,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateTenantResourceStep(configurator.t, configurator.suite,
+	createOrUpdateTenantResourceStep(configurator,
 		createOrUpdateTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
@@ -37,7 +37,7 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api *
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) *schema.Workspace {
 	responseExpects.Metadata.Verb = http.MethodGet
-	return getTenantResourceStep(configurator.t, configurator.suite,
+	return getTenantResourceStep(configurator,
 		getTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
@@ -61,7 +61,7 @@ func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListWorkspace", string(tref.Tenant))
 		var iter *secapi.Iterator[schema.Workspace]
 		var err error
@@ -77,7 +77,7 @@ func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
 }
 
 func (configurator *StepsConfigurator) GetWorkspaceWithErrorV1Step(stepName string, api *secapi.WorkspaceV1, tref secapi.TenantReference, expectedError error) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetWorkspaceV1StepParams(sCtx, "GetWorkspace")
 
 		_, err := api.GetWorkspace(configurator.t.Context(), tref)
@@ -86,7 +86,7 @@ func (configurator *StepsConfigurator) GetWorkspaceWithErrorV1Step(stepName stri
 }
 
 func (configurator *StepsConfigurator) DeleteWorkspaceV1Step(stepName string, api *secapi.WorkspaceV1, resource *schema.Workspace) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetWorkspaceV1StepParams(sCtx, "DeleteWorkspace")
 
 		err := api.DeleteWorkspace(configurator.t.Context(), resource)

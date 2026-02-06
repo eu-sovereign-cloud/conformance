@@ -68,56 +68,59 @@ func (suite *WorkspaceLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
-	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
-
-	// Create a workspace
+	// Workspace lifecycle grouped
 	workspace := suite.params.WorkspaceInitial
 	expectMeta := workspace.Metadata
 	expectLabels := workspace.Labels
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectLabels,
-			Metadata:      expectMeta,
-			ResourceState: schema.ResourceStateCreating,
-		},
-	)
-
-	// Get the created Workspace
 	tref := secapi.TenantReference{
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
 	}
-	workspace = stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, tref,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectLabels,
-			Metadata:      expectMeta,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
 
-	// Update the workspace labels
-	workspace.Labels = suite.params.WorkspaceUpdated.Labels
-	expectLabels = workspace.Labels
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Update the workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectLabels,
-			Metadata:      expectMeta,
-			ResourceState: schema.ResourceStateUpdating,
-		},
-	)
+	t.WithNewStep("Workspace", func(wsCtx provider.StepCtx) {
+		wsSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, wsCtx)
 
-	// Get the updated workspace
-	workspace = stepsBuilder.GetWorkspaceV1Step("Get the updated workspace", suite.Client.WorkspaceV1, tref,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectLabels,
-			Metadata:      expectMeta,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
+		wsSteps.CreateOrUpdateWorkspaceV1Step("Create", suite.Client.WorkspaceV1, workspace,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+				Labels:        expectLabels,
+				Metadata:      expectMeta,
+				ResourceState: schema.ResourceStateCreating,
+			},
+		)
 
-	// Resources deletion
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, tref, secapi.ErrResourceNotFound)
+		workspace = wsSteps.GetWorkspaceV1Step("Get", suite.Client.WorkspaceV1, tref,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+				Labels:        expectLabels,
+				Metadata:      expectMeta,
+				ResourceState: schema.ResourceStateActive,
+			},
+		)
+
+		workspace.Labels = suite.params.WorkspaceUpdated.Labels
+		expectLabels = workspace.Labels
+		wsSteps.CreateOrUpdateWorkspaceV1Step("Update", suite.Client.WorkspaceV1, workspace,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+				Labels:        expectLabels,
+				Metadata:      expectMeta,
+				ResourceState: schema.ResourceStateUpdating,
+			},
+		)
+
+		workspace = wsSteps.GetWorkspaceV1Step("GetUpdated", suite.Client.WorkspaceV1, tref,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+				Labels:        expectLabels,
+				Metadata:      expectMeta,
+				ResourceState: schema.ResourceStateActive,
+			},
+		)
+	})
+
+	t.WithNewStep("Deletes", func(delCtx provider.StepCtx) {
+		// reuse root configurator for delete checks
+		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
+		delSteps.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
+		delSteps.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, tref, secapi.ErrResourceNotFound)
+	})
 
 	suite.FinishScenario()
 }

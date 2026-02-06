@@ -1,7 +1,9 @@
 package suites
 
 import (
+	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -250,4 +252,97 @@ func (suite *TestSuite) VerifyRegionSpecStep(ctx provider.StepCtx, actual *schem
 
 		stepCtx.Require().GreaterOrEqual(len(actual.Providers), 1, "Providers list length should greater then 1")
 	})
+}
+
+// Report Request
+
+func (suite *TestSuite) ReportRequestStep(ctx provider.StepCtx, actual any) {
+	ctx.WithNewStep("Request", func(stepCtx provider.StepCtx) {
+		if actual == nil {
+			stepCtx.WithNewParameters("request", "<nil>")
+			return
+		}
+
+		payload := buildReportPayload(actual)
+		if data, err := json.MarshalIndent(payload, "", "  "); err == nil {
+			stepCtx.WithNewParameters("request", string(data))
+		}
+	})
+}
+
+// Report Response
+
+func (suite *TestSuite) ReportResponseStep(ctx provider.StepCtx, actual any) {
+	ctx.WithNewStep("Response", func(stepCtx provider.StepCtx) {
+		if actual == nil {
+			stepCtx.WithNewParameters("Response", "<nil>")
+			return
+		}
+
+		payload := buildReportPayload(actual)
+		if data, err := json.MarshalIndent(payload, "", "  "); err == nil {
+			stepCtx.WithNewParameters("Response", string(data))
+		}
+	})
+}
+
+func buildReportPayload(actual any) any {
+	if actual == nil {
+		return nil
+	}
+
+	v := reflect.ValueOf(actual)
+	if !v.IsValid() {
+		return actual
+	}
+
+	// Dereference pointers
+	for v.Kind() == reflect.Ptr {
+		if v.IsNil() {
+			return nil
+		}
+		v = v.Elem()
+	}
+
+	if v.Kind() != reflect.Struct {
+		return actual
+	}
+
+	t := v.Type()
+	result := map[string]any{}
+
+	// func to extract and dereference a field
+	getField := func(name string) (any, bool) {
+		f, ok := t.FieldByName(name)
+		if !ok {
+			return nil, false
+		}
+		fv := v.FieldByIndex(f.Index)
+		for fv.Kind() == reflect.Ptr {
+			if fv.IsNil() {
+				return nil, true
+			}
+			fv = fv.Elem()
+		}
+		return fv.Interface(), true
+	}
+
+	if meta, ok := getField("Metadata"); ok {
+		result["metadata"] = meta
+	}
+	if labels, ok := getField("Labels"); ok {
+		result["labels"] = labels
+	}
+	if spec, ok := getField("Spec"); ok {
+		result["spec"] = spec
+	}
+	if status, ok := getField("Status"); ok {
+		result["status"] = status
+	}
+	// If we didn't recognize any of the common fields, fall back to the original object.
+	if len(result) == 0 {
+		return actual
+	}
+
+	return result
 }

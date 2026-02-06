@@ -14,7 +14,7 @@ func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx cont
 	var resp *schema.Region
 	var err error
 
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetRegionV1StepParams(sCtx, "GetRegion")
 
 		resp, err = api.GetRegion(ctx, expectedMeta.Name)
@@ -32,7 +32,7 @@ func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx cont
 func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx context.Context, api *secapi.RegionV1) []*schema.Region {
 	var resp []*schema.Region
 
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetRegionV1StepParams(sCtx, "ListRegions")
 
 		iter, err := api.ListRegions(ctx)

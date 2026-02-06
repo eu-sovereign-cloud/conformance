@@ -140,141 +140,142 @@ func (suite *StorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
 	)
 
-	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
-
 	// Workspace
-
-	// Create a workspace
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
-
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateCreating,
-		},
-	)
-
-	// Get the created Workspace
 	workspaceTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
 	}
-	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
+
+	t.WithNewStep("Workspace", func(wsCtx provider.StepCtx) {
+		wsSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, wsCtx)
+
+		wsSteps.CreateOrUpdateWorkspaceV1Step("Create", suite.Client.WorkspaceV1, workspace,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+				Labels:        expectWorkspaceLabels,
+				Metadata:      expectWorkspaceMeta,
+				ResourceState: schema.ResourceStateCreating,
+			},
+		)
+
+		wsSteps.GetWorkspaceV1Step("Get", suite.Client.WorkspaceV1, workspaceTRef,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+				Labels:        expectWorkspaceLabels,
+				Metadata:      expectWorkspaceMeta,
+				ResourceState: schema.ResourceStateActive,
+			},
+		)
+	})
 
 	// Block storage
-
-	// Create a block storage
 	block := suite.params.BlockStorageInitial
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
-	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateCreating,
-		},
-	)
-
-	// Get the created block storage
 	blockWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(block.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
 		Name:      block.Metadata.Name,
 	}
-	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
 
-	// Update the block storage
-	block.Spec = suite.params.BlockStorageUpdated.Spec
-	expectedBlockSpec.SizeGB = block.Spec.SizeGB
-	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Update the block storage", suite.Client.StorageV1, block,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateUpdating,
-		},
-	)
+	t.WithNewStep("BlockStorage", func(bsCtx provider.StepCtx) {
+		bsSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, bsCtx)
 
-	// Get the updated block storage
-	block = stepsBuilder.GetBlockStorageV1Step("Get the updated block storage", suite.Client.StorageV1, blockWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
+		bsSteps.CreateOrUpdateBlockStorageV1Step("Create", suite.Client.StorageV1, block,
+			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+				Metadata:      expectedBlockMeta,
+				Spec:          expectedBlockSpec,
+				ResourceState: schema.ResourceStateCreating,
+			},
+		)
+
+		block = bsSteps.GetBlockStorageV1Step("Get", suite.Client.StorageV1, blockWRef,
+			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+				Metadata:      expectedBlockMeta,
+				Spec:          expectedBlockSpec,
+				ResourceState: schema.ResourceStateActive,
+			},
+		)
+
+		block.Spec = suite.params.BlockStorageUpdated.Spec
+		expectedBlockSpec.SizeGB = block.Spec.SizeGB
+		bsSteps.CreateOrUpdateBlockStorageV1Step("Update", suite.Client.StorageV1, block,
+			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+				Metadata:      expectedBlockMeta,
+				Spec:          expectedBlockSpec,
+				ResourceState: schema.ResourceStateUpdating,
+			},
+		)
+
+		block = bsSteps.GetBlockStorageV1Step("GetUpdated", suite.Client.StorageV1, blockWRef,
+			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+				Metadata:      expectedBlockMeta,
+				Spec:          expectedBlockSpec,
+				ResourceState: schema.ResourceStateActive,
+			},
+		)
+	})
 
 	// Image
-
-	// Create an image
 	image := suite.params.ImageInitial
 	expectedImageMeta := image.Metadata
 	expectedImageSpec := &image.Spec
-	stepsBuilder.CreateOrUpdateImageV1Step("Create an image", suite.Client.StorageV1, image,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:      expectedImageMeta,
-			Spec:          expectedImageSpec,
-			ResourceState: schema.ResourceStateCreating,
-		},
-	)
-
-	// Get the created image
 	imageTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(image.Metadata.Tenant),
 		Name:   image.Metadata.Name,
 	}
-	image = stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:      expectedImageMeta,
-			Spec:          expectedImageSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
 
-	// Update the image
-	image.Spec = suite.params.ImageUpdated.Spec
-	expectedImageSpec.CpuArchitecture = image.Spec.CpuArchitecture
-	stepsBuilder.CreateOrUpdateImageV1Step("Update the image", suite.Client.StorageV1, image,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:      expectedImageMeta,
-			Spec:          expectedImageSpec,
-			ResourceState: schema.ResourceStateUpdating,
-		},
-	)
+	t.WithNewStep("Image", func(imgCtx provider.StepCtx) {
+		imgSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, imgCtx)
 
-	// Get the updated image
-	image = stepsBuilder.GetImageV1Step("Get the updated image", suite.Client.StorageV1, imageTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:      expectedImageMeta,
-			Spec:          expectedImageSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
+		imgSteps.CreateOrUpdateImageV1Step("Create", suite.Client.StorageV1, image,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
+				Metadata:      expectedImageMeta,
+				Spec:          expectedImageSpec,
+				ResourceState: schema.ResourceStateCreating,
+			},
+		)
+
+		image = imgSteps.GetImageV1Step("Get", suite.Client.StorageV1, imageTRef,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
+				Metadata:      expectedImageMeta,
+				Spec:          expectedImageSpec,
+				ResourceState: schema.ResourceStateActive,
+			},
+		)
+
+		image.Spec = suite.params.ImageUpdated.Spec
+		expectedImageSpec.CpuArchitecture = image.Spec.CpuArchitecture
+		imgSteps.CreateOrUpdateImageV1Step("Update", suite.Client.StorageV1, image,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
+				Metadata:      expectedImageMeta,
+				Spec:          expectedImageSpec,
+				ResourceState: schema.ResourceStateUpdating,
+			},
+		)
+
+		image = imgSteps.GetImageV1Step("GetUpdated", suite.Client.StorageV1, imageTRef,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
+				Metadata:      expectedImageMeta,
+				Spec:          expectedImageSpec,
+				ResourceState: schema.ResourceStateActive,
+			},
+		)
+	})
 
 	// Resources deletion
+	t.WithNewStep("Deletes", func(delCtx provider.StepCtx) {
+		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
+		delSteps.DeleteImageV1Step("Delete the image", suite.Client.StorageV1, image)
+		delSteps.GetImageWithErrorV1Step("Get the deleted image", suite.Client.StorageV1, imageTRef, secapi.ErrResourceNotFound)
 
-	stepsBuilder.DeleteImageV1Step("Delete the image", suite.Client.StorageV1, image)
-	stepsBuilder.GetImageWithErrorV1Step("Get the deleted image", suite.Client.StorageV1, imageTRef, secapi.ErrResourceNotFound)
+		delSteps.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
+		delSteps.GetBlockStorageWithErrorV1Step("Get the deleted block storage", suite.Client.StorageV1, blockWRef, secapi.ErrResourceNotFound)
 
-	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
-	stepsBuilder.GetBlockStorageWithErrorV1Step("Get the deleted block storage", suite.Client.StorageV1, blockWRef, secapi.ErrResourceNotFound)
-
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
+		delSteps.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
+		delSteps.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
+	})
 
 	suite.FinishScenario()
 }

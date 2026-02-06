@@ -17,7 +17,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string,
 	responseExpects ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateTenantResourceStep(configurator.t, configurator.suite,
+	createOrUpdateTenantResourceStep(configurator,
 		createOrUpdateTenantResourceParams[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
@@ -40,7 +40,7 @@ func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api *secap
 	responseExpects ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec],
 ) *schema.Role {
 	responseExpects.Metadata.Verb = http.MethodGet
-	return getTenantResourceStep(configurator.t, configurator.suite,
+	return getTenantResourceStep(configurator,
 		getTenantResourceParams[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
@@ -82,7 +82,7 @@ func (configurator *StepsConfigurator) GetListRoleV1Step(stepName string,
 }
 
 func (configurator *StepsConfigurator) GetRoleWithErrorV1Step(stepName string, api *secapi.AuthorizationV1, tref secapi.TenantReference, expectedError error) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetAuthorizationV1StepParams(sCtx, "GetRole")
 
 		_, err := api.GetRole(configurator.t.Context(), tref)
@@ -91,7 +91,7 @@ func (configurator *StepsConfigurator) GetRoleWithErrorV1Step(stepName string, a
 }
 
 func (configurator *StepsConfigurator) DeleteRoleV1Step(stepName string, api *secapi.AuthorizationV1, resource *schema.Role) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetAuthorizationV1StepParams(sCtx, "DeleteRole")
 
 		err := api.DeleteRole(configurator.t.Context(), resource)
@@ -105,7 +105,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepNa
 	responseExpects ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateTenantResourceStep(configurator.t, configurator.suite,
+	createOrUpdateTenantResourceStep(configurator,
 		createOrUpdateTenantResourceParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
@@ -128,7 +128,7 @@ func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, 
 	responseExpects ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec],
 ) *schema.RoleAssignment {
 	responseExpects.Metadata.Verb = http.MethodGet
-	return getTenantResourceStep(configurator.t, configurator.suite,
+	return getTenantResourceStep(configurator,
 		getTenantResourceParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
@@ -152,7 +152,7 @@ func (configurator *StepsConfigurator) GetListRoleAssignmentsV1(stepName string,
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetAuthorizationV1StepParams(sCtx, "GetListRoleAssignment")
 
 		var iter *secapi.Iterator[schema.RoleAssignment]
@@ -169,7 +169,7 @@ func (configurator *StepsConfigurator) GetListRoleAssignmentsV1(stepName string,
 }
 
 func (configurator *StepsConfigurator) GetRoleAssignmentWithErrorV1Step(stepName string, api *secapi.AuthorizationV1, tref secapi.TenantReference, expectedError error) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
 
 		_, err := api.GetRoleAssignment(configurator.t.Context(), tref)
@@ -178,7 +178,7 @@ func (configurator *StepsConfigurator) GetRoleAssignmentWithErrorV1Step(stepName
 }
 
 func (configurator *StepsConfigurator) DeleteRoleAssignmentV1Step(stepName string, api *secapi.AuthorizationV1, resource *schema.RoleAssignment) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetAuthorizationV1StepParams(sCtx, "DeleteRoleAssignment")
 
 		err := api.DeleteRoleAssignment(configurator.t.Context(), resource)
