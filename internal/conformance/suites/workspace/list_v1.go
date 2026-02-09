@@ -71,53 +71,49 @@ func (suite *WorkspaceListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
-	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
-
-	// Workspace
+	// Workspace list scenario grouped
 	workspaces := suite.params.Workspaces
+	tref := &secapi.TenantReference{Tenant: secapi.TenantID(suite.Tenant)}
 
-	// Create workspaces
-	for _, workspace := range workspaces {
-		expectMeta := workspace.Metadata
-		expectLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
-		stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, &workspace,
-			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-				Labels:        expectLabels,
-				Metadata:      expectMeta,
-				ResourceState: schema.ResourceStateCreating,
-			},
-		)
+	t.WithNewStep("Workspace", func(wsCtx provider.StepCtx) {
+		wsSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, wsCtx)
 
-	}
-
-	// List workspaces
-	tref := &secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-	}
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, nil)
-
-	// List workspaces with limit
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, secapi.NewListOptions().WithLimit(1))
-
-	// List workspaces with label
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// List workspaces with label and limit
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// Delete all workspaces
-	for _, workspace := range workspaces {
-		stepsBuilder.DeleteWorkspaceV1Step("Delete workspace 1", suite.Client.WorkspaceV1, &workspace)
-
-		// Get the deleted workspace
-		workspaceTRef := &secapi.TenantReference{
-			Tenant: secapi.TenantID(workspace.Metadata.Tenant),
-			Name:   workspace.Metadata.Name,
+		// Create workspaces
+		for _, workspace := range workspaces {
+			expectMeta := workspace.Metadata
+			expectLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
+			wsSteps.CreateOrUpdateWorkspaceV1Step("Create", suite.Client.WorkspaceV1, &workspace,
+				steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+					Labels:        expectLabels,
+					Metadata:      expectMeta,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
 		}
-		stepsBuilder.GetWorkspaceWithErrorV1Step("Get deleted workspace 1", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
-	}
+
+		// List workspaces with different filters
+		wsSteps.GetListWorkspaceV1Step("ListAll", suite.Client.WorkspaceV1, *tref, nil)
+		wsSteps.GetListWorkspaceV1Step("ListWithLimit", suite.Client.WorkspaceV1, *tref, secapi.NewListOptions().WithLimit(1))
+		wsSteps.GetListWorkspaceV1Step("ListWithLabel", suite.Client.WorkspaceV1, *tref,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		wsSteps.GetListWorkspaceV1Step("ListWithLabelAndLimit", suite.Client.WorkspaceV1, *tref,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+	})
+
+	t.WithNewStep("Delete", func(delCtx provider.StepCtx) {
+		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
+
+		for _, workspace := range workspaces {
+			ws := workspace
+			delSteps.DeleteWorkspaceV1Step("Delete", suite.Client.WorkspaceV1, &ws)
+
+			workspaceTRef := secapi.TenantReference{
+				Tenant: secapi.TenantID(ws.Metadata.Tenant),
+				Name:   ws.Metadata.Name,
+			}
+			delSteps.GetWorkspaceWithErrorV1Step("GetDeleted", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
+		}
+	})
 
 	suite.FinishScenario()
 }

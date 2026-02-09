@@ -198,137 +198,132 @@ func (suite *StorageListV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
 	)
 
-	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
-
-	// Workspace
 	workspace := suite.params.Workspace
-
-	// Create a workspace
-	expectWorkspaceMeta := workspace.Metadata
-	expectWorkspaceLabels := workspace.Labels
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateCreating,
-		},
-	)
-
-	// Block storage
 	blocks := suite.params.BlockStorages
-
-	// Create the block storages
-	for _, block := range blocks {
-		expectedBlockMeta := block.Metadata
-		expectedBlockSpec := &block.Spec
-		stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, &block,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-				Metadata:      expectedBlockMeta,
-				Spec:          expectedBlockSpec,
-				ResourceState: schema.ResourceStateCreating,
-			},
-		)
-	}
-
-	// List block storages
-	wref := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
-	}
-	stepsBuilder.GetListBlockStorageV1Step("GetList block storage", suite.Client.StorageV1, wref, nil)
-
-	// List block storages with limit
-	stepsBuilder.GetListBlockStorageV1Step("Get List block storage with limit", suite.Client.StorageV1, wref,
-		secapi.NewListOptions().WithLimit(1))
-
-	// List block storages with label
-	stepsBuilder.GetListBlockStorageV1Step("Get list of block storage with label", suite.Client.StorageV1, wref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
-
-	// List block storages with limit and label
-	stepsBuilder.GetListBlockStorageV1Step("Get list of block storage with limit and label", suite.Client.StorageV1, wref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
-
-	// Image
 	images := suite.params.Images
 
-	// Create images
-	for _, image := range images {
-		expectedImageMeta := image.Metadata
-		expectedImageSpec := &image.Spec
-		stepsBuilder.CreateOrUpdateImageV1Step("Create an image", suite.Client.StorageV1, &image,
-			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-				Metadata:      expectedImageMeta,
-				Spec:          expectedImageSpec,
+	t.WithNewStep("Workspace", func(wsCtx provider.StepCtx) {
+		wsSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, wsCtx)
+
+		expectWorkspaceMeta := workspace.Metadata
+		expectWorkspaceLabels := workspace.Labels
+		wsSteps.CreateOrUpdateWorkspaceV1Step("Create", suite.Client.WorkspaceV1, workspace,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+				Labels:        expectWorkspaceLabels,
+				Metadata:      expectWorkspaceMeta,
 				ResourceState: schema.ResourceStateCreating,
 			},
 		)
-	}
+	})
 
-	// List images
-	tref := secapi.TenantReference{
-		Name:   workspace.Metadata.Tenant,
-		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
-	}
-	stepsBuilder.GetListImageV1Step("List image", suite.Client.StorageV1, tref, nil)
+	t.WithNewStep("BlockStorage", func(bsCtx provider.StepCtx) {
+		bsSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, bsCtx)
 
-	// List images with limit
-	stepsBuilder.GetListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
-		secapi.NewListOptions().WithLimit(1))
+		for _, block := range blocks {
+			b := block
+			expectedBlockMeta := b.Metadata
+			expectedBlockSpec := &b.Spec
+			bsSteps.CreateOrUpdateBlockStorageV1Step("Create", suite.Client.StorageV1, &b,
+				steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+					Metadata:      expectedBlockMeta,
+					Spec:          expectedBlockSpec,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
+		}
 
-	// List images with label
-	stepsBuilder.GetListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		wref := secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+		}
 
-	// List images with limit and label
-	stepsBuilder.GetListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		bsSteps.GetListBlockStorageV1Step("ListAll", suite.Client.StorageV1, wref, nil)
+		bsSteps.GetListBlockStorageV1Step("ListWithLimit", suite.Client.StorageV1, wref,
+			secapi.NewListOptions().WithLimit(1))
+		bsSteps.GetListBlockStorageV1Step("ListWithLabel", suite.Client.StorageV1, wref,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
+		bsSteps.GetListBlockStorageV1Step("ListWithLabelAndLimit", suite.Client.StorageV1, wref,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
+	})
 
-	// Skus
+	t.WithNewStep("Image", func(imgCtx provider.StepCtx) {
+		imgSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, imgCtx)
 
-	// List Skus
-	stepsBuilder.GetListSkuV1Step("List skus", suite.Client.StorageV1, tref, nil)
+		for _, image := range images {
+			im := image
+			expectedImageMeta := im.Metadata
+			expectedImageSpec := &im.Spec
+			imgSteps.CreateOrUpdateImageV1Step("Create", suite.Client.StorageV1, &im,
+				steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
+					Metadata:      expectedImageMeta,
+					Spec:          expectedImageSpec,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
+		}
 
-	// List Skus with limit
-	stepsBuilder.GetListSkuV1Step("Get list of skus", suite.Client.StorageV1, tref,
-		secapi.NewListOptions().WithLimit(1))
-
-	// Delete all images
-	for _, image := range images {
-		stepsBuilder.DeleteImageV1Step("Delete image", suite.Client.StorageV1, &image)
-
-		// Get the deleted image
-		imageTRef := &secapi.TenantReference{
+		tref := secapi.TenantReference{
+			Name:   workspace.Metadata.Tenant,
 			Tenant: secapi.TenantID(workspace.Metadata.Tenant),
-			Name:   image.Metadata.Name,
 		}
-		stepsBuilder.GetImageWithErrorV1Step("Get deleted image ", suite.Client.StorageV1, *imageTRef, secapi.ErrResourceNotFound)
-	}
+		imgSteps.GetListImageV1Step("ListAll", suite.Client.StorageV1, tref, nil)
+		imgSteps.GetListImageV1Step("ListWithLimit", suite.Client.StorageV1, tref,
+			secapi.NewListOptions().WithLimit(1))
+		imgSteps.GetListImageV1Step("ListWithLabel", suite.Client.StorageV1, tref,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		imgSteps.GetListImageV1Step("ListWithLabelAndLimit", suite.Client.StorageV1, tref,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+	})
 
-	// Delete all block storages
-	for _, block := range blocks {
-		stepsBuilder.DeleteBlockStorageV1Step("Delete block storage 1", suite.Client.StorageV1, &block)
+	t.WithNewStep("Skus", func(skuCtx provider.StepCtx) {
+		skuSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, skuCtx)
 
-		// Get the deleted block storage
-		blockWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(block.Metadata.Tenant),
-			Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
-			Name:      block.Metadata.Name,
+		tref := secapi.TenantReference{
+			Name:   workspace.Metadata.Tenant,
+			Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		}
-		stepsBuilder.GetBlockStorageWithErrorV1Step("Get deleted block storage 1", suite.Client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
-	}
+		skuSteps.GetListSkuV1Step("ListAll", suite.Client.StorageV1, tref, nil)
+		skuSteps.GetListSkuV1Step("ListWithLimit", suite.Client.StorageV1, tref,
+			secapi.NewListOptions().WithLimit(1))
+	})
 
-	// Delete the workspace
-	workspaceTRef := &secapi.TenantReference{
-		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
-		Name:   workspace.Metadata.Name,
-	}
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+	t.WithNewStep("Deletes", func(delCtx provider.StepCtx) {
+		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
+
+		for _, image := range images {
+			im := image
+			delSteps.DeleteImageV1Step("Image", suite.Client.StorageV1, &im)
+
+			imageTRef := secapi.TenantReference{
+				Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+				Name:   im.Metadata.Name,
+			}
+			delSteps.GetImageWithErrorV1Step("GetDeletedImage", suite.Client.StorageV1, imageTRef, secapi.ErrResourceNotFound)
+		}
+
+		for _, block := range blocks {
+			b := block
+			delSteps.DeleteBlockStorageV1Step("BlockStorage", suite.Client.StorageV1, &b)
+
+			blockWRef := secapi.WorkspaceReference{
+				Tenant:    secapi.TenantID(b.Metadata.Tenant),
+				Workspace: secapi.WorkspaceID(b.Metadata.Workspace),
+				Name:      b.Metadata.Name,
+			}
+			delSteps.GetBlockStorageWithErrorV1Step("GetDeletedBlockStorage", suite.Client.StorageV1, blockWRef, secapi.ErrResourceNotFound)
+		}
+
+		workspaceTRef := secapi.TenantReference{
+			Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+			Name:   workspace.Metadata.Name,
+		}
+		delSteps.DeleteWorkspaceV1Step("Workspace", suite.Client.WorkspaceV1, workspace)
+		delSteps.GetWorkspaceWithErrorV1Step("GetDeletedWorkspace", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
+	})
 
 	suite.FinishScenario()
 }

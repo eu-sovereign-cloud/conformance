@@ -94,22 +94,24 @@ func (suite *RegionListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
-	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
-
 	ctx := context.Background()
 
-	// Test List iterator's (Next and All) for Regions and verify both responses have the same length
-	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1)
+	t.WithNewStep("Region", func(rCtx provider.StepCtx) {
+		regSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, rCtx)
 
-	// Call Get Region and verify response
-	expectedRegionMeta, err := builders.NewRegionMetadataBuilder().
-		Name(regions[0].Metadata.Name).
-		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, expectedRegionMeta)
+		// Test List iterator's (Next and All) for Regions and verify both responses have the same length
+		regions := regSteps.ListRegionsV1Step("List", ctx, suite.Client.RegionV1)
+
+		// Call Get Region and verify response
+		expectedRegionMeta, err := builders.NewRegionMetadataBuilder().
+			Name(regions[0].Metadata.Name).
+			Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
+			Build()
+		if err != nil {
+			t.Fatalf("Failed to build Metadata: %v", err)
+		}
+		regSteps.GetRegionV1Step("Get", ctx, suite.Client.RegionV1, expectedRegionMeta)
+	})
 
 	suite.FinishScenario()
 }

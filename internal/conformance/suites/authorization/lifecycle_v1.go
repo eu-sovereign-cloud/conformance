@@ -221,7 +221,7 @@ func (suite *AuthorizationLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		)
 	})
 
-	t.WithNewStep("Deletes", func(delctx provider.StepCtx) {
+	t.WithNewStep("Delete", func(delctx provider.StepCtx) {
 		delStep := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delctx)
 
 		delStep.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, roleAssign)

@@ -115,7 +115,7 @@ func (suite *WorkspaceLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		)
 	})
 
-	t.WithNewStep("Deletes", func(delCtx provider.StepCtx) {
+	t.WithNewStep("Delete", func(delCtx provider.StepCtx) {
 		// reuse root configurator for delete checks
 		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
 		delSteps.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)

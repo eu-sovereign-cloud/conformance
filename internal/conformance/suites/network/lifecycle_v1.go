@@ -395,6 +395,8 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
+		string(schema.RegionalNetworkResourceMetadataKindResourceKindBlockStorage),
+		string(schema.RegionalNetworkResourceMetadataKindResourceKindInstance),
 	)
 
 	// Prepare shared resources and references
@@ -826,7 +828,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	})
 
 	// Resources deletion
-	t.WithNewStep("Deletes", func(delCtx provider.StepCtx) {
+	t.WithNewStep("Delete", func(delCtx provider.StepCtx) {
 		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
 		delSteps.DeleteInstanceV1Step("Delete the instance", suite.Client.ComputeV1, instance)
 		delSteps.GetInstanceWithErrorV1Step("Get the deleted instance", suite.Client.ComputeV1, instanceWRef, secapi.ErrResourceNotFound)

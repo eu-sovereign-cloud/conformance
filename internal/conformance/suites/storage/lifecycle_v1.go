@@ -265,7 +265,7 @@ func (suite *StorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	})
 
 	// Resources deletion
-	t.WithNewStep("Deletes", func(delCtx provider.StepCtx) {
+	t.WithNewStep("Delete", func(delCtx provider.StepCtx) {
 		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
 		delSteps.DeleteImageV1Step("Delete the image", suite.Client.StorageV1, image)
 		delSteps.GetImageWithErrorV1Step("Get the deleted image", suite.Client.StorageV1, imageTRef, secapi.ErrResourceNotFound)

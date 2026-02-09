@@ -171,105 +171,95 @@ func (suite *AuthorizationListV1TestSuite) TestScenario(t provider.T) {
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
 
-	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
-
-	// Role
 	roles := suite.params.Roles
-	// Create roles
-	for _, role := range roles {
-		expectRoleMeta := role.Metadata
-		expectRoleSpec := role.Spec
-
-		// Create Role
-		stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, &role,
-			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-				Metadata:      expectRoleMeta,
-				Spec:          &expectRoleSpec,
-				ResourceState: schema.ResourceStateCreating,
-			},
-		)
-	}
-
-	roleTRef := &secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   suite.Tenant,
-	}
-	// List Roles
-	stepsBuilder.GetListRoleV1Step("Get list of roles", suite.Client.AuthorizationV1, *roleTRef, nil)
-
-	// List Roles with limit
-	stepsBuilder.GetListRoleV1Step("Get list of roles with limit", suite.Client.AuthorizationV1, *roleTRef,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// List Roles with Label
-	stepsBuilder.GetListRoleV1Step("Get list of roles with label", suite.Client.AuthorizationV1, *roleTRef,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// List Roles with Limit and label
-	stepsBuilder.GetListRoleV1Step("Get list of roles with limit and label", suite.Client.AuthorizationV1, *roleTRef,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// Role assignment
 	roleAssignments := suite.params.RoleAssignments
 
-	// Create role assignments
-	for _, roleAssign := range roleAssignments {
-		expectRoleAssignMeta := roleAssign.Metadata
-		expectRoleAssignSpec := &roleAssign.Spec
+	t.WithNewStep("Role", func(roleCtx provider.StepCtx) {
+		roleSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, roleCtx)
 
-		// Create a role assignment
-		stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.Client.AuthorizationV1, &roleAssign,
-			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-				Metadata:      expectRoleAssignMeta,
-				Spec:          expectRoleAssignSpec,
-				ResourceState: schema.ResourceStateCreating,
-			},
-		)
-	}
-	roleAssignTRef := &secapi.TenantReference{Tenant: secapi.TenantID(suite.Tenant)}
+		for _, role := range roles {
+			r := role
+			expectRoleMeta := r.Metadata
+			expectRoleSpec := r.Spec
 
-	// List RoleAssignments
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef, nil)
-
-	// List RoleAssignments with limit
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
-		secapi.NewListOptions().WithLimit(1))
-
-	// List RoleAssignments with Label
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// List RoleAssignments with Limit and label
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// Delete all role assignments
-	for _, roleAssign := range roleAssignments {
-		stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, &roleAssign)
-
-		// Get the deleted role assignment
-		roleAssignTRefSingle := &secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.Tenant),
-			Name:   roleAssign.Metadata.Name,
+			roleSteps.CreateOrUpdateRoleV1Step("Create", suite.Client.AuthorizationV1, &r,
+				steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+					Metadata:      expectRoleMeta,
+					Spec:          &expectRoleSpec,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
 		}
-		stepsBuilder.GetRoleAssignmentWithErrorV1Step("Get the deleted role assignment", suite.Client.AuthorizationV1, *roleAssignTRefSingle, secapi.ErrResourceNotFound)
-	}
 
-	// Delete all roles
-	for _, role := range roles {
-		stepsBuilder.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, &role)
-
-		// Get the deleted role
-		roleTRefSingle := &secapi.TenantReference{
+		roleTRef := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.Tenant),
-			Name:   role.Metadata.Name,
+			Name:   suite.Tenant,
 		}
-		stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, *roleTRefSingle, secapi.ErrResourceNotFound)
-	}
+		roleSteps.GetListRoleV1Step("ListAll", suite.Client.AuthorizationV1, roleTRef, nil)
+		roleSteps.GetListRoleV1Step("ListWithLimit", suite.Client.AuthorizationV1, roleTRef,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		roleSteps.GetListRoleV1Step("ListWithLabel", suite.Client.AuthorizationV1, roleTRef,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		roleSteps.GetListRoleV1Step("ListWithLimitAndLabel", suite.Client.AuthorizationV1, roleTRef,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+	})
+
+	t.WithNewStep("RoleAssignment", func(raCtx provider.StepCtx) {
+		raSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, raCtx)
+
+		for _, roleAssign := range roleAssignments {
+			ra := roleAssign
+			expectRoleAssignMeta := ra.Metadata
+			expectRoleAssignSpec := &ra.Spec
+
+			raSteps.CreateOrUpdateRoleAssignmentV1Step("Create", suite.Client.AuthorizationV1, &ra,
+				steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+					Metadata:      expectRoleAssignMeta,
+					Spec:          expectRoleAssignSpec,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
+		}
+
+		roleAssignTRef := secapi.TenantReference{Tenant: secapi.TenantID(suite.Tenant)}
+		raSteps.GetListRoleAssignmentsV1("ListAll", suite.Client.AuthorizationV1, roleAssignTRef, nil)
+		raSteps.GetListRoleAssignmentsV1("ListWithLimit", suite.Client.AuthorizationV1, roleAssignTRef,
+			secapi.NewListOptions().WithLimit(1))
+		raSteps.GetListRoleAssignmentsV1("ListWithLabel", suite.Client.AuthorizationV1, roleAssignTRef,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		raSteps.GetListRoleAssignmentsV1("ListWithLimitAndLabel", suite.Client.AuthorizationV1, roleAssignTRef,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+	})
+
+	t.WithNewStep("Deletes", func(delCtx provider.StepCtx) {
+		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
+
+		for _, roleAssign := range roleAssignments {
+			ra := roleAssign
+			delSteps.DeleteRoleAssignmentV1Step("RoleAssignment", suite.Client.AuthorizationV1, &ra)
+
+			roleAssignTRefSingle := secapi.TenantReference{
+				Tenant: secapi.TenantID(suite.Tenant),
+				Name:   ra.Metadata.Name,
+			}
+			delSteps.GetRoleAssignmentWithErrorV1Step("GetDeletedRoleAssignment", suite.Client.AuthorizationV1, roleAssignTRefSingle, secapi.ErrResourceNotFound)
+		}
+
+		for _, role := range roles {
+			r := role
+			delSteps.DeleteRoleV1Step("Role", suite.Client.AuthorizationV1, &r)
+
+			roleTRefSingle := secapi.TenantReference{
+				Tenant: secapi.TenantID(suite.Tenant),
+				Name:   r.Metadata.Name,
+			}
+			delSteps.GetRoleWithErrorV1Step("GetDeletedRole", suite.Client.AuthorizationV1, roleTRefSingle, secapi.ErrResourceNotFound)
+		}
+	})
 	suite.FinishScenario()
 }
 

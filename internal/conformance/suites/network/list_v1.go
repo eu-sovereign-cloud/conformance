@@ -443,376 +443,360 @@ func (suite *NetworkListV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
 	)
 
-	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
-
-	// Workspace
 	workspace := suite.params.Workspace
-
-	// Create a workspace
-	expectWorkspaceMeta := workspace.Metadata
-	expectWorkspaceLabels := workspace.Labels
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateCreating,
-		},
-	)
-
-	// Network
 	networks := suite.params.Networks
-
-	// Create networks
-	for _, network := range networks {
-		expectNetworkMeta := network.Metadata
-		expectNetworkSpec := &network.Spec
-		stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.Client.NetworkV1, &network,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-				Metadata:      expectNetworkMeta,
-				Spec:          expectNetworkSpec,
-				ResourceState: schema.ResourceStateCreating,
-			},
-		)
-	}
-
-	// List networks
-	wref := secapi.WorkspaceReference{
-		Name:      workspace.Metadata.Name,
-		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
-		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
-	}
-	stepsBuilder.GetListNetworkV1Step("List Network", suite.Client.NetworkV1, wref, nil)
-
-	// List networks with limit
-	stepsBuilder.GetListNetworkV1Step("Get list of Network with limit", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLimit(1))
-
-	// List networks with label
-	stepsBuilder.GetListNetworkV1Step("Get list of Network with label", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// List networks with limit and label
-	stepsBuilder.GetListNetworkV1Step("Get list of Network with limit and label", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// Skus
-
-	// List skus
-	stepsBuilder.GetListNetworkSkusV1Step("List skus", suite.Client.NetworkV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
-
-	// List skus with limit
-	stepsBuilder.GetListNetworkSkusV1Step("Get list of skus", suite.Client.NetworkV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
-		secapi.NewListOptions().WithLimit(1))
-
-	// Internet gateway
 	gateways := suite.params.InternetGateways
-
-	// Create internet gateways
-	for _, gateway := range gateways {
-		expectGatewayMeta := gateway.Metadata
-		expectGatewaySpec := &gateway.Spec
-		stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, &gateway,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-				Metadata:      expectGatewayMeta,
-				Spec:          expectGatewaySpec,
-				ResourceState: schema.ResourceStateCreating,
-			},
-		)
-
-	}
-
-	// List internet gateways
-	stepsBuilder.GetListInternetGatewayV1Step("List Internet Gateway", suite.Client.NetworkV1, wref, nil)
-
-	// List internet gateways with limit
-	stepsBuilder.GetListInternetGatewayV1Step("Get list of Internet Gateway with limit", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLimit(1))
-
-	// List internet gateways with label
-	stepsBuilder.GetListInternetGatewayV1Step("Get list of Internet Gateway with label", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// List internet gateways with limit and label
-	stepsBuilder.GetListInternetGatewayV1Step("Get list of Internet Gateway with limit and label", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// Route table
 	routes := suite.params.RouteTables
-
-	// Create route tables
-	for _, route := range routes {
-		expectRouteMeta := route.Metadata
-		expectRouteSpec := &route.Spec
-		stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, &route,
-			steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
-				Metadata:      expectRouteMeta,
-				Spec:          expectRouteSpec,
-				ResourceState: schema.ResourceStateCreating,
-			},
-		)
-	}
-
-	// List route tables
-	nref := &secapi.NetworkReference{
-		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID((workspace.Metadata.Name)),
-		Network:   secapi.NetworkID(networks[0].Metadata.Name),
-		Name:      routes[0].Metadata.Name,
-	}
-	stepsBuilder.GetListRouteTableV1Step("List Route table", suite.Client.NetworkV1, *nref, nil)
-
-	// List route tables with limit
-	stepsBuilder.GetListRouteTableV1Step("Get list of Route table with limit", suite.Client.NetworkV1, *nref,
-		secapi.NewListOptions().WithLimit(1))
-
-	// List route tables with label
-	stepsBuilder.GetListRouteTableV1Step("Get list of Route table with label", suite.Client.NetworkV1, *nref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// List route tables with limit and label
-	stepsBuilder.GetListRouteTableV1Step("Get list of Route table with limit and label", suite.Client.NetworkV1, *nref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// Subnet
 	subnets := suite.params.Subnets
-
-	// Create subnets
-	for _, subnet := range subnets {
-		expectSubnetMeta := subnet.Metadata
-		expectSubnetSpec := &subnet.Spec
-		stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", suite.Client.NetworkV1, &subnet,
-			steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
-				Metadata:      expectSubnetMeta,
-				Spec:          expectSubnetSpec,
-				ResourceState: schema.ResourceStateCreating,
-			},
-		)
-	}
-
-	// List subnets
-	stepsBuilder.GetListSubnetV1Step("List Subnet", suite.Client.NetworkV1, *nref, nil)
-
-	// List subnets with limit
-	stepsBuilder.GetListSubnetV1Step("Get list of Subnet with limit", suite.Client.NetworkV1, *nref,
-		secapi.NewListOptions().WithLimit(1))
-
-	// List subnets with label
-	stepsBuilder.GetListSubnetV1Step("Get list of Subnet with label", suite.Client.NetworkV1, *nref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// List subnets with limit and label
-	stepsBuilder.GetListSubnetV1Step("Get list of Subnet with limit and label", suite.Client.NetworkV1, *nref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// Public ip
 	publicIps := suite.params.PublicIps
-
-	// Create public ips
-	for _, publicIp := range publicIps {
-		expectPublicIpMeta := publicIp.Metadata
-		expectPublicIpSpec := &publicIp.Spec
-		stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.Client.NetworkV1, &publicIp,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-				Metadata:      expectPublicIpMeta,
-				Spec:          expectPublicIpSpec,
-				ResourceState: schema.ResourceStateCreating,
-			},
-		)
-	}
-
-	// List public ips
-	stepsBuilder.GetListPublicIpV1Step("List PublicIP", suite.Client.NetworkV1, wref, nil)
-
-	// List public ips with limit
-	stepsBuilder.GetListPublicIpV1Step("Get list of PublicIP with limit", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLimit(1))
-
-	// List public ips with label
-	stepsBuilder.GetListPublicIpV1Step("Get list of PublicIP with label", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// List public ips with limit and label
-	stepsBuilder.GetListPublicIpV1Step("Get list of PublicIP with limit and label", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// Nic
 	nics := suite.params.Nics
-
-	// Create nics
-	for _, nic := range nics {
-		expectNicMeta := nic.Metadata
-		expectNicSpec := &nic.Spec
-		stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", suite.Client.NetworkV1, &nic,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
-				Metadata:      expectNicMeta,
-				Spec:          expectNicSpec,
-				ResourceState: schema.ResourceStateCreating,
-			},
-		)
-	}
-
-	// List nics
-	stepsBuilder.GetListNicV1Step("List Nic", suite.Client.NetworkV1, wref, nil)
-
-	// List nics with limit
-	stepsBuilder.GetListNicV1Step("Get list of Nic with limit", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLimit(1))
-
-	// List nics with label
-	stepsBuilder.GetListNicV1Step("Get list of Nic with label", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// List nics with limit and label
-	stepsBuilder.GetListNicV1Step("Get list of Nic with limit and label", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// Security Group
 	groups := suite.params.SecurityGroups
 
-	// Create security groups
-	for _, group := range groups {
-		expectGroupMeta := group.Metadata
-		expectGroupSpec := &group.Spec
-		stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", suite.Client.NetworkV1, &group,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-				Metadata:      expectGroupMeta,
-				Spec:          expectGroupSpec,
+	t.WithNewStep("Workspace", func(wsCtx provider.StepCtx) {
+		wsSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, wsCtx)
+
+		expectWorkspaceMeta := workspace.Metadata
+		expectWorkspaceLabels := workspace.Labels
+		wsSteps.CreateOrUpdateWorkspaceV1Step("Create", suite.Client.WorkspaceV1, workspace,
+			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+				Labels:        expectWorkspaceLabels,
+				Metadata:      expectWorkspaceMeta,
 				ResourceState: schema.ResourceStateCreating,
 			},
 		)
-	}
+	})
 
-	// List security groups
-	stepsBuilder.GetListSecurityGroupV1Step("List Security Group", suite.Client.NetworkV1, wref, nil)
+	t.WithNewStep("Network", func(nwCtx provider.StepCtx) {
+		nwSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, nwCtx)
 
-	// List security groups with limit
-	stepsBuilder.GetListSecurityGroupV1Step("Get list of Security Group with limit", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLimit(1))
-
-	// List security groups with label
-	stepsBuilder.GetListSecurityGroupV1Step("Get list of Security Group with label", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// List security groups with limit and label
-	stepsBuilder.GetListSecurityGroupV1Step("Get list of Security Group with limit and label", suite.Client.NetworkV1, wref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
-
-	// Delete all security groups
-	for _, group := range groups {
-		stepsBuilder.DeleteSecurityGroupV1Step("Delete the security group", suite.Client.NetworkV1, &group)
-
-		// Get deleted security group
-		groupWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(group.Metadata.Tenant),
-			Workspace: secapi.WorkspaceID(group.Metadata.Workspace),
-			Name:      group.Metadata.Name,
+		for _, network := range networks {
+			n := network
+			expectNetworkMeta := n.Metadata
+			expectNetworkSpec := &n.Spec
+			nwSteps.CreateOrUpdateNetworkV1Step("Create", suite.Client.NetworkV1, &n,
+				steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+					Metadata:      expectNetworkMeta,
+					Spec:          expectNetworkSpec,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
 		}
-		stepsBuilder.GetSecurityGroupWithErrorV1Step("Get deleted security group", suite.Client.NetworkV1, *groupWRef, secapi.ErrResourceNotFound)
-	}
 
-	// Delete all nics
-	for _, nic := range nics {
-		stepsBuilder.DeleteNicV1Step("Delete the nic", suite.Client.NetworkV1, &nic)
-
-		// Get the deleted nic
-		nicWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(nic.Metadata.Tenant),
-			Workspace: secapi.WorkspaceID(nic.Metadata.Workspace),
-			Name:      nic.Metadata.Name,
+		wref := secapi.WorkspaceReference{
+			Name:      workspace.Metadata.Name,
+			Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+			Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
 		}
-		stepsBuilder.GetNicWithErrorV1Step("Get deleted nic", suite.Client.NetworkV1, *nicWRef, secapi.ErrResourceNotFound)
-	}
+		nwSteps.GetListNetworkV1Step("ListAll", suite.Client.NetworkV1, wref, nil)
+		nwSteps.GetListNetworkV1Step("ListWithLimit", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLimit(1))
+		nwSteps.GetListNetworkV1Step("ListWithLabel", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		nwSteps.GetListNetworkV1Step("ListWithLabelAndLimit", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+	})
 
-	// Delete all public ips
-	for _, publicIp := range publicIps {
-		stepsBuilder.DeletePublicIpV1Step("Delete the public ip", suite.Client.NetworkV1, &publicIp)
+	t.WithNewStep("Skus", func(skuCtx provider.StepCtx) {
+		skuSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, skuCtx)
 
-		// Get the deleted public ip
-		publicIpWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(publicIp.Metadata.Tenant),
-			Workspace: secapi.WorkspaceID(publicIp.Metadata.Workspace),
-			Name:      publicIp.Metadata.Name,
+		tenantRef := secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}
+		skuSteps.GetListNetworkSkusV1Step("ListAll", suite.Client.NetworkV1, tenantRef, nil)
+		skuSteps.GetListNetworkSkusV1Step("ListWithLimit", suite.Client.NetworkV1, tenantRef,
+			secapi.NewListOptions().WithLimit(1))
+	})
+
+	t.WithNewStep("InternetGateway", func(igCtx provider.StepCtx) {
+		igSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, igCtx)
+
+		for _, gateway := range gateways {
+			g := gateway
+			expectGatewayMeta := g.Metadata
+			expectGatewaySpec := &g.Spec
+			igSteps.CreateOrUpdateInternetGatewayV1Step("Create", suite.Client.NetworkV1, &g,
+				steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+					Metadata:      expectGatewayMeta,
+					Spec:          expectGatewaySpec,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
 		}
-		stepsBuilder.GetPublicIpWithErrorV1Step("Get deleted public ip", suite.Client.NetworkV1, *publicIpWRef, secapi.ErrResourceNotFound)
-	}
 
-	// Delete all subnets
-	for _, subnet := range subnets {
-		stepsBuilder.DeleteSubnetV1Step("Delete the subnet", suite.Client.NetworkV1, &subnet)
-
-		// Get the deleted subnet
-		subnetNRef := &secapi.NetworkReference{
-			Tenant:    secapi.TenantID(subnet.Metadata.Tenant),
-			Workspace: secapi.WorkspaceID(subnet.Metadata.Workspace),
-			Network:   secapi.NetworkID(subnet.Metadata.Network),
-			Name:      subnet.Metadata.Name,
+		wref := secapi.WorkspaceReference{
+			Name:      workspace.Metadata.Name,
+			Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+			Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
 		}
-		stepsBuilder.GetSubnetWithErrorV1Step("Get deleted subnet", suite.Client.NetworkV1, *subnetNRef, secapi.ErrResourceNotFound)
-	}
+		igSteps.GetListInternetGatewayV1Step("ListAll", suite.Client.NetworkV1, wref, nil)
+		igSteps.GetListInternetGatewayV1Step("ListWithLimit", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLimit(1))
+		igSteps.GetListInternetGatewayV1Step("ListWithLabel", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		igSteps.GetListInternetGatewayV1Step("ListWithLabelAndLimit", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+	})
 
-	// Delete all route tables
-	for _, route := range routes {
-		stepsBuilder.DeleteRouteTableV1Step("Delete the route table", suite.Client.NetworkV1, &route)
+	t.WithNewStep("RouteTable", func(rtCtx provider.StepCtx) {
+		rtSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, rtCtx)
 
-		// Get the deleted route table
-		routeNRef := &secapi.NetworkReference{
-			Tenant:    secapi.TenantID(route.Metadata.Tenant),
-			Workspace: secapi.WorkspaceID(route.Metadata.Workspace),
-			Network:   secapi.NetworkID(route.Metadata.Network),
-			Name:      route.Metadata.Name,
+		for _, route := range routes {
+			r := route
+			expectRouteMeta := r.Metadata
+			expectRouteSpec := &r.Spec
+			rtSteps.CreateOrUpdateRouteTableV1Step("Create", suite.Client.NetworkV1, &r,
+				steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+					Metadata:      expectRouteMeta,
+					Spec:          expectRouteSpec,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
 		}
-		stepsBuilder.GetRouteTableWithErrorV1Step("Get deleted route table", suite.Client.NetworkV1, *routeNRef, secapi.ErrResourceNotFound)
-	}
 
-	// Delete all internet gateways
-	for _, gateway := range gateways {
-		stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.Client.NetworkV1, &gateway)
-
-		// Get the deleted internet gateway
-		gatewayWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(gateway.Metadata.Tenant),
-			Workspace: secapi.WorkspaceID(gateway.Metadata.Workspace),
-			Name:      gateway.Metadata.Name,
+		nref := secapi.NetworkReference{
+			Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+			Network:   secapi.NetworkID(networks[0].Metadata.Name),
+			Name:      routes[0].Metadata.Name,
 		}
-		stepsBuilder.GetInternetGatewayWithErrorV1Step("Get deleted internet gateway", suite.Client.NetworkV1, *gatewayWRef, secapi.ErrResourceNotFound)
-	}
+		rtSteps.GetListRouteTableV1Step("ListAll", suite.Client.NetworkV1, nref, nil)
+		rtSteps.GetListRouteTableV1Step("ListWithLimit", suite.Client.NetworkV1, nref,
+			secapi.NewListOptions().WithLimit(1))
+		rtSteps.GetListRouteTableV1Step("ListWithLabel", suite.Client.NetworkV1, nref,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		rtSteps.GetListRouteTableV1Step("ListWithLabelAndLimit", suite.Client.NetworkV1, nref,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+	})
 
-	// Delete all networks
-	for _, network := range networks {
-		stepsBuilder.DeleteNetworkV1Step("Delete the network", suite.Client.NetworkV1, &network)
+	t.WithNewStep("Subnet", func(snCtx provider.StepCtx) {
+		snSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, snCtx)
 
-		// Get the deleted network
-		networkWRef := &secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(network.Metadata.Tenant),
-			Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
-			Name:      network.Metadata.Name,
+		for _, subnet := range subnets {
+			s := subnet
+			expectSubnetMeta := s.Metadata
+			expectSubnetSpec := &s.Spec
+			snSteps.CreateOrUpdateSubnetV1Step("Create", suite.Client.NetworkV1, &s,
+				steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+					Metadata:      expectSubnetMeta,
+					Spec:          expectSubnetSpec,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
 		}
-		stepsBuilder.GetNetworkWithErrorV1Step("Get deleted network", suite.Client.NetworkV1, *networkWRef, secapi.ErrResourceNotFound)
-	}
 
-	// Delete the workspace
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
+		nref := secapi.NetworkReference{
+			Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+			Network:   secapi.NetworkID(networks[0].Metadata.Name),
+			Name:      subnets[0].Metadata.Name,
+		}
+		snSteps.GetListSubnetV1Step("ListAll", suite.Client.NetworkV1, nref, nil)
+		snSteps.GetListSubnetV1Step("ListWithLimit", suite.Client.NetworkV1, nref,
+			secapi.NewListOptions().WithLimit(1))
+		snSteps.GetListSubnetV1Step("ListWithLabel", suite.Client.NetworkV1, nref,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		snSteps.GetListSubnetV1Step("ListWithLabelAndLimit", suite.Client.NetworkV1, nref,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+	})
 
-	// Get the deleted workspace
-	workspaceTRef := &secapi.TenantReference{
-		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
-		Name:   workspace.Metadata.Name,
-	}
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+	t.WithNewStep("PublicIp", func(piCtx provider.StepCtx) {
+		piSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, piCtx)
+
+		for _, publicIp := range publicIps {
+			p := publicIp
+			expectPublicIpMeta := p.Metadata
+			expectPublicIpSpec := &p.Spec
+			piSteps.CreateOrUpdatePublicIpV1Step("Create", suite.Client.NetworkV1, &p,
+				steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+					Metadata:      expectPublicIpMeta,
+					Spec:          expectPublicIpSpec,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
+		}
+
+		wref := secapi.WorkspaceReference{
+			Name:      workspace.Metadata.Name,
+			Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+			Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
+		}
+		piSteps.GetListPublicIpV1Step("ListAll", suite.Client.NetworkV1, wref, nil)
+		piSteps.GetListPublicIpV1Step("ListWithLimit", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLimit(1))
+		piSteps.GetListPublicIpV1Step("ListWithLabel", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		piSteps.GetListPublicIpV1Step("ListWithLabelAndLimit", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+	})
+
+	t.WithNewStep("Nic", func(nicCtx provider.StepCtx) {
+		nicSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, nicCtx)
+
+		for _, nic := range nics {
+			n := nic
+			expectNicMeta := n.Metadata
+			expectNicSpec := &n.Spec
+			nicSteps.CreateOrUpdateNicV1Step("Create", suite.Client.NetworkV1, &n,
+				steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+					Metadata:      expectNicMeta,
+					Spec:          expectNicSpec,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
+		}
+
+		wref := secapi.WorkspaceReference{
+			Name:      workspace.Metadata.Name,
+			Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+			Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
+		}
+		nicSteps.GetListNicV1Step("ListAll", suite.Client.NetworkV1, wref, nil)
+		nicSteps.GetListNicV1Step("ListWithLimit", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLimit(1))
+		nicSteps.GetListNicV1Step("ListWithLabel", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		nicSteps.GetListNicV1Step("ListWithLabelAndLimit", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+	})
+
+	t.WithNewStep("SecurityGroup", func(sgCtx provider.StepCtx) {
+		gSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, sgCtx)
+
+		for _, group := range groups {
+			g := group
+			expectGroupMeta := g.Metadata
+			expectGroupSpec := &g.Spec
+			gSteps.CreateOrUpdateSecurityGroupV1Step("Create", suite.Client.NetworkV1, &g,
+				steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+					Metadata:      expectGroupMeta,
+					Spec:          expectGroupSpec,
+					ResourceState: schema.ResourceStateCreating,
+				},
+			)
+		}
+
+		wref := secapi.WorkspaceReference{
+			Name:      workspace.Metadata.Name,
+			Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+			Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
+		}
+		gSteps.GetListSecurityGroupV1Step("ListAll", suite.Client.NetworkV1, wref, nil)
+		gSteps.GetListSecurityGroupV1Step("ListWithLimit", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLimit(1))
+		gSteps.GetListSecurityGroupV1Step("ListWithLabel", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		gSteps.GetListSecurityGroupV1Step("ListWithLabelAndLimit", suite.Client.NetworkV1, wref,
+			secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+	})
+
+	t.WithNewStep("Deletes", func(delCtx provider.StepCtx) {
+		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
+
+		for _, group := range groups {
+			g := group
+			delSteps.DeleteSecurityGroupV1Step("SecurityGroup", suite.Client.NetworkV1, &g)
+
+			groupWRef := secapi.WorkspaceReference{
+				Tenant:    secapi.TenantID(g.Metadata.Tenant),
+				Workspace: secapi.WorkspaceID(g.Metadata.Workspace),
+				Name:      g.Metadata.Name,
+			}
+			delSteps.GetSecurityGroupWithErrorV1Step("GetDeletedSecurityGroup", suite.Client.NetworkV1, groupWRef, secapi.ErrResourceNotFound)
+		}
+
+		for _, nic := range nics {
+			n := nic
+			delSteps.DeleteNicV1Step("Nic", suite.Client.NetworkV1, &n)
+
+			nicWRef := secapi.WorkspaceReference{
+				Tenant:    secapi.TenantID(n.Metadata.Tenant),
+				Workspace: secapi.WorkspaceID(n.Metadata.Workspace),
+				Name:      n.Metadata.Name,
+			}
+			delSteps.GetNicWithErrorV1Step("GetDeletedNic", suite.Client.NetworkV1, nicWRef, secapi.ErrResourceNotFound)
+		}
+
+		for _, publicIp := range publicIps {
+			p := publicIp
+			delSteps.DeletePublicIpV1Step("PublicIp", suite.Client.NetworkV1, &p)
+
+			publicIpWRef := secapi.WorkspaceReference{
+				Tenant:    secapi.TenantID(p.Metadata.Tenant),
+				Workspace: secapi.WorkspaceID(p.Metadata.Workspace),
+				Name:      p.Metadata.Name,
+			}
+			delSteps.GetPublicIpWithErrorV1Step("GetDeletedPublicIp", suite.Client.NetworkV1, publicIpWRef, secapi.ErrResourceNotFound)
+		}
+
+		for _, subnet := range subnets {
+			s := subnet
+			delSteps.DeleteSubnetV1Step("Subnet", suite.Client.NetworkV1, &s)
+
+			subnetNRef := secapi.NetworkReference{
+				Tenant:    secapi.TenantID(s.Metadata.Tenant),
+				Workspace: secapi.WorkspaceID(s.Metadata.Workspace),
+				Network:   secapi.NetworkID(s.Metadata.Network),
+				Name:      s.Metadata.Name,
+			}
+			delSteps.GetSubnetWithErrorV1Step("GetDeletedSubnet", suite.Client.NetworkV1, subnetNRef, secapi.ErrResourceNotFound)
+		}
+
+		for _, route := range routes {
+			r := route
+			delSteps.DeleteRouteTableV1Step("RouteTable", suite.Client.NetworkV1, &r)
+
+			routeNRef := secapi.NetworkReference{
+				Tenant:    secapi.TenantID(r.Metadata.Tenant),
+				Workspace: secapi.WorkspaceID(r.Metadata.Workspace),
+				Network:   secapi.NetworkID(r.Metadata.Network),
+				Name:      r.Metadata.Name,
+			}
+			delSteps.GetRouteTableWithErrorV1Step("GetDeletedRouteTable", suite.Client.NetworkV1, routeNRef, secapi.ErrResourceNotFound)
+		}
+
+		for _, gateway := range gateways {
+			g := gateway
+			delSteps.DeleteInternetGatewayV1Step("InternetGateway", suite.Client.NetworkV1, &g)
+
+			gatewayWRef := secapi.WorkspaceReference{
+				Tenant:    secapi.TenantID(g.Metadata.Tenant),
+				Workspace: secapi.WorkspaceID(g.Metadata.Workspace),
+				Name:      g.Metadata.Name,
+			}
+			delSteps.GetInternetGatewayWithErrorV1Step("GetDeletedInternetGateway", suite.Client.NetworkV1, gatewayWRef, secapi.ErrResourceNotFound)
+		}
+
+		for _, network := range networks {
+			n := network
+			delSteps.DeleteNetworkV1Step("Network", suite.Client.NetworkV1, &n)
+
+			networkWRef := secapi.WorkspaceReference{
+				Tenant:    secapi.TenantID(n.Metadata.Tenant),
+				Workspace: secapi.WorkspaceID(n.Metadata.Workspace),
+				Name:      n.Metadata.Name,
+			}
+			delSteps.GetNetworkWithErrorV1Step("GetDeletedNetwork", suite.Client.NetworkV1, networkWRef, secapi.ErrResourceNotFound)
+		}
+
+		workspaceTRef := secapi.TenantReference{
+			Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+			Name:   workspace.Metadata.Name,
+		}
+		delSteps.DeleteWorkspaceV1Step("Workspace", suite.Client.WorkspaceV1, workspace)
+		delSteps.GetWorkspaceWithErrorV1Step("GetDeletedWorkspace", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
+	})
 
 	suite.FinishScenario()
 }

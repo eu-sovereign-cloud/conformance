@@ -297,7 +297,7 @@ func (suite *ComputeLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	})
 
 	// Resources deletion
-	t.WithNewStep("Deletes", func(dltCtx provider.StepCtx) {
+	t.WithNewStep("Delete", func(dltCtx provider.StepCtx) {
 		dltSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, dltCtx)
 		dltSteps.DeleteInstanceV1Step("Delete the instance", suite.Client.ComputeV1, instance)
 		dltSteps.GetInstanceWithErrorV1Step("Get the deleted instance", suite.Client.ComputeV1, instanceWRef, secapi.ErrResourceNotFound)
