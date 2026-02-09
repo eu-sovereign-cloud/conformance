@@ -235,7 +235,7 @@ func (suite *AuthorizationListV1TestSuite) TestScenario(t provider.T) {
 				Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 	})
 
-	t.WithNewStep("Deletes", func(delCtx provider.StepCtx) {
+	t.WithNewStep("Delete", func(delCtx provider.StepCtx) {
 		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
 
 		for _, roleAssign := range roleAssignments {

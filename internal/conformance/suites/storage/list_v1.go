@@ -291,7 +291,7 @@ func (suite *StorageListV1TestSuite) TestScenario(t provider.T) {
 			secapi.NewListOptions().WithLimit(1))
 	})
 
-	t.WithNewStep("Deletes", func(delCtx provider.StepCtx) {
+	t.WithNewStep("Delete", func(delCtx provider.StepCtx) {
 		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
 
 		for _, image := range images {

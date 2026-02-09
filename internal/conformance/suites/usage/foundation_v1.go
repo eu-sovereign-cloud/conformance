@@ -724,7 +724,7 @@ func (suite *FoundationUsageV1TestSuite) TestScenario(t provider.T) {
 		)
 	})
 
-	t.WithNewStep("Deletes", func(delCtx provider.StepCtx) {
+	t.WithNewStep("Delete", func(delCtx provider.StepCtx) {
 		delSteps := steps.NewStepsConfiguratorWithCtx(suite.TestSuite, t, delCtx)
 
 		delSteps.DeleteInstanceV1Step("Instance", suite.RegionalClient.ComputeV1, instance)

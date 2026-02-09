@@ -64,7 +64,7 @@ func (configurator *StepsConfigurator) GetListRoleV1Step(stepName string,
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) {
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetAuthorizationV1StepParams(sCtx, "GetListRole")
 
 		var iter *secapi.Iterator[schema.Role]

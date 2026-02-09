@@ -2,7 +2,6 @@ package steps
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/pkg/types"
@@ -221,13 +220,11 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 	params createOrUpdateResourceParams[R, M, E],
 ) {
 	if params.resource != nil {
-		fmt.Printf("Request: %v\n", params.resource)
 		configurator.suite.ReportRequestStep(sCtx, params.resource)
 	}
 	resp, err := params.createOrUpdateFunc(configurator.t.Context(), params.resource)
 
 	if resp != nil {
-		fmt.Printf("Response: %v\n", resp.resource)
 		configurator.suite.ReportResponseStep(sCtx, resp.resource)
 	}
 
@@ -340,9 +337,15 @@ func getResourceWithObserver[R types.ResourceType, M types.MetadataType, E types
 		MaxAttempts:   configurator.suite.MaxAttempts,
 	}
 
+	configurator.suite.ReportRequestStep(sCtx, params.reference)
+
 	resp, err := params.getFunc(configurator.t.Context(), params.reference, config)
 	requireNoError(sCtx, err)
 	requireNotNilResponse(sCtx, resp)
+
+	if resp != nil {
+		configurator.suite.ReportResponseStep(sCtx, resp.resource)
+	}
 
 	if params.expectedLabels != nil {
 		configurator.suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.labels)
