@@ -149,6 +149,7 @@ func initCommands(m *testing.M) *cobra.Command {
 		"client.auth.token",
 		"client.region",
 		"client.tenant",
+		"report.results.path",
 	)
 
 	rootCmd.AddCommand(runCmd)
