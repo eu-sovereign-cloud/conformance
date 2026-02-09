@@ -34,18 +34,11 @@
             "args": [
                 "run",
                 "--provider.region.v1=http://localhost:8080/providers/seca.region",
-                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
                 "--client.auth.token=test-token",
                 "--client.region=region-1",
                 "--client.tenant=tenant-1",
                 "--scenarios.filter=Region.V1.*",
-                "--scenarios.users=user1,user2",
-                "--scenarios.cidr=10.1.0.0/16",
-                "--scenarios.public.ips=52.93.126.1/26",
                 "--report.results.path=../reports/results",
-                "--retry.base.delay=0",
-                "--retry.base.interval=1",
-                "--retry.max.attempts=3",
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
@@ -65,12 +58,7 @@
                 "--client.tenant=tenant-1",
                 "--scenarios.filter=Authorization.V1.*",
                 "--scenarios.users=user1,user2",
-                "--scenarios.cidr=10.1.0.0/16",
-                "--scenarios.public.ips=52.93.126.1/26",
                 "--report.results.path=../reports/results",
-                "--retry.base.delay=0",
-                "--retry.base.interval=1",
-                "--retry.max.attempts=3",
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
@@ -84,18 +72,11 @@
             "args": [
                 "run",
                 "--provider.region.v1=http://localhost:8080/providers/seca.region",
-                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
                 "--client.auth.token=test-token",
                 "--client.region=region-1",
                 "--client.tenant=tenant-1",
                 "--scenarios.filter=Workspace.V1.*",
-                "--scenarios.users=user1,user2",
-                "--scenarios.cidr=10.1.0.0/16",
-                "--scenarios.public.ips=52.93.126.1/26",
                 "--report.results.path=../reports/results",
-                "--retry.base.delay=0",
-                "--retry.base.interval=1",
-                "--retry.max.attempts=3",
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
@@ -109,18 +90,11 @@
             "args": [
                 "run",
                 "--provider.region.v1=http://localhost:8080/providers/seca.region",
-                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
                 "--client.auth.token=test-token",
                 "--client.region=region-1",
                 "--client.tenant=tenant-1",
                 "--scenarios.filter=Storage.V1.*",
-                "--scenarios.users=user1,user2",
-                "--scenarios.cidr=10.1.0.0/16",
-                "--scenarios.public.ips=52.93.126.1/26",
                 "--report.results.path=../reports/results",
-                "--retry.base.delay=0",
-                "--retry.base.interval=1",
-                "--retry.max.attempts=3",
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
@@ -134,18 +108,11 @@
             "args": [
                 "run",
                 "--provider.region.v1=http://localhost:8080/providers/seca.region",
-                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
                 "--client.auth.token=test-token",
                 "--client.region=region-1",
                 "--client.tenant=tenant-1",
                 "--scenarios.filter=Compute.V1.*",
-                "--scenarios.users=user1,user2",
-                "--scenarios.cidr=10.1.0.0/16",
-                "--scenarios.public.ips=52.93.126.1/26",
                 "--report.results.path=../reports/results",
-                "--retry.base.delay=0",
-                "--retry.base.interval=1",
-                "--retry.max.attempts=3",
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
@@ -159,11 +126,10 @@
             "args": [
                 "run",
                 "--provider.region.v1=http://localhost:8080/providers/seca.region",
-                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
                 "--client.auth.token=test-token",
                 "--client.region=region-1",
                 "--client.tenant=tenant-1",
-                "--scenarios.filter=Network.V1.*",
+                "--scenarios.filter=Network.V1.LifeCycle",
                 "--scenarios.users=user1,user2",
                 "--scenarios.cidr=10.1.0.0/16",
                 "--scenarios.public.ips=52.93.126.1/26",
@@ -176,7 +142,7 @@
             ]
         },
         {
-            "name": "Run Foundation Usage",
+            "name": "Run Foundation",
             "type": "go",
             "request": "launch",
             "mode": "test",
@@ -193,13 +159,10 @@
                 "--scenarios.cidr=10.1.0.0/16",
                 "--scenarios.public.ips=52.93.126.1/26",
                 "--report.results.path=../reports/results",
-                "--retry.base.delay=0",
-                "--retry.base.interval=1",
-                "--retry.max.attempts=3",
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
-        },
+        }, 
         {
             "name": "Report",
             "type": "go",
