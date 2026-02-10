@@ -80,7 +80,6 @@ func (configurator *StepsConfigurator) GetListRoleV1Step(stepName string,
 			configurator.suite.ReportResponseStep(sCtx, iterResp)
 		}
 	})
-
 }
 
 func (configurator *StepsConfigurator) GetRoleWithErrorV1Step(stepName string, api *secapi.AuthorizationV1, tref secapi.TenantReference, expectedError error) {

@@ -172,7 +172,6 @@ func (configurator *StepsConfigurator) GetListImageV1Step(
 		if iterResp != nil {
 			configurator.suite.ReportResponseStep(sCtx, iterResp)
 		}
-
 	})
 }
 

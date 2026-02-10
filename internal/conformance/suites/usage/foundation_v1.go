@@ -333,6 +333,7 @@ func (suite *FoundationUsageV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
+//nolint:dupl
 func (suite *FoundationUsageV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t,
