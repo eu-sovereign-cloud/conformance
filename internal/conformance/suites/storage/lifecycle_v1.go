@@ -136,6 +136,7 @@ func (suite *StorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 func (suite *StorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.StorageProviderV1,
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindWorkspace),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
 	)

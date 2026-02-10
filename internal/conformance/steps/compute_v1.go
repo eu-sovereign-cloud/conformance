@@ -129,10 +129,11 @@ func (configurator *StepsConfigurator) GetListInstanceV1Step(
 			iter, err = api.ListInstances(context.Background(), wref.Tenant, wref.Workspace)
 		}
 		requireNoError(sCtx, err)
-		resp, err := iter.All(configurator.t.Context())
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-		requireLenResponse(sCtx, len(resp))
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
+
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
 	return resp
 }
@@ -156,12 +157,11 @@ func (configurator *StepsConfigurator) GetListSkusV1Step(
 			iter, err = api.ListSkus(configurator.t.Context(), tref.Tenant)
 		}
 		requireNoError(sCtx, err)
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
 
-		// Iterate through all items
-		resp, err := iter.All(configurator.t.Context())
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-		requireLenResponse(sCtx, len(resp))
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
 	return resp
 }

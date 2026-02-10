@@ -66,9 +66,7 @@ func (configurator *StepsConfigurator) GetListRoleV1Step(stepName string,
 ) {
 	configurator.withStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetAuthorizationV1StepParams(sCtx, "GetListRole")
-
 		var iter *secapi.Iterator[schema.Role]
-
 		var err error
 		if opts != nil {
 			iter, err = api.ListRolesWithFilters(configurator.t.Context(), tref.Tenant, opts)
@@ -76,9 +74,13 @@ func (configurator *StepsConfigurator) GetListRoleV1Step(stepName string,
 			iter, err = api.ListRoles(configurator.t.Context(), tref.Tenant)
 		}
 		requireNoError(sCtx, err)
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
 
-		verifyIterListStep(sCtx, configurator.t, *iter)
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
+
 }
 
 func (configurator *StepsConfigurator) GetRoleWithErrorV1Step(stepName string, api *secapi.AuthorizationV1, tref secapi.TenantReference, expectedError error) {
@@ -164,7 +166,11 @@ func (configurator *StepsConfigurator) GetListRoleAssignmentsV1(stepName string,
 		}
 		requireNoError(sCtx, err)
 
-		verifyIterListStep(sCtx, configurator.t, *iter)
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
+
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
 }
 

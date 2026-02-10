@@ -36,13 +36,13 @@ func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx co
 		configurator.suite.SetRegionV1StepParams(sCtx, "ListRegions")
 
 		iter, err := api.ListRegions(ctx)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, iter)
 
-		resp, err = iter.All(ctx)
 		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-		requireLenResponse(sCtx, len(resp))
+		resp = verifyIterListStep(sCtx, configurator.t, *iter)
+
+		if resp != nil {
+			configurator.suite.ReportResponseStep(sCtx, resp)
+		}
 	})
 	return resp
 }

@@ -72,7 +72,11 @@ func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
 		}
 		requireNoError(sCtx, err)
 
-		verifyIterListStep(sCtx, configurator.t, *iter)
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
+
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
 }
 

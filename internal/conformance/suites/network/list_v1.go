@@ -441,6 +441,8 @@ func (suite *NetworkListV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
+		string(schema.RegionalNetworkResourceMetadataKindResourceKindBlockStorage),
+		string(schema.RegionalNetworkResourceMetadataKindResourceKindInstance),
 	)
 
 	workspace := suite.params.Workspace

@@ -77,7 +77,11 @@ func (configurator *StepsConfigurator) GetListNetworkV1Step(
 		}
 		requireNoError(sCtx, err)
 
-		verifyIterListStep(sCtx, configurator.t, *iter)
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
+
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
 }
 
@@ -165,7 +169,11 @@ func (configurator *StepsConfigurator) GetListInternetGatewayV1Step(
 		}
 		requireNoError(sCtx, err)
 
-		verifyIterListStep(sCtx, configurator.t, *iter)
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
+
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
 }
 
@@ -253,7 +261,11 @@ func (configurator *StepsConfigurator) GetListRouteTableV1Step(
 			iter, err = api.ListRouteTables(configurator.t.Context(), nref.Tenant, nref.Workspace, nref.Network)
 		}
 		requireNoError(sCtx, err)
-		verifyIterListStep(sCtx, configurator.t, *iter)
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
+
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
 }
 
@@ -342,7 +354,11 @@ func (configurator *StepsConfigurator) GetListSubnetV1Step(
 		}
 		requireNoError(sCtx, err)
 
-		verifyIterListStep(sCtx, configurator.t, *iter)
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
+
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
 }
 
@@ -431,7 +447,11 @@ func (configurator *StepsConfigurator) GetListPublicIpV1Step(
 		requireNoError(sCtx, err)
 
 		// Iterate through all items
-		verifyIterListStep(sCtx, configurator.t, *iter)
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
+
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
 }
 
@@ -519,7 +539,11 @@ func (configurator *StepsConfigurator) GetListNicV1Step(
 		}
 		requireNoError(sCtx, err)
 
-		verifyIterListStep(sCtx, configurator.t, *iter)
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
+
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
 }
 
@@ -607,7 +631,11 @@ func (configurator *StepsConfigurator) GetListSecurityGroupV1Step(
 		}
 		requireNoError(sCtx, err)
 
-		verifyIterListStep(sCtx, configurator.t, *iter)
+		iterResp := verifyIterListStep(sCtx, configurator.t, *iter)
+
+		if iterResp != nil {
+			configurator.suite.ReportResponseStep(sCtx, iterResp)
+		}
 	})
 }
 

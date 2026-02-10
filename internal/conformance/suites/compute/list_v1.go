@@ -177,7 +177,7 @@ func (suite *ComputeListV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *ComputeListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace), constants.WorkspaceProviderV1, constants.StorageProviderV1)
 
 	workspace := suite.params.Workspace
 	block := suite.params.BlockStorage
