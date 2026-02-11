@@ -90,6 +90,7 @@ func (suite *RegionListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
+//nolint:dupl
 func (suite *RegionListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))

@@ -431,6 +431,7 @@ func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
+//nolint:dupl
 func (suite *NetworkListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.NetworkProviderV1,

@@ -164,6 +164,7 @@ func (suite *AuthorizationListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
+//nolint:dupl
 func (suite *AuthorizationListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.AuthorizationProviderV1,

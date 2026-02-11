@@ -67,6 +67,7 @@ func (suite *WorkspaceListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
+//nolint:dupl
 func (suite *WorkspaceListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))

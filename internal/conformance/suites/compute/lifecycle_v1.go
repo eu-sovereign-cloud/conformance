@@ -143,6 +143,7 @@ func (suite *ComputeLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
+//nolint:dupl
 func (suite *ComputeLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace), constants.WorkspaceProviderV1, constants.StorageProviderV1)
