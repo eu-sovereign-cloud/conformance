@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/pkg/types"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
@@ -156,14 +155,13 @@ type ResponseExpects[M types.MetadataType, E types.SpecType] struct {
 }
 
 func createOrUpdateTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType](
-	t provider.T,
-	suite *suites.TestSuite,
+	configurator *StepsConfigurator,
 	params createOrUpdateTenantResourceParams[R, M, E],
 ) {
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName)
 
-		createOrUpdateResourceStep(t, suite, sCtx, createOrUpdateResourceParams[R, M, E]{
+		createOrUpdateResourceStep(configurator, sCtx, createOrUpdateResourceParams[R, M, E]{
 			resource:              params.resource,
 			createOrUpdateFunc:    params.createOrUpdateFunc,
 			expectedLabels:        params.expectedLabels,
@@ -177,14 +175,13 @@ func createOrUpdateTenantResourceStep[R types.ResourceType, M types.MetadataType
 }
 
 func createOrUpdateWorkspaceResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType](
-	t provider.T,
-	suite *suites.TestSuite,
+	configurator *StepsConfigurator,
 	params createOrUpdateWorkspaceResourceParams[R, M, E],
 ) {
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace)
 
-		createOrUpdateResourceStep(t, suite, sCtx, createOrUpdateResourceParams[R, M, E]{
+		createOrUpdateResourceStep(configurator, sCtx, createOrUpdateResourceParams[R, M, E]{
 			resource:              params.resource,
 			createOrUpdateFunc:    params.createOrUpdateFunc,
 			expectedLabels:        params.expectedLabels,
@@ -198,14 +195,13 @@ func createOrUpdateWorkspaceResourceStep[R types.ResourceType, M types.MetadataT
 }
 
 func createOrUpdateNetworkResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType](
-	t provider.T,
-	suite *suites.TestSuite,
+	configurator *StepsConfigurator,
 	params createOrUpdateNetworkResourceParams[R, M, E],
 ) {
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace, params.network)
 
-		createOrUpdateResourceStep(t, suite, sCtx, createOrUpdateResourceParams[R, M, E]{
+		createOrUpdateResourceStep(configurator, sCtx, createOrUpdateResourceParams[R, M, E]{
 			resource:              params.resource,
 			createOrUpdateFunc:    params.createOrUpdateFunc,
 			expectedLabels:        params.expectedLabels,
@@ -219,15 +215,25 @@ func createOrUpdateNetworkResourceStep[R types.ResourceType, M types.MetadataTyp
 }
 
 func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType](
-	t provider.T,
-	suite *suites.TestSuite,
+	configurator *StepsConfigurator,
 	sCtx provider.StepCtx,
 	params createOrUpdateResourceParams[R, M, E],
 ) {
-	resp, err := params.createOrUpdateFunc(t.Context(), params.resource)
-	requireNoError(sCtx, err)
+	if params.resource != nil {
+		configurator.suite.ReportRequestStep(sCtx, params.resource)
+	}
+	resp, err := params.createOrUpdateFunc(configurator.t.Context(), params.resource)
+
+	if resp != nil {
+		configurator.suite.ReportResponseStep(sCtx, resp.resource)
+	}
+
+	if err != nil {
+		requireNoError(sCtx, err)
+	}
+
 	if params.expectedLabels != nil {
-		suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.labels)
+		configurator.suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.labels)
 	}
 
 	if params.expectedMetadata != nil {
@@ -238,19 +244,18 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 		params.verifySpecFunc(sCtx, params.expectedSpec, &resp.spec)
 	}
 
-	suite.VerifyStatusStep(sCtx, params.expectedResourceState, *resp.state)
+	configurator.suite.VerifyStatusStep(sCtx, params.expectedResourceState, *resp.state)
 }
 
 func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType](
-	t provider.T,
-	suite *suites.TestSuite,
+	configurator *StepsConfigurator,
 	params getTenantResourceParams[R, M, E],
 ) *R {
 	var resp *stepFuncResponse[R, M, E]
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName)
 
-		resp = getResourceWithObserver(t, suite, sCtx,
+		resp = getResourceWithObserver(configurator, sCtx,
 			getResourceWithObserverParams[R, M, E, secapi.TenantReference, schema.ResourceState]{
 				reference:             params.tref,
 				observerExpectedValue: params.expectedResourceState,
@@ -269,15 +274,14 @@ func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.S
 }
 
 func getWorkspaceResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType](
-	t provider.T,
-	suite *suites.TestSuite,
+	configurator *StepsConfigurator,
 	params getWorkspaceResourceParams[R, M, E],
 ) *R {
 	var resp *stepFuncResponse[R, M, E]
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, string(params.wref.Workspace))
 
-		resp = getResourceWithObserver(t, suite, sCtx,
+		resp = getResourceWithObserver(configurator, sCtx,
 			getResourceWithObserverParams[R, M, E, secapi.WorkspaceReference, schema.ResourceState]{
 				reference:             params.wref,
 				observerExpectedValue: params.expectedResourceState,
@@ -296,15 +300,14 @@ func getWorkspaceResourceStep[R types.ResourceType, M types.MetadataType, E type
 }
 
 func getNetworkResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType](
-	t provider.T,
-	suite *suites.TestSuite,
+	configurator *StepsConfigurator,
 	params getNetworkResourceParams[R, M, E],
 ) *R {
 	var resp *stepFuncResponse[R, M, E]
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+	configurator.withStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, string(params.nref.Workspace), string(params.nref.Network))
 
-		resp = getResourceWithObserver(t, suite, sCtx,
+		resp = getResourceWithObserver(configurator, sCtx,
 			getResourceWithObserverParams[R, M, E, secapi.NetworkReference, schema.ResourceState]{
 				reference:             params.nref,
 				observerExpectedValue: params.expectedResourceState,
@@ -323,24 +326,29 @@ func getNetworkResourceStep[R types.ResourceType, M types.MetadataType, E types.
 }
 
 func getResourceWithObserver[R types.ResourceType, M types.MetadataType, E types.SpecType, F secapi.Reference, V any](
-	t provider.T,
-	suite *suites.TestSuite,
+	configurator *StepsConfigurator,
 	sCtx provider.StepCtx,
 	params getResourceWithObserverParams[R, M, E, F, V],
 ) *stepFuncResponse[R, M, E] {
 	config := secapi.ResourceObserverConfig[V]{
 		ExpectedValue: params.observerExpectedValue,
-		Delay:         time.Duration(suite.BaseDelay) * time.Second,
-		Interval:      time.Duration(suite.BaseInterval) * time.Second,
-		MaxAttempts:   suite.MaxAttempts,
+		Delay:         time.Duration(configurator.suite.BaseDelay) * time.Second,
+		Interval:      time.Duration(configurator.suite.BaseInterval) * time.Second,
+		MaxAttempts:   configurator.suite.MaxAttempts,
 	}
 
-	resp, err := params.getFunc(t.Context(), params.reference, config)
+	configurator.suite.ReportRequestStep(sCtx, params.reference)
+
+	resp, err := params.getFunc(configurator.t.Context(), params.reference, config)
 	requireNoError(sCtx, err)
 	requireNotNilResponse(sCtx, resp)
 
+	if resp != nil {
+		configurator.suite.ReportResponseStep(sCtx, resp.resource)
+	}
+
 	if params.expectedLabels != nil {
-		suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.labels)
+		configurator.suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.labels)
 	}
 
 	if params.expectedMetadata != nil {
@@ -351,7 +359,7 @@ func getResourceWithObserver[R types.ResourceType, M types.MetadataType, E types
 		params.verifySpecFunc(sCtx, params.expectedSpec, &resp.spec)
 	}
 
-	suite.VerifyStatusStep(sCtx, params.expectedResourceState, *resp.state)
+	configurator.suite.VerifyStatusStep(sCtx, params.expectedResourceState, *resp.state)
 
 	return resp
 }

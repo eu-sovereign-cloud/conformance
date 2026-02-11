@@ -37,12 +37,16 @@ func requireLenResponse(sCtx provider.StepCtx, resp int) {
 	})
 }
 
-func verifyIterListStep[R any](ctx provider.StepCtx, t provider.T, iter secapi.Iterator[R]) {
+func verifyIterListStep[R any](ctx provider.StepCtx, t provider.T, iter secapi.Iterator[R]) []*R {
+	var iterResp []*R
 	ctx.WithNewStep("Verify Iter List", func(stepCtx provider.StepCtx) {
 		// Iterate through all items
 		resp, err := iter.All(t.Context())
 		requireNoError(stepCtx, err)
 		requireNotNilResponse(stepCtx, resp)
 		requireLenResponse(stepCtx, len(resp))
+		iterResp = resp
 	})
+
+	return iterResp
 }
