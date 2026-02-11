@@ -19,7 +19,8 @@ func TestWorkspaceV1Suites(t *testing.T) {
 	}
 
 	// List Suite
-	listTestSuite := workspace.CreateListV1TestSuite(regionalTestSuite)
+
+	listTestSuite := *workspace.CreateListV1TestSuite(regionalTestSuite)
 	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, listTestSuite)
 	}
