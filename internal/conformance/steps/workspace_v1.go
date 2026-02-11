@@ -3,6 +3,7 @@ package steps
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -15,6 +16,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	createOrUpdateTenantResourceStep(configurator.t, configurator.suite,
 		createOrUpdateTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			stepName:       stepName,
@@ -37,6 +39,7 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api *
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) *schema.Workspace {
 	responseExpects.Metadata.Verb = http.MethodGet
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	return getTenantResourceStep(configurator.t, configurator.suite,
 		getTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			stepName:       stepName,
@@ -61,6 +64,7 @@ func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListWorkspace", string(tref.Tenant))
 		var iter *secapi.Iterator[schema.Workspace]
@@ -77,6 +81,7 @@ func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
 }
 
 func (configurator *StepsConfigurator) GetWorkspaceWithErrorV1Step(stepName string, api *secapi.WorkspaceV1, tref secapi.TenantReference, expectedError error) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetWorkspaceV1StepParams(sCtx, "GetWorkspace")
 
@@ -86,6 +91,7 @@ func (configurator *StepsConfigurator) GetWorkspaceWithErrorV1Step(stepName stri
 }
 
 func (configurator *StepsConfigurator) DeleteWorkspaceV1Step(stepName string, api *secapi.WorkspaceV1, resource *schema.Workspace) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetWorkspaceV1StepParams(sCtx, "DeleteWorkspace")
 

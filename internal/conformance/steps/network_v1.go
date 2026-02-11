@@ -3,6 +3,7 @@ package steps
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -17,6 +18,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName stri
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
 		createOrUpdateWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			stepName:       stepName,
@@ -41,6 +43,7 @@ func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api *se
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
 ) *schema.Network {
 	responseExpects.Metadata.Verb = http.MethodGet
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
 		getWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			stepName:       stepName,
@@ -66,6 +69,7 @@ func (configurator *StepsConfigurator) GetListNetworkV1Step(
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListNetwork", string(wref.Workspace))
 		var iter *secapi.Iterator[schema.Network]
@@ -82,6 +86,7 @@ func (configurator *StepsConfigurator) GetListNetworkV1Step(
 }
 
 func (configurator *StepsConfigurator) GetNetworkWithErrorV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetNetwork", string(wref.Workspace))
 
@@ -91,6 +96,7 @@ func (configurator *StepsConfigurator) GetNetworkWithErrorV1Step(stepName string
 }
 
 func (configurator *StepsConfigurator) DeleteNetworkV1Step(stepName string, api *secapi.NetworkV1, resource *schema.Network) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteNetwork", resource.Metadata.Workspace)
 
@@ -105,6 +111,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepN
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
 		createOrUpdateWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			stepName:       stepName,
@@ -129,6 +136,7 @@ func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
 ) *schema.InternetGateway {
 	responseExpects.Metadata.Verb = http.MethodGet
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
 		getWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			stepName:       stepName,
@@ -154,6 +162,7 @@ func (configurator *StepsConfigurator) GetListInternetGatewayV1Step(
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListInternetGateway", wref.Name)
 		var iter *secapi.Iterator[schema.InternetGateway]
@@ -170,6 +179,7 @@ func (configurator *StepsConfigurator) GetListInternetGatewayV1Step(
 }
 
 func (configurator *StepsConfigurator) GetInternetGatewayWithErrorV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetInternetGateway", string(wref.Workspace))
 
@@ -179,6 +189,7 @@ func (configurator *StepsConfigurator) GetInternetGatewayWithErrorV1Step(stepNam
 }
 
 func (configurator *StepsConfigurator) DeleteInternetGatewayV1Step(stepName string, api *secapi.NetworkV1, resource *schema.InternetGateway) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteInternetGateway", resource.Metadata.Workspace)
 
@@ -193,6 +204,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName s
 	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	createOrUpdateNetworkResourceStep(configurator.t, configurator.suite,
 		createOrUpdateNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			stepName:       stepName,
@@ -218,6 +230,7 @@ func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api 
 	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
 ) *schema.RouteTable {
 	responseExpects.Metadata.Verb = http.MethodGet
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	return getNetworkResourceStep(configurator.t, configurator.suite,
 		getNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			stepName:       stepName,
@@ -243,6 +256,7 @@ func (configurator *StepsConfigurator) GetListRouteTableV1Step(
 	nref secapi.NetworkReference,
 	opts *secapi.ListOptions,
 ) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListRouteTable", nref.Name)
 		var iter *secapi.Iterator[schema.RouteTable]
@@ -258,6 +272,7 @@ func (configurator *StepsConfigurator) GetListRouteTableV1Step(
 }
 
 func (configurator *StepsConfigurator) GetRouteTableWithErrorV1Step(stepName string, api *secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetRouteTable", string(nref.Workspace))
 
@@ -267,6 +282,7 @@ func (configurator *StepsConfigurator) GetRouteTableWithErrorV1Step(stepName str
 }
 
 func (configurator *StepsConfigurator) DeleteRouteTableV1Step(stepName string, api *secapi.NetworkV1, resource *schema.RouteTable) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteRouteTable", resource.Metadata.Workspace)
 
@@ -281,6 +297,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName strin
 	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	createOrUpdateNetworkResourceStep(configurator.t, configurator.suite,
 		createOrUpdateNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			stepName:       stepName,
@@ -306,6 +323,7 @@ func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api *sec
 	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
 ) *schema.Subnet {
 	responseExpects.Metadata.Verb = http.MethodGet
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	return getNetworkResourceStep(configurator.t, configurator.suite,
 		getNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			stepName:       stepName,
@@ -331,6 +349,7 @@ func (configurator *StepsConfigurator) GetListSubnetV1Step(
 	nref secapi.NetworkReference,
 	opts *secapi.ListOptions,
 ) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListSubnet", nref.Name)
 		var iter *secapi.Iterator[schema.Subnet]
@@ -347,6 +366,7 @@ func (configurator *StepsConfigurator) GetListSubnetV1Step(
 }
 
 func (configurator *StepsConfigurator) GetSubnetWithErrorV1Step(stepName string, api *secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetSubnet", string(nref.Workspace))
 
@@ -356,6 +376,7 @@ func (configurator *StepsConfigurator) GetSubnetWithErrorV1Step(stepName string,
 }
 
 func (configurator *StepsConfigurator) DeleteSubnetV1Step(stepName string, api *secapi.NetworkV1, resource *schema.Subnet) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteSubnet", resource.Metadata.Workspace)
 
@@ -370,6 +391,7 @@ func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName str
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
 		createOrUpdateWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			stepName:       stepName,
@@ -394,6 +416,7 @@ func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api *s
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
 ) *schema.PublicIp {
 	responseExpects.Metadata.Verb = http.MethodGet
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
 		getWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			stepName:       stepName,
@@ -419,6 +442,7 @@ func (configurator *StepsConfigurator) GetListPublicIpV1Step(
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListPublicIp", wref.Name)
 		var iter *secapi.Iterator[schema.PublicIp]
@@ -436,6 +460,7 @@ func (configurator *StepsConfigurator) GetListPublicIpV1Step(
 }
 
 func (configurator *StepsConfigurator) GetPublicIpWithErrorV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetPublicIp", string(wref.Workspace))
 
@@ -445,6 +470,7 @@ func (configurator *StepsConfigurator) GetPublicIpWithErrorV1Step(stepName strin
 }
 
 func (configurator *StepsConfigurator) DeletePublicIpV1Step(stepName string, api *secapi.NetworkV1, resource *schema.PublicIp) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeletePublicIp", resource.Metadata.Workspace)
 
@@ -459,6 +485,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, 
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
 		createOrUpdateWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			stepName:       stepName,
@@ -483,6 +510,7 @@ func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api *secapi
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
 ) *schema.Nic {
 	responseExpects.Metadata.Verb = http.MethodGet
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
 		getWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			stepName:       stepName,
@@ -508,6 +536,7 @@ func (configurator *StepsConfigurator) GetListNicV1Step(
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListNic", wref.Name)
 		var iter *secapi.Iterator[schema.Nic]
@@ -524,6 +553,7 @@ func (configurator *StepsConfigurator) GetListNicV1Step(
 }
 
 func (configurator *StepsConfigurator) GetNicWithErrorV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetNic", string(wref.Workspace))
 
@@ -533,6 +563,7 @@ func (configurator *StepsConfigurator) GetNicWithErrorV1Step(stepName string, ap
 }
 
 func (configurator *StepsConfigurator) DeleteNicV1Step(stepName string, api *secapi.NetworkV1, resource *schema.Nic) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteNic", resource.Metadata.Workspace)
 
@@ -547,6 +578,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepNam
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
 		createOrUpdateWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			stepName:       stepName,
@@ -571,6 +603,7 @@ func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, a
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
 ) *schema.SecurityGroup {
 	responseExpects.Metadata.Verb = http.MethodGet
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
 		getWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			stepName:       stepName,
@@ -596,6 +629,7 @@ func (configurator *StepsConfigurator) GetListSecurityGroupV1Step(
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListSecurityGroup", wref.Name)
 		var iter *secapi.Iterator[schema.SecurityGroup]
@@ -612,6 +646,7 @@ func (configurator *StepsConfigurator) GetListSecurityGroupV1Step(
 }
 
 func (configurator *StepsConfigurator) GetSecurityGroupWithErrorV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetSecurityGroup", string(wref.Workspace))
 
@@ -621,6 +656,7 @@ func (configurator *StepsConfigurator) GetSecurityGroupWithErrorV1Step(stepName 
 }
 
 func (configurator *StepsConfigurator) DeleteSecurityGroupV1Step(stepName string, api *secapi.NetworkV1, resource *schema.SecurityGroup) {
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteSecurityGroup", resource.Metadata.Workspace)
 
@@ -636,7 +672,7 @@ func (configurator *StepsConfigurator) GetListNetworkSkusV1Step(
 	opts *secapi.ListOptions,
 ) []*schema.NetworkSku {
 	var resp []*schema.NetworkSku
-
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "ListSkus", tref.Name)
 

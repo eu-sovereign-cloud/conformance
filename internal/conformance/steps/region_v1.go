@@ -3,6 +3,7 @@ package steps
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -13,7 +14,7 @@ import (
 func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx context.Context, api *secapi.RegionV1, expectedMeta *schema.GlobalResourceMetadata) *schema.Region {
 	var resp *schema.Region
 	var err error
-
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetRegionV1StepParams(sCtx, "GetRegion")
 
@@ -31,7 +32,7 @@ func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx cont
 
 func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx context.Context, api *secapi.RegionV1) []*schema.Region {
 	var resp []*schema.Region
-
+	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetRegionV1StepParams(sCtx, "ListRegions")
 

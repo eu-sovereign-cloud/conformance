@@ -2,6 +2,7 @@ package steps
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
@@ -226,19 +227,30 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 ) {
 	resp, err := params.createOrUpdateFunc(t.Context(), params.resource)
 	requireNoError(sCtx, err)
+
+	// Label
+
 	if params.expectedLabels != nil {
 		suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.labels)
 	}
 
-	if params.expectedMetadata != nil {
+	// Metadata
+	if resp.metadata != nil && params.expectedMetadata != nil {
 		params.verifyMetadataFunc(sCtx, params.expectedMetadata, resp.metadata)
+	} else {
+		log.Fatalln("Metadata verification failed: expected or actual metadata is nil")
 	}
 
 	if params.expectedSpec != nil {
 		params.verifySpecFunc(sCtx, params.expectedSpec, &resp.spec)
 	}
 
-	suite.VerifyStatusStep(sCtx, params.expectedResourceState, *resp.state)
+	// State
+	if resp.state != nil && params.expectedResourceState != "" {
+		suite.VerifyStatusStep(sCtx, params.expectedResourceState, *resp.state)
+	} else {
+		log.Fatalln("Status verification failed: expected or actual Status is nil")
+	}
 }
 
 func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType](
