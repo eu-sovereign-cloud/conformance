@@ -3,11 +3,11 @@ package steps
 
 import (
 	"context"
-	"log"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"golang.org/x/exp/slog"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -18,7 +18,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName str
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
+	slog.Info("[%s] %s", configurator.suite.ScenarioName, stepName)
 	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
 		createOrUpdateWorkspaceResourceParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			stepName:       stepName,
@@ -43,7 +43,7 @@ func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api *s
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
 ) *schema.Instance {
 	responseExpects.Metadata.Verb = http.MethodGet
-	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
+	slog.Info("[%s] %s", configurator.suite.ScenarioName, stepName)
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
 		getWorkspaceResourceParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			stepName:       stepName,
@@ -64,7 +64,7 @@ func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api *s
 }
 
 func (configurator *StepsConfigurator) GetInstanceWithErrorV1Step(stepName string, api *secapi.ComputeV1, wref secapi.WorkspaceReference, expectedError error) {
-	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
+	slog.Info("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "GetInstance", string(wref.Workspace))
 
@@ -75,7 +75,7 @@ func (configurator *StepsConfigurator) GetInstanceWithErrorV1Step(stepName strin
 
 func (configurator *StepsConfigurator) StartInstanceV1Step(stepName string, api *secapi.ComputeV1, resource *schema.Instance) {
 	var err error
-	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
+	slog.Info("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "StartInstance", resource.Metadata.Workspace)
 
@@ -86,7 +86,7 @@ func (configurator *StepsConfigurator) StartInstanceV1Step(stepName string, api 
 
 func (configurator *StepsConfigurator) StopInstanceV1Step(stepName string, api *secapi.ComputeV1, resource *schema.Instance) {
 	var err error
-	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
+	slog.Info("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "StopInstance", resource.Metadata.Workspace)
 
@@ -97,7 +97,7 @@ func (configurator *StepsConfigurator) StopInstanceV1Step(stepName string, api *
 
 func (configurator *StepsConfigurator) RestartInstanceV1Step(stepName string, api *secapi.ComputeV1, resource *schema.Instance) {
 	var err error
-	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
+	slog.Info("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "RestartInstance", resource.Metadata.Workspace)
 
@@ -107,7 +107,7 @@ func (configurator *StepsConfigurator) RestartInstanceV1Step(stepName string, ap
 }
 
 func (configurator *StepsConfigurator) DeleteInstanceV1Step(stepName string, api *secapi.ComputeV1, resource *schema.Instance) {
-	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
+	slog.Info("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "DeleteInstance", resource.Metadata.Workspace)
 
@@ -123,7 +123,7 @@ func (configurator *StepsConfigurator) GetListInstanceV1Step(
 	opts *secapi.ListOptions,
 ) []*schema.Instance {
 	var resp []*schema.Instance
-	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
+	slog.Info("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "ListInstances with parameters", wref.Name)
 		var iter *secapi.Iterator[schema.Instance]
@@ -149,7 +149,7 @@ func (configurator *StepsConfigurator) GetListSkusV1Step(
 	opts *secapi.ListOptions,
 ) []*schema.InstanceSku {
 	var resp []*schema.InstanceSku
-	log.Printf("[%s] %s", configurator.suite.ScenarioName, stepName)
+	slog.Info("[%s] %s", configurator.suite.ScenarioName, stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "ListSkus", tref.Name)
 
