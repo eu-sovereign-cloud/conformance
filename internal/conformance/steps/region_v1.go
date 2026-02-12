@@ -3,18 +3,19 @@ package steps
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"golang.org/x/exp/slog"
 )
 
 func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx context.Context, api *secapi.RegionV1, expectedMeta *schema.GlobalResourceMetadata) *schema.Region {
 	var resp *schema.Region
 	var err error
-	slog.Info("[%s] %s", configurator.suite.ScenarioName, stepName)
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetRegionV1StepParams(sCtx, "GetRegion")
 
@@ -32,7 +33,7 @@ func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx cont
 
 func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx context.Context, api *secapi.RegionV1) []*schema.Region {
 	var resp []*schema.Region
-	slog.Info("[%s] %s", configurator.suite.ScenarioName, stepName)
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetRegionV1StepParams(sCtx, "ListRegions")
 
