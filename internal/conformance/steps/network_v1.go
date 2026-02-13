@@ -21,15 +21,17 @@ func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName stri
 	responseExpects.Metadata.Verb = http.MethodPut
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
-		createOrUpdateWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+		createOrUpdateWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "CreateOrUpdateNetwork",
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.Network) (*stepFuncResponse[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec], error) {
+			createOrUpdateFunc: func(context.Context, *schema.Network) (
+				*stepFuncResponse[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus], error,
+			) {
 				resp, err := api.CreateOrUpdateNetwork(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -46,14 +48,16 @@ func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api *se
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
-		getWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+		getWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "GetNetwork",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec], error) {
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+				*stepFuncResponse[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus], error,
+			) {
 				resp, err := api.GetNetworkUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -114,15 +118,17 @@ func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepN
 	responseExpects.Metadata.Verb = http.MethodPut
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
-		createOrUpdateWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+		createOrUpdateWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "CreateOrUpdateInternetGateway",
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.InternetGateway) (*stepFuncResponse[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec], error) {
+			createOrUpdateFunc: func(context.Context, *schema.InternetGateway) (
+				*stepFuncResponse[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status], error,
+			) {
 				resp, err := api.CreateOrUpdateInternetGateway(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -139,14 +145,16 @@ func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string,
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
-		getWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+		getWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "GetInternetGateway",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec], error) {
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+				*stepFuncResponse[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status], error,
+			) {
 				resp, err := api.GetInternetGatewayUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -207,16 +215,18 @@ func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName s
 	responseExpects.Metadata.Verb = http.MethodPut
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	createOrUpdateNetworkResourceStep(configurator.t, configurator.suite,
-		createOrUpdateNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+		createOrUpdateNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
 			operationName:  "CreateOrUpdateRouteTable",
 			workspace:      resource.Metadata.Workspace,
 			network:        resource.Metadata.Network,
 			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.RouteTable) (*stepFuncResponse[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec], error) {
+			createOrUpdateFunc: func(context.Context, *schema.RouteTable) (
+				*stepFuncResponse[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus], error,
+			) {
 				resp, err := api.CreateOrUpdateRouteTable(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
@@ -233,14 +243,16 @@ func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api 
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	return getNetworkResourceStep(configurator.t, configurator.suite,
-		getNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+		getNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
 			operationName:  "GetRouteTable",
 			nref:           nref,
-			getFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec], error) {
+			getFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+				*stepFuncResponse[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus], error,
+			) {
 				resp, err := api.GetRouteTableUntilState(ctx, nref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
@@ -300,16 +312,18 @@ func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName strin
 	responseExpects.Metadata.Verb = http.MethodPut
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	createOrUpdateNetworkResourceStep(configurator.t, configurator.suite,
-		createOrUpdateNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+		createOrUpdateNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
 			operationName:  "CreateOrUpdateSubnet",
 			workspace:      resource.Metadata.Workspace,
 			network:        resource.Metadata.Network,
 			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.Subnet) (*stepFuncResponse[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec], error) {
+			createOrUpdateFunc: func(context.Context, *schema.Subnet) (
+				*stepFuncResponse[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus], error,
+			) {
 				resp, err := api.CreateOrUpdateSubnet(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
@@ -326,14 +340,16 @@ func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api *sec
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	return getNetworkResourceStep(configurator.t, configurator.suite,
-		getNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+		getNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
 			operationName:  "GetSubnet",
 			nref:           nref,
-			getFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec], error) {
+			getFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+				*stepFuncResponse[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus], error,
+			) {
 				resp, err := api.GetSubnetUntilState(ctx, nref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
@@ -394,15 +410,17 @@ func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName str
 	responseExpects.Metadata.Verb = http.MethodPut
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
-		createOrUpdateWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+		createOrUpdateWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "CreateOrUpdatePublicIp",
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.PublicIp) (*stepFuncResponse[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec], error) {
+			createOrUpdateFunc: func(context.Context, *schema.PublicIp) (
+				*stepFuncResponse[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus], error,
+			) {
 				resp, err := api.CreateOrUpdatePublicIp(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -419,14 +437,16 @@ func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api *s
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
-		getWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+		getWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "GetPublicIp",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec], error) {
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+				*stepFuncResponse[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus], error,
+			) {
 				resp, err := api.GetPublicIpUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -488,15 +508,17 @@ func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, 
 	responseExpects.Metadata.Verb = http.MethodPut
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
-		createOrUpdateWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+		createOrUpdateWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "CreateOrUpdateNic",
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.Nic) (*stepFuncResponse[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec], error) {
+			createOrUpdateFunc: func(context.Context, *schema.Nic) (
+				*stepFuncResponse[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus], error,
+			) {
 				resp, err := api.CreateOrUpdateNic(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -513,14 +535,16 @@ func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api *secapi
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
-		getWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+		getWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "GetNic",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec], error) {
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+				*stepFuncResponse[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus], error,
+			) {
 				resp, err := api.GetNicUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -581,15 +605,17 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepNam
 	responseExpects.Metadata.Verb = http.MethodPut
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
-		createOrUpdateWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+		createOrUpdateWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "CreateOrUpdateSecurityGroup",
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.SecurityGroup) (*stepFuncResponse[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec], error) {
+			createOrUpdateFunc: func(context.Context, *schema.SecurityGroup) (
+				*stepFuncResponse[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus], error,
+			) {
 				resp, err := api.CreateOrUpdateSecurityGroup(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -606,14 +632,16 @@ func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, a
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
-		getWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+		getWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "GetSecurityGroup",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec], error) {
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+				*stepFuncResponse[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus], error,
+			) {
 				resp, err := api.GetSecurityGroupUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedMetadata:      responseExpects.Metadata,
 			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,

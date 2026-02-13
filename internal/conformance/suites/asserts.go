@@ -86,7 +86,6 @@ func (suite *TestSuite) VerifyRegionalNetworkResourceMetadataStep(ctx provider.S
 }
 
 func (suite TestSuite) verifyAssertState(stepCtx provider.StepCtx) {
-
 	if stepCtx.CurrentStep().Status != passed {
 		slog.Error("Metadata verification should have no assertion failures")
 		stepCtx.FailNow()
@@ -95,9 +94,9 @@ func (suite TestSuite) verifyAssertState(stepCtx provider.StepCtx) {
 
 // Status
 
-func (suite *TestSuite) VerifyStatusStep(ctx provider.StepCtx, expected schema.ResourceState, actual schema.ResourceState) {
+func (suite *TestSuite) VerifyStatusStep(ctx provider.StepCtx, expected schema.ResourceState, actual *schema.ResourceState) {
 	ctx.WithNewStep("Verify status state", func(stepCtx provider.StepCtx) {
-		stepCtx.Require().Equal(expected, actual, "Status state should match expected")
+		stepCtx.Require().Equal(expected, *actual, "Status state should match expected")
 	})
 }
 
