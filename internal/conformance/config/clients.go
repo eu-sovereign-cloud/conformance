@@ -82,12 +82,12 @@ func InitClients(ctx context.Context) error {
 	Clients.RegionZones = regionResp.Spec.AvailableZones
 
 	// Load available instance skus, if compute provider is available
-	if Clients.RegionalClient.ComputeV1 != nil {
-		Clients.InstanceSkus, err = loadInstanceSkus(ctx, Clients.RegionalClient)
-		if err != nil {
-			return fmt.Errorf("failed to list instance skus: %w", err)
-		}
+	//if Clients.RegionalClient.ComputeV1 != nil {
+	Clients.InstanceSkus, err = loadInstanceSkus(ctx, Clients.RegionalClient)
+	if err != nil {
+		return fmt.Errorf("failed to list instance skus: %w", err)
 	}
+	//}
 
 	// Load available storage skus, if storage provider is available
 	if Clients.RegionalClient.StorageV1 != nil {

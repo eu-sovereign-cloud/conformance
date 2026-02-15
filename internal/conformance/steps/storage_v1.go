@@ -15,7 +15,7 @@ import (
 
 // BlockStorage
 
-func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName string, api *secapi.StorageV1, resource *schema.BlockStorage,
+func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName string, api secapi.StorageV1, resource *schema.BlockStorage,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
@@ -42,7 +42,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName
 	)
 }
 
-func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, api *secapi.StorageV1, wref secapi.WorkspaceReference,
+func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, api secapi.StorageV1, wref secapi.WorkspaceReference,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
 ) *schema.BlockStorage {
 	responseExpects.Metadata.Verb = http.MethodGet
@@ -70,7 +70,7 @@ func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, ap
 
 func (configurator *StepsConfigurator) GetListBlockStorageV1Step(
 	stepName string,
-	api *secapi.StorageV1,
+	api secapi.StorageV1,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -91,7 +91,7 @@ func (configurator *StepsConfigurator) GetListBlockStorageV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetBlockStorageWithErrorV1Step(stepName string, api *secapi.StorageV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) GetBlockStorageWithErrorV1Step(stepName string, api secapi.StorageV1, wref secapi.WorkspaceReference, expectedError error) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetBlockStorage", string(wref.Workspace))
@@ -101,7 +101,7 @@ func (configurator *StepsConfigurator) GetBlockStorageWithErrorV1Step(stepName s
 	})
 }
 
-func (configurator *StepsConfigurator) DeleteBlockStorageV1Step(stepName string, api *secapi.StorageV1, resource *schema.BlockStorage) {
+func (configurator *StepsConfigurator) DeleteBlockStorageV1Step(stepName string, api secapi.StorageV1, resource *schema.BlockStorage) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "DeleteBlockStorage", resource.Metadata.Workspace)
@@ -113,7 +113,7 @@ func (configurator *StepsConfigurator) DeleteBlockStorageV1Step(stepName string,
 
 // Image
 
-func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string, api *secapi.StorageV1, resource *schema.Image,
+func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string, api secapi.StorageV1, resource *schema.Image,
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
@@ -139,7 +139,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string
 	)
 }
 
-func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api *secapi.StorageV1, tref secapi.TenantReference,
+func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api secapi.StorageV1, tref secapi.TenantReference,
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
 ) *schema.Image {
 	responseExpects.Metadata.Verb = http.MethodGet
@@ -167,7 +167,7 @@ func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api *seca
 
 func (configurator *StepsConfigurator) GetListImageV1Step(
 	stepName string,
-	api *secapi.StorageV1,
+	api secapi.StorageV1,
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) {
@@ -187,7 +187,7 @@ func (configurator *StepsConfigurator) GetListImageV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetImageWithErrorV1Step(stepName string, api *secapi.StorageV1, tref secapi.TenantReference, expectedError error) {
+func (configurator *StepsConfigurator) GetImageWithErrorV1Step(stepName string, api secapi.StorageV1, tref secapi.TenantReference, expectedError error) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageV1StepParams(sCtx, "GetImage")
@@ -197,7 +197,7 @@ func (configurator *StepsConfigurator) GetImageWithErrorV1Step(stepName string, 
 	})
 }
 
-func (configurator *StepsConfigurator) DeleteImageV1Step(stepName string, api *secapi.StorageV1, resource *schema.Image) {
+func (configurator *StepsConfigurator) DeleteImageV1Step(stepName string, api secapi.StorageV1, resource *schema.Image) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageV1StepParams(sCtx, "DeleteImage")
@@ -209,7 +209,7 @@ func (configurator *StepsConfigurator) DeleteImageV1Step(stepName string, api *s
 
 func (configurator *StepsConfigurator) GetListSkuV1Step(
 	stepName string,
-	api *secapi.StorageV1,
+	api secapi.StorageV1,
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) {

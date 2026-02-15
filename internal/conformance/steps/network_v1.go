@@ -15,7 +15,7 @@ import (
 
 // Network
 
-func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName string, api *secapi.NetworkV1, resource *schema.Network,
+func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName string, api secapi.NetworkV1, resource *schema.Network,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
@@ -42,7 +42,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName stri
 	)
 }
 
-func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
+func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
 ) *schema.Network {
 	responseExpects.Metadata.Verb = http.MethodGet
@@ -70,7 +70,7 @@ func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api *se
 
 func (configurator *StepsConfigurator) GetListNetworkV1Step(
 	stepName string,
-	api *secapi.NetworkV1,
+	api secapi.NetworkV1,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -90,7 +90,7 @@ func (configurator *StepsConfigurator) GetListNetworkV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetNetworkWithErrorV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) GetNetworkWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetNetwork", string(wref.Workspace))
@@ -100,7 +100,7 @@ func (configurator *StepsConfigurator) GetNetworkWithErrorV1Step(stepName string
 	})
 }
 
-func (configurator *StepsConfigurator) DeleteNetworkV1Step(stepName string, api *secapi.NetworkV1, resource *schema.Network) {
+func (configurator *StepsConfigurator) DeleteNetworkV1Step(stepName string, api secapi.NetworkV1, resource *schema.Network) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteNetwork", resource.Metadata.Workspace)
@@ -112,7 +112,7 @@ func (configurator *StepsConfigurator) DeleteNetworkV1Step(stepName string, api 
 
 // Internet Gateway
 
-func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepName string, api *secapi.NetworkV1, resource *schema.InternetGateway,
+func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepName string, api secapi.NetworkV1, resource *schema.InternetGateway,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
@@ -139,7 +139,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepN
 	)
 }
 
-func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
+func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
 ) *schema.InternetGateway {
 	responseExpects.Metadata.Verb = http.MethodGet
@@ -167,7 +167,7 @@ func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string,
 
 func (configurator *StepsConfigurator) GetListInternetGatewayV1Step(
 	stepName string,
-	api *secapi.NetworkV1,
+	api secapi.NetworkV1,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -187,7 +187,7 @@ func (configurator *StepsConfigurator) GetListInternetGatewayV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetInternetGatewayWithErrorV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) GetInternetGatewayWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetInternetGateway", string(wref.Workspace))
@@ -197,7 +197,7 @@ func (configurator *StepsConfigurator) GetInternetGatewayWithErrorV1Step(stepNam
 	})
 }
 
-func (configurator *StepsConfigurator) DeleteInternetGatewayV1Step(stepName string, api *secapi.NetworkV1, resource *schema.InternetGateway) {
+func (configurator *StepsConfigurator) DeleteInternetGatewayV1Step(stepName string, api secapi.NetworkV1, resource *schema.InternetGateway) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteInternetGateway", resource.Metadata.Workspace)
@@ -209,7 +209,7 @@ func (configurator *StepsConfigurator) DeleteInternetGatewayV1Step(stepName stri
 
 // Route Table
 
-func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName string, api *secapi.NetworkV1, resource *schema.RouteTable,
+func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName string, api secapi.NetworkV1, resource *schema.RouteTable,
 	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
@@ -237,7 +237,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName s
 	)
 }
 
-func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api *secapi.NetworkV1, nref secapi.NetworkReference,
+func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference,
 	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
 ) *schema.RouteTable {
 	responseExpects.Metadata.Verb = http.MethodGet
@@ -265,7 +265,7 @@ func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api 
 
 func (configurator *StepsConfigurator) GetListRouteTableV1Step(
 	stepName string,
-	api *secapi.NetworkV1,
+	api secapi.NetworkV1,
 	nref secapi.NetworkReference,
 	opts *secapi.ListOptions,
 ) {
@@ -284,7 +284,7 @@ func (configurator *StepsConfigurator) GetListRouteTableV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetRouteTableWithErrorV1Step(stepName string, api *secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
+func (configurator *StepsConfigurator) GetRouteTableWithErrorV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetRouteTable", string(nref.Workspace))
@@ -294,7 +294,7 @@ func (configurator *StepsConfigurator) GetRouteTableWithErrorV1Step(stepName str
 	})
 }
 
-func (configurator *StepsConfigurator) DeleteRouteTableV1Step(stepName string, api *secapi.NetworkV1, resource *schema.RouteTable) {
+func (configurator *StepsConfigurator) DeleteRouteTableV1Step(stepName string, api secapi.NetworkV1, resource *schema.RouteTable) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteRouteTable", resource.Metadata.Workspace)
@@ -306,7 +306,7 @@ func (configurator *StepsConfigurator) DeleteRouteTableV1Step(stepName string, a
 
 // Subnet
 
-func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName string, api *secapi.NetworkV1, resource *schema.Subnet,
+func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName string, api secapi.NetworkV1, resource *schema.Subnet,
 	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
@@ -334,7 +334,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName strin
 	)
 }
 
-func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api *secapi.NetworkV1, nref secapi.NetworkReference,
+func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference,
 	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
 ) *schema.Subnet {
 	responseExpects.Metadata.Verb = http.MethodGet
@@ -362,7 +362,7 @@ func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api *sec
 
 func (configurator *StepsConfigurator) GetListSubnetV1Step(
 	stepName string,
-	api *secapi.NetworkV1,
+	api secapi.NetworkV1,
 	nref secapi.NetworkReference,
 	opts *secapi.ListOptions,
 ) {
@@ -382,7 +382,7 @@ func (configurator *StepsConfigurator) GetListSubnetV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetSubnetWithErrorV1Step(stepName string, api *secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
+func (configurator *StepsConfigurator) GetSubnetWithErrorV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetSubnet", string(nref.Workspace))
@@ -392,7 +392,7 @@ func (configurator *StepsConfigurator) GetSubnetWithErrorV1Step(stepName string,
 	})
 }
 
-func (configurator *StepsConfigurator) DeleteSubnetV1Step(stepName string, api *secapi.NetworkV1, resource *schema.Subnet) {
+func (configurator *StepsConfigurator) DeleteSubnetV1Step(stepName string, api secapi.NetworkV1, resource *schema.Subnet) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteSubnet", resource.Metadata.Workspace)
@@ -404,7 +404,7 @@ func (configurator *StepsConfigurator) DeleteSubnetV1Step(stepName string, api *
 
 // Public Ip
 
-func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName string, api *secapi.NetworkV1, resource *schema.PublicIp,
+func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName string, api secapi.NetworkV1, resource *schema.PublicIp,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
@@ -431,7 +431,7 @@ func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName str
 	)
 }
 
-func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
+func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
 ) *schema.PublicIp {
 	responseExpects.Metadata.Verb = http.MethodGet
@@ -459,7 +459,7 @@ func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api *s
 
 func (configurator *StepsConfigurator) GetListPublicIpV1Step(
 	stepName string,
-	api *secapi.NetworkV1,
+	api secapi.NetworkV1,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -480,7 +480,7 @@ func (configurator *StepsConfigurator) GetListPublicIpV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetPublicIpWithErrorV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) GetPublicIpWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetPublicIp", string(wref.Workspace))
@@ -490,7 +490,7 @@ func (configurator *StepsConfigurator) GetPublicIpWithErrorV1Step(stepName strin
 	})
 }
 
-func (configurator *StepsConfigurator) DeletePublicIpV1Step(stepName string, api *secapi.NetworkV1, resource *schema.PublicIp) {
+func (configurator *StepsConfigurator) DeletePublicIpV1Step(stepName string, api secapi.NetworkV1, resource *schema.PublicIp) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeletePublicIp", resource.Metadata.Workspace)
@@ -502,7 +502,7 @@ func (configurator *StepsConfigurator) DeletePublicIpV1Step(stepName string, api
 
 // Nic
 
-func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, api *secapi.NetworkV1, resource *schema.Nic,
+func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, api secapi.NetworkV1, resource *schema.Nic,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
@@ -529,7 +529,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, 
 	)
 }
 
-func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
+func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
 ) *schema.Nic {
 	responseExpects.Metadata.Verb = http.MethodGet
@@ -557,7 +557,7 @@ func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api *secapi
 
 func (configurator *StepsConfigurator) GetListNicV1Step(
 	stepName string,
-	api *secapi.NetworkV1,
+	api secapi.NetworkV1,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -577,7 +577,7 @@ func (configurator *StepsConfigurator) GetListNicV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetNicWithErrorV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) GetNicWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetNic", string(wref.Workspace))
@@ -587,7 +587,7 @@ func (configurator *StepsConfigurator) GetNicWithErrorV1Step(stepName string, ap
 	})
 }
 
-func (configurator *StepsConfigurator) DeleteNicV1Step(stepName string, api *secapi.NetworkV1, resource *schema.Nic) {
+func (configurator *StepsConfigurator) DeleteNicV1Step(stepName string, api secapi.NetworkV1, resource *schema.Nic) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteNic", resource.Metadata.Workspace)
@@ -599,7 +599,7 @@ func (configurator *StepsConfigurator) DeleteNicV1Step(stepName string, api *sec
 
 // Security Group
 
-func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepName string, api *secapi.NetworkV1, resource *schema.SecurityGroup,
+func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroup,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
@@ -626,7 +626,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepNam
 	)
 }
 
-func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference,
+func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
 	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
 ) *schema.SecurityGroup {
 	responseExpects.Metadata.Verb = http.MethodGet
@@ -654,7 +654,7 @@ func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, a
 
 func (configurator *StepsConfigurator) GetListSecurityGroupV1Step(
 	stepName string,
-	api *secapi.NetworkV1,
+	api secapi.NetworkV1,
 	wref secapi.WorkspaceReference,
 	opts *secapi.ListOptions,
 ) {
@@ -674,7 +674,7 @@ func (configurator *StepsConfigurator) GetListSecurityGroupV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetSecurityGroupWithErrorV1Step(stepName string, api *secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) GetSecurityGroupWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "GetSecurityGroup", string(wref.Workspace))
@@ -684,7 +684,7 @@ func (configurator *StepsConfigurator) GetSecurityGroupWithErrorV1Step(stepName 
 	})
 }
 
-func (configurator *StepsConfigurator) DeleteSecurityGroupV1Step(stepName string, api *secapi.NetworkV1, resource *schema.SecurityGroup) {
+func (configurator *StepsConfigurator) DeleteSecurityGroupV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroup) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteSecurityGroup", resource.Metadata.Workspace)
@@ -696,7 +696,7 @@ func (configurator *StepsConfigurator) DeleteSecurityGroupV1Step(stepName string
 
 func (configurator *StepsConfigurator) GetListNetworkSkusV1Step(
 	stepName string,
-	api *secapi.NetworkV1,
+	api secapi.NetworkV1,
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) []*schema.NetworkSku {
