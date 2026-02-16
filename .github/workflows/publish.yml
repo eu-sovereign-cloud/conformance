@@ -1,0 +1,33 @@
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+name: Publish
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ./go.mod
+
+      - name: Build binaries
+        run: make
+      
+      - name: Upload binaries to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./dist/secatest
+          asset_name: secatest-${{ github.ref_name }}
+          asset_content_type: application/octet-stream

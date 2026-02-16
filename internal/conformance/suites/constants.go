@@ -1,6 +1,8 @@
 package suites
 
 const (
+	// Asserts
+	passed = "passed"
 	// Step Parameters
 	providerStepParameter  = "provider"
 	operationStepParameter = "operation"

@@ -4,11 +4,11 @@ go 1.24.0
 
 require (
 	github.com/apparentlymart/go-cidr v1.1.0
-	github.com/eu-sovereign-cloud/go-sdk v0.3.34-0.20260126145433-ed4608158ba8
+	github.com/eu-sovereign-cloud/go-sdk v0.3.35
 	github.com/go-playground/validator/v10 v10.30.1
-	github.com/ozontech/allure-go/pkg/framework v0.7.7
+	github.com/ozontech/allure-go/pkg/framework v0.8.1
 	github.com/spf13/cobra v1.10.2
-	github.com/wiremock/go-wiremock v1.14.0
+	github.com/wiremock/go-wiremock v1.15.0
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
 )
 
@@ -25,7 +25,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/oapi-codegen/runtime v1.1.2 // indirect
-	github.com/ozontech/allure-go/pkg/allure v0.7.5 // indirect
+	github.com/ozontech/allure-go/pkg/allure v0.8.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect

@@ -146,16 +146,10 @@ func initCommands(m *testing.M) *cobra.Command {
 
 	runCmd.MarkFlagsRequiredTogether(
 		"provider.region.v1",
-		"provider.authorization.v1",
 		"client.auth.token",
 		"client.region",
 		"client.tenant",
-		"scenarios.users",
-		"scenarios.cidr",
-		"scenarios.public.ips",
-		"retry.base.delay",
-		"retry.base.interval",
-		"retry.max.attempts",
+		"report.results.path",
 	)
 
 	rootCmd.AddCommand(runCmd)

@@ -3,7 +3,6 @@ package suites
 import (
 	"log/slog"
 	"regexp"
-	"strings"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
@@ -61,10 +60,10 @@ func (suite *TestSuite) FinishScenario() {
 }
 
 func (suite *TestSuite) ConfigureTags(t provider.T, provider string, kinds ...string) {
-	t.Tags(
-		"provider:"+provider,
-		"resources:"+strings.Join(kinds, ", "),
-	)
+	t.Tags("provider:" + provider)
+	for _, kind := range kinds {
+		t.Tags("kind:" + kind)
+	}
 }
 
 func (suite *TestSuite) ResetAllScenarios() {

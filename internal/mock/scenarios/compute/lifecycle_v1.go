@@ -78,7 +78,7 @@ func ConfigureLifecycleScenarioV1(scenario string, mockParams *mock.MockParams, 
 	}
 
 	// Get the stopped instance
-	if err := configurator.ConfigureGetSuspendedInstanceStub(&instance, instanceUrl, mockParams); err != nil {
+	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, mockParams); err != nil {
 		return nil, err
 	}
 
