@@ -17,7 +17,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type StorageListV1TestSuite struct {
+type ListV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	StorageSkus []string
@@ -25,8 +25,8 @@ type StorageListV1TestSuite struct {
 	params *params.StorageListV1Params
 }
 
-func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *StorageListV1TestSuite {
-	suite := &StorageListV1TestSuite{
+func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *ListV1TestSuite {
+	suite := &ListV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		StorageSkus:       storageSkus,
 	}
@@ -34,8 +34,8 @@ func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSk
 	return suite
 }
 
-func (suite *StorageListV1TestSuite) BeforeAll(t provider.T) {
-	var err error
+func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+	t.AddParentSuite("Storage")
 
 	// Select sku
 	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
@@ -191,7 +191,7 @@ func (suite *StorageListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *StorageListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.StorageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
@@ -333,6 +333,6 @@ func (suite *StorageListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *StorageListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

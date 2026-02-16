@@ -17,7 +17,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type RegionListV1TestSuite struct {
+type ListV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	RegionName string
@@ -25,8 +25,8 @@ type RegionListV1TestSuite struct {
 	params *params.RegionListV1Params
 }
 
-func CreateListV1TestSuite(globalTestSuite suites.GlobalTestSuite, regionName string) *RegionListV1TestSuite {
-	suite := &RegionListV1TestSuite{
+func CreateListV1TestSuite(globalTestSuite suites.GlobalTestSuite, regionName string) *ListV1TestSuite {
+	suite := &ListV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		RegionName:      regionName,
 	}
@@ -34,8 +34,8 @@ func CreateListV1TestSuite(globalTestSuite suites.GlobalTestSuite, regionName st
 	return suite
 }
 
-func (suite *RegionListV1TestSuite) BeforeAll(t provider.T) {
-	var err error
+func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+	t.AddParentSuite("Region")
 
 	// Generate scenario Names
 	regionName := generators.GenerateRegionName()
@@ -90,7 +90,7 @@ func (suite *RegionListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *RegionListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
@@ -114,6 +114,6 @@ func (suite *RegionListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *RegionListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

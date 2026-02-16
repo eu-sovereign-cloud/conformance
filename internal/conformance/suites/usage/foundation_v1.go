@@ -19,14 +19,14 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type FoundationUsageV1TestSuite struct {
+type FoundationV1TestSuite struct {
 	suites.MixedTestSuite
 
-	config *FoundationUsageV1Config
+	config *FoundationV1Config
 	params *params.FoundationUsageV1Params
 }
 
-type FoundationUsageV1Config struct {
+type FoundationV1Config struct {
 	Users          []string
 	NetworkCidr    string
 	PublicIpsRange string
@@ -36,8 +36,8 @@ type FoundationUsageV1Config struct {
 	NetworkSkus    []string
 }
 
-func CreateFoundationV1TestSuite(mixedTestSuite suites.MixedTestSuite, config *FoundationUsageV1Config) *FoundationUsageV1TestSuite {
-	suite := &FoundationUsageV1TestSuite{
+func CreateFoundationV1TestSuite(mixedTestSuite suites.MixedTestSuite, config *FoundationV1Config) *FoundationV1TestSuite {
+	suite := &FoundationV1TestSuite{
 		MixedTestSuite: mixedTestSuite,
 		config:         config,
 	}
@@ -45,8 +45,8 @@ func CreateFoundationV1TestSuite(mixedTestSuite suites.MixedTestSuite, config *F
 	return suite
 }
 
-func (suite *FoundationUsageV1TestSuite) BeforeAll(t provider.T) {
-	var err error
+func (suite *FoundationV1TestSuite) BeforeAll(t provider.T) {
+	t.AddParentSuite("Usage")
 
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.config.NetworkCidr, 8, 1)
 	if err != nil {
@@ -333,7 +333,7 @@ func (suite *FoundationUsageV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *FoundationUsageV1TestSuite) TestScenario(t provider.T) {
+func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t,
 		constants.AuthorizationProviderV1,
@@ -747,6 +747,6 @@ func (suite *FoundationUsageV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *FoundationUsageV1TestSuite) AfterAll(t provider.T) {
+func (suite *FoundationV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }
