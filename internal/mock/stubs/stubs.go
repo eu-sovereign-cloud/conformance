@@ -128,7 +128,6 @@ func parseResponseBody(configResponse any) (string, error) {
 }
 
 func configureDefaultStub(wm *wiremock.Client) error {
-
 	stubResponse := wiremock.NewResponse().
 		WithStatus(int64(http.StatusNotImplemented)).
 		WithBody("Request does not match any configured stub: {{request.method}} {{request.url}}")
