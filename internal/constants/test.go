@@ -12,7 +12,8 @@ const (
 	ProviderLabel     = "Provider"
 	ProviderSecaLabel = "seca"
 
-	TierLabel = "Tier"
+	TierLabel        = "Tier"
+	TierSkuD2XSLabel = "D2XS"
 
 	ArchitectureLabel      = "Architecture"
 	ArchitectureAmd64Label = "amd64"

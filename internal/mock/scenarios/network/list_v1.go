@@ -17,8 +17,6 @@ import (
 func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.NetworkListV1Params) (*wiremock.Client, error) {
 	scenarios.LogScenarioMocking(scenario)
 	workspace := *suiteParams.Workspace
-	blockStorage := *suiteParams.BlockStorage
-	instance := *suiteParams.Instance
 	networks := suiteParams.Networks
 	internetGateways := suiteParams.InternetGateways
 	routeTables := suiteParams.RouteTables
@@ -34,8 +32,6 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 
 	// Generate URLs
 	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name, blockStorage.Metadata.Name)
-	instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
 	networkListUrl := generators.GenerateNetworkListURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	gatewayListUrl := generators.GenerateInternetGatewayListURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	publicIpListUrl := generators.GeneratePublicIpListURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
@@ -401,67 +397,6 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 	// List with Limit and Label
 	securityGroupResponse.Items = secGroupWithLabel(securityGroups)[:1]
 	if err := configurator.ConfigureGetListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, mockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
-		return nil, err
-	}
-
-	// Block storage
-	blockResponse, err := builders.NewBlockStorageBuilder().
-		Name(blockStorage.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(blockStorage.Metadata.Tenant).Workspace(blockStorage.Metadata.Name).Region(blockStorage.Metadata.Region).
-		Labels(blockStorage.Labels).
-		Spec(&blockStorage.Spec).
-		Build()
-	if err != nil {
-		return nil, err
-	}
-
-	// Create a block storage
-	if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockUrl, mockParams); err != nil {
-		return nil, err
-	}
-
-	// Instance
-	instanceResponse, err := builders.NewInstanceBuilder().
-		Name(instance.Metadata.Name).
-		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(instance.Metadata.Tenant).Workspace(instance.Metadata.Name).Region(instance.Metadata.Region).
-		Labels(instance.Labels).
-		Spec(&instance.Spec).
-		Build()
-	if err != nil {
-		return nil, err
-	}
-
-	// Create an instance
-	if err := configurator.ConfigureCreateInstanceStub(instanceResponse, instanceUrl, mockParams); err != nil {
-		return nil, err
-	}
-
-	// Get the created instance
-	if err := configurator.ConfigureGetActiveInstanceStub(instanceResponse, instanceUrl, mockParams); err != nil {
-		return nil, err
-	}
-
-	// Delete
-
-	// Delete the instance
-	if err := configurator.ConfigureDeleteStub(instanceUrl, mockParams); err != nil {
-		return nil, err
-	}
-
-	// Get the deleted instance
-	if err := configurator.ConfigureGetNotFoundStub(instanceUrl, mockParams); err != nil {
-		return nil, err
-	}
-
-	// Delete the block storage
-	if err := configurator.ConfigureDeleteStub(blockUrl, mockParams); err != nil {
-		return nil, err
-	}
-
-	// Get the deleted block storage
-	if err := configurator.ConfigureGetNotFoundStub(blockUrl, mockParams); err != nil {
 		return nil, err
 	}
 

@@ -133,19 +133,19 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 	skusWithLabel := func(skusList []schema.InstanceSku) []schema.InstanceSku {
 		var filteredSkus []schema.InstanceSku
 		for _, sku := range skusList {
-			if val, ok := sku.Labels["tier"]; ok && val == "D2XS" {
+			if val, ok := sku.Labels[constants.TierLabel]; ok && val == constants.TierSkuD2XSLabel {
 				filteredSkus = append(filteredSkus, sku)
 			}
 		}
 		return filteredSkus
 	}
 	skuResponse.Items = skusWithLabel(skusList)
-	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, mockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, mockParams, mock.PathParamsLabel(constants.TierLabel, constants.TierSkuD2XSLabel)); err != nil {
 		return nil, err
 	}
 
 	// List sku with limit and label
-	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, mockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListSkuStub(skuResponse, skuListUrl, mockParams, mock.PathParamsLimitAndLabel("1", constants.TierLabel, constants.TierSkuD2XSLabel)); err != nil {
 		return nil, err
 	}
 

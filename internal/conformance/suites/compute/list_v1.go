@@ -256,6 +256,16 @@ func (suite *ComputeListV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.GetListSkusV1Step("Get list of skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1))
 
+	// List skus with label
+	stepsBuilder.GetListSkusV1Step("Get List skus with label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
+
+	// List skus with limit and label
+	stepsBuilder.GetListSkusV1Step("Get list of skus with limit and label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
+
 	// Delete all instances
 	for _, instance := range instances {
 		stepsBuilder.DeleteInstanceV1Step("Delete the instance", suite.Client.ComputeV1, &instance)
