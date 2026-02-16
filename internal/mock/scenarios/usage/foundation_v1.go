@@ -395,5 +395,10 @@ func ConfigureFoundationScenarioV1(scenario string, mockParams *mock.MockParams,
 		return nil, err
 	}
 
-	return configurator.Client, err
+	// Finish the stubs configuration
+	if client, err := configurator.Finish(); err != nil {
+		return nil, err
+	} else {
+		return client, nil
+	}
 }

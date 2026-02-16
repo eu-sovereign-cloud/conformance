@@ -14,7 +14,7 @@ const (
 )
 
 type stubConfigurator struct {
-	Client       *wiremock.Client
+	client       *wiremock.Client
 	scenarioName string
 	stateID      int
 	currentState string
@@ -27,7 +27,7 @@ func NewStubConfigurator(scenarioName string, params *mock.MockParams) (*stubCon
 	}
 
 	return &stubConfigurator{
-		Client:       client,
+		client:       client,
 		scenarioName: scenarioName,
 		stateID:      0,
 		currentState: startedScenarioState,
@@ -45,7 +45,7 @@ func (configurator *stubConfigurator) configureStub(
 	stateID := configurator.stateID + 1
 	nextState := statePrefix + strconv.Itoa(stateID)
 
-	if err := stubFunc(configurator.Client, configurator.scenarioName,
+	if err := stubFunc(configurator.client, configurator.scenarioName,
 		&stubConfig{url: url, params: params, pathParams: pathParams, responseBody: responseBody, currentState: configurator.currentState, nextState: nextState}); err != nil {
 		return err
 	}
@@ -107,6 +107,14 @@ func (configurator *stubConfigurator) ConfigureDeleteStub(url string, params *mo
 		return err
 	}
 	return nil
+}
+
+func (configurator *stubConfigurator) Finish() (*wiremock.Client, error) {
+	if err := configureDefaultStub(configurator.client); err != nil {
+		return nil, err
+	}
+
+	return configurator.client, nil
 }
 
 func newMockClient(mockURL string) (*wiremock.Client, error) {
