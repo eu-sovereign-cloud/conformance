@@ -1,6 +1,9 @@
 package steps
 
 import (
+	"fmt"
+	"log/slog"
+
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -16,4 +19,8 @@ func NewStepsConfigurator(suite *suites.TestSuite, t provider.T) *StepsConfigura
 		suite: suite,
 		t:     t,
 	}
+}
+
+func (configurator *StepsConfigurator) logStepName(stepName string) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 }

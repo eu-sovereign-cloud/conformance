@@ -3,8 +3,6 @@ package steps
 
 import (
 	"context"
-	"fmt"
-	"log/slog"
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -17,7 +15,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.logStepName(stepName)
 	createOrUpdateTenantResourceStep(configurator.t, configurator.suite,
 		createOrUpdateTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
 			stepName:       stepName,
@@ -42,7 +40,7 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api s
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) *schema.Workspace {
 	responseExpects.Metadata.Verb = http.MethodGet
-	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.logStepName(stepName)
 	return getTenantResourceStep(configurator.t, configurator.suite,
 		getTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
 			stepName:       stepName,
@@ -69,7 +67,7 @@ func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) {
-	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.logStepName(stepName)
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListWorkspace", string(tref.Tenant))
 		var iter *secapi.Iterator[schema.Workspace]
@@ -86,21 +84,33 @@ func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
 }
 
 func (configurator *StepsConfigurator) GetWorkspaceWithErrorV1Step(stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference, expectedError error) {
-	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetWorkspaceV1StepParams(sCtx, "GetWorkspace")
-
-		_, err := api.GetWorkspace(configurator.t.Context(), tref)
-		requireError(sCtx, err, expectedError)
-	})
+	configurator.logStepName(stepName)
+	getTenantResourceWithErrorStep(configurator.t,
+		getTenantResourceWithErrorParams{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
+			operationName:  "GetWorkspace",
+			tref:           tref,
+			getFunc: func(ctx context.Context, tref secapi.TenantReference) error {
+				_, err := api.GetWorkspace(ctx, tref)
+				return err
+			},
+			expectedError: expectedError,
+		},
+	)
 }
 
 func (configurator *StepsConfigurator) DeleteWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, resource *schema.Workspace) {
-	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetWorkspaceV1StepParams(sCtx, "DeleteWorkspace")
-
-		err := api.DeleteWorkspace(configurator.t.Context(), resource)
-		requireNoError(sCtx, err)
-	})
+	configurator.logStepName(stepName)
+	deleteTenantResourceStep(configurator.t,
+		deleteTenantResourceParams[schema.Workspace]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
+			operationName:  "DeleteWorkspace",
+			resource:       resource,
+			deleteFunc: func(ctx context.Context, r *schema.Workspace) error {
+				return api.DeleteWorkspace(ctx, r)
+			},
+		},
+	)
 }
