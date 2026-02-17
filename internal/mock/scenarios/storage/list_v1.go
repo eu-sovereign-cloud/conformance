@@ -2,7 +2,6 @@ package mockstorage
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
@@ -139,7 +138,7 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 	}
 
 	// Create storage skus
-	skuList := steps.GenerateStorageSkusV1(workspace.Metadata.Tenant)
+	skuList := mock.GenerateStorageSkusV1(workspace.Metadata.Tenant)
 	skuResponse, err := builders.NewStorageSkuIteratorBuilder().
 		Provider(constants.StorageProviderV1).
 		Tenant(workspace.Metadata.Tenant).

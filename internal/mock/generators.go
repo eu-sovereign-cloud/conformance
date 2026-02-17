@@ -1,4 +1,4 @@
-package steps
+package mock
 
 import (
 	"net/http"
@@ -10,7 +10,6 @@ import (
 
 // Skus
 
-// TODO Find a better package to it
 func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 	return []schema.StorageSku{
 		{

@@ -1,8 +1,7 @@
 package mocknetwork
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"	
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
@@ -103,7 +102,7 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 
 	// Test Network Skus
 	// Create skus
-	skusList := steps.GenerateNetworkSkusV1(workspace.Metadata.Tenant)
+	skusList := mock.GenerateNetworkSkusV1(workspace.Metadata.Tenant)
 	skuResponse, err := builders.NewNetworkSkuIteratorBuilder().Provider(constants.StorageProviderV1).Tenant(workspace.Metadata.Tenant).Items(skusList).Build()
 	if err != nil {
 		return nil, err
