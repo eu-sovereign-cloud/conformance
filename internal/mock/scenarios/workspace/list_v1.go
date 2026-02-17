@@ -71,7 +71,7 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 	}
 
 	for _, workspace := range workspaces {
-		url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Name, workspace.Metadata.Name)
+		url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
 
 		// Delete the workspace
 		if err := configurator.ConfigureDeleteStub(url, mockParams); err != nil {
