@@ -1,7 +1,7 @@
 package mocknetwork
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"	
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
