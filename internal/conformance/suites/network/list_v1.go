@@ -18,14 +18,14 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type NetworkListV1TestSuite struct {
+type ListV1TestSuite struct {
 	suites.RegionalTestSuite
 
-	config *NetworkListV1Config
+	config *ListV1Config
 	params *params.NetworkListV1Params
 }
 
-type NetworkListV1Config struct {
+type ListV1Config struct {
 	NetworkCidr    string
 	PublicIpsRange string
 	RegionZones    []string
@@ -34,8 +34,8 @@ type NetworkListV1Config struct {
 	NetworkSkus    []string
 }
 
-func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *NetworkListV1Config) *NetworkListV1TestSuite {
-	suite := &NetworkListV1TestSuite{
+func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ListV1Config) *ListV1TestSuite {
+	suite := &ListV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
@@ -43,8 +43,8 @@ func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *N
 	return suite
 }
 
-func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
-	var err error
+func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+	t.AddParentSuite("Network")
 
 	// Generate the subnet cidr
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.config.NetworkCidr, 8, 1)
@@ -431,7 +431,7 @@ func (suite *NetworkListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *NetworkListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.NetworkProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
@@ -817,6 +817,6 @@ func (suite *NetworkListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *NetworkListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

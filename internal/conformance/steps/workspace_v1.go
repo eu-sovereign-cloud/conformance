@@ -13,20 +13,22 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName string, api *secapi.WorkspaceV1, resource *schema.Workspace,
+func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, resource *schema.Workspace,
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	createOrUpdateTenantResourceStep(configurator.t, configurator.suite,
-		createOrUpdateTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		createOrUpdateTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
 			operationName:  "CreateOrUpdateWorkspace",
 			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.Workspace) (*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec], error) {
+			createOrUpdateFunc: func(context.Context, *schema.Workspace) (
+				*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
+			) {
 				resp, err := api.CreateOrUpdateWorkspace(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedLabels:        responseExpects.Labels,
 			expectedMetadata:      responseExpects.Metadata,
@@ -36,20 +38,22 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 	)
 }
 
-func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api *secapi.WorkspaceV1, tref secapi.TenantReference,
+func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference,
 	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) *schema.Workspace {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	return getTenantResourceStep(configurator.t, configurator.suite,
-		getTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		getTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
 			operationName:  "GetWorkspace",
 			tref:           tref,
-			getFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec], error) {
+			getFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+				*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
+			) {
 				resp, err := api.GetWorkspaceUntilState(ctx, tref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status.State), err
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
 			expectedLabels:        responseExpects.Labels,
 			expectedMetadata:      responseExpects.Metadata,
@@ -61,7 +65,7 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api *
 
 func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
 	stepName string,
-	api *secapi.WorkspaceV1,
+	api secapi.WorkspaceV1,
 	tref secapi.TenantReference,
 	opts *secapi.ListOptions,
 ) {
@@ -81,7 +85,7 @@ func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetWorkspaceWithErrorV1Step(stepName string, api *secapi.WorkspaceV1, tref secapi.TenantReference, expectedError error) {
+func (configurator *StepsConfigurator) GetWorkspaceWithErrorV1Step(stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference, expectedError error) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetWorkspaceV1StepParams(sCtx, "GetWorkspace")
@@ -91,7 +95,7 @@ func (configurator *StepsConfigurator) GetWorkspaceWithErrorV1Step(stepName stri
 	})
 }
 
-func (configurator *StepsConfigurator) DeleteWorkspaceV1Step(stepName string, api *secapi.WorkspaceV1, resource *schema.Workspace) {
+func (configurator *StepsConfigurator) DeleteWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, resource *schema.Workspace) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetWorkspaceV1StepParams(sCtx, "DeleteWorkspace")

@@ -4,6 +4,7 @@ const (
 	// Scenario Priorities
 	startedScenarioState    = "Started"
 	defaultScenarioPriority = 1
+	slowestScenarioPriority = 99
 
 	// Http Headers
 	authorizationHttpHeaderKey         = "Authorization"

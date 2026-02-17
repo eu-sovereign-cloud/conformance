@@ -14,7 +14,7 @@ func TestComputeV1Suites(t *testing.T) {
 
 	// LifeCycle Suite
 	lifeCycleTestSuite := compute.CreateLifeCycleV1TestSuite(regionalTestSuite,
-		&compute.ComputeLifeCycleV1Config{
+		&compute.LifeCycleV1Config{
 			AvailableZones: config.Clients.RegionZones,
 			InstanceSkus:   config.Clients.InstanceSkus,
 			StorageSkus:    config.Clients.StorageSkus,
@@ -26,7 +26,7 @@ func TestComputeV1Suites(t *testing.T) {
 
 	// List Suite
 	listTestSuite := compute.CreateListV1TestSuite(regionalTestSuite,
-		&compute.ComputeListV1Config{
+		&compute.ListV1Config{
 			AvailableZones: config.Clients.RegionZones,
 			InstanceSkus:   config.Clients.InstanceSkus,
 			StorageSkus:    config.Clients.StorageSkus,

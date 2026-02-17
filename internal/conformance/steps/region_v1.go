@@ -12,7 +12,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx context.Context, api *secapi.RegionV1, expectedMeta *schema.GlobalResourceMetadata) *schema.Region {
+func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx context.Context, api secapi.RegionV1, expectedMeta *schema.GlobalResourceMetadata) *schema.Region {
 	var resp *schema.Region
 	var err error
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -31,7 +31,7 @@ func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx cont
 	return resp
 }
 
-func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx context.Context, api *secapi.RegionV1) []*schema.Region {
+func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx context.Context, api secapi.RegionV1) []*schema.Region {
 	var resp []*schema.Region
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {

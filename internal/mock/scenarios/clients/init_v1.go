@@ -41,5 +41,10 @@ func ConfigureInitScenarioV1(params *params.ClientsInitParams) (*wiremock.Client
 		return nil, err
 	}
 
-	return configurator.Client, nil
+	// Finish the stubs configuration
+	if client, err := configurator.Finish(); err != nil {
+		return nil, err
+	} else {
+		return client, nil
+	}
 }

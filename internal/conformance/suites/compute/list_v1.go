@@ -17,21 +17,21 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ComputeListV1TestSuite struct {
+type ListV1TestSuite struct {
 	suites.RegionalTestSuite
 
-	config *ComputeListV1Config
+	config *ListV1Config
 	params *params.ComputeListV1Params
 }
 
-type ComputeListV1Config struct {
+type ListV1Config struct {
 	AvailableZones []string
 	InstanceSkus   []string
 	StorageSkus    []string
 }
 
-func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ComputeListV1Config) *ComputeListV1TestSuite {
-	suite := &ComputeListV1TestSuite{
+func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ListV1Config) *ListV1TestSuite {
+	suite := &ListV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
@@ -39,8 +39,8 @@ func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *C
 	return suite
 }
 
-func (suite *ComputeListV1TestSuite) BeforeAll(t provider.T) {
-	var err error
+func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+	t.AddParentSuite("Compute")
 
 	// Select skus
 	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
@@ -175,7 +175,7 @@ func (suite *ComputeListV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *ComputeListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -256,6 +256,16 @@ func (suite *ComputeListV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.GetListSkusV1Step("Get list of skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1))
 
+	// List skus with label
+	stepsBuilder.GetListSkusV1Step("Get List skus with label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
+
+	// List skus with limit and label
+	stepsBuilder.GetListSkusV1Step("Get list of skus with limit and label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
+
 	// Delete all instances
 	for _, instance := range instances {
 		stepsBuilder.DeleteInstanceV1Step("Delete the instance", suite.Client.ComputeV1, &instance)
@@ -293,6 +303,6 @@ func (suite *ComputeListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ComputeListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ListV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

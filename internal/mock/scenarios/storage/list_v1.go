@@ -201,5 +201,10 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, mockParams); err != nil {
 		return nil, err
 	}
-	return configurator.Client, nil
+	// Finish the stubs configuration
+	if client, err := configurator.Finish(); err != nil {
+		return nil, err
+	} else {
+		return client, nil
+	}
 }

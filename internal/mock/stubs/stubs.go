@@ -126,3 +126,30 @@ func parseResponseBody(configResponse any) (string, error) {
 	}
 	return string(responseBytes), nil
 }
+
+func configureDefaultStub(wm *wiremock.Client) error {
+	stubResponse := wiremock.NewResponse().
+		WithStatus(int64(http.StatusNotImplemented)).
+		WithBody("Request does not match any configured stub: {{request.method}} {{request.url}}")
+
+	// Configure for any urls and all http methods
+	urlMatcher := wiremock.URLPathMatching(".*")
+	stubRules := []*wiremock.StubRule{
+		wiremock.Post(urlMatcher),
+		wiremock.Get(urlMatcher),
+		wiremock.Delete(urlMatcher),
+		wiremock.Put(urlMatcher),
+		wiremock.Patch(urlMatcher),
+	}
+
+	for _, stubRule := range stubRules {
+		if err := wm.StubFor(stubRule.
+			WillReturnResponse(stubResponse).
+			AtPriority(int64(slowestScenarioPriority))); err != nil {
+			slog.Error("Error configuring [not implemented] stub", "error", err)
+			return err
+		}
+	}
+
+	return nil
+}

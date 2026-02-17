@@ -14,7 +14,7 @@ func TestNetworkV1Suites(t *testing.T) {
 
 	// LifeCycle Suite
 	lifeCycleTestSuite := network.CreateLifeCycleV1TestSuite(regionalTestSuite,
-		&network.NetworkLifeCycleV1Config{
+		&network.LifeCycleV1Config{
 			NetworkCidr:    config.Parameters.ScenariosCidr,
 			PublicIpsRange: config.Parameters.ScenariosPublicIps,
 			RegionZones:    config.Clients.RegionZones,
@@ -29,7 +29,7 @@ func TestNetworkV1Suites(t *testing.T) {
 
 	// List Suite
 	listTestSuite := network.CreateListV1TestSuite(regionalTestSuite,
-		&network.NetworkListV1Config{
+		&network.ListV1Config{
 			NetworkCidr:    config.Parameters.ScenariosCidr,
 			PublicIpsRange: config.Parameters.ScenariosPublicIps,
 			RegionZones:    config.Clients.RegionZones,
