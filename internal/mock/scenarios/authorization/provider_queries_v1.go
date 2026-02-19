@@ -4,34 +4,29 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
+	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
-
-	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.AuthorizationListV1Params) (*wiremock.Client, error) {
-	scenarios.LogScenarioMocking(scenario)
-
-	roles := suiteParams.Roles
-	roleAssignments := suiteParams.RoleAssignments
-
-	configurator, err := stubs.NewStubConfigurator(scenario, mockParams)
+func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params.AuthorizationProviderQueriesV1Params) error {
+	configurator, err := scenario.StartConfiguration()
 	if err != nil {
-		return nil, err
+		return err
 	}
+	roles := params.Roles
+	roleAssignments := params.RoleAssignments
 
 	// Generate URLs
 	roleUrl := generators.GenerateRoleListURL(constants.AuthorizationProviderV1, roles[0].Metadata.Tenant)
 	roleAssignUrl := generators.GenerateRoleAssignmentListURL(constants.AuthorizationProviderV1, roleAssignments[0].Metadata.Tenant)
 
 	// Create roles
-	err = stubs.BulkCreateRolesStubV1(configurator, mockParams, roles)
+	err = stubs.BulkCreateRolesStubV1(configurator, scenario.MockParams, roles)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	rolesResponse, err := builders.NewRoleIteratorBuilder().
 		Provider(constants.StorageProviderV1).
@@ -39,18 +34,18 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		Items(roles).
 		Build()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// List Roles
-	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, mockParams, nil); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, scenario.MockParams, nil); err != nil {
+		return err
 	}
 
 	// List Roles with limit 1
 	rolesResponse.Items = roles[:1]
-	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, mockParams, mock.PathParamsLimit("1")); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+		return err
 	}
 
 	// List roles with label
@@ -64,20 +59,20 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		return filteredRoles
 	}
 	rolesResponse.Items = rolesListWithLabel(roles)
-	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, mockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+		return err
 	}
 
 	// List roles with limit and label
 	rolesResponse.Items = rolesListWithLabel(roles)[:1]
-	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, mockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListRoleStub(rolesResponse, roleUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+		return err
 	}
 
 	// Create role assignments
-	err = stubs.BulkCreateRoleAssignmentsStubV1(configurator, mockParams, roleAssignments)
+	err = stubs.BulkCreateRoleAssignmentsStubV1(configurator, scenario.MockParams, roleAssignments)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	roleAssignResponse, err := builders.NewRoleAssignmentIteratorBuilder().
 		Provider(constants.StorageProviderV1).
@@ -85,18 +80,18 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		Items(roleAssignments).
 		Build()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// List RoleAssignments
-	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, mockParams, nil); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams, nil); err != nil {
+		return err
 	}
 
 	// List Roles with limit 1
 	roleAssignResponse.Items = roleAssignments[:1]
-	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, mockParams, mock.PathParamsLimit("1")); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+		return err
 	}
 
 	// List roles with label
@@ -110,14 +105,14 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		return filteredRoles
 	}
 	roleAssignResponse.Items = rolesAssignWithLabel(roleAssignments)
-	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, mockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+		return err
 	}
 
 	// List roles with limit and label
 	roleAssignResponse.Items = rolesAssignWithLabel(roleAssignments)[:1]
-	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, mockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+		return err
 	}
 
 	// Delete role assignments
@@ -125,13 +120,13 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		roleAssignUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, roleAssignment.Metadata.Tenant, roleAssignment.Metadata.Name)
 
 		// Delete the role assignment
-		if err := configurator.ConfigureDeleteStub(roleAssignUrl, mockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureDeleteStub(roleAssignUrl, scenario.MockParams); err != nil {
+			return err
 		}
 
 		// Get the deleted workspace
-		if err := configurator.ConfigureGetNotFoundStub(roleAssignUrl, mockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureGetNotFoundStub(roleAssignUrl, scenario.MockParams); err != nil {
+			return err
 		}
 	}
 
@@ -140,20 +135,18 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, role.Metadata.Tenant, role.Metadata.Name)
 
 		// Delete the role assignment
-		if err := configurator.ConfigureDeleteStub(roleUrl, mockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureDeleteStub(roleUrl, scenario.MockParams); err != nil {
+			return err
 		}
 
 		// Get the deleted workspace
-		if err := configurator.ConfigureGetNotFoundStub(roleUrl, mockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureGetNotFoundStub(roleUrl, scenario.MockParams); err != nil {
+			return err
 		}
 	}
 
-	// Finish the stubs configuration
-	if client, err := configurator.Finish(); err != nil {
-		return nil, err
-	} else {
-		return client, nil
+	if err := scenario.FinishConfiguration(configurator); err != nil {
+		return err
 	}
+	return nil
 }

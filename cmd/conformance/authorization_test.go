@@ -12,14 +12,14 @@ import (
 func TestAuthorizationV1Suites(t *testing.T) {
 	globalTestSuite := suites.CreateGlobalTestSuite(config.Parameters, config.Clients)
 
-	// LifeCycle Suite
-	lifeCycleTestSuite := authorization.CreateLifeCycleV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
-	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, lifeCycleTestSuite)
+	// Provider LifeCycle Suite
+	providerLifeCycleTestSuite := authorization.CreateProviderLifeCycleV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
+	if providerLifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerLifeCycleTestSuite)
 	}
 
 	// List Suite
-	listTestSuite := authorization.CreateListV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
+	listTestSuite := authorization.CreateProviderQueriesV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
 	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, listTestSuite)
 	}

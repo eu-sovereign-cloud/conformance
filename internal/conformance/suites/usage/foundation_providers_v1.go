@@ -19,14 +19,14 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type FoundationV1TestSuite struct {
+type FoundationProvidersV1TestSuite struct {
 	suites.MixedTestSuite
 
-	config *FoundationV1Config
+	config *FoundationProvidersV1Config
 	params *params.FoundationUsageV1Params
 }
 
-type FoundationV1Config struct {
+type FoundationProvidersV1Config struct {
 	Users          []string
 	NetworkCidr    string
 	PublicIpsRange string
@@ -36,36 +36,36 @@ type FoundationV1Config struct {
 	NetworkSkus    []string
 }
 
-func CreateFoundationV1TestSuite(mixedTestSuite suites.MixedTestSuite, config *FoundationV1Config) *FoundationV1TestSuite {
-	suite := &FoundationV1TestSuite{
+func CreateFoundationProvidersV1TestSuite(mixedTestSuite suites.MixedTestSuite, config *FoundationProvidersV1Config) *FoundationProvidersV1TestSuite {
+	suite := &FoundationProvidersV1TestSuite{
 		MixedTestSuite: mixedTestSuite,
 		config:         config,
 	}
-	suite.ScenarioName = constants.FoundationUsageV1SuiteName
+	suite.ScenarioName = constants.UsageFoundationProvidersV1SuiteName.String()
 	return suite
 }
 
-func (suite *FoundationV1TestSuite) BeforeAll(t provider.T) {
+func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Usage")
 
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.config.NetworkCidr, 8, 1)
 	if err != nil {
 		slog.Error("Failed to generate subnet cidr", "error", err)
-		return
+		t.FailNow()
 	}
 
 	// Generate the nic addresses
 	nicAddress1, err := generators.GenerateNicAddress(subnetCidr, 1)
 	if err != nil {
 		slog.Error("Failed to generate nic address", "error", err)
-		return
+		t.FailNow()
 	}
 
 	// Generate the public ips
 	publicIpAddress1, err := generators.GeneratePublicIp(suite.config.PublicIpsRange, 1)
 	if err != nil {
 		slog.Error("Failed to generate public ip", "error", err)
-		return
+		t.FailNow()
 	}
 
 	// Select zones
@@ -327,13 +327,13 @@ func (suite *FoundationV1TestSuite) BeforeAll(t provider.T) {
 		SecurityGroup:   securityGroup,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockUsage.ConfigureFoundationScenarioV1, params)
+	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockUsage.ConfigureFoundationScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
+func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t,
 		constants.AuthorizationProviderV1,
@@ -747,6 +747,6 @@ func (suite *FoundationV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *FoundationV1TestSuite) AfterAll(t provider.T) {
+func (suite *FoundationProvidersV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

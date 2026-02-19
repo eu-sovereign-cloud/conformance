@@ -16,29 +16,29 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type LifeCycleV1TestSuite struct {
+type ProviderLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
-	config *LifeCycleV1Config
-	params *params.ComputeLifeCycleV1Params
+	config *ProviderLifeCycleV1Config
+	params *params.ComputeProviderLifeCycleV1Params
 }
 
-type LifeCycleV1Config struct {
+type ProviderLifeCycleV1Config struct {
 	AvailableZones []string
 	InstanceSkus   []string
 	StorageSkus    []string
 }
 
-func CreateLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *LifeCycleV1Config) *LifeCycleV1TestSuite {
-	suite := &LifeCycleV1TestSuite{
+func CreateProviderLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ProviderLifeCycleV1Config) *ProviderLifeCycleV1TestSuite {
+	suite := &ProviderLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
-	suite.ScenarioName = constants.ComputeV1LifeCycleSuiteName
+	suite.ScenarioName = constants.ComputeProviderLifeCycleV1SuiteName.String()
 	return suite
 }
 
-func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Compute")
 
 	// Select skus
@@ -129,7 +129,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Instance: %v", err)
 	}
 
-	params := &params.ComputeLifeCycleV1Params{
+	params := &params.ComputeProviderLifeCycleV1Params{
 		Workspace:       workspace,
 		BlockStorage:    blockStorage,
 		InitialInstance: initialInstance,
@@ -137,13 +137,13 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 	suite.params = params
 
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockcompute.ConfigureLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockcompute.ConfigureProviderLifecycleScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -303,6 +303,6 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

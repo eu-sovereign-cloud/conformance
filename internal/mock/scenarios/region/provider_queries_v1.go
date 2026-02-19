@@ -5,26 +5,20 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
+	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	region "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.region.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
-
-	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.RegionListV1Params) (*wiremock.Client, error) {
-	scenarios.LogScenarioMocking(scenario)
-
-	regions := suiteParams.Regions
-
-	configurator, err := stubs.NewStubConfigurator(scenario, mockParams)
+func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params.RegionProviderQueriesV1Params) error {
+	configurator, err := scenario.StartConfiguration()
 	if err != nil {
-		return nil, err
+		return err
 	}
+
+	regions := params.Regions
 
 	// Generate resource
 	regionsResource := generators.GenerateRegionListResource()
@@ -51,7 +45,7 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 			Spec(&region.Spec).
 			Build()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		regionsList = append(regionsList, *regionResponse)
@@ -60,8 +54,8 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 	regionsResponse.Items = regionsList
 
 	// 1 - Create ListRegions stub
-	if err := configurator.ConfigureGetListRegionStub(regionsResponse, regionsUrl, mockParams, nil); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListRegionStub(regionsResponse, regionsUrl, scenario.MockParams, nil); err != nil {
+		return err
 	}
 
 	// 2 - Create GetRegion stubs
@@ -78,14 +72,12 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		Spec: region.Spec,
 	}
 
-	if err := configurator.ConfigureGetRegionStub(singleRegionResponse, regionUrl, mockParams); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetRegionStub(singleRegionResponse, regionUrl, scenario.MockParams); err != nil {
+		return err
 	}
 
-	// Finish the stubs configuration
-	if client, err := configurator.Finish(); err != nil {
-		return nil, err
-	} else {
-		return client, nil
+	if err := scenario.FinishConfiguration(configurator); err != nil {
+		return err
 	}
+	return nil
 }

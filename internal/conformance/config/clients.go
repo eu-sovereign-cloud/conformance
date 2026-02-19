@@ -6,11 +6,11 @@ import (
 	"sync"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	mockclients "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/clients"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
-
-	"github.com/wiremock/go-wiremock"
 )
 
 type ClientsHolder struct {
@@ -29,8 +29,6 @@ var (
 )
 
 func InitClients(ctx context.Context) error {
-	var err error
-
 	clientsLock.Lock()
 	defer clientsLock.Unlock()
 
@@ -39,21 +37,24 @@ func InitClients(ctx context.Context) error {
 	}
 
 	// Setup mock, if configured to use
-	var wm *wiremock.Client
+	var mockScenario *mockscenarios.Scenario
 	if Parameters.MockEnabled {
-		params := params.ClientsInitParams{
-			MockParams: &mock.MockParams{
+		mockScenario = mockscenarios.NewScenario(constants.ClientsInitScenarioName,
+			&mock.MockParams{
 				ServerURL: Parameters.MockServerURL,
 				AuthToken: Parameters.ClientAuthToken,
 			},
+		)
+		params := &params.ClientsInitParams{
 			Region: Parameters.ClientRegion,
 		}
-		wm, err = mockclients.ConfigureInitScenarioV1(&params)
+		err := mockclients.ConfigureInitScenarioV1(mockScenario, params)
 		if err != nil {
 			return fmt.Errorf("failed to configure mock scenario: %w", err)
 		}
 	}
 
+	var err error
 	Clients = &ClientsHolder{}
 
 	// Initialize global client
@@ -110,8 +111,8 @@ func InitClients(ctx context.Context) error {
 
 	// Cleanup configured mock scenarios
 	if Parameters.MockEnabled {
-		if err := wm.ResetAllScenarios(); err != nil {
-			return fmt.Errorf("failed to reset scenarios: %w", err)
+		if err := mockScenario.ResetScenario(); err != nil {
+			return err
 		}
 	}
 

@@ -15,21 +15,21 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ListV1TestSuite struct {
+type ProviderQueriesV1TestSuite struct {
 	suites.RegionalTestSuite
 
-	params params.WorkspaceListV1Params
+	params params.WorkspaceProviderQueriesV1Params
 }
 
-func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *ListV1TestSuite {
-	suite := &ListV1TestSuite{
+func CreateProviderQueriesV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *ProviderQueriesV1TestSuite {
+	suite := &ProviderQueriesV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 	}
-	suite.ScenarioName = constants.WorkspaceV1ListSuiteName
+	suite.ScenarioName = constants.WorkspaceProviderQueriesV1SuiteName.String()
 	return suite
 }
 
-func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Workspace")
 
 	// Generate scenario data
@@ -57,17 +57,17 @@ func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
 
 	workspaces := []schema.Workspace{*workspace, *workspace2}
 
-	params := params.WorkspaceListV1Params{
+	params := params.WorkspaceProviderQueriesV1Params{
 		Workspaces: workspaces,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockWorkspace.ConfigureListScenarioV1, &suite.params)
+	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockWorkspace.ConfigureProviderQueriesV1, &suite.params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *ListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -122,6 +122,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

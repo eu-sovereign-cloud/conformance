@@ -13,8 +13,8 @@ func TestUsageV1Suites(t *testing.T) {
 	mixedTestSuite := suites.CreateMixedTestSuite(config.Parameters, config.Clients)
 
 	// Foundation Suite
-	foundationTestSuite := usage.CreateFoundationV1TestSuite(mixedTestSuite,
-		&usage.FoundationV1Config{
+	foundationTestSuite := usage.CreateFoundationProvidersV1TestSuite(mixedTestSuite,
+		&usage.FoundationProvidersV1Config{
 			Users:          config.Parameters.ScenariosUsers,
 			NetworkCidr:    config.Parameters.ScenariosCidr,
 			PublicIpsRange: config.Parameters.ScenariosPublicIps,

@@ -17,29 +17,29 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ListV1TestSuite struct {
+type ProviderQueriesV1TestSuite struct {
 	suites.RegionalTestSuite
 
-	config *ListV1Config
-	params *params.ComputeListV1Params
+	config *ProviderQueriesV1Config
+	params *params.ComputeProviderQueriesV1Params
 }
 
-type ListV1Config struct {
+type ProviderQueriesV1Config struct {
 	AvailableZones []string
 	InstanceSkus   []string
 	StorageSkus    []string
 }
 
-func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ListV1Config) *ListV1TestSuite {
-	suite := &ListV1TestSuite{
+func CreateProviderQueriesV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ProviderQueriesV1Config) *ProviderQueriesV1TestSuite {
+	suite := &ProviderQueriesV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
-	suite.ScenarioName = constants.ComputeV1ListSuiteName
+	suite.ScenarioName = constants.ComputeProviderQueriesV1SuiteName.String()
 	return suite
 }
 
-func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Compute")
 
 	// Select skus
@@ -162,20 +162,20 @@ func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
 
 	instances := []schema.Instance{*instance1, *instance2, *instance3}
 
-	params := &params.ComputeListV1Params{
+	params := &params.ComputeProviderQueriesV1Params{
 		Workspace:    workspace,
 		BlockStorage: blockStorage,
 		Instances:    instances,
 	}
 
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockCompute.ConfigureListScenarioV1, params)
+	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockCompute.ConfigureProviderQueriesV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *ListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -303,6 +303,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

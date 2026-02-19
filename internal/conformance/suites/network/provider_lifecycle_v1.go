@@ -16,14 +16,14 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type LifeCycleV1TestSuite struct {
+type ProviderLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
-	config *LifeCycleV1Config
-	params *params.NetworkLifeCycleV1Params
+	config *ProviderLifeCycleV1Config
+	params *params.NetworkProviderLifeCycleV1Params
 }
 
-type LifeCycleV1Config struct {
+type ProviderLifeCycleV1Config struct {
 	NetworkCidr    string
 	PublicIpsRange string
 	RegionZones    []string
@@ -32,16 +32,16 @@ type LifeCycleV1Config struct {
 	NetworkSkus    []string
 }
 
-func CreateLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *LifeCycleV1Config) *LifeCycleV1TestSuite {
-	suite := &LifeCycleV1TestSuite{
+func CreateProviderLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *ProviderLifeCycleV1Config) *ProviderLifeCycleV1TestSuite {
+	suite := &ProviderLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
-	suite.ScenarioName = constants.NetworkV1LifeCycleSuiteName
+	suite.ScenarioName = constants.NetworkProviderLifeCycleV1SuiteName.String()
 	return suite
 }
 
-func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Network")
 
 	// Generate the subnet cidr
@@ -359,7 +359,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Security Group: %v", err)
 	}
 
-	params := &params.NetworkLifeCycleV1Params{
+	params := &params.NetworkProviderLifeCycleV1Params{
 		Workspace:              workspace,
 		BlockStorage:           blockStorage,
 		Instance:               instance,
@@ -379,13 +379,13 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		SecurityGroupUpdated:   securityGroupUpdated,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockNetwork.ConfigureProviderLifecycleScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.NetworkProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
@@ -854,6 +854,6 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

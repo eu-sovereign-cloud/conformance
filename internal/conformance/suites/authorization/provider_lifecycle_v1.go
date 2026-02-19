@@ -1,6 +1,7 @@
 package authorization
 
 import (
+	"log/slog"
 	"math/rand"
 	"net/http"
 
@@ -17,24 +18,24 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type LifeCycleV1TestSuite struct {
+type ProviderLifeCycleV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	Users []string
 
-	params *params.AuthorizationLifeCycleV1Params
+	params *params.AuthorizationProviderLifeCycleV1Params
 }
 
-func CreateLifeCycleV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *LifeCycleV1TestSuite {
-	suite := &LifeCycleV1TestSuite{
+func CreateProviderLifeCycleV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *ProviderLifeCycleV1TestSuite {
+	suite := &ProviderLifeCycleV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		Users:           users,
 	}
-	suite.ScenarioName = constants.AuthorizationV1LifeCycleSuiteName
+	suite.ScenarioName = constants.AuthorizationProviderLifeCycleV1SuiteName.String()
 	return suite
 }
 
-func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Authorization")
 
 	// Select subs
@@ -107,20 +108,22 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build RoleAssignment: %v", err)
 	}
 
-	params := &params.AuthorizationLifeCycleV1Params{
+	params := &params.AuthorizationProviderLifeCycleV1Params{
 		RoleInitial:           roleInitial,
 		RoleUpdated:           roleUpdated,
 		RoleAssignmentInitial: roleAssignmentInitial,
 		RoleAssignmentUpdated: roleAssignmentUpdated,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureLifecycleScenarioV1, params)
+
+	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockauthorization.ConfigureProviderLifecycleScenarioV1, params)
 	if err != nil {
-		t.Fatalf("Failed to setup mock: %v", err)
+		slog.Error("Failed to setup mock", "error", err)
+		t.FailNow()
 	}
 }
 
-func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
@@ -234,6 +237,6 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

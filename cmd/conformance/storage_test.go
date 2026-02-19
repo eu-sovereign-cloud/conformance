@@ -12,14 +12,14 @@ import (
 func TestStorageV1Suites(t *testing.T) {
 	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
 
-	// LifeCycle Suite
-	lifeCycleTestSuite := storage.CreateLifeCycleV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
-	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, lifeCycleTestSuite)
+	// Provider LifeCycle Suite
+	providerLifeCycleTestSuite := storage.CreateProviderLifeCycleV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if providerLifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerLifeCycleTestSuite)
 	}
 
 	// List Suite
-	listTestSuite := storage.CreateListV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	listTestSuite := storage.CreateProviderQueriesV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
 	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, listTestSuite)
 	}

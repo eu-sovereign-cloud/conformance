@@ -17,24 +17,24 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ListV1TestSuite struct {
+type ProviderQueriesV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	RegionName string
 
-	params *params.RegionListV1Params
+	params *params.RegionProviderQueriesV1Params
 }
 
-func CreateListV1TestSuite(globalTestSuite suites.GlobalTestSuite, regionName string) *ListV1TestSuite {
-	suite := &ListV1TestSuite{
+func CreateProviderQueriesV1TestSuite(globalTestSuite suites.GlobalTestSuite, regionName string) *ProviderQueriesV1TestSuite {
+	suite := &ProviderQueriesV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		RegionName:      regionName,
 	}
-	suite.ScenarioName = constants.RegionV1ListSuiteName
+	suite.ScenarioName = constants.RegionProviderQueriesV1SuiteName.String()
 	return suite
 }
 
-func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Region")
 
 	// Generate scenario Names
@@ -80,17 +80,17 @@ func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
 
 	regions := []schema.Region{*region, *region2, *region3}
 
-	params := &params.RegionListV1Params{
+	params := &params.RegionProviderQueriesV1Params{
 		Regions: regions,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockRegion.ConfigureListScenarioV1, params)
+	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockRegion.ConfigureProviderQueriesV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *ListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
@@ -114,6 +114,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

@@ -12,21 +12,21 @@ import (
 func TestComputeV1Suites(t *testing.T) {
 	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
 
-	// LifeCycle Suite
-	lifeCycleTestSuite := compute.CreateLifeCycleV1TestSuite(regionalTestSuite,
-		&compute.LifeCycleV1Config{
+	// Provider LifeCycle Suite
+	providerLifeCycleTestSuite := compute.CreateProviderLifeCycleV1TestSuite(regionalTestSuite,
+		&compute.ProviderLifeCycleV1Config{
 			AvailableZones: config.Clients.RegionZones,
 			InstanceSkus:   config.Clients.InstanceSkus,
 			StorageSkus:    config.Clients.StorageSkus,
 		},
 	)
-	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, lifeCycleTestSuite)
+	if providerLifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerLifeCycleTestSuite)
 	}
 
 	// List Suite
-	listTestSuite := compute.CreateListV1TestSuite(regionalTestSuite,
-		&compute.ListV1Config{
+	listTestSuite := compute.CreateProviderQueriesV1TestSuite(regionalTestSuite,
+		&compute.ProviderQueriesV1Config{
 			AvailableZones: config.Clients.RegionZones,
 			InstanceSkus:   config.Clients.InstanceSkus,
 			StorageSkus:    config.Clients.StorageSkus,

@@ -15,24 +15,24 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type LifeCycleV1TestSuite struct {
+type ProviderLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	StorageSkus []string
 
-	params *params.StorageLifeCycleV1Params
+	params *params.StorageProviderLifeCycleV1Params
 }
 
-func CreateLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *LifeCycleV1TestSuite {
-	suite := &LifeCycleV1TestSuite{
+func CreateProviderLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *ProviderLifeCycleV1TestSuite {
+	suite := &ProviderLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		StorageSkus:       storageSkus,
 	}
-	suite.ScenarioName = constants.StorageV1LifeCycleSuiteName
+	suite.ScenarioName = constants.StorageProviderLifeCycleV1SuiteName.String()
 	return suite
 }
 
-func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Storage")
 
 	// Select sku
@@ -117,7 +117,7 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Image: %v", err)
 	}
 
-	params := &params.StorageLifeCycleV1Params{
+	params := &params.StorageProviderLifeCycleV1Params{
 		Workspace:           workspace,
 		BlockStorageInitial: blockStorageInitial,
 		BlockStorageUpdated: blockStorageUpdated,
@@ -127,13 +127,13 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	suite.params = params
 
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockstorage.ConfigureLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockstorage.ConfigureProviderLifecycleScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.StorageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
@@ -279,6 +279,6 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

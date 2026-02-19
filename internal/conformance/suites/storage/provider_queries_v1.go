@@ -17,24 +17,24 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ListV1TestSuite struct {
+type ProviderQueriesV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	StorageSkus []string
 
-	params *params.StorageListV1Params
+	params *params.StorageProviderQueriesV1Params
 }
 
-func CreateListV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *ListV1TestSuite {
-	suite := &ListV1TestSuite{
+func CreateProviderQueriesV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *ProviderQueriesV1TestSuite {
+	suite := &ProviderQueriesV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		StorageSkus:       storageSkus,
 	}
-	suite.ScenarioName = constants.StorageV1ListSuiteName
+	suite.ScenarioName = constants.StorageProviderQueriesV1SuiteName.String()
 	return suite
 }
 
-func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Storage")
 
 	// Select sku
@@ -178,20 +178,20 @@ func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
 	}
 	images := []schema.Image{*image1, *image2, *image3}
 
-	params := &params.StorageListV1Params{
+	params := &params.StorageProviderQueriesV1Params{
 		Workspace:     workspace,
 		BlockStorages: blockStorages,
 		Images:        images,
 	}
 
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockStorage.ConfigureListScenarioV1, params)
+	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockStorage.ConfigureProviderQueriesV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *ListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.StorageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
@@ -333,6 +333,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

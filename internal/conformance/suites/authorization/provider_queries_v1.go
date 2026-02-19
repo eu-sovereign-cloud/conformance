@@ -18,24 +18,24 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ListV1TestSuite struct {
+type ProviderQueriesV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	Users []string
 
-	params *params.AuthorizationListV1Params
+	params *params.AuthorizationProviderQueriesV1Params
 }
 
-func CreateListV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *ListV1TestSuite {
-	suite := &ListV1TestSuite{
+func CreateProviderQueriesV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *ProviderQueriesV1TestSuite {
+	suite := &ProviderQueriesV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		Users:           users,
 	}
-	suite.ScenarioName = constants.AuthorizationV1ListSuiteName
+	suite.ScenarioName = constants.AuthorizationProviderQueriesV1SuiteName.String()
 	return suite
 }
 
-func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Authorization")
 
 	// Select subs
@@ -153,18 +153,18 @@ func (suite *ListV1TestSuite) BeforeAll(t provider.T) {
 		*roleAssignment2,
 		*roleAssignment3,
 	}
-	params := &params.AuthorizationListV1Params{
+	params := &params.AuthorizationProviderQueriesV1Params{
 		Roles:           roles,
 		RoleAssignments: roleAssignments,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureListScenarioV1, params)
+	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockauthorization.ConfigureProviderQueriesV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *ListV1TestSuite) TestScenario(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
@@ -273,6 +273,6 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ListV1TestSuite) AfterAll(t provider.T) {
+func (suite *ProviderQueriesV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

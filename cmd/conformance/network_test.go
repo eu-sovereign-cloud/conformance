@@ -12,9 +12,9 @@ import (
 func TestNetworkV1Suites(t *testing.T) {
 	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
 
-	// LifeCycle Suite
-	lifeCycleTestSuite := network.CreateLifeCycleV1TestSuite(regionalTestSuite,
-		&network.LifeCycleV1Config{
+	// Provider LifeCycle Suite
+	providerLifeCycleTestSuite := network.CreateProviderLifeCycleV1TestSuite(regionalTestSuite,
+		&network.ProviderLifeCycleV1Config{
 			NetworkCidr:    config.Parameters.ScenariosCidr,
 			PublicIpsRange: config.Parameters.ScenariosPublicIps,
 			RegionZones:    config.Clients.RegionZones,
@@ -23,13 +23,13 @@ func TestNetworkV1Suites(t *testing.T) {
 			NetworkSkus:    config.Clients.NetworkSkus,
 		},
 	)
-	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, lifeCycleTestSuite)
+	if providerLifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerLifeCycleTestSuite)
 	}
 
 	// List Suite
-	listTestSuite := network.CreateListV1TestSuite(regionalTestSuite,
-		&network.ListV1Config{
+	listTestSuite := network.CreateProviderQueriesV1TestSuite(regionalTestSuite,
+		&network.ProviderQueriesV1Config{
 			NetworkCidr:    config.Parameters.ScenariosCidr,
 			PublicIpsRange: config.Parameters.ScenariosPublicIps,
 			RegionZones:    config.Clients.RegionZones,

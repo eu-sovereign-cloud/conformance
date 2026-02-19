@@ -14,20 +14,20 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type LifeCycleV1TestSuite struct {
+type ProviderLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
-	params *params.WorkspaceLifeCycleV1Params
+	params *params.WorkspaceProviderLifeCycleV1Params
 }
 
-func CreateLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *LifeCycleV1TestSuite {
-	suite := &LifeCycleV1TestSuite{
+func CreateProviderLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *ProviderLifeCycleV1TestSuite {
+	suite := &ProviderLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 	}
-	suite.ScenarioName = constants.WorkspaceV1LifeCycleSuiteName
+	suite.ScenarioName = constants.WorkspaceProviderLifeCycleV1SuiteName.String()
 	return suite
 }
 
-func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Workspace")
 
 	// Generate scenario data
@@ -53,18 +53,18 @@ func (suite *LifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Workspace: %v", err)
 	}
 
-	params := &params.WorkspaceLifeCycleV1Params{
+	params := &params.WorkspaceProviderLifeCycleV1Params{
 		WorkspaceInitial: workspaceInitial,
 		WorkspaceUpdated: workspaceUpdated,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockWorkspace.ConfigureLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockWorkspace.ConfigureProviderLifecycleScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -122,6 +122,6 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *LifeCycleV1TestSuite) AfterAll(t provider.T) {
+func (suite *ProviderLifeCycleV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }
