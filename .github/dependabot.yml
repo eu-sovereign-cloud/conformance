@@ -4,7 +4,7 @@ updates:
   directory: /
   schedule:
     interval: daily
-    time: 04:00
+    time: "04:00"
   open-pull-requests-limit: 10
   ignore:
     - dependency-name: github.com/eu-sovereign-cloud/go-sdk
