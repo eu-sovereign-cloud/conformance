@@ -82,7 +82,8 @@ func InitClients(ctx context.Context) error {
 	Clients.RegionZones = regionResp.Spec.AvailableZones
 
 	// Load available instance skus, if compute provider is available
-	if Clients.RegionalClient.ComputeV1 != nil {
+	_, isComputeV1Unavailable := Clients.RegionalClient.ComputeV1.(*secapi.ComputeV1Unavailable)
+	if !isComputeV1Unavailable {
 		Clients.InstanceSkus, err = loadInstanceSkus(ctx, Clients.RegionalClient)
 		if err != nil {
 			return fmt.Errorf("failed to list instance skus: %w", err)
@@ -90,7 +91,8 @@ func InitClients(ctx context.Context) error {
 	}
 
 	// Load available storage skus, if storage provider is available
-	if Clients.RegionalClient.StorageV1 != nil {
+	_, isStorageV1Unavailable := Clients.RegionalClient.StorageV1.(*secapi.StorageV1Unavailable)
+	if !isStorageV1Unavailable {
 		Clients.StorageSkus, err = loadStorageSkus(ctx, Clients.RegionalClient)
 		if err != nil {
 			return fmt.Errorf("failed to list storage skus: %w", err)
@@ -98,7 +100,8 @@ func InitClients(ctx context.Context) error {
 	}
 
 	// Load available network skus, if storage network is available
-	if Clients.RegionalClient.NetworkV1 != nil {
+	_, isNetworkV1Unavailable := Clients.RegionalClient.NetworkV1.(*secapi.NetworkV1Unavailable)
+	if !isNetworkV1Unavailable {
 		Clients.NetworkSkus, err = loadNetworkSkus(ctx, Clients.RegionalClient)
 		if err != nil {
 			return fmt.Errorf("failed to list network skus: %w", err)
