@@ -8,18 +8,16 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 )
 
-func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.AuthorizationProviderLifeCycleV1Params) error {
+func ConfigureRoleLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.RoleLifeCycleV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
 	}
 
 	role := *params.RoleInitial
-	roleAssignment := *params.RoleAssignmentInitial
 
 	// Generate URLs
 	roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, role.Metadata.Tenant, role.Metadata.Name)
-	roleAssignmentUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, roleAssignment.Metadata.Tenant, roleAssignment.Metadata.Name)
 
 	// Role
 	roleResponse, err := builders.NewRoleBuilder().
@@ -50,48 +48,6 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 
 	// Get the updated role
 	if err := configurator.ConfigureGetActiveRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Role assignment
-	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
-		Name(roleAssignment.Metadata.Name).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(roleAssignment.Metadata.Tenant).
-		Spec(&roleAssignment.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
-	// Create a role assignment
-	if err := configurator.ConfigureCreateRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the created role assignment
-	if err := configurator.ConfigureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Update the role assignment
-	roleAssignResponse.Spec = params.RoleAssignmentUpdated.Spec
-	if err := configurator.ConfigureUpdateRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the updated role assignment
-	if err := configurator.ConfigureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the role assignment
-	if err := configurator.ConfigureDeleteStub(roleAssignmentUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the deleted role assignment
-	if err := configurator.ConfigureGetNotFoundStub(roleAssignmentUrl, scenario.MockParams); err != nil {
 		return err
 	}
 

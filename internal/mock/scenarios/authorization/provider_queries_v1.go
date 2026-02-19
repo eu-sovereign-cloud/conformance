@@ -21,7 +21,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Generate URLs
 	roleUrl := generators.GenerateRoleListURL(constants.AuthorizationProviderV1, roles[0].Metadata.Tenant)
-	roleAssignUrl := generators.GenerateRoleAssignmentListURL(constants.AuthorizationProviderV1, roleAssignments[0].Metadata.Tenant)
+	roleAssignmentUrl := generators.GenerateRoleAssignmentListURL(constants.AuthorizationProviderV1, roleAssignments[0].Metadata.Tenant)
 
 	// Create roles
 	err = stubs.BulkCreateRolesStubV1(configurator, scenario.MockParams, roles)
@@ -84,13 +84,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 
 	// List RoleAssignments
-	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams, nil); err != nil {
+	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams, nil); err != nil {
 		return err
 	}
 
 	// List Roles with limit 1
 	roleAssignResponse.Items = roleAssignments[:1]
-	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -105,13 +105,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return filteredRoles
 	}
 	roleAssignResponse.Items = rolesAssignWithLabel(roleAssignments)
-	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List roles with limit and label
 	roleAssignResponse.Items = rolesAssignWithLabel(roleAssignments)[:1]
-	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureGetListRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 

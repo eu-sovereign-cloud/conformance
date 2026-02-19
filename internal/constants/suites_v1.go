@@ -11,6 +11,8 @@ const (
 
 	AuthorizationProviderLifeCycleV1SuiteName SuiteName = "Authorization.V1.ProviderLifeCycle"
 	AuthorizationProviderQueriesV1SuiteName   SuiteName = "Authorization.V1.ProviderQueries"
+	RoleLifeCycleV1SuiteName                  SuiteName = "Authorization.V1.RoleLifeCycle"
+	RoleAssignmentLifeCycleV1SuiteName        SuiteName = "Authorization.V1.RoleAssignmentLifeCycle"
 
 	RegionProviderQueriesV1SuiteName SuiteName = "Region.V1.ProviderQueries"
 
@@ -22,6 +24,8 @@ const (
 
 	StorageProviderLifeCycleV1SuiteName SuiteName = "Storage.V1.ProviderLifeCycle"
 	StorageProviderQueriesV1SuiteName   SuiteName = "Storage.V1.ProviderQueries"
+	BlockStorageLifeCycleV1SuiteName    SuiteName = "Storage.V1.BlockStorageLifeCycle"
+	ImageLifeCycleV1SuiteName           SuiteName = "Storage.V1.ImageLifeCycle"
 
 	NetworkProviderLifeCycleV1SuiteName SuiteName = "Network.V1.ProviderLifeCycle"
 	NetworkProviderQueriesV1SuiteName   SuiteName = "Network.V1.ProviderQueries"
@@ -32,6 +36,8 @@ const (
 var AllSuiteNames = []SuiteName{
 	AuthorizationProviderLifeCycleV1SuiteName,
 	AuthorizationProviderQueriesV1SuiteName,
+	RoleLifeCycleV1SuiteName,
+	RoleAssignmentLifeCycleV1SuiteName,
 
 	RegionProviderQueriesV1SuiteName,
 
@@ -43,6 +49,8 @@ var AllSuiteNames = []SuiteName{
 
 	StorageProviderLifeCycleV1SuiteName,
 	StorageProviderQueriesV1SuiteName,
+	BlockStorageLifeCycleV1SuiteName,
+	ImageLifeCycleV1SuiteName,
 
 	NetworkProviderLifeCycleV1SuiteName,
 	NetworkProviderQueriesV1SuiteName,

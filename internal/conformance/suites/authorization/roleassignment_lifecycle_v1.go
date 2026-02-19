@@ -3,7 +3,6 @@ package authorization
 import (
 	"log/slog"
 	"math/rand"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
@@ -18,24 +17,24 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ProviderLifeCycleV1TestSuite struct {
+type RoleAssignmentLifeCycleV1TestSuite struct {
 	suites.GlobalTestSuite
 
 	Users []string
 
-	params *params.AuthorizationProviderLifeCycleV1Params
+	params *params.RoleAssignmentLifeCycleV1Params
 }
 
-func CreateProviderLifeCycleV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *ProviderLifeCycleV1TestSuite {
-	suite := &ProviderLifeCycleV1TestSuite{
+func CreateRoleAssignmentLifeCycleV1TestSuite(globalTestSuite suites.GlobalTestSuite, users []string) *RoleAssignmentLifeCycleV1TestSuite {
+	suite := &RoleAssignmentLifeCycleV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 		Users:           users,
 	}
-	suite.ScenarioName = constants.AuthorizationProviderLifeCycleV1SuiteName.String()
+	suite.ScenarioName = constants.RoleAssignmentLifeCycleV1SuiteName.String()
 	return suite
 }
 
-func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
+func (suite *RoleAssignmentLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Authorization")
 
 	// Select subs
@@ -46,37 +45,6 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	roleName := generators.GenerateRoleName()
 
 	roleAssignmentName := generators.GenerateRoleAssignmentName()
-
-	imageName := generators.GenerateImageName()
-	imageResource := generators.GenerateImageResource(suite.Tenant, imageName)
-
-	roleInitial, err := builders.NewRoleBuilder().
-		Name(roleName).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(suite.Tenant).
-		Spec(&schema.RoleSpec{
-			Permissions: []schema.Permission{
-				{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
-			},
-		}).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Role: %v", err)
-	}
-
-	roleUpdated, err := builders.NewRoleBuilder().
-		Name(roleName).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(suite.Tenant).
-		Spec(&schema.RoleSpec{
-			Permissions: []schema.Permission{
-				{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet, http.MethodPut}},
-			},
-		}).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Role: %v", err)
-	}
 
 	roleAssignmentInitial, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignmentName).
@@ -108,22 +76,20 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build RoleAssignment: %v", err)
 	}
 
-	params := &params.AuthorizationProviderLifeCycleV1Params{
-		RoleInitial:           roleInitial,
-		RoleUpdated:           roleUpdated,
+	params := &params.RoleAssignmentLifeCycleV1Params{
 		RoleAssignmentInitial: roleAssignmentInitial,
 		RoleAssignmentUpdated: roleAssignmentUpdated,
 	}
 	suite.params = params
 
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureProviderLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleAssignmentLifecycleScenarioV1, params)
 	if err != nil {
 		slog.Error("Failed to setup mock", "error", err)
 		t.FailNow()
 	}
 }
 
-func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
+func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
@@ -131,53 +97,6 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
-
-	// Role
-
-	// Create a role
-	role := suite.params.RoleInitial
-	expectRoleMeta := role.Metadata
-	expectRoleSpec := &role.Spec
-	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, role,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateCreating,
-		},
-	)
-
-	// Get the created role
-	roleTRef := secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   role.Metadata.Name,
-	}
-	role = stepsBuilder.GetRoleV1Step("Get the created role", suite.Client.AuthorizationV1, roleTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
-
-	// Update the role
-	role.Spec = suite.params.RoleUpdated.Spec
-	expectRoleSpec = &role.Spec
-	stepsBuilder.CreateOrUpdateRoleV1Step("Update the role", suite.Client.AuthorizationV1, role,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateUpdating,
-		},
-	)
-
-	// Get the updated role
-	role = stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
 
 	// Role assignment
 
@@ -227,16 +146,12 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-
 	stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, roleAssign)
 	stepsBuilder.GetRoleAssignmentWithErrorV1Step("Get the deleted role assignment", suite.Client.AuthorizationV1, roleAssignTRef, secapi.ErrResourceNotFound)
-
-	stepsBuilder.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, role)
-	stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, roleTRef, secapi.ErrResourceNotFound)
 
 	suite.FinishScenario()
 }
 
-func (suite *ProviderLifeCycleV1TestSuite) AfterAll(t provider.T) {
+func (suite *RoleAssignmentLifeCycleV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

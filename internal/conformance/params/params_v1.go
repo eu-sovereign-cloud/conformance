@@ -18,6 +18,16 @@ type AuthorizationProviderQueriesV1Params struct {
 	RoleAssignments []schema.RoleAssignment
 }
 
+type RoleLifeCycleV1Params struct {
+	RoleInitial *schema.Role
+	RoleUpdated *schema.Role
+}
+
+type RoleAssignmentLifeCycleV1Params struct {
+	RoleAssignmentInitial *schema.RoleAssignment
+	RoleAssignmentUpdated *schema.RoleAssignment
+}
+
 // Region
 
 type RegionProviderQueriesV1Params struct {
@@ -64,6 +74,19 @@ type StorageProviderQueriesV1Params struct {
 	Workspace     *schema.Workspace
 	BlockStorages []schema.BlockStorage
 	Images        []schema.Image
+}
+
+type BlockStorageLifeCycleV1Params struct {
+	Workspace           *schema.Workspace
+	BlockStorageInitial *schema.BlockStorage
+	BlockStorageUpdated *schema.BlockStorage
+}
+
+type ImageLifeCycleV1Params struct {
+	Workspace    *schema.Workspace
+	BlockStorage *schema.BlockStorage
+	ImageInitial *schema.Image
+	ImageUpdated *schema.Image
 }
 
 // Network

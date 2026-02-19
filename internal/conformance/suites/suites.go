@@ -77,24 +77,7 @@ func (suite *TestSuite) ResetAllScenarios() {
 	}
 }
 
-func SetupMockIfEnabled[P any](suite *TestSuite, configFunc func(string, *mock.MockParams, *P) (*wiremock.Client, error), suiteParams *P) error {
-	// Setup mock, if configured to use
-	if suite.MockEnabled {
-		mockParams := &mock.MockParams{
-			ServerURL: *suite.MockServerURL,
-			AuthToken: suite.AuthToken,
-		}
-
-		wm, err := configFunc(suite.ScenarioName, mockParams, suiteParams)
-		if err != nil {
-			return err
-		}
-		suite.MockClient = wm
-	}
-	return nil
-}
-
-func SetupMockIfEnabledV2[P any](suite *TestSuite, configFunc func(*mockscenarios.Scenario, *P) error, suiteParams *P) error {
+func SetupMockIfEnabled[P any](suite *TestSuite, configFunc func(*mockscenarios.Scenario, *P) error, suiteParams *P) error {
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
 		mockParams := &mock.MockParams{

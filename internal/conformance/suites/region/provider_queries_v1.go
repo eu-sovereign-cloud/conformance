@@ -84,7 +84,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		Regions: regions,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockRegion.ConfigureProviderQueriesV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockRegion.ConfigureProviderQueriesV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}

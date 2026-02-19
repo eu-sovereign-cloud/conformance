@@ -13,14 +13,14 @@ func TestWorkspaceV1Suites(t *testing.T) {
 	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
 
 	// Provider LifeCycle Suite
-	providerLifeCycleTestSuite := workspace.CreateProviderLifeCycleV1TestSuite(regionalTestSuite)
-	if providerLifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, providerLifeCycleTestSuite)
+	providerLifeCycleSuite := workspace.CreateProviderLifeCycleV1TestSuite(regionalTestSuite)
+	if providerLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerLifeCycleSuite)
 	}
 
-	// List Suite
-	listTestSuite := *workspace.CreateProviderQueriesV1TestSuite(regionalTestSuite)
-	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, listTestSuite)
+	// Provider Queries Suite
+	providerQueriesSuite := *workspace.CreateProviderQueriesV1TestSuite(regionalTestSuite)
+	if providerQueriesSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerQueriesSuite)
 	}
 }

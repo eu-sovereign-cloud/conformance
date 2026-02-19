@@ -61,7 +61,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		Workspaces: workspaces,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockWorkspace.ConfigureProviderQueriesV1, &suite.params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockWorkspace.ConfigureProviderQueriesV1, &suite.params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}

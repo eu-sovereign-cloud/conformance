@@ -425,7 +425,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		SecurityGroups:   securityGroups,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabledV2(suite.TestSuite, mockNetwork.ConfigureProviderQueriesV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureProviderQueriesV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}

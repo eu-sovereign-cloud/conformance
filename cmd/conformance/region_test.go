@@ -13,9 +13,9 @@ import (
 func TestRegionV1Suites(t *testing.T) {
 	globalTestSuite := suites.CreateGlobalTestSuite(config.Parameters, config.Clients)
 
-	// List Suite
-	listTestSuite := region.CreateProviderQueriesV1TestSuite(globalTestSuite, config.Parameters.ClientRegion)
-	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, listTestSuite)
+	// Provider Queries Suite
+	providerQueriesSuite := region.CreateProviderQueriesV1TestSuite(globalTestSuite, config.Parameters.ClientRegion)
+	if providerQueriesSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerQueriesSuite)
 	}
 }

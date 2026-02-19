@@ -13,14 +13,26 @@ func TestAuthorizationV1Suites(t *testing.T) {
 	globalTestSuite := suites.CreateGlobalTestSuite(config.Parameters, config.Clients)
 
 	// Provider LifeCycle Suite
-	providerLifeCycleTestSuite := authorization.CreateProviderLifeCycleV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
-	if providerLifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, providerLifeCycleTestSuite)
+	providerLifeCycleSuite := authorization.CreateProviderLifeCycleV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
+	if providerLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerLifeCycleSuite)
 	}
 
-	// List Suite
-	listTestSuite := authorization.CreateProviderQueriesV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
-	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, listTestSuite)
+	// Provider Queries Suite
+	providerQueriesSuite := authorization.CreateProviderQueriesV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
+	if providerQueriesSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerQueriesSuite)
+	}
+
+	// Role LifeCycle Suite
+	roleLifeCycleSuite := authorization.CreateRoleLifeCycleV1TestSuite(globalTestSuite)
+	if roleLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, roleLifeCycleSuite)
+	}
+
+	// Role Assignment LifeCycle Suite
+	roleAssignmentLifeCycleSuite := authorization.CreateRoleAssignmentLifeCycleV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
+	if roleAssignmentLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, roleAssignmentLifeCycleSuite)
 	}
 }

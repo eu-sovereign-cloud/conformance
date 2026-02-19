@@ -15,24 +15,24 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type ProviderLifeCycleV1TestSuite struct {
+type BlockStorageLifeCycleV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	StorageSkus []string
 
-	params *params.StorageProviderLifeCycleV1Params
+	params *params.BlockStorageLifeCycleV1Params
 }
 
-func CreateProviderLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *ProviderLifeCycleV1TestSuite {
-	suite := &ProviderLifeCycleV1TestSuite{
+func CreateBlockStorageLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *BlockStorageLifeCycleV1TestSuite {
+	suite := &BlockStorageLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		StorageSkus:       storageSkus,
 	}
-	suite.ScenarioName = constants.StorageProviderLifeCycleV1SuiteName.String()
+	suite.ScenarioName = constants.BlockStorageLifeCycleV1SuiteName.String()
 	return suite
 }
 
-func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
+func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Storage")
 
 	// Select sku
@@ -47,12 +47,6 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
-
-	imageName := generators.GenerateImageName()
 
 	initialStorageSize := generators.GenerateBlockStorageSize()
 	updatedStorageSize := generators.GenerateBlockStorageSize()
@@ -93,51 +87,24 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build BlockStorage: %v", err)
 	}
 
-	imageInitial, err := builders.NewImageBuilder().
-		Name(imageName).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(suite.Tenant).Region(suite.Region).
-		Spec(&schema.ImageSpec{
-			BlockStorageRef: *blockStorageRefObj,
-			CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build Image: %v", err)
-	}
-
-	imageUpdated, err := builders.NewImageBuilder().
-		Name(imageName).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(suite.Tenant).Region(suite.Region).
-		Spec(&schema.ImageSpec{
-			BlockStorageRef: *blockStorageRefObj,
-			CpuArchitecture: schema.ImageSpecCpuArchitectureArm64,
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build Image: %v", err)
-	}
-
-	params := &params.StorageProviderLifeCycleV1Params{
+	params := &params.BlockStorageLifeCycleV1Params{
 		Workspace:           workspace,
 		BlockStorageInitial: blockStorageInitial,
 		BlockStorageUpdated: blockStorageUpdated,
-		ImageInitial:        imageInitial,
-		ImageUpdated:        imageUpdated,
 	}
 
 	suite.params = params
 
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockstorage.ConfigureProviderLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockstorage.ConfigureBlockStorageLifecycleScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
+func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.StorageProviderV1,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
 	)
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
@@ -218,57 +185,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Image
-
-	// Create an image
-	image := suite.params.ImageInitial
-	expectedImageMeta := image.Metadata
-	expectedImageSpec := &image.Spec
-	stepsBuilder.CreateOrUpdateImageV1Step("Create an image", suite.Client.StorageV1, image,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:      expectedImageMeta,
-			Spec:          expectedImageSpec,
-			ResourceState: schema.ResourceStateCreating,
-		},
-	)
-
-	// Get the created image
-	imageTRef := secapi.TenantReference{
-		Tenant: secapi.TenantID(image.Metadata.Tenant),
-		Name:   image.Metadata.Name,
-	}
-	image = stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:      expectedImageMeta,
-			Spec:          expectedImageSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
-
-	// Update the image
-	image.Spec = suite.params.ImageUpdated.Spec
-	expectedImageSpec.CpuArchitecture = image.Spec.CpuArchitecture
-	stepsBuilder.CreateOrUpdateImageV1Step("Update the image", suite.Client.StorageV1, image,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:      expectedImageMeta,
-			Spec:          expectedImageSpec,
-			ResourceState: schema.ResourceStateUpdating,
-		},
-	)
-
-	// Get the updated image
-	image = stepsBuilder.GetImageV1Step("Get the updated image", suite.Client.StorageV1, imageTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:      expectedImageMeta,
-			Spec:          expectedImageSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
-
 	// Resources deletion
-
-	stepsBuilder.DeleteImageV1Step("Delete the image", suite.Client.StorageV1, image)
-	stepsBuilder.GetImageWithErrorV1Step("Get the deleted image", suite.Client.StorageV1, imageTRef, secapi.ErrResourceNotFound)
 
 	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
 	stepsBuilder.GetBlockStorageWithErrorV1Step("Get the deleted block storage", suite.Client.StorageV1, blockWRef, secapi.ErrResourceNotFound)
@@ -279,6 +196,6 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ProviderLifeCycleV1TestSuite) AfterAll(t provider.T) {
+func (suite *BlockStorageLifeCycleV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }
