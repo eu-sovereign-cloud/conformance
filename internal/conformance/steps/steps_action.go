@@ -11,12 +11,11 @@ import (
 // Params
 
 type actionWorkspaceResourceParams[R types.ResourceType] struct {
+	actionResourceParams[R]
 	stepName       string
 	stepParamsFunc func(provider.StepCtx, string, string)
 	operationName  string
 	workspace      string
-	resource       *R
-	actionFunc     func(context.Context, *R) error
 }
 
 type actionResourceParams[R types.ResourceType] struct {
@@ -29,11 +28,7 @@ type actionResourceParams[R types.ResourceType] struct {
 func actionWorkspaceResourceStep[R types.ResourceType](t provider.T, params actionWorkspaceResourceParams[R]) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace)
-
-		actionResourceStep(t, sCtx, actionResourceParams[R]{
-			resource:   params.resource,
-			actionFunc: params.actionFunc,
-		})
+		actionResourceStep(t, sCtx, params.actionResourceParams)
 	})
 }
 

@@ -28,11 +28,9 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 
 	// Generate resource
 	regionsResource := generators.GenerateRegionListResource()
-	regionResource := generators.GenerateRegionResource(regions[0].Metadata.Name)
 
 	// Generate URLs
 	regionsUrl := generators.GenerateRegionListURL(constants.RegionProviderV1)
-	regionUrl := generators.GenerateRegionURL(constants.RegionProviderV1, regions[0].Metadata.Name)
 	regionsResponse := &region.RegionIterator{
 		Metadata: schema.ResponseMetadata{
 			Provider: constants.RegionProviderV1,
@@ -59,26 +57,8 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 
 	regionsResponse.Items = regionsList
 
-	// 1 - Create ListRegions stub
+	// Configure stub
 	if err := configurator.ConfigureGetListRegionStub(regionsResponse, regionsUrl, mockParams, nil); err != nil {
-		return nil, err
-	}
-
-	// 2 - Create GetRegion stubs
-	region := regions[0]
-	singleRegionResponse := &schema.Region{
-		Metadata: &schema.GlobalResourceMetadata{
-			Name:       region.Metadata.Name,
-			Provider:   constants.RegionProviderV1,
-			Resource:   regionResource,
-			ApiVersion: constants.ApiVersion1,
-			Kind:       schema.GlobalResourceMetadataKindResourceKindRegion,
-			Verb:       http.MethodGet,
-		},
-		Spec: region.Spec,
-	}
-
-	if err := configurator.ConfigureGetRegionStub(singleRegionResponse, regionUrl, mockParams); err != nil {
 		return nil, err
 	}
 

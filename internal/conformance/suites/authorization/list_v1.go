@@ -182,7 +182,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 		// Create Role
 		stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, &role,
-			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+			steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 				Metadata:      expectRoleMeta,
 				Spec:          &expectRoleSpec,
 				ResourceState: schema.ResourceStateCreating,
@@ -195,19 +195,19 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 		Name:   suite.Tenant,
 	}
 	// List Roles
-	stepsBuilder.GetListRoleV1Step("Get list of roles", suite.Client.AuthorizationV1, *roleTRef, nil)
+	stepsBuilder.ListRoleV1Step("List roles", suite.Client.AuthorizationV1, *roleTRef, nil)
 
 	// List Roles with limit
-	stepsBuilder.GetListRoleV1Step("Get list of roles with limit", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("List roles with limit", suite.Client.AuthorizationV1, *roleTRef,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Label
-	stepsBuilder.GetListRoleV1Step("Get list of roles with label", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("List roles with label", suite.Client.AuthorizationV1, *roleTRef,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Limit and label
-	stepsBuilder.GetListRoleV1Step("Get list of roles with limit and label", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("List roles with limit and label", suite.Client.AuthorizationV1, *roleTRef,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -221,29 +221,29 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 		// Create a role assignment
 		stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.Client.AuthorizationV1, &roleAssign,
-			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+			steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 				Metadata:      expectRoleAssignMeta,
 				Spec:          expectRoleAssignSpec,
 				ResourceState: schema.ResourceStateCreating,
 			},
 		)
 	}
-	roleAssignTRef := &secapi.TenantReference{Tenant: secapi.TenantID(suite.Tenant)}
+	roleAssignTID := secapi.TenantID(suite.Tenant)
 
 	// List RoleAssignments
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef, nil)
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, roleAssignTID, nil)
 
 	// List RoleAssignments with limit
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, roleAssignTID,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List RoleAssignments with Label
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, roleAssignTID,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List RoleAssignments with Limit and label
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, roleAssignTID,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 

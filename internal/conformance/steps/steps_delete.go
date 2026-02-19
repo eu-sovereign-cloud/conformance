@@ -11,30 +11,27 @@ import (
 // Params
 
 type deleteTenantResourceParams[R types.ResourceType] struct {
+	deleteResourceParams[R]
 	stepName       string
 	stepParamsFunc func(provider.StepCtx, string)
 	operationName  string
-	resource       *R
-	deleteFunc     func(context.Context, *R) error
 }
 
 type deleteWorkspaceResourceParams[R types.ResourceType] struct {
+	deleteResourceParams[R]
 	stepName       string
 	stepParamsFunc func(provider.StepCtx, string, string)
 	operationName  string
 	workspace      string
-	resource       *R
-	deleteFunc     func(context.Context, *R) error
 }
 
 type deleteNetworkResourceParams[R types.ResourceType] struct {
+	deleteResourceParams[R]
 	stepName       string
 	stepParamsFunc func(provider.StepCtx, string, string, string)
 	operationName  string
 	workspace      string
 	network        string
-	resource       *R
-	deleteFunc     func(context.Context, *R) error
 }
 
 type deleteResourceParams[R types.ResourceType] struct {
@@ -47,33 +44,21 @@ type deleteResourceParams[R types.ResourceType] struct {
 func deleteTenantResourceStep[R types.ResourceType](t provider.T, params deleteTenantResourceParams[R]) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName)
-
-		deleteResourceStep(t, sCtx, deleteResourceParams[R]{
-			resource:   params.resource,
-			deleteFunc: params.deleteFunc,
-		})
+		deleteResourceStep(t, sCtx, params.deleteResourceParams)
 	})
 }
 
 func deleteWorkspaceResourceStep[R types.ResourceType](t provider.T, params deleteWorkspaceResourceParams[R]) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace)
-
-		deleteResourceStep(t, sCtx, deleteResourceParams[R]{
-			resource:   params.resource,
-			deleteFunc: params.deleteFunc,
-		})
+		deleteResourceStep(t, sCtx, params.deleteResourceParams)
 	})
 }
 
 func deleteNetworkResourceStep[R types.ResourceType](t provider.T, params deleteNetworkResourceParams[R]) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace, params.network)
-
-		deleteResourceStep(t, sCtx, deleteResourceParams[R]{
-			resource:   params.resource,
-			deleteFunc: params.deleteFunc,
-		})
+		deleteResourceStep(t, sCtx, params.deleteResourceParams)
 	})
 }
 

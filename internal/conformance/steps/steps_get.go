@@ -15,79 +15,64 @@ import (
 
 // Params
 
-type getTenantResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
-	stepName              string
-	stepParamsFunc        func(provider.StepCtx, string)
-	operationName         string
-	tref                  secapi.TenantReference
-	getFunc               func(context.Context, secapi.TenantReference, secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[R, M, E, S], error)
-	expectedResourceState schema.ResourceState
-	expectedLabels        schema.Labels
-	expectedMetadata      *M
-	verifyMetadataFunc    func(provider.StepCtx, *M, *M)
-	expectedSpec          *E
-	verifySpecFunc        func(provider.StepCtx, *E, *E)
+type getGlobalResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType] struct {
+	stepName           string
+	stepParamsFunc     func(provider.StepCtx, string)
+	operationName      string
+	resourceName       string
+	getFunc            func(context.Context, string) (*globalStepFuncResponse[R, M, E], error)
+	expectedMetadata   *M
+	verifyMetadataFunc func(provider.StepCtx, *M, *M)
+	expectedSpec       *E
+	verifySpecFunc     func(provider.StepCtx, *E, *E)
 }
 
-type getTenantResourceWithErrorParams struct {
+type getTenantResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
+	getResourceWithObserverParams[R, M, E, S, secapi.TenantReference, schema.ResourceState]
 	stepName       string
 	stepParamsFunc func(provider.StepCtx, string)
 	operationName  string
-	tref           secapi.TenantReference
-	getFunc        func(context.Context, secapi.TenantReference) error
-	expectedError  error
+}
+
+type getTenantResourceWithErrorParams struct {
+	getResourceWithErrorParams[secapi.TenantReference]
+	stepName       string
+	stepParamsFunc func(provider.StepCtx, string)
+	operationName  string
 }
 
 type getWorkspaceResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
-	stepName              string
-	stepParamsFunc        func(provider.StepCtx, string, string)
-	operationName         string
-	wref                  secapi.WorkspaceReference
-	getFunc               func(context.Context, secapi.WorkspaceReference, secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[R, M, E, S], error)
-	expectedResourceState schema.ResourceState
-	expectedLabels        schema.Labels
-	expectedMetadata      *M
-	verifyMetadataFunc    func(provider.StepCtx, *M, *M)
-	expectedSpec          *E
-	verifySpecFunc        func(provider.StepCtx, *E, *E)
-}
-
-type getWorkspaceResourceWithErrorParams struct {
+	getResourceWithObserverParams[R, M, E, S, secapi.WorkspaceReference, schema.ResourceState]
 	stepName       string
 	stepParamsFunc func(provider.StepCtx, string, string)
 	operationName  string
-	wref           secapi.WorkspaceReference
-	getFunc        func(context.Context, secapi.WorkspaceReference) error
-	expectedError  error
+}
+
+type getWorkspaceResourceWithErrorParams struct {
+	getResourceWithErrorParams[secapi.WorkspaceReference]
+	stepName       string
+	stepParamsFunc func(provider.StepCtx, string, string)
+	operationName  string
 }
 
 type getNetworkResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
-	stepName              string
-	stepParamsFunc        func(provider.StepCtx, string, string, string)
-	operationName         string
-	nref                  secapi.NetworkReference
-	getFunc               func(context.Context, secapi.NetworkReference, secapi.ResourceObserverConfig[schema.ResourceState]) (*stepFuncResponse[R, M, E, S], error)
-	expectedResourceState schema.ResourceState
-	expectedLabels        schema.Labels
-	expectedMetadata      *M
-	verifyMetadataFunc    func(provider.StepCtx, *M, *M)
-	expectedSpec          *E
-	verifySpecFunc        func(provider.StepCtx, *E, *E)
-}
-
-type getNetworkResourceWithErrorParams struct {
+	getResourceWithObserverParams[R, M, E, S, secapi.NetworkReference, schema.ResourceState]
 	stepName       string
 	stepParamsFunc func(provider.StepCtx, string, string, string)
 	operationName  string
-	nref           secapi.NetworkReference
-	getFunc        func(context.Context, secapi.NetworkReference) error
-	expectedError  error
+}
+
+type getNetworkResourceWithErrorParams struct {
+	getResourceWithErrorParams[secapi.NetworkReference]
+	stepName       string
+	stepParamsFunc func(provider.StepCtx, string, string, string)
+	operationName  string
 }
 
 type getResourceWithObserverParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType, F secapi.Reference, V any] struct {
 	reference             F
 	observerExpectedValue V
-	getFunc               func(context.Context, F, secapi.ResourceObserverConfig[V]) (*stepFuncResponse[R, M, E, S], error)
+	getFunc               func(context.Context, F, secapi.ResourceObserverConfig[V]) (*getStepFuncResponse[R, M, E, S], error)
 	expectedLabels        schema.Labels
 	expectedMetadata      *M
 	verifyMetadataFunc    func(provider.StepCtx, *M, *M)
@@ -104,29 +89,47 @@ type getResourceWithErrorParams[R secapi.Reference] struct {
 
 // Steps
 
+func getGlobalResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType](
+	t provider.T,
+	params getGlobalResourceParams[R, M, E],
+) *R {
+	var err error
+	var resp *globalStepFuncResponse[R, M, E]
+	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+		params.stepParamsFunc(sCtx, params.operationName)
+
+		emptyRequestStep(sCtx)
+		resp, err = params.getFunc(t.Context(), params.resourceName)
+
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, resp)
+
+		responseResourceStep(sCtx, resp.resource)
+
+		// Metadata
+		if resp.metadata != nil && params.expectedMetadata != nil {
+			params.verifyMetadataFunc(sCtx, params.expectedMetadata, resp.metadata)
+		} else {
+			slog.Error("Metadata verification failed: expected or actual metadata is nil")
+			t.FailNow()
+		}
+
+		if params.expectedSpec != nil {
+			params.verifySpecFunc(sCtx, params.expectedSpec, &resp.spec)
+		}
+	})
+	return resp.resource
+}
+
 func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
 	t provider.T,
 	suite *suites.TestSuite,
 	params getTenantResourceParams[R, M, E, S],
 ) *R {
-	var resp *stepFuncResponse[R, M, E, S]
+	var resp *getStepFuncResponse[R, M, E, S]
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName)
-
-		resp = getResourceWithObserver(t, suite, sCtx,
-			getResourceWithObserverParams[R, M, E, S, secapi.TenantReference, schema.ResourceState]{
-				reference:             params.tref,
-				observerExpectedValue: params.expectedResourceState,
-				getFunc:               params.getFunc,
-				expectedLabels:        params.expectedLabels,
-				expectedMetadata:      params.expectedMetadata,
-				verifyMetadataFunc:    params.verifyMetadataFunc,
-				expectedSpec:          params.expectedSpec,
-				verifySpecFunc:        params.verifySpecFunc,
-				expectedResourceState: params.expectedResourceState,
-			},
-		)
-		requireNotNilResponse(sCtx, resp)
+		resp = getResourceWithObserver(t, suite, sCtx, params.getResourceWithObserverParams)
 	})
 	return resp.resource
 }
@@ -134,14 +137,7 @@ func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.S
 func getTenantResourceWithErrorStep(t provider.T, params getTenantResourceWithErrorParams) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName)
-
-		getResourceWithError(t, sCtx,
-			getResourceWithErrorParams[secapi.TenantReference]{
-				reference:     params.tref,
-				getFunc:       params.getFunc,
-				expectedError: params.expectedError,
-			},
-		)
+		getResourceWithError(t, sCtx, params.getResourceWithErrorParams)
 	})
 }
 
@@ -150,39 +146,18 @@ func getWorkspaceResourceStep[R types.ResourceType, M types.MetadataType, E type
 	suite *suites.TestSuite,
 	params getWorkspaceResourceParams[R, M, E, S],
 ) *R {
-	var resp *stepFuncResponse[R, M, E, S]
+	var resp *getStepFuncResponse[R, M, E, S]
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
-		params.stepParamsFunc(sCtx, params.operationName, string(params.wref.Workspace))
-
-		resp = getResourceWithObserver(t, suite, sCtx,
-			getResourceWithObserverParams[R, M, E, S, secapi.WorkspaceReference, schema.ResourceState]{
-				reference:             params.wref,
-				observerExpectedValue: params.expectedResourceState,
-				getFunc:               params.getFunc,
-				expectedLabels:        params.expectedLabels,
-				expectedMetadata:      params.expectedMetadata,
-				verifyMetadataFunc:    params.verifyMetadataFunc,
-				expectedSpec:          params.expectedSpec,
-				verifySpecFunc:        params.verifySpecFunc,
-				expectedResourceState: params.expectedResourceState,
-			},
-		)
-		requireNotNilResponse(sCtx, resp)
+		params.stepParamsFunc(sCtx, params.operationName, string(params.reference.Workspace))
+		resp = getResourceWithObserver(t, suite, sCtx, params.getResourceWithObserverParams)
 	})
 	return resp.resource
 }
 
 func getWorkspaceResourceWithErrorStep(t provider.T, params getWorkspaceResourceWithErrorParams) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
-		params.stepParamsFunc(sCtx, params.operationName, string(params.wref.Workspace))
-
-		getResourceWithError(t, sCtx,
-			getResourceWithErrorParams[secapi.WorkspaceReference]{
-				reference:     params.wref,
-				getFunc:       params.getFunc,
-				expectedError: params.expectedError,
-			},
-		)
+		params.stepParamsFunc(sCtx, params.operationName, string(params.reference.Workspace))
+		getResourceWithError(t, sCtx, params.getResourceWithErrorParams)
 	})
 }
 
@@ -191,39 +166,18 @@ func getNetworkResourceStep[R types.ResourceType, M types.MetadataType, E types.
 	suite *suites.TestSuite,
 	params getNetworkResourceParams[R, M, E, S],
 ) *R {
-	var resp *stepFuncResponse[R, M, E, S]
+	var resp *getStepFuncResponse[R, M, E, S]
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
-		params.stepParamsFunc(sCtx, params.operationName, string(params.nref.Workspace), string(params.nref.Network))
-
-		resp = getResourceWithObserver(t, suite, sCtx,
-			getResourceWithObserverParams[R, M, E, S, secapi.NetworkReference, schema.ResourceState]{
-				reference:             params.nref,
-				observerExpectedValue: params.expectedResourceState,
-				getFunc:               params.getFunc,
-				expectedLabels:        params.expectedLabels,
-				expectedMetadata:      params.expectedMetadata,
-				verifyMetadataFunc:    params.verifyMetadataFunc,
-				expectedSpec:          params.expectedSpec,
-				verifySpecFunc:        params.verifySpecFunc,
-				expectedResourceState: params.expectedResourceState,
-			},
-		)
-		requireNotNilResponse(sCtx, resp)
+		params.stepParamsFunc(sCtx, params.operationName, string(params.reference.Workspace), string(params.reference.Network))
+		resp = getResourceWithObserver(t, suite, sCtx, params.getResourceWithObserverParams)
 	})
 	return resp.resource
 }
 
 func getNetworkResourceWithErrorStep(t provider.T, params getNetworkResourceWithErrorParams) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
-		params.stepParamsFunc(sCtx, params.operationName, string(params.nref.Workspace), string(params.nref.Network))
-
-		getResourceWithError(t, sCtx,
-			getResourceWithErrorParams[secapi.NetworkReference]{
-				reference:     params.nref,
-				getFunc:       params.getFunc,
-				expectedError: params.expectedError,
-			},
-		)
+		params.stepParamsFunc(sCtx, params.operationName, string(params.reference.Workspace), string(params.reference.Network))
+		getResourceWithError(t, sCtx, params.getResourceWithErrorParams)
 	})
 }
 
@@ -232,7 +186,7 @@ func getResourceWithObserver[R types.ResourceType, M types.MetadataType, E types
 	suite *suites.TestSuite,
 	sCtx provider.StepCtx,
 	params getResourceWithObserverParams[R, M, E, S, F, V],
-) *stepFuncResponse[R, M, E, S] {
+) *getStepFuncResponse[R, M, E, S] {
 	config := secapi.ResourceObserverConfig[V]{
 		ExpectedValue: params.observerExpectedValue,
 		Delay:         time.Duration(suite.BaseDelay) * time.Second,
@@ -242,10 +196,11 @@ func getResourceWithObserver[R types.ResourceType, M types.MetadataType, E types
 
 	requestResourceStep(sCtx, params.reference)
 	resp, err := params.getFunc(t.Context(), params.reference, config)
-	responseResourceStep(sCtx, resp)
 
 	requireNoError(sCtx, err)
 	requireNotNilResponse(sCtx, resp)
+
+	responseResourceStep(sCtx, resp.resource)
 
 	// Label
 	if params.expectedLabels != nil {

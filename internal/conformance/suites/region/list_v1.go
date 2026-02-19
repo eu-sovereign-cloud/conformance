@@ -98,18 +98,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 
 	ctx := context.Background()
 
-	// Test List iterator's (Next and All) for Regions and verify both responses have the same length
-	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1)
-
-	// Call Get Region and verify response
-	expectedRegionMeta, err := builders.NewRegionMetadataBuilder().
-		Name(regions[0].Metadata.Name).
-		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
-	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, expectedRegionMeta)
+	stepsBuilder.ListRegionsV1Step("List regions", ctx, suite.Client.RegionV1)
 
 	suite.FinishScenario()
 }

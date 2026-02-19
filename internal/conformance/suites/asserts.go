@@ -262,10 +262,22 @@ func (suite *TestSuite) VerifySecurityGroupSpecStep(ctx provider.StepCtx, expect
 
 // Region Spec
 
-func (suite *TestSuite) VerifyRegionSpecStep(ctx provider.StepCtx, actual *schema.RegionSpec) {
+func (suite *TestSuite) VerifyRegionSpecStep(ctx provider.StepCtx, expected *schema.RegionSpec, actual *schema.RegionSpec) {
 	ctx.WithNewStep("Verify RegionSpec", func(stepCtx provider.StepCtx) {
-		stepCtx.Require().GreaterOrEqual(len(actual.AvailableZones), 1, "AvailableZones list length should match expected")
+		stepCtx.Require().GreaterOrEqual(len(expected.AvailableZones), len(actual.AvailableZones), "AvailableZones list length should match expected")
+		for i := 0; i < len(expected.AvailableZones); i++ {
+			expectedZone := expected.AvailableZones[i]
+			actualZone := actual.AvailableZones[i]
+			stepCtx.Require().Equal(expectedZone, actualZone, fmt.Sprintf("Available Zone [%d] should match expected", i))
+		}
 
-		stepCtx.Require().GreaterOrEqual(len(actual.Providers), 1, "Providers list length should greater then 1")
+		stepCtx.Require().GreaterOrEqual(len(expected.Providers), len(actual.AvailableZones), "Providers list length should greater then expected")
+		for i := 0; i < len(expected.Providers); i++ {
+			expectedProvider := expected.Providers[i]
+			actualProvider := actual.Providers[i]
+			stepCtx.Require().Equal(expectedProvider.Name, actualProvider.Name, fmt.Sprintf("Provider [%d] Name should match expected", i))
+			stepCtx.Require().Equal(expectedProvider.Url, actualProvider.Url, fmt.Sprintf("Provider [%d] Url should match expected", i))
+			stepCtx.Require().Equal(expectedProvider.Version, actualProvider.Version, fmt.Sprintf("Provider [%d] Version should match expected", i))
+		}
 	})
 }

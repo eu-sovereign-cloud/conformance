@@ -81,7 +81,7 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 		expectMeta := workspace.Metadata
 		expectLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
 		stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, &workspace,
-			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 				Labels:        expectLabels,
 				Metadata:      expectMeta,
 				ResourceState: schema.ResourceStateCreating,
@@ -94,17 +94,17 @@ func (suite *ListV1TestSuite) TestScenario(t provider.T) {
 	tref := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, nil)
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, nil)
 
 	// List workspaces with limit
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, secapi.NewListOptions().WithLimit(1))
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, secapi.NewListOptions().WithLimit(1))
 
 	// List workspaces with label
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List workspaces with label and limit
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all workspaces

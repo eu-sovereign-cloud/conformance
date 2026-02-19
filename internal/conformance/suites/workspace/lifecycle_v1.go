@@ -75,7 +75,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectMeta := workspace.Metadata
 	expectLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectLabels,
 			Metadata:      expectMeta,
 			ResourceState: schema.ResourceStateCreating,
@@ -88,7 +88,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	workspace = stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, tref,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectLabels,
 			Metadata:      expectMeta,
 			ResourceState: schema.ResourceStateActive,
@@ -99,7 +99,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace.Labels = suite.params.WorkspaceUpdated.Labels
 	expectLabels = workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Update the workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectLabels,
 			Metadata:      expectMeta,
 			ResourceState: schema.ResourceStateUpdating,
@@ -108,7 +108,7 @@ func (suite *LifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated workspace
 	workspace = stepsBuilder.GetWorkspaceV1Step("Get the updated workspace", suite.Client.WorkspaceV1, tref,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectLabels,
 			Metadata:      expectMeta,
 			ResourceState: schema.ResourceStateActive,

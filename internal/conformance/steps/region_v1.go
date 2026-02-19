@@ -10,23 +10,30 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx context.Context, api secapi.RegionV1, expectedMeta *schema.GlobalResourceMetadata) *schema.Region {
-	var resp *schema.Region
-	var err error
+func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx context.Context, api secapi.RegionV1, regionName string,
+	responseExpects StepResponseExpects[schema.GlobalResourceMetadata, schema.RegionSpec],
+) *schema.Region {
+	responseExpects.Metadata.Verb = http.MethodGet
 	configurator.logStepName(stepName)
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetRegionV1StepParams(sCtx, "GetRegion")
-
-		resp, err = api.GetRegion(ctx, expectedMeta.Name)
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-
-		expectedMeta.Verb = http.MethodGet
-		configurator.suite.VerifyGlobalResourceMetadataStep(sCtx, expectedMeta, resp.Metadata)
-
-		configurator.suite.VerifyRegionSpecStep(sCtx, &resp.Spec)
-	})
-	return resp
+	return getGlobalResourceStep(configurator.t,
+		getGlobalResourceParams[schema.Region, schema.GlobalResourceMetadata, schema.RegionSpec]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetRegionV1StepParams,
+			operationName:  "GetRegion",
+			resourceName:   regionName,
+			getFunc: func(ctx context.Context, name string) (*globalStepFuncResponse[schema.Region, schema.GlobalResourceMetadata, schema.RegionSpec], error) {
+				if resp, err := api.GetRegion(ctx, name); err == nil {
+					return newGlobalStepFuncResponse(resp, resp.Metadata, resp.Spec), nil
+				} else {
+					return nil, err
+				}
+			},
+			expectedMetadata:   responseExpects.Metadata,
+			verifyMetadataFunc: configurator.suite.VerifyGlobalResourceMetadataStep,
+			expectedSpec:       responseExpects.Spec,
+			verifySpecFunc:     configurator.suite.VerifyRegionSpecStep,
+		},
+	)
 }
 
 func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx context.Context, api secapi.RegionV1) []*schema.Region {
@@ -42,7 +49,7 @@ func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx co
 		resp, err = iter.All(ctx)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
-		requireLenResponse(sCtx, len(resp))
+		requireNotEmptyResponse(sCtx, resp)
 	})
 	return resp
 }

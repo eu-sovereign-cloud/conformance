@@ -1,6 +1,9 @@
 package types
 
-import "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+import (
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+)
 
 type ResourceType interface {
 	schema.Region |
@@ -49,4 +52,8 @@ type SpecType interface {
 		schema.PublicIpSpec |
 		schema.NicSpec |
 		schema.SecurityGroupSpec
+}
+
+type ReferenceType interface {
+	secapi.TenantReference | secapi.TenantID | secapi.WorkspaceReference | secapi.NetworkReference
 }

@@ -14,53 +14,32 @@ import (
 // Params
 
 type createOrUpdateTenantResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
-	stepName              string
-	stepParamsFunc        func(provider.StepCtx, string)
-	operationName         string
-	resource              *R
-	createOrUpdateFunc    func(context.Context, *R) (*stepFuncResponse[R, M, E, S], error)
-	expectedLabels        schema.Labels
-	expectedMetadata      *M
-	verifyMetadataFunc    func(provider.StepCtx, *M, *M)
-	expectedSpec          *E
-	verifySpecFunc        func(provider.StepCtx, *E, *E)
-	expectedResourceState schema.ResourceState
+	createOrUpdateResourceParams[R, M, E, S]
+	stepName       string
+	stepParamsFunc func(provider.StepCtx, string)
+	operationName  string
 }
 
 type createOrUpdateWorkspaceResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
-	stepName              string
-	stepParamsFunc        func(provider.StepCtx, string, string)
-	operationName         string
-	workspace             string
-	resource              *R
-	createOrUpdateFunc    func(context.Context, *R) (*stepFuncResponse[R, M, E, S], error)
-	expectedLabels        schema.Labels
-	expectedMetadata      *M
-	verifyMetadataFunc    func(provider.StepCtx, *M, *M)
-	expectedSpec          *E
-	verifySpecFunc        func(provider.StepCtx, *E, *E)
-	expectedResourceState schema.ResourceState
+	createOrUpdateResourceParams[R, M, E, S]
+	stepName       string
+	stepParamsFunc func(provider.StepCtx, string, string)
+	operationName  string
+	workspace      string
 }
 
 type createOrUpdateNetworkResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
-	stepName              string
-	stepParamsFunc        func(provider.StepCtx, string, string, string)
-	operationName         string
-	workspace             string
-	network               string
-	resource              *R
-	createOrUpdateFunc    func(context.Context, *R) (*stepFuncResponse[R, M, E, S], error)
-	expectedLabels        schema.Labels
-	expectedMetadata      *M
-	verifyMetadataFunc    func(provider.StepCtx, *M, *M)
-	expectedSpec          *E
-	verifySpecFunc        func(provider.StepCtx, *E, *E)
-	expectedResourceState schema.ResourceState
+	createOrUpdateResourceParams[R, M, E, S]
+	stepName       string
+	stepParamsFunc func(provider.StepCtx, string, string, string)
+	operationName  string
+	workspace      string
+	network        string
 }
 
 type createOrUpdateResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	resource              *R
-	createOrUpdateFunc    func(context.Context, *R) (*stepFuncResponse[R, M, E, S], error)
+	createOrUpdateFunc    func(context.Context, *R) (*createOrUpdateStepFuncResponse[R, M, E, S], error)
 	expectedLabels        schema.Labels
 	expectedMetadata      *M
 	verifyMetadataFunc    func(provider.StepCtx, *M, *M)
@@ -78,17 +57,7 @@ func createOrUpdateTenantResourceStep[R types.ResourceType, M types.MetadataType
 ) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName)
-
-		createOrUpdateResourceStep(t, suite, sCtx, createOrUpdateResourceParams[R, M, E, S]{
-			resource:              params.resource,
-			createOrUpdateFunc:    params.createOrUpdateFunc,
-			expectedLabels:        params.expectedLabels,
-			expectedMetadata:      params.expectedMetadata,
-			verifyMetadataFunc:    params.verifyMetadataFunc,
-			expectedSpec:          params.expectedSpec,
-			verifySpecFunc:        params.verifySpecFunc,
-			expectedResourceState: params.expectedResourceState,
-		})
+		createOrUpdateResourceStep(t, suite, sCtx, params.createOrUpdateResourceParams)
 	})
 }
 
@@ -99,17 +68,7 @@ func createOrUpdateWorkspaceResourceStep[R types.ResourceType, M types.MetadataT
 ) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace)
-
-		createOrUpdateResourceStep(t, suite, sCtx, createOrUpdateResourceParams[R, M, E, S]{
-			resource:              params.resource,
-			createOrUpdateFunc:    params.createOrUpdateFunc,
-			expectedLabels:        params.expectedLabels,
-			expectedMetadata:      params.expectedMetadata,
-			verifyMetadataFunc:    params.verifyMetadataFunc,
-			expectedSpec:          params.expectedSpec,
-			verifySpecFunc:        params.verifySpecFunc,
-			expectedResourceState: params.expectedResourceState,
-		})
+		createOrUpdateResourceStep(t, suite, sCtx, params.createOrUpdateResourceParams)
 	})
 }
 
@@ -120,17 +79,7 @@ func createOrUpdateNetworkResourceStep[R types.ResourceType, M types.MetadataTyp
 ) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace, params.network)
-
-		createOrUpdateResourceStep(t, suite, sCtx, createOrUpdateResourceParams[R, M, E, S]{
-			resource:              params.resource,
-			createOrUpdateFunc:    params.createOrUpdateFunc,
-			expectedLabels:        params.expectedLabels,
-			expectedMetadata:      params.expectedMetadata,
-			verifyMetadataFunc:    params.verifyMetadataFunc,
-			expectedSpec:          params.expectedSpec,
-			verifySpecFunc:        params.verifySpecFunc,
-			expectedResourceState: params.expectedResourceState,
-		})
+		createOrUpdateResourceStep(t, suite, sCtx, params.createOrUpdateResourceParams)
 	})
 }
 
@@ -142,10 +91,11 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 ) {
 	requestResourceStep(sCtx, params.resource)
 	resp, err := params.createOrUpdateFunc(t.Context(), params.resource)
-	responseResourceStep(sCtx, resp)
 
 	requireNoError(sCtx, err)
 	requireNotNilResponse(sCtx, resp)
+
+	responseResourceStep(sCtx, resp.resource)
 
 	// Label
 	if params.expectedLabels != nil {

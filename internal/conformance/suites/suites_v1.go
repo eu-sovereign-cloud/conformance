@@ -17,7 +17,6 @@ func (suite *TestSuite) SetRegionV1StepParams(sctx provider.StepCtx, operation s
 	sctx.WithNewParameters(
 		providerStepParameter, constants.RegionProviderV1,
 		operationStepParameter, operation,
-		tenantStepParameter, suite.Tenant,
 	)
 }
 
