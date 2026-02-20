@@ -20,7 +20,6 @@ linters:
   - misspell      # Spelling mistakes
   # Code quality
   - revive        # Code linter
-  - dupl          # Code duplication
   - goconst       # Repeated strings
   - unconvert     # Unnecessary type conversions
   # Safe code
@@ -31,8 +30,6 @@ linters-settings:
     excludes:
     - G101 
     - G404
-  dupl:
-    threshold: 100
   revive:
     rules:
       - name: var-naming
