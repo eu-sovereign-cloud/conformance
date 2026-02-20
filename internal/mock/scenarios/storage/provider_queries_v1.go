@@ -5,23 +5,22 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
+	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
-	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suiteParams *params.StorageListV1Params) (*wiremock.Client, error) {
-	scenarios.LogScenarioMocking(scenario)
-	workspace := suiteParams.Workspace
-	blockStorages := suiteParams.BlockStorages
-	images := suiteParams.Images
-	configurator, err := stubs.NewStubConfigurator(scenario, mockParams)
+func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params.StorageProviderQueriesV1Params) error {
+	configurator, err := scenario.StartConfiguration()
 	if err != nil {
-		return nil, err
+		return err
 	}
+
+	workspace := params.Workspace
+	blockStorages := params.BlockStorages
+	images := params.Images
 
 	// Generate URLs
 	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
@@ -37,18 +36,18 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		Labels(workspace.Labels).
 		Build()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Create a workspace
-	if err := configurator.ConfigureCreateWorkspaceStub(workspaceResponse, workspaceUrl, mockParams); err != nil {
-		return nil, err
+	if err := configurator.ConfigureCreateWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+		return err
 	}
 
 	// Create block storages
-	err = stubs.BulkCreateBlockStoragesStubV1(configurator, mockParams, blockStorages)
+	err = stubs.BulkCreateBlockStoragesStubV1(configurator, scenario.MockParams, blockStorages)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	blockListResponse, err := builders.NewBlockStorageIteratorBuilder().
 		Provider(constants.StorageProviderV1).
@@ -56,18 +55,18 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		Items(blockStorages).
 		Build()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// List block storages
-	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, mockParams, nil); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, nil); err != nil {
+		return err
 	}
 
 	// List with Limit 1
 	blockListResponse.Items = blockStorages[:1]
-	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, mockParams, mock.PathParamsLimit("1")); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+		return err
 	}
 
 	// List with Label
@@ -81,20 +80,20 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		return filteredInstances
 	}
 	blockListResponse.Items = blocksWithLabel(blockStorages)
-	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, mockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+		return err
 	}
 
 	// List with Limit and Label
 	blockListResponse.Items = blocksWithLabel(blockStorages)[:1]
-	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, mockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+		return err
 	}
 
 	// Create images
-	err = stubs.BulkCreateImagesStubV1(configurator, mockParams, images)
+	err = stubs.BulkCreateImagesStubV1(configurator, scenario.MockParams, images)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	imageListResponse, err := builders.NewImageIteratorBuilder().
 		Provider(constants.StorageProviderV1).
@@ -102,18 +101,18 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		Items(images).
 		Build()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// List images
-	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, mockParams, nil); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, nil); err != nil {
+		return err
 	}
 
 	// List with Limit 1
 	imageListResponse.Items = images[:1]
-	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, mockParams, mock.PathParamsLimit("1")); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+		return err
 	}
 
 	// List with Label
@@ -128,14 +127,14 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 	}
 
 	imageListResponse.Items = imagesWithLabel(images)
-	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, mockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+		return err
 	}
 
 	// List with Limit and Label
 	imageListResponse.Items = imagesWithLabel(images)[:1]
-	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, mockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+		return err
 	}
 
 	// Create storage skus
@@ -146,18 +145,18 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		Items(skuList).
 		Build()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// List
-	if err := configurator.ConfigureGetListStorageSkuStub(*skuResponse, skuListUrl, mockParams, nil); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListStorageSkuStub(*skuResponse, skuListUrl, scenario.MockParams, nil); err != nil {
+		return err
 	}
 
 	// List with Limit 1
 	skuResponse.Items = skuList[:1]
-	if err := configurator.ConfigureGetListStorageSkuStub(*skuResponse, skuListUrl, mockParams, mock.PathParamsLimit("1")); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetListStorageSkuStub(*skuResponse, skuListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+		return err
 	}
 
 	// Delete Lifecycle
@@ -167,13 +166,13 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		url := generators.GenerateImageURL(constants.StorageProviderV1, image.Metadata.Tenant, image.Metadata.Name)
 
 		// Delete the Image
-		if err := configurator.ConfigureDeleteStub(url, mockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureDeleteStub(url, scenario.MockParams); err != nil {
+			return err
 		}
 
 		// Get the deleted Image
-		if err := configurator.ConfigureGetNotFoundStub(url, mockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureGetNotFoundStub(url, scenario.MockParams); err != nil {
+			return err
 		}
 	}
 
@@ -182,29 +181,28 @@ func ConfigureListScenarioV1(scenario string, mockParams *mock.MockParams, suite
 		url := generators.GenerateBlockStorageURL(constants.StorageProviderV1, block.Metadata.Tenant, block.Metadata.Workspace, block.Metadata.Name)
 
 		// Delete the BlockStorages
-		if err := configurator.ConfigureDeleteStub(url, mockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureDeleteStub(url, scenario.MockParams); err != nil {
+			return err
 		}
 
 		// Get the deleted BlockStorages
-		if err := configurator.ConfigureGetNotFoundStub(url, mockParams); err != nil {
-			return nil, err
+		if err := configurator.ConfigureGetNotFoundStub(url, scenario.MockParams); err != nil {
+			return err
 		}
 	}
 
 	// Delete the workspace
-	if err := configurator.ConfigureDeleteStub(workspaceUrl, mockParams); err != nil {
-		return nil, err
+	if err := configurator.ConfigureDeleteStub(workspaceUrl, scenario.MockParams); err != nil {
+		return err
 	}
 
 	// Get the deleted workspace
-	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, mockParams); err != nil {
-		return nil, err
+	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, scenario.MockParams); err != nil {
+		return err
 	}
-	// Finish the stubs configuration
-	if client, err := configurator.Finish(); err != nil {
-		return nil, err
-	} else {
-		return client, nil
+
+	if err := scenario.FinishConfiguration(configurator); err != nil {
+		return err
 	}
+	return nil
 }

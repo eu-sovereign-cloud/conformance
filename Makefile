@@ -104,6 +104,11 @@ lint:
 	@echo "Linting code..."
 	$(GO_TOOL) github.com/golangci/golangci-lint/cmd/golangci-lint run --verbose -c .golangci.yml
 
+.PHONY: dupl
+dupl:
+	@echo "Linting duplicated code..."
+	$(GO_TOOL) github.com/golangci/golangci-lint/cmd/golangci-lint run --verbose -c .golangci-dupl.yml
+
 .PHONY: clean
 clean:
 	@echo "Cleaning up binaries and reports..."

@@ -13,20 +13,20 @@ const (
 	statePrefix = "State."
 )
 
-type stubConfigurator struct {
+type Configurator struct {
 	client       *wiremock.Client
 	scenarioName string
 	stateID      int
 	currentState string
 }
 
-func NewStubConfigurator(scenarioName string, params *mock.MockParams) (*stubConfigurator, error) {
+func NewConfigurator(scenarioName string, params *mock.MockParams) (*Configurator, error) {
 	client, err := newMockClient(params.ServerURL)
 	if err != nil {
 		return nil, err
 	}
 
-	return &stubConfigurator{
+	return &Configurator{
 		client:       client,
 		scenarioName: scenarioName,
 		stateID:      0,
@@ -34,7 +34,7 @@ func NewStubConfigurator(scenarioName string, params *mock.MockParams) (*stubCon
 	}, nil
 }
 
-func (configurator *stubConfigurator) configureStub(
+func (configurator *Configurator) configureStub(
 	stubFunc func(*wiremock.Client, string, *stubConfig) error,
 	url string,
 	params *mock.MockParams,
@@ -55,7 +55,7 @@ func (configurator *stubConfigurator) configureStub(
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigurePutStub(url string, params *mock.MockParams, setMetadataVerbFunc func(string), responseBody any) error {
+func (configurator *Configurator) ConfigurePutStub(url string, params *mock.MockParams, setMetadataVerbFunc func(string), responseBody any) error {
 	if setMetadataVerbFunc != nil {
 		setMetadataVerbFunc(http.MethodPut)
 	}
@@ -65,7 +65,7 @@ func (configurator *stubConfigurator) ConfigurePutStub(url string, params *mock.
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigurePostStub(url string, params *mock.MockParams, setMetadataVerbFunc func(string), responseBody any) error {
+func (configurator *Configurator) ConfigurePostStub(url string, params *mock.MockParams, setMetadataVerbFunc func(string), responseBody any) error {
 	if setMetadataVerbFunc != nil {
 		setMetadataVerbFunc(http.MethodPost)
 	}
@@ -75,7 +75,7 @@ func (configurator *stubConfigurator) ConfigurePostStub(url string, params *mock
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetStub(url string, params *mock.MockParams, setMetadataVerbFunc func(string), responseBody any) error {
+func (configurator *Configurator) ConfigureGetStub(url string, params *mock.MockParams, setMetadataVerbFunc func(string), responseBody any) error {
 	if setMetadataVerbFunc != nil {
 		setMetadataVerbFunc(http.MethodGet)
 	}
@@ -85,7 +85,7 @@ func (configurator *stubConfigurator) ConfigureGetStub(url string, params *mock.
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetListStub(url string, params *mock.MockParams, pathParams map[string]string, setMetadataVerbFunc func(string), responseBody any) error {
+func (configurator *Configurator) ConfigureGetListStub(url string, params *mock.MockParams, pathParams map[string]string, setMetadataVerbFunc func(string), responseBody any) error {
 	if setMetadataVerbFunc != nil {
 		setMetadataVerbFunc(http.MethodGet)
 	}
@@ -95,21 +95,21 @@ func (configurator *stubConfigurator) ConfigureGetListStub(url string, params *m
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetNotFoundStub(url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureGetNotFoundStub(url string, params *mock.MockParams) error {
 	if err := configurator.configureStub(configureGetNotFoundStub, url, params, nil, nil); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureDeleteStub(url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureDeleteStub(url string, params *mock.MockParams) error {
 	if err := configurator.configureStub(configureDeleteStub, url, params, nil, nil); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *stubConfigurator) Finish() (*wiremock.Client, error) {
+func (configurator *Configurator) Finish() (*wiremock.Client, error) {
 	if err := configureDefaultStub(configurator.client); err != nil {
 		return nil, err
 	}

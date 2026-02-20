@@ -1,4 +1,4 @@
-package mockusage
+package mocknetwork
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
@@ -8,32 +8,26 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 )
 
-func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *params.FoundationUsageV1Params) error {
+func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.NetworkProviderLifeCycleV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
 	}
 
-	role := *params.Role
-	roleAssignment := *params.RoleAssignment
 	workspace := *params.Workspace
 	blockStorage := *params.BlockStorage
-	image := *params.Image
 	instance := *params.Instance
-	network := *params.Network
-	gateway := *params.InternetGateway
-	nic := *params.Nic
-	publicIp := *params.PublicIp
-	routeTable := *params.RouteTable
-	subnet := *params.Subnet
-	securityGroup := *params.SecurityGroup
+	network := *params.NetworkInitial
+	gateway := *params.InternetGatewayInitial
+	nic := *params.NicInitial
+	publicIp := *params.PublicIpInitial
+	routeTable := *params.RouteTableInitial
+	subnet := *params.SubnetInitial
+	securityGroup := *params.SecurityGroupInitial
 
 	// Generate URLs
-	roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, role.Metadata.Tenant, role.Metadata.Name)
-	roleAssignUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, roleAssignment.Metadata.Tenant, roleAssignment.Metadata.Name)
 	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, blockStorage.Metadata.Tenant, blockStorage.Metadata.Workspace, blockStorage.Metadata.Name)
-	imageUrl := generators.GenerateImageURL(constants.StorageProviderV1, image.Metadata.Tenant, image.Metadata.Name)
 	instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, instance.Metadata.Tenant, instance.Metadata.Workspace, instance.Metadata.Name)
 	networkUrl := generators.GenerateNetworkURL(constants.NetworkProviderV1, network.Metadata.Tenant, network.Metadata.Workspace, network.Metadata.Name)
 	gatewayUrl := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, gateway.Metadata.Tenant, gateway.Metadata.Workspace, gateway.Metadata.Name)
@@ -42,50 +36,6 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	routeUrl := generators.GenerateRouteTableURL(constants.NetworkProviderV1, routeTable.Metadata.Tenant, routeTable.Metadata.Workspace, routeTable.Metadata.Network, routeTable.Metadata.Name)
 	subnetUrl := generators.GenerateSubnetURL(constants.NetworkProviderV1, subnet.Metadata.Tenant, subnet.Metadata.Workspace, subnet.Metadata.Network, subnet.Metadata.Name)
 	groupUrl := generators.GenerateSecurityGroupURL(constants.NetworkProviderV1, securityGroup.Metadata.Tenant, securityGroup.Metadata.Workspace, securityGroup.Metadata.Name)
-
-	// Authorization
-
-	// Role
-	roleResponse, err := builders.NewRoleBuilder().
-		Name(role.Metadata.Name).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(role.Metadata.Tenant).
-		Spec(&role.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
-	// Create a role
-	if err := configurator.ConfigureCreateRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the created role
-	if err := configurator.ConfigureGetActiveRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Role assignment
-	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
-		Name(roleAssignment.Metadata.Name).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(roleAssignment.Metadata.Tenant).
-		Spec(&roleAssignment.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
-	// Create a role assignment
-	if err := configurator.ConfigureCreateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the created role assignment
-	if err := configurator.ConfigureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams); err != nil {
-		return err
-	}
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
@@ -108,52 +58,6 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 		return err
 	}
 
-	// Storage
-
-	// Image
-	imageResponse, err := builders.NewImageBuilder().
-		Name(image.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(image.Metadata.Tenant).Region(image.Metadata.Region).
-		Spec(&image.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
-	// Create an image
-	if err := configurator.ConfigureCreateImageStub(imageResponse, imageUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the created image
-	if err := configurator.ConfigureGetActiveImageStub(imageResponse, imageUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Block storage
-	blockResponse, err := builders.NewBlockStorageBuilder().
-		Name(blockStorage.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(blockStorage.Metadata.Tenant).Workspace(blockStorage.Metadata.Workspace).Region(blockStorage.Metadata.Region).
-		Spec(&blockStorage.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
-	// Create a block storage
-	if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the created block storage
-	if err := configurator.ConfigureGetActiveBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Network
-
 	// Network
 	networkResponse, err := builders.NewNetworkBuilder().
 		Name(network.Metadata.Name).
@@ -171,6 +75,17 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created network
+	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Update the network
+	networkResponse.Spec = params.NetworkUpdated.Spec
+	if err := configurator.ConfigureUpdateNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the updated network
 	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -196,6 +111,17 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 		return err
 	}
 
+	// Update the internet gateway
+	gatewayResponse.Spec = params.InternetGatewayUpdated.Spec
+	if err := configurator.ConfigureUpdateInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the updated internet gateway
+	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
 	// Route table
 	routeResponse, err := builders.NewRouteTableBuilder().
 		Name(routeTable.Metadata.Name).
@@ -213,6 +139,17 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created route table
+	if err := configurator.ConfigureGetActiveRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Update the route table
+	routeResponse.Spec = params.RouteTableUpdated.Spec
+	if err := configurator.ConfigureUpdateRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the updated route table
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -238,24 +175,14 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 		return err
 	}
 
-	// Security group
-	groupResponse, err := builders.NewSecurityGroupBuilder().
-		Name(securityGroup.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
-		Tenant(securityGroup.Metadata.Tenant).Workspace(securityGroup.Metadata.Workspace).Region(securityGroup.Metadata.Region).
-		Spec(&securityGroup.Spec).
-		Build()
-	if err != nil {
+	// Update the subnet
+	subnetResponse.Spec = params.SubnetUpdated.Spec
+	if err := configurator.ConfigureUpdateSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Create a security group
-	if err := configurator.ConfigureCreateSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the created security group
-	if err := configurator.ConfigureGetActiveSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+	// Get the updated subnet
+	if err := configurator.ConfigureGetActiveSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -280,7 +207,18 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 		return err
 	}
 
-	// NIC
+	// Update the public ip
+	publicIpResponse.Spec = params.PublicIpUpdated.Spec
+	if err := configurator.ConfigureUpdatePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the updated public ip
+	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Nic
 	nicResponse, err := builders.NewNicBuilder().
 		Name(nic.Metadata.Name).
 		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
@@ -301,7 +239,69 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 		return err
 	}
 
-	// Compute
+	// Update the nic
+	nicResponse.Spec = params.NicUpdated.Spec
+	if err := configurator.ConfigureUpdateNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the updated nic
+	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Security group
+	groupResponse, err := builders.NewSecurityGroupBuilder().
+		Name(securityGroup.Metadata.Name).
+		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(securityGroup.Metadata.Tenant).Workspace(securityGroup.Metadata.Workspace).Region(securityGroup.Metadata.Region).
+		Spec(&securityGroup.Spec).
+		Build()
+	if err != nil {
+		return err
+	}
+
+	// Create a security group
+	if err := configurator.ConfigureCreateSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the created security group
+	if err := configurator.ConfigureGetActiveSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Update the security group
+	groupResponse.Spec = params.SecurityGroupUpdated.Spec
+	if err := configurator.ConfigureUpdateSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the updated security group
+	if err := configurator.ConfigureGetActiveSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Block storage
+	blockResponse, err := builders.NewBlockStorageBuilder().
+		Name(blockStorage.Metadata.Name).
+		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Tenant(blockStorage.Metadata.Tenant).Workspace(blockStorage.Metadata.Workspace).Region(blockStorage.Metadata.Region).
+		Spec(&blockStorage.Spec).
+		Build()
+	if err != nil {
+		return err
+	}
+
+	// Create a block storage
+	if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the created block storage
+	if err := configurator.ConfigureGetActiveBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 
 	// Instance
 	instanceResponse, err := builders.NewInstanceBuilder().
@@ -323,46 +323,13 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	if err := configurator.ConfigureGetActiveInstanceStub(instanceResponse, instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}
-
-	// Delete all
-
 	// Delete the instance
 	if err := configurator.ConfigureDeleteStub(instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Delete the security Group
-	if err := configurator.ConfigureDeleteStub(groupUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the nic
-	if err := configurator.ConfigureDeleteStub(nicUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the public ip
-	if err := configurator.ConfigureDeleteStub(publicIpUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the subnet
-	if err := configurator.ConfigureDeleteStub(subnetUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the route-table
-	if err := configurator.ConfigureDeleteStub(routeUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the internet gateway
-	if err := configurator.ConfigureDeleteStub(gatewayUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the network
-	if err := configurator.ConfigureDeleteStub(networkUrl, scenario.MockParams); err != nil {
+	// Get the deleted instance
+	if err := configurator.ConfigureGetNotFoundStub(instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -371,8 +338,78 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 		return err
 	}
 
-	// Delete the image
-	if err := configurator.ConfigureDeleteStub(imageUrl, scenario.MockParams); err != nil {
+	// Get the deleted block storage
+	if err := configurator.ConfigureGetNotFoundStub(blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete the security group
+	if err := configurator.ConfigureDeleteStub(groupUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the deleted security group
+	if err := configurator.ConfigureGetNotFoundStub(groupUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete the nic
+	if err := configurator.ConfigureDeleteStub(nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the deleted nic
+	if err := configurator.ConfigureGetNotFoundStub(nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete the public ip
+	if err := configurator.ConfigureDeleteStub(publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the deleted public ip
+	if err := configurator.ConfigureGetNotFoundStub(publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete the subnet
+	if err := configurator.ConfigureDeleteStub(subnetUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the deleted subnet
+	if err := configurator.ConfigureGetNotFoundStub(subnetUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete the route table
+	if err := configurator.ConfigureDeleteStub(routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the deleted route table
+	if err := configurator.ConfigureGetNotFoundStub(routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete the internet gateway
+	if err := configurator.ConfigureDeleteStub(gatewayUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the deleted internet gateway
+	if err := configurator.ConfigureGetNotFoundStub(gatewayUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete the network
+	if err := configurator.ConfigureDeleteStub(networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the deleted network
+	if err := configurator.ConfigureGetNotFoundStub(networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -381,13 +418,8 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 		return err
 	}
 
-	// Delete the role assignment
-	if err := configurator.ConfigureDeleteStub(roleAssignUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the role
-	if err := configurator.ConfigureDeleteStub(roleUrl, scenario.MockParams); err != nil {
+	// Get the deleted workspace
+	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
 

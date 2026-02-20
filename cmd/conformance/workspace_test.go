@@ -12,15 +12,15 @@ import (
 func TestWorkspaceV1Suites(t *testing.T) {
 	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
 
-	// LifeCycle Suite
-	lifeCycleTestSuite := workspace.CreateLifeCycleV1TestSuite(regionalTestSuite)
-	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, lifeCycleTestSuite)
+	// Provider LifeCycle Suite
+	providerLifeCycleSuite := workspace.CreateProviderLifeCycleV1TestSuite(regionalTestSuite)
+	if providerLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerLifeCycleSuite)
 	}
 
-	// List Suite
-	listTestSuite := *workspace.CreateListV1TestSuite(regionalTestSuite)
-	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, listTestSuite)
+	// Provider Queries Suite
+	providerQueriesSuite := *workspace.CreateProviderQueriesV1TestSuite(regionalTestSuite)
+	if providerQueriesSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerQueriesSuite)
 	}
 }

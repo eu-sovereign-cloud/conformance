@@ -6,45 +6,55 @@ import (
 
 // Authorization
 
-type AuthorizationLifeCycleV1Params struct {
+type AuthorizationProviderLifeCycleV1Params struct {
 	RoleInitial           *schema.Role
 	RoleUpdated           *schema.Role
 	RoleAssignmentInitial *schema.RoleAssignment
 	RoleAssignmentUpdated *schema.RoleAssignment
 }
 
-type AuthorizationListV1Params struct {
+type AuthorizationProviderQueriesV1Params struct {
 	Roles           []schema.Role
 	RoleAssignments []schema.RoleAssignment
 }
 
+type RoleLifeCycleV1Params struct {
+	RoleInitial *schema.Role
+	RoleUpdated *schema.Role
+}
+
+type RoleAssignmentLifeCycleV1Params struct {
+	RoleAssignmentInitial *schema.RoleAssignment
+	RoleAssignmentUpdated *schema.RoleAssignment
+}
+
 // Region
 
-type RegionListV1Params struct {
+type RegionProviderQueriesV1Params struct {
 	Regions []schema.Region
 }
 
 // Workspace
 
-type WorkspaceLifeCycleV1Params struct {
+type WorkspaceProviderLifeCycleV1Params struct {
 	WorkspaceInitial *schema.Workspace
 	WorkspaceUpdated *schema.Workspace
 }
 
-type WorkspaceListV1Params struct {
+type WorkspaceProviderQueriesV1Params struct {
 	Workspaces []schema.Workspace
 }
 
 // Compute
 
-type ComputeLifeCycleV1Params struct {
+type ComputeProviderLifeCycleV1Params struct {
 	Workspace       *schema.Workspace
 	BlockStorage    *schema.BlockStorage
 	InitialInstance *schema.Instance
 	UpdatedInstance *schema.Instance
 }
 
-type ComputeListV1Params struct {
+type ComputeProviderQueriesV1Params struct {
 	Workspace    *schema.Workspace
 	BlockStorage *schema.BlockStorage
 	Instances    []schema.Instance
@@ -52,7 +62,7 @@ type ComputeListV1Params struct {
 
 // Storage
 
-type StorageLifeCycleV1Params struct {
+type StorageProviderLifeCycleV1Params struct {
 	Workspace           *schema.Workspace
 	BlockStorageInitial *schema.BlockStorage
 	BlockStorageUpdated *schema.BlockStorage
@@ -60,15 +70,28 @@ type StorageLifeCycleV1Params struct {
 	ImageUpdated        *schema.Image
 }
 
-type StorageListV1Params struct {
+type StorageProviderQueriesV1Params struct {
 	Workspace     *schema.Workspace
 	BlockStorages []schema.BlockStorage
 	Images        []schema.Image
 }
 
+type BlockStorageLifeCycleV1Params struct {
+	Workspace           *schema.Workspace
+	BlockStorageInitial *schema.BlockStorage
+	BlockStorageUpdated *schema.BlockStorage
+}
+
+type ImageLifeCycleV1Params struct {
+	Workspace    *schema.Workspace
+	BlockStorage *schema.BlockStorage
+	ImageInitial *schema.Image
+	ImageUpdated *schema.Image
+}
+
 // Network
 
-type NetworkLifeCycleV1Params struct {
+type NetworkProviderLifeCycleV1Params struct {
 	Workspace              *schema.Workspace
 	BlockStorage           *schema.BlockStorage
 	Instance               *schema.Instance
@@ -88,7 +111,7 @@ type NetworkLifeCycleV1Params struct {
 	SecurityGroupUpdated   *schema.SecurityGroup
 }
 
-type NetworkListV1Params struct {
+type NetworkProviderQueriesV1Params struct {
 	Workspace        *schema.Workspace
 	BlockStorage     *schema.BlockStorage
 	Instance         *schema.Instance

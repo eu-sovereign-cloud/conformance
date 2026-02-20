@@ -1,0 +1,13 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: none
+  enable:
+  - dupl # Code duplication
+
+linters-settings:
+  dupl:
+    threshold: 100

@@ -12,9 +12,9 @@ import (
 func TestUsageV1Suites(t *testing.T) {
 	mixedTestSuite := suites.CreateMixedTestSuite(config.Parameters, config.Clients)
 
-	// Foundation Suite
-	foundationTestSuite := usage.CreateFoundationV1TestSuite(mixedTestSuite,
-		&usage.FoundationV1Config{
+	// Foundation Providers Suite
+	foundationProvidersSuite := usage.CreateFoundationProvidersV1TestSuite(mixedTestSuite,
+		&usage.FoundationProvidersV1Config{
 			Users:          config.Parameters.ScenariosUsers,
 			NetworkCidr:    config.Parameters.ScenariosCidr,
 			PublicIpsRange: config.Parameters.ScenariosPublicIps,
@@ -24,7 +24,7 @@ func TestUsageV1Suites(t *testing.T) {
 			NetworkSkus:    config.Clients.NetworkSkus,
 		},
 	)
-	if foundationTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, foundationTestSuite)
+	if foundationProvidersSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, foundationProvidersSuite)
 	}
 }

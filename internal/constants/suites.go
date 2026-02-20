@@ -1,6 +1,6 @@
 package constants
 
 const (
-	// Suite Names
-	ClientsInitSuiteName = "Clients.Init"
+	// Internal Scenarios Names
+	ClientsInitScenarioName = "Clients.Init"
 )

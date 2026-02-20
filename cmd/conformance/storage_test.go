@@ -12,15 +12,27 @@ import (
 func TestStorageV1Suites(t *testing.T) {
 	regionalTestSuite := suites.CreateRegionalTestSuite(config.Parameters, config.Clients)
 
-	// LifeCycle Suite
-	lifeCycleTestSuite := storage.CreateLifeCycleV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
-	if lifeCycleTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, lifeCycleTestSuite)
+	// Provider LifeCycle Suite
+	providerLifeCycleSuite := storage.CreateProviderLifeCycleV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if providerLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerLifeCycleSuite)
 	}
 
-	// List Suite
-	listTestSuite := storage.CreateListV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
-	if listTestSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, listTestSuite)
+	// Provider Queries Suite
+	providerQueriesSuite := storage.CreateProviderQueriesV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if providerQueriesSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, providerQueriesSuite)
+	}
+
+	// Block Strage LifeCycle Suite
+	blockStorageLifeCycleSuite := storage.CreateBlockStorageLifeCycleV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if blockStorageLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, blockStorageLifeCycleSuite)
+	}
+
+	// Image LifeCycle Suite
+	imageLifeCycleSuite := storage.CreateImageLifeCycleV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if imageLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, imageLifeCycleSuite)
 	}
 }
