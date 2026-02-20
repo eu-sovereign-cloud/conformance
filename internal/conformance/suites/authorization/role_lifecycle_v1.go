@@ -85,7 +85,6 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
-		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
