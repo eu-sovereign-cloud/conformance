@@ -40,7 +40,7 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 		return err
 	}
 
-	// Get created workspace
+	// Get the created workspace
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 		return err
 	}
 
-	// Get created network
+	// Get the created network
 	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 		return err
 	}
 
-	// Get created route table
+	// Get the created route table
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeInitialResponse, routeTableURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 		return err
 	}
 
-	// Get updated route table
+	// Get the updated route table
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeUpdatedResponse, routeTableURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -123,12 +123,12 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 		return err
 	}
 
-	// Get created internet gateway
+	// Get the created internet gateway
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Delete internet gateway
+	// Delete the internet gateway
 	if err := configurator.ConfigureDeleteStub(gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 		return err
 	}
 
-	// Delete route table
+	// Delete the route table
 	if err := configurator.ConfigureDeleteStub(routeTableURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -148,8 +148,6 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 	if err := configurator.ConfigureDeleteStub(networkURL, scenario.MockParams); err != nil {
 		return err
 	}
-
-	// Get the deleted network
 	if err := configurator.ConfigureGetNotFoundStub(networkURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -158,8 +156,6 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
-
-	// Get the deleted workspace
 	if err := configurator.ConfigureGetNotFoundStub(workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}

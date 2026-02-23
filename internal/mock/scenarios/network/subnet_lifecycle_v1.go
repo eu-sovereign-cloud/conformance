@@ -43,7 +43,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 		return err
 	}
 
-	// Get created workspace
+	// Get the created workspace
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 		return err
 	}
 
-	// Get created network
+	// Get the created network
 	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 		return err
 	}
 
-	// Get created internet gateway
+	// Get the created internet gateway
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 		return err
 	}
 
-	// Get created subnet
+	// Get the created subnet
 	if err := configurator.ConfigureGetActiveSubnetStub(subnetInitialResponse, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 		return err
 	}
 
-	// Get updated subnet
+	// Get the updated subnet
 	if err := configurator.ConfigureGetActiveSubnetStub(subnetUpdatedResponse, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -160,7 +160,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 		return err
 	}
 
-	// Delete internet gateway
+	// Delete the internet gateway
 	if err := configurator.ConfigureDeleteStub(gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 		return err
 	}
 
-	// Delete route table
+	// Delete the route table
 	if err := configurator.ConfigureDeleteStub(routeUrl, scenario.MockParams); err != nil {
 		return err
 	}

@@ -113,12 +113,12 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 		return err
 	}
 
-	// Get created internet gateway
+	// Get the created internet gateway
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Delete internet gateway
+	// Delete the internet gateway
 	if err := configurator.ConfigureDeleteStub(gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 		return err
 	}
 
-	// Delete route table
+	// Delete the route table
 	if err := configurator.ConfigureDeleteStub(routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -138,8 +138,6 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	if err := configurator.ConfigureDeleteStub(networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
-
-	// Get the deleted network
 	if err := configurator.ConfigureGetNotFoundStub(networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -148,8 +146,6 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	if err := configurator.ConfigureDeleteStub(workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
-
-	// Get the deleted workspace
 	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}

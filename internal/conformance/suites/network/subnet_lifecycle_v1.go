@@ -34,7 +34,7 @@ func CreateSubnetLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
-	suite.ScenarioName = constants.SubnetCycleV1SuiteName.String()
+	suite.ScenarioName = constants.SubnetLifeCycleV1SuiteName.String()
 	return suite
 }
 

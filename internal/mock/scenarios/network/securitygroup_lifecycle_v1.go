@@ -37,7 +37,7 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 		return err
 	}
 
-	// Get created workspace
+	// Get the created workspace
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 		return err
 	}
 
-	// Get created security group
+	// Get the created security group
 	if err := configurator.ConfigureGetActiveSecurityGroupStub(securityGroupInitialResponse, securityGroupURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -78,12 +78,12 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 		return err
 	}
 
-	// Get updated security group
+	// Get the updated security group
 	if err := configurator.ConfigureGetActiveSecurityGroupStub(securityGroupUpdatedResponse, securityGroupURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Deletions
+	// Delete the security group
 	if err := configurator.ConfigureDeleteStub(securityGroupURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -91,6 +91,7 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 		return err
 	}
 
+	// Delete the workspace
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
