@@ -28,9 +28,10 @@ type NetworkLifeCycleV1Config struct {
 	NetworkSkus []string
 }
 
-func CreateNetworkLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *NetworkLifeCycleV1TestSuite {
+func CreateNetworkLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *NetworkLifeCycleV1Config) *NetworkLifeCycleV1TestSuite {
 	suite := &NetworkLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
+		config:            config,
 	}
 	suite.ScenarioName = constants.NetworkLifeCycleV1SuiteName.String()
 	return suite

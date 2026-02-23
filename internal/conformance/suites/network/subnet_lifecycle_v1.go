@@ -29,9 +29,10 @@ type SubnetLifeCycleV1Config struct {
 	NetworkSkus []string
 }
 
-func CreateSubnetLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *SubnetLifeCycleV1TestSuite {
+func CreateSubnetLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *SubnetLifeCycleV1Config) *SubnetLifeCycleV1TestSuite {
 	suite := &SubnetLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
+		config:            config,
 	}
 	suite.ScenarioName = constants.SubnetCycleV1SuiteName.String()
 	return suite

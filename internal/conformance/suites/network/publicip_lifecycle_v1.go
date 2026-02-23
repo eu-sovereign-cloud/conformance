@@ -27,9 +27,10 @@ type PublicIpLifeCycleV1Config struct {
 	NetworkSkus    []string
 }
 
-func CreatePublicIpLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *PublicIpLifeCycleV1TestSuite {
+func CreatePublicIpLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *PublicIpLifeCycleV1Config) *PublicIpLifeCycleV1TestSuite {
 	suite := &PublicIpLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
+		config:            config,
 	}
 	suite.ScenarioName = constants.PublicIpLifeCycleV1SuiteName.String()
 	return suite

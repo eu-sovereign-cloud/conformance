@@ -30,9 +30,10 @@ type NicLifeCycleV1Config struct {
 	NetworkSkus    []string
 }
 
-func CreateNicLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *NicLifeCycleV1TestSuite {
+func CreateNicLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *NicLifeCycleV1Config) *NicLifeCycleV1TestSuite {
 	suite := &NicLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
+		config:            config,
 	}
 	suite.ScenarioName = constants.NicLifeCycleV1SuiteName.String()
 	return suite

@@ -87,7 +87,7 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 		return err
 	}
 
-	// Update route table (change target ref)
+	// Update route table
 	routeUpdatedResponse, err := builders.NewRouteTableBuilder().
 		Name(routeTableUpdated.Metadata.Name).
 		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).

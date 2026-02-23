@@ -23,9 +23,10 @@ type RouteTableLifeCycleV1TestSuite struct {
 	params *params.RouteTableLifeCycleV1Params
 }
 
-func CreateRouteTableLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *RouteTableLifeCycleV1TestSuite {
+func CreateRouteTableLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *RouteTableLifeCycleV1Config) *RouteTableLifeCycleV1TestSuite {
 	suite := &RouteTableLifeCycleV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
+		config:            config,
 	}
 	suite.ScenarioName = constants.RouteTableLifeCycleV1SuiteName.String()
 	return suite
@@ -35,8 +36,7 @@ type RouteTableLifeCycleV1Config struct {
 	NetworkCidr    string
 	PublicIpsRange string
 	RegionZones    []string
-
-	NetworkSkus []string
+	NetworkSkus    []string
 }
 
 func (suite *RouteTableLifeCycleV1TestSuite) BeforeAll(t provider.T) {
@@ -241,6 +241,27 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
+
+	// Update the route table
+	route.Spec = suite.params.RouteTableUpdated.Spec
+	expectRouteSpec.Routes = route.Spec.Routes
+	stepsBuilder.CreateOrUpdateRouteTableV1Step("Update the route table", suite.Client.NetworkV1, route,
+		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			Metadata:      expectRouteMeta,
+			Spec:          expectRouteSpec,
+			ResourceState: schema.ResourceStateUpdating,
+		},
+	)
+
+	// Get the updated route table
+	stepsBuilder.GetRouteTableV1Step("Get the updated route table", suite.Client.NetworkV1, routeNRef,
+		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			Metadata:      expectRouteMeta,
+			Spec:          expectRouteSpec,
+			ResourceState: schema.ResourceStateActive,
+		},
+	)
+
 	// Internet gateway
 
 	// Create an internet gateway
