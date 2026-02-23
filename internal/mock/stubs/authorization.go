@@ -13,7 +13,7 @@ import (
 
 func (configurator *Configurator) ConfigureCreateRoleStub(response *schema.Role, url string, params *mock.MockParams) error {
 	setCreatedGlobalTenantResourceMetadata(response.Metadata)
-	response.Status = newResourceStatus(schema.ResourceStateCreating)
+	response.Status = newResourceStatus(schema.ResourceStatePending)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -22,8 +22,16 @@ func (configurator *Configurator) ConfigureCreateRoleStub(response *schema.Role,
 
 func (configurator *Configurator) ConfigureUpdateRoleStub(response *schema.Role, url string, params *mock.MockParams) error {
 	setModifiedGlobalTenantResourceMetadata(response.Metadata)
-	setResourceState(response.Status, schema.ResourceStateUpdating)
+	setResourceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetCreatingRoleStub(response *schema.Role, url string, params *mock.MockParams) error {
+	setResourceState(response.Status, schema.ResourceStateCreating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -31,6 +39,14 @@ func (configurator *Configurator) ConfigureUpdateRoleStub(response *schema.Role,
 
 func (configurator *Configurator) ConfigureGetActiveRoleStub(response *schema.Role, url string, params *mock.MockParams) error {
 	setResourceState(response.Status, schema.ResourceStateActive)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetUpdatingRoleStub(response *schema.Role, url string, params *mock.MockParams) error {
+	setResourceState(response.Status, schema.ResourceStateUpdating)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -50,7 +66,7 @@ func (configurator *Configurator) ConfigureGetListRoleStub(response *authorizati
 
 func (configurator *Configurator) ConfigureCreateRoleAssignmentStub(response *schema.RoleAssignment, url string, params *mock.MockParams) error {
 	setCreatedGlobalTenantResourceMetadata(response.Metadata)
-	response.Status = newResourceStatus(schema.ResourceStateCreating)
+	response.Status = newResourceStatus(schema.ResourceStatePending)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -59,8 +75,16 @@ func (configurator *Configurator) ConfigureCreateRoleAssignmentStub(response *sc
 
 func (configurator *Configurator) ConfigureUpdateRoleAssignmentStub(response *schema.RoleAssignment, url string, params *mock.MockParams) error {
 	setModifiedGlobalTenantResourceMetadata(response.Metadata)
-	setResourceState(response.Status, schema.ResourceStateUpdating)
+	setResourceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetCreatingRoleAssignmentStub(response *schema.RoleAssignment, url string, params *mock.MockParams) error {
+	setResourceState(response.Status, schema.ResourceStateCreating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -68,6 +92,14 @@ func (configurator *Configurator) ConfigureUpdateRoleAssignmentStub(response *sc
 
 func (configurator *Configurator) ConfigureGetActiveRoleAssignmentStub(response *schema.RoleAssignment, url string, params *mock.MockParams) error {
 	setResourceState(response.Status, schema.ResourceStateActive)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetUpdatingRoleAssignmentStub(response *schema.RoleAssignment, url string, params *mock.MockParams) error {
+	setResourceState(response.Status, schema.ResourceStateUpdating)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

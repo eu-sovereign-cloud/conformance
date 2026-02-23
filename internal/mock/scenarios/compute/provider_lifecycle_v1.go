@@ -30,6 +30,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(&workspace, workspaceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(&workspace, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -40,6 +43,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created block storage
+	if err := configurator.ConfigureGetCreatingBlockStorageStub(&blockStorage, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveBlockStorageStub(&blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -50,6 +56,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created instance
+	if err := configurator.ConfigureGetCreatingInstanceStub(&instance, instanceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -61,6 +70,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the updated instance
+	if err := configurator.ConfigureGetUpdatingInstanceStub(&instance, instanceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInstanceStub(&instance, instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}

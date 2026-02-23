@@ -12,7 +12,7 @@ import (
 
 func (configurator *Configurator) ConfigureCreateInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
-	response.Status = newInstanceStatus(schema.ResourceStateCreating)
+	response.Status = newInstanceStatus(schema.ResourceStatePending)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -21,7 +21,7 @@ func (configurator *Configurator) ConfigureCreateInstanceStub(response *schema.I
 
 func (configurator *Configurator) ConfigureUpdateInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
-	setInstanceState(response.Status, schema.ResourceStateUpdating)
+	setInstanceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -35,8 +35,24 @@ func (configurator *Configurator) ConfigureInstanceOperationStub(response *schem
 	return nil
 }
 
+func (configurator *Configurator) ConfigureGetCreatingInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
+	setInstanceState(response.Status, schema.ResourceStateCreating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (configurator *Configurator) ConfigureGetActiveInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
 	setInstanceState(response.Status, schema.ResourceStateActive)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetUpdatingInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
+	setInstanceState(response.Status, schema.ResourceStateUpdating)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

@@ -99,7 +99,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:      expectRoleMeta,
 			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -123,7 +123,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:      expectRoleMeta,
 			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateUpdating,
+			ResourceState: schema.ResourceStateActive,
 		},
 	)
 

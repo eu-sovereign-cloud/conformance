@@ -34,6 +34,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(response, url, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(response, url, scenario.MockParams); err != nil {
 		return err
 	}
@@ -44,6 +47,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the updated workspace
+	if err := configurator.ConfigureGetUpdatingWorkspaceStub(response, url, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(response, url, scenario.MockParams); err != nil {
 		return err
 	}
