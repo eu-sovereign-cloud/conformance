@@ -124,6 +124,58 @@ type NetworkProviderQueriesV1Params struct {
 	SecurityGroups   []schema.SecurityGroup
 }
 
+type NetworkLifeCycleV1Params struct {
+	Workspace       *schema.Workspace
+	NetworkInitial  *schema.Network
+	NetworkUpdated  *schema.Network
+	RouteTable      *schema.RouteTable
+	InternetGateway *schema.InternetGateway
+}
+
+type SubnetLifeCycleV1Params struct {
+	Workspace       *schema.Workspace
+	Network         *schema.Network
+	RouteTable      *schema.RouteTable
+	InternetGateway *schema.InternetGateway
+	SubnetInitial   *schema.Subnet
+	SubnetUpdated   *schema.Subnet
+}
+
+type InternetGatewayLifeCycleV1Params struct {
+	Workspace              *schema.Workspace
+	InternetGatewayInitial *schema.InternetGateway
+	InternetGatewayUpdated *schema.InternetGateway
+}
+
+type NicLifeCycleV1Params struct {
+	Workspace       *schema.Workspace
+	Network         *schema.Network
+	InternetGateway *schema.InternetGateway
+	RouteTable      *schema.RouteTable
+	Subnet          *schema.Subnet
+	NicInitial      *schema.Nic
+	NicUpdated      *schema.Nic
+}
+
+type RouteTableLifeCycleV1Params struct {
+	Workspace         *schema.Workspace
+	Network           *schema.Network
+	InternetGateway   *schema.InternetGateway
+	RouteTableInitial *schema.RouteTable
+	RouteTableUpdated *schema.RouteTable
+}
+
+type PublicIpLifeCycleV1Params struct {
+	Workspace       *schema.Workspace
+	PublicIpInitial *schema.PublicIp
+	PublicIpUpdated *schema.PublicIp
+}
+type SecurityGroupLifeCycleV1Params struct {
+	Workspace            *schema.Workspace
+	SecurityGroupInitial *schema.SecurityGroup
+	SecurityGroupUpdated *schema.SecurityGroup
+}
+
 // Usage
 
 type FoundationUsageV1Params struct {

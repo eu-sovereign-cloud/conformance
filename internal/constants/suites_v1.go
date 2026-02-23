@@ -29,6 +29,13 @@ const (
 
 	NetworkProviderLifeCycleV1SuiteName SuiteName = "Network.V1.ProviderLifeCycle"
 	NetworkProviderQueriesV1SuiteName   SuiteName = "Network.V1.ProviderQueries"
+	NetworkLifeCycleV1SuiteName         SuiteName = "Network.V1.NetworkLifeCycle"
+	SubnetCycleV1SuiteName              SuiteName = "Network.V1.SubnetLifeCycle"
+	SecurityGroupLifeCycleV1SuiteName   SuiteName = "Network.V1.SecurityGroupLifeCycle"
+	InternetGatewayLifeCycleV1SuiteName SuiteName = "Network.V1.InternetGatewayLifeCycle"
+	PublicIpLifeCycleV1SuiteName        SuiteName = "Network.V1.PublicIpLifeCycle"
+	NicLifeCycleV1SuiteName             SuiteName = "Network.V1.NicLifeCycle"
+	RouteTableLifeCycleV1SuiteName      SuiteName = "Network.V1.RouteTableLifeCycle"
 
 	UsageFoundationProvidersV1SuiteName SuiteName = "Usage.V1.FoundationProviders"
 )
@@ -54,6 +61,13 @@ var AllSuiteNames = []SuiteName{
 
 	NetworkProviderLifeCycleV1SuiteName,
 	NetworkProviderQueriesV1SuiteName,
+	NetworkLifeCycleV1SuiteName,
+	SubnetCycleV1SuiteName,
+	SecurityGroupLifeCycleV1SuiteName,
+	InternetGatewayLifeCycleV1SuiteName,
+	PublicIpLifeCycleV1SuiteName,
+	NicLifeCycleV1SuiteName,
+	RouteTableLifeCycleV1SuiteName,
 
 	UsageFoundationProvidersV1SuiteName,
 }
