@@ -30,7 +30,7 @@ const (
 	NetworkProviderLifeCycleV1SuiteName SuiteName = "Network.V1.ProviderLifeCycle"
 	NetworkProviderQueriesV1SuiteName   SuiteName = "Network.V1.ProviderQueries"
 	NetworkLifeCycleV1SuiteName         SuiteName = "Network.V1.NetworkLifeCycle"
-	SubnetLifeCycleV1SuiteName              SuiteName = "Network.V1.SubnetLifeCycle"
+	SubnetLifeCycleV1SuiteName          SuiteName = "Network.V1.SubnetLifeCycle"
 	SecurityGroupLifeCycleV1SuiteName   SuiteName = "Network.V1.SecurityGroupLifeCycle"
 	InternetGatewayLifeCycleV1SuiteName SuiteName = "Network.V1.InternetGatewayLifeCycle"
 	PublicIpLifeCycleV1SuiteName        SuiteName = "Network.V1.PublicIpLifeCycle"
