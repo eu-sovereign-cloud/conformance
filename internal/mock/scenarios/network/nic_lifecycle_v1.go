@@ -45,9 +45,13 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *p
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
+
 	// Network
 	networkResponse, err := builders.NewNetworkBuilder().
 		Name(network.Metadata.Name).
@@ -65,6 +69,9 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *p
 	}
 
 	// Get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -86,6 +93,9 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *p
 	}
 
 	// Get the created route table
+	if err := configurator.ConfigureGetCreatingRouteTableStub(routeResponse, routeTableURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeResponse, routeTableURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -107,6 +117,9 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *p
 	}
 
 	// Get the created subnet
+	if err := configurator.ConfigureGetCreatingSubnetStub(subnetInitialResponse, subnetURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveSubnetStub(subnetInitialResponse, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -128,6 +141,9 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *p
 	}
 
 	// Get the created internet gateway
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gatewayInitialResponse, internetGatewayURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayInitialResponse, internetGatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -149,6 +165,9 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *p
 	}
 
 	// Get the created nic
+	if err := configurator.ConfigureGetCreatingNicStub(nicResponse, nicURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -160,6 +179,9 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *p
 	}
 
 	// Get the updated nic
+	if err := configurator.ConfigureGetUpdatingNicStub(nicResponse, nicURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicURL, scenario.MockParams); err != nil {
 		return err
 	}

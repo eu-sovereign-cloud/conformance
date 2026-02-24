@@ -38,6 +38,9 @@ func ConfigureInternetGatewayLifecycleScenarioV1(scenario *mockscenarios.Scenari
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -59,6 +62,9 @@ func ConfigureInternetGatewayLifecycleScenarioV1(scenario *mockscenarios.Scenari
 	}
 
 	// Get the created internet gateway
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -79,6 +85,9 @@ func ConfigureInternetGatewayLifecycleScenarioV1(scenario *mockscenarios.Scenari
 	}
 
 	// Get the updated internet gateway
+	if err := configurator.ConfigureGetUpdatingInternetGatewayStub(gatewayUpdatedResponse, gatewayURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayUpdatedResponse, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}

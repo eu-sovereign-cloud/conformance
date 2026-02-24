@@ -38,6 +38,9 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -59,6 +62,9 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 	}
 
 	// Get the created security group
+	if err := configurator.ConfigureGetCreatingSecurityGroupStub(securityGroupInitialResponse, securityGroupURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveSecurityGroupStub(securityGroupInitialResponse, securityGroupURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -79,6 +85,9 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 	}
 
 	// Get the updated security group
+	if err := configurator.ConfigureGetUpdatingSecurityGroupStub(securityGroupUpdatedResponse, securityGroupURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveSecurityGroupStub(securityGroupUpdatedResponse, securityGroupURL, scenario.MockParams); err != nil {
 		return err
 	}

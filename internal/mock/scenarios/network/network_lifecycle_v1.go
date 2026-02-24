@@ -41,9 +41,13 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
+	
 	// Network
 	networkResponse, err := builders.NewNetworkBuilder().
 		Name(network.Metadata.Name).
@@ -61,6 +65,9 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	}
 
 	// Get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -72,6 +79,9 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	}
 
 	// Get the updated network
+	if err := configurator.ConfigureGetUpdatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -93,6 +103,9 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	}
 
 	// Get the created route table
+	if err := configurator.ConfigureGetCreatingRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -114,6 +127,9 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	}
 
 	// Get the created internet gateway
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}

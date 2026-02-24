@@ -44,6 +44,9 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -65,6 +68,9 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	}
 
 	// Get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -86,6 +92,9 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	}
 
 	// Get the created route table
+	if err := configurator.ConfigureGetCreatingRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -107,6 +116,9 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	}
 
 	// Get the created internet gateway
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -128,6 +140,9 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	}
 
 	// Get the created subnet
+	if err := configurator.ConfigureGetCreatingSubnetStub(subnetInitialResponse, subnetURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveSubnetStub(subnetInitialResponse, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -148,6 +163,9 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	}
 
 	// Get the updated subnet
+	if err := configurator.ConfigureGetUpdatingSubnetStub(subnetUpdatedResponse, subnetURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveSubnetStub(subnetUpdatedResponse, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}

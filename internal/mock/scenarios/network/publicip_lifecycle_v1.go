@@ -38,6 +38,9 @@ func ConfigurePublicIpLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -59,6 +62,9 @@ func ConfigurePublicIpLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created public ip
+	if err := configurator.ConfigureGetCreatingPublicIpStub(publicIpResponse, publicIpURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -70,6 +76,9 @@ func ConfigurePublicIpLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the updated public ip
+	if err := configurator.ConfigureGetUpdatingPublicIpStub(publicIpResponse, publicIpURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpURL, scenario.MockParams); err != nil {
 		return err
 	}

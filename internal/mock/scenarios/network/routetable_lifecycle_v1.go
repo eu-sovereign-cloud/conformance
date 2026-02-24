@@ -41,6 +41,9 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -62,6 +65,9 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 	}
 
 	// Get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -83,6 +89,9 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 	}
 
 	// Get the created route table
+	if err := configurator.ConfigureGetCreatingRouteTableStub(routeInitialResponse, routeTableURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeInitialResponse, routeTableURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -103,6 +112,9 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 	}
 
 	// Get the updated route table
+	if err := configurator.ConfigureGetUpdatingRouteTableStub(routeUpdatedResponse, routeTableURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeUpdatedResponse, routeTableURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -124,6 +136,9 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 	}
 
 	// Get the created internet gateway
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
