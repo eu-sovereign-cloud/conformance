@@ -2,10 +2,10 @@ package mockworkspace
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.WorkspaceProviderLifeCycleV1Params) error {
@@ -16,11 +16,11 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 
 	workspace := *params.WorkspaceInitial
 
-	url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	url := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
 
 	response, err := builders.NewWorkspaceBuilder().
 		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
 		Labels(workspace.Labels).
 		Build()

@@ -2,10 +2,10 @@ package mocknetwork
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.SecurityGroupLifeCycleV1Params) error {
@@ -18,13 +18,13 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 	securityGroupInitial := *params.SecurityGroupInitial
 	securityGroupUpdated := *params.SecurityGroupUpdated
 
-	workspaceURL := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	securityGroupURL := generators.GenerateSecurityGroupURL(constants.NetworkProviderV1, securityGroupInitial.Metadata.Tenant, securityGroupInitial.Metadata.Workspace, securityGroupInitial.Metadata.Name)
+	workspaceURL := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	securityGroupURL := generators.GenerateSecurityGroupURL(sdkconsts.NetworkProviderV1Name, securityGroupInitial.Metadata.Tenant, securityGroupInitial.Metadata.Workspace, securityGroupInitial.Metadata.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
 		Labels(workspace.Labels).
 		Build()
@@ -48,7 +48,7 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 	// Security group
 	securityGroupInitialResponse, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupInitial.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(securityGroupInitial.Metadata.Tenant).Workspace(securityGroupInitial.Metadata.Workspace).Region(securityGroupInitial.Metadata.Region).
 		Spec(&securityGroupInitial.Spec).
 		Build()
@@ -72,7 +72,7 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 	// Update security group (change rules)
 	securityGroupUpdatedResponse, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupUpdated.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(securityGroupUpdated.Metadata.Tenant).Workspace(securityGroupUpdated.Metadata.Workspace).Region(securityGroupUpdated.Metadata.Region).
 		Spec(&securityGroupUpdated.Spec).
 		Build()

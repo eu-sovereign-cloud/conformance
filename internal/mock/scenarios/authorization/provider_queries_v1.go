@@ -8,6 +8,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -20,8 +21,8 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	roleAssignments := params.RoleAssignments
 
 	// Generate URLs
-	roleUrl := generators.GenerateRoleListURL(constants.AuthorizationProviderV1, roles[0].Metadata.Tenant)
-	roleAssignmentUrl := generators.GenerateRoleAssignmentListURL(constants.AuthorizationProviderV1, roleAssignments[0].Metadata.Tenant)
+	roleUrl := generators.GenerateRoleListURL(sdkconsts.AuthorizationProviderV1Name, roles[0].Metadata.Tenant)
+	roleAssignmentUrl := generators.GenerateRoleAssignmentListURL(sdkconsts.AuthorizationProviderV1Name, roleAssignments[0].Metadata.Tenant)
 
 	// Create roles
 	err = stubs.BulkCreateRolesStubV1(configurator, scenario.MockParams, roles)
@@ -29,7 +30,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return err
 	}
 	rolesResponse, err := builders.NewRoleIteratorBuilder().
-		Provider(constants.StorageProviderV1).
+		Provider(sdkconsts.StorageProviderV1Name).
 		Tenant(roles[0].Metadata.Tenant).
 		Items(roles).
 		Build()
@@ -75,7 +76,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return err
 	}
 	roleAssignResponse, err := builders.NewRoleAssignmentIteratorBuilder().
-		Provider(constants.StorageProviderV1).
+		Provider(sdkconsts.StorageProviderV1Name).
 		Tenant(roleAssignments[0].Metadata.Tenant).
 		Items(roleAssignments).
 		Build()
@@ -117,7 +118,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Delete role assignments
 	for _, roleAssignment := range roleAssignments {
-		roleAssignUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, roleAssignment.Metadata.Tenant, roleAssignment.Metadata.Name)
+		roleAssignUrl := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, roleAssignment.Metadata.Tenant, roleAssignment.Metadata.Name)
 
 		// Delete the role assignment
 		if err := configurator.ConfigureDeleteStub(roleAssignUrl, scenario.MockParams); err != nil {
@@ -132,7 +133,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Delete roles
 	for _, role := range roles {
-		roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, role.Metadata.Tenant, role.Metadata.Name)
+		roleUrl := generators.GenerateRoleURL(sdkconsts.AuthorizationProviderV1Name, role.Metadata.Tenant, role.Metadata.Name)
 
 		// Delete the role assignment
 		if err := configurator.ConfigureDeleteStub(roleUrl, scenario.MockParams); err != nil {

@@ -11,6 +11,7 @@ import (
 	mockauthorization "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/authorization"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -42,11 +43,11 @@ func (suite *RoleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	roleInitial, err := builders.NewRoleBuilder().
 		Name(roleName).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Spec(&schema.RoleSpec{
 			Permissions: []schema.Permission{
-				{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+				{Provider: sdkconsts.StorageProviderV1Name, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 			},
 		}).
 		Build()
@@ -56,11 +57,11 @@ func (suite *RoleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	roleUpdated, err := builders.NewRoleBuilder().
 		Name(roleName).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Spec(&schema.RoleSpec{
 			Permissions: []schema.Permission{
-				{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet, http.MethodPut}},
+				{Provider: sdkconsts.StorageProviderV1Name, Resources: []string{imageResource}, Verb: []string{http.MethodGet, http.MethodPut}},
 			},
 		}).
 		Build()
@@ -83,7 +84,7 @@ func (suite *RoleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
+	suite.ConfigureTags(t, sdkconsts.AuthorizationProviderV1Name,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 	)
 
@@ -97,9 +98,9 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRoleSpec := &role.Spec
 	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectRoleMeta,
+			Spec:           expectRoleSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -110,9 +111,9 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	role = stepsBuilder.GetRoleV1Step("Get the created role", suite.Client.AuthorizationV1, roleTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectRoleMeta,
+			Spec:           expectRoleSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -121,18 +122,18 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRoleSpec = &role.Spec
 	stepsBuilder.CreateOrUpdateRoleV1Step("Update the role", suite.Client.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectRoleMeta,
+			Spec:           expectRoleSpec,
+			ResourceStates: suites.UpdatedResourceExpectedStates,
 		},
 	)
 
 	// Get the updated role
 	role = stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectRoleMeta,
+			Spec:           expectRoleSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 

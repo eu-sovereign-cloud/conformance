@@ -2,10 +2,10 @@ package mocknetwork
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.NetworkLifeCycleV1Params) error {
@@ -19,15 +19,15 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	routeTable := *params.RouteTable
 	internetGateway := *params.InternetGateway
 
-	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	networkUrl := generators.GenerateNetworkURL(constants.NetworkProviderV1, network.Metadata.Tenant, network.Metadata.Workspace, network.Metadata.Name)
-	gatewayURL := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, internetGateway.Metadata.Tenant, internetGateway.Metadata.Workspace, internetGateway.Metadata.Name)
-	routeUrl := generators.GenerateRouteTableURL(constants.NetworkProviderV1, routeTable.Metadata.Tenant, routeTable.Metadata.Workspace, routeTable.Metadata.Network, routeTable.Metadata.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	networkUrl := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, network.Metadata.Tenant, network.Metadata.Workspace, network.Metadata.Name)
+	gatewayURL := generators.GenerateInternetGatewayURL(sdkconsts.NetworkProviderV1Name, internetGateway.Metadata.Tenant, internetGateway.Metadata.Workspace, internetGateway.Metadata.Name)
+	routeUrl := generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, routeTable.Metadata.Tenant, routeTable.Metadata.Workspace, routeTable.Metadata.Network, routeTable.Metadata.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
 		Labels(workspace.Labels).
 		Build()
@@ -51,7 +51,7 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	// Network
 	networkResponse, err := builders.NewNetworkBuilder().
 		Name(network.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(network.Metadata.Tenant).Workspace(network.Metadata.Workspace).Region(network.Metadata.Region).
 		Spec(&network.Spec).
 		Build()
@@ -89,7 +89,7 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	// Route table
 	routeResponse, err := builders.NewRouteTableBuilder().
 		Name(routeTable.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(routeTable.Metadata.Tenant).Workspace(routeTable.Metadata.Workspace).Network(routeTable.Metadata.Network).Region(routeTable.Metadata.Region).
 		Spec(&routeTable.Spec).
 		Build()
@@ -113,7 +113,7 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	// Internet Gateway
 	gatewayInitialResponse, err := builders.NewInternetGatewayBuilder().
 		Name(internetGateway.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(internetGateway.Metadata.Tenant).Workspace(internetGateway.Metadata.Workspace).Region(internetGateway.Metadata.Region).
 		Spec(&internetGateway.Spec).
 		Build()

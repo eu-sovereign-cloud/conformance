@@ -7,6 +7,7 @@ import (
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -16,7 +17,7 @@ func ConfigureInitScenarioV1(scenario *mockscenarios.Scenario, params *params.Cl
 		return err
 	}
 
-	url := generators.GenerateRegionURL(constants.RegionProviderV1, params.Region)
+	url := generators.GenerateRegionURL(sdkconsts.RegionProviderV1Name, params.Region)
 
 	spec := &schema.RegionSpec{
 		AvailableZones: []string{constants.ZoneA, constants.ZoneB},
@@ -25,7 +26,7 @@ func ConfigureInitScenarioV1(scenario *mockscenarios.Scenario, params *params.Cl
 
 	response, err := builders.NewRegionBuilder().
 		Name(params.Region).
-		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.RegionProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Spec(spec).
 		Build()
 	if err != nil {

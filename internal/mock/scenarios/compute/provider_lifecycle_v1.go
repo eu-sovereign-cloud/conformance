@@ -2,9 +2,9 @@ package mockcompute
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.ComputeProviderLifeCycleV1Params) error {
@@ -17,12 +17,12 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	instance := *params.InitialInstance
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, blockStorage.Metadata.Tenant, workspace.Metadata.Name, blockStorage.Metadata.Name)
-	instanceUrl := generators.GenerateInstanceURL(constants.ComputeProviderV1, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
-	instanceStartUrl := generators.GenerateInstanceStartURL(constants.ComputeProviderV1, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
-	instanceStopUrl := generators.GenerateInstanceStopURL(constants.ComputeProviderV1, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
-	instanceRestartUrl := generators.GenerateInstanceRestartURL(constants.ComputeProviderV1, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	blockUrl := generators.GenerateBlockStorageURL(sdkconsts.StorageProviderV1Name, blockStorage.Metadata.Tenant, workspace.Metadata.Name, blockStorage.Metadata.Name)
+	instanceUrl := generators.GenerateInstanceURL(sdkconsts.ComputeProviderV1Name, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
+	instanceStartUrl := generators.GenerateInstanceStartURL(sdkconsts.ComputeProviderV1Name, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
+	instanceStopUrl := generators.GenerateInstanceStopURL(sdkconsts.ComputeProviderV1Name, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
+	instanceRestartUrl := generators.GenerateInstanceRestartURL(sdkconsts.ComputeProviderV1Name, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
 
 	// Create a workspace
 	if err := configurator.ConfigureCreateWorkspaceStub(&workspace, workspaceUrl, scenario.MockParams); err != nil {

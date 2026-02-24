@@ -10,6 +10,7 @@ import (
 	mockcompute "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/compute"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -55,26 +56,16 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	blockStorageName := generators.GenerateBlockStorageName()
 	blockStorageSize := generators.GenerateBlockStorageSize()
 
-	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	storageSkuRefObj := generators.GenerateSkuRefObject(storageSkuName)
 
-	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	blockStorageRefObj := generators.GenerateBlockStorageRefObject(blockStorageName)
 
 	instanceName := generators.GenerateInstanceName()
-
-	instanceSkuRefObj, err := generators.GenerateSkuRefObject(instanceSkuName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	instanceSkuRefObj := generators.GenerateSkuRefObject(instanceSkuName)
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
@@ -86,7 +77,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorage, err := builders.NewBlockStorageBuilder().
 		Name(blockStorageName).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.BlockStorageSpec{
 			SkuRef: *storageSkuRefObj,
@@ -99,7 +90,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	initialInstance, err := builders.NewInstanceBuilder().
 		Name(instanceName).
-		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InstanceSpec{
 			SkuRef: *instanceSkuRefObj,
@@ -115,7 +106,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	updatedInstance, err := builders.NewInstanceBuilder().
 		Name(instanceName).
-		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InstanceSpec{
 			SkuRef: *instanceSkuRefObj,
@@ -145,7 +136,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.ConfigureTags(t, sdkconsts.ComputeProviderV1Name, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -157,9 +148,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStatePending,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -170,9 +161,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateActive,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -184,9 +175,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectedBlockSpec := &block.Spec
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectedBlockMeta,
+			Spec:           expectedBlockSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -198,9 +189,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectedBlockMeta,
+			Spec:           expectedBlockSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -212,9 +203,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectInstanceSpec := &instance.Spec
 	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.Client.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectInstanceMeta,
+			Spec:           expectInstanceSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -226,9 +217,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	instance = stepsBuilder.GetInstanceV1Step("Get the created instance", suite.Client.ComputeV1, instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectInstanceMeta,
+			Spec:           expectInstanceSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -237,18 +228,18 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectInstanceSpec.Zone = instance.Spec.Zone
 	stepsBuilder.CreateOrUpdateInstanceV1Step("Update the instance", suite.Client.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectInstanceMeta,
+			Spec:           expectInstanceSpec,
+			ResourceStates: suites.UpdatedResourceExpectedStates,
 		},
 	)
 
 	// Get the updated instance
 	instance = stepsBuilder.GetInstanceV1Step("Get the updated instance", suite.Client.ComputeV1, instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectInstanceMeta,
+			Spec:           expectInstanceSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -258,9 +249,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Get the stoped instance
 	instance = stepsBuilder.GetInstanceV1Step("Get the updated instance", suite.Client.ComputeV1, instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectInstanceMeta,
+			Spec:           expectInstanceSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -270,9 +261,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Get the started instance
 	instance = stepsBuilder.GetInstanceV1Step("Get the started instance", suite.Client.ComputeV1, instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectInstanceMeta,
+			Spec:           expectInstanceSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -283,9 +274,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// TODO Find an away to assert if the instance is restarted
 	instance = stepsBuilder.GetInstanceV1Step("Get the updated instance", suite.Client.ComputeV1, instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectInstanceMeta,
+			Spec:           expectInstanceSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 

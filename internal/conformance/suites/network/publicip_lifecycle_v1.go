@@ -6,11 +6,12 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockNetwork "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
-
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"k8s.io/utils/ptr"
 )
@@ -54,7 +55,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
@@ -66,7 +67,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	publicIpInitial, err := builders.NewPublicIpBuilder().
 		Name(publicIpName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
@@ -78,7 +79,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	publicIpUpdated, err := builders.NewPublicIpBuilder().
 		Name(publicIpName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
@@ -103,7 +104,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.NetworkProviderV1,
+	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 	)
@@ -118,9 +119,9 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStatePending,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -131,9 +132,9 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateActive,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -145,9 +146,9 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectPublicIpSpec := &publicIp.Spec
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:      expectPublicIpMeta,
-			Spec:          expectPublicIpSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectPublicIpMeta,
+			Spec:           expectPublicIpSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -159,9 +160,9 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetPublicIpV1Step("Get the created public ip", suite.Client.NetworkV1, publicIpWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:      expectPublicIpMeta,
-			Spec:          expectPublicIpSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectPublicIpMeta,
+			Spec:           expectPublicIpSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -170,18 +171,18 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectPublicIpSpec.Address = publicIp.Spec.Address
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Update the public ip", suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:      expectPublicIpMeta,
-			Spec:          expectPublicIpSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectPublicIpMeta,
+			Spec:           expectPublicIpSpec,
+			ResourceStates: suites.UpdatedResourceExpectedStates,
 		},
 	)
 
 	// Get the updated public ip
 	stepsBuilder.GetPublicIpV1Step("Get the updated public ip", suite.Client.NetworkV1, publicIpWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:      expectPublicIpMeta,
-			Spec:          expectPublicIpSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectPublicIpMeta,
+			Spec:           expectPublicIpSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 

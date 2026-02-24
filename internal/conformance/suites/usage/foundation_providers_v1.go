@@ -12,6 +12,7 @@ import (
 	mockUsage "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/usage"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -86,71 +87,44 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	roleAssignmentName := generators.GenerateRoleAssignmentName()
 
-	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	storageSkuRefObj := generators.GenerateSkuRefObject(storageSkuName)
 
 	blockStorageName := generators.GenerateBlockStorageName()
-
-	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	blockStorageRefObj := generators.GenerateBlockStorageRefObject(blockStorageName)
 	blockStorageSize := generators.GenerateBlockStorageSize()
 
 	imageName := generators.GenerateImageName()
 	imageResource := generators.GenerateImageResource(suite.Tenant, imageName)
 
-	instanceSkuRefObj, err := generators.GenerateSkuRefObject(instanceSkuName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
-
+	instanceSkuRefObj := generators.GenerateSkuRefObject(instanceSkuName)
 	instanceName := generators.GenerateInstanceName()
 
-	networkSkuRefObj, err := generators.GenerateSkuRefObject(networkSkuName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
-
+	networkSkuRefObj := generators.GenerateSkuRefObject(networkSkuName)
 	networkName := generators.GenerateNetworkName()
 
 	internetGatewayName := generators.GenerateInternetGatewayName()
-	internetGatewayRefObj, err := generators.GenerateInternetGatewayRefObject(internetGatewayName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(internetGatewayName)
 
 	routeTableName := generators.GenerateRouteTableName()
-	routeTableRefObj, err := generators.GenerateRouteTableRefObject(routeTableName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
 
 	subnetName := generators.GenerateSubnetName()
-	subnetRefObj, err := generators.GenerateSubnetRefObject(subnetName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	subnetRefObj := generators.GenerateSubnetRefObject(subnetName)
 
 	nicName := generators.GenerateNicName()
 
 	publicIpName := generators.GeneratePublicIpName()
-	publicIpRefObj, err := generators.GeneratePublicIpRefObject(publicIpName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	publicIpRefObj := generators.GeneratePublicIpRefObject(publicIpName)
 
 	securityGroupName := generators.GenerateSecurityGroupName()
 
 	Role, err := builders.NewRoleBuilder().
 		Name(roleName).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Spec(&schema.RoleSpec{
 			Permissions: []schema.Permission{
-				{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+				{Provider: sdkconsts.StorageProviderV1Name, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 			},
 		}).
 		Build()
@@ -160,7 +134,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	RoleAssignment, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignmentName).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Spec(&schema.RoleAssignmentSpec{
 			Roles: []string{roleName},
@@ -175,7 +149,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
@@ -187,7 +161,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorage, err := builders.NewBlockStorageBuilder().
 		Name(blockStorageName).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.BlockStorageSpec{
 			SkuRef: *storageSkuRefObj,
@@ -200,7 +174,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	image, err := builders.NewImageBuilder().
 		Name(imageName).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Spec(&schema.ImageSpec{
 			BlockStorageRef: *blockStorageRefObj,
@@ -212,7 +186,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	instance, err := builders.NewInstanceBuilder().
 		Name(instanceName).
-		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InstanceSpec{
 			SkuRef: *instanceSkuRefObj,
@@ -228,7 +202,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	network, err := builders.NewNetworkBuilder().
 		Name(networkName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
 			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
@@ -241,7 +215,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	internetGateway, err := builders.NewInternetGatewayBuilder().
 		Name(internetGatewayName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InternetGatewaySpec{
 			EgressOnly: ptr.To(false),
@@ -252,7 +226,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	routeTable, err := builders.NewRouteTableBuilder().
 		Name(routeTableName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Spec(&schema.RouteTableSpec{
 			Routes: []schema.RouteSpec{
@@ -265,7 +239,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	subnet, err := builders.NewSubnetBuilder().
 		Name(subnetName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Spec(&schema.SubnetSpec{
 			Cidr: schema.Cidr{Ipv4: &subnetCidr},
@@ -277,7 +251,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	nic, err := builders.NewNicBuilder().
 		Name(nicName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NicSpec{
 			Addresses:    []string{nicAddress1},
@@ -290,7 +264,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	publicIp, err := builders.NewPublicIpBuilder().
 		Name(publicIpName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
@@ -302,7 +276,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	securityGroup, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.SecurityGroupSpec{
 			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
@@ -336,15 +310,15 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t,
-		constants.AuthorizationProviderV1,
+		sdkconsts.AuthorizationProviderV1Name,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
-		constants.WorkspaceProviderV1,
+		sdkconsts.WorkspaceProviderV1Name,
 		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
-		constants.StorageProviderV1,
+		sdkconsts.StorageProviderV1Name,
 		string(schema.RegionalResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalResourceMetadataKindResourceKindImage),
-		constants.NetworkProviderV1,
+		sdkconsts.NetworkProviderV1Name,
 		string(schema.RegionalResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
 		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
@@ -357,7 +331,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
-		constants.ComputeProviderV1,
+		sdkconsts.ComputeProviderV1Name,
 		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 	)
 
@@ -371,9 +345,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectRoleSpec := &role.Spec
 	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.GlobalClient.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectRoleMeta,
+			Spec:           expectRoleSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -384,9 +358,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	role = stepsBuilder.GetRoleV1Step("Get the created role", suite.GlobalClient.AuthorizationV1, roleTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:      expectRoleMeta,
-			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectRoleMeta,
+			Spec:           expectRoleSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -398,9 +372,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectRoleAssignSpec := &roleAssign.Spec
 	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.GlobalClient.AuthorizationV1, roleAssign,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-			Metadata:      expectRoleAssignMeta,
-			Spec:          expectRoleAssignSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectRoleAssignMeta,
+			Spec:           expectRoleAssignSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -411,9 +385,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	roleAssign = stepsBuilder.GetRoleAssignmentV1Step("Get the created role assignment", suite.GlobalClient.AuthorizationV1, roleAssignTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-			Metadata:      expectRoleAssignMeta,
-			Spec:          expectRoleAssignSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectRoleAssignMeta,
+			Spec:           expectRoleAssignSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -425,9 +399,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.RegionalClient.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStatePending,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -438,9 +412,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	workspace = stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.RegionalClient.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateActive,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -452,9 +426,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectedImageSpec := &image.Spec
 	stepsBuilder.CreateOrUpdateImageV1Step("Create an image", suite.RegionalClient.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:      expectedImageMeta,
-			Spec:          expectedImageSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectedImageMeta,
+			Spec:           expectedImageSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -465,9 +439,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	image = stepsBuilder.GetImageV1Step("Get the created image", suite.RegionalClient.StorageV1, imageTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:      expectedImageMeta,
-			Spec:          expectedImageSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectedImageMeta,
+			Spec:           expectedImageSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -479,9 +453,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectedBlockSpec := &block.Spec
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.RegionalClient.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectedBlockMeta,
+			Spec:           expectedBlockSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -493,9 +467,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.RegionalClient.StorageV1, blockWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectedBlockMeta,
+			Spec:           expectedBlockSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -507,9 +481,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectNetworkSpec := &network.Spec
 	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.RegionalClient.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:      expectNetworkMeta,
-			Spec:          expectNetworkSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -521,9 +495,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetNetworkV1Step("Get the created network", suite.RegionalClient.NetworkV1, networkWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:      expectNetworkMeta,
-			Spec:          expectNetworkSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -535,9 +509,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectGatewaySpec := &gateway.Spec
 	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.RegionalClient.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:      expectGatewayMeta,
-			Spec:          expectGatewaySpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectGatewayMeta,
+			Spec:           expectGatewaySpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -549,9 +523,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.RegionalClient.NetworkV1, gatewayWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:      expectGatewayMeta,
-			Spec:          expectGatewaySpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectGatewayMeta,
+			Spec:           expectGatewaySpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -563,9 +537,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectRouteSpec := &route.Spec
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.RegionalClient.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
-			Metadata:      expectRouteMeta,
-			Spec:          expectRouteSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectRouteMeta,
+			Spec:           expectRouteSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -578,9 +552,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetRouteTableV1Step("Get the created route table", suite.RegionalClient.NetworkV1, routeNRef,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
-			Metadata:      expectRouteMeta,
-			Spec:          expectRouteSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectRouteMeta,
+			Spec:           expectRouteSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -592,9 +566,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectSubnetSpec := &subnet.Spec
 	stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", suite.RegionalClient.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
-			Metadata:      expectSubnetMeta,
-			Spec:          expectSubnetSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectSubnetMeta,
+			Spec:           expectSubnetSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -607,9 +581,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetSubnetV1Step("Get the created subnet", suite.RegionalClient.NetworkV1, subnetNRef,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
-			Metadata:      expectSubnetMeta,
-			Spec:          expectSubnetSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectSubnetMeta,
+			Spec:           expectSubnetSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -621,9 +595,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectGroupSpec := &group.Spec
 	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", suite.RegionalClient.NetworkV1, group,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-			Metadata:      expectGroupMeta,
-			Spec:          expectGroupSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectGroupMeta,
+			Spec:           expectGroupSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -635,9 +609,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetSecurityGroupV1Step("Get the created security group", suite.RegionalClient.NetworkV1, groupWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-			Metadata:      expectGroupMeta,
-			Spec:          expectGroupSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectGroupMeta,
+			Spec:           expectGroupSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -649,9 +623,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectPublicIpSpec := &publicIp.Spec
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.RegionalClient.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:      expectPublicIpMeta,
-			Spec:          expectPublicIpSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectPublicIpMeta,
+			Spec:           expectPublicIpSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -663,9 +637,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetPublicIpV1Step("Get the created public ip", suite.RegionalClient.NetworkV1, publicIpWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:      expectPublicIpMeta,
-			Spec:          expectPublicIpSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectPublicIpMeta,
+			Spec:           expectPublicIpSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -677,9 +651,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectNicSpec := &nic.Spec
 	stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", suite.RegionalClient.NetworkV1, nic,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
-			Metadata:      expectNicMeta,
-			Spec:          expectNicSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectNicMeta,
+			Spec:           expectNicSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -691,9 +665,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetNicV1Step("Get the created nic", suite.RegionalClient.NetworkV1, nicWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
-			Metadata:      expectNicMeta,
-			Spec:          expectNicSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectNicMeta,
+			Spec:           expectNicSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -705,9 +679,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	expectInstanceSpec := &instance.Spec
 	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.RegionalClient.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectInstanceMeta,
+			Spec:           expectInstanceSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -719,9 +693,9 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	}
 	instance = stepsBuilder.GetInstanceV1Step("Get the created instance", suite.RegionalClient.ComputeV1, instanceWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-			Metadata:      expectInstanceMeta,
-			Spec:          expectInstanceSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectInstanceMeta,
+			Spec:           expectInstanceSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 

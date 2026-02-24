@@ -10,6 +10,7 @@ import (
 	mockCompute "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/compute"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	labelBuilder "github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
@@ -52,32 +53,21 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
-	instanceSkuRefObj, err := generators.GenerateSkuRefObject(instanceSkuName)
-	if err != nil {
-		t.Fatalf("Failed to build instanceSkuRef to URN: %v", err)
-	}
+	instanceSkuRefObj := generators.GenerateSkuRefObject(instanceSkuName)
 
 	instanceName1 := generators.GenerateInstanceName()
 	instanceName2 := generators.GenerateInstanceName()
 	instanceName3 := generators.GenerateInstanceName()
 
-	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
-	if err != nil {
-		t.Fatalf("Failed to build storageSkuRef to URN: %v", err)
-	}
+	storageSkuRefObj := generators.GenerateSkuRefObject(storageSkuName)
 
 	blockStorageName := generators.GenerateBlockStorageName()
-
-	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName)
-	if err != nil {
-		t.Fatalf("Failed to build blockStorageRef to URN: %v", err)
-	}
-
+	blockStorageRefObj := generators.GenerateBlockStorageRefObject(blockStorageName)
 	blockStorageSize := generators.GenerateBlockStorageSize()
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -89,7 +79,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorage, err := builders.NewBlockStorageBuilder().
 		Name(blockStorageName).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -105,7 +95,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	instance1, err := builders.NewInstanceBuilder().
 		Name(instanceName1).
-		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -124,7 +114,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	instance2, err := builders.NewInstanceBuilder().
 		Name(instanceName2).
-		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -143,7 +133,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	instance3, err := builders.NewInstanceBuilder().
 		Name(instanceName3).
-		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -177,7 +167,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.ComputeProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.ConfigureTags(t, sdkconsts.ComputeProviderV1Name, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -189,9 +179,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStatePending,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -203,9 +193,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	expectedBlockSpec := &block.Spec
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectedBlockMeta,
+			Spec:           expectedBlockSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -218,9 +208,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectInstanceSpec := &instance.Spec
 		stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.Client.ComputeV1, &instance,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-				Metadata:      expectInstanceMeta,
-				Spec:          expectInstanceSpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectInstanceMeta,
+				Spec:           expectInstanceSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}

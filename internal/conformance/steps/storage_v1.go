@@ -33,11 +33,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName
 				resp, err := api.CreateOrUpdateBlockStorage(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyBlockStorageSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyBlockStorageSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -59,11 +59,11 @@ func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, ap
 				resp, err := api.GetBlockStorageUntilState(ctx, wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyBlockStorageSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyBlockStorageSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -130,11 +130,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string
 				resp, err := api.CreateOrUpdateImage(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyImageSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyImageSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -156,11 +156,11 @@ func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api secap
 				resp, err := api.GetImageUntilState(ctx, tref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyImageSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyImageSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }

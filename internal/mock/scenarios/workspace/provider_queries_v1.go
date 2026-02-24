@@ -8,6 +8,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -20,7 +21,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	workspaces := params.Workspaces
 	workspace := workspaces[0]
 
-	url := generators.GenerateWorkspaceListURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant)
+	url := generators.GenerateWorkspaceListURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant)
 
 	// Create workspaces
 	err = stubs.BulkCreateWorkspacesStubV1(configurator, scenario.MockParams, workspaces)
@@ -28,7 +29,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return err
 	}
 	workspaceListResponse, err := builders.NewWorkspaceIteratorBuilder().
-		Provider(constants.WorkspaceProviderV1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).
 		Tenant(workspace.Metadata.Tenant).
 		Items(workspaces).
 		Build()
@@ -68,7 +69,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 
 	for _, workspace := range workspaces {
-		url := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Name, workspace.Metadata.Name)
+		url := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Name, workspace.Metadata.Name)
 
 		// Delete the workspace
 		if err := configurator.ConfigureDeleteStub(url, scenario.MockParams); err != nil {

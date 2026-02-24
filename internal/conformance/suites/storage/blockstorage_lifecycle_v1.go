@@ -10,6 +10,7 @@ import (
 	mockstorage "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/storage"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -41,10 +42,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
-	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	storageSkuRefObj := generators.GenerateSkuRefObject(storageSkuName)
 
 	blockStorageName := generators.GenerateBlockStorageName()
 
@@ -53,7 +51,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
@@ -65,7 +63,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorageInitial, err := builders.NewBlockStorageBuilder().
 		Name(blockStorageName).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.BlockStorageSpec{
 			SkuRef: *storageSkuRefObj,
@@ -77,7 +75,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorageUpdated, err := builders.NewBlockStorageBuilder().
 		Name(blockStorageName).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.BlockStorageSpec{
 			SkuRef: *storageSkuRefObj,
@@ -103,7 +101,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.StorageProviderV1,
+	suite.ConfigureTags(t, sdkconsts.StorageProviderV1Name,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 	)
 
@@ -118,9 +116,9 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStatePending,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -131,9 +129,9 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateActive,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -145,9 +143,9 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectedBlockSpec := &block.Spec
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectedBlockMeta,
+			Spec:           expectedBlockSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -159,9 +157,9 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectedBlockMeta,
+			Spec:           expectedBlockSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -170,18 +168,18 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectedBlockSpec.SizeGB = block.Spec.SizeGB
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Update the block storage", suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectedBlockMeta,
+			Spec:           expectedBlockSpec,
+			ResourceStates: suites.UpdatedResourceExpectedStates,
 		},
 	)
 
 	// Get the updated block storage
 	block = stepsBuilder.GetBlockStorageV1Step("Get the updated block storage", suite.Client.StorageV1, blockWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:      expectedBlockMeta,
-			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectedBlockMeta,
+			Spec:           expectedBlockSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 

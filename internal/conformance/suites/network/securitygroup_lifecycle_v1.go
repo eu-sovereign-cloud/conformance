@@ -8,6 +8,7 @@ import (
 	mockNetwork "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -35,7 +36,7 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
@@ -47,7 +48,7 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	securityGroupInitial, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.SecurityGroupSpec{
 			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
@@ -58,7 +59,7 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	securityGroupUpdated, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.SecurityGroupSpec{
 			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionEgress}},
@@ -81,7 +82,7 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *SecurityGroupLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.NetworkProviderV1,
+	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 	)
@@ -96,9 +97,9 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStatePending,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -109,9 +110,9 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateActive,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -123,9 +124,9 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectGroupSpec := &group.Spec
 	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", suite.Client.NetworkV1, group,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-			Metadata:      expectGroupMeta,
-			Spec:          expectGroupSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectGroupMeta,
+			Spec:           expectGroupSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -137,9 +138,9 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetSecurityGroupV1Step("Get the created security group", suite.Client.NetworkV1, groupWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-			Metadata:      expectGroupMeta,
-			Spec:          expectGroupSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectGroupMeta,
+			Spec:           expectGroupSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -148,18 +149,18 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectGroupSpec.Rules = group.Spec.Rules
 	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Update the security group", suite.Client.NetworkV1, group,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-			Metadata:      expectGroupMeta,
-			Spec:          expectGroupSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectGroupMeta,
+			Spec:           expectGroupSpec,
+			ResourceStates: suites.UpdatedResourceExpectedStates,
 		},
 	)
 
 	// Get the updated security group
 	stepsBuilder.GetSecurityGroupV1Step("Get the updated security group", suite.Client.NetworkV1, groupWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-			Metadata:      expectGroupMeta,
-			Spec:          expectGroupSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectGroupMeta,
+			Spec:           expectGroupSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 

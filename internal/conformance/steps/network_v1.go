@@ -33,11 +33,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName stri
 				resp, err := api.CreateOrUpdateNetwork(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyNetworkSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyNetworkSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -59,11 +59,11 @@ func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api sec
 				resp, err := api.GetNetworkUntilState(ctx, wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyNetworkSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyNetworkSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -130,11 +130,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepN
 				resp, err := api.CreateOrUpdateInternetGateway(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyInternetGatewaySpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyInternetGatewaySpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -156,11 +156,11 @@ func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string,
 				resp, err := api.GetInternetGatewayUntilState(ctx, wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyInternetGatewaySpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyInternetGatewaySpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -228,11 +228,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName s
 				resp, err := api.CreateOrUpdateRouteTable(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyRouteTableSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyRouteTableSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -254,11 +254,11 @@ func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api 
 				resp, err := api.GetRouteTableUntilState(ctx, nref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyRouteTableSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyRouteTableSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -325,11 +325,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName strin
 				resp, err := api.CreateOrUpdateSubnet(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifySubnetSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySubnetSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -351,11 +351,11 @@ func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api seca
 				resp, err := api.GetSubnetUntilState(ctx, nref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifySubnetSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySubnetSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -422,11 +422,11 @@ func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName str
 				resp, err := api.CreateOrUpdatePublicIp(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyPublicIpSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyPublicIpSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -448,11 +448,11 @@ func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api se
 				resp, err := api.GetPublicIpUntilState(ctx, wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyPublicIpSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyPublicIpSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -520,11 +520,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, 
 				resp, err := api.CreateOrUpdateNic(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyNicSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyNicSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -546,11 +546,11 @@ func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api secapi.
 				resp, err := api.GetNicUntilState(ctx, wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyNicSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyNicSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -617,11 +617,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepNam
 				resp, err := api.CreateOrUpdateSecurityGroup(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifySecurityGroupSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySecurityGroupSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -643,11 +643,11 @@ func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, a
 				resp, err := api.GetSecurityGroupUntilState(ctx, wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifySecurityGroupSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySecurityGroupSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
