@@ -41,6 +41,9 @@ func ConfigureImageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params 
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -62,6 +65,9 @@ func ConfigureImageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params 
 	}
 
 	// Get the created block storage
+	if err := configurator.ConfigureGetCreatingBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -83,6 +89,9 @@ func ConfigureImageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params 
 	}
 
 	// Get the created image
+	if err := configurator.ConfigureGetCreatingImageStub(imageResponse, imageUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveImageStub(imageResponse, imageUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -94,6 +103,9 @@ func ConfigureImageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params 
 	}
 
 	// Get the updated image
+	if err := configurator.ConfigureGetUpdatingImageStub(imageResponse, imageUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveImageStub(imageResponse, imageUrl, scenario.MockParams); err != nil {
 		return err
 	}

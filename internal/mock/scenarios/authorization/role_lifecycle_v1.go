@@ -36,6 +36,9 @@ func ConfigureRoleLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *
 	}
 
 	// Get the created role
+	if err := configurator.ConfigureGetCreatingRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -47,6 +50,9 @@ func ConfigureRoleLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *
 	}
 
 	// Get the updated role
+	if err := configurator.ConfigureGetUpdatingRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
 		return err
 	}
