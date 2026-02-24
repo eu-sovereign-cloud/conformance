@@ -8,18 +8,18 @@ import (
 
 // Workspace
 
-func (configurator *stubConfigurator) ConfigureCreateWorkspaceStub(response *schema.Workspace, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureCreateWorkspaceStub(response *schema.Workspace, url string, params *mock.MockParams) error {
 	setCreatedRegionalResourceMetadata(response.Metadata)
-	response.Status = newWorkspaceStatus(schema.ResourceStateCreating)
+	response.Status = newWorkspaceStatus(schema.ResourceStatePending)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureUpdateWorkspaceStubWithLabels(response *schema.Workspace, url string, params *mock.MockParams, labels schema.Labels) error {
+func (configurator *Configurator) ConfigureUpdateWorkspaceStubWithLabels(response *schema.Workspace, url string, params *mock.MockParams, labels schema.Labels) error {
 	setModifiedRegionalResourceMetadata(response.Metadata)
-	setWorkspaceState(response.Status, schema.ResourceStateUpdating)
+	setWorkspaceState(response.Status, schema.ResourceStateActive)
 	response.Labels = labels
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -27,7 +27,15 @@ func (configurator *stubConfigurator) ConfigureUpdateWorkspaceStubWithLabels(res
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetActiveWorkspaceStub(response *schema.Workspace, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureGetCreatingWorkspaceStub(response *schema.Workspace, url string, params *mock.MockParams) error {
+	setWorkspaceState(response.Status, schema.ResourceStateCreating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetActiveWorkspaceStub(response *schema.Workspace, url string, params *mock.MockParams) error {
 	setWorkspaceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -35,7 +43,15 @@ func (configurator *stubConfigurator) ConfigureGetActiveWorkspaceStub(response *
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetListActiveWorkspaceStub(response *workspace.WorkspaceIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+func (configurator *Configurator) ConfigureGetUpdatingWorkspaceStub(response *schema.Workspace, url string, params *mock.MockParams) error {
+	setWorkspaceState(response.Status, schema.ResourceStateUpdating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetListActiveWorkspaceStub(response *workspace.WorkspaceIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

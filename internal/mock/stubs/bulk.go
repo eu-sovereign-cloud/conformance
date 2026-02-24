@@ -12,7 +12,7 @@ import (
 // Authorization
 
 // TODO Find a better package to it
-func BulkCreateRolesStubV1(configurator *stubConfigurator,
+func BulkCreateRolesStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	rolesParams []schema.Role,
 ) error {
@@ -38,7 +38,7 @@ func BulkCreateRolesStubV1(configurator *stubConfigurator,
 	return nil
 }
 
-func BulkCreateRoleAssignmentsStubV1(configurator *stubConfigurator,
+func BulkCreateRoleAssignmentsStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	roleAssignmentParams []schema.RoleAssignment,
 ) error {
@@ -67,7 +67,7 @@ func BulkCreateRoleAssignmentsStubV1(configurator *stubConfigurator,
 
 // Workspace
 
-func BulkCreateWorkspacesStubV1(configurator *stubConfigurator,
+func BulkCreateWorkspacesStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	workspaceParams []schema.Workspace,
 ) error {
@@ -94,7 +94,7 @@ func BulkCreateWorkspacesStubV1(configurator *stubConfigurator,
 
 // Compute
 
-func BulkCreateInstancesStubV1(configurator *stubConfigurator,
+func BulkCreateInstancesStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	instanceParams []schema.Instance,
 ) error {
@@ -122,7 +122,7 @@ func BulkCreateInstancesStubV1(configurator *stubConfigurator,
 
 // Storage
 
-func BulkCreateBlockStoragesStubV1(configurator *stubConfigurator,
+func BulkCreateBlockStoragesStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	blockStorageParams []schema.BlockStorage,
 ) error {
@@ -149,7 +149,7 @@ func BulkCreateBlockStoragesStubV1(configurator *stubConfigurator,
 	return nil
 }
 
-func BulkCreateImagesStubV1(configurator *stubConfigurator,
+func BulkCreateImagesStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	imageParams []schema.Image,
 ) error {
@@ -177,7 +177,7 @@ func BulkCreateImagesStubV1(configurator *stubConfigurator,
 
 // Network
 
-func BulkCreateNetworksStubV1(configurator *stubConfigurator,
+func BulkCreateNetworksStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	networkParams []schema.Network,
 ) error {
@@ -203,7 +203,7 @@ func BulkCreateNetworksStubV1(configurator *stubConfigurator,
 	return nil
 }
 
-func BulkCreateInternetGatewaysStubV1(configurator *stubConfigurator,
+func BulkCreateInternetGatewaysStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	internetGatewayParams []schema.InternetGateway,
 ) error {
@@ -229,7 +229,7 @@ func BulkCreateInternetGatewaysStubV1(configurator *stubConfigurator,
 	return nil
 }
 
-func BulkCreateRouteTableStubV1(configurator *stubConfigurator,
+func BulkCreateRouteTableStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	routeTableParams []schema.RouteTable,
 ) error {
@@ -254,7 +254,7 @@ func BulkCreateRouteTableStubV1(configurator *stubConfigurator,
 	return nil
 }
 
-func BulkCreateSubnetsStubV1(configurator *stubConfigurator,
+func BulkCreateSubnetsStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	subnetParams []schema.Subnet,
 ) error {
@@ -279,7 +279,7 @@ func BulkCreateSubnetsStubV1(configurator *stubConfigurator,
 	return nil
 }
 
-func BulkCreatePublicIpsStubV1(configurator *stubConfigurator,
+func BulkCreatePublicIpsStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	publicIpParams []schema.PublicIp,
 ) error {
@@ -304,7 +304,7 @@ func BulkCreatePublicIpsStubV1(configurator *stubConfigurator,
 	return nil
 }
 
-func BulkCreateNicsStubV1(configurator *stubConfigurator,
+func BulkCreateNicsStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	nicParams []schema.Nic,
 ) error {
@@ -329,7 +329,7 @@ func BulkCreateNicsStubV1(configurator *stubConfigurator,
 	return nil
 }
 
-func BulkCreateSecurityGroupsStubV1(configurator *stubConfigurator,
+func BulkCreateSecurityGroupsStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	securityGroupParams []schema.SecurityGroup,
 ) error {

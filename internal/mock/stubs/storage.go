@@ -9,25 +9,33 @@ import (
 
 // Block storage
 
-func (configurator *stubConfigurator) ConfigureCreateBlockStorageStub(response *schema.BlockStorage, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureCreateBlockStorageStub(response *schema.BlockStorage, url string, params *mock.MockParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
-	response.Status = newBlockStorageStatus(schema.ResourceStateCreating)
+	response.Status = newBlockStorageStatus(schema.ResourceStatePending)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureUpdateBlockStorageStub(response *schema.BlockStorage, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureUpdateBlockStorageStub(response *schema.BlockStorage, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
-	setBlockStorageState(response.Status, schema.ResourceStateUpdating)
+	setBlockStorageState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetActiveBlockStorageStub(response *schema.BlockStorage, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureGetCreatingBlockStorageStub(response *schema.BlockStorage, url string, params *mock.MockParams) error {
+	setBlockStorageState(response.Status, schema.ResourceStateCreating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetActiveBlockStorageStub(response *schema.BlockStorage, url string, params *mock.MockParams) error {
 	setBlockStorageState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -35,7 +43,15 @@ func (configurator *stubConfigurator) ConfigureGetActiveBlockStorageStub(respons
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetListBlockStorageStub(response storage.BlockStorageIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+func (configurator *Configurator) ConfigureGetUpdatingBlockStorageStub(response *schema.BlockStorage, url string, params *mock.MockParams) error {
+	setBlockStorageState(response.Status, schema.ResourceStateUpdating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetListBlockStorageStub(response storage.BlockStorageIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -44,25 +60,33 @@ func (configurator *stubConfigurator) ConfigureGetListBlockStorageStub(response 
 
 // Image
 
-func (configurator *stubConfigurator) ConfigureCreateImageStub(response *schema.Image, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureCreateImageStub(response *schema.Image, url string, params *mock.MockParams) error {
 	setCreatedRegionalResourceMetadata(response.Metadata)
-	response.Status = newImageStatus(schema.ResourceStateCreating)
+	response.Status = newImageStatus(schema.ResourceStatePending)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureUpdateImageStub(response *schema.Image, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureUpdateImageStub(response *schema.Image, url string, params *mock.MockParams) error {
 	setModifiedRegionalResourceMetadata(response.Metadata)
-	setImageState(response.Status, schema.ResourceStateUpdating)
+	setImageState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetActiveImageStub(response *schema.Image, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureGetCreatingImageStub(response *schema.Image, url string, params *mock.MockParams) error {
+	setImageState(response.Status, schema.ResourceStateCreating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetActiveImageStub(response *schema.Image, url string, params *mock.MockParams) error {
 	setImageState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -70,14 +94,22 @@ func (configurator *stubConfigurator) ConfigureGetActiveImageStub(response *sche
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetListImageStub(response storage.ImageIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+func (configurator *Configurator) ConfigureGetUpdatingImageStub(response *schema.Image, url string, params *mock.MockParams) error {
+	setImageState(response.Status, schema.ResourceStateUpdating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetListImageStub(response storage.ImageIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *stubConfigurator) ConfigureGetListStorageSkuStub(response storage.SkuIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+func (configurator *Configurator) ConfigureGetListStorageSkuStub(response storage.SkuIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

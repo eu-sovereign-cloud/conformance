@@ -1,24 +1,73 @@
 package constants
 
+type SuiteName string
+
+func (s SuiteName) String() string {
+	return string(s)
+}
+
 const (
 	// Suite Names
 
-	AuthorizationV1LifeCycleSuiteName = "Authorization.V1.LifeCycle"
-	AuthorizationV1ListSuiteName      = "Authorization.V1.List"
+	AuthorizationProviderLifeCycleV1SuiteName SuiteName = "Authorization.V1.ProviderLifeCycle"
+	AuthorizationProviderQueriesV1SuiteName   SuiteName = "Authorization.V1.ProviderQueries"
+	RoleLifeCycleV1SuiteName                  SuiteName = "Authorization.V1.RoleLifeCycle"
+	RoleAssignmentLifeCycleV1SuiteName        SuiteName = "Authorization.V1.RoleAssignmentLifeCycle"
 
-	RegionV1ListSuiteName = "Region.V1.List"
+	RegionProviderQueriesV1SuiteName SuiteName = "Region.V1.ProviderQueries"
 
-	WorkspaceV1LifeCycleSuiteName = "Workspace.V1.LifeCycle"
-	WorkspaceV1ListSuiteName      = "Workspace.V1.List"
+	WorkspaceProviderLifeCycleV1SuiteName SuiteName = "Workspace.V1.ProviderLifeCycle"
+	WorkspaceProviderQueriesV1SuiteName   SuiteName = "Workspace.V1.ProviderQueries"
 
-	ComputeV1LifeCycleSuiteName = "Compute.V1.LifeCycle"
-	ComputeV1ListSuiteName      = "Compute.V1.List"
+	ComputeProviderLifeCycleV1SuiteName SuiteName = "Compute.V1.ProviderLifeCycle"
+	ComputeProviderQueriesV1SuiteName   SuiteName = "Compute.V1.ProviderQueries"
 
-	StorageV1LifeCycleSuiteName = "Storage.V1.LifeCycle"
-	StorageV1ListSuiteName      = "Storage.V1.List"
+	StorageProviderLifeCycleV1SuiteName SuiteName = "Storage.V1.ProviderLifeCycle"
+	StorageProviderQueriesV1SuiteName   SuiteName = "Storage.V1.ProviderQueries"
+	BlockStorageLifeCycleV1SuiteName    SuiteName = "Storage.V1.BlockStorageLifeCycle"
+	ImageLifeCycleV1SuiteName           SuiteName = "Storage.V1.ImageLifeCycle"
 
-	NetworkV1LifeCycleSuiteName = "Network.V1.LifeCycle"
-	NetworkV1ListSuiteName      = "Network.V1.List"
+	NetworkProviderLifeCycleV1SuiteName SuiteName = "Network.V1.ProviderLifeCycle"
+	NetworkProviderQueriesV1SuiteName   SuiteName = "Network.V1.ProviderQueries"
+	NetworkLifeCycleV1SuiteName         SuiteName = "Network.V1.NetworkLifeCycle"
+	SubnetLifeCycleV1SuiteName          SuiteName = "Network.V1.SubnetLifeCycle"
+	SecurityGroupLifeCycleV1SuiteName   SuiteName = "Network.V1.SecurityGroupLifeCycle"
+	InternetGatewayLifeCycleV1SuiteName SuiteName = "Network.V1.InternetGatewayLifeCycle"
+	PublicIpLifeCycleV1SuiteName        SuiteName = "Network.V1.PublicIpLifeCycle"
+	NicLifeCycleV1SuiteName             SuiteName = "Network.V1.NicLifeCycle"
+	RouteTableLifeCycleV1SuiteName      SuiteName = "Network.V1.RouteTableLifeCycle"
 
-	FoundationUsageV1SuiteName = "Foundation.V1.Usage"
+	UsageFoundationProvidersV1SuiteName SuiteName = "Usage.V1.FoundationProviders"
 )
+
+var AllSuiteNames = []SuiteName{
+	AuthorizationProviderLifeCycleV1SuiteName,
+	AuthorizationProviderQueriesV1SuiteName,
+	RoleLifeCycleV1SuiteName,
+	RoleAssignmentLifeCycleV1SuiteName,
+
+	RegionProviderQueriesV1SuiteName,
+
+	WorkspaceProviderLifeCycleV1SuiteName,
+	WorkspaceProviderQueriesV1SuiteName,
+
+	ComputeProviderLifeCycleV1SuiteName,
+	ComputeProviderQueriesV1SuiteName,
+
+	StorageProviderLifeCycleV1SuiteName,
+	StorageProviderQueriesV1SuiteName,
+	BlockStorageLifeCycleV1SuiteName,
+	ImageLifeCycleV1SuiteName,
+
+	NetworkProviderLifeCycleV1SuiteName,
+	NetworkProviderQueriesV1SuiteName,
+	NetworkLifeCycleV1SuiteName,
+	SubnetLifeCycleV1SuiteName,
+	SecurityGroupLifeCycleV1SuiteName,
+	InternetGatewayLifeCycleV1SuiteName,
+	PublicIpLifeCycleV1SuiteName,
+	NicLifeCycleV1SuiteName,
+	RouteTableLifeCycleV1SuiteName,
+
+	UsageFoundationProvidersV1SuiteName,
+}

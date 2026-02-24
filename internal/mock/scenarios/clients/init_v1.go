@@ -4,21 +4,16 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
+	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
-
-	"github.com/wiremock/go-wiremock"
 )
 
-func ConfigureInitScenarioV1(params *params.ClientsInitParams) (*wiremock.Client, error) {
-	scenarios.LogScenarioMocking(constants.ClientsInitSuiteName)
-
-	configurator, err := stubs.NewStubConfigurator(constants.ClientsInitSuiteName, params.MockParams)
+func ConfigureInitScenarioV1(scenario *mockscenarios.Scenario, params *params.ClientsInitParams) error {
+	configurator, err := scenario.StartConfiguration()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	url := generators.GenerateRegionURL(constants.RegionProviderV1, params.Region)
@@ -34,17 +29,15 @@ func ConfigureInitScenarioV1(params *params.ClientsInitParams) (*wiremock.Client
 		Spec(spec).
 		Build()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if err := configurator.ConfigureClientsInitStub(response, url, params.MockParams); err != nil {
-		return nil, err
+	if err := configurator.ConfigureClientsInitStub(response, url, scenario.MockParams); err != nil {
+		return err
 	}
 
-	// Finish the stubs configuration
-	if client, err := configurator.Finish(); err != nil {
-		return nil, err
-	} else {
-		return client, nil
+	if err := scenario.FinishConfiguration(configurator); err != nil {
+		return err
 	}
+	return nil
 }

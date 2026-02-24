@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run",
+            "name": "Run All Suites",
             "type": "go",
             "request": "launch",
             "mode": "test",
@@ -26,7 +26,7 @@
             ]
         },
         {
-            "name": "Run Region",
+            "name": "Run Region Provider Suites",
             "type": "go",
             "request": "launch",
             "mode": "test",
@@ -39,12 +39,15 @@
                 "--client.tenant=tenant-1",
                 "--scenarios.filter=Region.V1.*",
                 "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
         },
         {
-            "name": "Run Authorization",
+            "name": "Run Authorization Provider Suites",
             "type": "go",
             "request": "launch",
             "mode": "test",
@@ -59,12 +62,15 @@
                 "--scenarios.filter=Authorization.V1.*",
                 "--scenarios.users=user1,user2",
                 "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",                
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
         },
         {
-            "name": "Run Workspace",
+            "name": "Run Workspace Provider Suites",
             "type": "go",
             "request": "launch",
             "mode": "test",
@@ -77,12 +83,15 @@
                 "--client.tenant=tenant-1",
                 "--scenarios.filter=Workspace.V1.*",
                 "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
         },
         {
-            "name": "Run Storage",
+            "name": "Run Storage Provider Suites",
             "type": "go",
             "request": "launch",
             "mode": "test",
@@ -95,12 +104,15 @@
                 "--client.tenant=tenant-1",
                 "--scenarios.filter=Storage.V1.*",
                 "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
         },
         {
-            "name": "Run Compute",
+            "name": "Run Compute Provider Suites",
             "type": "go",
             "request": "launch",
             "mode": "test",
@@ -113,12 +125,15 @@
                 "--client.tenant=tenant-1",
                 "--scenarios.filter=Compute.V1.*",
                 "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
         },
         {
-            "name": "Run Network",
+            "name": "Run Network Provider Suite",
             "type": "go",
             "request": "launch",
             "mode": "test",
@@ -142,7 +157,7 @@
             ]
         },
         {
-            "name": "Run Foundation",
+            "name": "Run Usage",
             "type": "go",
             "request": "launch",
             "mode": "test",
@@ -154,11 +169,14 @@
                 "--client.auth.token=test-token",
                 "--client.region=region-1",
                 "--client.tenant=tenant-1",
-                "--scenarios.filter=Foundation.V1.*",
+                "--scenarios.filter=Usage.V1.*",
                 "--scenarios.users=user1,user2",
                 "--scenarios.cidr=10.1.0.0/16",
                 "--scenarios.public.ips=52.93.126.1/26",
                 "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
                 "--mock.enabled=true",
                 "--mock.server.url=http://localhost:8080"
             ]
