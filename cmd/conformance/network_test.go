@@ -41,4 +41,76 @@ func TestNetworkV1Suites(t *testing.T) {
 	if providerQueriesSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, providerQueriesSuite)
 	}
+
+	// Network Lifecycle Suite
+	networkLifecycleSuite := network.CreateNetworkLifeCycleV1TestSuite(regionalTestSuite,
+		&network.NetworkLifeCycleV1Config{
+			NetworkCidr: config.Parameters.ScenariosCidr,
+			NetworkSkus: config.Clients.NetworkSkus,
+		},
+	)
+	if networkLifecycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, networkLifecycleSuite)
+	}
+
+	// Nic Lifecycle Suite
+	nicLifecycleSuite := network.CreateNicLifeCycleV1TestSuite(regionalTestSuite,
+		&network.NicLifeCycleV1Config{
+			NetworkCidr:    config.Parameters.ScenariosCidr,
+			PublicIpsRange: config.Parameters.ScenariosPublicIps,
+			RegionZones:    config.Clients.RegionZones,
+			NetworkSkus:    config.Clients.NetworkSkus,
+		},
+	)
+	if nicLifecycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, nicLifecycleSuite)
+	}
+
+	// Route Table Lifecycle Suite
+	routeTableLifecycleSuite := network.CreateRouteTableLifeCycleV1TestSuite(regionalTestSuite,
+		&network.RouteTableLifeCycleV1Config{
+			NetworkCidr:    config.Parameters.ScenariosCidr,
+			PublicIpsRange: config.Parameters.ScenariosPublicIps,
+			RegionZones:    config.Clients.RegionZones,
+			NetworkSkus:    config.Clients.NetworkSkus,
+		},
+	)
+	if routeTableLifecycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, routeTableLifecycleSuite)
+	}
+
+	// Internet Gateway Lifecycle Suite
+	internetGatewayLifecycleSuite := network.CreateInternetGatewayLifeCycleV1TestSuite(regionalTestSuite)
+	if internetGatewayLifecycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, internetGatewayLifecycleSuite)
+	}
+
+	// Subnet Lifecycle Suite
+	subnetLifecycleSuite := network.CreateSubnetLifeCycleV1TestSuite(regionalTestSuite,
+		&network.SubnetLifeCycleV1Config{
+			NetworkCidr: config.Parameters.ScenariosCidr,
+			RegionZones: config.Clients.RegionZones,
+			NetworkSkus: config.Clients.NetworkSkus,
+		},
+	)
+	if subnetLifecycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, subnetLifecycleSuite)
+	}
+
+	// Public IP Lifecycle Suite
+	publicIpLifecycleSuite := network.CreatePublicIpLifeCycleV1TestSuite(regionalTestSuite,
+		&network.PublicIpLifeCycleV1Config{
+			PublicIpsRange: config.Parameters.ScenariosPublicIps,
+			NetworkSkus:    config.Clients.NetworkSkus,
+		},
+	)
+	if publicIpLifecycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, publicIpLifecycleSuite)
+	}
+
+	// Security Group Lifecycle Suite
+	securityGroupLifecycleSuite := network.CreateSecurityGroupLifeCycleV1TestSuite(regionalTestSuite)
+	if securityGroupLifecycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, securityGroupLifecycleSuite)
+	}
 }
