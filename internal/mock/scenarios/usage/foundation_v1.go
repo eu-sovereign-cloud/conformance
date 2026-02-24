@@ -62,6 +62,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created role
+	if err := configurator.ConfigureGetCreatingRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -83,6 +86,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created role assignment
+	if err := configurator.ConfigureGetCreatingRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -104,6 +110,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -127,6 +136,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created image
+	if err := configurator.ConfigureGetCreatingImageStub(imageResponse, imageUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveImageStub(imageResponse, imageUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -148,6 +160,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created block storage
+	if err := configurator.ConfigureGetCreatingBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -171,6 +186,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -192,6 +210,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created internet gateway
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -213,6 +234,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created route table
+	if err := configurator.ConfigureGetCreatingRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -234,6 +258,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created subnet
+	if err := configurator.ConfigureGetCreatingSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -255,6 +282,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created security group
+	if err := configurator.ConfigureGetCreatingSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -276,6 +306,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created public ip
+	if err := configurator.ConfigureGetCreatingPublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -297,6 +330,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created nic
+	if err := configurator.ConfigureGetCreatingNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -320,6 +356,9 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 	}
 
 	// Get the created instance
+	if err := configurator.ConfigureGetCreatingInstanceStub(instanceResponse, instanceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInstanceStub(instanceResponse, instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}

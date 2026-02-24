@@ -120,7 +120,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
 			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -147,7 +147,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:      expectedBlockMeta,
 			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -172,7 +172,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:      expectedBlockMeta,
 			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateUpdating,
+			ResourceState: schema.ResourceStateActive,
 		},
 	)
 

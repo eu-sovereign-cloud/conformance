@@ -210,7 +210,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
 			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -225,7 +225,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 				Metadata:      expectedBlockMeta,
 				Spec:          expectedBlockSpec,
-				ResourceState: schema.ResourceStateCreating,
+				ResourceState: schema.ResourceStatePending,
 			},
 		)
 	}
@@ -262,7 +262,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 				Metadata:      expectedImageMeta,
 				Spec:          expectedImageSpec,
-				ResourceState: schema.ResourceStateCreating,
+				ResourceState: schema.ResourceStatePending,
 			},
 		)
 	}

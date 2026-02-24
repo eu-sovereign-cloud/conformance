@@ -84,7 +84,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 				Labels:        expectLabels,
 				Metadata:      expectMeta,
-				ResourceState: schema.ResourceStateCreating,
+				ResourceState: schema.ResourceStatePending,
 			},
 		)
 

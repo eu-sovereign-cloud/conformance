@@ -54,6 +54,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -75,6 +78,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -86,6 +92,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the updated network
+	if err := configurator.ConfigureGetUpdatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -107,6 +116,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created internet gateway
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -118,6 +130,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the updated internet gateway
+	if err := configurator.ConfigureGetUpdatingInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -139,6 +154,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created route table
+	if err := configurator.ConfigureGetCreatingRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -150,6 +168,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the updated route table
+	if err := configurator.ConfigureGetUpdatingRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -171,6 +192,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created subnet
+	if err := configurator.ConfigureGetCreatingSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -182,6 +206,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the updated subnet
+	if err := configurator.ConfigureGetUpdatingSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -203,6 +230,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created public ip
+	if err := configurator.ConfigureGetCreatingPublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -214,6 +244,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the updated public ip
+	if err := configurator.ConfigureGetUpdatingPublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -235,6 +268,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created nic
+	if err := configurator.ConfigureGetCreatingNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -246,6 +282,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the updated nic
+	if err := configurator.ConfigureGetUpdatingNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -267,6 +306,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created security group
+	if err := configurator.ConfigureGetCreatingSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -278,6 +320,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the updated security group
+	if err := configurator.ConfigureGetUpdatingSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -299,6 +344,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created block storage
+	if err := configurator.ConfigureGetCreatingBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -320,6 +368,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the created instance
+	if err := configurator.ConfigureGetCreatingInstanceStub(instanceResponse, instanceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveInstanceStub(instanceResponse, instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}

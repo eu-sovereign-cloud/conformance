@@ -373,7 +373,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:      expectRoleMeta,
 			Spec:          expectRoleSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -400,7 +400,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:      expectRoleAssignMeta,
 			Spec:          expectRoleAssignSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -427,7 +427,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
 			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -454,7 +454,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:      expectedImageMeta,
 			Spec:          expectedImageSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -481,7 +481,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:      expectedBlockMeta,
 			Spec:          expectedBlockSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -509,7 +509,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Metadata:      expectNetworkMeta,
 			Spec:          expectNetworkSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -537,7 +537,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:      expectGatewayMeta,
 			Spec:          expectGatewaySpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -565,7 +565,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:      expectRouteMeta,
 			Spec:          expectRouteSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -594,7 +594,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Metadata:      expectSubnetMeta,
 			Spec:          expectSubnetSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -623,7 +623,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			Metadata:      expectGroupMeta,
 			Spec:          expectGroupSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -651,7 +651,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Metadata:      expectPublicIpMeta,
 			Spec:          expectPublicIpSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -679,7 +679,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			Metadata:      expectNicMeta,
 			Spec:          expectNicSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -707,7 +707,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:      expectInstanceMeta,
 			Spec:          expectInstanceSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 

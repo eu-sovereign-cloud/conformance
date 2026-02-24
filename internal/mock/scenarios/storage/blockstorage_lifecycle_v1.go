@@ -39,6 +39,9 @@ func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, 
 	}
 
 	// Get the created workspace
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -60,6 +63,9 @@ func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, 
 	}
 
 	// Get the created block storage
+	if err := configurator.ConfigureGetCreatingBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -71,6 +77,9 @@ func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, 
 	}
 
 	// Get the updated block storage
+	if err := configurator.ConfigureGetUpdatingBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetActiveBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
