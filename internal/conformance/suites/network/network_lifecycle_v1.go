@@ -163,7 +163,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:        expectWorkspaceLabels,
 			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -190,7 +190,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Metadata:      expectNetworkMeta,
 			Spec:          expectNetworkSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -215,7 +215,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Metadata:      expectNetworkMeta,
 			Spec:          expectNetworkSpec,
-			ResourceState: schema.ResourceStateUpdating,
+			ResourceState: schema.ResourceStateActive,
 		},
 	)
 
@@ -238,7 +238,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:      expectRouteMeta,
 			Spec:          expectRouteSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 
@@ -267,7 +267,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:      expectInternetGatMeta,
 			Spec:          expectInternetGatSpec,
-			ResourceState: schema.ResourceStateCreating,
+			ResourceState: schema.ResourceStatePending,
 		},
 	)
 	// Get the created internet gateway
