@@ -782,6 +782,93 @@ func (builder *NicIteratorBuilder) Build() (*network.NicIterator, error) {
 	}, nil
 }
 
+// SecurityGroupRule
+
+/// SecurityGroupRuleMetadataBuilder
+
+type SecurityGroupRuleMetadataBuilder struct {
+	*regionalWorkspaceResourceMetadataBuilder[SecurityGroupRuleMetadataBuilder]
+}
+
+func NewSecurityGroupRuleMetadataBuilder() *SecurityGroupRuleMetadataBuilder {
+	builder := &SecurityGroupRuleMetadataBuilder{}
+	builder.regionalWorkspaceResourceMetadataBuilder = newRegionalWorkspaceResourceMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *SecurityGroupRuleMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
+	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroupRule).build()
+	if err != nil {
+		return nil, err
+	}
+
+	resource := generators.GenerateSecurityGroupRuleResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)
+	metadata.Resource = resource
+
+	return metadata, nil
+}
+
+/// SecurityGroupRuleBuilder
+
+type SecurityGroupRuleBuilder struct {
+	*regionalWorkspaceResourceBuilder[SecurityGroupRuleBuilder, schema.SecurityGroupRuleSpec]
+	metadata *SecurityGroupRuleMetadataBuilder
+	labels   schema.Labels
+	spec     *schema.SecurityGroupRuleSpec
+}
+
+func NewSecurityGroupRuleBuilder() *SecurityGroupRuleBuilder {
+	builder := &SecurityGroupRuleBuilder{
+		metadata: NewSecurityGroupRuleMetadataBuilder(),
+		spec:     &schema.SecurityGroupRuleSpec{},
+	}
+
+	builder.regionalWorkspaceResourceBuilder = newRegionalWorkspaceResourceBuilder(newRegionalWorkspaceResourceBuilderParams[SecurityGroupRuleBuilder, schema.SecurityGroupRuleSpec]{
+		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[SecurityGroupRuleBuilder, schema.SecurityGroupRuleSpec]{
+			parent:        builder,
+			setName:       func(name string) { builder.metadata.setName(name) },
+			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:     func(labels schema.Labels) { builder.labels = labels },
+			setSpec:       func(spec *schema.SecurityGroupRuleSpec) { builder.spec = spec },
+		},
+		setTenant:    func(tenant string) { builder.metadata.Tenant(tenant) },
+		setWorkspace: func(workspace string) { builder.metadata.Workspace(workspace) },
+		setRegion:    func(region string) { builder.metadata.Region(region) },
+	})
+
+	return builder
+}
+
+func (builder *SecurityGroupRuleBuilder) validateSpec() error {
+	if err := validateRequired(builder.validator,
+		builder.spec,
+		builder.spec.Direction,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (builder *SecurityGroupRuleBuilder) Build() (*schema.SecurityGroupRule, error) {
+	if err := builder.validateSpec(); err != nil {
+		return nil, err
+	}
+
+	metadata, err := builder.metadata.Build()
+	if err != nil {
+		return nil, err
+	}
+
+	return &schema.SecurityGroupRule{
+		Metadata: metadata,
+		Labels:   builder.labels,
+		Spec:     *builder.spec,
+		Status:   &schema.Status{},
+	}, nil
+}
+
 // SecurityGroup
 
 /// SecurityGroupMetadataBuilder
@@ -849,7 +936,7 @@ func (builder *SecurityGroupBuilder) validateSpec() error {
 	}
 
 	// Validate each rule
-	for _, rule := range builder.spec.Rules {
+	for _, rule := range *builder.spec.Rules {
 		if err := validateRequired(builder.validator,
 			rule.Direction,
 		); err != nil {

@@ -116,6 +116,10 @@ func GenerateSubnetListResource(tenant, workspace, network string) string {
 	return fmt.Sprintf(subnetListResource, tenant, workspace, network)
 }
 
+func GenerateSecurityGroupRuleResource(tenant, workspace, securityGroupRule string) string {
+	return fmt.Sprintf(securityGroupRuleResource, tenant, workspace, securityGroupRule)
+}
+
 func GenerateSecurityGroupResource(tenant, workspace, securityGroup string) string {
 	return fmt.Sprintf(securityGroupResource, tenant, workspace, securityGroup)
 }

@@ -96,7 +96,7 @@ func (suite TestSuite) verifyAssertState(stepCtx provider.StepCtx) {
 
 func (suite *TestSuite) VerifyStatusStep(ctx provider.StepCtx, expected []schema.ResourceState, actual *schema.ResourceState) {
 	ctx.WithNewStep("Verify status state", func(stepCtx provider.StepCtx) {
-		stepCtx.Require().Equal(expected, *actual, "Status state should match expected")
+		stepCtx.Require().Contains(expected, *actual, "Status state should match expected")
 	})
 }
 
@@ -249,12 +249,18 @@ func (suite *TestSuite) VerifyNicSpecStep(ctx provider.StepCtx, expected *schema
 	})
 }
 
+func (suite *TestSuite) VerifySecurityGroupRuleSpecStep(ctx provider.StepCtx, expected *schema.SecurityGroupRuleSpec, actual *schema.SecurityGroupRuleSpec) {
+	ctx.WithNewStep("Verify SecurityGroupRuleSpec", func(stepCtx provider.StepCtx) {
+		stepCtx.Require().Equal(expected.Direction, actual.Direction, "Direction should match expected")
+	})
+}
+
 func (suite *TestSuite) VerifySecurityGroupSpecStep(ctx provider.StepCtx, expected *schema.SecurityGroupSpec, actual *schema.SecurityGroupSpec) {
 	ctx.WithNewStep("Verify SecurityGroupSpec", func(stepCtx provider.StepCtx) {
-		stepCtx.Require().Equal(len(expected.Rules), len(actual.Rules), "Rule list length should match expected")
-		for i := 0; i < len(expected.Rules); i++ {
-			expectedRule := expected.Rules[i]
-			actualRule := actual.Rules[i]
+		stepCtx.Require().Equal(len(*expected.Rules), len(*actual.Rules), "Rule list length should match expected")
+		for i := 0; i < len(*expected.Rules); i++ {
+			expectedRule := (*expected.Rules)[i]
+			actualRule := (*actual.Rules)[i]
 			stepCtx.Require().Equal(expectedRule.Direction, actualRule.Direction, fmt.Sprintf("Rule [%d] Direction should match expected", i))
 		}
 	})

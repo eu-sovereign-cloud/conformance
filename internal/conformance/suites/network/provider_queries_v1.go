@@ -365,7 +365,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.SecurityGroupSpec{
-			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group: %v", err)
@@ -379,7 +379,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.SecurityGroupSpec{
-			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group: %v", err)
