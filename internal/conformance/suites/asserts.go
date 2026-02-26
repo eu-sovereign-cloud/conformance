@@ -18,6 +18,7 @@ func (suite *TestSuite) VerifyGlobalTenantResourceMetadataStep(ctx provider.Step
 		stepCtx.Assert().Equal(expected.ApiVersion, actual.ApiVersion, "ApiVersion should match expected")
 		stepCtx.Assert().Equal(expected.Verb, actual.Verb, "Verb should match expected")
 		stepCtx.Assert().Equal(expected.Kind, actual.Kind, "Kind should match expected")
+		stepCtx.Assert().Equal(expected.Ref, actual.Ref, "Metadata: Ref should match expected")
 		stepCtx.Assert().Equal(expected.Tenant, actual.Tenant, "Tenant should match expected")
 
 		suite.verifyAssertState(stepCtx)
@@ -32,6 +33,7 @@ func (suite *TestSuite) VerifyGlobalResourceMetadataStep(ctx provider.StepCtx, e
 		stepCtx.Assert().Equal(expected.ApiVersion, actual.ApiVersion, "Metadata: ApiVersion should match expected")
 		stepCtx.Assert().Equal(expected.Verb, actual.Verb, "Metadata: Verb should match expected")
 		stepCtx.Assert().Equal(expected.Kind, actual.Kind, "Metadata: Kind should match expected")
+		stepCtx.Assert().Equal(expected.Ref, actual.Ref, "Metadata: Ref should match expected")
 
 		suite.verifyAssertState(stepCtx)
 	})
@@ -45,6 +47,7 @@ func (suite *TestSuite) VerifyRegionalResourceMetadataStep(ctx provider.StepCtx,
 		stepCtx.Assert().Equal(expected.ApiVersion, actual.ApiVersion, "Metadata: ApiVersion should match expected")
 		stepCtx.Assert().Equal(expected.Verb, actual.Verb, "Metadata: Verb should match expected")
 		stepCtx.Assert().Equal(expected.Kind, actual.Kind, "Metadata: Kind should match expected")
+		stepCtx.Assert().Equal(expected.Ref, actual.Ref, "Metadata: Ref should match expected")
 		stepCtx.Assert().Equal(expected.Tenant, actual.Tenant, "Metadata: Tenant should match expected")
 		stepCtx.Assert().Equal(expected.Region, actual.Region, "Metadata: Region should match expected")
 
@@ -60,6 +63,7 @@ func (suite *TestSuite) VerifyRegionalWorkspaceResourceMetadataStep(ctx provider
 		stepCtx.Assert().Equal(expected.ApiVersion, actual.ApiVersion, "Metadata: ApiVersion should match expected")
 		stepCtx.Assert().Equal(expected.Verb, actual.Verb, "Metadata: Verb should match expected")
 		stepCtx.Assert().Equal(expected.Kind, actual.Kind, "Metadata: Kind should match expected")
+		stepCtx.Assert().Equal(expected.Ref, actual.Ref, "Metadata: Ref should match expected")
 		stepCtx.Assert().Equal(expected.Tenant, actual.Tenant, "Metadata: Tenant should match expected")
 		stepCtx.Assert().Equal(expected.Workspace, actual.Workspace, "Metadata: Workspace should match expected")
 		stepCtx.Assert().Equal(expected.Region, actual.Region, "Metadata: Region should match expected")
@@ -76,6 +80,7 @@ func (suite *TestSuite) VerifyRegionalNetworkResourceMetadataStep(ctx provider.S
 		stepCtx.Assert().Equal(expected.ApiVersion, actual.ApiVersion, "Metadata: ApiVersion should match expected")
 		stepCtx.Assert().Equal(expected.Verb, actual.Verb, "Metadata: Verb should match expected")
 		stepCtx.Assert().Equal(expected.Kind, actual.Kind, "Metadata: Kind should match expected")
+		stepCtx.Assert().Equal(expected.Ref, actual.Ref, "Metadata: Ref should match expected")
 		stepCtx.Assert().Equal(expected.Tenant, actual.Tenant, "Metadata: Tenant should match expected")
 		stepCtx.Assert().Equal(expected.Workspace, actual.Workspace, "Metadata: Workspace should match expected")
 		stepCtx.Assert().Equal(expected.Network, actual.Network, "Metadata: Network should match expected")

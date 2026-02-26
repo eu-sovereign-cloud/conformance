@@ -42,7 +42,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	regionName2 := generators.GenerateRegionName()
 	regionName3 := generators.GenerateRegionName()
 
-	region, err := builders.NewRegionBuilder().
+	region1, err := builders.NewRegionBuilder().
 		Name(regionName).
 		Provider(sdkconsts.RegionProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Spec(&schema.RegionSpec{
@@ -78,7 +78,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Region: %v", err)
 	}
 
-	regions := []schema.Region{*region, *region2, *region3}
+	regions := []schema.Region{*region1, *region2, *region3}
 
 	params := &params.RegionProviderQueriesV1Params{
 		Regions: regions,
@@ -102,13 +102,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1)
 
 	// Call Get Region and verify response
-	expectedRegionMeta, err := builders.NewRegionMetadataBuilder().
-		Name(regions[0].Metadata.Name).
-		Provider(sdkconsts.RegionProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
+	expectedRegionMeta := suite.params.Regions[0].Metadata
 	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, expectedRegionMeta)
 
 	suite.FinishScenario()

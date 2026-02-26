@@ -6,74 +6,110 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-func generateSkuRef(name string) string {
+// Refs
+
+func GenerateRegionRef(name string) string {
+	return fmt.Sprintf(regionRef, name)
+}
+
+func GenerateSkuRef(name string) string {
 	return fmt.Sprintf(skuRef, name)
 }
 
-func GenerateSkuRefObject(name string) *schema.Reference {
-	urn := generateSkuRef(name)
-	return &schema.Reference{Resource: urn}
+func GenerateRoleRef(name string) string {
+	return fmt.Sprintf(roleRef, name)
 }
 
-func generateInstanceRef(instanceName string) string {
-	return fmt.Sprintf(instanceRef, instanceName)
+func GenerateRoleAssignmentRef(name string) string {
+	return fmt.Sprintf(roleAssignmentRef, name)
+}
+
+func GenerateWorkspaceRef(name string) string {
+	return fmt.Sprintf(workspaceRef, name)
+}
+
+func GenerateInstanceRef(name string) string {
+	return fmt.Sprintf(instanceRef, name)
+}
+
+func GenerateBlockStorageRef(name string) string {
+	return fmt.Sprintf(blockStorageRef, name)
+}
+
+func GenerateImageRef(name string) string {
+	return fmt.Sprintf(imageRef, name)
+}
+
+func GenerateNetworkRef(name string) string {
+	return fmt.Sprintf(networkRef, name)
+}
+
+func GenerateInternetGatewayRef(name string) string {
+	return fmt.Sprintf(internetGatewayRef, name)
+}
+
+func GenerateNicRef(name string) string {
+	return fmt.Sprintf(nicRef, name)
+}
+
+func GenerateRouteTableRef(name string) string {
+	return fmt.Sprintf(routeTableRef, name)
+}
+
+func GenerateSubnetRef(name string) string {
+	return fmt.Sprintf(subnetRef, name)
+}
+
+func GeneratePublicIpRef(name string) string {
+	return fmt.Sprintf(publicIpRef, name)
+}
+
+func GenerateSecurityGroupRuleRef(name string) string {
+	return fmt.Sprintf(securityGroupRuleRef, name)
+}
+
+func GenerateSecurityGroupRef(name string) string {
+	return fmt.Sprintf(securityGroupRef, name)
+}
+
+// RefObjects
+
+func GenerateSkuRefObject(name string) *schema.Reference {
+	urn := GenerateSkuRef(name)
+	return &schema.Reference{Resource: urn}
 }
 
 func GenerateInstanceRefObject(name string) *schema.Reference {
-	urn := generateInstanceRef(name)
+	urn := GenerateInstanceRef(name)
 	return &schema.Reference{Resource: urn}
-}
-
-func generateBlockStorageRef(blockStorageName string) string {
-	return fmt.Sprintf(blockStorageRef, blockStorageName)
 }
 
 func GenerateBlockStorageRefObject(name string) *schema.Reference {
-	urn := generateBlockStorageRef(name)
+	urn := GenerateBlockStorageRef(name)
 	return &schema.Reference{Resource: urn}
-}
-
-func generateInternetGatewayRef(internetGatewayName string) string {
-	return fmt.Sprintf(internetGatewayRef, internetGatewayName)
-}
-
-func GenerateInternetGatewayRefObject(name string) *schema.Reference {
-	urn := generateInternetGatewayRef(name)
-	return &schema.Reference{Resource: urn}
-}
-
-func generateNetworkRef(networkName string) string {
-	return fmt.Sprintf(networkRef, networkName)
 }
 
 func GenerateNetworkRefObject(name string) *schema.Reference {
-	urn := generateNetworkRef(name)
+	urn := GenerateNetworkRef(name)
 	return &schema.Reference{Resource: urn}
 }
 
-func generateRouteTableRef(routeTableName string) string {
-	return fmt.Sprintf(routeTableRef, routeTableName)
+func GenerateInternetGatewayRefObject(name string) *schema.Reference {
+	urn := GenerateInternetGatewayRef(name)
+	return &schema.Reference{Resource: urn}
 }
 
 func GenerateRouteTableRefObject(name string) *schema.Reference {
-	urn := generateRouteTableRef(name)
+	urn := GenerateRouteTableRef(name)
 	return &schema.Reference{Resource: urn}
-}
-
-func generateSubnetRef(subnetName string) string {
-	return fmt.Sprintf(subnetRef, subnetName)
 }
 
 func GenerateSubnetRefObject(name string) *schema.Reference {
-	urn := generateSubnetRef(name)
+	urn := GenerateSubnetRef(name)
 	return &schema.Reference{Resource: urn}
 }
 
-func generatePublicIpRef(publicIpName string) string {
-	return fmt.Sprintf(publicIpRef, publicIpName)
-}
-
 func GeneratePublicIpRefObject(name string) *schema.Reference {
-	urn := generatePublicIpRef(name)
+	urn := GeneratePublicIpRef(name)
 	return &schema.Reference{Resource: urn}
 }

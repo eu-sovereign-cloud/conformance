@@ -2,6 +2,8 @@
 package builders
 
 import (
+	"fmt"
+
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
@@ -19,13 +21,13 @@ func NewRegionMetadataBuilder() *RegionMetadataBuilder {
 }
 
 func (builder *RegionMetadataBuilder) Build() (*schema.GlobalResourceMetadata, error) {
-	metadata, err := builder.kind(schema.GlobalResourceMetadataKindResourceKindRegion).build()
+	metadata, err := builder.kind(schema.GlobalResourceMetadataKindResourceKindRegion).
+		Resource(generators.GenerateRegionResource(builder.metadata.Name)).
+		Ref(generators.GenerateRegionRef(builder.metadata.Name)).
+		build()
 	if err != nil {
 		return nil, err
 	}
-
-	resource := generators.GenerateRegionResource(builder.metadata.Name)
-	metadata.Resource = resource
 
 	return metadata, nil
 }
@@ -55,19 +57,19 @@ func NewRegionBuilder() *RegionBuilder {
 
 func (builder *RegionBuilder) validateSpec() error {
 	if err := validateRequired(builder.validator,
-		builder.spec,
-		builder.spec.AvailableZones,
-		builder.spec.Providers,
+		field("spec", builder.spec),
+		field("spec.AvailableZones", builder.spec.AvailableZones),
+		field("spec.Providers", builder.spec.Providers),
 	); err != nil {
 		return err
 	}
 
 	// Validate each provider
-	for _, provider := range builder.spec.Providers {
+	for i, provider := range builder.spec.Providers {
 		if err := validateRequired(builder.validator,
-			provider.Name,
-			provider.Version,
-			provider.Url,
+			field(fmt.Sprintf("spec.Providers[%d].Name", i), provider.Name),
+			field(fmt.Sprintf("spec.Providers[%d].Version", i), provider.Version),
+			field(fmt.Sprintf("spec.Providers[%d].Url", i), provider.Url),
 		); err != nil {
 			return err
 		}

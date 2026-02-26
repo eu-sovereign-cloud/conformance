@@ -97,14 +97,22 @@ const (
 	securityGroupListResource   = resourceWorkspacesPrefix + "/security-groups"
 
 	// References
-	skuRef             = "skus/%s"
-	instanceRef        = "instances/%s"
-	blockStorageRef    = "block-storages/%s"
-	internetGatewayRef = "internet-gateways/%s"
-	networkRef         = "networks/%s"
-	routeTableRef      = "route-tables/%s"
-	subnetRef          = "subnets/%s"
-	publicIpRef        = "public-ips/%s"
+	regionRef            = "regions/%s"
+	skuRef               = "skus/%s"
+	workspaceRef         = "workspaces/%s"
+	roleRef              = "workspaces/%s"
+	roleAssignmentRef    = "workspaces/%s"
+	instanceRef          = "instances/%s"
+	blockStorageRef      = "block-storages/%s"
+	imageRef             = "images/%s"
+	internetGatewayRef   = "internet-gateways/%s"
+	nicRef               = "nics/%s"
+	networkRef           = "networks/%s"
+	routeTableRef        = "route-tables/%s"
+	subnetRef            = "subnets/%s"
+	publicIpRef          = "public-ips/%s"
+	securityGroupRuleRef = "security-group-rules/%s"
+	securityGroupRef     = "security-groups/%s"
 
 	// Generators
 	maxBlockStorageSize = 1000000 // GB

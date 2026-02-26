@@ -2,6 +2,8 @@
 package builders
 
 import (
+	"fmt"
+
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	authorization "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.authorization.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -22,13 +24,13 @@ func NewRoleMetadataBuilder() *RoleMetadataBuilder {
 }
 
 func (builder *RoleMetadataBuilder) Build() (*schema.GlobalTenantResourceMetadata, error) {
-	metadata, err := builder.kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).build()
+	metadata, err := builder.kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).
+		Resource(generators.GenerateRoleResource(builder.metadata.Tenant, builder.metadata.Name)).
+		Ref(generators.GenerateRoleRef(builder.metadata.Name)).
+		build()
 	if err != nil {
 		return nil, err
 	}
-
-	resource := generators.GenerateRoleResource(builder.metadata.Tenant, builder.metadata.Name)
-	metadata.Resource = resource
 
 	return metadata, nil
 }
@@ -65,18 +67,18 @@ func NewRoleBuilder() *RoleBuilder {
 
 func (builder *RoleBuilder) validateSpec() error {
 	if err := validateRequired(builder.validator,
-		builder.spec,
-		builder.spec.Permissions,
+		field("spec", builder.spec),
+		field("spec.Permissions", builder.spec.Permissions),
 	); err != nil {
 		return err
 	}
 
 	// Validate each permission
-	for _, permission := range builder.spec.Permissions {
+	for i, permission := range builder.spec.Permissions {
 		if err := validateRequired(builder.validator,
-			permission.Provider,
-			permission.Resources,
-			permission.Verb,
+			field(fmt.Sprintf("spec.Permissions[%d].Provider", i), permission.Provider),
+			field(fmt.Sprintf("spec.Permissions[%d].Resources", i), permission.Resources),
+			field(fmt.Sprintf("spec.Permissions[%d].Verb", i), permission.Verb),
 		); err != nil {
 			return err
 		}
@@ -151,13 +153,13 @@ func NewRoleAssignmentMetadataBuilder() *RoleAssignmentMetadataBuilder {
 }
 
 func (builder *RoleAssignmentMetadataBuilder) Build() (*schema.GlobalTenantResourceMetadata, error) {
-	metadata, err := builder.kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).build()
+	metadata, err := builder.kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).
+		Resource(generators.GenerateRoleAssignmentResource(builder.metadata.Tenant, builder.metadata.Name)).
+		Ref(generators.GenerateRoleAssignmentRef(builder.metadata.Name)).
+		build()
 	if err != nil {
 		return nil, err
 	}
-
-	resource := generators.GenerateRoleAssignmentResource(builder.metadata.Tenant, builder.metadata.Name)
-	metadata.Resource = resource
 
 	return metadata, nil
 }
@@ -194,20 +196,20 @@ func NewRoleAssignmentBuilder() *RoleAssignmentBuilder {
 
 func (builder *RoleAssignmentBuilder) validateSpec() error {
 	if err := validateRequired(builder.validator,
-		builder.spec,
-		builder.spec.Subs,
-		builder.spec.Scopes,
-		builder.spec.Roles,
+		field("spec", builder.spec),
+		field("spec.Subs", builder.spec.Subs),
+		field("spec.Scopes", builder.spec.Scopes),
+		field("spec.Roles", builder.spec.Roles),
 	); err != nil {
 		return err
 	}
 
 	// Validate each scope
-	for _, scope := range builder.spec.Scopes {
+	for i, scope := range builder.spec.Scopes {
 		if err := validateOneRequired(builder.validator,
-			scope.Tenants,
-			scope.Workspaces,
-			scope.Regions,
+			field(fmt.Sprintf("spec.Scopes[%d].Tenants", i), scope.Tenants),
+			field(fmt.Sprintf("spec.Scopes[%d].Workspaces", i), scope.Workspaces),
+			field(fmt.Sprintf("spec.Scopes[%d].Regions", i), scope.Regions),
 		); err != nil {
 			return err
 		}
