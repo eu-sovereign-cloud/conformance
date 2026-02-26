@@ -148,6 +148,10 @@ func GenerateSubnetListURL(provider, tenant, workspace, network string) string {
 	return fmt.Sprintf(subnetListURL, provider, tenant, workspace, network)
 }
 
+func GenerateSecurityGroupRuleURL(provider, tenant, workspace, securityGroupRule string) string {
+	return fmt.Sprintf(securityGroupRuleURL, provider, tenant, workspace, securityGroupRule)
+}
+
 func GenerateSecurityGroupURL(provider, tenant, workspace, securityGroup string) string {
 	return fmt.Sprintf(securityGroupURL, provider, tenant, workspace, securityGroup)
 }

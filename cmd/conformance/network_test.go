@@ -108,6 +108,12 @@ func TestNetworkV1Suites(t *testing.T) {
 		suite.RunSuite(t, publicIpLifecycleSuite)
 	}
 
+	// Security Group Rule Lifecycle Suite
+	securityGroupRuleLifecycleSuite := network.CreateSecurityGroupRuleLifeCycleV1TestSuite(regionalTestSuite)
+	if securityGroupRuleLifecycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, securityGroupRuleLifecycleSuite)
+	}
+
 	// Security Group Lifecycle Suite
 	securityGroupLifecycleSuite := network.CreateSecurityGroupLifeCycleV1TestSuite(regionalTestSuite)
 	if securityGroupLifecycleSuite.CanRun(config.Parameters.ScenariosRegexp) {

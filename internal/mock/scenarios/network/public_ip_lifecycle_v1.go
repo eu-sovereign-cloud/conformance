@@ -2,10 +2,10 @@ package mocknetwork
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 func ConfigurePublicIpLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.PublicIpLifeCycleV1Params) error {
@@ -18,13 +18,13 @@ func ConfigurePublicIpLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	publicIpInitial := *params.PublicIpInitial
 	publicIpUpdated := *params.PublicIpUpdated
 
-	workspaceURL := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	publicIpURL := generators.GeneratePublicIpURL(constants.NetworkProviderV1, publicIpInitial.Metadata.Tenant, publicIpInitial.Metadata.Workspace, publicIpInitial.Metadata.Name)
+	workspaceURL := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	publicIpURL := generators.GeneratePublicIpURL(sdkconsts.NetworkProviderV1Name, publicIpInitial.Metadata.Tenant, publicIpInitial.Metadata.Workspace, publicIpInitial.Metadata.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
 		Labels(workspace.Labels).
 		Build()
@@ -48,7 +48,7 @@ func ConfigurePublicIpLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	// Public ip
 	publicIpResponse, err := builders.NewPublicIpBuilder().
 		Name(publicIpInitial.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(publicIpInitial.Metadata.Tenant).Workspace(publicIpInitial.Metadata.Workspace).Region(publicIpInitial.Metadata.Region).
 		Spec(&publicIpInitial.Spec).
 		Build()

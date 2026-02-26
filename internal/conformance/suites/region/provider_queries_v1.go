@@ -6,12 +6,12 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
-	mockRegion "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/region"
-
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	mockRegion "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/region"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -42,9 +42,9 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	regionName2 := generators.GenerateRegionName()
 	regionName3 := generators.GenerateRegionName()
 
-	region, err := builders.NewRegionBuilder().
+	region1, err := builders.NewRegionBuilder().
 		Name(regionName).
-		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.RegionProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Spec(&schema.RegionSpec{
 			AvailableZones: []string{constants.ZoneA, constants.ZoneB},
 			Providers:      mock.BuildProviderSpecV1(),
@@ -56,7 +56,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	region2, err := builders.NewRegionBuilder().
 		Name(regionName2).
-		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.RegionProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Spec(&schema.RegionSpec{
 			AvailableZones: []string{constants.ZoneA, constants.ZoneB},
 			Providers:      mock.BuildProviderSpecV1(),
@@ -68,7 +68,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	region3, err := builders.NewRegionBuilder().
 		Name(regionName3).
-		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.RegionProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Spec(&schema.RegionSpec{
 			AvailableZones: []string{constants.ZoneA, constants.ZoneB},
 			Providers:      mock.BuildProviderSpecV1(),
@@ -78,7 +78,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Region: %v", err)
 	}
 
-	regions := []schema.Region{*region, *region2, *region3}
+	regions := []schema.Region{*region1, *region2, *region3}
 
 	params := &params.RegionProviderQueriesV1Params{
 		Regions: regions,
@@ -92,7 +92,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.RegionProviderV1, string(schema.GlobalResourceMetadataKindResourceKindRegion))
+	suite.ConfigureTags(t, sdkconsts.RegionProviderV1Name, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -102,13 +102,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1)
 
 	// Call Get Region and verify response
-	expectedRegionMeta, err := builders.NewRegionMetadataBuilder().
-		Name(regions[0].Metadata.Name).
-		Provider(constants.RegionProviderV1).ApiVersion(constants.ApiVersion1).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build Metadata: %v", err)
-	}
+	expectedRegionMeta := suite.params.Regions[0].Metadata
 	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, expectedRegionMeta)
 
 	suite.FinishScenario()

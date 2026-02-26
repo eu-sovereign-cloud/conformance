@@ -2,10 +2,10 @@ package mockauthorization
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.AuthorizationProviderLifeCycleV1Params) error {
@@ -18,13 +18,13 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	roleAssignment := *params.RoleAssignmentInitial
 
 	// Generate URLs
-	roleUrl := generators.GenerateRoleURL(constants.AuthorizationProviderV1, role.Metadata.Tenant, role.Metadata.Name)
-	roleAssignmentUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, roleAssignment.Metadata.Tenant, roleAssignment.Metadata.Name)
+	roleUrl := generators.GenerateRoleURL(sdkconsts.AuthorizationProviderV1Name, role.Metadata.Tenant, role.Metadata.Name)
+	roleAssignmentUrl := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, roleAssignment.Metadata.Tenant, roleAssignment.Metadata.Name)
 
 	// Role
 	roleResponse, err := builders.NewRoleBuilder().
 		Name(role.Metadata.Name).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(role.Metadata.Tenant).
 		Spec(&role.Spec).
 		Build()
@@ -62,7 +62,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	// Role assignment
 	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignment.Metadata.Name).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(roleAssignment.Metadata.Tenant).
 		Spec(&roleAssignment.Spec).
 		Build()

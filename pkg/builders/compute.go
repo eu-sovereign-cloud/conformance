@@ -57,13 +57,13 @@ func NewInstanceMetadataBuilder() *InstanceMetadataBuilder {
 }
 
 func (builder *InstanceMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
-	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).build()
+	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).
+		Resource(generators.GenerateInstanceResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
+		Ref(generators.GenerateInstanceRef(builder.metadata.Name)).
+		build()
 	if err != nil {
 		return nil, err
 	}
-
-	resource := generators.GenerateInstanceResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)
-	metadata.Resource = resource
 
 	return metadata, nil
 }
@@ -102,11 +102,11 @@ func NewInstanceBuilder() *InstanceBuilder {
 
 func (builder *InstanceBuilder) validateSpec() error {
 	if err := validateRequired(builder.validator,
-		builder.spec,
-		builder.spec.SkuRef,
-		builder.spec.Zone,
-		builder.spec.BootVolume,
-		builder.spec.BootVolume.DeviceRef,
+		field("spec", builder.spec),
+		field("spec.SkuRef", builder.spec.SkuRef),
+		field("spec.Zone", builder.spec.Zone),
+		field("spec.BootVolume", builder.spec.BootVolume),
+		field("spec.BootVolume.DeviceRef", builder.spec.BootVolume.DeviceRef),
 	); err != nil {
 		return err
 	}

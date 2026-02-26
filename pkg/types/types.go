@@ -19,6 +19,7 @@ type ResourceType interface {
 		schema.Subnet |
 		schema.PublicIp |
 		schema.Nic |
+		schema.SecurityGroupRule |
 		schema.SecurityGroup
 }
 
@@ -48,6 +49,7 @@ type SpecType interface {
 		schema.SubnetSpec |
 		schema.PublicIpSpec |
 		schema.NicSpec |
+		schema.SecurityGroupRuleSpec |
 		schema.SecurityGroupSpec
 }
 

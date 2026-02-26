@@ -13,16 +13,20 @@ type resourceMetadataBuilder[B any, K any] struct {
 	parent        *B
 	setName       func(string)
 	setProvider   func(string)
+	setResource   func(string)
 	setApiVersion func(string)
 	setKind       func(K)
+	setRef        func(string)
 }
 
 type newResourceMetadataBuilderParams[B any, K any] struct {
 	parent        *B
 	setName       func(string)
 	setProvider   func(string)
+	setResource   func(string)
 	setApiVersion func(string)
 	setKind       func(K)
+	setRef        func(string)
 }
 
 func newResourceMetadataBuilder[B any, K any](params newResourceMetadataBuilderParams[B, K]) *resourceMetadataBuilder[B, K] {
@@ -31,8 +35,10 @@ func newResourceMetadataBuilder[B any, K any](params newResourceMetadataBuilderP
 		parent:        params.parent,
 		setName:       params.setName,
 		setProvider:   params.setProvider,
+		setResource:   params.setResource,
 		setApiVersion: params.setApiVersion,
 		setKind:       params.setKind,
+		setRef:        params.setRef,
 	}
 }
 
@@ -46,6 +52,11 @@ func (builder *resourceMetadataBuilder[B, K]) Provider(provider string) *B {
 	return builder.parent
 }
 
+func (builder *resourceMetadataBuilder[B, K]) Resource(resource string) *B {
+	builder.setResource(resource)
+	return builder.parent
+}
+
 func (builder *resourceMetadataBuilder[B, K]) ApiVersion(apiVersion string) *B {
 	builder.setApiVersion(apiVersion)
 	return builder.parent
@@ -53,6 +64,11 @@ func (builder *resourceMetadataBuilder[B, K]) ApiVersion(apiVersion string) *B {
 
 func (builder *resourceMetadataBuilder[B, K]) kind(kind K) *B {
 	builder.setKind(kind)
+	return builder.parent
+}
+
+func (builder *resourceMetadataBuilder[B, K]) Ref(ref string) *B {
+	builder.setRef(ref)
 	return builder.parent
 }
 

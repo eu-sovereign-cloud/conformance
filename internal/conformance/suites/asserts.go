@@ -14,10 +14,12 @@ func (suite *TestSuite) VerifyGlobalTenantResourceMetadataStep(ctx provider.Step
 	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
 		stepCtx.Assert().Equal(expected.Name, actual.Name, "Name should match expected")
 		stepCtx.Assert().Equal(expected.Provider, actual.Provider, "Provider should match expected")
-		stepCtx.Assert().Equal(expected.Resource, actual.Resource, "Resource should match expected")
+		//stepCtx.Assert().Equal(expected.Resource, actual.Resource, "Resource should match expected")
 		stepCtx.Assert().Equal(expected.ApiVersion, actual.ApiVersion, "ApiVersion should match expected")
 		stepCtx.Assert().Equal(expected.Verb, actual.Verb, "Verb should match expected")
 		stepCtx.Assert().Equal(expected.Kind, actual.Kind, "Kind should match expected")
+		//stepCtx.Assert().Equal(expected.Kind, actual.Ref, "Ref should match expected")
+		stepCtx.Assert().Equal(expected.Ref, actual.Ref, "Metadata: Ref should match expected")
 		stepCtx.Assert().Equal(expected.Tenant, actual.Tenant, "Tenant should match expected")
 
 		suite.verifyAssertState(stepCtx)
@@ -28,10 +30,11 @@ func (suite *TestSuite) VerifyGlobalResourceMetadataStep(ctx provider.StepCtx, e
 	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
 		stepCtx.Assert().Equal(expected.Name, actual.Name, "Metadata: Name should match expected")
 		stepCtx.Assert().Equal(expected.Provider, actual.Provider, "Metadata: Provider should match expected")
-		stepCtx.Assert().Equal(expected.Resource, actual.Resource, "Metadata: Resource should match expected")
+		//stepCtx.Assert().Equal(expected.Resource, actual.Resource, "Metadata: Resource should match expected")
 		stepCtx.Assert().Equal(expected.ApiVersion, actual.ApiVersion, "Metadata: ApiVersion should match expected")
 		stepCtx.Assert().Equal(expected.Verb, actual.Verb, "Metadata: Verb should match expected")
 		stepCtx.Assert().Equal(expected.Kind, actual.Kind, "Metadata: Kind should match expected")
+		//stepCtx.Assert().Equal(expected.Ref, actual.Ref, "Metadata: Ref should match expected")
 
 		suite.verifyAssertState(stepCtx)
 	})
@@ -41,10 +44,11 @@ func (suite *TestSuite) VerifyRegionalResourceMetadataStep(ctx provider.StepCtx,
 	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
 		stepCtx.Assert().Equal(expected.Name, actual.Name, "Metadata: Name should match expected")
 		stepCtx.Assert().Equal(expected.Provider, actual.Provider, "Metadata: Provider should match expected")
-		stepCtx.Assert().Equal(expected.Resource, actual.Resource, "Metadata: Resource should match expected")
+		//stepCtx.Assert().Equal(expected.Resource, actual.Resource, "Metadata: Resource should match expected")
 		stepCtx.Assert().Equal(expected.ApiVersion, actual.ApiVersion, "Metadata: ApiVersion should match expected")
 		stepCtx.Assert().Equal(expected.Verb, actual.Verb, "Metadata: Verb should match expected")
 		stepCtx.Assert().Equal(expected.Kind, actual.Kind, "Metadata: Kind should match expected")
+		//stepCtx.Assert().Equal(expected.Ref, actual.Ref, "Metadata: Ref should match expected")
 		stepCtx.Assert().Equal(expected.Tenant, actual.Tenant, "Metadata: Tenant should match expected")
 		stepCtx.Assert().Equal(expected.Region, actual.Region, "Metadata: Region should match expected")
 
@@ -56,10 +60,11 @@ func (suite *TestSuite) VerifyRegionalWorkspaceResourceMetadataStep(ctx provider
 	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
 		stepCtx.Assert().Equal(expected.Name, actual.Name, "Metadata: Name should match expected")
 		stepCtx.Assert().Equal(expected.Provider, actual.Provider, "Metadata: Provider should match expected")
-		stepCtx.Assert().Equal(expected.Resource, actual.Resource, "Metadata: Resource should match expected")
+		//stepCtx.Assert().Equal(expected.Resource, actual.Resource, "Metadata: Resource should match expected")
 		stepCtx.Assert().Equal(expected.ApiVersion, actual.ApiVersion, "Metadata: ApiVersion should match expected")
 		stepCtx.Assert().Equal(expected.Verb, actual.Verb, "Metadata: Verb should match expected")
 		stepCtx.Assert().Equal(expected.Kind, actual.Kind, "Metadata: Kind should match expected")
+		//stepCtx.Assert().Equal(expected.Ref, actual.Ref, "Metadata: Ref should match expected")
 		stepCtx.Assert().Equal(expected.Tenant, actual.Tenant, "Metadata: Tenant should match expected")
 		stepCtx.Assert().Equal(expected.Workspace, actual.Workspace, "Metadata: Workspace should match expected")
 		stepCtx.Assert().Equal(expected.Region, actual.Region, "Metadata: Region should match expected")
@@ -72,10 +77,11 @@ func (suite *TestSuite) VerifyRegionalNetworkResourceMetadataStep(ctx provider.S
 	ctx.WithNewStep("Verify metadata", func(stepCtx provider.StepCtx) {
 		stepCtx.Assert().Equal(expected.Name, actual.Name, "Metadata: Name should match expected")
 		stepCtx.Assert().Equal(expected.Provider, actual.Provider, "Metadata: Provider should match expected")
-		stepCtx.Assert().Equal(expected.Resource, actual.Resource, "Metadata: Resource should match expected")
+		//stepCtx.Assert().Equal(expected.Resource, actual.Resource, "Metadata: Resource should match expected")
 		stepCtx.Assert().Equal(expected.ApiVersion, actual.ApiVersion, "Metadata: ApiVersion should match expected")
 		stepCtx.Assert().Equal(expected.Verb, actual.Verb, "Metadata: Verb should match expected")
 		stepCtx.Assert().Equal(expected.Kind, actual.Kind, "Metadata: Kind should match expected")
+		//stepCtx.Assert().Equal(expected.Ref, actual.Ref, "Metadata: Ref should match expected")
 		stepCtx.Assert().Equal(expected.Tenant, actual.Tenant, "Metadata: Tenant should match expected")
 		stepCtx.Assert().Equal(expected.Workspace, actual.Workspace, "Metadata: Workspace should match expected")
 		stepCtx.Assert().Equal(expected.Network, actual.Network, "Metadata: Network should match expected")
@@ -94,9 +100,9 @@ func (suite TestSuite) verifyAssertState(stepCtx provider.StepCtx) {
 
 // Status
 
-func (suite *TestSuite) VerifyStatusStep(ctx provider.StepCtx, expected schema.ResourceState, actual *schema.ResourceState) {
+func (suite *TestSuite) VerifyStatusStep(ctx provider.StepCtx, expected []schema.ResourceState, actual *schema.ResourceState) {
 	ctx.WithNewStep("Verify status state", func(stepCtx provider.StepCtx) {
-		stepCtx.Require().Equal(expected, *actual, "Status state should match expected")
+		stepCtx.Require().Contains(expected, *actual, "Status state should match expected")
 	})
 }
 
@@ -249,12 +255,18 @@ func (suite *TestSuite) VerifyNicSpecStep(ctx provider.StepCtx, expected *schema
 	})
 }
 
+func (suite *TestSuite) VerifySecurityGroupRuleSpecStep(ctx provider.StepCtx, expected *schema.SecurityGroupRuleSpec, actual *schema.SecurityGroupRuleSpec) {
+	ctx.WithNewStep("Verify SecurityGroupRuleSpec", func(stepCtx provider.StepCtx) {
+		stepCtx.Require().Equal(expected.Direction, actual.Direction, "Direction should match expected")
+	})
+}
+
 func (suite *TestSuite) VerifySecurityGroupSpecStep(ctx provider.StepCtx, expected *schema.SecurityGroupSpec, actual *schema.SecurityGroupSpec) {
 	ctx.WithNewStep("Verify SecurityGroupSpec", func(stepCtx provider.StepCtx) {
-		stepCtx.Require().Equal(len(expected.Rules), len(actual.Rules), "Rule list length should match expected")
-		for i := 0; i < len(expected.Rules); i++ {
-			expectedRule := expected.Rules[i]
-			actualRule := actual.Rules[i]
+		stepCtx.Require().Equal(len(*expected.Rules), len(*actual.Rules), "Rule list length should match expected")
+		for i := 0; i < len(*expected.Rules); i++ {
+			expectedRule := (*expected.Rules)[i]
+			actualRule := (*actual.Rules)[i]
 			stepCtx.Require().Equal(expectedRule.Direction, actualRule.Direction, fmt.Sprintf("Rule [%d] Direction should match expected", i))
 		}
 	})

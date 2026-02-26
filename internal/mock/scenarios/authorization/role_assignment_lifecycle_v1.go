@@ -2,10 +2,10 @@ package mockauthorization
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 func ConfigureRoleAssignmentLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.RoleAssignmentLifeCycleV1Params) error {
@@ -17,12 +17,12 @@ func ConfigureRoleAssignmentLifecycleScenarioV1(scenario *mockscenarios.Scenario
 	roleAssignment := *params.RoleAssignmentInitial
 
 	// Generate URLs
-	roleAssignmentUrl := generators.GenerateRoleAssignmentURL(constants.AuthorizationProviderV1, roleAssignment.Metadata.Tenant, roleAssignment.Metadata.Name)
+	roleAssignmentUrl := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, roleAssignment.Metadata.Tenant, roleAssignment.Metadata.Name)
 
 	// Role assignment
 	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignment.Metadata.Name).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(roleAssignment.Metadata.Tenant).
 		Spec(&roleAssignment.Spec).
 		Build()

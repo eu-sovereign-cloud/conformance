@@ -21,13 +21,13 @@ func NewWorkspaceMetadataBuilder() *WorkspaceMetadataBuilder {
 }
 
 func (builder *WorkspaceMetadataBuilder) Build() (*schema.RegionalResourceMetadata, error) {
-	metadata, err := builder.kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).build()
+	metadata, err := builder.kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
+		Resource(generators.GenerateWorkspaceResource(builder.metadata.Tenant, builder.metadata.Name)).
+		Ref(generators.GenerateWorkspaceRef(builder.metadata.Name)).
+		build()
 	if err != nil {
 		return nil, err
 	}
-
-	resource := generators.GenerateWorkspaceResource(builder.metadata.Tenant, builder.metadata.Name)
-	metadata.Resource = resource
 
 	return metadata, nil
 }

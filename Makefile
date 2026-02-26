@@ -56,7 +56,7 @@ run:
 	  --scenarios.public.ips=52.93.126.1/26 \
 	  --report.results.path=$(RESULTS_PATH) \
 	  --retry.base.delay=0 \
-	  --retry.base.interval=1 \
+	  --retry.base.interval=0 \
 	  --retry.max.attempts=3 \
 	  --mock.enabled=true \
 	  --mock.server.url=http://localhost:8080
@@ -85,7 +85,7 @@ test:
 	  --scenarios.public.ips=52.93.126.1/26 \
 	  --report.results.path=$(RESULTS_PATH) \
 	  --retry.base.delay=0 \
-      --retry.base.interval=1 \
+      --retry.base.interval=0 \
       --retry.max.attempts=3 \
 	  --mock.enabled=true \
 	  --mock.server.url=http://localhost:8080

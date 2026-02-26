@@ -2,10 +2,10 @@ package mockstorage
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 func ConfigureImageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.ImageLifeCycleV1Params) error {
@@ -20,14 +20,14 @@ func ConfigureImageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params 
 	imageUpdated := *params.ImageUpdated
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, blockStorage.Metadata.Tenant, blockStorage.Metadata.Workspace, blockStorage.Metadata.Name)
-	imageUrl := generators.GenerateImageURL(constants.StorageProviderV1, imageInitial.Metadata.Tenant, imageInitial.Metadata.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	blockUrl := generators.GenerateBlockStorageURL(sdkconsts.StorageProviderV1Name, blockStorage.Metadata.Tenant, blockStorage.Metadata.Workspace, blockStorage.Metadata.Name)
+	imageUrl := generators.GenerateImageURL(sdkconsts.StorageProviderV1Name, imageInitial.Metadata.Tenant, imageInitial.Metadata.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
 		Labels(workspace.Labels).
 		Build()
@@ -51,7 +51,7 @@ func ConfigureImageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params 
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
 		Name(blockStorage.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(blockStorage.Metadata.Tenant).Workspace(blockStorage.Metadata.Workspace).Region(blockStorage.Metadata.Region).
 		Spec(&blockStorage.Spec).
 		Build()
@@ -75,7 +75,7 @@ func ConfigureImageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params 
 	// Image
 	imageResponse, err := builders.NewImageBuilder().
 		Name(imageInitial.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(imageInitial.Metadata.Tenant).Region(imageInitial.Metadata.Region).
 		Spec(&imageInitial.Spec).
 		Build()

@@ -2,10 +2,10 @@ package mocknetwork
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 func ConfigureInternetGatewayLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.InternetGatewayLifeCycleV1Params) error {
@@ -18,13 +18,13 @@ func ConfigureInternetGatewayLifecycleScenarioV1(scenario *mockscenarios.Scenari
 	internetGatewayInitial := *params.InternetGatewayInitial
 	internetGatewayUpdated := *params.InternetGatewayUpdated
 
-	workspaceURL := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	gatewayURL := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, internetGatewayInitial.Metadata.Tenant, internetGatewayInitial.Metadata.Workspace, internetGatewayInitial.Metadata.Name)
+	workspaceURL := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	gatewayURL := generators.GenerateInternetGatewayURL(sdkconsts.NetworkProviderV1Name, internetGatewayInitial.Metadata.Tenant, internetGatewayInitial.Metadata.Workspace, internetGatewayInitial.Metadata.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
 		Labels(workspace.Labels).
 		Build()
@@ -48,7 +48,7 @@ func ConfigureInternetGatewayLifecycleScenarioV1(scenario *mockscenarios.Scenari
 	// Internet gateway
 	gatewayInitialResponse, err := builders.NewInternetGatewayBuilder().
 		Name(internetGatewayInitial.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(internetGatewayInitial.Metadata.Tenant).Workspace(internetGatewayInitial.Metadata.Workspace).Region(internetGatewayInitial.Metadata.Region).
 		Spec(&internetGatewayInitial.Spec).
 		Build()
@@ -72,7 +72,7 @@ func ConfigureInternetGatewayLifecycleScenarioV1(scenario *mockscenarios.Scenari
 	// Update internet gateway (change egressOnly)
 	gatewayUpdatedResponse, err := builders.NewInternetGatewayBuilder().
 		Name(internetGatewayUpdated.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(internetGatewayUpdated.Metadata.Tenant).Workspace(internetGatewayUpdated.Metadata.Workspace).Region(internetGatewayUpdated.Metadata.Region).
 		Spec(&internetGatewayUpdated.Spec).
 		Build()

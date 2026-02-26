@@ -32,11 +32,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string,
 				resp, err := api.CreateOrUpdateRole(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyGlobalTenantResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyRoleSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyRoleSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -58,11 +58,11 @@ func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi
 				resp, err := api.GetRoleUntilState(ctx, tref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyGlobalTenantResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyRoleSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyRoleSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -129,11 +129,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepNa
 				resp, err := api.CreateOrUpdateRoleAssignment(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyGlobalTenantResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyRoleAssignmentSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyRoleAssignmentSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -155,11 +155,11 @@ func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, 
 				resp, err := api.GetRoleAssignmentUntilState(ctx, tref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyGlobalTenantResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyRoleAssignmentSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyRoleAssignmentSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }

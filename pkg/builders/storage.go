@@ -57,13 +57,13 @@ func NewBlockStorageMetadataBuilder() *BlockStorageMetadataBuilder {
 }
 
 func (builder *BlockStorageMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
-	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).build()
+	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
+		Resource(generators.GenerateBlockStorageResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
+		Ref(generators.GenerateBlockStorageRef(builder.metadata.Name)).
+		build()
 	if err != nil {
 		return nil, err
 	}
-
-	resource := generators.GenerateBlockStorageResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)
-	metadata.Resource = resource
 
 	return metadata, nil
 }
@@ -102,9 +102,9 @@ func NewBlockStorageBuilder() *BlockStorageBuilder {
 
 func (builder *BlockStorageBuilder) validateSpec() error {
 	if err := validateRequired(builder.validator,
-		builder.spec,
-		builder.spec.SkuRef,
-		builder.spec.SizeGB,
+		field("spec", builder.spec),
+		field("spec.SkuRef", builder.spec.SkuRef),
+		field("spec.SizeGB", builder.spec.SizeGB),
 	); err != nil {
 		return err
 	}
@@ -178,13 +178,13 @@ func NewImageMetadataBuilder() *ImageMetadataBuilder {
 }
 
 func (builder *ImageMetadataBuilder) Build() (*schema.RegionalResourceMetadata, error) {
-	metadata, err := builder.kind(schema.RegionalResourceMetadataKindResourceKindImage).build()
+	metadata, err := builder.kind(schema.RegionalResourceMetadataKindResourceKindImage).
+		Resource(generators.GenerateImageResource(builder.metadata.Tenant, builder.metadata.Name)).
+		Ref(generators.GenerateImageRef(builder.metadata.Name)).
+		build()
 	if err != nil {
 		return nil, err
 	}
-
-	resource := generators.GenerateImageResource(builder.metadata.Tenant, builder.metadata.Name)
-	metadata.Resource = resource
 
 	return metadata, nil
 }
@@ -222,9 +222,9 @@ func NewImageBuilder() *ImageBuilder {
 
 func (builder *ImageBuilder) validateSpec() error {
 	if err := validateRequired(builder.validator,
-		builder.spec,
-		builder.spec.BlockStorageRef,
-		builder.spec.CpuArchitecture,
+		field("spec", builder.spec),
+		field("spec.BlockStorageRef", builder.spec.BlockStorageRef),
+		field("spec.CpuArchitecture", builder.spec.CpuArchitecture),
 	); err != nil {
 		return err
 	}

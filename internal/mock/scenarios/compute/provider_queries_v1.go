@@ -9,6 +9,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -23,17 +24,17 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	blockStorage := params.BlockStorage
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	instanceListUrl := generators.GenerateInstanceListURL(constants.ComputeProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	skuListUrl := generators.GenerateInstanceSkuListURL(constants.ComputeProviderV1, workspace.Metadata.Tenant)
-	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, blockStorage.Metadata.Tenant, blockStorage.Metadata.Workspace, blockStorage.Metadata.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	instanceListUrl := generators.GenerateInstanceListURL(sdkconsts.ComputeProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	skuListUrl := generators.GenerateInstanceSkuListURL(sdkconsts.ComputeProviderV1Name, workspace.Metadata.Tenant)
+	blockUrl := generators.GenerateBlockStorageURL(sdkconsts.StorageProviderV1Name, blockStorage.Metadata.Tenant, blockStorage.Metadata.Workspace, blockStorage.Metadata.Name)
 
 	// Workspace
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
 		Labels(workspace.Labels).
 		Build()
@@ -49,7 +50,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
 		Name(blockStorage.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(blockStorage.Metadata.Tenant).Workspace(blockStorage.Metadata.Workspace).Region(blockStorage.Metadata.Region).
 		Spec(&blockStorage.Spec).
 		Build()
@@ -68,7 +69,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return err
 	}
 	instanceResponse, err := builders.NewInstanceIteratorBuilder().
-		Provider(constants.StorageProviderV1).
+		Provider(sdkconsts.StorageProviderV1Name).
 		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
 		Items(instances).
 		Build()
@@ -110,7 +111,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Create skus
 	skusList := steps.GenerateInstanceSkusV1(workspace.Metadata.Tenant)
-	skuResponse, err := builders.NewInstanceSkuIteratorBuilder().Provider(constants.StorageProviderV1).Tenant(workspace.Metadata.Tenant).Items(skusList).Build()
+	skuResponse, err := builders.NewInstanceSkuIteratorBuilder().Provider(sdkconsts.StorageProviderV1Name).Tenant(workspace.Metadata.Tenant).Items(skusList).Build()
 	if err != nil {
 		return err
 	}
@@ -147,7 +148,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Delete instances
 	for _, instance := range instances {
-		url := generators.GenerateInstanceURL(constants.ComputeProviderV1, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
+		url := generators.GenerateInstanceURL(sdkconsts.ComputeProviderV1Name, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
 		if err := configurator.ConfigureDeleteStub(url, scenario.MockParams); err != nil {
 			return err
 		}
