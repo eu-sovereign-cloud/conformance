@@ -239,7 +239,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:       expectGatewayMeta,
 			Spec:           expectGatewaySpec,
-			ResourceStates: suites.UpdatedResourceExpectedStates,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 

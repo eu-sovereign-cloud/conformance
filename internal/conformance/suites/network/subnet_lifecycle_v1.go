@@ -213,7 +213,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:       expectInternetGatMeta,
 			Spec:           expectInternetGatSpec,
-			ResourceStates: suites.UpdatedResourceExpectedStates,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 	// Get the created internet gateway

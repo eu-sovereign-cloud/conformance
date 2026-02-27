@@ -454,6 +454,15 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
+	// Get the updated internet gateway
+	stepsBuilder.GetInternetGatewayV1Step("Get the updated internet gateway", suite.Client.NetworkV1, gatewayWRef,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Metadata:       expectGatewayMeta,
+			Spec:           expectGatewaySpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		},
+	)
+
 	// Route table
 
 	// Create a route table
@@ -475,16 +484,6 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      route.Metadata.Name,
 	}
 
-	// Get the updated internet gateway
-	stepsBuilder.GetInternetGatewayV1Step("Get the updated internet gateway", suite.Client.NetworkV1, gatewayWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:       expectGatewayMeta,
-			Spec:           expectGatewaySpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
-		},
-	)
-
-	// Route Table
 	// Get the created route table
 	stepsBuilder.GetRouteTableV1Step("Get the created route table", suite.Client.NetworkV1, routeNRef,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
