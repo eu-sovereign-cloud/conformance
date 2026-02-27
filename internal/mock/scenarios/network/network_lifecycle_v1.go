@@ -64,25 +64,27 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 		return err
 	}
 
-	// Get the created network
-	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Update the network
-	networkResponse.Spec = params.NetworkUpdated.Spec
-	if err := configurator.ConfigureUpdateNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+	// Internet Gateway
+	gatewayInitialResponse, err := builders.NewInternetGatewayBuilder().
+		Name(internetGateway.Metadata.Name).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(internetGateway.Metadata.Tenant).Workspace(internetGateway.Metadata.Workspace).Region(internetGateway.Metadata.Region).
+		Spec(&internetGateway.Spec).
+		Build()
+	if err != nil {
 		return err
 	}
 
-	// Get the updated network
-	if err := configurator.ConfigureGetUpdatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+	// Create internet gateway
+	if err := configurator.ConfigureCreateInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+
+	// Get the created internet gateway
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -110,27 +112,27 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 		return err
 	}
 
-	// Internet Gateway
-	gatewayInitialResponse, err := builders.NewInternetGatewayBuilder().
-		Name(internetGateway.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(internetGateway.Metadata.Tenant).Workspace(internetGateway.Metadata.Workspace).Region(internetGateway.Metadata.Region).
-		Spec(&internetGateway.Spec).
-		Build()
-	if err != nil {
+	// Network
+
+	// Get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Create internet gateway
-	if err := configurator.ConfigureCreateInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
+	// Update the network
+	networkResponse.Spec = params.NetworkUpdated.Spec
+	if err := configurator.ConfigureUpdateNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Get the created internet gateway
-	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
+	// Get the updated network
+	if err := configurator.ConfigureGetUpdatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
