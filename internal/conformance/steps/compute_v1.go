@@ -33,11 +33,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName str
 				resp, err := api.CreateOrUpdateInstance(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyInstanceSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyInstanceSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -59,11 +59,11 @@ func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api se
 				resp, err := api.GetInstanceUntilState(configurator.t.Context(), wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyInstanceSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyInstanceSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }

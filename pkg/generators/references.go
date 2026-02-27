@@ -4,117 +4,112 @@ import (
 	"fmt"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
-	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 )
 
-func generateSkuRef(name string) string {
+// Refs
+
+func GenerateRegionRef(name string) string {
+	return fmt.Sprintf(regionRef, name)
+}
+
+func GenerateSkuRef(name string) string {
 	return fmt.Sprintf(skuRef, name)
 }
 
-func GenerateSkuRefObject(name string) (*schema.Reference, error) {
-	urn := generateSkuRef(name)
-
-	ref, err := secapi.BuildReferenceFromURN(urn)
-	if err != nil {
-		return nil, fmt.Errorf("error building reference %s: %s", urn, err)
-	}
-	return ref, nil
+func GenerateRoleRef(name string) string {
+	return fmt.Sprintf(roleRef, name)
 }
 
-func generateInstanceRef(instanceName string) string {
-	return fmt.Sprintf(instanceRef, instanceName)
+func GenerateRoleAssignmentRef(name string) string {
+	return fmt.Sprintf(roleAssignmentRef, name)
 }
 
-func GenerateInstanceRefObject(name string) (*schema.Reference, error) {
-	urn := generateInstanceRef(name)
-
-	ref, err := secapi.BuildReferenceFromURN(urn)
-	if err != nil {
-		return nil, fmt.Errorf("error building reference %s: %s", urn, err)
-	}
-	return ref, nil
+func GenerateWorkspaceRef(name string) string {
+	return fmt.Sprintf(workspaceRef, name)
 }
 
-func generateBlockStorageRef(blockStorageName string) string {
-	return fmt.Sprintf(blockStorageRef, blockStorageName)
+func GenerateInstanceRef(name string) string {
+	return fmt.Sprintf(instanceRef, name)
 }
 
-func GenerateBlockStorageRefObject(name string) (*schema.Reference, error) {
-	urn := generateBlockStorageRef(name)
-
-	ref, err := secapi.BuildReferenceFromURN(urn)
-	if err != nil {
-		return nil, fmt.Errorf("error building reference %s: %s", urn, err)
-	}
-	return ref, nil
+func GenerateBlockStorageRef(name string) string {
+	return fmt.Sprintf(blockStorageRef, name)
 }
 
-func generateInternetGatewayRef(internetGatewayName string) string {
-	return fmt.Sprintf(internetGatewayRef, internetGatewayName)
+func GenerateImageRef(name string) string {
+	return fmt.Sprintf(imageRef, name)
 }
 
-func GenerateInternetGatewayRefObject(name string) (*schema.Reference, error) {
-	urn := generateInternetGatewayRef(name)
-
-	ref, err := secapi.BuildReferenceFromURN(urn)
-	if err != nil {
-		return nil, fmt.Errorf("error building reference %s: %s", urn, err)
-	}
-	return ref, nil
+func GenerateNetworkRef(name string) string {
+	return fmt.Sprintf(networkRef, name)
 }
 
-func generateNetworkRef(networkName string) string {
-	return fmt.Sprintf(networkRef, networkName)
+func GenerateInternetGatewayRef(name string) string {
+	return fmt.Sprintf(internetGatewayRef, name)
 }
 
-func GenerateNetworkRefObject(name string) (*schema.Reference, error) {
-	urn := generateNetworkRef(name)
-
-	ref, err := secapi.BuildReferenceFromURN(urn)
-	if err != nil {
-		return nil, fmt.Errorf("error building reference %s: %s", urn, err)
-	}
-	return ref, nil
+func GenerateNicRef(name string) string {
+	return fmt.Sprintf(nicRef, name)
 }
 
-func generateRouteTableRef(routeTableName string) string {
-	return fmt.Sprintf(routeTableRef, routeTableName)
+func GenerateRouteTableRef(name string) string {
+	return fmt.Sprintf(routeTableRef, name)
 }
 
-func GenerateRouteTableRefObject(name string) (*schema.Reference, error) {
-	urn := generateRouteTableRef(name)
-
-	ref, err := secapi.BuildReferenceFromURN(urn)
-	if err != nil {
-		return nil, fmt.Errorf("error building reference %s: %s", urn, err)
-	}
-	return ref, nil
+func GenerateSubnetRef(name string) string {
+	return fmt.Sprintf(subnetRef, name)
 }
 
-func generateSubnetRef(subnetName string) string {
-	return fmt.Sprintf(subnetRef, subnetName)
+func GeneratePublicIpRef(name string) string {
+	return fmt.Sprintf(publicIpRef, name)
 }
 
-func GenerateSubnetRefObject(name string) (*schema.Reference, error) {
-	urn := generateSubnetRef(name)
-
-	ref, err := secapi.BuildReferenceFromURN(urn)
-	if err != nil {
-		return nil, fmt.Errorf("error building reference %s: %s", urn, err)
-	}
-	return ref, nil
+func GenerateSecurityGroupRuleRef(name string) string {
+	return fmt.Sprintf(securityGroupRuleRef, name)
 }
 
-func generatePublicIpRef(publicIpName string) string {
-	return fmt.Sprintf(publicIpRef, publicIpName)
+func GenerateSecurityGroupRef(name string) string {
+	return fmt.Sprintf(securityGroupRef, name)
 }
 
-func GeneratePublicIpRefObject(name string) (*schema.Reference, error) {
-	urn := generatePublicIpRef(name)
+// RefObjects
 
-	ref, err := secapi.BuildReferenceFromURN(urn)
-	if err != nil {
-		return nil, fmt.Errorf("error building reference %s: %s", urn, err)
-	}
-	return ref, nil
+func GenerateSkuRefObject(name string) *schema.Reference {
+	urn := GenerateSkuRef(name)
+	return &schema.Reference{Resource: urn}
+}
+
+func GenerateInstanceRefObject(name string) *schema.Reference {
+	urn := GenerateInstanceRef(name)
+	return &schema.Reference{Resource: urn}
+}
+
+func GenerateBlockStorageRefObject(name string) *schema.Reference {
+	urn := GenerateBlockStorageRef(name)
+	return &schema.Reference{Resource: urn}
+}
+
+func GenerateNetworkRefObject(name string) *schema.Reference {
+	urn := GenerateNetworkRef(name)
+	return &schema.Reference{Resource: urn}
+}
+
+func GenerateInternetGatewayRefObject(name string) *schema.Reference {
+	urn := GenerateInternetGatewayRef(name)
+	return &schema.Reference{Resource: urn}
+}
+
+func GenerateRouteTableRefObject(name string) *schema.Reference {
+	urn := GenerateRouteTableRef(name)
+	return &schema.Reference{Resource: urn}
+}
+
+func GenerateSubnetRefObject(name string) *schema.Reference {
+	urn := GenerateSubnetRef(name)
+	return &schema.Reference{Resource: urn}
+}
+
+func GeneratePublicIpRefObject(name string) *schema.Reference {
+	urn := GeneratePublicIpRef(name)
+	return &schema.Reference{Resource: urn}
 }

@@ -13,6 +13,34 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
+// Sku
+
+func (configurator *StepsConfigurator) GetListNetworkSkusV1Step(
+	stepName string, api secapi.NetworkV1, tref secapi.TenantReference, opts *secapi.ListOptions,
+) []*schema.NetworkSku {
+	var resp []*schema.NetworkSku
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetComputeV1StepParams(sCtx, "ListSkus", tref.Name)
+
+		var iter *secapi.Iterator[schema.NetworkSku]
+		var err error
+		if opts != nil {
+			iter, err = api.ListSkusWithFilters(configurator.t.Context(), tref.Tenant, opts)
+		} else {
+			iter, err = api.ListSkus(configurator.t.Context(), tref.Tenant)
+		}
+		requireNoError(sCtx, err)
+
+		// Iterate through all items
+		resp, err := iter.All(configurator.t.Context())
+		requireNoError(sCtx, err)
+		requireNotNilResponse(sCtx, resp)
+		requireLenResponse(sCtx, len(resp))
+	})
+	return resp
+}
+
 // Network
 
 func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName string, api secapi.NetworkV1, resource *schema.Network,
@@ -33,11 +61,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName stri
 				resp, err := api.CreateOrUpdateNetwork(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyNetworkSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyNetworkSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -59,11 +87,11 @@ func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api sec
 				resp, err := api.GetNetworkUntilState(ctx, wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyNetworkSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyNetworkSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -130,11 +158,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepN
 				resp, err := api.CreateOrUpdateInternetGateway(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyInternetGatewaySpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyInternetGatewaySpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -156,11 +184,11 @@ func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string,
 				resp, err := api.GetInternetGatewayUntilState(ctx, wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyInternetGatewaySpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyInternetGatewaySpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -228,11 +256,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName s
 				resp, err := api.CreateOrUpdateRouteTable(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyRouteTableSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyRouteTableSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -254,11 +282,11 @@ func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api 
 				resp, err := api.GetRouteTableUntilState(ctx, nref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyRouteTableSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyRouteTableSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -325,11 +353,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName strin
 				resp, err := api.CreateOrUpdateSubnet(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifySubnetSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySubnetSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -351,11 +379,11 @@ func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api seca
 				resp, err := api.GetSubnetUntilState(ctx, nref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifySubnetSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySubnetSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -422,11 +450,11 @@ func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName str
 				resp, err := api.CreateOrUpdatePublicIp(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyPublicIpSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyPublicIpSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -448,11 +476,11 @@ func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api se
 				resp, err := api.GetPublicIpUntilState(ctx, wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyPublicIpSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyPublicIpSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -520,11 +548,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, 
 				resp, err := api.CreateOrUpdateNic(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyNicSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyNicSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -546,11 +574,11 @@ func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api secapi.
 				resp, err := api.GetNicUntilState(ctx, wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifyNicSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyNicSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -597,6 +625,103 @@ func (configurator *StepsConfigurator) DeleteNicV1Step(stepName string, api seca
 	})
 }
 
+// Security Group Rule
+
+func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroupRule,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
+		createOrUpdateWorkspaceResourceParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.Status]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  "CreateOrUpdateSecurityGroupRule",
+			workspace:      resource.Metadata.Workspace,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.SecurityGroupRule) (
+				*stepFuncResponse[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus], error,
+			) {
+				resp, err := api.CreateOrUpdateSecurityGroupRule(configurator.t.Context(), resource)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySecurityGroupRuleSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) GetSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec],
+) *schema.SecurityGroupRule {
+	responseExpects.Metadata.Verb = http.MethodGet
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	return getWorkspaceResourceStep(configurator.t, configurator.suite,
+		getWorkspaceResourceParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.Status]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  "GetSecurityGroupRule",
+			wref:           wref,
+			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+				*stepFuncResponse[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus], error,
+			) {
+				resp, err := api.GetSecurityGroupRuleUntilState(ctx, wref, config)
+				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySecurityGroupRuleSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) GetListSecurityGroupRuleV1Step(
+	stepName string,
+	api secapi.NetworkV1,
+	wref secapi.WorkspaceReference,
+	opts *secapi.ListOptions,
+) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListSecurityGroupRule", wref.Name)
+		var iter *secapi.Iterator[schema.SecurityGroupRule]
+		var err error
+		if opts != nil {
+			iter, err = api.ListSecurityGroupRulesWithFilters(configurator.t.Context(), wref.Tenant, wref.Workspace, opts)
+		} else {
+			iter, err = api.ListSecurityGroupRules(configurator.t.Context(), wref.Tenant, wref.Workspace)
+		}
+		requireNoError(sCtx, err)
+
+		verifyIterListStep(sCtx, configurator.t, *iter)
+	})
+}
+
+func (configurator *StepsConfigurator) GetSecurityGroupRuleWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetNetworkV1StepParams(sCtx, "GetSecurityGroupRule", string(wref.Workspace))
+
+		_, err := api.GetSecurityGroupRule(configurator.t.Context(), wref)
+		requireError(sCtx, err, expectedError)
+	})
+}
+
+func (configurator *StepsConfigurator) DeleteSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroupRule) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetNetworkV1StepParams(sCtx, "DeleteSecurityGroupRule", resource.Metadata.Workspace)
+
+		err := api.DeleteSecurityGroupRule(configurator.t.Context(), resource)
+		requireNoError(sCtx, err)
+	})
+}
+
 // Security Group
 
 func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroup,
@@ -617,11 +742,11 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepNam
 				resp, err := api.CreateOrUpdateSecurityGroup(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifySecurityGroupSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySecurityGroupSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -643,11 +768,11 @@ func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, a
 				resp, err := api.GetSecurityGroupUntilState(ctx, wref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:          responseExpects.Spec,
-			verifySpecFunc:        configurator.suite.VerifySecurityGroupSpecStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySecurityGroupSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -692,33 +817,4 @@ func (configurator *StepsConfigurator) DeleteSecurityGroupV1Step(stepName string
 		err := api.DeleteSecurityGroup(configurator.t.Context(), resource)
 		requireNoError(sCtx, err)
 	})
-}
-
-func (configurator *StepsConfigurator) GetListNetworkSkusV1Step(
-	stepName string,
-	api secapi.NetworkV1,
-	tref secapi.TenantReference,
-	opts *secapi.ListOptions,
-) []*schema.NetworkSku {
-	var resp []*schema.NetworkSku
-	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
-	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetComputeV1StepParams(sCtx, "ListSkus", tref.Name)
-
-		var iter *secapi.Iterator[schema.NetworkSku]
-		var err error
-		if opts != nil {
-			iter, err = api.ListSkusWithFilters(configurator.t.Context(), tref.Tenant, opts)
-		} else {
-			iter, err = api.ListSkus(configurator.t.Context(), tref.Tenant)
-		}
-		requireNoError(sCtx, err)
-
-		// Iterate through all items
-		resp, err := iter.All(configurator.t.Context())
-		requireNoError(sCtx, err)
-		requireNotNilResponse(sCtx, resp)
-		requireLenResponse(sCtx, len(resp))
-	})
-	return resp
 }

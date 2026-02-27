@@ -8,6 +8,7 @@ import (
 	mockWorkspace "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/workspace"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	labelBuilder "github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
@@ -38,7 +39,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
 		Build()
@@ -47,7 +48,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 	workspace2, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName2).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
 		Build()
@@ -69,7 +70,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.ConfigureTags(t, sdkconsts.WorkspaceProviderV1Name, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -82,9 +83,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
 		stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, &workspace,
 			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-				Labels:        expectLabels,
-				Metadata:      expectMeta,
-				ResourceState: schema.ResourceStatePending,
+				Labels:         expectLabels,
+				Metadata:       expectMeta,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 

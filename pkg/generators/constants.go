@@ -2,20 +2,21 @@ package generators
 
 const (
 	// Names
-	roleName            = "role-%d"
-	roleAssignmentName  = "role-assignment-%d"
-	regionName          = "region-%d"
-	workspaceName       = "workspace-%d"
-	blockStorageName    = "disk-%d"
-	imageName           = "image-%d"
-	instanceName        = "instance-%d"
-	networkName         = "network-%d"
-	internetGatewayName = "internet-gateway-%d"
-	routeTableName      = "route-table-%d"
-	subnetName          = "subnet-%d"
-	publicIpName        = "public-ip-%d"
-	nicName             = "nic-%d"
-	securityGroupName   = "security-group-%d"
+	roleName              = "role-%d"
+	roleAssignmentName    = "role-assignment-%d"
+	regionName            = "region-%d"
+	workspaceName         = "workspace-%d"
+	blockStorageName      = "disk-%d"
+	imageName             = "image-%d"
+	instanceName          = "instance-%d"
+	networkName           = "network-%d"
+	internetGatewayName   = "internet-gateway-%d"
+	routeTableName        = "route-table-%d"
+	subnetName            = "subnet-%d"
+	publicIpName          = "public-ip-%d"
+	nicName               = "nic-%d"
+	securityGroupRuleName = "security-group-rule-%d"
+	securityGroupName     = "security-group-%d"
 
 	// Endpoint URLs
 	urlProvidersPrefix = "/providers/"
@@ -55,6 +56,7 @@ const (
 	routeTableListURL      = urlProvidersPrefix + "%s/" + routeTableListResource
 	subnetURL              = urlProvidersPrefix + "%s/" + subnetResource
 	subnetListURL          = urlProvidersPrefix + "%s/" + subnetListResource
+	securityGroupRuleURL   = urlProvidersPrefix + "%s/" + securityGroupRuleResource
 	securityGroupURL       = urlProvidersPrefix + "%s/" + securityGroupResource
 	securityGroupListURL   = urlProvidersPrefix + "%s/" + securityGroupListResource
 
@@ -90,18 +92,27 @@ const (
 	routeTableListResource      = resourceWorkspacesPrefix + "/networks/%s/route-tables"
 	subnetResource              = resourceWorkspacesPrefix + "/networks/%s/subnets/%s"
 	subnetListResource          = resourceWorkspacesPrefix + "/networks/%s/subnets"
+	securityGroupRuleResource   = resourceWorkspacesPrefix + "/security-group-rules/%s"
 	securityGroupResource       = resourceWorkspacesPrefix + "/security-groups/%s"
 	securityGroupListResource   = resourceWorkspacesPrefix + "/security-groups"
 
 	// References
-	skuRef             = "skus/%s"
-	instanceRef        = "instances/%s"
-	blockStorageRef    = "block-storages/%s"
-	internetGatewayRef = "internet-gateways/%s"
-	networkRef         = "networks/%s"
-	routeTableRef      = "route-tables/%s"
-	subnetRef          = "subnets/%s"
-	publicIpRef        = "public-ips/%s"
+	regionRef            = "regions/%s"
+	skuRef               = "skus/%s"
+	workspaceRef         = "workspaces/%s"
+	roleRef              = "workspaces/%s"
+	roleAssignmentRef    = "workspaces/%s"
+	instanceRef          = "instances/%s"
+	blockStorageRef      = "block-storages/%s"
+	imageRef             = "images/%s"
+	internetGatewayRef   = "internet-gateways/%s"
+	nicRef               = "nics/%s"
+	networkRef           = "networks/%s"
+	routeTableRef        = "route-tables/%s"
+	subnetRef            = "subnets/%s"
+	publicIpRef          = "public-ips/%s"
+	securityGroupRuleRef = "security-group-rules/%s"
+	securityGroupRef     = "security-groups/%s"
 
 	// Generators
 	maxBlockStorageSize = 1000000 // GB

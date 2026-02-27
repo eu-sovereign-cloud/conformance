@@ -10,6 +10,7 @@ import (
 	mockNetwork "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	labelBuilder "github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
@@ -75,62 +76,36 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
-	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
-	if err != nil {
-		t.Fatal(err)
-	}
+	storageSkuRefObj := generators.GenerateSkuRefObject(storageSkuName)
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName)
-	if err != nil {
-		t.Fatal(err)
-	}
+	blockStorageRefObj := generators.GenerateBlockStorageRefObject(blockStorageName)
 
-	instanceSkuRefObj, err := generators.GenerateSkuRefObject(instanceSkuName)
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	instanceSkuRefObj := generators.GenerateSkuRefObject(instanceSkuName)
 	instanceName := generators.GenerateInstanceName()
 
-	networkSkuRefObj, err := generators.GenerateSkuRefObject(networkSkuName1)
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	networkSkuRefObj := generators.GenerateSkuRefObject(networkSkuName1)
 	networkName := generators.GenerateNetworkName()
 	networkName2 := generators.GenerateNetworkName()
 
 	internetGatewayName := generators.GenerateInternetGatewayName()
 	internetGatewayName2 := generators.GenerateInternetGatewayName()
-	internetGatewayRefObj, err := generators.GenerateInternetGatewayRefObject(internetGatewayName)
-	if err != nil {
-		t.Fatal(err)
-	}
+	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(internetGatewayName)
 
 	routeTableName := generators.GenerateRouteTableName()
 	routeTableName2 := generators.GenerateRouteTableName()
-	routeTableRefObj, err := generators.GenerateRouteTableRefObject(routeTableName)
-	if err != nil {
-		t.Fatal(err)
-	}
+	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
 
 	subnetName := generators.GenerateSubnetName()
 	subnetName2 := generators.GenerateSubnetName()
-	subnetRefObj, err := generators.GenerateSubnetRefObject(subnetName)
-	if err != nil {
-		t.Fatal(err)
-	}
+	subnetRefObj := generators.GenerateSubnetRefObject(subnetName)
 
 	nicName := generators.GenerateNicName()
 	nicName2 := generators.GenerateNicName()
 
 	publicIpName := generators.GeneratePublicIpName()
 	publicIpName2 := generators.GeneratePublicIpName()
-	publicIpRefObj, err := generators.GeneratePublicIpRefObject(publicIpName)
-	if err != nil {
-		t.Fatal(err)
-	}
+	publicIpRefObj := generators.GeneratePublicIpRefObject(publicIpName)
 
 	securityGroupName := generators.GenerateSecurityGroupName()
 	securityGroupName2 := generators.GenerateSecurityGroupName()
@@ -140,7 +115,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	// Workspace
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -152,7 +127,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorage, err := builders.NewBlockStorageBuilder().
 		Name(blockStorageName).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -167,7 +142,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 	instance, err := builders.NewInstanceBuilder().
 		Name(instanceName).
-		Provider(constants.ComputeProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -186,7 +161,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	network, err := builders.NewNetworkBuilder().
 		Name(networkName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -203,7 +178,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	network2, err := builders.NewNetworkBuilder().
 		Name(networkName2).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -222,7 +197,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	internetGateway, err := builders.NewInternetGatewayBuilder().
 		Name(internetGatewayName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -236,7 +211,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	internetGateway2, err := builders.NewInternetGatewayBuilder().
 		Name(internetGatewayName2).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -252,7 +227,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	routeTable, err := builders.NewRouteTableBuilder().
 		Name(routeTableName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -268,7 +243,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	routeTable2, err := builders.NewRouteTableBuilder().
 		Name(routeTableName2).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -286,7 +261,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	subnet, err := builders.NewSubnetBuilder().
 		Name(subnetName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -301,7 +276,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	subnet2, err := builders.NewSubnetBuilder().
 		Name(subnetName2).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -318,7 +293,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	nic, err := builders.NewNicBuilder().
 		Name(nicName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -334,7 +309,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	nic2, err := builders.NewNicBuilder().
 		Name(nicName2).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -352,7 +327,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	publicIp, err := builders.NewPublicIpBuilder().
 		Name(publicIpName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -367,7 +342,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	publicIp2, err := builders.NewPublicIpBuilder().
 		Name(publicIpName2).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -384,13 +359,13 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	securityGroup, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.SecurityGroupSpec{
-			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group: %v", err)
@@ -398,13 +373,13 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	securityGroup2, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupName2).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.SecurityGroupSpec{
-			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group: %v", err)
@@ -433,7 +408,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.NetworkProviderV1,
+	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic),
@@ -453,9 +428,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStatePending,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -468,9 +443,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectNetworkSpec := &network.Spec
 		stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.Client.NetworkV1, &network,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-				Metadata:      expectNetworkMeta,
-				Spec:          expectNetworkSpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectNetworkMeta,
+				Spec:           expectNetworkSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}
@@ -515,9 +490,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectGatewaySpec := &gateway.Spec
 		stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, &gateway,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-				Metadata:      expectGatewayMeta,
-				Spec:          expectGatewaySpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectGatewayMeta,
+				Spec:           expectGatewaySpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 
@@ -549,9 +524,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectRouteSpec := &route.Spec
 		stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, &route,
 			steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
-				Metadata:      expectRouteMeta,
-				Spec:          expectRouteSpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectRouteMeta,
+				Spec:           expectRouteSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}
@@ -588,9 +563,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectSubnetSpec := &subnet.Spec
 		stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", suite.Client.NetworkV1, &subnet,
 			steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
-				Metadata:      expectSubnetMeta,
-				Spec:          expectSubnetSpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectSubnetMeta,
+				Spec:           expectSubnetSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}
@@ -621,9 +596,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectPublicIpSpec := &publicIp.Spec
 		stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.Client.NetworkV1, &publicIp,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-				Metadata:      expectPublicIpMeta,
-				Spec:          expectPublicIpSpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectPublicIpMeta,
+				Spec:           expectPublicIpSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}
@@ -654,9 +629,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectNicSpec := &nic.Spec
 		stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", suite.Client.NetworkV1, &nic,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
-				Metadata:      expectNicMeta,
-				Spec:          expectNicSpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectNicMeta,
+				Spec:           expectNicSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}
@@ -687,9 +662,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectGroupSpec := &group.Spec
 		stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", suite.Client.NetworkV1, &group,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-				Metadata:      expectGroupMeta,
-				Spec:          expectGroupSpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectGroupMeta,
+				Spec:           expectGroupSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}

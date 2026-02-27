@@ -1,8 +1,8 @@
 package mock
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -12,29 +12,29 @@ import (
 func BuildProviderSpecV1() []schema.Provider {
 	return []schema.Provider{
 		{
-			Name:    constants.AuthorizationProvider,
-			Version: constants.ApiVersion1,
-			Url:     generators.GenerateRegionProviderUrl(constants.AuthorizationProvider),
+			Name:    sdkconsts.AuthorizationProviderName,
+			Version: sdkconsts.ApiVersion1,
+			Url:     generators.GenerateRegionProviderUrl(sdkconsts.AuthorizationProviderName),
 		},
 		{
-			Name:    constants.ComputeProvider,
-			Version: constants.ApiVersion1,
-			Url:     generators.GenerateRegionProviderUrl(constants.ComputeProvider),
+			Name:    sdkconsts.ComputeProviderName,
+			Version: sdkconsts.ApiVersion1,
+			Url:     generators.GenerateRegionProviderUrl(sdkconsts.ComputeProviderName),
 		},
 		{
-			Name:    constants.NetworkProvider,
-			Version: constants.ApiVersion1,
-			Url:     generators.GenerateRegionProviderUrl(constants.NetworkProvider),
+			Name:    sdkconsts.NetworkProviderName,
+			Version: sdkconsts.ApiVersion1,
+			Url:     generators.GenerateRegionProviderUrl(sdkconsts.NetworkProviderName),
 		},
 		{
-			Name:    constants.StorageProvider,
-			Version: constants.ApiVersion1,
-			Url:     generators.GenerateRegionProviderUrl(constants.StorageProvider),
+			Name:    sdkconsts.StorageProviderName,
+			Version: sdkconsts.ApiVersion1,
+			Url:     generators.GenerateRegionProviderUrl(sdkconsts.StorageProviderName),
 		},
 		{
-			Name:    constants.WorkspaceProvider,
-			Version: constants.ApiVersion1,
-			Url:     generators.GenerateRegionProviderUrl(constants.WorkspaceProvider),
+			Name:    sdkconsts.WorkspaceProviderName,
+			Version: sdkconsts.ApiVersion1,
+			Url:     generators.GenerateRegionProviderUrl(sdkconsts.WorkspaceProviderName),
 		},
 	}
 }

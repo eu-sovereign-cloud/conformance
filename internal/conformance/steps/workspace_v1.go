@@ -30,10 +30,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 				resp, err := api.CreateOrUpdateWorkspace(configurator.t.Context(), resource)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedLabels:        responseExpects.Labels,
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalResourceMetadataStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedLabels:         responseExpects.Labels,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -55,10 +55,10 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api s
 				resp, err := api.GetWorkspaceUntilState(ctx, tref, config)
 				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
 			},
-			expectedLabels:        responseExpects.Labels,
-			expectedMetadata:      responseExpects.Metadata,
-			verifyMetadataFunc:    configurator.suite.VerifyRegionalResourceMetadataStep,
-			expectedResourceState: responseExpects.ResourceState,
+			expectedLabels:         responseExpects.Labels,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,
+			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }

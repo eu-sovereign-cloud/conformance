@@ -2,10 +2,10 @@ package mockstorage
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.BlockStorageLifeCycleV1Params) error {
@@ -19,13 +19,13 @@ func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, 
 	blockStorageUpdated := *params.BlockStorageUpdated
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	blockUrl := generators.GenerateBlockStorageURL(constants.StorageProviderV1, blockStorageInitial.Metadata.Tenant, blockStorageInitial.Metadata.Workspace, blockStorageInitial.Metadata.Name)
+	workspaceUrl := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	blockUrl := generators.GenerateBlockStorageURL(sdkconsts.StorageProviderV1Name, blockStorageInitial.Metadata.Tenant, blockStorageInitial.Metadata.Workspace, blockStorageInitial.Metadata.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
 		Labels(workspace.Labels).
 		Build()
@@ -49,7 +49,7 @@ func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, 
 	// Block storage
 	blockResponse, err := builders.NewBlockStorageBuilder().
 		Name(blockStorageInitial.Metadata.Name).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(blockStorageInitial.Metadata.Tenant).Workspace(blockStorageInitial.Metadata.Workspace).Region(blockStorageInitial.Metadata.Region).
 		Spec(&blockStorageInitial.Spec).
 		Build()

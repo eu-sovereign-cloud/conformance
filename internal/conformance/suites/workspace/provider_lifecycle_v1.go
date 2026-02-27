@@ -8,6 +8,7 @@ import (
 	mockWorkspace "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/workspace"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -35,7 +36,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	workspaceInitial, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvDevelopmentLabel}).
 		Build()
@@ -45,7 +46,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	workspaceUpdated, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
 		Build()
@@ -66,7 +67,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.WorkspaceProviderV1, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.ConfigureTags(t, sdkconsts.WorkspaceProviderV1Name, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -76,9 +77,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectLabels,
-			Metadata:      expectMeta,
-			ResourceState: schema.ResourceStatePending,
+			Labels:         expectLabels,
+			Metadata:       expectMeta,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -89,9 +90,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	workspace = stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, tref,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectLabels,
-			Metadata:      expectMeta,
-			ResourceState: schema.ResourceStateActive,
+			Labels:         expectLabels,
+			Metadata:       expectMeta,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -100,18 +101,18 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectLabels = workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Update the workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectLabels,
-			Metadata:      expectMeta,
-			ResourceState: schema.ResourceStateActive,
+			Labels:         expectLabels,
+			Metadata:       expectMeta,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
 	// Get the updated workspace
 	workspace = stepsBuilder.GetWorkspaceV1Step("Get the updated workspace", suite.Client.WorkspaceV1, tref,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectLabels,
-			Metadata:      expectMeta,
-			ResourceState: schema.ResourceStateActive,
+			Labels:         expectLabels,
+			Metadata:       expectMeta,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 

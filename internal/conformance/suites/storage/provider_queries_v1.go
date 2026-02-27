@@ -10,6 +10,7 @@ import (
 	mockStorage "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/storage"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	labelBuilder "github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
@@ -43,19 +44,12 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
-	storageSkuRefObj, err := generators.GenerateSkuRefObject(storageSkuName)
-	if err != nil {
-		t.Fatal(err)
-	}
+	storageSkuRefObj := generators.GenerateSkuRefObject(storageSkuName)
 
 	blockStorageName1 := generators.GenerateBlockStorageName()
 	blockStorageName2 := generators.GenerateBlockStorageName()
 	blockStorageName3 := generators.GenerateBlockStorageName()
-
-	blockStorageRefObj, err := generators.GenerateBlockStorageRefObject(blockStorageName1)
-	if err != nil {
-		t.Fatal(err)
-	}
+	blockStorageRefObj := generators.GenerateBlockStorageRefObject(blockStorageName1)
 
 	imageName1 := generators.GenerateImageName()
 	imageName2 := generators.GenerateImageName()
@@ -64,7 +58,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -76,7 +70,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorage1, err := builders.NewBlockStorageBuilder().
 		Name(blockStorageName1).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).
 		Region(suite.Region).
 		Labels(schema.Labels{
@@ -93,7 +87,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorage2, err := builders.NewBlockStorageBuilder().
 		Name(blockStorageName2).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).
 		Region(suite.Region).
 		Labels(schema.Labels{
@@ -110,7 +104,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorage3, err := builders.NewBlockStorageBuilder().
 		Name(blockStorageName3).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).
 		Region(suite.Region).
 		Labels(schema.Labels{
@@ -129,7 +123,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	image1, err := builders.NewImageBuilder().
 		Name(imageName1).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvConformanceLabel,
@@ -145,7 +139,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	image2, err := builders.NewImageBuilder().
 		Name(imageName2).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Region(suite.Region).
 		Labels(schema.Labels{
@@ -162,7 +156,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	image3, err := builders.NewImageBuilder().
 		Name(imageName3).
-		Provider(constants.StorageProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Region(suite.Region).
 		Labels(schema.Labels{
@@ -193,7 +187,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.StorageProviderV1,
+	suite.ConfigureTags(t, sdkconsts.StorageProviderV1Name,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
 	)
@@ -208,9 +202,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStatePending,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -223,9 +217,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectedBlockSpec := &block.Spec
 		stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, &block,
 			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-				Metadata:      expectedBlockMeta,
-				Spec:          expectedBlockSpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectedBlockMeta,
+				Spec:           expectedBlockSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}
@@ -260,9 +254,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectedImageSpec := &image.Spec
 		stepsBuilder.CreateOrUpdateImageV1Step("Create an image", suite.Client.StorageV1, &image,
 			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-				Metadata:      expectedImageMeta,
-				Spec:          expectedImageSpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectedImageMeta,
+				Spec:           expectedImageSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}

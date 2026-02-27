@@ -2,10 +2,10 @@ package mocknetwork
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.SubnetLifeCycleV1Params) error {
@@ -21,16 +21,16 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	subnetInitial := *params.SubnetInitial
 	subnetUpdated := *params.SubnetUpdated
 
-	workspaceURL := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	networkURL := generators.GenerateNetworkURL(constants.NetworkProviderV1, network.Metadata.Tenant, network.Metadata.Workspace, network.Metadata.Name)
-	subnetURL := generators.GenerateSubnetURL(constants.NetworkProviderV1, subnetInitial.Metadata.Tenant, subnetInitial.Metadata.Workspace, subnetInitial.Metadata.Network, subnetInitial.Metadata.Name)
-	gatewayURL := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, internetGateway.Metadata.Tenant, internetGateway.Metadata.Workspace, internetGateway.Metadata.Name)
-	routeUrl := generators.GenerateRouteTableURL(constants.NetworkProviderV1, routeTable.Metadata.Tenant, routeTable.Metadata.Workspace, routeTable.Metadata.Network, routeTable.Metadata.Name)
+	workspaceURL := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	networkURL := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, network.Metadata.Tenant, network.Metadata.Workspace, network.Metadata.Name)
+	subnetURL := generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, subnetInitial.Metadata.Tenant, subnetInitial.Metadata.Workspace, subnetInitial.Metadata.Network, subnetInitial.Metadata.Name)
+	gatewayURL := generators.GenerateInternetGatewayURL(sdkconsts.NetworkProviderV1Name, internetGateway.Metadata.Tenant, internetGateway.Metadata.Workspace, internetGateway.Metadata.Name)
+	routeUrl := generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, routeTable.Metadata.Tenant, routeTable.Metadata.Workspace, routeTable.Metadata.Network, routeTable.Metadata.Name)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
 		Labels(workspace.Labels).
 		Build()
@@ -54,7 +54,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	// Network
 	networkResponse, err := builders.NewNetworkBuilder().
 		Name(network.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(network.Metadata.Tenant).Workspace(network.Metadata.Workspace).Region(network.Metadata.Region).
 		Spec(&network.Spec).
 		Build()
@@ -70,7 +70,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	// Internet Gateway
 	gatewayInitialResponse, err := builders.NewInternetGatewayBuilder().
 		Name(internetGateway.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(internetGateway.Metadata.Tenant).Workspace(internetGateway.Metadata.Workspace).Region(internetGateway.Metadata.Region).
 		Spec(&internetGateway.Spec).
 		Build()
@@ -94,7 +94,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	// Route table
 	routeResponse, err := builders.NewRouteTableBuilder().
 		Name(routeTable.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(routeTable.Metadata.Tenant).Workspace(routeTable.Metadata.Workspace).Network(routeTable.Metadata.Network).Region(routeTable.Metadata.Region).
 		Spec(&routeTable.Spec).
 		Build()
@@ -126,7 +126,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	// Subnet
 	subnetInitialResponse, err := builders.NewSubnetBuilder().
 		Name(subnetInitial.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(subnetInitial.Metadata.Tenant).Workspace(subnetInitial.Metadata.Workspace).Network(subnetInitial.Metadata.Network).Region(subnetInitial.Metadata.Region).
 		Spec(&subnetInitial.Spec).
 		Build()
@@ -150,7 +150,7 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	// Update subnet (change zone)
 	subnetUpdatedResponse, err := builders.NewSubnetBuilder().
 		Name(subnetUpdated.Metadata.Name).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(subnetUpdated.Metadata.Tenant).Workspace(subnetUpdated.Metadata.Workspace).Network(subnetUpdated.Metadata.Network).Region(subnetUpdated.Metadata.Region).
 		Spec(&subnetUpdated.Spec).
 		Build()

@@ -10,6 +10,7 @@ import (
 	mockNetwork "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/network"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -48,29 +49,16 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	networkSkuName := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 	networkSkuName2 := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 
-	routeTableRefObj, err := generators.GenerateRouteTableRefObject(routeTableName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
 
-	networkSkuRefObj, err := generators.GenerateSkuRefObject(networkSkuName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	networkSkuRefObj := generators.GenerateSkuRefObject(networkSkuName)
+	networkSkuRef2Obj := generators.GenerateSkuRefObject(networkSkuName2)
 
-	networkSkuRef2Obj, err := generators.GenerateSkuRefObject(networkSkuName2)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
-
-	internetGatewayRefObj, err := generators.GenerateInternetGatewayRefObject(internetGatewayName)
-	if err != nil {
-		t.Fatalf("Failed to build URN: %v", err)
-	}
+	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(internetGatewayName)
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
@@ -82,7 +70,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	networkInitial, err := builders.NewNetworkBuilder().
 		Name(networkName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
 			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
@@ -95,7 +83,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	networkUpdated, err := builders.NewNetworkBuilder().
 		Name(networkName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
 			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
@@ -108,7 +96,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	routeTable, err := builders.NewRouteTableBuilder().
 		Name(routeTableName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Spec(&schema.RouteTableSpec{
 			Routes: []schema.RouteSpec{
@@ -121,7 +109,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	internetGat, err := builders.NewInternetGatewayBuilder().
 		Name(internetGatewayName).
-		Provider(constants.NetworkProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InternetGatewaySpec{
 			EgressOnly: ptr.To(false),
@@ -146,7 +134,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.NetworkProviderV1,
+	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 	)
@@ -161,9 +149,9 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStatePending,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -174,9 +162,9 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:        expectWorkspaceLabels,
-			Metadata:      expectWorkspaceMeta,
-			ResourceState: schema.ResourceStateActive,
+			Labels:         expectWorkspaceLabels,
+			Metadata:       expectWorkspaceMeta,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -188,9 +176,9 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectNetworkSpec := &network.Spec
 	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:      expectNetworkMeta,
-			Spec:          expectNetworkSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -208,9 +196,9 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectInternetGatSpec := &internetGat.Spec
 	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", suite.Client.NetworkV1, internetGat,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:      expectInternetGatMeta,
-			Spec:          expectInternetGatSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectInternetGatMeta,
+			Spec:           expectInternetGatSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 	// Get the created internet gateway
@@ -221,9 +209,9 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, internetGatWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:      expectInternetGatMeta,
-			Spec:          expectInternetGatSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectInternetGatMeta,
+			Spec:           expectInternetGatSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -235,9 +223,9 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRouteSpec := &route.Spec
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
-			Metadata:      expectRouteMeta,
-			Spec:          expectRouteSpec,
-			ResourceState: schema.ResourceStatePending,
+			Metadata:       expectRouteMeta,
+			Spec:           expectRouteSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
@@ -250,18 +238,18 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetRouteTableV1Step("Get the created route table", suite.Client.NetworkV1, routeNRef,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
-			Metadata:      expectRouteMeta,
-			Spec:          expectRouteSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectRouteMeta,
+			Spec:           expectRouteSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
 	// Get the created network
 	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:      expectNetworkMeta,
-			Spec:          expectNetworkSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
@@ -270,18 +258,18 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectNetworkSpec.SkuRef = network.Spec.SkuRef
 	stepsBuilder.CreateOrUpdateNetworkV1Step("Update the network", suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:      expectNetworkMeta,
-			Spec:          expectNetworkSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 
 	// Get the updated network
 	stepsBuilder.GetNetworkV1Step("Get the updated network", suite.Client.NetworkV1, networkWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:      expectNetworkMeta,
-			Spec:          expectNetworkSpec,
-			ResourceState: schema.ResourceStateActive,
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
 

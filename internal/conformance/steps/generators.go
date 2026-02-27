@@ -5,6 +5,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -16,7 +17,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "RD100",
-				Provider: constants.StorageProviderV1,
+				Provider: sdkconsts.StorageProviderV1Name,
 				Resource: generators.GenerateSkuResource(tenant, "RD100"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
@@ -34,7 +35,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "RD500",
-				Provider: constants.StorageProviderV1,
+				Provider: sdkconsts.StorageProviderV1Name,
 				Resource: generators.GenerateSkuResource(tenant, "RD500"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
@@ -52,7 +53,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "RD2K",
-				Provider: constants.StorageProviderV1,
+				Provider: sdkconsts.StorageProviderV1Name,
 				Resource: generators.GenerateSkuResource(tenant, "RD2K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
@@ -75,7 +76,7 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "D2XS",
-				Provider: constants.ComputeProviderV1,
+				Provider: sdkconsts.ComputeProviderV1Name,
 				Resource: generators.GenerateSkuResource(tenant, "D2XS"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
@@ -93,7 +94,7 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "DXS",
-				Provider: constants.ComputeProviderV1,
+				Provider: sdkconsts.ComputeProviderV1Name,
 				Resource: generators.GenerateSkuResource(tenant, "DXS"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
@@ -111,7 +112,7 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "DS",
-				Provider: constants.ComputeProviderV1,
+				Provider: sdkconsts.ComputeProviderV1Name,
 				Resource: generators.GenerateSkuResource(tenant, "DS"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
@@ -134,7 +135,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "N1K",
-				Provider: constants.NetworkProviderV1,
+				Provider: sdkconsts.NetworkProviderV1Name,
 				Resource: generators.GenerateSkuResource(tenant, "N1K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
@@ -151,7 +152,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "N5K",
-				Provider: constants.NetworkProviderV1,
+				Provider: sdkconsts.NetworkProviderV1Name,
 				Resource: generators.GenerateSkuResource(tenant, "N5K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
@@ -168,7 +169,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 		{
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "N10K",
-				Provider: constants.NetworkProviderV1,
+				Provider: sdkconsts.NetworkProviderV1Name,
 				Resource: generators.GenerateSkuResource(tenant, "N10K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,

@@ -9,6 +9,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -28,18 +29,18 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	securityGroups := params.SecurityGroups
 
 	// Generate URLs
-	workspaceUrl := generators.GenerateWorkspaceURL(constants.WorkspaceProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	networkListUrl := generators.GenerateNetworkListURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	gatewayListUrl := generators.GenerateInternetGatewayListURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	publicIpListUrl := generators.GeneratePublicIpListURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	nicListUrl := generators.GenerateNicListURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	securityGroupListUrl := generators.GenerateSecurityGroupListURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	skuListUrl := generators.GenerateNetworkSkuListURL(constants.NetworkProviderV1, workspace.Metadata.Tenant)
+	workspaceUrl := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	networkListUrl := generators.GenerateNetworkListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	gatewayListUrl := generators.GenerateInternetGatewayListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	publicIpListUrl := generators.GeneratePublicIpListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	nicListUrl := generators.GenerateNicListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	securityGroupListUrl := generators.GenerateSecurityGroupListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	skuListUrl := generators.GenerateNetworkSkuListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant)
 
 	// Workspace
 	workspaceResponse, err := builders.NewWorkspaceBuilder().
 		Name(workspace.Metadata.Name).
-		Provider(constants.WorkspaceProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
 		Labels(workspace.Labels).
 		Build()
@@ -58,7 +59,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return err
 	}
 	networkResponse, err := builders.NewNetworkIteratorBuilder().
-		Provider(constants.NetworkProviderV1).
+		Provider(sdkconsts.NetworkProviderV1Name).
 		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
 		Items(networks).
 		Build()
@@ -101,7 +102,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	// Test Network Skus
 	// Create skus
 	skusList := steps.GenerateNetworkSkusV1(workspace.Metadata.Tenant)
-	skuResponse, err := builders.NewNetworkSkuIteratorBuilder().Provider(constants.StorageProviderV1).Tenant(workspace.Metadata.Tenant).Items(skusList).Build()
+	skuResponse, err := builders.NewNetworkSkuIteratorBuilder().Provider(sdkconsts.StorageProviderV1Name).Tenant(workspace.Metadata.Tenant).Items(skusList).Build()
 	if err != nil {
 		return err
 	}
@@ -122,7 +123,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return err
 	}
 	gatewayResponse, err := builders.NewInternetGatewayIteratorBuilder().
-		Provider(constants.NetworkProviderV1).
+		Provider(sdkconsts.NetworkProviderV1Name).
 		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
 		Items(internetGateways).
 		Build()
@@ -169,7 +170,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 	networkName := networks[0].Metadata.Name
 	routeTableResponse, err := builders.NewRouteTableIteratorBuilder().
-		Provider(constants.NetworkProviderV1).
+		Provider(sdkconsts.NetworkProviderV1Name).
 		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).Network(networkName).
 		Items(routeTables).
 		Build()
@@ -178,7 +179,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 
 	// List
-	routeTableListUrl := generators.GenerateRouteTableListURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName)
+	routeTableListUrl := generators.GenerateRouteTableListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName)
 	if err := configurator.ConfigureGetListRouteTableStub(routeTableResponse, routeTableListUrl, scenario.MockParams, nil); err != nil {
 		return err
 	}
@@ -217,7 +218,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return err
 	}
 	subnetResponse, err := builders.NewSubnetIteratorBuilder().
-		Provider(constants.NetworkProviderV1).
+		Provider(sdkconsts.NetworkProviderV1Name).
 		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).Network(networkName).
 		Items(subnets).
 		Build()
@@ -226,7 +227,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 
 	// List
-	subnetListUrl := generators.GenerateSubnetListURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName)
+	subnetListUrl := generators.GenerateSubnetListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName)
 	if err := configurator.ConfigureGetListSubnetStub(subnetResponse, subnetListUrl, scenario.MockParams, nil); err != nil {
 		return err
 	}
@@ -264,7 +265,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return err
 	}
 	publicIpResponse, err := builders.NewPublicIpIteratorBuilder().
-		Provider(constants.NetworkProviderV1).
+		Provider(sdkconsts.NetworkProviderV1Name).
 		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
 		Items(publicIps).
 		Build()
@@ -310,7 +311,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return err
 	}
 	nicResponse, err := builders.NewNicIteratorBuilder().
-		Provider(constants.NetworkProviderV1).
+		Provider(sdkconsts.NetworkProviderV1Name).
 		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
 		Items(nics).
 		Build()
@@ -356,7 +357,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return err
 	}
 	securityGroupResponse, err := builders.NewSecurityGroupIteratorBuilder().
-		Provider(constants.NetworkProviderV1).
+		Provider(sdkconsts.NetworkProviderV1Name).
 		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
 		Items(securityGroups).
 		Build()
@@ -399,7 +400,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Delete the security groups
 	for _, securityGroup := range securityGroups {
-		securityGroupUrl := generators.GenerateSecurityGroupURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name, securityGroup.Metadata.Name)
+		securityGroupUrl := generators.GenerateSecurityGroupURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, securityGroup.Metadata.Name)
 
 		// Delete the security group
 		if err := configurator.ConfigureDeleteStub(securityGroupUrl, scenario.MockParams); err != nil {
@@ -414,7 +415,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Delete the nics
 	for _, nic := range nics {
-		nicUrl := generators.GenerateNicURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name, nic.Metadata.Name)
+		nicUrl := generators.GenerateNicURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, nic.Metadata.Name)
 
 		// Delete the nic
 		if err := configurator.ConfigureDeleteStub(nicUrl, scenario.MockParams); err != nil {
@@ -429,7 +430,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Delete the public ips
 	for _, publicIp := range publicIps {
-		publicIpUrl := generators.GeneratePublicIpURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name, publicIp.Metadata.Name)
+		publicIpUrl := generators.GeneratePublicIpURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, publicIp.Metadata.Name)
 
 		// Delete the public ip
 		if err := configurator.ConfigureDeleteStub(publicIpUrl, scenario.MockParams); err != nil {
@@ -444,7 +445,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Delete the subnets
 	for _, subnet := range subnets {
-		subnetUrl := generators.GenerateSubnetURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName, subnet.Metadata.Name)
+		subnetUrl := generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName, subnet.Metadata.Name)
 
 		// Delete the subnet
 		if err := configurator.ConfigureDeleteStub(subnetUrl, scenario.MockParams); err != nil {
@@ -459,7 +460,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Delete the route tables
 	for _, routeTable := range routeTables {
-		routeTableUrl := generators.GenerateRouteTableURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName, routeTable.Metadata.Name)
+		routeTableUrl := generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName, routeTable.Metadata.Name)
 
 		// Delete the route table
 		if err := configurator.ConfigureDeleteStub(routeTableUrl, scenario.MockParams); err != nil {
@@ -474,7 +475,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Delete the internet gateways
 	for _, gateway := range internetGateways {
-		gatewayUrl := generators.GenerateInternetGatewayURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name, gateway.Metadata.Name)
+		gatewayUrl := generators.GenerateInternetGatewayURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, gateway.Metadata.Name)
 
 		// Delete the internet gateway
 		if err := configurator.ConfigureDeleteStub(gatewayUrl, scenario.MockParams); err != nil {
@@ -489,7 +490,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 
 	// Delete the networks
 	for _, network := range networks {
-		networkUrl := generators.GenerateNetworkURL(constants.NetworkProviderV1, workspace.Metadata.Tenant, workspace.Metadata.Name, network.Metadata.Name)
+		networkUrl := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, network.Metadata.Name)
 
 		// Delete the network
 		if err := configurator.ConfigureDeleteStub(networkUrl, scenario.MockParams); err != nil {

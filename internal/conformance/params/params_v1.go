@@ -170,10 +170,17 @@ type PublicIpLifeCycleV1Params struct {
 	PublicIpInitial *schema.PublicIp
 	PublicIpUpdated *schema.PublicIp
 }
+
 type SecurityGroupLifeCycleV1Params struct {
 	Workspace            *schema.Workspace
 	SecurityGroupInitial *schema.SecurityGroup
 	SecurityGroupUpdated *schema.SecurityGroup
+}
+
+type SecurityGroupRuleLifeCycleV1Params struct {
+	Workspace                *schema.Workspace
+	SecurityGroupRuleInitial *schema.SecurityGroupRule
+	SecurityGroupRuleUpdated *schema.SecurityGroupRule
 }
 
 // Usage

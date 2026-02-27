@@ -40,9 +40,9 @@ func (builder *responseMetadataBuilder[B]) SkipToken(skipToken string) *B {
 
 func (builder *responseMetadataBuilder[B]) validate() error {
 	if err := validateRequired(builder.validator,
-		builder.metadata,
-		builder.metadata.Provider,
-		builder.metadata.Verb,
+		field("metadata", builder.metadata),
+		field("metadata.Provider", builder.metadata.Provider),
+		field("metadata.Verb", builder.metadata.Verb),
 	); err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (builder *tenantResponseMetadataBuilder[B]) validate() error {
 
 	// Validate tenant response metadata
 	if err := validateRequired(builder.validator,
-		builder.tenant,
+		field("tenant", builder.tenant),
 	); err != nil {
 		return err
 	}
@@ -118,8 +118,8 @@ func (builder *workspaceResponseMetadataBuilder[B]) validate() error {
 
 	// Validate workspace response metadata
 	if err := validateRequired(builder.validator,
-		builder.tenant,
-		builder.workspace,
+		field("tenant", builder.tenant),
+		field("workspace", builder.workspace),
 	); err != nil {
 		return err
 	}
@@ -166,9 +166,9 @@ func (builder *networkResponseMetadataBuilder[B]) validate() error {
 
 	// Validate network response metadata
 	if err := validateRequired(builder.validator,
-		builder.tenant,
-		builder.workspace,
-		builder.network,
+		field("tenant", builder.tenant),
+		field("workspace", builder.workspace),
+		field("network", builder.network),
 	); err != nil {
 		return err
 	}
@@ -193,9 +193,11 @@ func newGlobalResourceMetadataBuilder[B any](parent *B) *globalResourceMetadataB
 	builder.resourceMetadataBuilder = newResourceMetadataBuilder(newResourceMetadataBuilderParams[B, schema.GlobalResourceMetadataKind]{
 		parent:        parent,
 		setName:       func(name string) { builder.metadata.Name = name },
-		setProvider:   func(provider string) { builder.metadata.Provider = provider },
+		setProvider:   func(resource string) { builder.metadata.Resource = resource },
+		setResource:   func(provider string) { builder.metadata.Provider = provider },
 		setApiVersion: func(apiVersion string) { builder.metadata.ApiVersion = apiVersion },
 		setKind:       func(kind schema.GlobalResourceMetadataKind) { builder.metadata.Kind = kind },
+		setRef:        func(ref string) { builder.metadata.Ref = ref },
 	})
 
 	return builder
@@ -203,11 +205,13 @@ func newGlobalResourceMetadataBuilder[B any](parent *B) *globalResourceMetadataB
 
 func (builder *globalResourceMetadataBuilder[B]) build() (*schema.GlobalResourceMetadata, error) {
 	if err := validateRequired(builder.validator,
-		builder.metadata,
-		builder.metadata.Name,
-		builder.metadata.Provider,
-		builder.metadata.ApiVersion,
-		builder.metadata.Kind,
+		field("metadata", builder.metadata),
+		field("metadata.Name", builder.metadata.Name),
+		field("metadata.Provider", builder.metadata.Provider),
+		field("metadata.Resource", builder.metadata.Resource),
+		field("metadata.ApiVersion", builder.metadata.ApiVersion),
+		field("metadata.Kind", builder.metadata.Kind),
+		field("metadata.Ref", builder.metadata.Ref),
 	); err != nil {
 		return nil, err
 	}
@@ -231,8 +235,10 @@ func newGlobalTenantResourceMetadataBuilder[B any](parent *B) *globalTenantResou
 		parent:        parent,
 		setName:       func(name string) { builder.metadata.Name = name },
 		setProvider:   func(provider string) { builder.metadata.Provider = provider },
+		setResource:   func(provider string) { builder.metadata.Provider = provider },
 		setApiVersion: func(apiVersion string) { builder.metadata.ApiVersion = apiVersion },
 		setKind:       func(kind schema.GlobalTenantResourceMetadataKind) { builder.metadata.Kind = kind },
+		setRef:        func(ref string) { builder.metadata.Ref = ref },
 	})
 
 	return builder
@@ -245,12 +251,13 @@ func (builder *globalTenantResourceMetadataBuilder[B]) Tenant(tenant string) *B 
 
 func (builder *globalTenantResourceMetadataBuilder[B]) build() (*schema.GlobalTenantResourceMetadata, error) {
 	if err := validateRequired(builder.validator,
-		builder.metadata,
-		builder.metadata.Name,
-		builder.metadata.Provider,
-		builder.metadata.ApiVersion,
-		builder.metadata.Kind,
-		builder.metadata.Tenant,
+		field("metadata", builder.metadata),
+		field("metadata.Name", builder.metadata.Name),
+		field("metadata.Provider", builder.metadata.Provider),
+		field("metadata.ApiVersion", builder.metadata.ApiVersion),
+		field("metadata.Kind", builder.metadata.Kind),
+		field("metadata.Ref", builder.metadata.Ref),
+		field("metadata.Tenant", builder.metadata.Tenant),
 	); err != nil {
 		return nil, err
 	}
@@ -274,8 +281,10 @@ func newRegionalResourceMetadataBuilder[B any](parent *B) *regionalResourceMetad
 		parent:        parent,
 		setName:       func(name string) { builder.metadata.Name = name },
 		setProvider:   func(provider string) { builder.metadata.Provider = provider },
+		setResource:   func(provider string) { builder.metadata.Provider = provider },
 		setApiVersion: func(apiVersion string) { builder.metadata.ApiVersion = apiVersion },
 		setKind:       func(kind schema.RegionalResourceMetadataKind) { builder.metadata.Kind = kind },
+		setRef:        func(ref string) { builder.metadata.Ref = ref },
 	})
 
 	return builder
@@ -293,13 +302,14 @@ func (builder *regionalResourceMetadataBuilder[B]) Region(region string) *B {
 
 func (builder *regionalResourceMetadataBuilder[B]) build() (*schema.RegionalResourceMetadata, error) {
 	if err := validateRequired(builder.validator,
-		builder.metadata,
-		builder.metadata.Name,
-		builder.metadata.Provider,
-		builder.metadata.ApiVersion,
-		builder.metadata.Kind,
-		builder.metadata.Tenant,
-		builder.metadata.Region,
+		field("metadata", builder.metadata),
+		field("metadata.Name", builder.metadata.Name),
+		field("metadata.Provider", builder.metadata.Provider),
+		field("metadata.ApiVersion", builder.metadata.ApiVersion),
+		field("metadata.Kind", builder.metadata.Kind),
+		field("metadata.Ref", builder.metadata.Ref),
+		field("metadata.Tenant", builder.metadata.Tenant),
+		field("metadata.Region", builder.metadata.Region),
 	); err != nil {
 		return nil, err
 	}
@@ -323,8 +333,10 @@ func newRegionalWorkspaceResourceMetadataBuilder[B any](parent *B) *regionalWork
 		parent:        parent,
 		setName:       func(name string) { builder.metadata.Name = name },
 		setProvider:   func(provider string) { builder.metadata.Provider = provider },
+		setResource:   func(provider string) { builder.metadata.Provider = provider },
 		setApiVersion: func(apiVersion string) { builder.metadata.ApiVersion = apiVersion },
 		setKind:       func(kind schema.RegionalWorkspaceResourceMetadataKind) { builder.metadata.Kind = kind },
+		setRef:        func(ref string) { builder.metadata.Ref = ref },
 	})
 
 	return builder
@@ -347,14 +359,15 @@ func (builder *regionalWorkspaceResourceMetadataBuilder[B]) Region(region string
 
 func (builder *regionalWorkspaceResourceMetadataBuilder[B]) build() (*schema.RegionalWorkspaceResourceMetadata, error) {
 	if err := validateRequired(builder.validator,
-		builder.metadata,
-		builder.metadata.Name,
-		builder.metadata.Provider,
-		builder.metadata.ApiVersion,
-		builder.metadata.Kind,
-		builder.metadata.Tenant,
-		builder.metadata.Workspace,
-		builder.metadata.Region,
+		field("metadata", builder.metadata),
+		field("metadata.Name", builder.metadata.Name),
+		field("metadata.Provider", builder.metadata.Provider),
+		field("metadata.ApiVersion", builder.metadata.ApiVersion),
+		field("metadata.Kind", builder.metadata.Kind),
+		field("metadata.Ref", builder.metadata.Ref),
+		field("metadata.Tenant", builder.metadata.Tenant),
+		field("metadata.Workspace", builder.metadata.Workspace),
+		field("metadata.Region", builder.metadata.Region),
 	); err != nil {
 		return nil, err
 	}
@@ -378,8 +391,10 @@ func newRegionalNetworkResourceMetadataBuilder[B any](parent *B) *regionalNetwor
 		parent:        parent,
 		setName:       func(name string) { builder.metadata.Name = name },
 		setProvider:   func(provider string) { builder.metadata.Provider = provider },
+		setResource:   func(provider string) { builder.metadata.Provider = provider },
 		setApiVersion: func(apiVersion string) { builder.metadata.ApiVersion = apiVersion },
 		setKind:       func(kind schema.RegionalNetworkResourceMetadataKind) { builder.metadata.Kind = kind },
+		setRef:        func(ref string) { builder.metadata.Ref = ref },
 	})
 
 	return builder
@@ -407,15 +422,16 @@ func (builder *regionalNetworkResourceMetadataBuilder[B]) Region(region string) 
 
 func (builder *regionalNetworkResourceMetadataBuilder[B]) build() (*schema.RegionalNetworkResourceMetadata, error) {
 	if err := validateRequired(builder.validator,
-		builder.metadata,
-		builder.metadata.Name,
-		builder.metadata.Provider,
-		builder.metadata.ApiVersion,
-		builder.metadata.Kind,
-		builder.metadata.Tenant,
-		builder.metadata.Workspace,
-		builder.metadata.Network,
-		builder.metadata.Region,
+		field("metadata", builder.metadata),
+		field("metadata.Name", builder.metadata.Name),
+		field("metadata.Provider", builder.metadata.Provider),
+		field("metadata.ApiVersion", builder.metadata.ApiVersion),
+		field("metadata.Kind", builder.metadata.Kind),
+		field("metadata.Ref", builder.metadata.Ref),
+		field("metadata.Tenant", builder.metadata.Tenant),
+		field("metadata.Workspace", builder.metadata.Workspace),
+		field("metadata.Network", builder.metadata.Network),
+		field("metadata.Region", builder.metadata.Region),
 	); err != nil {
 		return nil, err
 	}

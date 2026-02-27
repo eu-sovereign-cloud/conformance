@@ -11,6 +11,7 @@ import (
 	mockauthorization "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/authorization"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	labelBuilder "github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
@@ -55,12 +56,12 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	// Roles
 	role1, err := builders.NewRoleBuilder().
 		Name(roleName1).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
 		Spec(&schema.RoleSpec{
 			Permissions: []schema.Permission{
-				{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+				{Provider: sdkconsts.StorageProviderV1Name, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 			},
 		}).
 		Build()
@@ -70,12 +71,12 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	role2, err := builders.NewRoleBuilder().
 		Name(roleName2).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
 		Spec(&schema.RoleSpec{
 			Permissions: []schema.Permission{
-				{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+				{Provider: sdkconsts.StorageProviderV1Name, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 			},
 		}).
 		Build()
@@ -84,12 +85,12 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 	role3, err := builders.NewRoleBuilder().
 		Name(roleName3).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
 		Spec(&schema.RoleSpec{
 			Permissions: []schema.Permission{
-				{Provider: constants.StorageProviderV1, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+				{Provider: sdkconsts.StorageProviderV1Name, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 			},
 		}).
 		Build()
@@ -105,7 +106,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	// Roles Assignment
 	roleAssignment1, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignmentName1).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
 		Spec(&schema.RoleAssignmentSpec{
@@ -120,7 +121,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 	roleAssignment2, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignmentName2).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
 		Spec(&schema.RoleAssignmentSpec{
@@ -135,7 +136,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 	roleAssignment3, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignmentName3).
-		Provider(constants.AuthorizationProviderV1).ApiVersion(constants.ApiVersion1).
+		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
 		Spec(&schema.RoleAssignmentSpec{
@@ -166,7 +167,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
-	suite.ConfigureTags(t, constants.AuthorizationProviderV1,
+	suite.ConfigureTags(t, sdkconsts.AuthorizationProviderV1Name,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
@@ -180,12 +181,12 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectRoleMeta := role.Metadata
 		expectRoleSpec := role.Spec
 
-		// Create Role
+		// Create a role
 		stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, &role,
 			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-				Metadata:      expectRoleMeta,
-				Spec:          &expectRoleSpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectRoleMeta,
+				Spec:           &expectRoleSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}
@@ -222,9 +223,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		// Create a role assignment
 		stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.Client.AuthorizationV1, &roleAssign,
 			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-				Metadata:      expectRoleAssignMeta,
-				Spec:          expectRoleAssignSpec,
-				ResourceState: schema.ResourceStatePending,
+				Metadata:       expectRoleAssignMeta,
+				Spec:           expectRoleAssignSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}
