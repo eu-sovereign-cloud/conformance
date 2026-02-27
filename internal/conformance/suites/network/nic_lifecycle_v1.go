@@ -239,16 +239,30 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Get the created network
-	networkWRef := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(network.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
-		Name:      network.Metadata.Name,
+	// Internet gateway
+
+	// Create an internet gateway
+	gateway := suite.params.InternetGateway
+	expectGatewayMeta := gateway.Metadata
+	expectGatewaySpec := &gateway.Spec
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, gateway,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Metadata:      expectGatewayMeta,
+			Spec:          expectGatewaySpec,
+			ResourceState: schema.ResourceStatePending,
+		},
+	)
+
+	// Get the created internet gateway
+	gatewayWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(gateway.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(gateway.Metadata.Workspace),
+		Name:      gateway.Metadata.Name,
 	}
-	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:      expectNetworkMeta,
-			Spec:          expectNetworkSpec,
+	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, gatewayWRef,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Metadata:      expectGatewayMeta,
+			Spec:          expectGatewaySpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -282,6 +296,20 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
+	// Get the created network
+	networkWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(network.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
+		Name:      network.Metadata.Name,
+	}
+	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			Metadata:      expectNetworkMeta,
+			Spec:          expectNetworkSpec,
+			ResourceState: schema.ResourceStateActive,
+		},
+	)
+
 	// Subnet
 
 	// Create a subnet
@@ -307,34 +335,6 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Metadata:      expectSubnetMeta,
 			Spec:          expectSubnetSpec,
-			ResourceState: schema.ResourceStateActive,
-		},
-	)
-
-	// Internet gateway
-
-	// Create an internet gateway
-	gateway := suite.params.InternetGateway
-	expectGatewayMeta := gateway.Metadata
-	expectGatewaySpec := &gateway.Spec
-	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, gateway,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:      expectGatewayMeta,
-			Spec:          expectGatewaySpec,
-			ResourceState: schema.ResourceStatePending,
-		},
-	)
-
-	// Get the created internet gateway
-	gatewayWRef := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(gateway.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(gateway.Metadata.Workspace),
-		Name:      gateway.Metadata.Name,
-	}
-	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, gatewayWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:      expectGatewayMeta,
-			Spec:          expectGatewaySpec,
 			ResourceState: schema.ResourceStateActive,
 		},
 	)
@@ -387,14 +387,18 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-	stepsBuilder.DeleteNicV1Step("Delete the nic", suite.Client.NetworkV1, nic)
-	stepsBuilder.GetNicWithErrorV1Step("Get deleted nic", suite.Client.NetworkV1, nicWRef, secapi.ErrResourceNotFound)
 
 	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.Client.NetworkV1, gateway)
 	stepsBuilder.GetInternetGatewayWithErrorV1Step("Get deleted internet gateway", suite.Client.NetworkV1, gatewayWRef, secapi.ErrResourceNotFound)
 
 	stepsBuilder.DeleteRouteTableV1Step("Delete the route table", suite.Client.NetworkV1, route)
 	stepsBuilder.GetRouteTableWithErrorV1Step("Get deleted route table", suite.Client.NetworkV1, routeNRef, secapi.ErrResourceNotFound)
+
+	stepsBuilder.DeleteSubnetV1Step("Delete the subnet", suite.Client.NetworkV1, subnet)
+	stepsBuilder.GetSubnetWithErrorV1Step("Get deleted subnet", suite.Client.NetworkV1, subnetNRef, secapi.ErrResourceNotFound)
+
+	stepsBuilder.DeleteNicV1Step("Delete the nic", suite.Client.NetworkV1, nic)
+	stepsBuilder.GetNicWithErrorV1Step("Get deleted nic", suite.Client.NetworkV1, nicWRef, secapi.ErrResourceNotFound)
 
 	stepsBuilder.DeleteNetworkV1Step("Delete the network", suite.Client.NetworkV1, network)
 	stepsBuilder.GetNetworkWithErrorV1Step("Get deleted network", suite.Client.NetworkV1, networkWRef, secapi.ErrResourceNotFound)
