@@ -53,7 +53,7 @@ func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api se
 			stepParamsFunc: configurator.suite.SetComputeV1StepParams,
 			operationName:  "GetInstance",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				*stepFuncResponse[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
 			) {
 				resp, err := api.GetInstanceUntilState(configurator.t.Context(), wref, config)

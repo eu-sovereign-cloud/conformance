@@ -118,7 +118,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, tref, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, tref)
 
 	suite.FinishScenario()
 }

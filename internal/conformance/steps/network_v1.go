@@ -81,7 +81,7 @@ func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api sec
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "GetNetwork",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				*stepFuncResponse[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus], error,
 			) {
 				resp, err := api.GetNetworkUntilState(ctx, wref, config)
@@ -178,7 +178,7 @@ func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "GetInternetGateway",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				*stepFuncResponse[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status], error,
 			) {
 				resp, err := api.GetInternetGatewayUntilState(ctx, wref, config)
@@ -276,7 +276,7 @@ func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api 
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
 			operationName:  "GetRouteTable",
 			nref:           nref,
-			getFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+			getValueFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				*stepFuncResponse[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus], error,
 			) {
 				resp, err := api.GetRouteTableUntilState(ctx, nref, config)
@@ -373,7 +373,7 @@ func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api seca
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
 			operationName:  "GetSubnet",
 			nref:           nref,
-			getFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+			getValueFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				*stepFuncResponse[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus], error,
 			) {
 				resp, err := api.GetSubnetUntilState(ctx, nref, config)
@@ -470,7 +470,7 @@ func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api se
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "GetPublicIp",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				*stepFuncResponse[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus], error,
 			) {
 				resp, err := api.GetPublicIpUntilState(ctx, wref, config)
@@ -568,7 +568,7 @@ func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api secapi.
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "GetNic",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				*stepFuncResponse[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus], error,
 			) {
 				resp, err := api.GetNicUntilState(ctx, wref, config)
@@ -665,7 +665,7 @@ func (configurator *StepsConfigurator) GetSecurityGroupRuleV1Step(stepName strin
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "GetSecurityGroupRule",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				*stepFuncResponse[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus], error,
 			) {
 				resp, err := api.GetSecurityGroupRuleUntilState(ctx, wref, config)
@@ -762,7 +762,7 @@ func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, a
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  "GetSecurityGroup",
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				*stepFuncResponse[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus], error,
 			) {
 				resp, err := api.GetSecurityGroupUntilState(ctx, wref, config)

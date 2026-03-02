@@ -52,7 +52,7 @@ func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
 			operationName:  "GetRole",
 			tref:           tref,
-			getFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+			getValueFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				*stepFuncResponse[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status], error,
 			) {
 				resp, err := api.GetRoleUntilState(ctx, tref, config)
@@ -149,7 +149,7 @@ func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, 
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
 			operationName:  "GetRoleAssignment",
 			tref:           tref,
-			getFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
+			getValueFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				*stepFuncResponse[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status], error,
 			) {
 				resp, err := api.GetRoleAssignmentUntilState(ctx, tref, config)

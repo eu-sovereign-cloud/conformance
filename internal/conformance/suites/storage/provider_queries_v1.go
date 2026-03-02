@@ -296,11 +296,11 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteImageV1Step("Delete image", suite.Client.StorageV1, &image)
 
 		// Get the deleted image
-		imageTRef := &secapi.TenantReference{
+		imageTRef := secapi.TenantReference{
 			Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 			Name:   image.Metadata.Name,
 		}
-		stepsBuilder.GetImageWithErrorV1Step("Get deleted image ", suite.Client.StorageV1, *imageTRef, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchImageUntilDeletedV1Step("Watch the image deletion", suite.Client.StorageV1, imageTRef)
 	}
 
 	// Delete all block storages
@@ -308,21 +308,21 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteBlockStorageV1Step("Delete block storage 1", suite.Client.StorageV1, &block)
 
 		// Get the deleted block storage
-		blockWRef := &secapi.WorkspaceReference{
+		blockWRef := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(block.Metadata.Tenant),
 			Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
 			Name:      block.Metadata.Name,
 		}
-		stepsBuilder.GetBlockStorageWithErrorV1Step("Get deleted block storage 1", suite.Client.StorageV1, *blockWRef, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", suite.Client.StorageV1, blockWRef)
 	}
 
 	// Delete the workspace
-	workspaceTRef := &secapi.TenantReference{
+	workspaceTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, *workspaceTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

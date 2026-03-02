@@ -173,7 +173,9 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.GetSecurityGroupRuleWithErrorV1Step("Get deleted security group rule", suite.Client.NetworkV1, ruleWRef, secapi.ErrResourceNotFound)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+
+	suite.FinishScenario()
 }
 
 func (suite *SecurityGroupRuleLifeCycleV1TestSuite) AfterAll(t provider.T) {
