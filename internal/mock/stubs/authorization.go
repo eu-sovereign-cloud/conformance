@@ -53,10 +53,10 @@ func (configurator *Configurator) ConfigureGetUpdatingRoleStub(response *schema.
 	return nil
 }
 
-func (configurator *Configurator) ConfigureGetListRoleStub(response *authorization.RoleIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+func (configurator *Configurator) ConfigureListRoleStub(response *authorization.RoleIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 
-	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -106,10 +106,10 @@ func (configurator *Configurator) ConfigureGetUpdatingRoleAssignmentStub(respons
 	return nil
 }
 
-func (configurator *Configurator) ConfigureGetListRoleAssignmentStub(response *authorization.RoleAssignmentIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+func (configurator *Configurator) ConfigureListRoleAssignmentStub(response *authorization.RoleAssignmentIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 
-	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil

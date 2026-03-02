@@ -3,170 +3,114 @@ package mocknetwork
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
-	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.SubnetLifeCycleV1Params) error {
+func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params params.SubnetLifeCycleV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
 	}
 
-	workspace := *params.Workspace
-	network := *params.Network
-	routeTable := *params.RouteTable
-	internetGateway := *params.InternetGateway
-	subnetInitial := *params.SubnetInitial
-	subnetUpdated := *params.SubnetUpdated
+	workspace := params.Workspace
+	network := params.Network
+	routeTable := params.RouteTable
+	internetGateway := params.InternetGateway
+	subnet := params.SubnetInitial
 
 	workspaceURL := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	networkURL := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, network.Metadata.Tenant, network.Metadata.Workspace, network.Metadata.Name)
-	subnetURL := generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, subnetInitial.Metadata.Tenant, subnetInitial.Metadata.Workspace, subnetInitial.Metadata.Network, subnetInitial.Metadata.Name)
+	subnetURL := generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, subnet.Metadata.Tenant, subnet.Metadata.Workspace, subnet.Metadata.Network, subnet.Metadata.Name)
 	gatewayURL := generators.GenerateInternetGatewayURL(sdkconsts.NetworkProviderV1Name, internetGateway.Metadata.Tenant, internetGateway.Metadata.Workspace, internetGateway.Metadata.Name)
 	routeUrl := generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, routeTable.Metadata.Tenant, routeTable.Metadata.Workspace, routeTable.Metadata.Network, routeTable.Metadata.Name)
 
 	// Workspace
-	workspaceResponse, err := builders.NewWorkspaceBuilder().
-		Name(workspace.Metadata.Name).
-		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
-		Labels(workspace.Labels).
-		Build()
-	if err != nil {
-		return err
-	}
 
 	// Create workspace
-	if err := configurator.ConfigureCreateWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created workspace
-	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Network
-	networkResponse, err := builders.NewNetworkBuilder().
-		Name(network.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(network.Metadata.Tenant).Workspace(network.Metadata.Workspace).Region(network.Metadata.Region).
-		Spec(&network.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
 
 	// Create network
-	if err := configurator.ConfigureCreateNetworkStub(networkResponse, networkURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateNetworkStub(network, networkURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created network
-	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingNetworkStub(network, networkURL, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveNetworkStub(network, networkURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Route table
-	routeResponse, err := builders.NewRouteTableBuilder().
-		Name(routeTable.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(routeTable.Metadata.Tenant).Workspace(routeTable.Metadata.Workspace).Network(routeTable.Metadata.Network).Region(routeTable.Metadata.Region).
-		Spec(&routeTable.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
 
 	// Create a route table
-	if err := configurator.ConfigureCreateRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateRouteTableStub(routeTable, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created route table
-	if err := configurator.ConfigureGetCreatingRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingRouteTableStub(routeTable, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveRouteTableStub(routeTable, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Internet Gateway
-	gatewayInitialResponse, err := builders.NewInternetGatewayBuilder().
-		Name(internetGateway.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(internetGateway.Metadata.Tenant).Workspace(internetGateway.Metadata.Workspace).Region(internetGateway.Metadata.Region).
-		Spec(&internetGateway.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
 
 	// Create internet gateway
-	if err := configurator.ConfigureCreateInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created internet gateway
-	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayInitialResponse, gatewayURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Subnet
-	subnetInitialResponse, err := builders.NewSubnetBuilder().
-		Name(subnetInitial.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(subnetInitial.Metadata.Tenant).Workspace(subnetInitial.Metadata.Workspace).Network(subnetInitial.Metadata.Network).Region(subnetInitial.Metadata.Region).
-		Spec(&subnetInitial.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
 
 	// Create subnet
-	if err := configurator.ConfigureCreateSubnetStub(subnetInitialResponse, subnetURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateSubnetStub(subnet, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created subnet
-	if err := configurator.ConfigureGetCreatingSubnetStub(subnetInitialResponse, subnetURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingSubnetStub(subnet, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveSubnetStub(subnetInitialResponse, subnetURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveSubnetStub(subnet, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Update subnet (change zone)
-	subnetUpdatedResponse, err := builders.NewSubnetBuilder().
-		Name(subnetUpdated.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(subnetUpdated.Metadata.Tenant).Workspace(subnetUpdated.Metadata.Workspace).Network(subnetUpdated.Metadata.Network).Region(subnetUpdated.Metadata.Region).
-		Spec(&subnetUpdated.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
-	if err := configurator.ConfigureUpdateSubnetStub(subnetUpdatedResponse, subnetURL, scenario.MockParams); err != nil {
+	subnet = params.SubnetUpdated
+	if err := configurator.ConfigureUpdateSubnetStub(subnet, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the updated subnet
-	if err := configurator.ConfigureGetUpdatingSubnetStub(subnetUpdatedResponse, subnetURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetUpdatingSubnetStub(subnet, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveSubnetStub(subnetUpdatedResponse, subnetURL, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveSubnetStub(subnet, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
 

@@ -9,10 +9,10 @@ import (
 )
 
 // Region
-func (configurator *Configurator) ConfigureGetListRegionStub(response *region.RegionIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+func (configurator *Configurator) ConfigureListRegionStub(response *region.RegionIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 
-	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil

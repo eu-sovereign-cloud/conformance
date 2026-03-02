@@ -63,7 +63,7 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api s
 	)
 }
 
-func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
+func (configurator *StepsConfigurator) ListWorkspaceV1Step(
 	stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))

@@ -94,9 +94,8 @@ func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		PublicIpInitial: publicIpInitial,
 		PublicIpUpdated: publicIpUpdated,
 	}
-
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigurePublicIpLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigurePublicIpLifecycleScenarioV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}

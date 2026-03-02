@@ -75,7 +75,7 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		InternetGatewayUpdated: internetGatUpdated,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureInternetGatewayLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureInternetGatewayLifecycleScenarioV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}

@@ -147,7 +147,7 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		SubnetUpdated:   subnetUpdated,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureSubnetLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureSubnetLifecycleScenarioV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}

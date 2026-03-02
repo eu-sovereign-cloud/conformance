@@ -68,7 +68,7 @@ func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, ap
 	)
 }
 
-func (configurator *StepsConfigurator) GetListBlockStorageV1Step(
+func (configurator *StepsConfigurator) ListBlockStorageV1Step(
 	stepName string, api secapi.StorageV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -171,7 +171,7 @@ func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api secap
 	)
 }
 
-func (configurator *StepsConfigurator) GetListImageV1Step(
+func (configurator *StepsConfigurator) ListImageV1Step(
 	stepName string, api secapi.StorageV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -219,7 +219,7 @@ func (configurator *StepsConfigurator) DeleteImageV1Step(stepName string, api se
 	})
 }
 
-func (configurator *StepsConfigurator) GetListSkuV1Step(
+func (configurator *StepsConfigurator) ListSkuV1Step(
 	stepName string, api secapi.StorageV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))

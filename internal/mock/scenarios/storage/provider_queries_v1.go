@@ -13,7 +13,7 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params.StorageProviderQueriesV1Params) error {
+func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.StorageProviderQueriesV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -29,19 +29,8 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	blockListUrl := generators.GenerateBlockStorageListURL(sdkconsts.StorageProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	imageListUrl := generators.GenerateImageListURL(sdkconsts.StorageProviderV1Name, workspace.Metadata.Tenant)
 
-	// Workspace
-	workspaceResponse, err := builders.NewWorkspaceBuilder().
-		Name(workspace.Metadata.Name).
-		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
-		Labels(workspace.Labels).
-		Build()
-	if err != nil {
-		return err
-	}
-
 	// Create a workspace
-	if err := configurator.ConfigureCreateWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -60,17 +49,17 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 
 	// List block storages
-	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, nil); err != nil {
+	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, nil); err != nil {
 		return err
 	}
 
-	// List with Limit 1
+	// List with limit 1
 	blockListResponse.Items = blockStorages[:1]
-	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
-	// List with Label
+	// List with label
 	blocksWithLabel := func(blockList []schema.BlockStorage) []schema.BlockStorage {
 		var filteredInstances []schema.BlockStorage
 		for _, instance := range blockList {
@@ -81,13 +70,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return filteredInstances
 	}
 	blockListResponse.Items = blocksWithLabel(blockStorages)
-	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
-	// List with Limit and Label
+	// List with limit and label
 	blockListResponse.Items = blocksWithLabel(blockStorages)[:1]
-	if err := configurator.ConfigureGetListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -106,13 +95,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 
 	// List images
-	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, nil); err != nil {
+	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, nil); err != nil {
 		return err
 	}
 
-	// List with Limit 1
+	// List with limit 1
 	imageListResponse.Items = images[:1]
-	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -128,13 +117,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 
 	imageListResponse.Items = imagesWithLabel(images)
-	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with Limit and Label
 	imageListResponse.Items = imagesWithLabel(images)[:1]
-	if err := configurator.ConfigureGetListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -150,13 +139,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 
 	// List
-	if err := configurator.ConfigureGetListStorageSkuStub(*skuResponse, skuListUrl, scenario.MockParams, nil); err != nil {
+	if err := configurator.ConfigureListStorageSkuStub(*skuResponse, skuListUrl, scenario.MockParams, nil); err != nil {
 		return err
 	}
 
 	// List with Limit 1
 	skuResponse.Items = skuList[:1]
-	if err := configurator.ConfigureGetListStorageSkuStub(*skuResponse, skuListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListStorageSkuStub(*skuResponse, skuListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -198,6 +187,9 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 
 	// Get the deleted workspace
+	if err := configurator.ConfigureGetDeletingWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}

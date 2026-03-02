@@ -74,8 +74,7 @@ func (suite *RoleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		RoleUpdated: roleUpdated,
 	}
 	suite.params = params
-
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleLifecycleScenarioV1, *params)
 	if err != nil {
 		slog.Error("Failed to setup mock", "error", err)
 		t.FailNow()

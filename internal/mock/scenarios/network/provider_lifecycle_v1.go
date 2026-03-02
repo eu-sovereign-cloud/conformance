@@ -8,22 +8,22 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.NetworkProviderLifeCycleV1Params) error {
+func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, params params.NetworkProviderLifeCycleV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
 	}
 
-	workspace := *params.Workspace
-	blockStorage := *params.BlockStorage
-	instance := *params.Instance
-	network := *params.NetworkInitial
-	gateway := *params.InternetGatewayInitial
-	nic := *params.NicInitial
-	publicIp := *params.PublicIpInitial
-	routeTable := *params.RouteTableInitial
-	subnet := *params.SubnetInitial
-	securityGroup := *params.SecurityGroupInitial
+	workspace := params.Workspace
+	blockStorage := params.BlockStorage
+	instance := params.Instance
+	network := params.NetworkInitial
+	gateway := params.InternetGatewayInitial
+	nic := params.NicInitial
+	publicIp := params.PublicIpInitial
+	routeTable := params.RouteTableInitial
+	subnet := params.SubnetInitial
+	securityGroup := params.SecurityGroupInitial
 
 	// Generate URLs
 	workspaceUrl := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
@@ -470,6 +470,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted workspace
+	if err := configurator.ConfigureGetDeletingWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}

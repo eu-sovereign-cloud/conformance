@@ -119,10 +119,8 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		ImageInitial:        imageInitial,
 		ImageUpdated:        imageUpdated,
 	}
-
 	suite.params = params
-
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockstorage.ConfigureProviderLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockstorage.ConfigureProviderLifecycleScenarioV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}

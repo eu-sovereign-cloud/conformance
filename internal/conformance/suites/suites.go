@@ -77,7 +77,7 @@ func (suite *TestSuite) ResetAllScenarios() {
 	}
 }
 
-func SetupMockIfEnabled[P any](suite *TestSuite, configFunc func(*mockscenarios.Scenario, *P) error, suiteParams *P) error {
+func SetupMockIfEnabled[P any](suite *TestSuite, configFunc func(*mockscenarios.Scenario, P) error, suiteParams P) error {
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
 		mockParams := &mock.MockParams{

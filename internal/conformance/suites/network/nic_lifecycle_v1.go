@@ -174,7 +174,7 @@ func (suite *NicLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		NicUpdated:      nicUpdated,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mocknetwork.ConfigureNicLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mocknetwork.ConfigureNicLifecycleScenarioV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}

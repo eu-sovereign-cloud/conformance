@@ -77,7 +77,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		SecurityGroupRuleUpdated: securityGroupRuleUpdated,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureSecurityGroupRuleLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureSecurityGroupRuleLifecycleScenarioV1, *params)
 	if err != nil {
 		slog.Error("Failed to setup mock", "error", err)
 		t.FailNow()

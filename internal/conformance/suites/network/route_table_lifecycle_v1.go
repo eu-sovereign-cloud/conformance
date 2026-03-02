@@ -133,7 +133,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		RouteTableUpdated: routeTableUpdated,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureRouteTableLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureRouteTableLifecycleScenarioV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}

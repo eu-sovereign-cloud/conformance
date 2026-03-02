@@ -121,11 +121,8 @@ func (configurator *StepsConfigurator) DeleteInstanceV1Step(stepName string, api
 	})
 }
 
-func (configurator *StepsConfigurator) GetListInstanceV1Step(
-	stepName string,
-	api secapi.ComputeV1,
-	wref secapi.WorkspaceReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListInstanceV1Step(
+	stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
 ) []*schema.Instance {
 	var resp []*schema.Instance
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -147,11 +144,8 @@ func (configurator *StepsConfigurator) GetListInstanceV1Step(
 	return resp
 }
 
-func (configurator *StepsConfigurator) GetListSkusV1Step(
-	stepName string,
-	api secapi.ComputeV1,
-	tref secapi.TenantReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListSkusV1Step(
+	stepName string, api secapi.ComputeV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) []*schema.InstanceSku {
 	var resp []*schema.InstanceSku
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))

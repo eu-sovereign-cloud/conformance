@@ -15,7 +15,7 @@ import (
 
 // Sku
 
-func (configurator *StepsConfigurator) GetListNetworkSkusV1Step(
+func (configurator *StepsConfigurator) ListNetworkSkusV1Step(
 	stepName string, api secapi.NetworkV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) []*schema.NetworkSku {
 	var resp []*schema.NetworkSku
@@ -96,15 +96,12 @@ func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api sec
 	)
 }
 
-func (configurator *StepsConfigurator) GetListNetworkV1Step(
-	stepName string,
-	api secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListNetworkV1Step(
+	stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListNetwork", string(wref.Workspace))
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListNetwork", string(wref.Workspace))
 		var iter *secapi.Iterator[schema.Network]
 		var err error
 		if opts != nil {
@@ -193,15 +190,12 @@ func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string,
 	)
 }
 
-func (configurator *StepsConfigurator) GetListInternetGatewayV1Step(
-	stepName string,
-	api secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListInternetGatewayV1Step(
+	stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListInternetGateway", wref.Name)
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListInternetGateway", wref.Name)
 		var iter *secapi.Iterator[schema.InternetGateway]
 		var err error
 		if opts != nil {
@@ -291,15 +285,12 @@ func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api 
 	)
 }
 
-func (configurator *StepsConfigurator) GetListRouteTableV1Step(
-	stepName string,
-	api secapi.NetworkV1,
-	nref secapi.NetworkReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListRouteTableV1Step(
+	stepName string, api secapi.NetworkV1, nref secapi.NetworkReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListRouteTable", nref.Name)
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListRouteTable", nref.Name)
 		var iter *secapi.Iterator[schema.RouteTable]
 		var err error
 		if opts != nil {
@@ -388,15 +379,12 @@ func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api seca
 	)
 }
 
-func (configurator *StepsConfigurator) GetListSubnetV1Step(
-	stepName string,
-	api secapi.NetworkV1,
-	nref secapi.NetworkReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListSubnetV1Step(
+	stepName string, api secapi.NetworkV1, nref secapi.NetworkReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListSubnet", nref.Name)
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListSubnet", nref.Name)
 		var iter *secapi.Iterator[schema.Subnet]
 		var err error
 		if opts != nil {
@@ -485,15 +473,12 @@ func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api se
 	)
 }
 
-func (configurator *StepsConfigurator) GetListPublicIpV1Step(
-	stepName string,
-	api secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListPublicIpV1Step(
+	stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListPublicIp", wref.Name)
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListPublicIp", wref.Name)
 		var iter *secapi.Iterator[schema.PublicIp]
 		var err error
 		if opts != nil {
@@ -583,15 +568,12 @@ func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api secapi.
 	)
 }
 
-func (configurator *StepsConfigurator) GetListNicV1Step(
-	stepName string,
-	api secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListNicV1Step(
+	stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListNic", wref.Name)
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListNic", wref.Name)
 		var iter *secapi.Iterator[schema.Nic]
 		var err error
 		if opts != nil {
@@ -680,15 +662,12 @@ func (configurator *StepsConfigurator) GetSecurityGroupRuleV1Step(stepName strin
 	)
 }
 
-func (configurator *StepsConfigurator) GetListSecurityGroupRuleV1Step(
-	stepName string,
-	api secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListSecurityGroupRuleV1Step(
+	stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListSecurityGroupRule", wref.Name)
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListSecurityGroupRule", wref.Name)
 		var iter *secapi.Iterator[schema.SecurityGroupRule]
 		var err error
 		if opts != nil {
@@ -777,15 +756,12 @@ func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, a
 	)
 }
 
-func (configurator *StepsConfigurator) GetListSecurityGroupV1Step(
-	stepName string,
-	api secapi.NetworkV1,
-	wref secapi.WorkspaceReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListSecurityGroupV1Step(
+	stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListSecurityGroup", wref.Name)
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListSecurityGroup", wref.Name)
 		var iter *secapi.Iterator[schema.SecurityGroup]
 		var err error
 		if opts != nil {
