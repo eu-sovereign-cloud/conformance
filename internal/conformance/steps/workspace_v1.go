@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -25,10 +26,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 			operationName:  "CreateOrUpdateWorkspace",
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Workspace) (
-				*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
+				wrappers.ResourceWrapper[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateWorkspace(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewWorkspaceWrapper(resp), err
 			},
 			expectedLabels:         responseExpects.Labels,
 			expectedMetadata:       responseExpects.Metadata,
@@ -50,10 +51,10 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api s
 			operationName:  "GetWorkspace",
 			tref:           tref,
 			getValueFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
+				wrappers.ResourceWrapper[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
 			) {
 				resp, err := api.GetWorkspaceUntilState(ctx, tref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewWorkspaceWrapper(resp), err
 			},
 			expectedLabels:         responseExpects.Labels,
 			expectedMetadata:       responseExpects.Metadata,

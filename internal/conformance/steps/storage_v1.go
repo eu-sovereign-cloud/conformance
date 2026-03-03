@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -28,10 +29,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.BlockStorage) (
-				*stepFuncResponse[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus], error,
+				wrappers.ResourceWrapper[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateBlockStorage(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewBlockStorageWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -54,10 +55,10 @@ func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, ap
 			operationName:  "GetBlockStorage",
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus], error,
+				wrappers.ResourceWrapper[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus], error,
 			) {
 				resp, err := api.GetBlockStorageUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewBlockStorageWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -131,10 +132,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string
 			operationName:  "CreateOrUpdateImage",
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Image) (
-				*stepFuncResponse[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus], error,
+				wrappers.ResourceWrapper[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateImage(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewImageWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,
@@ -157,10 +158,10 @@ func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api secap
 			operationName:  "GetImage",
 			tref:           tref,
 			getValueFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus], error,
+				wrappers.ResourceWrapper[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus], error,
 			) {
 				resp, err := api.GetImageUntilState(ctx, tref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewImageWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,

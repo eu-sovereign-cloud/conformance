@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -28,10 +29,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName str
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Instance) (
-				*stepFuncResponse[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
+				wrappers.ResourceWrapper[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateInstance(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewInstanceWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -54,10 +55,10 @@ func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api se
 			operationName:  "GetInstance",
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
+				wrappers.ResourceWrapper[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
 			) {
 				resp, err := api.GetInstanceUntilState(configurator.t.Context(), wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewInstanceWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,

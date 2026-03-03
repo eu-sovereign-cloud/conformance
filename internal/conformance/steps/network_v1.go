@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -56,10 +57,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName stri
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Network) (
-				*stepFuncResponse[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus], error,
+				wrappers.ResourceWrapper[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateNetwork(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewNetworkWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -82,10 +83,10 @@ func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api sec
 			operationName:  "GetNetwork",
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus], error,
+				wrappers.ResourceWrapper[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus], error,
 			) {
 				resp, err := api.GetNetworkUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewNetworkWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -150,10 +151,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepN
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.InternetGateway) (
-				*stepFuncResponse[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status], error,
+				wrappers.ResourceWrapper[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status], error,
 			) {
 				resp, err := api.CreateOrUpdateInternetGateway(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewInternetGatewayWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -176,10 +177,10 @@ func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string,
 			operationName:  "GetInternetGateway",
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status], error,
+				wrappers.ResourceWrapper[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status], error,
 			) {
 				resp, err := api.GetInternetGatewayUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewInternetGatewayWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -245,10 +246,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName s
 			network:        resource.Metadata.Network,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.RouteTable) (
-				*stepFuncResponse[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus], error,
+				wrappers.ResourceWrapper[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateRouteTable(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewRouteTableWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
@@ -271,10 +272,10 @@ func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api 
 			operationName:  "GetRouteTable",
 			nref:           nref,
 			getValueFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus], error,
+				wrappers.ResourceWrapper[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus], error,
 			) {
 				resp, err := api.GetRouteTableUntilState(ctx, nref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewRouteTableWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
@@ -339,10 +340,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName strin
 			network:        resource.Metadata.Network,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Subnet) (
-				*stepFuncResponse[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus], error,
+				wrappers.ResourceWrapper[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateSubnet(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewSubnetWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
@@ -365,10 +366,10 @@ func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api seca
 			operationName:  "GetSubnet",
 			nref:           nref,
 			getValueFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus], error,
+				wrappers.ResourceWrapper[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus], error,
 			) {
 				resp, err := api.GetSubnetUntilState(ctx, nref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewSubnetWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
@@ -433,10 +434,10 @@ func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName str
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.PublicIp) (
-				*stepFuncResponse[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus], error,
+				wrappers.ResourceWrapper[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus], error,
 			) {
 				resp, err := api.CreateOrUpdatePublicIp(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewPublicIpWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -459,10 +460,10 @@ func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api se
 			operationName:  "GetPublicIp",
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus], error,
+				wrappers.ResourceWrapper[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus], error,
 			) {
 				resp, err := api.GetPublicIpUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewPublicIpWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -528,10 +529,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, 
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Nic) (
-				*stepFuncResponse[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus], error,
+				wrappers.ResourceWrapper[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateNic(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewNicWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -554,10 +555,10 @@ func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api secapi.
 			operationName:  "GetNic",
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus], error,
+				wrappers.ResourceWrapper[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus], error,
 			) {
 				resp, err := api.GetNicUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewNicWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -622,10 +623,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleV1Step(ste
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.SecurityGroupRule) (
-				*stepFuncResponse[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus], error,
+				wrappers.ResourceWrapper[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateSecurityGroupRule(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewSecurityGroupRuleWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -648,10 +649,10 @@ func (configurator *StepsConfigurator) GetSecurityGroupRuleV1Step(stepName strin
 			operationName:  "GetSecurityGroupRule",
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus], error,
+				wrappers.ResourceWrapper[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus], error,
 			) {
 				resp, err := api.GetSecurityGroupRuleUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewSecurityGroupRuleWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -716,10 +717,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepNam
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.SecurityGroup) (
-				*stepFuncResponse[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus], error,
+				wrappers.ResourceWrapper[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateSecurityGroup(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewSecurityGroupWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -742,10 +743,10 @@ func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, a
 			operationName:  "GetSecurityGroup",
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus], error,
+				wrappers.ResourceWrapper[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus], error,
 			) {
 				resp, err := api.GetSecurityGroupUntilState(ctx, wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewSecurityGroupWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,

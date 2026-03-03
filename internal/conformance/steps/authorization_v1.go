@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -27,10 +28,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string,
 			operationName:  "CreateOrUpdateRole",
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Role) (
-				*stepFuncResponse[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status], error,
+				wrappers.ResourceWrapper[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status], error,
 			) {
 				resp, err := api.CreateOrUpdateRole(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewRoleWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
@@ -53,10 +54,10 @@ func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi
 			operationName:  "GetRole",
 			tref:           tref,
 			getValueFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status], error,
+				wrappers.ResourceWrapper[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status], error,
 			) {
 				resp, err := api.GetRoleUntilState(ctx, tref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewRoleWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
@@ -122,10 +123,10 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepNa
 			operationName:  "CreateOrUpdateRoleAssignment",
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.RoleAssignment) (
-				*stepFuncResponse[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status], error,
+				wrappers.ResourceWrapper[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status], error,
 			) {
 				resp, err := api.CreateOrUpdateRoleAssignment(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewRoleAssignmentWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
@@ -148,10 +149,10 @@ func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, 
 			operationName:  "GetRoleAssignment",
 			tref:           tref,
 			getValueFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status], error,
+				wrappers.ResourceWrapper[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status], error,
 			) {
 				resp, err := api.GetRoleAssignmentUntilState(ctx, tref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewRoleAssignmentWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
