@@ -90,9 +90,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		BlockStorageInitial: blockStorageInitial,
 		BlockStorageUpdated: blockStorageUpdated,
 	}
-
 	suite.params = params
-
 	err = suites.SetupMockIfEnabled(suite.TestSuite, mockstorage.ConfigureBlockStorageLifecycleScenarioV1, params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
@@ -186,10 +184,10 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Resources deletion
 
 	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
-	stepsBuilder.GetBlockStorageWithErrorV1Step("Get the deleted block storage", suite.Client.StorageV1, blockWRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", suite.Client.StorageV1, blockWRef)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }
