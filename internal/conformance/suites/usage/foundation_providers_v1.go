@@ -91,7 +91,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorageName := generators.GenerateBlockStorageName()
 	blockStorageRefObj := generators.GenerateBlockStorageRefObject(blockStorageName)
-	blockStorageSize := generators.GenerateBlockStorageSize()
+	blockStorageSize := constants.BlockStorageInitialSize
 
 	imageName := generators.GenerateImageName()
 	imageResource := generators.GenerateImageResource(suite.Tenant, imageName)

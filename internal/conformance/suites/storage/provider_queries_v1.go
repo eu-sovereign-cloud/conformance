@@ -54,7 +54,8 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	imageName1 := generators.GenerateImageName()
 	imageName2 := generators.GenerateImageName()
 	imageName3 := generators.GenerateImageName()
-	initialStorageSize := generators.GenerateBlockStorageSize()
+
+	initialStorageSize := constants.BlockStorageInitialSize
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).

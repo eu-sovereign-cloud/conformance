@@ -114,7 +114,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	securityGroupName := generators.GenerateSecurityGroupName()
 
-	blockStorageSize := generators.GenerateBlockStorageSize()
+	blockStorageSize := constants.BlockStorageInitialSize
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).

@@ -110,7 +110,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	securityGroupName := generators.GenerateSecurityGroupName()
 	securityGroupName2 := generators.GenerateSecurityGroupName()
 
-	blockStorageSize := generators.GenerateBlockStorageSize()
+	blockStorageSize := constants.BlockStorageInitialSize
 
 	// Workspace
 	workspace, err := builders.NewWorkspaceBuilder().

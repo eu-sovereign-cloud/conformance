@@ -54,7 +54,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	workspaceName := generators.GenerateWorkspaceName()
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageSize := generators.GenerateBlockStorageSize()
+	blockStorageSize := constants.BlockStorageInitialSize
 
 	storageSkuRefObj := generators.GenerateSkuRefObject(storageSkuName)
 

@@ -49,7 +49,7 @@ func (suite *ImageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	imageName := generators.GenerateImageName()
 
-	storageSize := generators.GenerateBlockStorageSize()
+	storageSize := constants.BlockStorageInitialSize
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
