@@ -63,7 +63,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorageName := generators.GenerateBlockStorageName()
 	blockStorageRefObj := generators.GenerateBlockStorageRefObject(blockStorageName)
-	blockStorageSize := generators.GenerateBlockStorageSize()
+	blockStorageSize := constants.BlockStorageInitialSize
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).

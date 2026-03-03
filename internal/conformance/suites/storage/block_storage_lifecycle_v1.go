@@ -46,8 +46,8 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorageName := generators.GenerateBlockStorageName()
 
-	initialStorageSize := generators.GenerateBlockStorageSize()
-	updatedStorageSize := generators.GenerateBlockStorageSize()
+	initialStorageSize := constants.BlockStorageInitialSize
+	updatedStorageSize := constants.BlockStorageUpdatedSize
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).

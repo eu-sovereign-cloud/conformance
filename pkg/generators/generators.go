@@ -1,17 +1,10 @@
 package generators
 
 import (
-	"math/rand"
 	"net"
 
 	"github.com/apparentlymart/go-cidr/cidr"
 )
-
-// Random
-
-func GenerateBlockStorageSize() int {
-	return rand.Intn(maxBlockStorageSize)
-}
 
 // Network
 
