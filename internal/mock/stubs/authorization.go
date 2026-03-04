@@ -53,6 +53,14 @@ func (configurator *Configurator) ConfigureGetUpdatingRoleStub(response *schema.
 	return nil
 }
 
+func (configurator *Configurator) ConfigureGetDeletingRoleStub(response *schema.Role, url string, params *mock.MockParams) error {
+	setResourceState(response.Status, schema.ResourceStateDeleting)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (configurator *Configurator) ConfigureListRoleStub(response *authorization.RoleIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 
@@ -100,6 +108,14 @@ func (configurator *Configurator) ConfigureGetActiveRoleAssignmentStub(response 
 
 func (configurator *Configurator) ConfigureGetUpdatingRoleAssignmentStub(response *schema.RoleAssignment, url string, params *mock.MockParams) error {
 	setResourceState(response.Status, schema.ResourceStateUpdating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetDeletingRoleAssignmentStub(response *schema.RoleAssignment, url string, params *mock.MockParams) error {
+	setResourceState(response.Status, schema.ResourceStateDeleting)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

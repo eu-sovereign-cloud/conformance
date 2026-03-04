@@ -66,6 +66,9 @@ func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, 
 	}
 
 	// Get the deleted block storage
+	if err := configurator.ConfigureGetDeletingBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(blockUrl, scenario.MockParams); err != nil {
 		return err
 	}

@@ -380,6 +380,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted instance
+	if err := configurator.ConfigureGetDeletingInstanceStub(instance, instanceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -390,6 +393,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted block storage
+	if err := configurator.ConfigureGetDeletingBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -400,6 +406,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted security group
+	if err := configurator.ConfigureGetDeletingSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(groupUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -410,6 +419,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted nic
+	if err := configurator.ConfigureGetDeletingNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(nicUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -420,6 +432,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted public ip
+	if err := configurator.ConfigureGetDeletingPublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(publicIpUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -430,6 +445,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted subnet
+	if err := configurator.ConfigureGetDeletingSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(subnetUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -440,6 +458,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted route table
+	if err := configurator.ConfigureGetDeletingRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -450,6 +471,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted internet gateway
+	if err := configurator.ConfigureGetDeletingInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(gatewayUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -460,6 +484,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted network
+	if err := configurator.ConfigureGetDeletingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(networkUrl, scenario.MockParams); err != nil {
 		return err
 	}

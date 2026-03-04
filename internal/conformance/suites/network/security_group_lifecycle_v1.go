@@ -167,7 +167,7 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 	stepsBuilder.DeleteSecurityGroupV1Step("Delete the security group", suite.Client.NetworkV1, group)
-	stepsBuilder.GetSecurityGroupWithErrorV1Step("Get deleted security group", suite.Client.NetworkV1, groupWRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchSecurityGroupUntilDeletedV1Step("Watch the security group deletion", suite.Client.NetworkV1, groupWRef)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
 	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)

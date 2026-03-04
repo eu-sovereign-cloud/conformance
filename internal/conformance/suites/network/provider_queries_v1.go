@@ -691,12 +691,12 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteSecurityGroupV1Step("Delete the security group", suite.Client.NetworkV1, &group)
 
 		// Get deleted security group
-		groupWRef := &secapi.WorkspaceReference{
+		groupWRef := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(group.Metadata.Tenant),
 			Workspace: secapi.WorkspaceID(group.Metadata.Workspace),
 			Name:      group.Metadata.Name,
 		}
-		stepsBuilder.GetSecurityGroupWithErrorV1Step("Get deleted security group", suite.Client.NetworkV1, *groupWRef, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchSecurityGroupUntilDeletedV1Step("Watch the security group deletion", suite.Client.NetworkV1, groupWRef)
 	}
 
 	// Delete all nics
@@ -704,12 +704,12 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteNicV1Step("Delete the nic", suite.Client.NetworkV1, &nic)
 
 		// Get the deleted nic
-		nicWRef := &secapi.WorkspaceReference{
+		nicWRef := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(nic.Metadata.Tenant),
 			Workspace: secapi.WorkspaceID(nic.Metadata.Workspace),
 			Name:      nic.Metadata.Name,
 		}
-		stepsBuilder.GetNicWithErrorV1Step("Get deleted nic", suite.Client.NetworkV1, *nicWRef, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchNicUntilDeletedV1Step("Watch the nic deletion", suite.Client.NetworkV1, nicWRef)
 	}
 
 	// Delete all public ips
@@ -717,12 +717,12 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeletePublicIpV1Step("Delete the public ip", suite.Client.NetworkV1, &publicIp)
 
 		// Get the deleted public ip
-		publicIpWRef := &secapi.WorkspaceReference{
+		publicIpWRef := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(publicIp.Metadata.Tenant),
 			Workspace: secapi.WorkspaceID(publicIp.Metadata.Workspace),
 			Name:      publicIp.Metadata.Name,
 		}
-		stepsBuilder.GetPublicIpWithErrorV1Step("Get deleted public ip", suite.Client.NetworkV1, *publicIpWRef, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchPublicIpUntilDeletedV1Step("Watch the public ip deletion", suite.Client.NetworkV1, publicIpWRef)
 	}
 
 	// Delete all subnets
@@ -730,13 +730,13 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteSubnetV1Step("Delete the subnet", suite.Client.NetworkV1, &subnet)
 
 		// Get the deleted subnet
-		subnetNRef := &secapi.NetworkReference{
+		subnetNRef := secapi.NetworkReference{
 			Tenant:    secapi.TenantID(subnet.Metadata.Tenant),
 			Workspace: secapi.WorkspaceID(subnet.Metadata.Workspace),
 			Network:   secapi.NetworkID(subnet.Metadata.Network),
 			Name:      subnet.Metadata.Name,
 		}
-		stepsBuilder.GetSubnetWithErrorV1Step("Get deleted subnet", suite.Client.NetworkV1, *subnetNRef, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchSubnetUntilDeletedV1Step("Watch the subnet deletion", suite.Client.NetworkV1, subnetNRef)
 	}
 
 	// Delete all route tables
@@ -744,13 +744,13 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteRouteTableV1Step("Delete the route table", suite.Client.NetworkV1, &route)
 
 		// Get the deleted route table
-		routeNRef := &secapi.NetworkReference{
+		routeNRef := secapi.NetworkReference{
 			Tenant:    secapi.TenantID(route.Metadata.Tenant),
 			Workspace: secapi.WorkspaceID(route.Metadata.Workspace),
 			Network:   secapi.NetworkID(route.Metadata.Network),
 			Name:      route.Metadata.Name,
 		}
-		stepsBuilder.GetRouteTableWithErrorV1Step("Get deleted route table", suite.Client.NetworkV1, *routeNRef, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchRouteTableUntilDeletedV1Step("Watch the route table deletion", suite.Client.NetworkV1, routeNRef)
 	}
 
 	// Delete all internet gateways
@@ -758,12 +758,12 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.Client.NetworkV1, &gateway)
 
 		// Get the deleted internet gateway
-		gatewayWRef := &secapi.WorkspaceReference{
+		internetGatWRef := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(gateway.Metadata.Tenant),
 			Workspace: secapi.WorkspaceID(gateway.Metadata.Workspace),
 			Name:      gateway.Metadata.Name,
 		}
-		stepsBuilder.GetInternetGatewayWithErrorV1Step("Get deleted internet gateway", suite.Client.NetworkV1, *gatewayWRef, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", suite.Client.NetworkV1, internetGatWRef)
 	}
 
 	// Delete all networks
@@ -771,12 +771,12 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteNetworkV1Step("Delete the network", suite.Client.NetworkV1, &network)
 
 		// Get the deleted network
-		networkWRef := &secapi.WorkspaceReference{
+		networkWRef := secapi.WorkspaceReference{
 			Tenant:    secapi.TenantID(network.Metadata.Tenant),
 			Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
 			Name:      network.Metadata.Name,
 		}
-		stepsBuilder.GetNetworkWithErrorV1Step("Get deleted network", suite.Client.NetworkV1, *networkWRef, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchNetworkUntilDeletedV1Step("Watch the network deletion", suite.Client.NetworkV1, networkWRef)
 	}
 
 	// Delete the workspace

@@ -51,6 +51,14 @@ func (configurator *Configurator) ConfigureGetUpdatingBlockStorageStub(response 
 	return nil
 }
 
+func (configurator *Configurator) ConfigureGetDeletingBlockStorageStub(response *schema.BlockStorage, url string, params *mock.MockParams) error {
+	setBlockStorageState(response.Status, schema.ResourceStateDeleting)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (configurator *Configurator) ConfigureListBlockStorageStub(response storage.BlockStorageIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -96,6 +104,14 @@ func (configurator *Configurator) ConfigureGetActiveImageStub(response *schema.I
 
 func (configurator *Configurator) ConfigureGetUpdatingImageStub(response *schema.Image, url string, params *mock.MockParams) error {
 	setImageState(response.Status, schema.ResourceStateUpdating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetDeletingImageStub(response *schema.Image, url string, params *mock.MockParams) error {
+	setImageState(response.Status, schema.ResourceStateDeleting)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

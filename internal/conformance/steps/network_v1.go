@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
@@ -53,7 +54,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName stri
 		createOrUpdateWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "CreateOrUpdateNetwork",
+			operationName:  constants.CreateOrUpdateNetworkOperation,
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Network) (
@@ -80,7 +81,7 @@ func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api sec
 		getWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "GetNetwork",
+			operationName:  constants.GetNetworkOperation,
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus], error,
@@ -116,13 +117,22 @@ func (configurator *StepsConfigurator) ListNetworkV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetNetworkWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchNetworkUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetNetworkV1StepParams(sCtx, "GetNetwork", string(wref.Workspace))
-
-		_, err := api.GetNetwork(configurator.t.Context(), wref)
-		requireError(sCtx, err, expectedError)
+		watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchWorkspaceResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
+					reference: wref,
+					getErrorFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchNetworkUntilDeleted(configurator.t.Context(), wref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+				operationName:  constants.GetNetworkOperation,
+			},
+		)
 	})
 }
 
@@ -147,7 +157,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepN
 		createOrUpdateWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "CreateOrUpdateInternetGateway",
+			operationName:  constants.CreateOrUpdateInternetGatewayOperation,
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.InternetGateway) (
@@ -174,7 +184,7 @@ func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string,
 		getWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "GetInternetGateway",
+			operationName:  constants.GetInternetGatewayOperation,
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status], error,
@@ -210,13 +220,22 @@ func (configurator *StepsConfigurator) ListInternetGatewayV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetInternetGatewayWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchInternetGatewayUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetNetworkV1StepParams(sCtx, "GetInternetGateway", string(wref.Workspace))
-
-		_, err := api.GetInternetGateway(configurator.t.Context(), wref)
-		requireError(sCtx, err, expectedError)
+		watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchWorkspaceResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
+					reference: wref,
+					getErrorFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchInternetGatewayUntilDeleted(configurator.t.Context(), wref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+				operationName:  constants.GetInternetGatewayOperation,
+			},
+		)
 	})
 }
 
@@ -241,7 +260,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName s
 		createOrUpdateNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
-			operationName:  "CreateOrUpdateRouteTable",
+			operationName:  constants.CreateOrUpdateRouteTableOperation,
 			workspace:      resource.Metadata.Workspace,
 			network:        resource.Metadata.Network,
 			resource:       resource,
@@ -269,7 +288,7 @@ func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api 
 		getNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
-			operationName:  "GetRouteTable",
+			operationName:  constants.GetRouteTableOperation,
 			nref:           nref,
 			getValueFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus], error,
@@ -304,13 +323,22 @@ func (configurator *StepsConfigurator) ListRouteTableV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetRouteTableWithErrorV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchRouteTableUntilDeletedV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetNetworkV1StepParams(sCtx, "GetRouteTable", string(nref.Workspace))
-
-		_, err := api.GetRouteTable(configurator.t.Context(), nref)
-		requireError(sCtx, err, expectedError)
+		watchNetworkResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchNetworkResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.NetworkReference]{
+					reference: nref,
+					getErrorFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchRouteTableUntilDeleted(configurator.t.Context(), nref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
+				operationName:  constants.GetRouteTableOperation,
+			},
+		)
 	})
 }
 
@@ -335,7 +363,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName strin
 		createOrUpdateNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
-			operationName:  "CreateOrUpdateSubnet",
+			operationName:  constants.CreateOrUpdateSubnetOperation,
 			workspace:      resource.Metadata.Workspace,
 			network:        resource.Metadata.Network,
 			resource:       resource,
@@ -363,7 +391,7 @@ func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api seca
 		getNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
-			operationName:  "GetSubnet",
+			operationName:  constants.GetSubnetOperation,
 			nref:           nref,
 			getValueFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus], error,
@@ -399,13 +427,22 @@ func (configurator *StepsConfigurator) ListSubnetV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetSubnetWithErrorV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchSubnetUntilDeletedV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetNetworkV1StepParams(sCtx, "GetSubnet", string(nref.Workspace))
-
-		_, err := api.GetSubnet(configurator.t.Context(), nref)
-		requireError(sCtx, err, expectedError)
+		watchNetworkResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchNetworkResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.NetworkReference]{
+					reference: nref,
+					getErrorFunc: func(ctx context.Context, nref secapi.NetworkReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchSubnetUntilDeleted(configurator.t.Context(), nref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
+				operationName:  constants.GetSubnetOperation,
+			},
+		)
 	})
 }
 
@@ -430,7 +467,7 @@ func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName str
 		createOrUpdateWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "CreateOrUpdatePublicIp",
+			operationName:  constants.CreateOrUpdatePublicIpOperation,
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.PublicIp) (
@@ -457,7 +494,7 @@ func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api se
 		getWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "GetPublicIp",
+			operationName:  constants.GetPublicIpOperation,
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus], error,
@@ -494,13 +531,22 @@ func (configurator *StepsConfigurator) ListPublicIpV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetPublicIpWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchPublicIpUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetNetworkV1StepParams(sCtx, "GetPublicIp", string(wref.Workspace))
-
-		_, err := api.GetPublicIp(configurator.t.Context(), wref)
-		requireError(sCtx, err, expectedError)
+		watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchWorkspaceResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
+					reference: wref,
+					getErrorFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchPublicIpUntilDeleted(configurator.t.Context(), wref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+				operationName:  constants.GetPublicIpOperation,
+			},
+		)
 	})
 }
 
@@ -525,7 +571,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, 
 		createOrUpdateWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "CreateOrUpdateNic",
+			operationName:  constants.CreateOrUpdateNicOperation,
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Nic) (
@@ -552,7 +598,7 @@ func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api secapi.
 		getWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "GetNic",
+			operationName:  constants.GetNicOperation,
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus], error,
@@ -588,13 +634,22 @@ func (configurator *StepsConfigurator) ListNicV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetNicWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchNicUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetNetworkV1StepParams(sCtx, "GetNic", string(wref.Workspace))
-
-		_, err := api.GetNic(configurator.t.Context(), wref)
-		requireError(sCtx, err, expectedError)
+		watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchWorkspaceResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
+					reference: wref,
+					getErrorFunc: func(ctx context.Context, tref secapi.WorkspaceReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchNicUntilDeleted(configurator.t.Context(), wref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+				operationName:  constants.GetNicOperation,
+			},
+		)
 	})
 }
 
@@ -619,7 +674,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleV1Step(ste
 		createOrUpdateWorkspaceResourceParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "CreateOrUpdateSecurityGroupRule",
+			operationName:  constants.CreateOrUpdateSecurityGroupRuleOperation,
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.SecurityGroupRule) (
@@ -646,7 +701,7 @@ func (configurator *StepsConfigurator) GetSecurityGroupRuleV1Step(stepName strin
 		getWorkspaceResourceParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "GetSecurityGroupRule",
+			operationName:  constants.GetSecurityGroupRuleOperation,
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus], error,
@@ -682,13 +737,22 @@ func (configurator *StepsConfigurator) ListSecurityGroupRuleV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetSecurityGroupRuleWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchSecurityGroupRuleUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetNetworkV1StepParams(sCtx, "GetSecurityGroupRule", string(wref.Workspace))
-
-		_, err := api.GetSecurityGroupRule(configurator.t.Context(), wref)
-		requireError(sCtx, err, expectedError)
+		watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchWorkspaceResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
+					reference: wref,
+					getErrorFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchSecurityGroupRuleUntilDeleted(configurator.t.Context(), wref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+				operationName:  constants.GetSecurityGroupRuleOperation,
+			},
+		)
 	})
 }
 
@@ -713,7 +777,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepNam
 		createOrUpdateWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "CreateOrUpdateSecurityGroup",
+			operationName:  constants.CreateOrUpdateSecurityGroupOperation,
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.SecurityGroup) (
@@ -740,7 +804,7 @@ func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, a
 		getWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  "GetSecurityGroup",
+			operationName:  constants.GetSecurityGroupOperation,
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus], error,
@@ -776,13 +840,22 @@ func (configurator *StepsConfigurator) ListSecurityGroupV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetSecurityGroupWithErrorV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchSecurityGroupUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetNetworkV1StepParams(sCtx, "GetSecurityGroup", string(wref.Workspace))
-
-		_, err := api.GetSecurityGroup(configurator.t.Context(), wref)
-		requireError(sCtx, err, expectedError)
+		watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchWorkspaceResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
+					reference: wref,
+					getErrorFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchSecurityGroupUntilDeleted(configurator.t.Context(), wref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+				operationName:  constants.GetSecurityGroupOperation,
+			},
+		)
 	})
 }
 

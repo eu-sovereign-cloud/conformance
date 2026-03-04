@@ -265,7 +265,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 			Workspace: secapi.WorkspaceID(instance.Metadata.Workspace),
 			Name:      instance.Metadata.Name,
 		}
-		stepsBuilder.GetInstanceWithErrorV1Step("Get the deleted instance", suite.Client.ComputeV1, instanceWRef, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchInstanceUntilDeletedV1Step("Watch the instance deletion", suite.Client.ComputeV1, instanceWRef)
 	}
 
 	// Delete the block storage

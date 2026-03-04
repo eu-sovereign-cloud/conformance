@@ -132,6 +132,9 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 
 		// Get the deleted instance
+		if err := configurator.ConfigureGetDeletingInstanceStub(&instance, url, scenario.MockParams); err != nil {
+			return err
+		}
 		if err := configurator.ConfigureGetNotFoundStub(url, scenario.MockParams); err != nil {
 			return err
 		}
@@ -143,6 +146,9 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Get the deleted block storage
+	if err := configurator.ConfigureGetDeletingBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(blockUrl, scenario.MockParams); err != nil {
 		return err
 	}

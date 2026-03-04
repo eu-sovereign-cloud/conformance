@@ -80,6 +80,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted role assignment
+	if err := configurator.ConfigureGetDeletingRoleAssignmentStub(roleAssignment, roleAssignmentUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(roleAssignmentUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -90,6 +93,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted role
+	if err := configurator.ConfigureGetDeletingRoleStub(role, roleUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(roleUrl, scenario.MockParams); err != nil {
 		return err
 	}

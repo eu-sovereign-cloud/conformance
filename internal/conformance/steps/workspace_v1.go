@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
@@ -23,7 +24,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 		createOrUpdateTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
-			operationName:  "CreateOrUpdateWorkspace",
+			operationName:  constants.CreateOrUpdateWorkspaceOperation,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Workspace) (
 				wrappers.ResourceWrapper[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
@@ -48,7 +49,7 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api s
 		getTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
-			operationName:  "GetWorkspace",
+			operationName:  constants.GetWorkspaceOperation,
 			tref:           tref,
 			getValueFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
@@ -96,7 +97,7 @@ func (configurator *StepsConfigurator) WatchWorkspaceUntilDeletedV1Step(stepName
 				},
 				stepName:       stepName,
 				stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
-				operationName:  "GetWorkspace",
+				operationName:  constants.GetWorkspaceOperation,
 			},
 		)
 	})

@@ -118,12 +118,18 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	if err := configurator.ConfigureDeleteStub(subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
+	if err := configurator.ConfigureGetDeletingSubnetStub(subnet, subnetURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Delete the internet gateway
 	if err := configurator.ConfigureDeleteStub(gatewayURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetDeletingInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
 	if err := configurator.ConfigureGetNotFoundStub(gatewayURL, scenario.MockParams); err != nil {
@@ -134,6 +140,9 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	if err := configurator.ConfigureDeleteStub(routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
+	if err := configurator.ConfigureGetDeletingRouteTableStub(routeTable, routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -142,12 +151,18 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	if err := configurator.ConfigureDeleteStub(networkURL, scenario.MockParams); err != nil {
 		return err
 	}
+	if err := configurator.ConfigureGetDeletingNetworkStub(network, networkURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(networkURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Delete the workspace
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetDeletingWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
 	if err := configurator.ConfigureGetNotFoundStub(workspaceURL, scenario.MockParams); err != nil {

@@ -52,6 +52,14 @@ func (configurator *Configurator) ConfigureGetUpdatingNetworkStub(response *sche
 	return nil
 }
 
+func (configurator *Configurator) ConfigureGetDeletingNetworkStub(response *schema.Network, url string, params *mock.MockParams) error {
+	setNetworkState(response.Status, schema.ResourceStateDeleting)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (configurator *Configurator) ConfigureListNetworkStub(response *network.NetworkIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -97,6 +105,14 @@ func (configurator *Configurator) ConfigureGetActiveInternetGatewayStub(response
 
 func (configurator *Configurator) ConfigureGetUpdatingInternetGatewayStub(response *schema.InternetGateway, url string, params *mock.MockParams) error {
 	setResourceState(response.Status, schema.ResourceStateUpdating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetDeletingInternetGatewayStub(response *schema.InternetGateway, url string, params *mock.MockParams) error {
+	setResourceState(response.Status, schema.ResourceStateDeleting)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -154,6 +170,14 @@ func (configurator *Configurator) ConfigureGetUpdatingRouteTableStub(response *s
 	return nil
 }
 
+func (configurator *Configurator) ConfigureGetDeletingRouteTableStub(response *schema.RouteTable, url string, params *mock.MockParams) error {
+	setRouteTableState(response.Status, schema.ResourceStateDeleting)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (configurator *Configurator) ConfigureListRouteTableStub(response *network.RouteTableIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -199,6 +223,14 @@ func (configurator *Configurator) ConfigureGetActiveSubnetStub(response *schema.
 
 func (configurator *Configurator) ConfigureGetUpdatingSubnetStub(response *schema.Subnet, url string, params *mock.MockParams) error {
 	setSubnetState(response.Status, schema.ResourceStateUpdating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetDeletingSubnetStub(response *schema.Subnet, url string, params *mock.MockParams) error {
+	setSubnetState(response.Status, schema.ResourceStateDeleting)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -256,6 +288,14 @@ func (configurator *Configurator) ConfigureGetUpdatingPublicIpStub(response *sch
 	return nil
 }
 
+func (configurator *Configurator) ConfigureGetDeletingPublicIpStub(response *schema.PublicIp, url string, params *mock.MockParams) error {
+	setPublicIpState(response.Status, schema.ResourceStateDeleting)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (configurator *Configurator) ConfigureListPublicIpStub(response *network.PublicIpIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -301,6 +341,14 @@ func (configurator *Configurator) ConfigureGetActiveNicStub(response *schema.Nic
 
 func (configurator *Configurator) ConfigureGetUpdatingNicStub(response *schema.Nic, url string, params *mock.MockParams) error {
 	setNicState(response.Status, schema.ResourceStateUpdating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetDeletingNicStub(response *schema.Nic, url string, params *mock.MockParams) error {
+	setNicState(response.Status, schema.ResourceStateDeleting)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -358,6 +406,14 @@ func (configurator *Configurator) ConfigureGetUpdatingSecurityGroupRuleStub(resp
 	return nil
 }
 
+func (configurator *Configurator) ConfigureGetDeletingSecurityGroupRuleStub(response *schema.SecurityGroupRule, url string, params *mock.MockParams) error {
+	setResourceState(response.Status, schema.ResourceStateDeleting)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Security group
 
 func (configurator *Configurator) ConfigureCreateSecurityGroupStub(response *schema.SecurityGroup, url string, params *mock.MockParams) error {
@@ -396,6 +452,14 @@ func (configurator *Configurator) ConfigureGetActiveSecurityGroupStub(response *
 
 func (configurator *Configurator) ConfigureGetUpdatingSecurityGroupStub(response *schema.SecurityGroup, url string, params *mock.MockParams) error {
 	setSecurityGroupState(response.Status, schema.ResourceStateUpdating)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureGetDeletingSecurityGroupStub(response *schema.SecurityGroup, url string, params *mock.MockParams) error {
+	setSecurityGroupState(response.Status, schema.ResourceStateDeleting)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

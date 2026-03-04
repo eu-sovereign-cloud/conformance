@@ -51,6 +51,9 @@ func ConfigureRoleAssignmentLifecycleScenarioV1(scenario *mockscenarios.Scenario
 	}
 
 	// Get the deleted role assignment
+	if err := configurator.ConfigureGetDeletingRoleAssignmentStub(roleAssignment, roleAssignmentUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(roleAssignmentUrl, scenario.MockParams); err != nil {
 		return err
 	}

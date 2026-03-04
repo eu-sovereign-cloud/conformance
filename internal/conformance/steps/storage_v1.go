@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
@@ -25,7 +26,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName
 		createOrUpdateWorkspaceResourceParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageWorkspaceV1StepParams,
-			operationName:  "CreateOrUpdateBlockStorage",
+			operationName:  constants.CreateOrUpdateBlockStorageOperation,
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.BlockStorage) (
@@ -52,7 +53,7 @@ func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, ap
 		getWorkspaceResourceParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageWorkspaceV1StepParams,
-			operationName:  "GetBlockStorage",
+			operationName:  constants.GetBlockStorageOperation,
 			wref:           wref,
 			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus], error,
@@ -102,7 +103,7 @@ func (configurator *StepsConfigurator) WatchBlockStorageUntilDeletedV1Step(stepN
 				},
 				stepName:       stepName,
 				stepParamsFunc: configurator.suite.SetStorageWorkspaceV1StepParams,
-				operationName:  "GetBlockStorage",
+				operationName:  constants.GetBlockStorageOperation,
 			},
 		)
 	})
@@ -129,7 +130,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string
 		createOrUpdateTenantResourceParams[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageV1StepParams,
-			operationName:  "CreateOrUpdateImage",
+			operationName:  constants.CreateOrUpdateImageOperation,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Image) (
 				wrappers.ResourceWrapper[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus], error,
@@ -155,7 +156,7 @@ func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api secap
 		getTenantResourceParams[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageV1StepParams,
-			operationName:  "GetImage",
+			operationName:  constants.GetImageOperation,
 			tref:           tref,
 			getValueFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus], error,
@@ -204,7 +205,7 @@ func (configurator *StepsConfigurator) WatchImageUntilDeletedV1Step(stepName str
 				},
 				stepName:       stepName,
 				stepParamsFunc: configurator.suite.SetStorageV1StepParams,
-				operationName:  "GetImage",
+				operationName:  constants.GetImageOperation,
 			},
 		)
 	})

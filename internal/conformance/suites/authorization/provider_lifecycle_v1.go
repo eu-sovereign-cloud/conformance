@@ -229,10 +229,10 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Resources deletion
 
 	stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, roleAssign)
-	stepsBuilder.GetRoleAssignmentWithErrorV1Step("Get the deleted role assignment", suite.Client.AuthorizationV1, roleAssignTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchRoleAssignmentUntilDeletedV1Step("Watch the role assignment deletion", suite.Client.AuthorizationV1, roleAssignTRef)
 
 	stepsBuilder.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, role)
-	stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, roleTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchRoleUntilDeletedV1Step("Watch the role deletion", suite.Client.AuthorizationV1, roleTRef)
 
 	suite.FinishScenario()
 }

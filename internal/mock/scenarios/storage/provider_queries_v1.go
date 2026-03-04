@@ -161,21 +161,27 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 
 		// Get the deleted Image
+		if err := configurator.ConfigureGetDeletingImageStub(&image, url, scenario.MockParams); err != nil {
+			return err
+		}
 		if err := configurator.ConfigureGetNotFoundStub(url, scenario.MockParams); err != nil {
 			return err
 		}
 	}
 
-	// Delete BlockStorages
+	// Delete the block storages
 	for _, block := range blockStorages {
 		url := generators.GenerateBlockStorageURL(sdkconsts.StorageProviderV1Name, block.Metadata.Tenant, block.Metadata.Workspace, block.Metadata.Name)
 
-		// Delete the BlockStorages
+		// Delete the block storage
 		if err := configurator.ConfigureDeleteStub(url, scenario.MockParams); err != nil {
 			return err
 		}
 
-		// Get the deleted BlockStorages
+		// Get the deleted block storage
+		if err := configurator.ConfigureGetDeletingBlockStorageStub(&block, url, scenario.MockParams); err != nil {
+			return err
+		}
 		if err := configurator.ConfigureGetNotFoundStub(url, scenario.MockParams); err != nil {
 			return err
 		}

@@ -67,12 +67,18 @@ func ConfigurePublicIpLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	if err := configurator.ConfigureDeleteStub(publicIpURL, scenario.MockParams); err != nil {
 		return err
 	}
+	if err := configurator.ConfigureGetDeletingPublicIpStub(publicIp, publicIpURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(publicIpURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Delete the workspace
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetDeletingWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
 	if err := configurator.ConfigureGetNotFoundStub(workspaceURL, scenario.MockParams); err != nil {

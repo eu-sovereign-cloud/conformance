@@ -399,6 +399,9 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 
 		// Get the deleted security group
+		if err := configurator.ConfigureGetDeletingSecurityGroupStub(&securityGroup, securityGroupUrl, scenario.MockParams); err != nil {
+			return err
+		}
 		if err := configurator.ConfigureGetNotFoundStub(securityGroupUrl, scenario.MockParams); err != nil {
 			return err
 		}
@@ -414,6 +417,9 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 
 		// Get the deleted nic
+		if err := configurator.ConfigureGetDeletingNicStub(&nic, nicUrl, scenario.MockParams); err != nil {
+			return err
+		}
 		if err := configurator.ConfigureGetNotFoundStub(nicUrl, scenario.MockParams); err != nil {
 			return err
 		}
@@ -429,6 +435,9 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 
 		// Get the deleted public ip
+		if err := configurator.ConfigureGetDeletingPublicIpStub(&publicIp, publicIpUrl, scenario.MockParams); err != nil {
+			return err
+		}
 		if err := configurator.ConfigureGetNotFoundStub(publicIpUrl, scenario.MockParams); err != nil {
 			return err
 		}
@@ -444,6 +453,9 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 
 		// Get the deleted subnet
+		if err := configurator.ConfigureGetDeletingSubnetStub(&subnet, subnetUrl, scenario.MockParams); err != nil {
+			return err
+		}
 		if err := configurator.ConfigureGetNotFoundStub(subnetUrl, scenario.MockParams); err != nil {
 			return err
 		}
@@ -459,6 +471,9 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 
 		// Get the deleted route table
+		if err := configurator.ConfigureGetDeletingRouteTableStub(&routeTable, routeTableUrl, scenario.MockParams); err != nil {
+			return err
+		}
 		if err := configurator.ConfigureGetNotFoundStub(routeTableUrl, scenario.MockParams); err != nil {
 			return err
 		}
@@ -474,6 +489,9 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 
 		// Get the deleted internet gateway
+		if err := configurator.ConfigureGetDeletingInternetGatewayStub(&gateway, gatewayUrl, scenario.MockParams); err != nil {
+			return err
+		}
 		if err := configurator.ConfigureGetNotFoundStub(gatewayUrl, scenario.MockParams); err != nil {
 			return err
 		}
@@ -489,6 +507,9 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 
 		// Get the deleted network
+		if err := configurator.ConfigureGetDeletingNetworkStub(&network, networkUrl, scenario.MockParams); err != nil {
+			return err
+		}
 		if err := configurator.ConfigureGetNotFoundStub(networkUrl, scenario.MockParams); err != nil {
 			return err
 		}

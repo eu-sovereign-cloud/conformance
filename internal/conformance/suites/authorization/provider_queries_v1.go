@@ -253,11 +253,11 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, &roleAssign)
 
 		// Get the deleted role assignment
-		roleAssignTRefSingle := &secapi.TenantReference{
+		roleAssignTRef := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.Tenant),
 			Name:   roleAssign.Metadata.Name,
 		}
-		stepsBuilder.GetRoleAssignmentWithErrorV1Step("Get the deleted role assignment", suite.Client.AuthorizationV1, *roleAssignTRefSingle, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchRoleAssignmentUntilDeletedV1Step("Watch the role assignment deletion", suite.Client.AuthorizationV1, roleAssignTRef)
 	}
 
 	// Delete all roles
@@ -265,11 +265,11 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, &role)
 
 		// Get the deleted role
-		roleTRefSingle := &secapi.TenantReference{
+		roleTRef := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.Tenant),
 			Name:   role.Metadata.Name,
 		}
-		stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, *roleTRefSingle, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchRoleUntilDeletedV1Step("Watch the role deletion", suite.Client.AuthorizationV1, roleTRef)
 	}
 	suite.FinishScenario()
 }

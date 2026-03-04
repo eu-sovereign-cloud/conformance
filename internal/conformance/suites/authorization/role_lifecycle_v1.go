@@ -138,7 +138,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 	stepsBuilder.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, role)
-	stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, roleTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchRoleUntilDeletedV1Step("Watch the role deletion", suite.Client.AuthorizationV1, roleTRef)
 
 	suite.FinishScenario()
 }

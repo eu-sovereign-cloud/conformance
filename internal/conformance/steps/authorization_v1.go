@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
@@ -25,7 +26,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string,
 		createOrUpdateTenantResourceParams[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
-			operationName:  "CreateOrUpdateRole",
+			operationName:  constants.CreateOrUpdateRoleOperation,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Role) (
 				wrappers.ResourceWrapper[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status], error,
@@ -51,7 +52,7 @@ func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi
 		getTenantResourceParams[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
-			operationName:  "GetRole",
+			operationName:  constants.GetRoleOperation,
 			tref:           tref,
 			getValueFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status], error,
@@ -89,13 +90,22 @@ func (configurator *StepsConfigurator) ListRoleV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetRoleWithErrorV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchRoleUntilDeletedV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetAuthorizationV1StepParams(sCtx, "GetRole")
-
-		_, err := api.GetRole(configurator.t.Context(), tref)
-		requireError(sCtx, err, expectedError)
+		watchTenantResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchTenantResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.TenantReference]{
+					reference: tref,
+					getErrorFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchRoleUntilDeleted(configurator.t.Context(), tref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
+				operationName:  constants.GetRoleOperation,
+			},
+		)
 	})
 }
 
@@ -120,7 +130,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepNa
 		createOrUpdateTenantResourceParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
-			operationName:  "CreateOrUpdateRoleAssignment",
+			operationName:  constants.CreateOrUpdateRoleAssignmentOperation,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.RoleAssignment) (
 				wrappers.ResourceWrapper[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status], error,
@@ -146,7 +156,7 @@ func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, 
 		getTenantResourceParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
-			operationName:  "GetRoleAssignment",
+			operationName:  constants.GetRoleAssignmentOperation,
 			tref:           tref,
 			getValueFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
 				wrappers.ResourceWrapper[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status], error,
@@ -183,13 +193,22 @@ func (configurator *StepsConfigurator) ListRoleAssignmentsV1(
 	})
 }
 
-func (configurator *StepsConfigurator) GetRoleAssignmentWithErrorV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchRoleAssignmentUntilDeletedV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetAuthorizationV1StepParams(sCtx, "GetRoleAssignment")
-
-		_, err := api.GetRoleAssignment(configurator.t.Context(), tref)
-		requireError(sCtx, err, expectedError)
+		watchTenantResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchTenantResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.TenantReference]{
+					reference: tref,
+					getErrorFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchRoleAssignmentUntilDeleted(configurator.t.Context(), tref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
+				operationName:  constants.GetRoleAssignmentOperation,
+			},
+		)
 	})
 }
 

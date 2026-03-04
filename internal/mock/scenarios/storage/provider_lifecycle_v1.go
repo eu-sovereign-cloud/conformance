@@ -95,6 +95,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted image
+	if err := configurator.ConfigureGetDeletingImageStub(image, imageUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(imageUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -105,6 +108,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted block storage
+	if err := configurator.ConfigureGetDeletingBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(blockUrl, scenario.MockParams); err != nil {
 		return err
 	}

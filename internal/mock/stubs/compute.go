@@ -59,6 +59,14 @@ func (configurator *Configurator) ConfigureGetUpdatingInstanceStub(response *sch
 	return nil
 }
 
+func (configurator *Configurator) ConfigureGetDeletingInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
+	setInstanceState(response.Status, schema.ResourceStateDeleting)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (configurator *Configurator) ConfigureListInstanceStub(response *compute.InstanceIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	response.Metadata.Verb = http.MethodGet
 

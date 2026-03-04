@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/pkg/types"
 	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -27,8 +28,8 @@ type ResponseExpects[M types.MetadataType, E types.SpecType] struct {
 
 type createOrUpdateTenantResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName)
+	operationName          constants.OperationName
 	resource               *R
 	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
@@ -60,8 +61,8 @@ func createOrUpdateTenantResourceStep[R types.ResourceType, M types.MetadataType
 
 type createOrUpdateWorkspaceResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName, string)
+	operationName          constants.OperationName
 	workspace              string
 	resource               *R
 	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
@@ -94,8 +95,8 @@ func createOrUpdateWorkspaceResourceStep[R types.ResourceType, M types.MetadataT
 
 type createOrUpdateNetworkResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string, string, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName, string, string)
+	operationName          constants.OperationName
 	workspace              string
 	network                string
 	resource               *R
@@ -172,8 +173,8 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 
 type getTenantResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName)
+	operationName          constants.OperationName
 	tref                   secapi.TenantReference
 	getValueFunc           func(context.Context, secapi.TenantReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedResourceStates []schema.ResourceState
@@ -211,8 +212,8 @@ func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.S
 
 type getWorkspaceResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName, string)
+	operationName          constants.OperationName
 	wref                   secapi.WorkspaceReference
 	getValueFunc           func(context.Context, secapi.WorkspaceReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedResourceStates []schema.ResourceState
@@ -250,8 +251,8 @@ func getWorkspaceResourceStep[R types.ResourceType, M types.MetadataType, E type
 
 type getNetworkResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string, string, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName, string, string)
+	operationName          constants.OperationName
 	nref                   secapi.NetworkReference
 	getValueFunc           func(context.Context, secapi.NetworkReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedResourceStates []schema.ResourceState
@@ -344,8 +345,8 @@ func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E typ
 type watchTenantResourceUntilDeletedParams struct {
 	watchResourceUntilDeletedParams[secapi.TenantReference]
 	stepName       string
-	stepParamsFunc func(provider.StepCtx, string)
-	operationName  string
+	stepParamsFunc func(provider.StepCtx, constants.OperationName)
+	operationName  constants.OperationName
 }
 
 func watchTenantResourceUntilDeletedStep(
@@ -360,8 +361,8 @@ func watchTenantResourceUntilDeletedStep(
 type watchWorkspaceResourceUntilDeletedParams struct {
 	watchResourceUntilDeletedParams[secapi.WorkspaceReference]
 	stepName       string
-	stepParamsFunc func(provider.StepCtx, string, string)
-	operationName  string
+	stepParamsFunc func(provider.StepCtx, constants.OperationName, string)
+	operationName  constants.OperationName
 }
 
 func watchWorkspaceResourceUntilDeletedStep(
@@ -369,6 +370,22 @@ func watchWorkspaceResourceUntilDeletedStep(
 ) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, string(params.reference.Workspace))
+		watchResourceUntilDeletedStep(t, suite, sCtx, params.watchResourceUntilDeletedParams)
+	})
+}
+
+type watchNetworkResourceUntilDeletedParams struct {
+	watchResourceUntilDeletedParams[secapi.NetworkReference]
+	stepName       string
+	stepParamsFunc func(provider.StepCtx, constants.OperationName, string, string)
+	operationName  constants.OperationName
+}
+
+func watchNetworkResourceUntilDeletedStep(
+	t provider.T, suite *suites.TestSuite, params watchNetworkResourceUntilDeletedParams,
+) {
+	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+		params.stepParamsFunc(sCtx, params.operationName, string(params.reference.Workspace), string(params.reference.Network))
 		watchResourceUntilDeletedStep(t, suite, sCtx, params.watchResourceUntilDeletedParams)
 	})
 }

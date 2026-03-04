@@ -67,12 +67,18 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 	if err := configurator.ConfigureDeleteStub(securityGroupURL, scenario.MockParams); err != nil {
 		return err
 	}
+	if err := configurator.ConfigureGetDeletingSecurityGroupStub(securityGroup, securityGroupURL, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(securityGroupURL, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Delete the workspace
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetDeletingWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
 	if err := configurator.ConfigureGetNotFoundStub(workspaceURL, scenario.MockParams); err != nil {
