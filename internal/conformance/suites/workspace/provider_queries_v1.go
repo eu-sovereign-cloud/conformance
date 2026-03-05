@@ -19,7 +19,7 @@ import (
 type ProviderQueriesV1TestSuite struct {
 	suites.RegionalTestSuite
 
-	params params.WorkspaceProviderQueriesV1Params
+	params *params.WorkspaceProviderQueriesV1Params
 }
 
 func CreateProviderQueriesV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *ProviderQueriesV1TestSuite {
@@ -58,11 +58,11 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	workspaces := []schema.Workspace{*workspace, *workspace2}
 
-	params := params.WorkspaceProviderQueriesV1Params{
+	params := &params.WorkspaceProviderQueriesV1Params{
 		Workspaces: workspaces,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockWorkspace.ConfigureProviderQueriesV1, &suite.params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockWorkspace.ConfigureProviderQueriesV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -95,17 +95,17 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	tref := &secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, nil)
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, nil)
 
 	// List workspaces with limit
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, secapi.NewListOptions().WithLimit(1))
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, secapi.NewListOptions().WithLimit(1))
 
 	// List workspaces with label
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List workspaces with label and limit
-	stepsBuilder.GetListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all workspaces

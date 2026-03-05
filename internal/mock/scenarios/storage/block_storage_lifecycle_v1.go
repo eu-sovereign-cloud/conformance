@@ -3,84 +3,60 @@ package mockstorage
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
-	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.BlockStorageLifeCycleV1Params) error {
+func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params params.BlockStorageLifeCycleV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
 	}
 
-	workspace := *params.Workspace
-	blockStorageInitial := *params.BlockStorageInitial
-	blockStorageUpdated := *params.BlockStorageUpdated
+	workspace := params.Workspace
+	blockStorage := params.BlockStorageInitial
 
 	// Generate URLs
 	workspaceUrl := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	blockUrl := generators.GenerateBlockStorageURL(sdkconsts.StorageProviderV1Name, blockStorageInitial.Metadata.Tenant, blockStorageInitial.Metadata.Workspace, blockStorageInitial.Metadata.Name)
-
-	// Workspace
-	workspaceResponse, err := builders.NewWorkspaceBuilder().
-		Name(workspace.Metadata.Name).
-		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
-		Labels(workspace.Labels).
-		Build()
-	if err != nil {
-		return err
-	}
+	blockUrl := generators.GenerateBlockStorageURL(sdkconsts.StorageProviderV1Name, blockStorage.Metadata.Tenant, blockStorage.Metadata.Workspace, blockStorage.Metadata.Name)
 
 	// Create a workspace
-	if err := configurator.ConfigureCreateWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created workspace
-	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Block storage
-	blockResponse, err := builders.NewBlockStorageBuilder().
-		Name(blockStorageInitial.Metadata.Name).
-		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(blockStorageInitial.Metadata.Tenant).Workspace(blockStorageInitial.Metadata.Workspace).Region(blockStorageInitial.Metadata.Region).
-		Spec(&blockStorageInitial.Spec).
-		Build()
-	if err != nil {
+	if err := configurator.ConfigureGetActiveWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Create a block storage
-	if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created block storage
-	if err := configurator.ConfigureGetCreatingBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Update the block storage
-	blockResponse.Spec = blockStorageUpdated.Spec
-	if err := configurator.ConfigureUpdateBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+	blockStorage = params.BlockStorageUpdated
+	if err := configurator.ConfigureUpdateBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the updated block storage
-	if err := configurator.ConfigureGetUpdatingBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetUpdatingBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -90,6 +66,9 @@ func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, 
 	}
 
 	// Get the deleted block storage
+	if err := configurator.ConfigureGetDeletingBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -100,6 +79,9 @@ func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, 
 	}
 
 	// Get the deleted workspace
+	if err := configurator.ConfigureGetDeletingWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}

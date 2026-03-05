@@ -157,9 +157,8 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		BlockStorage: blockStorage,
 		Instances:    instances,
 	}
-
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockCompute.ConfigureProviderQueriesV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockCompute.ConfigureProviderQueriesV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -221,38 +220,38 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
 	}
-	stepsBuilder.GetListInstanceV1Step("List instances", suite.Client.ComputeV1, wref, nil)
+	stepsBuilder.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wref, nil)
 
 	// List instances with limit
-	stepsBuilder.GetListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
+	stepsBuilder.ListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List Instances with label
-	stepsBuilder.GetListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
+	stepsBuilder.ListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Instances with limit and label
-	stepsBuilder.GetListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
+	stepsBuilder.ListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Skus
 
 	// List skus
-	stepsBuilder.GetListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
+	stepsBuilder.ListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
 
 	// List skus with limit
-	stepsBuilder.GetListSkusV1Step("Get list of skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListSkusV1Step("Get list of skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1))
 
 	// List skus with label
-	stepsBuilder.GetListSkusV1Step("Get List skus with label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListSkusV1Step("Get List skus with label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
 
 	// List skus with limit and label
-	stepsBuilder.GetListSkusV1Step("Get list of skus with limit and label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListSkusV1Step("Get list of skus with limit and label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
 
@@ -266,7 +265,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 			Workspace: secapi.WorkspaceID(instance.Metadata.Workspace),
 			Name:      instance.Metadata.Name,
 		}
-		stepsBuilder.GetInstanceWithErrorV1Step("Get the deleted instance", suite.Client.ComputeV1, instanceWRef, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchInstanceUntilDeletedV1Step("Watch the instance deletion", suite.Client.ComputeV1, instanceWRef)
 	}
 
 	// Delete the block storage

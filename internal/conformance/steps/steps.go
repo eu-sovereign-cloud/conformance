@@ -6,32 +6,14 @@ import (
 	"time"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/pkg/types"
+	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
-
-type stepFuncResponse[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
-	resource *R
-	labels   schema.Labels
-	metadata *M
-	spec     E
-	status   *S
-}
-
-func newStepFuncResponse[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
-	resource *R, labels schema.Labels, metadata *M, spec E, status *S,
-) *stepFuncResponse[R, M, E, S] {
-	return &stepFuncResponse[R, M, E, S]{
-		resource: resource,
-		labels:   labels,
-		metadata: metadata,
-		spec:     spec,
-		status:   status,
-	}
-}
 
 type ResponseExpects[M types.MetadataType, E types.SpecType] struct {
 	Labels         schema.Labels
@@ -46,10 +28,10 @@ type ResponseExpects[M types.MetadataType, E types.SpecType] struct {
 
 type createOrUpdateTenantResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName)
+	operationName          constants.OperationName
 	resource               *R
-	createOrUpdateFunc     func(context.Context, *R) (*stepFuncResponse[R, M, E, S], error)
+	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
@@ -79,11 +61,11 @@ func createOrUpdateTenantResourceStep[R types.ResourceType, M types.MetadataType
 
 type createOrUpdateWorkspaceResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName, string)
+	operationName          constants.OperationName
 	workspace              string
 	resource               *R
-	createOrUpdateFunc     func(context.Context, *R) (*stepFuncResponse[R, M, E, S], error)
+	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
@@ -113,12 +95,12 @@ func createOrUpdateWorkspaceResourceStep[R types.ResourceType, M types.MetadataT
 
 type createOrUpdateNetworkResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string, string, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName, string, string)
+	operationName          constants.OperationName
 	workspace              string
 	network                string
 	resource               *R
-	createOrUpdateFunc     func(context.Context, *R) (*stepFuncResponse[R, M, E, S], error)
+	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
@@ -148,7 +130,7 @@ func createOrUpdateNetworkResourceStep[R types.ResourceType, M types.MetadataTyp
 
 type createOrUpdateResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	resource               *R
-	createOrUpdateFunc     func(context.Context, *R) (*stepFuncResponse[R, M, E, S], error)
+	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
@@ -165,23 +147,23 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 
 	// Label
 	if params.expectedLabels != nil {
-		suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.labels)
+		suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.GetLabels())
 	}
 
 	// Metadata
-	if resp.metadata != nil && params.expectedMetadata != nil {
-		params.verifyMetadataFunc(sCtx, params.expectedMetadata, resp.metadata)
+	if resp.GetMetadata() != nil && params.expectedMetadata != nil {
+		params.verifyMetadataFunc(sCtx, params.expectedMetadata, resp.GetMetadata())
 	} else {
 		log.Fatalln("Metadata verification failed: expected or actual metadata is nil")
 	}
 
 	if params.expectedSpec != nil {
-		params.verifySpecFunc(sCtx, params.expectedSpec, &resp.spec)
+		params.verifySpecFunc(sCtx, params.expectedSpec, resp.GetSpec())
 	}
 
 	// Status
-	if resp.status != nil && len(params.expectedResourceStates) > 0 {
-		suite.VerifyStatusStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.status))
+	if resp.GetStatus() != nil && len(params.expectedResourceStates) > 0 {
+		suite.VerifyStatusStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
 	} else {
 		log.Fatalln("Status verification failed: expected or actual Status is nil")
 	}
@@ -191,10 +173,10 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 
 type getTenantResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName)
+	operationName          constants.OperationName
 	tref                   secapi.TenantReference
-	getValueFunc           func(context.Context, secapi.TenantReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (*stepFuncResponse[R, M, E, S], error)
+	getValueFunc           func(context.Context, secapi.TenantReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedResourceStates []schema.ResourceState
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
@@ -206,7 +188,7 @@ type getTenantResourceParams[R types.ResourceType, M types.MetadataType, E types
 func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
 	t provider.T, suite *suites.TestSuite, params getTenantResourceParams[R, M, E, S],
 ) *R {
-	var resp *stepFuncResponse[R, M, E, S]
+	var resp *R
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName)
 
@@ -225,15 +207,15 @@ func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.S
 		)
 		requireNotNilResponse(sCtx, resp)
 	})
-	return resp.resource
+	return resp
 }
 
 type getWorkspaceResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName, string)
+	operationName          constants.OperationName
 	wref                   secapi.WorkspaceReference
-	getValueFunc           func(context.Context, secapi.WorkspaceReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (*stepFuncResponse[R, M, E, S], error)
+	getValueFunc           func(context.Context, secapi.WorkspaceReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedResourceStates []schema.ResourceState
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
@@ -245,7 +227,7 @@ type getWorkspaceResourceParams[R types.ResourceType, M types.MetadataType, E ty
 func getWorkspaceResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
 	t provider.T, suite *suites.TestSuite, params getWorkspaceResourceParams[R, M, E, S],
 ) *R {
-	var resp *stepFuncResponse[R, M, E, S]
+	var resp *R
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, string(params.wref.Workspace))
 
@@ -264,15 +246,15 @@ func getWorkspaceResourceStep[R types.ResourceType, M types.MetadataType, E type
 		)
 		requireNotNilResponse(sCtx, resp)
 	})
-	return resp.resource
+	return resp
 }
 
 type getNetworkResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
-	stepParamsFunc         func(provider.StepCtx, string, string, string)
-	operationName          string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName, string, string)
+	operationName          constants.OperationName
 	nref                   secapi.NetworkReference
-	getValueFunc           func(context.Context, secapi.NetworkReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (*stepFuncResponse[R, M, E, S], error)
+	getValueFunc           func(context.Context, secapi.NetworkReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedResourceStates []schema.ResourceState
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
@@ -284,7 +266,7 @@ type getNetworkResourceParams[R types.ResourceType, M types.MetadataType, E type
 func getNetworkResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
 	t provider.T, suite *suites.TestSuite, params getNetworkResourceParams[R, M, E, S],
 ) *R {
-	var resp *stepFuncResponse[R, M, E, S]
+	var resp *R
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, string(params.nref.Workspace), string(params.nref.Network))
 
@@ -303,13 +285,13 @@ func getNetworkResourceStep[R types.ResourceType, M types.MetadataType, E types.
 		)
 		requireNotNilResponse(sCtx, resp)
 	})
-	return resp.resource
+	return resp
 }
 
 type getResourceUntilValueParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType, F secapi.Reference, V any] struct {
 	reference              F
 	observerExpectedValues []V
-	getValueFunc           func(context.Context, F, secapi.ResourceObserverUntilValueConfig[V]) (*stepFuncResponse[R, M, E, S], error)
+	getValueFunc           func(context.Context, F, secapi.ResourceObserverUntilValueConfig[V]) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
@@ -320,7 +302,7 @@ type getResourceUntilValueParams[R types.ResourceType, M types.MetadataType, E t
 
 func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType, F secapi.Reference, V any](
 	t provider.T, suite *suites.TestSuite, sCtx provider.StepCtx, params getResourceUntilValueParams[R, M, E, S, F, V],
-) *stepFuncResponse[R, M, E, S] {
+) *R {
 	config := secapi.ResourceObserverUntilValueConfig[V]{
 		ExpectedValues: params.observerExpectedValues,
 		Delay:          time.Duration(suite.BaseDelay) * time.Second,
@@ -334,28 +316,28 @@ func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E typ
 
 	// Label
 	if params.expectedLabels != nil {
-		suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.labels)
+		suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.GetLabels())
 	}
 
 	// Metadata
-	if resp.metadata != nil && params.expectedMetadata != nil {
-		params.verifyMetadataFunc(sCtx, params.expectedMetadata, resp.metadata)
+	if params.expectedMetadata != nil {
+		params.verifyMetadataFunc(sCtx, params.expectedMetadata, resp.GetMetadata())
 	} else {
 		log.Fatalln("Metadata verification failed: expected or actual metadata is nil")
 	}
 
 	if params.expectedSpec != nil {
-		params.verifySpecFunc(sCtx, params.expectedSpec, &resp.spec)
+		params.verifySpecFunc(sCtx, params.expectedSpec, resp.GetSpec())
 	}
 
 	// Status
-	if resp.status != nil && len(params.expectedResourceStates) > 0 {
-		suite.VerifyStatusStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.status))
+	if len(params.expectedResourceStates) > 0 {
+		suite.VerifyStatusStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
 	} else {
 		log.Fatalln("Status verification failed: expected or actual Status is nil")
 	}
 
-	return resp
+	return resp.GetResource()
 }
 
 // Watch
@@ -363,8 +345,8 @@ func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E typ
 type watchTenantResourceUntilDeletedParams struct {
 	watchResourceUntilDeletedParams[secapi.TenantReference]
 	stepName       string
-	stepParamsFunc func(provider.StepCtx, string)
-	operationName  string
+	stepParamsFunc func(provider.StepCtx, constants.OperationName)
+	operationName  constants.OperationName
 }
 
 func watchTenantResourceUntilDeletedStep(
@@ -379,8 +361,8 @@ func watchTenantResourceUntilDeletedStep(
 type watchWorkspaceResourceUntilDeletedParams struct {
 	watchResourceUntilDeletedParams[secapi.WorkspaceReference]
 	stepName       string
-	stepParamsFunc func(provider.StepCtx, string, string)
-	operationName  string
+	stepParamsFunc func(provider.StepCtx, constants.OperationName, string)
+	operationName  constants.OperationName
 }
 
 func watchWorkspaceResourceUntilDeletedStep(
@@ -388,6 +370,22 @@ func watchWorkspaceResourceUntilDeletedStep(
 ) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, string(params.reference.Workspace))
+		watchResourceUntilDeletedStep(t, suite, sCtx, params.watchResourceUntilDeletedParams)
+	})
+}
+
+type watchNetworkResourceUntilDeletedParams struct {
+	watchResourceUntilDeletedParams[secapi.NetworkReference]
+	stepName       string
+	stepParamsFunc func(provider.StepCtx, constants.OperationName, string, string)
+	operationName  constants.OperationName
+}
+
+func watchNetworkResourceUntilDeletedStep(
+	t provider.T, suite *suites.TestSuite, params watchNetworkResourceUntilDeletedParams,
+) {
+	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+		params.stepParamsFunc(sCtx, params.operationName, string(params.reference.Workspace), string(params.reference.Network))
 		watchResourceUntilDeletedStep(t, suite, sCtx, params.watchResourceUntilDeletedParams)
 	})
 }

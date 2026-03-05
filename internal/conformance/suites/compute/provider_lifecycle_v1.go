@@ -127,8 +127,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		UpdatedInstance: updatedInstance,
 	}
 	suite.params = params
-
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockcompute.ConfigureProviderLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockcompute.ConfigureProviderLifecycleScenarioV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -283,7 +282,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Resources deletion
 
 	stepsBuilder.DeleteInstanceV1Step("Delete the instance", suite.Client.ComputeV1, instance)
-	stepsBuilder.GetInstanceWithErrorV1Step("Get the deleted instance", suite.Client.ComputeV1, instanceWRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchInstanceUntilDeletedV1Step("Watch the instance deletion", suite.Client.ComputeV1, instanceWRef)
 
 	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
 	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", suite.Client.StorageV1, blockWRef)

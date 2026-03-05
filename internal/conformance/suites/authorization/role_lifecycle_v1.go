@@ -74,8 +74,7 @@ func (suite *RoleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		RoleUpdated: roleUpdated,
 	}
 	suite.params = params
-
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleLifecycleScenarioV1, *params)
 	if err != nil {
 		slog.Error("Failed to setup mock", "error", err)
 		t.FailNow()
@@ -139,7 +138,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 	stepsBuilder.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, role)
-	stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, roleTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchRoleUntilDeletedV1Step("Watch the role deletion", suite.Client.AuthorizationV1, roleTRef)
 
 	suite.FinishScenario()
 }

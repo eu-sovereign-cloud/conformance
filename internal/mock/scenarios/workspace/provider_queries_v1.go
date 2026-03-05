@@ -12,7 +12,7 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params.WorkspaceProviderQueriesV1Params) error {
+func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.WorkspaceProviderQueriesV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -38,12 +38,12 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 
 	// List
-	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, nil); err != nil {
+	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, nil); err != nil {
 		return err
 	}
 
 	// List with limit
-	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -58,13 +58,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		return filteredWorkspaces
 	}
 	workspaceListResponse.Items = workspaceWithLabel(workspaces)
-	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit & labels
 	workspaceListResponse.Items = workspaceWithLabel(workspaces[:1])
-	if err := configurator.ConfigureGetListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -77,6 +77,9 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 		}
 
 		// Get the deleted workspace
+		if err := configurator.ConfigureGetDeletingWorkspaceStub(&workspace, url, scenario.MockParams); err != nil {
+			return err
+		}
 		if err := configurator.ConfigureGetNotFoundStub(url, scenario.MockParams); err != nil {
 			return err
 		}

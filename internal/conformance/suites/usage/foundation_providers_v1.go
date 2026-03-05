@@ -301,7 +301,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 		SecurityGroup:   securityGroup,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockUsage.ConfigureFoundationScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockUsage.ConfigureFoundationScenarioV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}

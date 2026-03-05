@@ -45,7 +45,7 @@ func InitClients(ctx context.Context) error {
 				AuthToken: Parameters.ClientAuthToken,
 			},
 		)
-		params := &params.ClientsInitParams{
+		params := params.ClientsInitParams{
 			Region: Parameters.ClientRegion,
 		}
 		err := mockclients.ConfigureInitScenarioV1(mockScenario, params)

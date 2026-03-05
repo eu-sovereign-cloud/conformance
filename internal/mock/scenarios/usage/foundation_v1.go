@@ -3,30 +3,29 @@ package mockusage
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
-	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *params.FoundationUsageV1Params) error {
+func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params params.FoundationUsageV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
 	}
 
-	role := *params.Role
-	roleAssignment := *params.RoleAssignment
-	workspace := *params.Workspace
-	blockStorage := *params.BlockStorage
-	image := *params.Image
-	instance := *params.Instance
-	network := *params.Network
-	gateway := *params.InternetGateway
-	nic := *params.Nic
-	publicIp := *params.PublicIp
-	routeTable := *params.RouteTable
-	subnet := *params.Subnet
-	securityGroup := *params.SecurityGroup
+	role := params.Role
+	roleAssignment := params.RoleAssignment
+	workspace := params.Workspace
+	blockStorage := params.BlockStorage
+	image := params.Image
+	instance := params.Instance
+	network := params.Network
+	gateway := params.InternetGateway
+	nic := params.Nic
+	publicIp := params.PublicIp
+	routeTable := params.RouteTable
+	subnet := params.Subnet
+	securityGroup := params.SecurityGroup
 
 	// Generate URLs
 	roleUrl := generators.GenerateRoleURL(sdkconsts.AuthorizationProviderV1Name, role.Metadata.Tenant, role.Metadata.Name)
@@ -45,321 +44,178 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params *par
 
 	// Authorization
 
-	// Role
-	roleResponse, err := builders.NewRoleBuilder().
-		Name(role.Metadata.Name).
-		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(role.Metadata.Tenant).
-		Spec(&role.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
 	// Create a role
-	if err := configurator.ConfigureCreateRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateRoleStub(role, roleUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created role
-	if err := configurator.ConfigureGetCreatingRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingRoleStub(role, roleUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveRoleStub(roleResponse, roleUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Role assignment
-	roleAssignResponse, err := builders.NewRoleAssignmentBuilder().
-		Name(roleAssignment.Metadata.Name).
-		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(roleAssignment.Metadata.Tenant).
-		Spec(&roleAssignment.Spec).
-		Build()
-	if err != nil {
+	if err := configurator.ConfigureGetActiveRoleStub(role, roleUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Create a role assignment
-	if err := configurator.ConfigureCreateRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateRoleAssignmentStub(roleAssignment, roleAssignUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created role assignment
-	if err := configurator.ConfigureGetCreatingRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingRoleAssignmentStub(roleAssignment, roleAssignUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveRoleAssignmentStub(roleAssignResponse, roleAssignUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Workspace
-	workspaceResponse, err := builders.NewWorkspaceBuilder().
-		Name(workspace.Metadata.Name).
-		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
-		Labels(workspace.Labels).
-		Build()
-	if err != nil {
+	if err := configurator.ConfigureGetActiveRoleAssignmentStub(roleAssignment, roleAssignUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Create a workspace
-	if err := configurator.ConfigureCreateWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created workspace
-	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveWorkspaceStub(workspaceResponse, workspaceUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Storage
 
-	// Image
-	imageResponse, err := builders.NewImageBuilder().
-		Name(image.Metadata.Name).
-		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(image.Metadata.Tenant).Region(image.Metadata.Region).
-		Spec(&image.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
 	// Create an image
-	if err := configurator.ConfigureCreateImageStub(imageResponse, imageUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateImageStub(image, imageUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created image
-	if err := configurator.ConfigureGetCreatingImageStub(imageResponse, imageUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingImageStub(image, imageUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveImageStub(imageResponse, imageUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Block storage
-	blockResponse, err := builders.NewBlockStorageBuilder().
-		Name(blockStorage.Metadata.Name).
-		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(blockStorage.Metadata.Tenant).Workspace(blockStorage.Metadata.Workspace).Region(blockStorage.Metadata.Region).
-		Spec(&blockStorage.Spec).
-		Build()
-	if err != nil {
+	if err := configurator.ConfigureGetActiveImageStub(image, imageUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Create a block storage
-	if err := configurator.ConfigureCreateBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created block storage
-	if err := configurator.ConfigureGetCreatingBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Network
-
-	// Network
-	networkResponse, err := builders.NewNetworkBuilder().
-		Name(network.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(network.Metadata.Tenant).Workspace(network.Metadata.Workspace).Region(network.Metadata.Region).
-		Spec(&network.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
 
 	// Create a network
-	if err := configurator.ConfigureCreateNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateNetworkStub(network, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created network
-	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingNetworkStub(network, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Internet gateway
-	gatewayResponse, err := builders.NewInternetGatewayBuilder().
-		Name(gateway.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(gateway.Metadata.Tenant).Workspace(gateway.Metadata.Workspace).Region(gateway.Metadata.Region).
-		Spec(&gateway.Spec).
-		Build()
-	if err != nil {
+	if err := configurator.ConfigureGetActiveNetworkStub(network, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Create an internet gateway
-	if err := configurator.ConfigureCreateInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateInternetGatewayStub(gateway, gatewayUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created internet gateway
-	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(gateway, gatewayUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Route table
-	routeResponse, err := builders.NewRouteTableBuilder().
-		Name(routeTable.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(routeTable.Metadata.Tenant).Workspace(routeTable.Metadata.Workspace).Network(routeTable.Metadata.Network).Region(routeTable.Metadata.Region).
-		Spec(&routeTable.Spec).
-		Build()
-	if err != nil {
+	if err := configurator.ConfigureGetActiveInternetGatewayStub(gateway, gatewayUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Create a route table
-	if err := configurator.ConfigureCreateRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateRouteTableStub(routeTable, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created route table
-	if err := configurator.ConfigureGetCreatingRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingRouteTableStub(routeTable, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Subnet
-	subnetResponse, err := builders.NewSubnetBuilder().
-		Name(subnet.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(subnet.Metadata.Tenant).Workspace(subnet.Metadata.Workspace).Network(subnet.Metadata.Network).Region(subnet.Metadata.Region).
-		Spec(&subnet.Spec).
-		Build()
-	if err != nil {
+	if err := configurator.ConfigureGetActiveRouteTableStub(routeTable, routeUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Create a subnet
-	if err := configurator.ConfigureCreateSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateSubnetStub(subnet, subnetUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created subnet
-	if err := configurator.ConfigureGetCreatingSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingSubnetStub(subnet, subnetUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Security group
-	groupResponse, err := builders.NewSecurityGroupBuilder().
-		Name(securityGroup.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(securityGroup.Metadata.Tenant).Workspace(securityGroup.Metadata.Workspace).Region(securityGroup.Metadata.Region).
-		Spec(&securityGroup.Spec).
-		Build()
-	if err != nil {
+	if err := configurator.ConfigureGetActiveSubnetStub(subnet, subnetUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Create a security group
-	if err := configurator.ConfigureCreateSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateSecurityGroupStub(securityGroup, groupUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created security group
-	if err := configurator.ConfigureGetCreatingSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingSecurityGroupStub(securityGroup, groupUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Public ip
-	publicIpResponse, err := builders.NewPublicIpBuilder().
-		Name(publicIp.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(publicIp.Metadata.Tenant).Workspace(publicIp.Metadata.Workspace).Region(publicIp.Metadata.Region).
-		Spec(&publicIp.Spec).
-		Build()
-	if err != nil {
+	if err := configurator.ConfigureGetActiveSecurityGroupStub(securityGroup, groupUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Create a public ip
-	if err := configurator.ConfigureCreatePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreatePublicIpStub(publicIp, publicIpUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created public ip
-	if err := configurator.ConfigureGetCreatingPublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingPublicIpStub(publicIp, publicIpUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// NIC
-	nicResponse, err := builders.NewNicBuilder().
-		Name(nic.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(nic.Metadata.Tenant).Workspace(nic.Metadata.Workspace).Region(nic.Metadata.Region).
-		Spec(&nic.Spec).
-		Build()
-	if err != nil {
+	if err := configurator.ConfigureGetActivePublicIpStub(publicIp, publicIpUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Create a nic
-	if err := configurator.ConfigureCreateNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateNicStub(nic, nicUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created nic
-	if err := configurator.ConfigureGetCreatingNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingNicStub(nic, nicUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveNicStub(nic, nicUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Compute
 
-	// Instance
-	instanceResponse, err := builders.NewInstanceBuilder().
-		Name(instance.Metadata.Name).
-		Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(instance.Metadata.Tenant).Workspace(instance.Metadata.Workspace).Region(instance.Metadata.Region).
-		Spec(&instance.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
 	// Create an instance
-	if err := configurator.ConfigureCreateInstanceStub(instanceResponse, instanceUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateInstanceStub(instance, instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created instance
-	if err := configurator.ConfigureGetCreatingInstanceStub(instanceResponse, instanceUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingInstanceStub(instance, instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveInstanceStub(instanceResponse, instanceUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveInstanceStub(instance, instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}
 

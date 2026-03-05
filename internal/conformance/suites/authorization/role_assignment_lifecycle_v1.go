@@ -82,8 +82,7 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		RoleAssignmentUpdated: roleAssignmentUpdated,
 	}
 	suite.params = params
-
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleAssignmentLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleAssignmentLifecycleScenarioV1, *params)
 	if err != nil {
 		slog.Error("Failed to setup mock", "error", err)
 		t.FailNow()
@@ -147,7 +146,7 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 	stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, roleAssign)
-	stepsBuilder.GetRoleAssignmentWithErrorV1Step("Get the deleted role assignment", suite.Client.AuthorizationV1, roleAssignTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchRoleAssignmentUntilDeletedV1Step("Watch the role assignment deletion", suite.Client.AuthorizationV1, roleAssignTRef)
 
 	suite.FinishScenario()
 }

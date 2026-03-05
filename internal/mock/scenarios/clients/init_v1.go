@@ -11,7 +11,7 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-func ConfigureInitScenarioV1(scenario *mockscenarios.Scenario, params *params.ClientsInitParams) error {
+func ConfigureInitScenarioV1(scenario *mockscenarios.Scenario, params params.ClientsInitParams) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
