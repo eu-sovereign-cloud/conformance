@@ -114,3 +114,9 @@ clean:
 	@echo "Cleaning up binaries and reports..."
 	rm -rf $(DIST_DIR)
 	rm -rf $(REPORTS_PATH)
+
+.PHONY: libraries
+libraries:
+	@echo "Updating libraries..."
+	go mod tidy
+	go mod vendor
