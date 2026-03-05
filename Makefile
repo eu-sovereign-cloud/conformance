@@ -1,6 +1,6 @@
 GO := go
 TOOLS_GOMOD := -modfile=./tools/go.mod
-GO_TOOL := $(GO) run $(TOOLS_GOMOD)
+GO_TOOL := $(GO) run $(TOOLS_GOMOD) -mod=mod
 
 WIREMOCK_PATH := $(shell pwd)/wiremock
 WIREMOCK_MAPPINGS_PATH := $(WIREMOCK_PATH)/config/mappings
