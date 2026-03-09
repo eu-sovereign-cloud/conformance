@@ -77,28 +77,6 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 		return err
 	}
 
-	// Get the created network
-	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Update the network
-	networkResponse.Spec = params.NetworkUpdated.Spec
-	if err := configurator.ConfigureUpdateNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the updated network
-	if err := configurator.ConfigureGetUpdatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
 	// Internet gateway
 	gatewayResponse, err := builders.NewInternetGatewayBuilder().
 		Name(gateway.Metadata.Name).
@@ -175,6 +153,28 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 		return err
 	}
 
+	// Network — get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Update the network
+	networkResponse.Spec = params.NetworkUpdated.Spec
+	if err := configurator.ConfigureUpdateNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the updated network
+	if err := configurator.ConfigureGetUpdatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
 	// Subnet
 	subnetResponse, err := builders.NewSubnetBuilder().
 		Name(subnet.Metadata.Name).
@@ -213,44 +213,6 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 		return err
 	}
 
-	// Public ip
-	publicIpResponse, err := builders.NewPublicIpBuilder().
-		Name(publicIp.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(publicIp.Metadata.Tenant).Workspace(publicIp.Metadata.Workspace).Region(publicIp.Metadata.Region).
-		Spec(&publicIp.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
-	// Create a public ip
-	if err := configurator.ConfigureCreatePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the created public ip
-	if err := configurator.ConfigureGetCreatingPublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Update the public ip
-	publicIpResponse.Spec = params.PublicIpUpdated.Spec
-	if err := configurator.ConfigureUpdatePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the updated public ip
-	if err := configurator.ConfigureGetUpdatingPublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
 	// Nic
 	nicResponse, err := builders.NewNicBuilder().
 		Name(nic.Metadata.Name).
@@ -286,6 +248,44 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 		return err
 	}
 	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Public ip
+	publicIpResponse, err := builders.NewPublicIpBuilder().
+		Name(publicIp.Metadata.Name).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(publicIp.Metadata.Tenant).Workspace(publicIp.Metadata.Workspace).Region(publicIp.Metadata.Region).
+		Spec(&publicIp.Spec).
+		Build()
+	if err != nil {
+		return err
+	}
+
+	// Create a public ip
+	if err := configurator.ConfigureCreatePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the created public ip
+	if err := configurator.ConfigureGetCreatingPublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Update the public ip
+	publicIpResponse.Spec = params.PublicIpUpdated.Spec
+	if err := configurator.ConfigureUpdatePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the updated public ip
+	if err := configurator.ConfigureGetUpdatingPublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
 		return err
 	}
 

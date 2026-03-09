@@ -49,11 +49,18 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params pa
 		return err
 	}
 
-	// Get the created network
-	if err := configurator.ConfigureGetCreatingNetworkStub(network, networkURL, scenario.MockParams); err != nil {
+	// Internet Gateway
+
+	// Create internet gateway
+	if err := configurator.ConfigureCreateInternetGatewayStub(internetGateway, internetGatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveNetworkStub(network, networkURL, scenario.MockParams); err != nil {
+
+	// Get the created internet gateway
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(internetGateway, internetGatewayURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveInternetGatewayStub(internetGateway, internetGatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -72,6 +79,14 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params pa
 		return err
 	}
 
+	// Get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(network, networkURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveNetworkStub(network, networkURL, scenario.MockParams); err != nil {
+		return err
+	}
+
 	// Subnet
 
 	// Create subnet
@@ -84,21 +99,6 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params pa
 		return err
 	}
 	if err := configurator.ConfigureGetActiveSubnetStub(subnet, subnetURL, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Internet Gateway
-
-	// Create internet gateway
-	if err := configurator.ConfigureCreateInternetGatewayStub(internetGateway, internetGatewayURL, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the created internet gateway
-	if err := configurator.ConfigureGetCreatingInternetGatewayStub(internetGateway, internetGatewayURL, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveInternetGatewayStub(internetGateway, internetGatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
 
