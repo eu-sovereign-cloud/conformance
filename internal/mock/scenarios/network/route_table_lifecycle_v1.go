@@ -23,8 +23,6 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 	routeTableURL := generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, routeTable.Metadata.Tenant, routeTable.Metadata.Workspace, routeTable.Metadata.Network, routeTable.Metadata.Name)
 	gatewayURL := generators.GenerateInternetGatewayURL(sdkconsts.NetworkProviderV1Name, internetGateway.Metadata.Tenant, internetGateway.Metadata.Workspace, internetGateway.Metadata.Name)
 
-	// Workspace
-
 	// Create workspace
 	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
@@ -38,24 +36,25 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 		return err
 	}
 
-	// Network
-
 	// Create network
 	if err := configurator.ConfigureCreateNetworkStub(network, networkURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Get the created network
-	if err := configurator.ConfigureGetCreatingNetworkStub(network, networkURL, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveNetworkStub(network, networkURL, scenario.MockParams); err != nil {
+	// Create internet gateway
+	if err := configurator.ConfigureCreateInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Route table
+	// Get the created internet gateway
+	if err := configurator.ConfigureGetCreatingInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
+		return err
+	}
 
-	// Create route table
+	// Create a route table
 	if err := configurator.ConfigureCreateRouteTableStub(routeTable, routeTableURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -65,6 +64,14 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 		return err
 	}
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeTable, routeTableURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(network, networkURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveNetworkStub(network, networkURL, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -79,21 +86,6 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 		return err
 	}
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeTable, routeTableURL, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Internet Gateway
-
-	// Create internet gateway
-	if err := configurator.ConfigureCreateInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the created internet gateway
-	if err := configurator.ConfigureGetCreatingInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
 

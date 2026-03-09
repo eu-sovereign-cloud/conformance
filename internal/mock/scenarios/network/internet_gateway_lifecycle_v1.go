@@ -19,8 +19,6 @@ func ConfigureInternetGatewayLifecycleScenarioV1(scenario *mockscenarios.Scenari
 	workspaceURL := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	gatewayURL := generators.GenerateInternetGatewayURL(sdkconsts.NetworkProviderV1Name, internetGateway.Metadata.Tenant, internetGateway.Metadata.Workspace, internetGateway.Metadata.Name)
 
-	// Workspace
-
 	// Create workspace
 	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
@@ -33,8 +31,6 @@ func ConfigureInternetGatewayLifecycleScenarioV1(scenario *mockscenarios.Scenari
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
-
-	// Internet gateway
 
 	// Create internet gateway
 	if err := configurator.ConfigureCreateInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {

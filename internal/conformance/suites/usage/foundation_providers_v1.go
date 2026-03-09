@@ -337,7 +337,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
-	// Role
+	// Authorization
 
 	// Create a role
 	role := suite.params.Role
@@ -363,8 +363,6 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
-
-	// Role assignment
 
 	// Create a role assignment
 	roleAssign := suite.params.RoleAssignment
@@ -418,7 +416,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Image
+	// Storage
 
 	// Create an image
 	image := suite.params.Image
@@ -444,8 +442,6 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
-
-	// Block storage
 
 	// Create a block storage
 	block := suite.params.BlockStorage
@@ -487,22 +483,6 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Get the created network
-	networkWRef := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(network.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
-		Name:      network.Metadata.Name,
-	}
-	stepsBuilder.GetNetworkV1Step("Get the created network", suite.RegionalClient.NetworkV1, networkWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:       expectNetworkMeta,
-			Spec:           expectNetworkSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
-		},
-	)
-
-	// Internet gateway
-
 	// Create an internet gateway
 	gateway := suite.params.InternetGateway
 	expectGatewayMeta := gateway.Metadata
@@ -528,8 +508,6 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
-
-	// Route table
 
 	// Create a route table
 	route := suite.params.RouteTable
@@ -558,7 +536,19 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Subnet
+	// Get the created network
+	networkWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(network.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
+		Name:      network.Metadata.Name,
+	}
+	stepsBuilder.GetNetworkV1Step("Get the created network", suite.RegionalClient.NetworkV1, networkWRef,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		},
+	)
 
 	// Create a subnet
 	subnet := suite.params.Subnet
@@ -587,8 +577,6 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Security Group
-
 	// Create a security group
 	group := suite.params.SecurityGroup
 	expectGroupMeta := group.Metadata
@@ -614,8 +602,6 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
-
-	// Public ip
 
 	// Create a public ip
 	publicIp := suite.params.PublicIp
@@ -643,8 +629,6 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Nic
-
 	// Create a nic
 	nic := suite.params.Nic
 	expectNicMeta := nic.Metadata
@@ -671,7 +655,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Instance
+	// Compute
 
 	// Create an instance
 	instance := suite.params.Instance

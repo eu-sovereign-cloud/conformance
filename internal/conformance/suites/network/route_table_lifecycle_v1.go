@@ -189,16 +189,31 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Get the created network
-	networkWRef := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(network.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
-		Name:      network.Metadata.Name,
+	// Internet gateway
+
+	// Create an internet gateway
+	internetGat := suite.params.InternetGateway
+	expectInternetGatMeta := internetGat.Metadata
+	expectInternetGatSpec := &internetGat.Spec
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", suite.Client.NetworkV1, internetGat,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Metadata:       expectInternetGatMeta,
+			Spec:           expectInternetGatSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
+		},
+	)
+
+	// Get the created internet gateway
+	internetGatWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(internetGat.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(internetGat.Metadata.Workspace),
+		Name:      internetGat.Metadata.Name,
 	}
-	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:       expectNetworkMeta,
-			Spec:           expectNetworkSpec,
+
+	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, internetGatWRef,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Metadata:       expectInternetGatMeta,
+			Spec:           expectInternetGatSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
@@ -232,6 +247,20 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
+	// Get the created network
+	networkWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(network.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
+		Name:      network.Metadata.Name,
+	}
+	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		},
+	)
+
 	// Update the route table
 	route.Spec = suite.params.RouteTableUpdated.Spec
 	expectRouteSpec.Routes = route.Spec.Routes
@@ -248,33 +277,6 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
-		},
-	)
-
-	// Internet gateway
-
-	// Create an internet gateway
-	internetGat := suite.params.InternetGateway
-	expectInternetGatMeta := internetGat.Metadata
-	expectInternetGatSpec := &internetGat.Spec
-	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", suite.Client.NetworkV1, internetGat,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:       expectInternetGatMeta,
-			Spec:           expectInternetGatSpec,
-			ResourceStates: suites.CreatedResourceExpectedStates,
-		},
-	)
-	// Get the created internet gateway
-	internetGatWRef := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(internetGat.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(internetGat.Metadata.Workspace),
-		Name:      internetGat.Metadata.Name,
-	}
-	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, internetGatWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:       expectInternetGatMeta,
-			Spec:           expectInternetGatSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)

@@ -229,16 +229,30 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Get the created network
-	networkWRef := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(network.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
-		Name:      network.Metadata.Name,
+	// Internet gateway
+
+	// Create an internet gateway
+	gateway := suite.params.InternetGateway
+	expectGatewayMeta := gateway.Metadata
+	expectGatewaySpec := &gateway.Spec
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, gateway,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Metadata:       expectGatewayMeta,
+			Spec:           expectGatewaySpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
+		},
+	)
+
+	// Get the created internet gateway
+	gatewayWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(gateway.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(gateway.Metadata.Workspace),
+		Name:      gateway.Metadata.Name,
 	}
-	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:       expectNetworkMeta,
-			Spec:           expectNetworkSpec,
+	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, gatewayWRef,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Metadata:       expectGatewayMeta,
+			Spec:           expectGatewaySpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
@@ -272,6 +286,20 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
+	// Get the created network
+	networkWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(network.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
+		Name:      network.Metadata.Name,
+	}
+	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		},
+	)
+
 	// Subnet
 
 	// Create a subnet
@@ -297,34 +325,6 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Metadata:       expectSubnetMeta,
 			Spec:           expectSubnetSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
-		},
-	)
-
-	// Internet gateway
-
-	// Create an internet gateway
-	gateway := suite.params.InternetGateway
-	expectGatewayMeta := gateway.Metadata
-	expectGatewaySpec := &gateway.Spec
-	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, gateway,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:       expectGatewayMeta,
-			Spec:           expectGatewaySpec,
-			ResourceStates: suites.CreatedResourceExpectedStates,
-		},
-	)
-
-	// Get the created internet gateway
-	gatewayWRef := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(gateway.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(gateway.Metadata.Workspace),
-		Name:      gateway.Metadata.Name,
-	}
-	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, gatewayWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:       expectGatewayMeta,
-			Spec:           expectGatewaySpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
