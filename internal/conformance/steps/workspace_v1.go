@@ -7,6 +7,8 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -22,13 +24,13 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 		createOrUpdateTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
-			operationName:  "CreateOrUpdateWorkspace",
+			operationName:  constants.CreateOrUpdateWorkspaceOperation,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Workspace) (
-				*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
+				wrappers.ResourceWrapper[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateWorkspace(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewWorkspaceWrapper(resp), err
 			},
 			expectedLabels:         responseExpects.Labels,
 			expectedMetadata:       responseExpects.Metadata,
@@ -47,13 +49,13 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api s
 		getTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
-			operationName:  "GetWorkspace",
+			operationName:  constants.GetWorkspaceOperation,
 			tref:           tref,
-			getFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
+			getValueFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
+				wrappers.ResourceWrapper[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
 			) {
 				resp, err := api.GetWorkspaceUntilState(ctx, tref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewWorkspaceWrapper(resp), err
 			},
 			expectedLabels:         responseExpects.Labels,
 			expectedMetadata:       responseExpects.Metadata,
@@ -63,15 +65,12 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api s
 	)
 }
 
-func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
-	stepName string,
-	api secapi.WorkspaceV1,
-	tref secapi.TenantReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListWorkspaceV1Step(
+	stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "GetListWorkspace", string(tref.Tenant))
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListWorkspace", string(tref.Tenant))
 		var iter *secapi.Iterator[schema.Workspace]
 		var err error
 		if opts != nil {
@@ -85,13 +84,22 @@ func (configurator *StepsConfigurator) GetListWorkspaceV1Step(
 	})
 }
 
-func (configurator *StepsConfigurator) GetWorkspaceWithErrorV1Step(stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchWorkspaceUntilDeletedV1Step(stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetWorkspaceV1StepParams(sCtx, "GetWorkspace")
-
-		_, err := api.GetWorkspace(configurator.t.Context(), tref)
-		requireError(sCtx, err, expectedError)
+		watchTenantResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchTenantResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.TenantReference]{
+					reference: tref,
+					getErrorFunc: func(ctx context.Context, tref secapi.TenantReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchWorkspaceUntilDeleted(configurator.t.Context(), tref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
+				operationName:  constants.GetWorkspaceOperation,
+			},
+		)
 	})
 }
 

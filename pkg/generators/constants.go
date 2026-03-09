@@ -113,7 +113,4 @@ const (
 	publicIpRef          = "public-ips/%s"
 	securityGroupRuleRef = "security-group-rules/%s"
 	securityGroupRef     = "security-groups/%s"
-
-	// Generators
-	maxBlockStorageSize = 1000000 // GB
 )

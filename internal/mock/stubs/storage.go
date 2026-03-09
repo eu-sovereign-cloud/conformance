@@ -51,8 +51,16 @@ func (configurator *Configurator) ConfigureGetUpdatingBlockStorageStub(response 
 	return nil
 }
 
-func (configurator *Configurator) ConfigureGetListBlockStorageStub(response storage.BlockStorageIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
-	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+func (configurator *Configurator) ConfigureGetDeletingBlockStorageStub(response *schema.BlockStorage, url string, params *mock.MockParams) error {
+	setBlockStorageState(response.Status, schema.ResourceStateDeleting)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureListBlockStorageStub(response storage.BlockStorageIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
@@ -102,15 +110,23 @@ func (configurator *Configurator) ConfigureGetUpdatingImageStub(response *schema
 	return nil
 }
 
-func (configurator *Configurator) ConfigureGetListImageStub(response storage.ImageIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
-	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+func (configurator *Configurator) ConfigureGetDeletingImageStub(response *schema.Image, url string, params *mock.MockParams) error {
+	setImageState(response.Status, schema.ResourceStateDeleting)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *Configurator) ConfigureGetListStorageSkuStub(response storage.SkuIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
-	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+func (configurator *Configurator) ConfigureListImageStub(response storage.ImageIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureListStorageSkuStub(response storage.SkuIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil

@@ -51,8 +51,16 @@ func (configurator *Configurator) ConfigureGetUpdatingWorkspaceStub(response *sc
 	return nil
 }
 
-func (configurator *Configurator) ConfigureGetListActiveWorkspaceStub(response *workspace.WorkspaceIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
-	if err := configurator.ConfigureGetListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+func (configurator *Configurator) ConfigureGetDeletingWorkspaceStub(response *schema.Workspace, url string, params *mock.MockParams) error {
+	setWorkspaceState(response.Status, schema.ResourceStateDeleting)
+	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (configurator *Configurator) ConfigureListActiveWorkspaceStub(response *workspace.WorkspaceIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil

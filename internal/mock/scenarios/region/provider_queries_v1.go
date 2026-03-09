@@ -12,7 +12,7 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params.RegionProviderQueriesV1Params) error {
+func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.RegionProviderQueriesV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -35,12 +35,12 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params *params
 	}
 	regionsResponse.Items = regions
 
-	// 1 - Create ListRegions stub
-	if err := configurator.ConfigureGetListRegionStub(regionsResponse, regionsUrl, scenario.MockParams, nil); err != nil {
+	// List regions
+	if err := configurator.ConfigureListRegionStub(regionsResponse, regionsUrl, scenario.MockParams, nil); err != nil {
 		return err
 	}
 
-	// 2 - Create GetRegion stubs
+	// Get region
 	regionResponse := regions[0]
 	if err := configurator.ConfigureGetRegionStub(&regionResponse, regionUrl, scenario.MockParams); err != nil {
 		return err

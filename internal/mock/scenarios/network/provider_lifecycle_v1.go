@@ -8,22 +8,22 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, params *params.NetworkProviderLifeCycleV1Params) error {
+func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, params params.NetworkProviderLifeCycleV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
 	}
 
-	workspace := *params.Workspace
-	blockStorage := *params.BlockStorage
-	instance := *params.Instance
-	network := *params.NetworkInitial
-	gateway := *params.InternetGatewayInitial
-	nic := *params.NicInitial
-	publicIp := *params.PublicIpInitial
-	routeTable := *params.RouteTableInitial
-	subnet := *params.SubnetInitial
-	securityGroup := *params.SecurityGroupInitial
+	workspace := params.Workspace
+	blockStorage := params.BlockStorage
+	instance := params.Instance
+	network := params.NetworkInitial
+	gateway := params.InternetGatewayInitial
+	nic := params.NicInitial
+	publicIp := params.PublicIpInitial
+	routeTable := params.RouteTableInitial
+	subnet := params.SubnetInitial
+	securityGroup := params.SecurityGroupInitial
 
 	// Generate URLs
 	workspaceUrl := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
@@ -74,6 +74,28 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 
 	// Create a network
 	if err := configurator.ConfigureCreateNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Update the network
+	networkResponse.Spec = params.NetworkUpdated.Spec
+	if err := configurator.ConfigureUpdateNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the updated network
+	if err := configurator.ConfigureGetUpdatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -153,28 +175,6 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 		return err
 	}
 
-	// Get the created network
-	if err := configurator.ConfigureGetCreatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Update the network
-	networkResponse.Spec = params.NetworkUpdated.Spec
-	if err := configurator.ConfigureUpdateNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the updated network
-	if err := configurator.ConfigureGetUpdatingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
 	// Subnet
 	subnetResponse, err := builders.NewSubnetBuilder().
 		Name(subnet.Metadata.Name).
@@ -210,43 +210,6 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 		return err
 	}
 	if err := configurator.ConfigureGetActiveSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
-		return err
-	}
-	// Nic
-	nicResponse, err := builders.NewNicBuilder().
-		Name(nic.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(nic.Metadata.Tenant).Workspace(nic.Metadata.Workspace).Region(nic.Metadata.Region).
-		Spec(&nic.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
-	// Create a nic
-	if err := configurator.ConfigureCreateNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the created nic
-	if err := configurator.ConfigureGetCreatingNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Update the nic
-	nicResponse.Spec = params.NicUpdated.Spec
-	if err := configurator.ConfigureUpdateNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the updated nic
-	if err := configurator.ConfigureGetUpdatingNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -285,6 +248,44 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 		return err
 	}
 	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Nic
+	nicResponse, err := builders.NewNicBuilder().
+		Name(nic.Metadata.Name).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(nic.Metadata.Tenant).Workspace(nic.Metadata.Workspace).Region(nic.Metadata.Region).
+		Spec(&nic.Spec).
+		Build()
+	if err != nil {
+		return err
+	}
+
+	// Create a nic
+	if err := configurator.ConfigureCreateNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the created nic
+	if err := configurator.ConfigureGetCreatingNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Update the nic
+	nicResponse.Spec = params.NicUpdated.Spec
+	if err := configurator.ConfigureUpdateNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the updated nic
+	if err := configurator.ConfigureGetUpdatingNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -379,6 +380,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted instance
+	if err := configurator.ConfigureGetDeletingInstanceStub(instance, instanceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -389,6 +393,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted block storage
+	if err := configurator.ConfigureGetDeletingBlockStorageStub(blockResponse, blockUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(blockUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -399,47 +406,10 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted security group
+	if err := configurator.ConfigureGetDeletingSecurityGroupStub(groupResponse, groupUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(groupUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the public ip
-	if err := configurator.ConfigureDeleteStub(publicIpUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the deleted public ip
-	if err := configurator.ConfigureGetNotFoundStub(publicIpUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the internet gateway
-	if err := configurator.ConfigureDeleteStub(gatewayUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the deleted internet gateway
-	if err := configurator.ConfigureGetNotFoundStub(gatewayUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the route table
-	if err := configurator.ConfigureDeleteStub(routeUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the deleted route table
-	if err := configurator.ConfigureGetNotFoundStub(routeUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Delete the subnet
-	if err := configurator.ConfigureDeleteStub(subnetUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the deleted subnet
-	if err := configurator.ConfigureGetNotFoundStub(subnetUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -449,7 +419,62 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted nic
+	if err := configurator.ConfigureGetDeletingNicStub(nicResponse, nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(nicUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete the public ip
+	if err := configurator.ConfigureDeleteStub(publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the deleted public ip
+	if err := configurator.ConfigureGetDeletingPublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetNotFoundStub(publicIpUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete the subnet
+	if err := configurator.ConfigureDeleteStub(subnetUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the deleted subnet
+	if err := configurator.ConfigureGetDeletingSubnetStub(subnetResponse, subnetUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetNotFoundStub(subnetUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete the route table
+	if err := configurator.ConfigureDeleteStub(routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the deleted route table
+	if err := configurator.ConfigureGetDeletingRouteTableStub(routeResponse, routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetNotFoundStub(routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete the internet gateway
+	if err := configurator.ConfigureDeleteStub(gatewayUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the deleted internet gateway
+	if err := configurator.ConfigureGetDeletingInternetGatewayStub(gatewayResponse, gatewayUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetNotFoundStub(gatewayUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -459,6 +484,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted network
+	if err := configurator.ConfigureGetDeletingNetworkStub(networkResponse, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
@@ -469,6 +497,9 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted workspace
+	if err := configurator.ConfigureGetDeletingWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
+		return err
+	}
 	if err := configurator.ConfigureGetNotFoundStub(workspaceUrl, scenario.MockParams); err != nil {
 		return err
 	}

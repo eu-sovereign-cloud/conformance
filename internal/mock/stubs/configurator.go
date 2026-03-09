@@ -85,7 +85,7 @@ func (configurator *Configurator) ConfigureGetStub(url string, params *mock.Mock
 	return nil
 }
 
-func (configurator *Configurator) ConfigureGetListStub(url string, params *mock.MockParams, pathParams map[string]string, setMetadataVerbFunc func(string), responseBody any) error {
+func (configurator *Configurator) ConfigureListStub(url string, params *mock.MockParams, pathParams map[string]string, setMetadataVerbFunc func(string), responseBody any) error {
 	if setMetadataVerbFunc != nil {
 		setMetadataVerbFunc(http.MethodGet)
 	}

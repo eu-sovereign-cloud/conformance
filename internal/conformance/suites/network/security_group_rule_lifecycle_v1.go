@@ -77,7 +77,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		SecurityGroupRuleUpdated: securityGroupRuleUpdated,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureSecurityGroupRuleLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureSecurityGroupRuleLifecycleScenarioV1, *params)
 	if err != nil {
 		slog.Error("Failed to setup mock", "error", err)
 		t.FailNow()
@@ -170,10 +170,12 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 	stepsBuilder.DeleteSecurityGroupRuleV1Step("Delete the security group rule", suite.Client.NetworkV1, rule)
-	stepsBuilder.GetSecurityGroupRuleWithErrorV1Step("Get deleted security group rule", suite.Client.NetworkV1, ruleWRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchSecurityGroupRuleUntilDeletedV1Step("Watch the security group rule deletion", suite.Client.NetworkV1, ruleWRef)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+
+	suite.FinishScenario()
 }
 
 func (suite *SecurityGroupRuleLifeCycleV1TestSuite) AfterAll(t provider.T) {

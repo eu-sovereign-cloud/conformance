@@ -7,6 +7,8 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -24,14 +26,14 @@ func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName str
 		createOrUpdateWorkspaceResourceParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetComputeV1StepParams,
-			operationName:  "CreateOrUpdateInstance",
+			operationName:  constants.CreateOrUpdateInstanceOperation,
 			workspace:      resource.Metadata.Workspace,
 			resource:       resource,
 			createOrUpdateFunc: func(context.Context, *schema.Instance) (
-				*stepFuncResponse[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
+				wrappers.ResourceWrapper[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
 			) {
 				resp, err := api.CreateOrUpdateInstance(configurator.t.Context(), resource)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewInstanceWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -51,13 +53,13 @@ func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api se
 		getWorkspaceResourceParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetComputeV1StepParams,
-			operationName:  "GetInstance",
+			operationName:  constants.GetInstanceOperation,
 			wref:           wref,
-			getFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig[schema.ResourceState]) (
-				*stepFuncResponse[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
+			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (
+				wrappers.ResourceWrapper[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
 			) {
 				resp, err := api.GetInstanceUntilState(configurator.t.Context(), wref, config)
-				return newStepFuncResponse(resp, resp.Labels, resp.Metadata, resp.Spec, resp.Status), err
+				return wrappers.NewInstanceWrapper(resp), err
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
@@ -68,13 +70,22 @@ func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api se
 	)
 }
 
-func (configurator *StepsConfigurator) GetInstanceWithErrorV1Step(stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference, expectedError error) {
+func (configurator *StepsConfigurator) WatchInstanceUntilDeletedV1Step(stepName string, api secapi.ComputeV1, tref secapi.WorkspaceReference) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
-		configurator.suite.SetComputeV1StepParams(sCtx, "GetInstance", string(wref.Workspace))
-
-		_, err := api.GetInstance(configurator.t.Context(), wref)
-		requireError(sCtx, err, expectedError)
+		watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+			watchWorkspaceResourceUntilDeletedParams{
+				watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
+					reference: tref,
+					getErrorFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverConfig) error {
+						return api.WatchInstanceUntilDeleted(configurator.t.Context(), wref, config)
+					},
+				},
+				stepName:       stepName,
+				stepParamsFunc: configurator.suite.SetComputeV1StepParams,
+				operationName:  constants.GetInstanceOperation,
+			},
+		)
 	})
 }
 
@@ -121,11 +132,8 @@ func (configurator *StepsConfigurator) DeleteInstanceV1Step(stepName string, api
 	})
 }
 
-func (configurator *StepsConfigurator) GetListInstanceV1Step(
-	stepName string,
-	api secapi.ComputeV1,
-	wref secapi.WorkspaceReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListInstanceV1Step(
+	stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
 ) []*schema.Instance {
 	var resp []*schema.Instance
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -147,11 +155,8 @@ func (configurator *StepsConfigurator) GetListInstanceV1Step(
 	return resp
 }
 
-func (configurator *StepsConfigurator) GetListSkusV1Step(
-	stepName string,
-	api secapi.ComputeV1,
-	tref secapi.TenantReference,
-	opts *secapi.ListOptions,
+func (configurator *StepsConfigurator) ListSkusV1Step(
+	stepName string, api secapi.ComputeV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) []*schema.InstanceSku {
 	var resp []*schema.InstanceSku
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))

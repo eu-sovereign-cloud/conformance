@@ -49,7 +49,7 @@ func (suite *ImageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	imageName := generators.GenerateImageName()
 
-	storageSize := generators.GenerateBlockStorageSize()
+	storageSize := constants.BlockStorageInitialSize
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
@@ -105,10 +105,8 @@ func (suite *ImageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		ImageInitial: imageInitial,
 		ImageUpdated: imageUpdated,
 	}
-
 	suite.params = params
-
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockstorage.ConfigureImageLifecycleScenarioV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockstorage.ConfigureImageLifecycleScenarioV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -228,13 +226,13 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Resources deletion
 
 	stepsBuilder.DeleteImageV1Step("Delete the image", suite.Client.StorageV1, image)
-	stepsBuilder.GetImageWithErrorV1Step("Get the deleted image", suite.Client.StorageV1, imageTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchImageUntilDeletedV1Step("Watch the image deletion", suite.Client.StorageV1, imageTRef)
 
 	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
-	stepsBuilder.GetBlockStorageWithErrorV1Step("Get the deleted block storage", suite.Client.StorageV1, blockWRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", suite.Client.StorageV1, blockWRef)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.GetWorkspaceWithErrorV1Step("Get the deleted workspace", suite.Client.WorkspaceV1, workspaceTRef, secapi.ErrResourceNotFound)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

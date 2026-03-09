@@ -159,7 +159,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		RoleAssignments: roleAssignments,
 	}
 	suite.params = params
-	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureProviderQueriesV1, params)
+	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureProviderQueriesV1, *params)
 	if err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
@@ -196,19 +196,19 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Name:   suite.Tenant,
 	}
 	// List Roles
-	stepsBuilder.GetListRoleV1Step("Get list of roles", suite.Client.AuthorizationV1, *roleTRef, nil)
+	stepsBuilder.ListRoleV1Step("Get list of roles", suite.Client.AuthorizationV1, *roleTRef, nil)
 
 	// List Roles with limit
-	stepsBuilder.GetListRoleV1Step("Get list of roles with limit", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("Get list of roles with limit", suite.Client.AuthorizationV1, *roleTRef,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Label
-	stepsBuilder.GetListRoleV1Step("Get list of roles with label", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("Get list of roles with label", suite.Client.AuthorizationV1, *roleTRef,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Limit and label
-	stepsBuilder.GetListRoleV1Step("Get list of roles with limit and label", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("Get list of roles with limit and label", suite.Client.AuthorizationV1, *roleTRef,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -232,19 +232,19 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	roleAssignTRef := &secapi.TenantReference{Tenant: secapi.TenantID(suite.Tenant)}
 
 	// List RoleAssignments
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef, nil)
+	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef, nil)
 
 	// List RoleAssignments with limit
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List RoleAssignments with Label
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List RoleAssignments with Limit and label
-	stepsBuilder.GetListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -253,11 +253,11 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, &roleAssign)
 
 		// Get the deleted role assignment
-		roleAssignTRefSingle := &secapi.TenantReference{
+		roleAssignTRef := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.Tenant),
 			Name:   roleAssign.Metadata.Name,
 		}
-		stepsBuilder.GetRoleAssignmentWithErrorV1Step("Get the deleted role assignment", suite.Client.AuthorizationV1, *roleAssignTRefSingle, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchRoleAssignmentUntilDeletedV1Step("Watch the role assignment deletion", suite.Client.AuthorizationV1, roleAssignTRef)
 	}
 
 	// Delete all roles
@@ -265,11 +265,11 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		stepsBuilder.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, &role)
 
 		// Get the deleted role
-		roleTRefSingle := &secapi.TenantReference{
+		roleTRef := secapi.TenantReference{
 			Tenant: secapi.TenantID(suite.Tenant),
 			Name:   role.Metadata.Name,
 		}
-		stepsBuilder.GetRoleWithErrorV1Step("Get the deleted role", suite.Client.AuthorizationV1, *roleTRefSingle, secapi.ErrResourceNotFound)
+		stepsBuilder.WatchRoleUntilDeletedV1Step("Watch the role deletion", suite.Client.AuthorizationV1, roleTRef)
 	}
 	suite.FinishScenario()
 }

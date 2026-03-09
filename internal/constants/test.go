@@ -18,6 +18,10 @@ const (
 	ArchitectureLabel      = "Architecture"
 	ArchitectureAmd64Label = "amd64"
 
+	/// Block Storage Sizes
+	BlockStorageInitialSize = 20 // GB
+	BlockStorageUpdatedSize = 30 // GB
+
 	/// Zones
 	ZoneA = "a"
 	ZoneB = "b"
