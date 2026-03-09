@@ -27,8 +27,6 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params pa
 	nicURL := generators.GenerateNicURL(sdkconsts.NetworkProviderV1Name, nic.Metadata.Tenant, nic.Metadata.Workspace, nic.Metadata.Name)
 	networkURL := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, network.Metadata.Tenant, network.Metadata.Workspace, network.Metadata.Name)
 
-	// Workspace
-
 	// Create a workspace
 	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
@@ -42,14 +40,10 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params pa
 		return err
 	}
 
-	// Network
-
 	// Create a network
 	if err := configurator.ConfigureCreateNetworkStub(network, networkURL, scenario.MockParams); err != nil {
 		return err
 	}
-
-	// Internet Gateway
 
 	// Create internet gateway
 	if err := configurator.ConfigureCreateInternetGatewayStub(internetGateway, internetGatewayURL, scenario.MockParams); err != nil {
@@ -63,8 +57,6 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params pa
 	if err := configurator.ConfigureGetActiveInternetGatewayStub(internetGateway, internetGatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
-
-	// Route table
 
 	// Create a route table
 	if err := configurator.ConfigureCreateRouteTableStub(routeTable, routeTableURL, scenario.MockParams); err != nil {
@@ -87,8 +79,6 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params pa
 		return err
 	}
 
-	// Subnet
-
 	// Create subnet
 	if err := configurator.ConfigureCreateSubnetStub(subnet, subnetURL, scenario.MockParams); err != nil {
 		return err
@@ -101,8 +91,6 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params pa
 	if err := configurator.ConfigureGetActiveSubnetStub(subnet, subnetURL, scenario.MockParams); err != nil {
 		return err
 	}
-
-	// Nic
 
 	// Create a nic
 	if err := configurator.ConfigureCreateNicStub(nic, nicURL, scenario.MockParams); err != nil {
