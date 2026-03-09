@@ -967,6 +967,39 @@ func (builder *SecurityGroupBuilder) Build() (*schema.SecurityGroup, error) {
 	}, nil
 }
 
+/// SecurityGroupRuleIteratorBuilder
+
+type SecurityGroupRuleIteratorBuilder struct {
+	*workspaceResponseMetadataBuilder[SecurityGroupRuleIteratorBuilder]
+
+	items []schema.SecurityGroupRule
+}
+
+func NewSecurityGroupRuleIteratorBuilder() *SecurityGroupRuleIteratorBuilder {
+	builder := &SecurityGroupRuleIteratorBuilder{}
+	builder.workspaceResponseMetadataBuilder = newWorkspaceResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *SecurityGroupRuleIteratorBuilder) Items(items []schema.SecurityGroupRule) *SecurityGroupRuleIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *SecurityGroupRuleIteratorBuilder) Build() (*network.SecurityGroupRuleIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateSecurityGroupRuleListResource(builder.tenant, builder.workspace)
+
+	return &network.SecurityGroupRuleIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
+	}, nil
+}
+
 /// SecurityGroupIteratorBuilder
 
 type SecurityGroupIteratorBuilder struct {
