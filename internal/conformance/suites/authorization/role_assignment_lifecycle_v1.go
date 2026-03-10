@@ -125,8 +125,8 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the role assignment
-	roleAssign.Spec = suite.params.RoleAssignmentUpdated.Spec
-	expectRoleAssignSpec.Subs = roleAssign.Spec.Subs
+	roleAssign = suite.params.RoleAssignmentUpdated
+	expectRoleAssignSpec = &roleAssign.Spec
 	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Update the role assignment", suite.Client.AuthorizationV1, roleAssign,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,

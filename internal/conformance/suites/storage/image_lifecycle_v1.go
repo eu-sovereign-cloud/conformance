@@ -204,7 +204,7 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the image
-	image.Spec = suite.params.ImageUpdated.Spec
+	image = suite.params.ImageUpdated
 	expectedImageSpec.CpuArchitecture = image.Spec.CpuArchitecture
 	stepsBuilder.CreateOrUpdateImageV1Step("Update the image", suite.Client.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{

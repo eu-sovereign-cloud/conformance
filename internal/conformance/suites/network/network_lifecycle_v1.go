@@ -254,7 +254,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the network
-	network.Spec = suite.params.NetworkUpdated.Spec
+	network = suite.params.NetworkUpdated
 	expectNetworkSpec.SkuRef = network.Spec.SkuRef
 	stepsBuilder.CreateOrUpdateNetworkV1Step("Update the network", suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{

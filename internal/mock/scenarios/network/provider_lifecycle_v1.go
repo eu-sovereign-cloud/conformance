@@ -3,7 +3,6 @@ package mocknetwork
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
-	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
@@ -40,15 +39,6 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	groupRuleUrl := generators.GenerateSecurityGroupRuleURL(sdkconsts.NetworkProviderV1Name, securityGroupRule.Metadata.Tenant, securityGroupRule.Metadata.Workspace, securityGroupRule.Metadata.Name)
 
 	// Workspace
-	workspaceResponse, err := builders.NewWorkspaceBuilder().
-		Name(workspace.Metadata.Name).
-		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(workspace.Metadata.Tenant).Region(workspace.Metadata.Region).
-		Labels(workspace.Labels).
-		Build()
-	if err != nil {
-		return err
-	}
 
 	// Create a workspace
 	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceUrl, scenario.MockParams); err != nil {
@@ -221,58 +211,40 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	if err := configurator.ConfigureGetUpdatingPublicIpStub(publicIp, publicIpUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActivePublicIpStub(publicIpResponse, publicIpUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActivePublicIpStub(publicIp, publicIpUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Security group rule
-	groupRuleResponse, err := builders.NewSecurityGroupRuleBuilder().
-		Name(securityGroupRule.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(securityGroupRule.Metadata.Tenant).Workspace(securityGroupRule.Metadata.Workspace).Region(securityGroupRule.Metadata.Region).
-		Spec(&securityGroupRule.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
-
 	// Create a security group rule
-	if err := configurator.ConfigureCreateSecurityGroupRuleStub(groupRuleResponse, groupRuleUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureCreateSecurityGroupRuleStub(securityGroupRule, groupRuleUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the created security group rule
-	if err := configurator.ConfigureGetCreatingSecurityGroupRuleStub(groupRuleResponse, groupRuleUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetCreatingSecurityGroupRuleStub(securityGroupRule, groupRuleUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveSecurityGroupRuleStub(groupRuleResponse, groupRuleUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetActiveSecurityGroupRuleStub(securityGroupRule, groupRuleUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Update the security group rule
-	groupRuleResponse.Spec = params.SecurityGroupRuleUpdated.Spec
-	if err := configurator.ConfigureUpdateSecurityGroupRuleStub(groupRuleResponse, groupRuleUrl, scenario.MockParams); err != nil {
+	securityGroupRule = params.SecurityGroupRuleUpdated
+	if err := configurator.ConfigureUpdateSecurityGroupRuleStub(securityGroupRule, groupRuleUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Get the updated security group rule
-	if err := configurator.ConfigureGetUpdatingSecurityGroupRuleStub(groupRuleResponse, groupRuleUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetUpdatingSecurityGroupRuleStub(securityGroupRule, groupRuleUrl, scenario.MockParams); err != nil {
 		return err
 	}
-	if err := configurator.ConfigureGetActiveSecurityGroupRuleStub(groupRuleResponse, groupRuleUrl, scenario.MockParams); err != nil {
+
+	if err := configurator.ConfigureGetActiveSecurityGroupRuleStub(securityGroupRule, groupRuleUrl, scenario.MockParams); err != nil {
 		return err
 	}
 
 	// Security group
-	groupResponse, err := builders.NewSecurityGroupBuilder().
-		Name(securityGroup.Metadata.Name).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(securityGroup.Metadata.Tenant).Workspace(securityGroup.Metadata.Workspace).Region(securityGroup.Metadata.Region).
-		Spec(&securityGroup.Spec).
-		Build()
-	if err != nil {
-		return err
-	}
 
 	// Create a security group
 	if err := configurator.ConfigureCreateSecurityGroupStub(securityGroup, groupUrl, scenario.MockParams); err != nil {
@@ -358,7 +330,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the deleted security group rule
-	if err := configurator.ConfigureGetDeletingSecurityGroupRuleStub(groupRuleResponse, groupRuleUrl, scenario.MockParams); err != nil {
+	if err := configurator.ConfigureGetDeletingSecurityGroupRuleStub(securityGroupRule, groupRuleUrl, scenario.MockParams); err != nil {
 		return err
 	}
 	if err := configurator.ConfigureGetNotFoundStub(groupRuleUrl, scenario.MockParams); err != nil {
