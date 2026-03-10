@@ -118,14 +118,6 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params para
 		return err
 	}
 
-	// Get the created network
-	if err := configurator.ConfigureGetCreatingNetworkStub(network, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveNetworkStub(network, networkUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
 	// Create an internet gateway
 	if err := configurator.ConfigureCreateInternetGatewayStub(gateway, gatewayUrl, scenario.MockParams); err != nil {
 		return err
@@ -149,6 +141,14 @@ func ConfigureFoundationScenarioV1(scenario *mockscenarios.Scenario, params para
 		return err
 	}
 	if err := configurator.ConfigureGetActiveRouteTableStub(routeTable, routeUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the created network
+	if err := configurator.ConfigureGetCreatingNetworkStub(network, networkUrl, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveNetworkStub(network, networkUrl, scenario.MockParams); err != nil {
 		return err
 	}
 

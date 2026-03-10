@@ -247,6 +247,20 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
+	// Get the created network
+	networkWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(network.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
+		Name:      network.Metadata.Name,
+	}
+	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		},
+	)
+
 	// Update the route table
 	route.Spec = suite.params.RouteTableUpdated.Spec
 	expectRouteSpec.Routes = route.Spec.Routes
@@ -263,20 +277,6 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
-		},
-	)
-
-	// Get the created network
-	networkWRef := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(network.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
-		Name:      network.Metadata.Name,
-	}
-	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:       expectNetworkMeta,
-			Spec:           expectNetworkSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)

@@ -19,8 +19,6 @@ func ConfigureSecurityGroupRuleLifecycleScenarioV1(scenario *mockscenarios.Scena
 	workspaceURL := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	securityGroupRuleURL := generators.GenerateSecurityGroupRuleURL(sdkconsts.NetworkProviderV1Name, securityGroupRule.Metadata.Tenant, securityGroupRule.Metadata.Workspace, securityGroupRule.Metadata.Name)
 
-	// Workspace
-
 	// Create workspace
 	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
@@ -33,8 +31,6 @@ func ConfigureSecurityGroupRuleLifecycleScenarioV1(scenario *mockscenarios.Scena
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
-
-	// Security group rule
 
 	// Create a security group rule
 	if err := configurator.ConfigureCreateSecurityGroupRuleStub(securityGroupRule, securityGroupRuleURL, scenario.MockParams); err != nil {
