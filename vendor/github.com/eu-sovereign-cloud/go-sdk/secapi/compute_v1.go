@@ -5,23 +5,17 @@ import (
 
 	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
-
-	"k8s.io/utils/ptr"
 )
 
 // Interface
 
 type ComputeV1 interface {
 	// Instance Sku
-	ListSkus(ctx context.Context, tid TenantID) (*Iterator[schema.InstanceSku], error)
-	ListSkusWithFilters(ctx context.Context, tid TenantID, opts *ListOptions) (*Iterator[schema.InstanceSku], error)
-
+	ListSkus(ctx context.Context, filter TenantFilter) (*Iterator[schema.InstanceSku], error)
 	GetSku(ctx context.Context, tref TenantReference) (*schema.InstanceSku, error)
 
 	// Instance
-	ListInstances(ctx context.Context, tid TenantID, wid WorkspaceID) (*Iterator[schema.Instance], error)
-	ListInstancesWithFilters(ctx context.Context, tid TenantID, wid WorkspaceID, opts *ListOptions) (*Iterator[schema.Instance], error)
-
+	ListInstances(ctx context.Context, filter WorkspaceFilter) (*Iterator[schema.Instance], error)
 	GetInstance(ctx context.Context, wref WorkspaceReference) (*schema.Instance, error)
 	GetInstanceUntilState(ctx context.Context, wref WorkspaceReference, config ResourceObserverUntilValueConfig[schema.ResourceState]) (*schema.Instance, error)
 
@@ -53,11 +47,7 @@ func newComputeV1Unavailable() ComputeV1 {
 
 /// Instance Sku
 
-func (api *ComputeV1Unavailable) ListSkus(ctx context.Context, tid TenantID) (*Iterator[schema.InstanceSku], error) {
-	return nil, ErrProviderNotAvailable
-}
-
-func (api *ComputeV1Unavailable) ListSkusWithFilters(ctx context.Context, tid TenantID, opts *ListOptions) (*Iterator[schema.InstanceSku], error) {
+func (api *ComputeV1Unavailable) ListSkus(ctx context.Context, filter TenantFilter) (*Iterator[schema.InstanceSku], error) {
 	return nil, ErrProviderNotAvailable
 }
 
@@ -67,11 +57,7 @@ func (api *ComputeV1Unavailable) GetSku(ctx context.Context, tref TenantReferenc
 
 /// Instance
 
-func (api *ComputeV1Unavailable) ListInstances(ctx context.Context, tid TenantID, wid WorkspaceID) (*Iterator[schema.Instance], error) {
-	return nil, ErrProviderNotAvailable
-}
-
-func (api *ComputeV1Unavailable) ListInstancesWithFilters(ctx context.Context, tid TenantID, wid WorkspaceID, opts *ListOptions) (*Iterator[schema.Instance], error) {
+func (api *ComputeV1Unavailable) ListInstances(ctx context.Context, filter WorkspaceFilter) (*Iterator[schema.Instance], error) {
 	return nil, ErrProviderNotAvailable
 }
 
@@ -145,13 +131,29 @@ func newComputeV1Impl(client *RegionalClient, computeUrl string) (ComputeV1, err
 
 // Instance Sku
 
-func (api *ComputeV1Impl) ListSkus(ctx context.Context, tid TenantID) (*Iterator[schema.InstanceSku], error) {
+func (api *ComputeV1Impl) ListSkus(ctx context.Context, filter TenantFilter) (*Iterator[schema.InstanceSku], error) {
+	if err := filter.validate(); err != nil {
+		return nil, err
+	}
+
 	iter := Iterator[schema.InstanceSku]{
 		fn: func(ctx context.Context, skipToken *string) ([]schema.InstanceSku, *string, error) {
-			resp, err := api.compute.ListSkusWithResponse(ctx, schema.TenantPathParam(tid), &compute.ListSkusParams{
-				Accept:    ptr.To(compute.ListSkusParamsAccept(schema.AcceptHeaderJson)),
-				SkipToken: skipToken,
-			}, api.loadRequestHeaders)
+			var params *compute.ListSkusParams
+			if filter.Options == nil {
+				params = &compute.ListSkusParams{
+					Accept:    AcceptHeaderJson[compute.ListSkusParamsAccept](),
+					SkipToken: skipToken,
+				}
+			} else {
+				params = &compute.ListSkusParams{
+					Accept:    AcceptHeaderJson[compute.ListSkusParamsAccept](),
+					Labels:    filter.Options.Labels.BuildPtr(),
+					Limit:     filter.Options.Limit,
+					SkipToken: skipToken,
+				}
+			}
+
+			resp, err := api.compute.ListSkusWithResponse(ctx, schema.TenantPathParam(filter.Tenant), params, api.loadRequestHeaders)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -163,31 +165,6 @@ func (api *ComputeV1Impl) ListSkus(ctx context.Context, tid TenantID) (*Iterator
 			}
 		},
 	}
-
-	return &iter, nil
-}
-
-func (api *ComputeV1Impl) ListSkusWithFilters(ctx context.Context, tid TenantID, opts *ListOptions) (*Iterator[schema.InstanceSku], error) {
-	iter := Iterator[schema.InstanceSku]{
-		fn: func(ctx context.Context, skipToken *string) ([]schema.InstanceSku, *string, error) {
-			resp, err := api.compute.ListSkusWithResponse(ctx, schema.TenantPathParam(tid), &compute.ListSkusParams{
-				Accept:    ptr.To(compute.ListSkusParamsAccept(schema.AcceptHeaderJson)),
-				Labels:    opts.Labels.BuildPtr(),
-				Limit:     opts.Limit,
-				SkipToken: skipToken,
-			}, api.loadRequestHeaders)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			if checkSuccessGetStatusCode(resp.StatusCode()) {
-				return resp.JSON200.Items, resp.JSON200.Metadata.SkipToken, nil
-			} else {
-				return nil, nil, mapStatusCodeToError(resp.StatusCode())
-			}
-		},
-	}
-
 	return &iter, nil
 }
 
@@ -210,13 +187,29 @@ func (api *ComputeV1Impl) GetSku(ctx context.Context, tref TenantReference) (*sc
 
 // Instance
 
-func (api *ComputeV1Impl) ListInstances(ctx context.Context, tid TenantID, wid WorkspaceID) (*Iterator[schema.Instance], error) {
+func (api *ComputeV1Impl) ListInstances(ctx context.Context, filter WorkspaceFilter) (*Iterator[schema.Instance], error) {
+	if err := filter.validate(); err != nil {
+		return nil, err
+	}
+
 	iter := Iterator[schema.Instance]{
 		fn: func(ctx context.Context, skipToken *string) ([]schema.Instance, *string, error) {
-			resp, err := api.compute.ListInstancesWithResponse(ctx, schema.TenantPathParam(tid), schema.WorkspacePathParam(wid), &compute.ListInstancesParams{
-				Accept:    ptr.To(compute.ListInstancesParamsAccept(schema.AcceptHeaderJson)),
-				SkipToken: skipToken,
-			}, api.loadRequestHeaders)
+			var params *compute.ListInstancesParams
+			if filter.Options == nil {
+				params = &compute.ListInstancesParams{
+					Accept:    AcceptHeaderJson[compute.ListInstancesParamsAccept](),
+					SkipToken: skipToken,
+				}
+			} else {
+				params = &compute.ListInstancesParams{
+					Accept:    AcceptHeaderJson[compute.ListInstancesParamsAccept](),
+					Labels:    filter.Options.Labels.BuildPtr(),
+					Limit:     filter.Options.Limit,
+					SkipToken: skipToken,
+				}
+			}
+
+			resp, err := api.compute.ListInstancesWithResponse(ctx, schema.TenantPathParam(filter.Tenant), schema.WorkspacePathParam(filter.Workspace), params, api.loadRequestHeaders)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -228,31 +221,6 @@ func (api *ComputeV1Impl) ListInstances(ctx context.Context, tid TenantID, wid W
 			}
 		},
 	}
-
-	return &iter, nil
-}
-
-func (api *ComputeV1Impl) ListInstancesWithFilters(ctx context.Context, tid TenantID, wid WorkspaceID, opts *ListOptions) (*Iterator[schema.Instance], error) {
-	iter := Iterator[schema.Instance]{
-		fn: func(ctx context.Context, skipToken *string) ([]schema.Instance, *string, error) {
-			resp, err := api.compute.ListInstancesWithResponse(ctx, schema.TenantPathParam(tid), schema.WorkspacePathParam(wid), &compute.ListInstancesParams{
-				Accept:    ptr.To(compute.ListInstancesParamsAccept(schema.AcceptHeaderJson)),
-				Labels:    opts.Labels.BuildPtr(),
-				Limit:     opts.Limit,
-				SkipToken: skipToken,
-			}, api.loadRequestHeaders)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			if checkSuccessGetStatusCode(resp.StatusCode()) {
-				return resp.JSON200.Items, resp.JSON200.Metadata.SkipToken, nil
-			} else {
-				return nil, nil, mapStatusCodeToError(resp.StatusCode())
-			}
-		},
-	}
-
 	return &iter, nil
 }
 
@@ -289,7 +257,7 @@ func (api *ComputeV1Impl) GetInstanceUntilState(ctx context.Context, wref Worksp
 			}
 
 			if checkSuccessGetStatusCode(resp.StatusCode()) {
-				return *resp.JSON200.Status.State, resp.JSON200, nil
+				return resp.JSON200.Status.State, resp.JSON200, nil
 			} else {
 				return "", nil, mapStatusCodeToError(resp.StatusCode())
 			}
