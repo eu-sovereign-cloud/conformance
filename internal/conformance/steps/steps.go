@@ -22,6 +22,13 @@ type ResponseExpects[M types.MetadataType, E types.SpecType] struct {
 	ResourceStates []schema.ResourceState
 }
 
+type ResponseExpectsWithCondition[M types.MetadataType, E types.SpecType] struct {
+	Labels         schema.Labels
+	Metadata       *M
+	Spec           *E
+	ResourceStatus types.ResourceStatus
+}
+
 // Steps
 
 /// Create Or Update
@@ -184,6 +191,33 @@ type getTenantResourceParams[R types.ResourceType, M types.MetadataType, E types
 	expectedSpec           *E
 	verifySpecFunc         func(provider.StepCtx, *E, *E)
 }
+type getTenantResourceParamsWithConditions[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
+	stepName               string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName)
+	operationName          constants.OperationName
+	tref                   secapi.TenantReference
+	getValueFunc           func(context.Context, secapi.TenantReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (wrappers.ResourceWrapper[R, M, E, S], error)
+	expectedResourceStatus types.ResourceStatus
+	expectedLabels         schema.Labels
+	expectedMetadata       *M
+	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
+	expectedSpec           *E
+	verifySpecFunc         func(provider.StepCtx, *E, *E)
+}
+
+type getTenantResourceWithConditionParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
+	stepName               string
+	stepParamsFunc         func(provider.StepCtx, constants.OperationName)
+	operationName          constants.OperationName
+	tref                   secapi.TenantReference
+	getValueFunc           func(context.Context, secapi.TenantReference, secapi.ResourceObserverUntilValueConfig[schema.Status]) (wrappers.ResourceWrapper[R, M, E, S], error)
+	expectedResourceStatus []schema.Status
+	expectedLabels         schema.Labels
+	expectedMetadata       *M
+	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
+	expectedSpec           *E
+	verifySpecFunc         func(provider.StepCtx, *E, *E)
+}
 
 func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
 	t provider.T, suite *suites.TestSuite, params getTenantResourceParams[R, M, E, S],
@@ -203,6 +237,31 @@ func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.S
 				expectedSpec:           params.expectedSpec,
 				verifySpecFunc:         params.verifySpecFunc,
 				expectedResourceStates: params.expectedResourceStates,
+			},
+		)
+		requireNotNilResponse(sCtx, resp)
+	})
+	return resp
+}
+
+func getTenantResourceWithConditionStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
+	t provider.T, suite *suites.TestSuite, params getTenantResourceParamsWithConditions[R, M, E, S],
+) *R {
+	var resp *R
+	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+		params.stepParamsFunc(sCtx, params.operationName)
+
+		resp = getResourceUntilValueWithConditionStep(t, suite, sCtx,
+			getResourceUntilValueConditionParams[R, M, E, S, secapi.TenantReference, schema.ResourceState]{
+				reference:              params.tref,
+				observerExpectedValues: params.expectedResourceStatus.State,
+				getValueFunc:           params.getValueFunc,
+				expectedLabels:         params.expectedLabels,
+				expectedMetadata:       params.expectedMetadata,
+				verifyMetadataFunc:     params.verifyMetadataFunc,
+				expectedSpec:           params.expectedSpec,
+				verifySpecFunc:         params.verifySpecFunc,
+				expectedResourceStatus: params.expectedResourceStatus,
 			},
 		)
 		requireNotNilResponse(sCtx, resp)
@@ -300,6 +359,18 @@ type getResourceUntilValueParams[R types.ResourceType, M types.MetadataType, E t
 	expectedResourceStates []schema.ResourceState
 }
 
+type getResourceUntilValueConditionParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType, F secapi.Reference, V any] struct {
+	reference              F
+	observerExpectedValues []V
+	getValueFunc           func(context.Context, F, secapi.ResourceObserverUntilValueConfig[V]) (wrappers.ResourceWrapper[R, M, E, S], error)
+	expectedLabels         schema.Labels
+	expectedMetadata       *M
+	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
+	expectedSpec           *E
+	verifySpecFunc         func(provider.StepCtx, *E, *E)
+	expectedResourceStatus types.ResourceStatus
+}
+
 func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType, F secapi.Reference, V any](
 	t provider.T, suite *suites.TestSuite, sCtx provider.StepCtx, params getResourceUntilValueParams[R, M, E, S, F, V],
 ) *R {
@@ -335,6 +406,52 @@ func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E typ
 		suite.VerifyStatusStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
 	} else {
 		log.Fatalln("Status verification failed: expected or actual Status is nil")
+	}
+
+	return resp.GetResource()
+}
+
+func getResourceUntilValueWithConditionStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType, F secapi.Reference, V any](
+	t provider.T, suite *suites.TestSuite, sCtx provider.StepCtx, params getResourceUntilValueConditionParams[R, M, E, S, F, V],
+) *R {
+	config := secapi.ResourceObserverUntilValueConfig[V]{
+		ExpectedValues: params.observerExpectedValues,
+		Delay:          time.Duration(suite.BaseDelay) * time.Second,
+		Interval:       time.Duration(suite.BaseInterval) * time.Second,
+		MaxAttempts:    suite.MaxAttempts,
+	}
+
+	resp, err := params.getValueFunc(t.Context(), params.reference, config)
+	requireNoError(sCtx, err)
+	requireNotNilResponse(sCtx, resp)
+
+	// Label
+	if params.expectedLabels != nil {
+		suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.GetLabels())
+	}
+
+	// Metadata
+	if params.expectedMetadata != nil {
+		params.verifyMetadataFunc(sCtx, params.expectedMetadata, resp.GetMetadata())
+	} else {
+		log.Fatalln("Metadata verification failed: expected or actual metadata is nil")
+	}
+
+	if params.expectedSpec != nil {
+		params.verifySpecFunc(sCtx, params.expectedSpec, resp.GetSpec())
+	}
+
+	// Status
+	if len(params.expectedResourceStatus.State) > 0 {
+		suite.VerifyStatusStep(sCtx, params.expectedResourceStatus.State, types.GetStatusState(resp.GetStatus()))
+	} else {
+		log.Fatalln("Status verification failed: expected or actual Status is nil")
+	}
+
+	// Conditions
+	if len(params.expectedResourceStatus.Conditions) > 0 {
+		actualConditions := types.GetStatusConditions(resp.GetStatus())
+		suite.VerifyStatusConditionsStep(sCtx, params.expectedResourceStatus.Conditions, actualConditions)
 	}
 
 	return resp.GetResource()

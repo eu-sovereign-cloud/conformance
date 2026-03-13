@@ -11,6 +11,7 @@ import (
 	mockauthorization "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/authorization"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	"github.com/eu-sovereign-cloud/conformance/pkg/types"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
@@ -117,10 +118,13 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   roleAssign.Metadata.Name,
 	}
 	roleAssign = stepsBuilder.GetRoleAssignmentV1Step("Get the created role assignment", suite.Client.AuthorizationV1, roleAssignTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-			Metadata:       expectRoleAssignMeta,
-			Spec:           expectRoleAssignSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+			Metadata: expectRoleAssignMeta,
+			Spec:     expectRoleAssignSpec,
+			ResourceStatus: types.ResourceStatus{
+				State:      []schema.ResourceState{schema.ResourceStateActive},
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 
@@ -137,10 +141,13 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated role assignment
 	roleAssign = stepsBuilder.GetRoleAssignmentV1Step("Get the updated role assignment", suite.Client.AuthorizationV1, roleAssignTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-			Metadata:       expectRoleAssignMeta,
-			Spec:           expectRoleAssignSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+			Metadata: expectRoleAssignMeta,
+			Spec:     expectRoleAssignSpec,
+			ResourceStatus: types.ResourceStatus{
+				State:      []schema.ResourceState{schema.ResourceStateActive},
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 

@@ -22,7 +22,7 @@ func (configurator *Configurator) ConfigureCreateRoleStub(response *schema.Role,
 
 func (configurator *Configurator) ConfigureUpdateRoleStub(response *schema.Role, url string, params *mock.MockParams) error {
 	setModifiedGlobalTenantResourceMetadata(response.Metadata)
-	setResourceState(response.Status, schema.ResourceStateActive)
+	//setResourceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (configurator *Configurator) ConfigureCreateRoleAssignmentStub(response *sc
 
 func (configurator *Configurator) ConfigureUpdateRoleAssignmentStub(response *schema.RoleAssignment, url string, params *mock.MockParams) error {
 	setModifiedGlobalTenantResourceMetadata(response.Metadata)
-	setResourceState(response.Status, schema.ResourceStateActive)
+	//setResourceState(response.Status, schema.ResourceStateUpdating)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

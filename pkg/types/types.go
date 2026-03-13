@@ -2,6 +2,11 @@ package types
 
 import "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 
+type ResourceStatus struct {
+	State      []schema.ResourceState
+	Conditions []schema.StatusCondition
+}
+
 type ResourceType interface {
 	schema.Region |
 		schema.Role |
@@ -95,6 +100,39 @@ func GetStatusState[S StatusType](status *S) *schema.ResourceState {
 		return v.State
 	case schema.SecurityGroupStatus:
 		return v.State
+	default:
+		return nil
+	}
+}
+
+func GetStatusConditions[S StatusType](status *S) []schema.StatusCondition {
+	if status == nil {
+		return nil
+	}
+
+	switch v := any(*status).(type) {
+	case schema.Status:
+		return v.Conditions
+	case schema.WorkspaceStatus:
+		return v.Conditions
+	case schema.BlockStorageStatus:
+		return v.Conditions
+	case schema.ImageStatus:
+		return v.Conditions
+	case schema.InstanceStatus:
+		return v.Conditions
+	case schema.NetworkStatus:
+		return v.Conditions
+	case schema.SubnetStatus:
+		return v.Conditions
+	case schema.RouteTableStatus:
+		return v.Conditions
+	case schema.NicStatus:
+		return v.Conditions
+	case schema.PublicIpStatus:
+		return v.Conditions
+	case schema.SecurityGroupStatus:
+		return v.Conditions
 	default:
 		return nil
 	}

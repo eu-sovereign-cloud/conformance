@@ -34,6 +34,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the role
+	params.RoleUpdated.Status = role.Status
 	role = params.RoleUpdated
 	if err := configurator.ConfigureUpdateRoleStub(role, roleUrl, scenario.MockParams); err != nil {
 		return err
@@ -61,6 +62,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the role assignment
+	params.RoleAssignmentUpdated.Status = roleAssignment.Status
 	roleAssignment = params.RoleAssignmentUpdated
 	if err := configurator.ConfigureUpdateRoleAssignmentStub(roleAssignment, roleAssignmentUrl, scenario.MockParams); err != nil {
 		return err

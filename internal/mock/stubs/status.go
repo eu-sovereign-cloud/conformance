@@ -3,6 +3,7 @@ package stubs
 import (
 	"time"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -15,8 +16,10 @@ func addStatusCondition(conditions []schema.StatusCondition, state schema.Resour
 
 func newResourceStatus(state schema.ResourceState) *schema.Status {
 	return &schema.Status{
-		State:      &state,
-		Conditions: []schema.StatusCondition{},
+		State: &state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
 	}
 }
 
