@@ -152,6 +152,10 @@ func GenerateSecurityGroupRuleURL(provider, tenant, workspace, securityGroupRule
 	return fmt.Sprintf(securityGroupRuleURL, provider, tenant, workspace, securityGroupRule)
 }
 
+func GenerateSecurityGroupRuleListURL(provider, tenant, workspace string) string {
+	return fmt.Sprintf(securityGroupRuleListURL, provider, tenant, workspace)
+}
+
 func GenerateSecurityGroupURL(provider, tenant, workspace, securityGroup string) string {
 	return fmt.Sprintf(securityGroupURL, provider, tenant, workspace, securityGroup)
 }

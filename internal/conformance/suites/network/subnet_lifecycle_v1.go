@@ -303,7 +303,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the subnet
-	subnet.Spec = suite.params.SubnetUpdated.Spec
+	subnet = suite.params.SubnetUpdated
 	expectSubnetSpec.Zone = subnet.Spec.Zone
 	stepsBuilder.CreateOrUpdateSubnetV1Step("Update the subnet", suite.Client.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{

@@ -262,7 +262,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the route table
-	route.Spec = suite.params.RouteTableUpdated.Spec
+	route = suite.params.RouteTableUpdated
 	expectRouteSpec.Routes = route.Spec.Routes
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Update the route table", suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
