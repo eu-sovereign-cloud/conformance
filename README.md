@@ -136,3 +136,11 @@ secatest run \
   --scenarios.filter=Compute.V1.LifeCycle \
   --report.results.path=./resports/result
 ```
+
+---
+
+## 💰 Funding
+
+[![Funding](https://github.com/eu-sovereign-cloud/.github/raw/main/profile/SECA-Funding-Logo.png)](https://github.com/eu-sovereign-cloud)
+
+This open-source project is sponsored by **Aruba & IONOS SE** and has received public funding from the European Union NextGenerationEU within the IPCEI-CIS program.
