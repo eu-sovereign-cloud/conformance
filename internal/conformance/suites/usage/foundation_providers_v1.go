@@ -17,7 +17,6 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"k8s.io/utils/ptr"
 )
 
 type FoundationProvidersV1TestSuite struct {
@@ -140,7 +139,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 			Roles: []string{roleName},
 			Subs:  []string{roleAssignmentSub},
 			Scopes: []schema.RoleAssignmentScope{
-				{Tenants: &[]string{suite.Tenant}},
+				{Tenants: []string{suite.Tenant}},
 			},
 		}).Build()
 	if err != nil {
@@ -205,7 +204,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			SkuRef:        *networkSkuRefObj,
 			RouteTableRef: *routeTableRefObj,
 		}).Build()
@@ -218,7 +217,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InternetGatewaySpec{
-			EgressOnly: ptr.To(false),
+			EgressOnly: false,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Internet Gateway: %v", err)
@@ -242,7 +241,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: &subnetCidr},
+			Cidr: schema.Cidr{Ipv4: subnetCidr},
 			Zone: zone,
 		}).Build()
 	if err != nil {
@@ -255,7 +254,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NicSpec{
 			Addresses:    []string{nicAddress1},
-			PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+			PublicIpRefs: []schema.Reference{*publicIpRefObj},
 			SubnetRef:    *subnetRefObj,
 		}).Build()
 	if err != nil {
@@ -268,7 +267,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
-			Address: ptr.To(publicIpAddress1),
+			Address: publicIpAddress1,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Public IP: %v", err)
@@ -279,7 +278,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.SecurityGroupSpec{
-			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group: %v", err)

@@ -11,18 +11,23 @@ func NewBlockStorageWrapper(resource *schema.BlockStorage) *BlockStorageWrapper 
 		BaseResourceWrapper: newBaseResourceWrapper(resource),
 	}
 }
+
 func (wrapper *BlockStorageWrapper) GetResource() *schema.BlockStorage {
 	return wrapper.resource
 }
+
 func (wrapper *BlockStorageWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
 }
+
 func (wrapper *BlockStorageWrapper) GetMetadata() *schema.RegionalWorkspaceResourceMetadata {
 	return wrapper.resource.Metadata
 }
+
 func (wrapper *BlockStorageWrapper) GetSpec() *schema.BlockStorageSpec {
 	return &wrapper.resource.Spec
 }
+
 func (wrapper *BlockStorageWrapper) GetStatus() *schema.BlockStorageStatus {
 	return wrapper.resource.Status
 }
@@ -36,18 +41,23 @@ func NewImageWrapper(resource *schema.Image) *ImageWrapper {
 		BaseResourceWrapper: newBaseResourceWrapper(resource),
 	}
 }
+
 func (wrapper *ImageWrapper) GetResource() *schema.Image {
 	return wrapper.resource
 }
+
 func (wrapper *ImageWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
 }
+
 func (wrapper *ImageWrapper) GetMetadata() *schema.RegionalResourceMetadata {
 	return wrapper.resource.Metadata
 }
+
 func (wrapper *ImageWrapper) GetSpec() *schema.ImageSpec {
 	return &wrapper.resource.Spec
 }
+
 func (wrapper *ImageWrapper) GetStatus() *schema.ImageStatus {
 	return wrapper.resource.Status
 }

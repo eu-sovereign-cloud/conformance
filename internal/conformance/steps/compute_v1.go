@@ -133,20 +133,17 @@ func (configurator *StepsConfigurator) DeleteInstanceV1Step(stepName string, api
 }
 
 func (configurator *StepsConfigurator) ListInstanceV1Step(
-	stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
+	stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference, opts *secapi.FilterOptions,
 ) []*schema.Instance {
 	var resp []*schema.Instance
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "ListInstances with parameters", wref.Name)
-		var iter *secapi.Iterator[schema.Instance]
-		var err error
-		if opts != nil {
-			iter, err = api.ListInstancesWithFilters(context.Background(), wref.Tenant, wref.Workspace, opts)
-		} else {
-			iter, err = api.ListInstances(context.Background(), wref.Tenant, wref.Workspace)
-		}
+
+		iter, err := api.ListInstances(context.Background(), secapi.WorkspaceFilter{Tenant: wref.Tenant, Workspace: wref.Workspace, Options: opts})
 		requireNoError(sCtx, err)
+
+		// Iterate through all items
 		resp, err := iter.All(configurator.t.Context())
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
@@ -156,20 +153,14 @@ func (configurator *StepsConfigurator) ListInstanceV1Step(
 }
 
 func (configurator *StepsConfigurator) ListSkusV1Step(
-	stepName string, api secapi.ComputeV1, tref secapi.TenantReference, opts *secapi.ListOptions,
+	stepName string, api secapi.ComputeV1, tref secapi.TenantReference, opts *secapi.FilterOptions,
 ) []*schema.InstanceSku {
 	var resp []*schema.InstanceSku
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "ListSkus", tref.Name)
 
-		var iter *secapi.Iterator[schema.InstanceSku]
-		var err error
-		if opts != nil {
-			iter, err = api.ListSkusWithFilters(configurator.t.Context(), tref.Tenant, opts)
-		} else {
-			iter, err = api.ListSkus(configurator.t.Context(), tref.Tenant)
-		}
+		iter, err := api.ListSkus(configurator.t.Context(), secapi.TenantFilter{Tenant: tref.Tenant, Options: opts})
 		requireNoError(sCtx, err)
 
 		// Iterate through all items

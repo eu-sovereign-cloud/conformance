@@ -224,16 +224,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List instances with limit
 	stepsBuilder.ListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewFilterOptions().WithLimit(1))
 
 	// List Instances with label
 	stepsBuilder.ListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Instances with limit and label
 	stepsBuilder.ListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Skus
@@ -243,16 +243,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List skus with limit
 	stepsBuilder.ListSkusV1Step("Get list of skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewFilterOptions().WithLimit(1))
 
 	// List skus with label
 	stepsBuilder.ListSkusV1Step("Get List skus with label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
 
 	// List skus with limit and label
 	stepsBuilder.ListSkusV1Step("Get list of skus with limit and label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
 
 	// Delete all instances

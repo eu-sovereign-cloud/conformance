@@ -71,19 +71,13 @@ func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, ap
 }
 
 func (configurator *StepsConfigurator) ListBlockStorageV1Step(
-	stepName string, api secapi.StorageV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
+	stepName string, api secapi.StorageV1, wref secapi.WorkspaceReference, opts *secapi.FilterOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListBlockStorage", string(wref.Workspace))
 
-		var iter *secapi.Iterator[schema.BlockStorage]
-		var err error
-		if opts != nil {
-			iter, err = api.ListBlockStoragesWithFilters(configurator.t.Context(), wref.Tenant, wref.Workspace, opts)
-		} else {
-			iter, err = api.ListBlockStorages(configurator.t.Context(), wref.Tenant, wref.Workspace)
-		}
+		iter, err := api.ListBlockStorages(configurator.t.Context(), secapi.WorkspaceFilter{Tenant: wref.Tenant, Workspace: wref.Workspace, Options: opts})
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)
@@ -174,18 +168,12 @@ func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api secap
 }
 
 func (configurator *StepsConfigurator) ListImageV1Step(
-	stepName string, api secapi.StorageV1, tref secapi.TenantReference, opts *secapi.ListOptions,
+	stepName string, api secapi.StorageV1, tref secapi.TenantReference, opts *secapi.FilterOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListImage", tref.Name)
-		var iter *secapi.Iterator[schema.Image]
-		var err error
-		if opts != nil {
-			iter, err = api.ListImagesWithFilters(configurator.t.Context(), tref.Tenant, opts)
-		} else {
-			iter, err = api.ListImages(configurator.t.Context(), tref.Tenant)
-		}
+		iter, err := api.ListImages(configurator.t.Context(), secapi.TenantFilter{Tenant: tref.Tenant, Options: opts})
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)
@@ -222,18 +210,12 @@ func (configurator *StepsConfigurator) DeleteImageV1Step(stepName string, api se
 }
 
 func (configurator *StepsConfigurator) ListSkuV1Step(
-	stepName string, api secapi.StorageV1, tref secapi.TenantReference, opts *secapi.ListOptions,
+	stepName string, api secapi.StorageV1, tref secapi.TenantReference, opts *secapi.FilterOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListSku", tref.Name)
-		var iter *secapi.Iterator[schema.StorageSku]
-		var err error
-		if opts != nil {
-			iter, err = api.ListSkusWithFilters(configurator.t.Context(), tref.Tenant, opts)
-		} else {
-			iter, err = api.ListSkus(configurator.t.Context(), tref.Tenant)
-		}
+		iter, err := api.ListSkus(configurator.t.Context(), secapi.TenantFilter{Tenant: tref.Tenant, Options: opts})
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)

@@ -938,7 +938,7 @@ func (builder *SecurityGroupBuilder) validateSpec() error {
 	}
 
 	// Validate each rule
-	for i, rule := range *builder.spec.Rules {
+	for i, rule := range builder.spec.Rules {
 		if err := validateRequired(builder.validator,
 			field(fmt.Sprintf("spec.Rules[%d].Direction", i), rule.Direction),
 		); err != nil {

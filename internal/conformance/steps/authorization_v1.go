@@ -70,20 +70,13 @@ func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi
 }
 
 func (configurator *StepsConfigurator) ListRoleV1Step(
-	stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference, opts *secapi.ListOptions,
+	stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference, opts *secapi.FilterOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetAuthorizationV1StepParams(sCtx, "ListRole")
 
-		var iter *secapi.Iterator[schema.Role]
-
-		var err error
-		if opts != nil {
-			iter, err = api.ListRolesWithFilters(configurator.t.Context(), tref.Tenant, opts)
-		} else {
-			iter, err = api.ListRoles(configurator.t.Context(), tref.Tenant)
-		}
+		iter, err := api.ListRoles(configurator.t.Context(), secapi.TenantFilter{Tenant: tref.Tenant, Options: opts})
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)
@@ -174,19 +167,13 @@ func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, 
 }
 
 func (configurator *StepsConfigurator) ListRoleAssignmentsV1(
-	stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference, opts *secapi.ListOptions,
+	stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference, opts *secapi.FilterOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetAuthorizationV1StepParams(sCtx, "ListRoleAssignment")
 
-		var iter *secapi.Iterator[schema.RoleAssignment]
-		var err error
-		if opts != nil {
-			iter, err = api.ListRoleAssignmentsWithFilters(configurator.t.Context(), tref.Tenant, opts)
-		} else {
-			iter, err = api.ListRoleAssignments(configurator.t.Context(), tref.Tenant)
-		}
+		iter, err := api.ListRoleAssignments(configurator.t.Context(), secapi.TenantFilter{Tenant: tref.Tenant, Options: opts})
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)
