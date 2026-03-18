@@ -22,6 +22,8 @@ type ParametersHolder struct {
 	ScenariosPublicIps string
 
 	ReportResultsPath string
+	SummaryOutputPath string
+	SummaryFormat     string
 
 	BaseDelay    int
 	BaseInterval int
