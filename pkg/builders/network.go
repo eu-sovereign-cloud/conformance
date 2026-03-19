@@ -932,18 +932,15 @@ func NewSecurityGroupBuilder() *SecurityGroupBuilder {
 func (builder *SecurityGroupBuilder) validateSpec() error {
 	if err := validateRequired(builder.validator,
 		field("spec", builder.spec),
-		field("spec.Rules", builder.spec.Rules),
 	); err != nil {
 		return err
 	}
 
-	// Validate each rule
-	for i, rule := range *builder.spec.Rules {
-		if err := validateRequired(builder.validator,
-			field(fmt.Sprintf("spec.Rules[%d].Direction", i), rule.Direction),
-		); err != nil {
-			return err
-		}
+	if err := validateOneRequired(builder.validator,
+		field("spec.Rules", builder.spec.Rules),
+		field("spec.RuleRefs", builder.spec.RuleRefs),
+	); err != nil {
+		return err
 	}
 
 	return nil

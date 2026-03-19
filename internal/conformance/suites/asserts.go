@@ -263,11 +263,15 @@ func (suite *TestSuite) VerifySecurityGroupRuleSpecStep(ctx provider.StepCtx, ex
 
 func (suite *TestSuite) VerifySecurityGroupSpecStep(ctx provider.StepCtx, expected *schema.SecurityGroupSpec, actual *schema.SecurityGroupSpec) {
 	ctx.WithNewStep("Verify SecurityGroupSpec", func(stepCtx provider.StepCtx) {
-		stepCtx.Require().Equal(len(*expected.Rules), len(*actual.Rules), "Rule list length should match expected")
-		for i := 0; i < len(*expected.Rules); i++ {
-			expectedRule := (*expected.Rules)[i]
-			actualRule := (*actual.Rules)[i]
-			stepCtx.Require().Equal(expectedRule.Direction, actualRule.Direction, fmt.Sprintf("Rule [%d] Direction should match expected", i))
+		if actual.Rules != nil && expected.Rules != nil {
+			stepCtx.Require().Equal(len(*expected.Rules), len(*actual.Rules), "Rule list length should match expected")
+			for i := 0; i < len(*expected.Rules); i++ {
+				expectedRule := (*expected.Rules)[i]
+				actualRule := (*actual.Rules)[i]
+				stepCtx.Require().Equal(expectedRule.Direction, actualRule.Direction, fmt.Sprintf("Rule [%d] Direction should match expected", i))
+			}
+		} else {
+			stepCtx.Require().Equal(*expected.RuleRefs, *actual.RuleRefs, "RuleRefs should match expected")
 		}
 	})
 }

@@ -112,6 +112,9 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	publicIpName := generators.GeneratePublicIpName()
 	publicIpRefObj := generators.GeneratePublicIpRefObject(publicIpName)
 
+	securityGroupRuleName := generators.GenerateSecurityGroupRuleName()
+	securityGroupRuleRefObj := generators.GenerateSecurityGroupRuleRefObject(securityGroupRuleName)
+
 	securityGroupName := generators.GenerateSecurityGroupName()
 
 	blockStorageSize := constants.BlockStorageInitialSize
@@ -305,30 +308,6 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Public IP: %v", err)
 	}
 
-	securityGroupInitial, err := builders.NewSecurityGroupBuilder().
-		Name(securityGroupName).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Spec(&schema.SecurityGroupSpec{
-			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build Security Group: %v", err)
-	}
-
-	securityGroupUpdated, err := builders.NewSecurityGroupBuilder().
-		Name(securityGroupName).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Spec(&schema.SecurityGroupSpec{
-			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionEgress}},
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build Security Group: %v", err)
-	}
-
-	securityGroupRuleName := generators.GenerateSecurityGroupRuleName()
-
 	securityGroupRuleInitial, err := builders.NewSecurityGroupRuleBuilder().
 		Name(securityGroupRuleName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
@@ -347,6 +326,28 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group Rule: %v", err)
+	}
+
+	securityGroupInitial, err := builders.NewSecurityGroupBuilder().
+		Name(securityGroupName).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Spec(&schema.SecurityGroupSpec{
+			RuleRefs: &[]schema.Reference{*securityGroupRuleRefObj},
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Security Group: %v", err)
+	}
+
+	securityGroupUpdated, err := builders.NewSecurityGroupBuilder().
+		Name(securityGroupName).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Spec(&schema.SecurityGroupSpec{
+			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Security Group: %v", err)
 	}
 
 	params := &params.NetworkProviderLifeCycleV1Params{
@@ -790,9 +791,10 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the security group
-	groupRules := *group.Spec.Rules
-	groupRules[0] = schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionEgress}
-	expectGroupSpec.Rules = group.Spec.Rules
+
+	group.Spec.Rules = &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}}
+	expectGroupSpec = &group.Spec
+
 	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Update the security group", suite.Client.NetworkV1, group,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			Metadata:       expectGroupMeta,
