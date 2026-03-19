@@ -98,15 +98,15 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, nil)
 
 	// List workspaces with limit
-	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, secapi.NewFilterOptions().WithLimit(1))
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, secapi.NewListOptions().WithLimit(1))
 
 	// List workspaces with label
 	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List workspaces with label and limit
 	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all workspaces
 	for _, workspace := range workspaces {

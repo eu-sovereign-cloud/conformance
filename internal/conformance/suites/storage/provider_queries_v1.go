@@ -233,16 +233,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List block storages with limit
 	stepsBuilder.ListBlockStorageV1Step("Get List block storage with limit", suite.Client.StorageV1, wref,
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List block storages with label
 	stepsBuilder.ListBlockStorageV1Step("Get list of block storage with label", suite.Client.StorageV1, wref,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
 
 	// List block storages with limit and label
 	stepsBuilder.ListBlockStorageV1Step("Get list of block storage with limit and label", suite.Client.StorageV1, wref,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
 
 	// Image
@@ -270,16 +270,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List images with limit
 	stepsBuilder.ListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List images with label
 	stepsBuilder.ListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List images with limit and label
 	stepsBuilder.ListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Skus
@@ -289,7 +289,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List Skus with limit
 	stepsBuilder.ListSkuV1Step("Get list of skus", suite.Client.StorageV1, tref,
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// Delete all images
 	for _, image := range images {

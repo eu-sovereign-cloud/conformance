@@ -66,12 +66,12 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api s
 }
 
 func (configurator *StepsConfigurator) ListWorkspaceV1Step(
-	stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference, opts *secapi.FilterOptions,
+	stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListWorkspace", string(tref.Tenant))
-		iter, err := api.ListWorkspaces(configurator.t.Context(), secapi.TenantFilter{Tenant: tref.Tenant, Options: opts})
+		iter, err := api.ListWorkspacesWithOptions(configurator.t.Context(), secapi.TenantPath{Tenant: tref.Tenant}, opts)
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)

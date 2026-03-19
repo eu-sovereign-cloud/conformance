@@ -70,13 +70,13 @@ func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi
 }
 
 func (configurator *StepsConfigurator) ListRoleV1Step(
-	stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference, opts *secapi.FilterOptions,
+	stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetAuthorizationV1StepParams(sCtx, "ListRole")
 
-		iter, err := api.ListRoles(configurator.t.Context(), secapi.TenantFilter{Tenant: tref.Tenant, Options: opts})
+		iter, err := api.ListRolesWithOptions(configurator.t.Context(), secapi.TenantPath{Tenant: tref.Tenant}, opts)
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)
@@ -167,13 +167,13 @@ func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, 
 }
 
 func (configurator *StepsConfigurator) ListRoleAssignmentsV1(
-	stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference, opts *secapi.FilterOptions,
+	stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetAuthorizationV1StepParams(sCtx, "ListRoleAssignment")
 
-		iter, err := api.ListRoleAssignments(configurator.t.Context(), secapi.TenantFilter{Tenant: tref.Tenant, Options: opts})
+		iter, err := api.ListRoleAssignmentsWithOptions(configurator.t.Context(), secapi.TenantPath{Tenant: tref.Tenant}, opts)
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)

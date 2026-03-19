@@ -459,16 +459,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List networks with limit
 	stepsBuilder.ListNetworkV1Step("Get list of Network with limit", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List networks with label
 	stepsBuilder.ListNetworkV1Step("Get list of Network with label", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List networks with limit and label
 	stepsBuilder.ListNetworkV1Step("Get list of Network with limit and label", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Skus
@@ -478,7 +478,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List skus with limit
 	stepsBuilder.ListNetworkSkusV1Step("Get list of skus", suite.Client.NetworkV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// Internet gateway
 	gateways := suite.params.InternetGateways
@@ -502,16 +502,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List internet gateways with limit
 	stepsBuilder.ListInternetGatewayV1Step("Get list of Internet Gateway with limit", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List internet gateways with label
 	stepsBuilder.ListInternetGatewayV1Step("Get list of Internet Gateway with label", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List internet gateways with limit and label
 	stepsBuilder.ListInternetGatewayV1Step("Get list of Internet Gateway with limit and label", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Route table
@@ -541,16 +541,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List route tables with limit
 	stepsBuilder.ListRouteTableV1Step("Get list of Route table with limit", suite.Client.NetworkV1, *nref,
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List route tables with label
 	stepsBuilder.ListRouteTableV1Step("Get list of Route table with label", suite.Client.NetworkV1, *nref,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List route tables with limit and label
 	stepsBuilder.ListRouteTableV1Step("Get list of Route table with limit and label", suite.Client.NetworkV1, *nref,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Subnet
@@ -574,16 +574,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List subnets with limit
 	stepsBuilder.ListSubnetV1Step("Get list of Subnet with limit", suite.Client.NetworkV1, *nref,
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List subnets with label
 	stepsBuilder.ListSubnetV1Step("Get list of Subnet with label", suite.Client.NetworkV1, *nref,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List subnets with limit and label
 	stepsBuilder.ListSubnetV1Step("Get list of Subnet with limit and label", suite.Client.NetworkV1, *nref,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Public ip
@@ -607,16 +607,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List public ips with limit
 	stepsBuilder.ListPublicIpV1Step("Get list of PublicIP with limit", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List public ips with label
 	stepsBuilder.ListPublicIpV1Step("Get list of PublicIP with label", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List public ips with limit and label
 	stepsBuilder.ListPublicIpV1Step("Get list of PublicIP with limit and label", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Nic
@@ -640,16 +640,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List nics with limit
 	stepsBuilder.ListNicV1Step("Get list of Nic with limit", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List nics with label
 	stepsBuilder.ListNicV1Step("Get list of Nic with label", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List nics with limit and label
 	stepsBuilder.ListNicV1Step("Get list of Nic with limit and label", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Security Group
@@ -673,16 +673,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List security groups with limit
 	stepsBuilder.ListSecurityGroupV1Step("Get list of Security Group with limit", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List security groups with label
 	stepsBuilder.ListSecurityGroupV1Step("Get list of Security Group with label", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List security groups with limit and label
 	stepsBuilder.ListSecurityGroupV1Step("Get list of Security Group with limit and label", suite.Client.NetworkV1, wref,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all security groups

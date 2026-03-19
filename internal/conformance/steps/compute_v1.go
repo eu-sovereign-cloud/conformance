@@ -133,14 +133,14 @@ func (configurator *StepsConfigurator) DeleteInstanceV1Step(stepName string, api
 }
 
 func (configurator *StepsConfigurator) ListInstanceV1Step(
-	stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference, opts *secapi.FilterOptions,
+	stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference, opts *secapi.ListOptions,
 ) []*schema.Instance {
 	var resp []*schema.Instance
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "ListInstances with parameters", wref.Name)
 
-		iter, err := api.ListInstances(context.Background(), secapi.WorkspaceFilter{Tenant: wref.Tenant, Workspace: wref.Workspace, Options: opts})
+		iter, err := api.ListInstancesWithOptions(context.Background(), secapi.WorkspacePath{Tenant: wref.Tenant, Workspace: wref.Workspace}, opts)
 		requireNoError(sCtx, err)
 
 		// Iterate through all items
@@ -153,14 +153,14 @@ func (configurator *StepsConfigurator) ListInstanceV1Step(
 }
 
 func (configurator *StepsConfigurator) ListSkusV1Step(
-	stepName string, api secapi.ComputeV1, tref secapi.TenantReference, opts *secapi.FilterOptions,
+	stepName string, api secapi.ComputeV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) []*schema.InstanceSku {
 	var resp []*schema.InstanceSku
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "ListSkus", tref.Name)
 
-		iter, err := api.ListSkus(configurator.t.Context(), secapi.TenantFilter{Tenant: tref.Tenant, Options: opts})
+		iter, err := api.ListSkusWithOptions(configurator.t.Context(), secapi.TenantPath{Tenant: tref.Tenant}, opts)
 		requireNoError(sCtx, err)
 
 		// Iterate through all items

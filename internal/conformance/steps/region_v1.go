@@ -37,7 +37,7 @@ func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx co
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetRegionV1StepParams(sCtx, "ListRegions")
 
-		iter, err := api.ListRegions(ctx, nil)
+		iter, err := api.ListRegions(ctx)
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, iter)
 

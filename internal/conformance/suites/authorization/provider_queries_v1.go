@@ -200,16 +200,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List Roles with limit
 	stepsBuilder.ListRoleV1Step("Get list of roles with limit", suite.Client.AuthorizationV1, *roleTRef,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Label
 	stepsBuilder.ListRoleV1Step("Get list of roles with label", suite.Client.AuthorizationV1, *roleTRef,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Limit and label
 	stepsBuilder.ListRoleV1Step("Get list of roles with limit and label", suite.Client.AuthorizationV1, *roleTRef,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Role assignment
@@ -236,16 +236,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// List RoleAssignments with limit
 	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
-		secapi.NewFilterOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1))
 
 	// List RoleAssignments with Label
 	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
-		secapi.NewFilterOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List RoleAssignments with Limit and label
 	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
-		secapi.NewFilterOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all role assignments
