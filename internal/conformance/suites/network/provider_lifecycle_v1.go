@@ -112,6 +112,9 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	publicIpName := generators.GeneratePublicIpName()
 	publicIpRefObj := generators.GeneratePublicIpRefObject(publicIpName)
 
+	securityGroupRuleName := generators.GenerateSecurityGroupRuleName()
+	securityGroupRuleRefObj := generators.GenerateSecurityGroupRuleRefObject(securityGroupRuleName)
+
 	securityGroupName := generators.GenerateSecurityGroupName()
 
 	blockStorageSize := constants.BlockStorageInitialSize
@@ -305,12 +308,32 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Public IP: %v", err)
 	}
 
+	securityGroupRuleInitial, err := builders.NewSecurityGroupRuleBuilder().
+		Name(securityGroupRuleName).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Spec(&schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionIngress}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Security Group Rule: %v", err)
+	}
+
+	securityGroupRuleUpdated, err := builders.NewSecurityGroupRuleBuilder().
+		Name(securityGroupRuleName).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Spec(&schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionEgress}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Security Group Rule: %v", err)
+	}
+
 	securityGroupInitial, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.SecurityGroupSpec{
-			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+			RuleRefs: &[]schema.Reference{*securityGroupRuleRefObj},
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group: %v", err)
@@ -321,30 +344,32 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.SecurityGroupSpec{
-			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionEgress}},
+			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group: %v", err)
 	}
 
 	params := &params.NetworkProviderLifeCycleV1Params{
-		Workspace:              workspace,
-		BlockStorage:           blockStorage,
-		Instance:               instance,
-		NetworkInitial:         networkInitial,
-		NetworkUpdated:         networkUpdated,
-		InternetGatewayInitial: internetGatInitial,
-		InternetGatewayUpdated: internetGatUpdated,
-		RouteTableInitial:      routeTableInitial,
-		RouteTableUpdated:      routeTableUpdated,
-		SubnetInitial:          subnetInitial,
-		SubnetUpdated:          subnetUpdated,
-		NicInitial:             nicInitial,
-		NicUpdated:             nicUpdated,
-		PublicIpInitial:        publicIpInitial,
-		PublicIpUpdated:        publicIpUpdated,
-		SecurityGroupInitial:   securityGroupInitial,
-		SecurityGroupUpdated:   securityGroupUpdated,
+		Workspace:                workspace,
+		BlockStorage:             blockStorage,
+		Instance:                 instance,
+		NetworkInitial:           networkInitial,
+		NetworkUpdated:           networkUpdated,
+		InternetGatewayInitial:   internetGatInitial,
+		InternetGatewayUpdated:   internetGatUpdated,
+		RouteTableInitial:        routeTableInitial,
+		RouteTableUpdated:        routeTableUpdated,
+		SubnetInitial:            subnetInitial,
+		SubnetUpdated:            subnetUpdated,
+		NicInitial:               nicInitial,
+		NicUpdated:               nicUpdated,
+		PublicIpInitial:          publicIpInitial,
+		PublicIpUpdated:          publicIpUpdated,
+		SecurityGroupInitial:     securityGroupInitial,
+		SecurityGroupUpdated:     securityGroupUpdated,
+		SecurityGroupRuleInitial: securityGroupRuleInitial,
+		SecurityGroupRuleUpdated: securityGroupRuleUpdated,
 	}
 	suite.params = params
 	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureProviderLifecycleScenarioV1, *params)
@@ -444,7 +469,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the internet gateway
-	gateway.Spec = suite.params.InternetGatewayUpdated.Spec
+	gateway = suite.params.InternetGatewayUpdated
 	expectGatewaySpec.EgressOnly = gateway.Spec.EgressOnly
 	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Update the internet gateway", suite.Client.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
@@ -503,7 +528,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the route table
-	route.Spec = suite.params.RouteTableUpdated.Spec
+	route = suite.params.RouteTableUpdated
 	expectRouteSpec.Routes = route.Spec.Routes
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Update the route table", suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
@@ -525,7 +550,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Network
 
 	// Update the network
-	network.Spec = suite.params.NetworkUpdated.Spec
+	network = suite.params.NetworkUpdated
 	expectNetworkSpec.SkuRef = network.Spec.SkuRef
 	stepsBuilder.CreateOrUpdateNetworkV1Step("Update the network", suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
@@ -575,7 +600,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the subnet
-	subnet.Spec = suite.params.SubnetUpdated.Spec
+	subnet = suite.params.SubnetUpdated
 	expectSubnetSpec.Zone = subnet.Spec.Zone
 	stepsBuilder.CreateOrUpdateSubnetV1Step("Update the subnet", suite.Client.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
@@ -623,7 +648,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the nic
-	nic.Spec = suite.params.NicUpdated.Spec
+	nic = suite.params.NicUpdated
 	expectNicSpec.Addresses = nic.Spec.Addresses
 	stepsBuilder.CreateOrUpdateNicV1Step("Update the nic", suite.Client.NetworkV1, nic,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
@@ -670,7 +695,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the public ip
-	publicIp.Spec = suite.params.PublicIpUpdated.Spec
+	publicIp = suite.params.PublicIpUpdated
 	expectPublicIpSpec.Address = publicIp.Spec.Address
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Update the public ip", suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
@@ -685,6 +710,54 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Metadata:       expectPublicIpMeta,
 			Spec:           expectPublicIpSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		},
+	)
+
+	// Security Group Rule
+
+	// Create a security group rule
+	rule := suite.params.SecurityGroupRuleInitial
+	expectRuleMeta := rule.Metadata
+	expectRuleSpec := &rule.Spec
+	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Create a security group rule", suite.Client.NetworkV1, rule,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			Metadata:       expectRuleMeta,
+			Spec:           expectRuleSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
+		},
+	)
+
+	// Get the created security group rule
+	ruleWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(rule.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(rule.Metadata.Workspace),
+		Name:      rule.Metadata.Name,
+	}
+	stepsBuilder.GetSecurityGroupRuleV1Step("Get the created security group rule", suite.Client.NetworkV1, ruleWRef,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			Metadata:       expectRuleMeta,
+			Spec:           expectRuleSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		},
+	)
+
+	// Update the security group rule
+	rule = suite.params.SecurityGroupRuleUpdated
+	expectRuleSpec.Direction = rule.Spec.Direction
+	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Update the security group rule", suite.Client.NetworkV1, rule,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			Metadata:       expectRuleMeta,
+			Spec:           expectRuleSpec,
+			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		},
+	)
+
+	// Get the updated security group rule
+	stepsBuilder.GetSecurityGroupRuleV1Step("Get the updated security group rule", suite.Client.NetworkV1, ruleWRef,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			Metadata:       expectRuleMeta,
+			Spec:           expectRuleSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
 	)
@@ -718,9 +791,10 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the security group
-	groupRules := *group.Spec.Rules
-	groupRules[0] = schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionEgress}
-	expectGroupSpec.Rules = group.Spec.Rules
+
+	group.Spec.Rules = &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}}
+	expectGroupSpec = &group.Spec
+
 	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Update the security group", suite.Client.NetworkV1, group,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			Metadata:       expectGroupMeta,
@@ -801,6 +875,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
 	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", suite.Client.StorageV1, blockWRef)
+
+	stepsBuilder.DeleteSecurityGroupRuleV1Step("Delete the security group rule", suite.Client.NetworkV1, rule)
+	stepsBuilder.WatchSecurityGroupRuleUntilDeletedV1Step("Watch the security group rule deletion", suite.Client.NetworkV1, ruleWRef)
 
 	stepsBuilder.DeleteSecurityGroupV1Step("Delete the security group", suite.Client.NetworkV1, group)
 	stepsBuilder.WatchSecurityGroupUntilDeletedV1Step("Watch the security group deletion", suite.Client.NetworkV1, groupWRef)

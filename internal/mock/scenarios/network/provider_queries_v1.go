@@ -26,6 +26,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	subnets := params.Subnets
 	nics := params.Nics
 	publicIps := params.PublicIps
+	securityGroupRules := params.SecurityGroupRules
 	securityGroups := params.SecurityGroups
 
 	// Generate URLs
@@ -34,6 +35,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	gatewayListUrl := generators.GenerateInternetGatewayListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	publicIpListUrl := generators.GeneratePublicIpListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	nicListUrl := generators.GenerateNicListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
+	securityGroupRuleListUrl := generators.GenerateSecurityGroupRuleListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	securityGroupListUrl := generators.GenerateSecurityGroupListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
 	skuListUrl := generators.GenerateNetworkSkuListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant)
 
@@ -342,6 +344,53 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return err
 	}
 
+	// Create security group rules
+	err = stubs.BulkCreateSecurityGroupRulesStubV1(configurator, scenario.MockParams, securityGroupRules)
+	if err != nil {
+		return err
+	}
+	securityGroupRuleResponse, err := builders.NewSecurityGroupRuleIteratorBuilder().
+		Provider(sdkconsts.NetworkProviderV1Name).
+		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
+		Items(securityGroupRules).
+		Build()
+	if err != nil {
+		return err
+	}
+
+	// List
+	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, nil); err != nil {
+		return err
+	}
+
+	// List with limit 1
+	securityGroupRuleResponse.Items = securityGroupRules[:1]
+	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+		return err
+	}
+
+	// List with label
+	secGroupRuleWithLabel := func(securityGroupRuleList []schema.SecurityGroupRule) []schema.SecurityGroupRule {
+		var filteredSecurityRule []schema.SecurityGroupRule
+		for _, sec := range securityGroupRuleList {
+			if val, ok := sec.Labels[constants.EnvLabel]; ok && val == constants.EnvConformanceLabel {
+				filteredSecurityRule = append(filteredSecurityRule, sec)
+			}
+		}
+		return filteredSecurityRule
+	}
+
+	securityGroupRuleResponse.Items = secGroupRuleWithLabel(securityGroupRules)
+	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+		return err
+	}
+
+	// List with limit and label
+	securityGroupRuleResponse.Items = secGroupRuleWithLabel(securityGroupRules)[:1]
+	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+		return err
+	}
+
 	// Create security groups
 	err = stubs.BulkCreateSecurityGroupsStubV1(configurator, scenario.MockParams, securityGroups)
 	if err != nil {
@@ -387,6 +436,24 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	securityGroupResponse.Items = secGroupWithLabel(securityGroups)[:1]
 	if err := configurator.ConfigureListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
+	}
+
+	// Delete the security group rules
+	for _, securityGroupRule := range securityGroupRules {
+		securityGroupRuleUrl := generators.GenerateSecurityGroupRuleURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, securityGroupRule.Metadata.Name)
+
+		// Delete the security group rule
+		if err := configurator.ConfigureDeleteStub(securityGroupRuleUrl, scenario.MockParams); err != nil {
+			return err
+		}
+
+		// Get the deleted security group rule
+		if err := configurator.ConfigureGetDeletingSecurityGroupRuleStub(&securityGroupRule, securityGroupRuleUrl, scenario.MockParams); err != nil {
+			return err
+		}
+		if err := configurator.ConfigureGetNotFoundStub(securityGroupRuleUrl, scenario.MockParams); err != nil {
+			return err
+		}
 	}
 
 	// Delete the security groups

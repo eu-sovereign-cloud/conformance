@@ -932,18 +932,15 @@ func NewSecurityGroupBuilder() *SecurityGroupBuilder {
 func (builder *SecurityGroupBuilder) validateSpec() error {
 	if err := validateRequired(builder.validator,
 		field("spec", builder.spec),
-		field("spec.Rules", builder.spec.Rules),
 	); err != nil {
 		return err
 	}
 
-	// Validate each rule
-	for i, rule := range *builder.spec.Rules {
-		if err := validateRequired(builder.validator,
-			field(fmt.Sprintf("spec.Rules[%d].Direction", i), rule.Direction),
-		); err != nil {
-			return err
-		}
+	if err := validateOneRequired(builder.validator,
+		field("spec.Rules", builder.spec.Rules),
+		field("spec.RuleRefs", builder.spec.RuleRefs),
+	); err != nil {
+		return err
 	}
 
 	return nil
@@ -964,6 +961,39 @@ func (builder *SecurityGroupBuilder) Build() (*schema.SecurityGroup, error) {
 		Labels:   builder.labels,
 		Spec:     *builder.spec,
 		Status:   &schema.SecurityGroupStatus{},
+	}, nil
+}
+
+/// SecurityGroupRuleIteratorBuilder
+
+type SecurityGroupRuleIteratorBuilder struct {
+	*workspaceResponseMetadataBuilder[SecurityGroupRuleIteratorBuilder]
+
+	items []schema.SecurityGroupRule
+}
+
+func NewSecurityGroupRuleIteratorBuilder() *SecurityGroupRuleIteratorBuilder {
+	builder := &SecurityGroupRuleIteratorBuilder{}
+	builder.workspaceResponseMetadataBuilder = newWorkspaceResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *SecurityGroupRuleIteratorBuilder) Items(items []schema.SecurityGroupRule) *SecurityGroupRuleIteratorBuilder {
+	builder.items = items
+	return builder
+}
+
+func (builder *SecurityGroupRuleIteratorBuilder) Build() (*network.SecurityGroupRuleIterator, error) {
+	err := builder.validate()
+	if err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateSecurityGroupRuleListResource(builder.tenant, builder.workspace)
+
+	return &network.SecurityGroupRuleIterator{
+		Metadata: *builder.metadata,
+		Items:    builder.items,
 	}, nil
 }
 

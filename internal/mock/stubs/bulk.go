@@ -329,6 +329,32 @@ func BulkCreateNicsStubV1(configurator *Configurator,
 	return nil
 }
 
+func BulkCreateSecurityGroupRulesStubV1(configurator *Configurator,
+	mockParams *mock.MockParams,
+	securityGroupRuleParams []schema.SecurityGroupRule,
+) error {
+	for _, securityGroupRule := range securityGroupRuleParams {
+		securityGroupRuleUrl := generators.GenerateSecurityGroupRuleURL(sdkconsts.NetworkProviderV1Name, securityGroupRule.Metadata.Tenant, securityGroupRule.Metadata.Workspace, securityGroupRule.Metadata.Name)
+		securityGroupRuleResponse, err := builders.NewSecurityGroupRuleBuilder().
+			Name(securityGroupRule.Metadata.Name).
+			Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(securityGroupRule.Metadata.Tenant).Workspace(securityGroupRule.Metadata.Workspace).Region(securityGroupRule.Metadata.Region).
+			Labels(securityGroupRule.Labels).
+			Spec(&securityGroupRule.Spec).
+			Build()
+		if err != nil {
+			return err
+		}
+
+		// Create a security group rule
+		if err := configurator.ConfigureCreateSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleUrl, mockParams); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func BulkCreateSecurityGroupsStubV1(configurator *Configurator,
 	mockParams *mock.MockParams,
 	securityGroupParams []schema.SecurityGroup,
