@@ -16,7 +16,6 @@ import (
 	labelBuilder "github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"k8s.io/utils/ptr"
 )
 
 type ProviderQueriesV1TestSuite struct {
@@ -167,7 +166,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			SkuRef:        *networkSkuRefObj,
 			RouteTableRef: *routeTableRefObj,
 		}).
@@ -184,7 +183,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			SkuRef:        *networkSkuRefObj,
 			RouteTableRef: *routeTableRefObj,
 		}).
@@ -203,7 +202,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.InternetGatewaySpec{
-			EgressOnly: ptr.To(false),
+			EgressOnly: false,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Internet Gateway: %v", err)
@@ -217,7 +216,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.InternetGatewaySpec{
-			EgressOnly: ptr.To(false),
+			EgressOnly: false,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Internet Gateway: %v", err)
@@ -267,7 +266,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: &subnetCidr},
+			Cidr: schema.Cidr{Ipv4: subnetCidr},
 			Zone: zone,
 		}).Build()
 	if err != nil {
@@ -282,7 +281,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: &subnetCidr},
+			Cidr: schema.Cidr{Ipv4: subnetCidr},
 			Zone: zone,
 		}).Build()
 	if err != nil {
@@ -300,7 +299,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		}).
 		Spec(&schema.NicSpec{
 			Addresses:    []string{nicAddress1},
-			PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+			PublicIpRefs: []schema.Reference{*publicIpRefObj},
 			SubnetRef:    *subnetRefObj,
 		}).Build()
 	if err != nil {
@@ -316,7 +315,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		}).
 		Spec(&schema.NicSpec{
 			Addresses:    []string{nicAddress1},
-			PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+			PublicIpRefs: []schema.Reference{*publicIpRefObj},
 			SubnetRef:    *subnetRefObj,
 		}).Build()
 	if err != nil {
@@ -334,7 +333,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		}).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
-			Address: ptr.To(publicIpAddress1),
+			Address: publicIpAddress1,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Public IP: %v", err)
@@ -349,7 +348,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		}).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
-			Address: ptr.To(publicIpAddress1),
+			Address: publicIpAddress1,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Public IP: %v", err)
@@ -365,7 +364,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.SecurityGroupSpec{
-			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group: %v", err)
@@ -379,7 +378,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.SecurityGroupSpec{
-			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group: %v", err)
