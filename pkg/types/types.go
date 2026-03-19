@@ -2,11 +2,6 @@ package types
 
 import "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 
-type ResourceStatus struct {
-	State      []schema.ResourceState
-	Conditions []schema.StatusCondition
-}
-
 type ResourceType interface {
 	schema.Region |
 		schema.Role |

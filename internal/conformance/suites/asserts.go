@@ -100,7 +100,13 @@ func (suite TestSuite) verifyAssertState(stepCtx provider.StepCtx) {
 
 // Status
 
-func (suite *TestSuite) VerifyStatusStep(ctx provider.StepCtx, expected []schema.ResourceState, actual *schema.ResourceState) {
+func (suite *TestSuite) VerifyStatusStateStep(ctx provider.StepCtx, expected *schema.ResourceState, actual *schema.ResourceState) {
+	ctx.WithNewStep("Verify status state", func(stepCtx provider.StepCtx) {
+		stepCtx.Require().Equal(expected, *actual, "Status state should match expected")
+	})
+}
+
+func (suite *TestSuite) VerifyStatusStatesStep(ctx provider.StepCtx, expected []schema.ResourceState, actual *schema.ResourceState) {
 	ctx.WithNewStep("Verify status state", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Contains(expected, *actual, "Status state should match expected")
 	})

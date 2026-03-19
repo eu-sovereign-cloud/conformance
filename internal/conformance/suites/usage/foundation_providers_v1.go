@@ -12,7 +12,6 @@ import (
 	mockUsage "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/usage"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	"github.com/eu-sovereign-cloud/conformance/pkg/types"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
@@ -361,8 +360,8 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata: expectRoleMeta,
 			Spec:     expectRoleSpec,
-			ResourceStatus: types.ResourceStatus{
-				State: []schema.ResourceState{schema.ResourceStateActive},
+			ResourceStatus: schema.Status{
+				State: ptr.To(schema.ResourceStateActive),
 			},
 		},
 	)
@@ -388,8 +387,8 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 		steps.ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata: expectRoleAssignMeta,
 			Spec:     expectRoleAssignSpec,
-			ResourceStatus: types.ResourceStatus{
-				State: []schema.ResourceState{schema.ResourceStateActive},
+			ResourceStatus: schema.Status{
+				State: ptr.To(schema.ResourceStateActive),
 			},
 		},
 	)

@@ -26,7 +26,7 @@ type ResponseExpectsWithCondition[M types.MetadataType, E types.SpecType] struct
 	Labels         schema.Labels
 	Metadata       *M
 	Spec           *E
-	ResourceStatus types.ResourceStatus
+	ResourceStatus schema.Status
 }
 
 // Steps
@@ -170,7 +170,7 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 
 	// Status
 	if resp.GetStatus() != nil && len(params.expectedResourceStates) > 0 {
-		suite.VerifyStatusStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
+		suite.VerifyStatusStatesStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
 	} else {
 		log.Fatalln("Status verification failed: expected or actual Status is nil")
 	}
@@ -197,7 +197,7 @@ type getTenantResourceParamsWithConditions[R types.ResourceType, M types.Metadat
 	operationName          constants.OperationName
 	tref                   secapi.TenantReference
 	getValueFunc           func(context.Context, secapi.TenantReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (wrappers.ResourceWrapper[R, M, E, S], error)
-	expectedResourceStatus types.ResourceStatus
+	expectedResourceStatus schema.Status
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
@@ -254,7 +254,7 @@ func getTenantResourceWithConditionStep[R types.ResourceType, M types.MetadataTy
 		resp = getResourceUntilValueWithConditionStep(t, suite, sCtx,
 			getResourceUntilValueConditionParams[R, M, E, S, secapi.TenantReference, schema.ResourceState]{
 				reference:              params.tref,
-				observerExpectedValues: params.expectedResourceStatus.State,
+				observerExpectedValues: []schema.ResourceState{*params.expectedResourceStatus.State},
 				getValueFunc:           params.getValueFunc,
 				expectedLabels:         params.expectedLabels,
 				expectedMetadata:       params.expectedMetadata,
@@ -368,7 +368,7 @@ type getResourceUntilValueConditionParams[R types.ResourceType, M types.Metadata
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
 	expectedSpec           *E
 	verifySpecFunc         func(provider.StepCtx, *E, *E)
-	expectedResourceStatus types.ResourceStatus
+	expectedResourceStatus schema.Status
 }
 
 func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType, F secapi.Reference, V any](
@@ -402,8 +402,8 @@ func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E typ
 	}
 
 	// Status
-	if len(params.expectedResourceStates) > 0 {
-		suite.VerifyStatusStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
+	if params.expectedResourceStates != nil {
+		suite.VerifyStatusStatesStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
 	} else {
 		log.Fatalln("Status verification failed: expected or actual Status is nil")
 	}
@@ -442,8 +442,8 @@ func getResourceUntilValueWithConditionStep[R types.ResourceType, M types.Metada
 	}
 
 	// Status
-	if len(params.expectedResourceStatus.State) > 0 {
-		suite.VerifyStatusStep(sCtx, params.expectedResourceStatus.State, types.GetStatusState(resp.GetStatus()))
+	if params.expectedResourceStatus.State != nil {
+		suite.VerifyStatusStateStep(sCtx, params.expectedResourceStatus.State, types.GetStatusState(resp.GetStatus()))
 	} else {
 		log.Fatalln("Status verification failed: expected or actual Status is nil")
 	}
