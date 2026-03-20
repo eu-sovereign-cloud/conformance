@@ -57,7 +57,7 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	networkSkuRefObj := generators.GenerateSkuRefObject(networkSkuName)
 
-	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
+	routeTableRefObj := generators.GenerateRouteTableRefObject(networkName, routeTableName)
 
 	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(internetGatewayName)
 

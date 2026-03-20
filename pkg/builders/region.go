@@ -22,7 +22,7 @@ func NewRegionMetadataBuilder() *RegionMetadataBuilder {
 
 func (builder *RegionMetadataBuilder) Build() (*schema.GlobalResourceMetadata, error) {
 	metadata, err := builder.kind(schema.GlobalResourceMetadataKindResourceKindRegion).
-		Resource(generators.GenerateRegionResource(builder.metadata.Name)).
+		Resource(generators.GenerateRegionResource(builder.metadata.Provider, builder.metadata.Name)).
 		Ref(generators.GenerateRegionRef(builder.metadata.Name)).
 		build()
 	if err != nil {

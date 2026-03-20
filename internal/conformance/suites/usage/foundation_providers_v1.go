@@ -93,7 +93,7 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 	blockStorageSize := constants.BlockStorageInitialSize
 
 	imageName := generators.GenerateImageName()
-	imageResource := generators.GenerateImageResource(suite.Tenant, imageName)
+	imageResource := generators.GenerateImageResource(sdkconsts.StorageProviderV1Name, suite.Tenant, imageName)
 
 	instanceSkuRefObj := generators.GenerateSkuRefObject(instanceSkuName)
 	instanceName := generators.GenerateInstanceName()
@@ -105,10 +105,10 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(internetGatewayName)
 
 	routeTableName := generators.GenerateRouteTableName()
-	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
+	routeTableRefObj := generators.GenerateRouteTableRefObject(networkName, routeTableName)
 
 	subnetName := generators.GenerateSubnetName()
-	subnetRefObj := generators.GenerateSubnetRefObject(subnetName)
+	subnetRefObj := generators.GenerateSubnetRefObject(networkName, subnetName)
 
 	nicName := generators.GenerateNicName()
 

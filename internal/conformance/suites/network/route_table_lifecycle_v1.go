@@ -53,7 +53,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	instanceRefObj := generators.GenerateInstanceRefObject(instanceName)
 
-	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
+	routeTableRefObj := generators.GenerateRouteTableRefObject(networkName, routeTableName)
 
 	networkSkuRefObj := generators.GenerateSkuRefObject(networkSkuName)
 

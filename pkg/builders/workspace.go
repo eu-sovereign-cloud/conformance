@@ -22,7 +22,7 @@ func NewWorkspaceMetadataBuilder() *WorkspaceMetadataBuilder {
 
 func (builder *WorkspaceMetadataBuilder) Build() (*schema.RegionalResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalResourceMetadataKindResourceKindWorkspace).
-		Resource(generators.GenerateWorkspaceResource(builder.metadata.Tenant, builder.metadata.Name)).
+		Resource(generators.GenerateWorkspaceResource(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Name)).
 		Ref(generators.GenerateWorkspaceRef(builder.metadata.Name)).
 		build()
 	if err != nil {
@@ -99,7 +99,7 @@ func (builder *WorkspaceIteratorBuilder) Build() (*workspace.WorkspaceIterator, 
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateWorkspaceListResource(builder.tenant)
+	builder.metadata.Resource = generators.GenerateWorkspaceListResource(builder.metadata.Provider, builder.tenant)
 
 	return &workspace.WorkspaceIterator{
 		Metadata: *builder.metadata,

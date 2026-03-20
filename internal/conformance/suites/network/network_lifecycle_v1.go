@@ -48,7 +48,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	networkSkuName := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 	networkSkuName2 := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 
-	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
+	routeTableRefObj := generators.GenerateRouteTableRefObject(networkName, routeTableName)
 
 	networkSkuRefObj := generators.GenerateSkuRefObject(networkSkuName)
 	networkSkuRef2Obj := generators.GenerateSkuRefObject(networkSkuName2)

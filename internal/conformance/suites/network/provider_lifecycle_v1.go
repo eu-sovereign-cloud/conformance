@@ -102,10 +102,10 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(internetGatewayName)
 
 	routeTableName := generators.GenerateRouteTableName()
-	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
+	routeTableRefObj := generators.GenerateRouteTableRefObject(networkName, routeTableName)
 
 	subnetName := generators.GenerateSubnetName()
-	subnetRefObj := generators.GenerateSubnetRefObject(subnetName)
+	subnetRefObj := generators.GenerateSubnetRefObject(networkName, subnetName)
 
 	nicName := generators.GenerateNicName()
 

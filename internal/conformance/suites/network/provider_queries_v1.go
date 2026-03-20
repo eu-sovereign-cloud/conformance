@@ -93,11 +93,11 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	routeTableName := generators.GenerateRouteTableName()
 	routeTableName2 := generators.GenerateRouteTableName()
-	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
+	routeTableRefObj := generators.GenerateRouteTableRefObject(networkName, routeTableName)
 
 	subnetName := generators.GenerateSubnetName()
 	subnetName2 := generators.GenerateSubnetName()
-	subnetRefObj := generators.GenerateSubnetRefObject(subnetName)
+	subnetRefObj := generators.GenerateSubnetRefObject(networkName, subnetName)
 
 	nicName := generators.GenerateNicName()
 	nicName2 := generators.GenerateNicName()
