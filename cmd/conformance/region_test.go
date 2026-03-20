@@ -14,7 +14,7 @@ func TestRegionV1Suites(t *testing.T) {
 	globalTestSuite := suites.CreateGlobalTestSuite(config.Parameters, config.Clients)
 
 	// Provider Queries Suite
-	providerQueriesSuite := region.CreateProviderQueriesV1TestSuite(globalTestSuite, config.Parameters.ClientRegion)
+	providerQueriesSuite := region.CreateProviderQueriesV1TestSuite(globalTestSuite, config.Parameters.ClientRegion, config.Parameters.ScenariosAdditionalRegions)
 	if providerQueriesSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, providerQueriesSuite)
 	}

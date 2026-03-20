@@ -17,9 +17,10 @@ type ParametersHolder struct {
 	ScenariosFilter string
 	ScenariosRegexp *regexp.Regexp
 
-	ScenariosUsers     []string
-	ScenariosCidr      string
-	ScenariosPublicIps string
+	ScenariosAdditionalRegions []string
+	ScenariosUsers             []string
+	ScenariosCidr              string
+	ScenariosPublicIps         string
 
 	ReportResultsPath string
 

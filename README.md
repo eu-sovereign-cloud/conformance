@@ -30,21 +30,22 @@ make install
 The following configurations are required to run the tool. These configurations can be set as command line parameters or environment variables:
 
 
-| Parameter                     | Variable                    | Description                                                                                                               | Required | Default           |
-|-------------------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------|----------|-------------------|
-| `--provider.region.v1`        | `PROVIDER_REGION_V1`        | URL of a Region V1 provider API implementation                                                                            | True     |                   |
-| `--provider.authorization.v1` | `PROVIDER_AUTHORIZATION_V1` | URL of a Authorization V1 provider API implementation. Required if you will run Authorization provider secenarios         | False    |                   |
-| `--client.auth.token`         | `CLIENT_AUTH_TOKEN`         | Valid JWT token to access the CSP API's                                                                                   | True     |                   |
-| `--client.tenant`             | `CLIENT_TENANT`             | Name of the Tenant used in the secenarios                                                                                 | True     |                   |
-| `--client.region`             | `CLIENT_REGION`             | Name of the Region used in the secenarios                                                                                 | True     |                   |
-| `--scenarios.filter`          | `SCENARIOS_FILTER`          | Regular expression to filter scenarios to run. To know the available scenarios run the [list](#listing-scenarios) command | False    |                   |
-| `--scenarios.users`           | `SCENARIOS_USERS`           | Comma-separated list of valid CSP users. Required if you will run Authorization provider secenarios                       | False    |                   |
-| `--scenarios.cidr`            | `SCENARIOS_CIDR`            | CIDR range available in the CSP to create network resources. Required if you will run Network provider secenarios         | False    |                   |
-| `--scenarios.public.ips`      | `SCENARIOS_PUBLIC_IPS`      | Public IPs range, in CIDR format, to create CSP public IP's.Required if you will run any Network provider secenarios      | False    |                   |
-| `--report.results.path`       | `REPORT_RESULTS_PATH`       | Path to store the tests result reports                                                                                    | True     |                   |
-| `--retry.base.delay`          | `RETRY_BASE_DELAY`          | Initial waiting time (in seconds) after creating a resource before performing the first state check                       | False    | 5                 |
-| `--retry.base.interval`       | `RETRY_BASE_INTERVAL`       | Time interval (in seconds) to wait between consecutive retry attempts when checking the resource state                    | False    | 30                |
-| `--retry.max.attempts`        | `RETRY_MAX_ATTEMPTS`        | Maximum number of retry attempts to check the resource state before timing out                                            | False    | 10                |
+| Parameter                        | Variable                       | Description                                                                                                               | Required | Default           |
+|----------------------------------|--------------------------------|---------------------------------------------------------------------------------------------------------------------------|----------|-------------------|
+| `--provider.region.v1`           | `PROVIDER_REGION_V1`           | URL of a Region V1 provider API implementation                                                                            | True     |                   |
+| `--provider.authorization.v1`    | `PROVIDER_AUTHORIZATION_V1`    | URL of a Authorization V1 provider API implementation. Required if you will run Authorization provider secenarios         | False    |                   |
+| `--client.auth.token`            | `CLIENT_AUTH_TOKEN`            | Valid JWT token to access the CSP API's                                                                                   | True     |                   |
+| `--client.tenant`                | `CLIENT_TENANT`                | Name of the Tenant used in the secenarios                                                                                 | True     |                   |
+| `--client.region`                | `CLIENT_REGION`                | Name of the Region used in the secenarios                                                                                 | True     |                   |
+| `--scenarios.filter`             | `SCENARIOS_FILTER`             | Regular expression to filter scenarios to run. To know the available scenarios run the [list](#listing-scenarios) command | False    |                   |
+| `--scenarios.additional.regions` | `SCENARIOS_ADDITIONAL_REGIONS` | Comma-separated list of addional regions to be used in the Region provider scenarios.                                     | False    |                   |
+| `--scenarios.users`              | `SCENARIOS_USERS`              | Comma-separated list of valid CSP users. Required if you will run Authorization provider secenarios                       | False    |                   |
+| `--scenarios.cidr`               | `SCENARIOS_CIDR`               | CIDR range available in the CSP to create network resources. Required if you will run Network provider secenarios         | False    |                   |
+| `--scenarios.public.ips`         | `SCENARIOS_PUBLIC_IPS`         | Public IPs range, in CIDR format, to create CSP public IP's.Required if you will run any Network provider secenarios      | False    |                   |
+| `--report.results.path`          | `REPORT_RESULTS_PATH`          | Path to store the tests result reports                                                                                    | True     |                   |
+| `--retry.base.delay`             | `RETRY_BASE_DELAY`             | Initial waiting time (in seconds) after creating a resource before performing the first state check                       | False    | 5                 |
+| `--retry.base.interval`          | `RETRY_BASE_INTERVAL`          | Time interval (in seconds) to wait between consecutive retry attempts when checking the resource state                    | False    | 30                |
+| `--retry.max.attempts`           | `RETRY_MAX_ATTEMPTS`           | Maximum number of retry attempts to check the resource state before timing out                                            | False    | 10                |
 
 ## Running
 

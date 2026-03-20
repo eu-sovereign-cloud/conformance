@@ -4,7 +4,6 @@ const (
 	// Names
 	roleName              = "role-%d"
 	roleAssignmentName    = "role-assignment-%d"
-	regionName            = "region-%d"
 	workspaceName         = "workspace-%d"
 	blockStorageName      = "disk-%d"
 	imageName             = "image-%d"
