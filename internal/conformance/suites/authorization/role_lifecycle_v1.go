@@ -39,7 +39,7 @@ func (suite *RoleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	roleName := generators.GenerateRoleName()
 
 	imageName := generators.GenerateImageName()
-	imageResource := generators.GenerateImageResource(suite.Tenant, imageName)
+	imageResource := generators.GenerateImageResource(sdkconsts.StorageProviderV1Name, suite.Tenant, imageName)
 
 	roleInitial, err := builders.NewRoleBuilder().
 		Name(roleName).

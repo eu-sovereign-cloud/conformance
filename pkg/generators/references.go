@@ -52,12 +52,12 @@ func GenerateNicRef(name string) string {
 	return fmt.Sprintf(nicRef, name)
 }
 
-func GenerateRouteTableRef(name string) string {
-	return fmt.Sprintf(routeTableRef, name)
+func GenerateRouteTableRef(network, name string) string {
+	return fmt.Sprintf(routeTableRef, network, name)
 }
 
-func GenerateSubnetRef(name string) string {
-	return fmt.Sprintf(subnetRef, name)
+func GenerateSubnetRef(network, name string) string {
+	return fmt.Sprintf(subnetRef, network, name)
 }
 
 func GeneratePublicIpRef(name string) string {
@@ -99,13 +99,13 @@ func GenerateInternetGatewayRefObject(name string) *schema.Reference {
 	return &schema.Reference{Resource: urn}
 }
 
-func GenerateRouteTableRefObject(name string) *schema.Reference {
-	urn := GenerateRouteTableRef(name)
+func GenerateRouteTableRefObject(network, name string) *schema.Reference {
+	urn := GenerateRouteTableRef(network, name)
 	return &schema.Reference{Resource: urn}
 }
 
-func GenerateSubnetRefObject(name string) *schema.Reference {
-	urn := GenerateSubnetRef(name)
+func GenerateSubnetRefObject(network, name string) *schema.Reference {
+	urn := GenerateSubnetRef(network, name)
 	return &schema.Reference{Resource: urn}
 }
 
