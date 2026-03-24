@@ -14,6 +14,7 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"k8s.io/utils/ptr"
 )
 
 type ImageLifeCycleV1TestSuite struct {
@@ -141,10 +142,13 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         expectWorkspaceLabels,
-			Metadata:       expectWorkspaceMeta,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -169,10 +173,13 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      block.Metadata.Name,
 	}
 	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:       expectedBlockMeta,
-			Spec:           expectedBlockSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			Metadata: expectedBlockMeta,
+			Spec:     expectedBlockSpec,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -196,15 +203,18 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   image.Metadata.Name,
 	}
 	image = stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:       expectedImageMeta,
-			Spec:           expectedImageSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec]{
+			Metadata: expectedImageMeta,
+			Spec:     expectedImageSpec,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
 	// Update the image
-	image.Spec = suite.params.ImageUpdated.Spec
+	image = suite.params.ImageUpdated
 	expectedImageSpec.CpuArchitecture = image.Spec.CpuArchitecture
 	stepsBuilder.CreateOrUpdateImageV1Step("Update the image", suite.Client.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
@@ -216,10 +226,13 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated image
 	image = stepsBuilder.GetImageV1Step("Get the updated image", suite.Client.StorageV1, imageTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:       expectedImageMeta,
-			Spec:           expectedImageSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec]{
+			Metadata: expectedImageMeta,
+			Spec:     expectedImageSpec,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 

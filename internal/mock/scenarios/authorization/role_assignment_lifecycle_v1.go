@@ -32,6 +32,7 @@ func ConfigureRoleAssignmentLifecycleScenarioV1(scenario *mockscenarios.Scenario
 	}
 
 	// Update the role assignment
+	params.RoleAssignmentUpdated.Status = roleAssignment.Status
 	roleAssignment = params.RoleAssignmentUpdated
 	if err := configurator.ConfigureUpdateRoleAssignmentStub(roleAssignment, roleAssignmentUrl, scenario.MockParams); err != nil {
 		return err

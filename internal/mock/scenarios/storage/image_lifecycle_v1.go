@@ -62,6 +62,7 @@ func ConfigureImageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params 
 	}
 
 	// Update the image
+	params.ImageUpdated.Status = image.Status
 	image = params.ImageUpdated
 	if err := configurator.ConfigureUpdateImageStub(image, imageUrl, scenario.MockParams); err != nil {
 		return err

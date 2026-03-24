@@ -64,6 +64,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the instance
+	params.UpdatedInstance.Status = instance.Status
 	instance = params.UpdatedInstance
 	if err := configurator.ConfigureUpdateInstanceStub(instance, instanceUrl, scenario.MockParams); err != nil {
 		return err

@@ -48,8 +48,8 @@ func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi
 ) *schema.Role {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
-	return getTenantResourceWithConditionStep(configurator.t, configurator.suite,
-		getTenantResourceParamsWithConditions[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status]{
+	return getTenantResourceStep(configurator.t, configurator.suite,
+		getTenantResourceParams[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
 			operationName:  constants.GetRoleOperation,
@@ -152,8 +152,8 @@ func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, 
 ) *schema.RoleAssignment {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
-	return getTenantResourceWithConditionStep(configurator.t, configurator.suite,
-		getTenantResourceParamsWithConditions[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status]{
+	return getTenantResourceStep(configurator.t, configurator.suite,
+		getTenantResourceParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
 			operationName:  constants.GetRoleAssignmentOperation,

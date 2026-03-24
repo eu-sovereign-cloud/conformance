@@ -14,6 +14,7 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"k8s.io/utils/ptr"
 )
 
 type SecurityGroupRuleLifeCycleV1TestSuite struct {
@@ -113,10 +114,13 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         expectWorkspaceLabels,
-			Metadata:       expectWorkspaceMeta,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -141,10 +145,13 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      rule.Metadata.Name,
 	}
 	stepsBuilder.GetSecurityGroupRuleV1Step("Get the created security group rule", suite.Client.NetworkV1, ruleWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
-			Metadata:       expectRuleMeta,
-			Spec:           expectRuleSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			Metadata: expectRuleMeta,
+			Spec:     expectRuleSpec,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -161,10 +168,13 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated security group
 	stepsBuilder.GetSecurityGroupRuleV1Step("Get the updated security group rule", suite.Client.NetworkV1, ruleWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
-			Metadata:       expectRuleMeta,
-			Spec:           expectRuleSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			Metadata: expectRuleMeta,
+			Spec:     expectRuleSpec,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 

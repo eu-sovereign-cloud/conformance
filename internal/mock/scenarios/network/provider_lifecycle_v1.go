@@ -68,6 +68,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the internet gateway
+	params.InternetGatewayUpdated.Status = internetGateway.Status
 	internetGateway = params.InternetGatewayUpdated
 	if err := configurator.ConfigureUpdateInternetGatewayStub(internetGateway, gatewayUrl, scenario.MockParams); err != nil {
 		return err
@@ -103,6 +104,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the route table
+	params.RouteTableUpdated.Status = routeTable.Status
 	routeTable = params.RouteTableUpdated
 	if err := configurator.ConfigureUpdateRouteTableStub(routeTable, routeUrl, scenario.MockParams); err != nil {
 		return err
@@ -117,6 +119,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the network
+	params.NetworkUpdated.Status = network.Status
 	network = params.NetworkUpdated
 	if err := configurator.ConfigureUpdateNetworkStub(network, networkUrl, scenario.MockParams); err != nil {
 		return err
@@ -144,6 +147,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the subnet
+	params.SubnetUpdated.Status = subnet.Status
 	subnet = params.SubnetUpdated
 	if err := configurator.ConfigureUpdateSubnetStub(subnet, subnetUrl, scenario.MockParams); err != nil {
 		return err
@@ -171,6 +175,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the nic
+	params.NicUpdated.Status = nic.Status
 	nic = params.NicUpdated
 	if err := configurator.ConfigureUpdateNicStub(nic, nicUrl, scenario.MockParams); err != nil {
 		return err
@@ -198,6 +203,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the public ip
+	params.PublicIpUpdated.Status = publicIp.Status
 	publicIp = params.PublicIpUpdated
 	if err := configurator.ConfigureUpdatePublicIpStub(publicIp, publicIpUrl, scenario.MockParams); err != nil {
 		return err
@@ -225,6 +231,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the security group
+	params.SecurityGroupUpdated.Status = securityGroup.Status
 	securityGroup = params.SecurityGroupUpdated
 	if err := configurator.ConfigureUpdateSecurityGroupStub(securityGroup, groupUrl, scenario.MockParams); err != nil {
 		return err

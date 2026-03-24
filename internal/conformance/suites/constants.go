@@ -31,8 +31,12 @@ var (
 	UpdatingCondition = constants.UpdatingCondition
 	DeletingCondition = constants.DeletingCondition
 
-	GetConditionAfterCreating = constants.GetConditionAfterCreating
-	GetConditionAfterUpdating = constants.GetConditionAfterUpdating
+	GetConditionAfterCreating   = constants.GetConditionAfterCreating
+	GetConditionAfterUpdating   = constants.GetConditionAfterUpdating
+	GetConditionAfterDeleting   = constants.GetConditionAfterDeleting
+	GetConditionAfterStopping   = constants.GetConditionAfterStopping
+	GetConditionAfterStarting   = constants.GetConditionAfterStarting
+	GetConditionAfterRestarting = constants.GetConditionAfterRestarting
 )
 
 // suppress unused import warning - schema is used transitively via constants

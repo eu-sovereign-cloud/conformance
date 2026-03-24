@@ -21,7 +21,6 @@ func (configurator *Configurator) ConfigureCreateNetworkStub(response *schema.Ne
 
 func (configurator *Configurator) ConfigureUpdateNetworkStub(response *schema.Network, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
-	setNetworkState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -80,7 +79,6 @@ func (configurator *Configurator) ConfigureCreateInternetGatewayStub(response *s
 
 func (configurator *Configurator) ConfigureUpdateInternetGatewayStub(response *schema.InternetGateway, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
-	setResourceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -139,7 +137,6 @@ func (configurator *Configurator) ConfigureCreateRouteTableStub(response *schema
 
 func (configurator *Configurator) ConfigureUpdateRouteTableStub(response *schema.RouteTable, url string, params *mock.MockParams) error {
 	setModifiedRegionalNetworkResourceMetadata(response.Metadata)
-	setRouteTableState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -198,7 +195,6 @@ func (configurator *Configurator) ConfigureCreateSubnetStub(response *schema.Sub
 
 func (configurator *Configurator) ConfigureUpdateSubnetStub(response *schema.Subnet, url string, params *mock.MockParams) error {
 	setModifiedRegionalNetworkResourceMetadata(response.Metadata)
-	setSubnetState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -257,7 +253,6 @@ func (configurator *Configurator) ConfigureCreatePublicIpStub(response *schema.P
 
 func (configurator *Configurator) ConfigureUpdatePublicIpStub(response *schema.PublicIp, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
-	setPublicIpState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -316,7 +311,6 @@ func (configurator *Configurator) ConfigureCreateNicStub(response *schema.Nic, u
 
 func (configurator *Configurator) ConfigureUpdateNicStub(response *schema.Nic, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
-	setNicState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -375,7 +369,6 @@ func (configurator *Configurator) ConfigureCreateSecurityGroupRuleStub(response 
 
 func (configurator *Configurator) ConfigureUpdateSecurityGroupRuleStub(response *schema.SecurityGroupRule, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
-	setResourceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -427,7 +420,6 @@ func (configurator *Configurator) ConfigureCreateSecurityGroupStub(response *sch
 
 func (configurator *Configurator) ConfigureUpdateSecurityGroupStub(response *schema.SecurityGroup, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
-	setSecurityGroupState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

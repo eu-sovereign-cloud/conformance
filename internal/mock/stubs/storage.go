@@ -20,7 +20,7 @@ func (configurator *Configurator) ConfigureCreateBlockStorageStub(response *sche
 
 func (configurator *Configurator) ConfigureUpdateBlockStorageStub(response *schema.BlockStorage, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
-	setBlockStorageState(response.Status, schema.ResourceStateActive)
+
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -79,7 +79,6 @@ func (configurator *Configurator) ConfigureCreateImageStub(response *schema.Imag
 
 func (configurator *Configurator) ConfigureUpdateImageStub(response *schema.Image, url string, params *mock.MockParams) error {
 	setModifiedRegionalResourceMetadata(response.Metadata)
-	setImageState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

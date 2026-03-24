@@ -32,8 +32,10 @@ func setResourceState(status *schema.Status, state schema.ResourceState) {
 
 func newWorkspaceStatus(state schema.ResourceState) *schema.WorkspaceStatus {
 	return &schema.WorkspaceStatus{
-		State:      &state,
-		Conditions: []schema.StatusCondition{},
+		State: &state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
 	}
 }
 
@@ -46,8 +48,10 @@ func setWorkspaceState(status *schema.WorkspaceStatus, state schema.ResourceStat
 
 func newBlockStorageStatus(state schema.ResourceState) *schema.BlockStorageStatus {
 	return &schema.BlockStorageStatus{
-		State:      &state,
-		Conditions: []schema.StatusCondition{},
+		State: &state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
 	}
 }
 
@@ -58,8 +62,10 @@ func setBlockStorageState(status *schema.BlockStorageStatus, state schema.Resour
 
 func newImageStatus(state schema.ResourceState) *schema.ImageStatus {
 	return &schema.ImageStatus{
-		State:      &state,
-		Conditions: []schema.StatusCondition{},
+		State: &state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
 	}
 }
 
@@ -72,8 +78,10 @@ func setImageState(status *schema.ImageStatus, state schema.ResourceState) {
 
 func newInstanceStatus(state schema.ResourceState) *schema.InstanceStatus {
 	return &schema.InstanceStatus{
-		State:      &state,
-		Conditions: []schema.StatusCondition{},
+		State: &state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
 	}
 }
 
@@ -86,8 +94,10 @@ func setInstanceState(status *schema.InstanceStatus, state schema.ResourceState)
 
 func newNetworkStatus(state schema.ResourceState) *schema.NetworkStatus {
 	return &schema.NetworkStatus{
-		State:      &state,
-		Conditions: []schema.StatusCondition{},
+		State: &state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
 	}
 }
 
@@ -98,8 +108,10 @@ func setNetworkState(status *schema.NetworkStatus, state schema.ResourceState) {
 
 func newRouteTableStatus(state schema.ResourceState) *schema.RouteTableStatus {
 	return &schema.RouteTableStatus{
-		State:      &state,
-		Conditions: []schema.StatusCondition{},
+		State: &state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
 	}
 }
 
@@ -110,8 +122,10 @@ func setRouteTableState(status *schema.RouteTableStatus, state schema.ResourceSt
 
 func newSubnetStatus(state schema.ResourceState) *schema.SubnetStatus {
 	return &schema.SubnetStatus{
-		State:      &state,
-		Conditions: []schema.StatusCondition{},
+		State: &state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
 	}
 }
 
@@ -122,8 +136,10 @@ func setSubnetState(status *schema.SubnetStatus, state schema.ResourceState) {
 
 func newPublicIpStatus(state schema.ResourceState) *schema.PublicIpStatus {
 	return &schema.PublicIpStatus{
-		State:      &state,
-		Conditions: []schema.StatusCondition{},
+		State: &state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
 	}
 }
 
@@ -134,8 +150,10 @@ func setPublicIpState(status *schema.PublicIpStatus, state schema.ResourceState)
 
 func newNicStatus(state schema.ResourceState) *schema.NicStatus {
 	return &schema.NicStatus{
-		State:      &state,
-		Conditions: []schema.StatusCondition{},
+		State: &state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
 	}
 }
 
@@ -146,8 +164,10 @@ func setNicState(status *schema.NicStatus, state schema.ResourceState) {
 
 func newSecurityGroupStatus(state schema.ResourceState) *schema.SecurityGroupStatus {
 	return &schema.SecurityGroupStatus{
-		State:      &state,
-		Conditions: []schema.StatusCondition{},
+		State: &state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
 	}
 }
 

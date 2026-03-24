@@ -76,6 +76,7 @@ func ConfigureNetworkLifecycleScenarioV1(scenario *mockscenarios.Scenario, param
 	}
 
 	// Update the network
+	params.NetworkUpdated.Status = network.Status
 	network = params.NetworkUpdated
 	if err := configurator.ConfigureUpdateNetworkStub(network, networkUrl, scenario.MockParams); err != nil {
 		return err

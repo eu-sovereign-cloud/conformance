@@ -31,6 +31,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the workspace
+	params.WorkspaceUpdated.Status = workspace.Status
 	workspace = params.WorkspaceUpdated
 	if err := configurator.ConfigureUpdateWorkspaceStubWithLabels(workspace, url, scenario.MockParams, params.WorkspaceUpdated.Labels); err != nil {
 		return err

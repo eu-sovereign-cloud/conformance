@@ -110,10 +110,13 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         expectWorkspaceLabels,
-			Metadata:       expectWorkspaceMeta,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -138,10 +141,13 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      gateway.Metadata.Name,
 	}
 	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, gatewayWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:       expectGatewayMeta,
-			Spec:           expectGatewaySpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Metadata: expectGatewayMeta,
+			Spec:     expectGatewaySpec,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -158,10 +164,13 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated internet gateway
 	stepsBuilder.GetInternetGatewayV1Step("Get the updated internet gateway", suite.Client.NetworkV1, gatewayWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:       expectGatewayMeta,
-			Spec:           expectGatewaySpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Metadata: expectGatewayMeta,
+			Spec:     expectGatewaySpec,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 

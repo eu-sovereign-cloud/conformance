@@ -106,6 +106,7 @@ func ConfigureNicLifecycleScenarioV1(scenario *mockscenarios.Scenario, params pa
 	}
 
 	// Update the nic
+	params.NicUpdated.Status = nic.Status
 	nic = params.NicUpdated
 	if err := configurator.ConfigureUpdateNicStub(nic, nicURL, scenario.MockParams); err != nil {
 		return err

@@ -130,10 +130,13 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         expectWorkspaceLabels,
-			Metadata:       expectWorkspaceMeta,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -158,10 +161,13 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      publicIp.Metadata.Name,
 	}
 	stepsBuilder.GetPublicIpV1Step("Get the created public ip", suite.Client.NetworkV1, publicIpWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:       expectPublicIpMeta,
-			Spec:           expectPublicIpSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			Metadata: expectPublicIpMeta,
+			Spec:     expectPublicIpSpec,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -178,10 +184,13 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated public ip
 	stepsBuilder.GetPublicIpV1Step("Get the updated public ip", suite.Client.NetworkV1, publicIpWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:       expectPublicIpMeta,
-			Spec:           expectPublicIpSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			Metadata: expectPublicIpMeta,
+			Spec:     expectPublicIpSpec,
+			ResourceStatus: schema.Status{
+				State:      ptr.To(schema.ResourceStateActive),
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 

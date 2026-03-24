@@ -21,7 +21,6 @@ func (configurator *Configurator) ConfigureCreateInstanceStub(response *schema.I
 
 func (configurator *Configurator) ConfigureUpdateInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
-	setInstanceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

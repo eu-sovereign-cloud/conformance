@@ -78,4 +78,37 @@ var (
 		UpdatingCondition,
 		ActiveCondition,
 	}
+
+	GetConditionAfterDeleting = []schema.StatusCondition{
+		PendingCondition,
+		CreatingCondition,
+		ActiveCondition,
+		UpdatingCondition,
+		ActiveCondition,
+		DeletingCondition,
+	}
+
+	GetConditionAfterStopping = []schema.StatusCondition{
+		PendingCondition,
+		CreatingCondition,
+		ActiveCondition,
+		UpdatingCondition,
+		ActiveCondition,
+	}
+
+	GetConditionAfterStarting = []schema.StatusCondition{
+		PendingCondition,
+		CreatingCondition,
+		ActiveCondition,
+		UpdatingCondition,
+		ActiveCondition,
+	}
+
+	GetConditionAfterRestarting = []schema.StatusCondition{
+		PendingCondition,
+		CreatingCondition,
+		ActiveCondition,
+		UpdatingCondition,
+		ActiveCondition,
+	}
 )

@@ -49,6 +49,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the block storage
+	params.BlockStorageUpdated.Status = blockStorage.Status
 	blockStorage = params.BlockStorageUpdated
 	if err := configurator.ConfigureUpdateBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err
@@ -76,6 +77,7 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update the image
+	params.ImageUpdated.Status = image.Status
 	image = params.ImageUpdated
 	if err := configurator.ConfigureUpdateImageStub(image, imageUrl, scenario.MockParams); err != nil {
 		return err

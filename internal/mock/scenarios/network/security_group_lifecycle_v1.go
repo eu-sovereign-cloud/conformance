@@ -46,6 +46,7 @@ func ConfigureSecurityGroupLifecycleScenarioV1(scenario *mockscenarios.Scenario,
 	}
 
 	// Update security group (change rules)
+	params.SecurityGroupUpdated.Status = securityGroup.Status
 	securityGroup = params.SecurityGroupUpdated
 	if err := configurator.ConfigureUpdateSecurityGroupStub(securityGroup, securityGroupURL, scenario.MockParams); err != nil {
 		return err

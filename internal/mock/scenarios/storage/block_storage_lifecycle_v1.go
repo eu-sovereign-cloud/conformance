@@ -47,6 +47,7 @@ func ConfigureBlockStorageLifecycleScenarioV1(scenario *mockscenarios.Scenario, 
 	}
 
 	// Update the block storage
+	params.BlockStorageUpdated.Status = blockStorage.Status
 	blockStorage = params.BlockStorageUpdated
 	if err := configurator.ConfigureUpdateBlockStorageStub(blockStorage, blockUrl, scenario.MockParams); err != nil {
 		return err

@@ -19,7 +19,6 @@ func (configurator *Configurator) ConfigureCreateWorkspaceStub(response *schema.
 
 func (configurator *Configurator) ConfigureUpdateWorkspaceStubWithLabels(response *schema.Workspace, url string, params *mock.MockParams, labels schema.Labels) error {
 	setModifiedRegionalResourceMetadata(response.Metadata)
-	setWorkspaceState(response.Status, schema.ResourceStateActive)
 	response.Labels = labels
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err

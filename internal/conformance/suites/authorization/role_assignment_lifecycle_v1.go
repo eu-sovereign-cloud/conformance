@@ -123,7 +123,7 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Spec:     expectRoleAssignSpec,
 			ResourceStatus: schema.Status{
 				State:      ptr.To(schema.ResourceStateActive),
-				Conditions: suites.GetConditionAfterUpdating,
+				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
 	)

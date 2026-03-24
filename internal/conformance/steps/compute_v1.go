@@ -45,7 +45,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName str
 }
 
 func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference,
-	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
 ) *schema.Instance {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -65,7 +65,7 @@ func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api se
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
 			expectedSpec:           responseExpects.Spec,
 			verifySpecFunc:         configurator.suite.VerifyInstanceSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
+			expectedResourceStatus: responseExpects.ResourceStatus,
 		},
 	)
 }
