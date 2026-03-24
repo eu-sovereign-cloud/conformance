@@ -232,7 +232,6 @@ func NewInternetGatewayBuilder() *InternetGatewayBuilder {
 func (builder *InternetGatewayBuilder) validateSpec() error {
 	if err := validateRequired(builder.validator,
 		field("spec", builder.spec),
-		field("spec.EgressOnly", builder.spec.EgressOnly),
 	); err != nil {
 		return err
 	}

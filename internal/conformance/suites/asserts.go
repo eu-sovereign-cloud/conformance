@@ -100,9 +100,9 @@ func (suite TestSuite) verifyAssertState(stepCtx provider.StepCtx) {
 
 // Status
 
-func (suite *TestSuite) VerifyStatusStep(ctx provider.StepCtx, expected []schema.ResourceState, actual *schema.ResourceState) {
+func (suite *TestSuite) VerifyStatusStep(ctx provider.StepCtx, expected []schema.ResourceState, actual schema.ResourceState) {
 	ctx.WithNewStep("Verify status state", func(stepCtx provider.StepCtx) {
-		stepCtx.Require().Contains(expected, *actual, "Status state should match expected")
+		stepCtx.Require().Contains(expected, actual, "Status state should match expected")
 	})
 }
 
@@ -149,13 +149,13 @@ func (suite *TestSuite) VerifyRoleAssignmentSpecStep(ctx provider.StepCtx, expec
 			expectedScope := expected.Scopes[i]
 			actualScope := actual.Scopes[i]
 
-			if actualScope.Tenants != nil && len(*actualScope.Tenants) > 0 {
+			if len(actualScope.Tenants) > 0 {
 				stepCtx.Require().Equal(expectedScope.Tenants, actualScope.Tenants, fmt.Sprintf("Scope [%d] tenants should match expected", i))
 			}
-			if actualScope.Regions != nil && len(*actualScope.Regions) > 0 {
+			if len(actualScope.Regions) > 0 {
 				stepCtx.Require().Equal(expectedScope.Regions, actualScope.Regions, fmt.Sprintf("Scope [%d] regions should match expected", i))
 			}
-			if actualScope.Workspaces != nil && len(*actualScope.Workspaces) > 0 {
+			if len(actualScope.Workspaces) > 0 {
 				stepCtx.Require().Equal(expectedScope.Workspaces, actualScope.Workspaces, fmt.Sprintf("Scope [%d] workspaces should match expected", i))
 			}
 		}
@@ -192,10 +192,10 @@ func (suite *TestSuite) VerifyInstanceSpecStep(ctx provider.StepCtx, expected *s
 
 func (suite *TestSuite) VerifyNetworkSpecStep(ctx provider.StepCtx, expected *schema.NetworkSpec, actual *schema.NetworkSpec) {
 	ctx.WithNewStep("Verify NetworkSpec", func(stepCtx provider.StepCtx) {
-		if actual.Cidr.Ipv4 != nil {
+		if actual.Cidr.Ipv4 != "" {
 			stepCtx.Require().Equal(expected.Cidr.Ipv4, actual.Cidr.Ipv4, "Cidr.Ipv4 should match expected")
 		}
-		if actual.Cidr.Ipv6 != nil {
+		if actual.Cidr.Ipv6 != "" {
 			stepCtx.Require().Equal(expected.Cidr.Ipv6, actual.Cidr.Ipv6, "Cidr.Ipv6 should match expected")
 		}
 
@@ -206,9 +206,7 @@ func (suite *TestSuite) VerifyNetworkSpecStep(ctx provider.StepCtx, expected *sc
 
 func (suite *TestSuite) VerifyInternetGatewaySpecStep(ctx provider.StepCtx, expected *schema.InternetGatewaySpec, actual *schema.InternetGatewaySpec) {
 	ctx.WithNewStep("Verify InternetGatewaySpec", func(stepCtx provider.StepCtx) {
-		if actual.EgressOnly != nil {
-			stepCtx.Require().Equal(expected.EgressOnly, actual.EgressOnly, "EgressOnly should match expected")
-		}
+		stepCtx.Require().Equal(expected.EgressOnly, actual.EgressOnly, "EgressOnly should match expected")
 	})
 }
 
@@ -226,10 +224,10 @@ func (suite *TestSuite) VerifyRouteTableSpecStep(ctx provider.StepCtx, expected 
 
 func (suite *TestSuite) VerifySubnetSpecStep(ctx provider.StepCtx, expected *schema.SubnetSpec, actual *schema.SubnetSpec) {
 	ctx.WithNewStep("Verify SubnetSpec", func(stepCtx provider.StepCtx) {
-		if actual.Cidr.Ipv4 != nil {
+		if actual.Cidr.Ipv4 != "" {
 			stepCtx.Require().Equal(expected.Cidr.Ipv4, actual.Cidr.Ipv4, "Cidr.Ipv4 should match expected")
 		}
-		if actual.Cidr.Ipv6 != nil {
+		if actual.Cidr.Ipv6 != "" {
 			stepCtx.Require().Equal(expected.Cidr.Ipv6, actual.Cidr.Ipv6, "Cidr.Ipv6 should match expected")
 		}
 		stepCtx.Require().Equal(expected.Zone, actual.Zone, "Zone should match expected")
@@ -239,7 +237,7 @@ func (suite *TestSuite) VerifySubnetSpecStep(ctx provider.StepCtx, expected *sch
 func (suite *TestSuite) VerifyPublicIpSpecStep(ctx provider.StepCtx, expected *schema.PublicIpSpec, actual *schema.PublicIpSpec) {
 	ctx.WithNewStep("Verify PublicIpSpec", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Equal(expected.Version, actual.Version, "Version should match expected")
-		if actual.Address != nil {
+		if actual.Address != "" {
 			stepCtx.Require().Equal(expected.Address, actual.Address, "Address should match expected")
 		}
 	})
@@ -264,14 +262,14 @@ func (suite *TestSuite) VerifySecurityGroupRuleSpecStep(ctx provider.StepCtx, ex
 func (suite *TestSuite) VerifySecurityGroupSpecStep(ctx provider.StepCtx, expected *schema.SecurityGroupSpec, actual *schema.SecurityGroupSpec) {
 	ctx.WithNewStep("Verify SecurityGroupSpec", func(stepCtx provider.StepCtx) {
 		if actual.Rules != nil && expected.Rules != nil {
-			stepCtx.Require().Equal(len(*expected.Rules), len(*actual.Rules), "Rule list length should match expected")
-			for i := 0; i < len(*expected.Rules); i++ {
-				expectedRule := (*expected.Rules)[i]
-				actualRule := (*actual.Rules)[i]
+			stepCtx.Require().Equal(len(expected.Rules), len(actual.Rules), "Rule list length should match expected")
+			for i := 0; i < len(expected.Rules); i++ {
+				expectedRule := expected.Rules[i]
+				actualRule := actual.Rules[i]
 				stepCtx.Require().Equal(expectedRule.Direction, actualRule.Direction, fmt.Sprintf("Rule [%d] Direction should match expected", i))
 			}
 		} else {
-			stepCtx.Require().Equal(*expected.RuleRefs, *actual.RuleRefs, "RuleRefs should match expected")
+			stepCtx.Require().Equal(expected.RuleRefs, actual.RuleRefs, "RuleRefs should match expected")
 		}
 	})
 }

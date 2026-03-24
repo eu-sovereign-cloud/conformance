@@ -51,6 +51,7 @@ run:
 	  --client.auth.token=test-token \
 	  --client.region=region-1 \
 	  --client.tenant=tenant-1 \
+	  --scenarios.additional.regions=region-2,region-3 \
 	  --scenarios.users=user1@secapi.com,user2@secapi.com \
 	  --scenarios.cidr=10.1.0.0/16 \
 	  --scenarios.public.ips=52.93.126.1/26 \
@@ -81,6 +82,7 @@ test:
 	  --client.region=region-1 \
 	  --client.tenant=tenant-1 \
 	  --scenarios.users=user1@secapi.com,user2@secapi.com \
+	  --scenarios.additional.regions=region-2,region-3 \
 	  --scenarios.cidr=10.1.0.0/16 \
 	  --scenarios.public.ips=52.93.126.1/26 \
 	  --report.results.path=$(RESULTS_PATH) \
@@ -115,8 +117,8 @@ clean:
 	rm -rf $(DIST_DIR)
 	rm -rf $(REPORTS_PATH)
 
-.PHONY: libraries
-libraries:
+.PHONY: libs
+libs:
 	@echo "Updating libraries..."
 	go mod tidy
 	go mod vendor

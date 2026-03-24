@@ -15,13 +15,13 @@ func addStatusCondition(conditions []schema.StatusCondition, state schema.Resour
 
 func newResourceStatus(state schema.ResourceState) *schema.Status {
 	return &schema.Status{
-		State:      &state,
+		State:      state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
 func setResourceState(status *schema.Status, state schema.ResourceState) {
-	status.State = &state
+	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
@@ -29,13 +29,13 @@ func setResourceState(status *schema.Status, state schema.ResourceState) {
 
 func newWorkspaceStatus(state schema.ResourceState) *schema.WorkspaceStatus {
 	return &schema.WorkspaceStatus{
-		State:      &state,
+		State:      state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
 func setWorkspaceState(status *schema.WorkspaceStatus, state schema.ResourceState) {
-	status.State = &state
+	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
@@ -43,25 +43,25 @@ func setWorkspaceState(status *schema.WorkspaceStatus, state schema.ResourceStat
 
 func newBlockStorageStatus(state schema.ResourceState) *schema.BlockStorageStatus {
 	return &schema.BlockStorageStatus{
-		State:      &state,
+		State:      state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
 func setBlockStorageState(status *schema.BlockStorageStatus, state schema.ResourceState) {
-	status.State = &state
+	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
 func newImageStatus(state schema.ResourceState) *schema.ImageStatus {
 	return &schema.ImageStatus{
-		State:      &state,
+		State:      state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
 func setImageState(status *schema.ImageStatus, state schema.ResourceState) {
-	status.State = &state
+	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
@@ -69,13 +69,13 @@ func setImageState(status *schema.ImageStatus, state schema.ResourceState) {
 
 func newInstanceStatus(state schema.ResourceState) *schema.InstanceStatus {
 	return &schema.InstanceStatus{
-		State:      &state,
+		State:      state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
 func setInstanceState(status *schema.InstanceStatus, state schema.ResourceState) {
-	status.State = &state
+	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
@@ -83,72 +83,72 @@ func setInstanceState(status *schema.InstanceStatus, state schema.ResourceState)
 
 func newNetworkStatus(state schema.ResourceState) *schema.NetworkStatus {
 	return &schema.NetworkStatus{
-		State:      &state,
+		State:      state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
 func setNetworkState(status *schema.NetworkStatus, state schema.ResourceState) {
-	status.State = &state
+	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
 func newRouteTableStatus(state schema.ResourceState) *schema.RouteTableStatus {
 	return &schema.RouteTableStatus{
-		State:      &state,
+		State:      state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
 func setRouteTableState(status *schema.RouteTableStatus, state schema.ResourceState) {
-	status.State = &state
+	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
 func newSubnetStatus(state schema.ResourceState) *schema.SubnetStatus {
 	return &schema.SubnetStatus{
-		State:      &state,
+		State:      state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
 func setSubnetState(status *schema.SubnetStatus, state schema.ResourceState) {
-	status.State = &state
+	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
 func newPublicIpStatus(state schema.ResourceState) *schema.PublicIpStatus {
 	return &schema.PublicIpStatus{
-		State:      &state,
+		State:      state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
 func setPublicIpState(status *schema.PublicIpStatus, state schema.ResourceState) {
-	status.State = &state
+	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
 func newNicStatus(state schema.ResourceState) *schema.NicStatus {
 	return &schema.NicStatus{
-		State:      &state,
+		State:      state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
 func setNicState(status *schema.NicStatus, state schema.ResourceState) {
-	status.State = &state
+	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
 
 func newSecurityGroupStatus(state schema.ResourceState) *schema.SecurityGroupStatus {
 	return &schema.SecurityGroupStatus{
-		State:      &state,
+		State:      state,
 		Conditions: []schema.StatusCondition{},
 	}
 }
 
 func setSecurityGroupState(status *schema.SecurityGroupStatus, state schema.ResourceState) {
-	status.State = &state
+	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }

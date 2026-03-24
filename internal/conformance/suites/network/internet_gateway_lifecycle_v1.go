@@ -12,7 +12,6 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"k8s.io/utils/ptr"
 )
 
 type InternetGatewayLifeCycleV1TestSuite struct {
@@ -30,7 +29,7 @@ func CreateInternetGatewayLifeCycleV1TestSuite(regionalTestSuite suites.Regional
 }
 
 func (suite *InternetGatewayLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("InternetGateway")
+	t.AddParentSuite("Network")
 
 	workspaceName := generators.GenerateWorkspaceName()
 	internetGatewayName := generators.GenerateInternetGatewayName()
@@ -52,7 +51,7 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InternetGatewaySpec{
-			EgressOnly: ptr.To(false),
+			EgressOnly: false,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Internet Gateway: %v", err)
@@ -63,7 +62,7 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InternetGatewaySpec{
-			EgressOnly: ptr.To(true),
+			EgressOnly: true,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Internet Gateway: %v", err)

@@ -13,7 +13,6 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"k8s.io/utils/ptr"
 )
 
 type PublicIpLifeCycleV1TestSuite struct {
@@ -38,7 +37,7 @@ func CreatePublicIpLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSui
 }
 
 func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("PublicIp")
+	t.AddParentSuite("Network")
 
 	workspaceName := generators.GenerateWorkspaceName()
 	publicIpName := generators.GeneratePublicIpName()
@@ -71,7 +70,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
-			Address: ptr.To(publicIpAddress1),
+			Address: publicIpAddress1,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Public IP: %v", err)
@@ -83,7 +82,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
-			Address: ptr.To(publicIpAddress2),
+			Address: publicIpAddress2,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Public IP: %v", err)

@@ -14,10 +14,6 @@ func GenerateRoleAssignmentName() string {
 	return fmt.Sprintf(roleAssignmentName, rand.Intn(math.MaxInt32))
 }
 
-func GenerateRegionName() string {
-	return fmt.Sprintf(regionName, rand.Intn(math.MaxInt32))
-}
-
 func GenerateWorkspaceName() string {
 	return fmt.Sprintf(workspaceName, rand.Intn(math.MaxInt32))
 }

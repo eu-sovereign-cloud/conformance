@@ -4,7 +4,6 @@ const (
 	// Names
 	roleName              = "role-%d"
 	roleAssignmentName    = "role-assignment-%d"
-	regionName            = "region-%d"
 	workspaceName         = "workspace-%d"
 	blockStorageName      = "disk-%d"
 	imageName             = "image-%d"
@@ -102,8 +101,8 @@ const (
 	regionRef            = "regions/%s"
 	skuRef               = "skus/%s"
 	workspaceRef         = "workspaces/%s"
-	roleRef              = "workspaces/%s"
-	roleAssignmentRef    = "workspaces/%s"
+	roleRef              = "roles/%s"
+	roleAssignmentRef    = "role-assignments/%s"
 	instanceRef          = "instances/%s"
 	blockStorageRef      = "block-storages/%s"
 	imageRef             = "images/%s"

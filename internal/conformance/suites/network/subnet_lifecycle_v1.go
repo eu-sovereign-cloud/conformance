@@ -13,8 +13,8 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"k8s.io/utils/ptr"
 )
 
 type SubnetLifeCycleV1TestSuite struct {
@@ -40,7 +40,7 @@ func CreateSubnetLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite
 }
 
 func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Subnet")
+	t.AddParentSuite("Network")
 
 	workspaceName := generators.GenerateWorkspaceName()
 	subnetName := generators.GenerateSubnetName()
@@ -82,7 +82,7 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			SkuRef:        *networkSkuRefObj,
 			RouteTableRef: *routeTableRefObj,
 		}).Build()
@@ -95,7 +95,7 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: &subnetCidr},
+			Cidr: schema.Cidr{Ipv4: subnetCidr},
 			Zone: zone1,
 		}).Build()
 	if err != nil {
@@ -107,7 +107,7 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: &subnetCidr},
+			Cidr: schema.Cidr{Ipv4: subnetCidr},
 			Zone: zone2,
 		}).Build()
 	if err != nil {
@@ -132,7 +132,7 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InternetGatewaySpec{
-			EgressOnly: ptr.To(false),
+			EgressOnly: false,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Internet Gateway: %v", err)

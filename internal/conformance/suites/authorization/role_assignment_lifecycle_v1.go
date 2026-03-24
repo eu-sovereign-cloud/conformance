@@ -55,7 +55,7 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 			Roles: []string{roleName},
 			Subs:  []string{roleAssignmentSub1},
 			Scopes: []schema.RoleAssignmentScope{
-				{Tenants: &[]string{suite.Tenant}},
+				{Tenants: []string{suite.Tenant}},
 			},
 		}).Build()
 	if err != nil {
@@ -70,7 +70,7 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 			Roles: []string{roleName},
 			Subs:  []string{roleAssignmentSub1, roleAssignmentSub2},
 			Scopes: []schema.RoleAssignmentScope{
-				{Tenants: &[]string{suite.Tenant}},
+				{Tenants: []string{suite.Tenant}},
 			},
 		}).Build()
 	if err != nil {
