@@ -212,7 +212,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Labels:   expectWorkspaceLabels,
 			Metadata: expectWorkspaceMeta,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -256,7 +256,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectGatewayMeta,
 			Spec:     expectGatewaySpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -288,7 +288,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectRouteMeta,
 			Spec:     expectRouteSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -305,7 +305,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectNetworkMeta,
 			Spec:     expectNetworkSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -337,7 +337,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectSubnetMeta,
 			Spec:     expectSubnetSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -368,7 +368,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectNicMeta,
 			Spec:     expectNicSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -390,7 +390,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectNicMeta,
 			Spec:     expectNicSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
 			},
 		},

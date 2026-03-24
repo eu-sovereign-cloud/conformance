@@ -164,7 +164,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Labels:   expectWorkspaceLabels,
 			Metadata: expectWorkspaceMeta,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -214,7 +214,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectInternetGatMeta,
 			Spec:     expectInternetGatSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -246,7 +246,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectRouteMeta,
 			Spec:     expectRouteSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -258,7 +258,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectNetworkMeta,
 			Spec:     expectNetworkSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -281,7 +281,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectNetworkMeta,
 			Spec:     expectNetworkSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
 			},
 		},

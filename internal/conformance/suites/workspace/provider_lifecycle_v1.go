@@ -11,7 +11,6 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
-	"k8s.io/utils/ptr"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -94,7 +93,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Labels:   expectLabels,
 			Metadata: expectMeta,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -117,7 +116,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Labels:   expectLabels,
 			Metadata: expectMeta,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
 			},
 		},

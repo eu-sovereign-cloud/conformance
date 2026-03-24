@@ -14,7 +14,6 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"k8s.io/utils/ptr"
 )
 
 type ProviderLifeCycleV1TestSuite struct {
@@ -161,7 +160,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Labels:   expectWorkspaceLabels,
 			Metadata: expectWorkspaceMeta,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -192,7 +191,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectedBlockMeta,
 			Spec:     expectedBlockSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -215,7 +214,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectedBlockMeta,
 			Spec:     expectedBlockSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
 			},
 		},
@@ -245,7 +244,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectedImageMeta,
 			Spec:     expectedImageSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -268,7 +267,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectedImageMeta,
 			Spec:     expectedImageSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
 			},
 		},

@@ -22,7 +22,6 @@ func (configurator *Configurator) ConfigureCreateRoleStub(response *schema.Role,
 
 func (configurator *Configurator) ConfigureUpdateRoleStub(response *schema.Role, url string, params *mock.MockParams) error {
 	setModifiedGlobalTenantResourceMetadata(response.Metadata)
-	// setResourceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

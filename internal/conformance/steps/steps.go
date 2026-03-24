@@ -201,7 +201,7 @@ func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.S
 		resp = getResourceUntilValueStep(t, suite, sCtx,
 			getResourceUntilValueParams[R, M, E, S, secapi.TenantReference, schema.ResourceState]{
 				reference:              params.tref,
-				observerExpectedValues: []schema.ResourceState{*params.expectedResourceStatus.State},
+				observerExpectedValues: []schema.ResourceState{params.expectedResourceStatus.State},
 				getValueFunc:           params.getValueFunc,
 				expectedLabels:         params.expectedLabels,
 				expectedMetadata:       params.expectedMetadata,
@@ -240,7 +240,7 @@ func getWorkspaceResourceStep[R types.ResourceType, M types.MetadataType, E type
 		resp = getResourceUntilValueStep(t, suite, sCtx,
 			getResourceUntilValueParams[R, M, E, S, secapi.WorkspaceReference, schema.ResourceState]{
 				reference:              params.wref,
-				observerExpectedValues: []schema.ResourceState{*params.expectedResourceStatus.State},
+				observerExpectedValues: []schema.ResourceState{params.expectedResourceStatus.State},
 				getValueFunc:           params.getValueFunc,
 				expectedLabels:         params.expectedLabels,
 				expectedMetadata:       params.expectedMetadata,
@@ -279,7 +279,7 @@ func getNetworkResourceStep[R types.ResourceType, M types.MetadataType, E types.
 		resp = getResourceUntilValueStep(t, suite, sCtx,
 			getResourceUntilValueParams[R, M, E, S, secapi.NetworkReference, schema.ResourceState]{
 				reference:              params.nref,
-				observerExpectedValues: []schema.ResourceState{*params.expectedResourceStatus.State},
+				observerExpectedValues: []schema.ResourceState{params.expectedResourceStatus.State},
 				getValueFunc:           params.getValueFunc,
 				expectedLabels:         params.expectedLabels,
 				expectedMetadata:       params.expectedMetadata,
@@ -337,8 +337,8 @@ func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E typ
 	}
 
 	// Status
-	if params.expectedResourceStatus.State != nil {
-		suite.VerifyStatusStateStep(sCtx, *params.expectedResourceStatus.State, *types.GetStatusState(resp.GetStatus()))
+	if params.expectedResourceStatus.State != "" {
+		suite.VerifyStatusStateStep(sCtx, params.expectedResourceStatus.State, types.GetStatusState(resp.GetStatus()))
 	} else {
 		log.Fatalln("Status verification failed: expected or actual Status is nil")
 	}

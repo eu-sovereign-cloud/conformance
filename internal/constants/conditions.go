@@ -31,38 +31,38 @@ var (
 	DeletingType    = "deleting"
 
 	ActiveCondition = schema.StatusCondition{
-		Message: &ActiveMessage,
-		Reason:  &ActiveReason,
+		Message: ActiveMessage,
+		Reason:  ActiveReason,
 		State:   schema.ResourceStateActive,
-		Type:    &ActiveType,
+		Type:    ActiveType,
 	}
 
 	CreatingCondition = schema.StatusCondition{
-		Message: &CreatingMessage,
-		Reason:  &CreatingReason,
+		Message: CreatingMessage,
+		Reason:  CreatingReason,
 		State:   schema.ResourceStateCreating,
-		Type:    &CreatingType,
+		Type:    CreatingType,
 	}
 
 	PendingCondition = schema.StatusCondition{
-		Message: &PendingMessage,
-		Reason:  &PendingReason,
+		Message: PendingMessage,
+		Reason:  PendingReason,
 		State:   schema.ResourceStatePending,
-		Type:    &PendingType,
+		Type:    PendingType,
 	}
 
 	UpdatingCondition = schema.StatusCondition{
-		Message: &UpdatingMessage,
-		Reason:  &UpdatingReason,
+		Message: UpdatingMessage,
+		Reason:  UpdatingReason,
 		State:   schema.ResourceStateUpdating,
-		Type:    &UpdatingType,
+		Type:    UpdatingType,
 	}
 
 	DeletingCondition = schema.StatusCondition{
-		Message: &DeletingMessage,
-		Reason:  &DeletingReason,
+		Message: DeletingMessage,
+		Reason:  DeletingReason,
 		State:   schema.ResourceStateDeleting,
-		Type:    &DeletingType,
+		Type:    DeletingType,
 	}
 
 	GetConditionAfterCreating = []schema.StatusCondition{

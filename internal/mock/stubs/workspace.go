@@ -27,7 +27,7 @@ func (configurator *Configurator) ConfigureUpdateWorkspaceStubWithLabels(respons
 }
 
 func (configurator *Configurator) ConfigureGetCreatingWorkspaceStub(response *schema.Workspace, url string, params *mock.MockParams) error {
-	setWorkspaceState(response.Status, schema.ResourceStateCreating)
+	setWorkspaceState(*response.Status, schema.ResourceStateCreating)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func (configurator *Configurator) ConfigureGetCreatingWorkspaceStub(response *sc
 }
 
 func (configurator *Configurator) ConfigureGetActiveWorkspaceStub(response *schema.Workspace, url string, params *mock.MockParams) error {
-	setWorkspaceState(response.Status, schema.ResourceStateActive)
+	setWorkspaceState(*response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (configurator *Configurator) ConfigureGetActiveWorkspaceStub(response *sche
 }
 
 func (configurator *Configurator) ConfigureGetUpdatingWorkspaceStub(response *schema.Workspace, url string, params *mock.MockParams) error {
-	setWorkspaceState(response.Status, schema.ResourceStateUpdating)
+	setWorkspaceState(*response.Status, schema.ResourceStateUpdating)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (configurator *Configurator) ConfigureGetUpdatingWorkspaceStub(response *sc
 }
 
 func (configurator *Configurator) ConfigureGetDeletingWorkspaceStub(response *schema.Workspace, url string, params *mock.MockParams) error {
-	setWorkspaceState(response.Status, schema.ResourceStateDeleting)
+	setWorkspaceState(*response.Status, schema.ResourceStateDeleting)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

@@ -133,7 +133,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Labels:   expectWorkspaceLabels,
 			Metadata: expectWorkspaceMeta,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -164,7 +164,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectPublicIpMeta,
 			Spec:     expectPublicIpSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
@@ -187,7 +187,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 			Metadata: expectPublicIpMeta,
 			Spec:     expectPublicIpSpec,
 			ResourceStatus: schema.Status{
-				State:      ptr.To(schema.ResourceStateActive),
+				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
 			},
 		},

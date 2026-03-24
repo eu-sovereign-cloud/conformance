@@ -122,16 +122,6 @@ func (suite *TestSuite) VerifyStatusConditionsStep(ctx provider.StepCtx, expecte
 	})
 }
 
-func (suite *TestSuite) VerifyStatusConditionsStep(ctx provider.StepCtx, expected []schema.StatusCondition, actual []schema.StatusCondition) {
-	ctx.WithNewStep("Verify status conditions", func(stepCtx provider.StepCtx) {
-		stepCtx.Require().Equal(len(expected), len(actual), "Status conditions length should match expected")
-		for i := range expected {
-			stepCtx.Require().Equal(expected[i].State, actual[i].State,
-				fmt.Sprintf("Condition [%d] state should match expected", i))
-		}
-	})
-}
-
 func (suite *TestSuite) VerifyLabelsStep(ctx provider.StepCtx, expected schema.Labels, actual schema.Labels) {
 	ctx.WithNewStep("Verify label", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters(
