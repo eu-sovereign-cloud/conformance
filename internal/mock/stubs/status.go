@@ -39,7 +39,7 @@ func newWorkspaceStatus(state schema.ResourceState) *schema.WorkspaceStatus {
 	}
 }
 
-func setWorkspaceState(status schema.WorkspaceStatus, state schema.ResourceState) {
+func setWorkspaceState(status *schema.WorkspaceStatus, state schema.ResourceState) {
 	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }

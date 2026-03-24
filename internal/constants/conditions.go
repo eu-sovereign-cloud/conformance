@@ -94,6 +94,12 @@ var (
 		ActiveCondition,
 		UpdatingCondition,
 		ActiveCondition,
+		UpdatingCondition,
+		ActiveCondition,
+		UpdatingCondition,
+		ActiveCondition,
+		UpdatingCondition,
+		ActiveCondition,
 	}
 
 	GetConditionAfterStarting = []schema.StatusCondition{
@@ -102,11 +108,17 @@ var (
 		ActiveCondition,
 		UpdatingCondition,
 		ActiveCondition,
+		UpdatingCondition,
+		ActiveCondition,
 	}
 
 	GetConditionAfterRestarting = []schema.StatusCondition{
 		PendingCondition,
 		CreatingCondition,
+		ActiveCondition,
+		UpdatingCondition,
+		ActiveCondition,
+		UpdatingCondition,
 		ActiveCondition,
 		UpdatingCondition,
 		ActiveCondition,

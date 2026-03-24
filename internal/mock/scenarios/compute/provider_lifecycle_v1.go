@@ -78,16 +78,6 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 		return err
 	}
 
-	// Stop the instance
-	if err := configurator.ConfigureInstanceOperationStub(instance, instanceStopUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Get the stopped instance
-	if err := configurator.ConfigureGetActiveInstanceStub(instance, instanceUrl, scenario.MockParams); err != nil {
-		return err
-	}
-
 	// Start the instance
 	if err := configurator.ConfigureInstanceOperationStub(instance, instanceStartUrl, scenario.MockParams); err != nil {
 		return err
@@ -104,6 +94,16 @@ func ConfigureProviderLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Get the restarted instance
+	if err := configurator.ConfigureGetActiveInstanceStub(instance, instanceUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Stop the instance
+	if err := configurator.ConfigureInstanceOperationStub(instance, instanceStopUrl, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Get the stopped instance
 	if err := configurator.ConfigureGetActiveInstanceStub(instance, instanceUrl, scenario.MockParams); err != nil {
 		return err
 	}

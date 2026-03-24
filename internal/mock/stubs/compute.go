@@ -28,6 +28,7 @@ func (configurator *Configurator) ConfigureUpdateInstanceStub(response *schema.I
 }
 
 func (configurator *Configurator) ConfigureInstanceOperationStub(response *schema.Instance, url string, params *mock.MockParams) error {
+	setInstanceState(response.Status, schema.ResourceStateUpdating)
 	if err := configurator.ConfigurePostStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

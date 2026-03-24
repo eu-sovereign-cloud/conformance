@@ -254,21 +254,6 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Stop the instance
-	stepsBuilder.StopInstanceV1Step("Stop the instance", suite.Client.ComputeV1, instance)
-
-	// Get the stoped instance
-	instance = stepsBuilder.GetInstanceV1Step("Get the updated instance", suite.Client.ComputeV1, instanceWRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-			Metadata: expectInstanceMeta,
-			Spec:     expectInstanceSpec,
-			ResourceStatus: schema.Status{
-				State:      schema.ResourceStateActive,
-				Conditions: suites.GetConditionAfterStopping,
-			},
-		},
-	)
-
 	// Start the instance
 	stepsBuilder.StartInstanceV1Step("Start the instance", suite.Client.ComputeV1, instance)
 
@@ -300,6 +285,20 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
+	// Stop the instance
+	stepsBuilder.StopInstanceV1Step("Stop the instance", suite.Client.ComputeV1, instance)
+
+	// Get the stoped instance
+	instance = stepsBuilder.GetInstanceV1Step("Get the updated instance", suite.Client.ComputeV1, instanceWRef,
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			Metadata: expectInstanceMeta,
+			Spec:     expectInstanceSpec,
+			ResourceStatus: schema.Status{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterStopping,
+			},
+		},
+	)
 	// Resources deletion
 
 	stepsBuilder.DeleteInstanceV1Step("Delete the instance", suite.Client.ComputeV1, instance)
