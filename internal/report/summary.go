@@ -45,15 +45,22 @@ type ErrorDetail struct {
 	Trace   string `json:"trace,omitempty"`
 }
 
+const (
+	statusFailed  = "failed"
+	statusBroken  = "broken"
+	statusPassed  = "passed"
+	statusSkipped = "skipped"
+)
+
 func statusPriority(status string) int {
 	switch status {
-	case "failed":
+	case statusFailed:
 		return 0
-	case "broken":
+	case statusBroken:
 		return 1
-	case "passed":
+	case statusPassed:
 		return 2
-	case "skipped":
+	case statusSkipped:
 		return 3
 	default:
 		return 4
@@ -66,7 +73,7 @@ func convertStep(s allureStep) StepResult {
 		Status:     s.Status,
 		DurationMs: s.Stop - s.Start,
 	}
-	if (s.Status == "failed" || s.Status == "broken") &&
+	if (s.Status == statusFailed || s.Status == statusBroken) &&
 		(s.StatusDetails.Message != "" || s.StatusDetails.Trace != "") {
 		sr.Error = &ErrorDetail{
 			Message: s.StatusDetails.Message,
@@ -105,13 +112,13 @@ func BuildSummary(resultsPath string) (*Summary, error) {
 
 		totals.Total++
 		switch ar.Status {
-		case "passed":
+		case statusPassed:
 			totals.Passed++
-		case "failed":
+		case statusFailed:
 			totals.Failed++
-		case "broken":
+		case statusBroken:
 			totals.Broken++
-		case "skipped":
+		case statusSkipped:
 			totals.Skipped++
 		}
 
@@ -121,7 +128,7 @@ func BuildSummary(resultsPath string) (*Summary, error) {
 			Status:     ar.Status,
 			DurationMs: ar.Stop - ar.Start,
 		}
-		if (ar.Status == "failed" || ar.Status == "broken") &&
+		if (ar.Status == statusFailed || ar.Status == statusBroken) &&
 			(ar.StatusDetails.Message != "" || ar.StatusDetails.Trace != "") {
 			sr.Error = &ErrorDetail{
 				Message: ar.StatusDetails.Message,

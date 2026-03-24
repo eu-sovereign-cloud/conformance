@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"os"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
@@ -36,30 +35,29 @@ func newSummaryCmd() *cobra.Command {
 	return cmd
 }
 
-func maybeWriteSummary() {
+func maybeWriteSummary() error {
 	needFile := config.Parameters.SummaryOutputPath != ""
 	needStdout := config.Parameters.SummaryFormat != ""
 	if !needFile && !needStdout {
-		return
+		return nil
 	}
 
 	s, err := report.BuildSummary(config.Parameters.ReportResultsPath)
 	if err != nil {
-		slog.Error("Failed to build summary", "error", err)
-		return
+		return fmt.Errorf("building summary: %w", err)
 	}
 
 	if needStdout {
 		switch config.Parameters.SummaryFormat {
 		case "text":
 			if err := report.WriteText(os.Stdout, s); err != nil {
-				slog.Error("Failed to write summary", "error", err)
+				return fmt.Errorf("writing text summary: %w", err)
 			}
 		default:
 			enc := json.NewEncoder(os.Stdout)
 			enc.SetIndent("", "  ")
 			if err := enc.Encode(s); err != nil {
-				slog.Error("Failed to write summary", "error", err)
+				return fmt.Errorf("encoding json summary: %w", err)
 			}
 		}
 	}
@@ -67,11 +65,12 @@ func maybeWriteSummary() {
 	if needFile {
 		data, err := json.MarshalIndent(s, "", "  ")
 		if err != nil {
-			slog.Error("Failed to marshal summary", "error", err)
-			return
+			return fmt.Errorf("marshaling summary: %w", err)
 		}
-		if err := os.WriteFile(config.Parameters.SummaryOutputPath, data, 0o644); err != nil {
-			slog.Error("Failed to write summary file", "error", err)
+		if err := os.WriteFile(config.Parameters.SummaryOutputPath, data, 0o600); err != nil {
+			return fmt.Errorf("writing summary file: %w", err)
 		}
 	}
+
+	return nil
 }

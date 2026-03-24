@@ -63,7 +63,10 @@ func newRunCmd(m *testing.M) *cobra.Command {
 
 			// Run the test suites
 			code := m.Run()
-			maybeWriteSummary()
+			if err := maybeWriteSummary(); err != nil {
+				slog.Error("Failed to write summary", "error", err)
+				os.Exit(1)
+			}
 			os.Exit(code)
 
 			return nil
