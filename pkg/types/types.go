@@ -67,9 +67,9 @@ type StatusType interface {
 		schema.SecurityGroupStatus
 }
 
-func GetStatusState[S StatusType](status *S) *schema.ResourceState {
+func GetStatusState[S StatusType](status *S) schema.ResourceState {
 	if status == nil {
-		return nil
+		return ""
 	}
 
 	switch v := any(*status).(type) {
@@ -96,7 +96,7 @@ func GetStatusState[S StatusType](status *S) *schema.ResourceState {
 	case schema.SecurityGroupStatus:
 		return v.State
 	default:
-		return nil
+		return ""
 	}
 }
 

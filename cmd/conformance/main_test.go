@@ -121,6 +121,7 @@ func initCommands(m *testing.M) *cobra.Command {
 
 	runCmd.Flags().StringVar(&config.Parameters.ScenariosFilter, "scenarios.filter", "", "Regular expression to filter scenarios to run")
 	runCmd.Flags().StringSliceVar(&config.Parameters.ScenariosUsers, "scenarios.users", nil, "Scenario Available Users")
+	runCmd.Flags().StringSliceVar(&config.Parameters.ScenariosAdditionalRegions, "scenarios.additional.regions", nil, "Scenario Additional Regions")
 	runCmd.Flags().StringVar(&config.Parameters.ScenariosCidr, "scenarios.cidr", "", "Scenario Available Network CIDR")
 	runCmd.Flags().StringVar(&config.Parameters.ScenariosPublicIps, "scenarios.public.ips", "", "Scenario Public IPs Range")
 

@@ -25,13 +25,7 @@ func (configurator *StepsConfigurator) ListNetworkSkusV1Step(
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetComputeV1StepParams(sCtx, "ListSkus", tref.Name)
 
-		var iter *secapi.Iterator[schema.NetworkSku]
-		var err error
-		if opts != nil {
-			iter, err = api.ListSkusWithFilters(configurator.t.Context(), tref.Tenant, opts)
-		} else {
-			iter, err = api.ListSkus(configurator.t.Context(), tref.Tenant)
-		}
+		iter, err := api.ListSkusWithOptions(configurator.t.Context(), secapi.TenantPath{Tenant: tref.Tenant}, opts)
 		requireNoError(sCtx, err)
 
 		// Iterate through all items
@@ -104,13 +98,7 @@ func (configurator *StepsConfigurator) ListNetworkV1Step(
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListNetwork", string(wref.Workspace))
-		var iter *secapi.Iterator[schema.Network]
-		var err error
-		if opts != nil {
-			iter, err = api.ListNetworksWithFilters(configurator.t.Context(), wref.Tenant, wref.Workspace, opts)
-		} else {
-			iter, err = api.ListNetworks(configurator.t.Context(), wref.Tenant, wref.Workspace)
-		}
+		iter, err := api.ListNetworksWithOptions(configurator.t.Context(), secapi.WorkspacePath{Tenant: wref.Tenant, Workspace: wref.Workspace}, opts)
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)
@@ -207,13 +195,7 @@ func (configurator *StepsConfigurator) ListInternetGatewayV1Step(
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListInternetGateway", wref.Name)
-		var iter *secapi.Iterator[schema.InternetGateway]
-		var err error
-		if opts != nil {
-			iter, err = api.ListInternetGatewaysWithFilters(configurator.t.Context(), wref.Tenant, wref.Workspace, opts)
-		} else {
-			iter, err = api.ListInternetGateways(configurator.t.Context(), wref.Tenant, wref.Workspace)
-		}
+		iter, err := api.ListInternetGatewaysWithOptions(configurator.t.Context(), secapi.WorkspacePath{Tenant: wref.Tenant, Workspace: wref.Workspace}, opts)
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)
@@ -311,13 +293,7 @@ func (configurator *StepsConfigurator) ListRouteTableV1Step(
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListRouteTable", nref.Name)
-		var iter *secapi.Iterator[schema.RouteTable]
-		var err error
-		if opts != nil {
-			iter, err = api.ListRouteTablesWithFilters(configurator.t.Context(), nref.Tenant, nref.Workspace, nref.Network, opts)
-		} else {
-			iter, err = api.ListRouteTables(configurator.t.Context(), nref.Tenant, nref.Workspace, nref.Network)
-		}
+		iter, err := api.ListRouteTablesWithOptions(configurator.t.Context(), secapi.NetworkPath{Tenant: nref.Tenant, Workspace: nref.Workspace, Network: nref.Network}, opts)
 		requireNoError(sCtx, err)
 		verifyIterListStep(sCtx, configurator.t, *iter)
 	})
@@ -414,13 +390,7 @@ func (configurator *StepsConfigurator) ListSubnetV1Step(
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListSubnet", nref.Name)
-		var iter *secapi.Iterator[schema.Subnet]
-		var err error
-		if opts != nil {
-			iter, err = api.ListSubnetsWithFilters(configurator.t.Context(), nref.Tenant, nref.Workspace, nref.Network, opts)
-		} else {
-			iter, err = api.ListSubnets(configurator.t.Context(), nref.Tenant, nref.Workspace, nref.Network)
-		}
+		iter, err := api.ListSubnetsWithOptions(configurator.t.Context(), secapi.NetworkPath{Tenant: nref.Tenant, Workspace: nref.Workspace, Network: nref.Network}, opts)
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)
@@ -517,13 +487,7 @@ func (configurator *StepsConfigurator) ListPublicIpV1Step(
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListPublicIp", wref.Name)
-		var iter *secapi.Iterator[schema.PublicIp]
-		var err error
-		if opts != nil {
-			iter, err = api.ListPublicIpsWithFilters(configurator.t.Context(), wref.Tenant, wref.Workspace, opts)
-		} else {
-			iter, err = api.ListPublicIps(configurator.t.Context(), wref.Tenant, wref.Workspace)
-		}
+		iter, err := api.ListPublicIpsWithOptions(configurator.t.Context(), secapi.WorkspacePath{Tenant: wref.Tenant, Workspace: wref.Workspace}, opts)
 		requireNoError(sCtx, err)
 
 		// Iterate through all items
@@ -621,13 +585,7 @@ func (configurator *StepsConfigurator) ListNicV1Step(
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListNic", wref.Name)
-		var iter *secapi.Iterator[schema.Nic]
-		var err error
-		if opts != nil {
-			iter, err = api.ListNicsWithFilters(configurator.t.Context(), wref.Tenant, wref.Workspace, opts)
-		} else {
-			iter, err = api.ListNics(configurator.t.Context(), wref.Tenant, wref.Workspace)
-		}
+		iter, err := api.ListNicsWithOptions(configurator.t.Context(), secapi.WorkspacePath{Tenant: wref.Tenant, Workspace: wref.Workspace}, opts)
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)
@@ -724,13 +682,7 @@ func (configurator *StepsConfigurator) ListSecurityGroupRuleV1Step(
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListSecurityGroupRule", wref.Name)
-		var iter *secapi.Iterator[schema.SecurityGroupRule]
-		var err error
-		if opts != nil {
-			iter, err = api.ListSecurityGroupRulesWithFilters(configurator.t.Context(), wref.Tenant, wref.Workspace, opts)
-		} else {
-			iter, err = api.ListSecurityGroupRules(configurator.t.Context(), wref.Tenant, wref.Workspace)
-		}
+		iter, err := api.ListSecurityGroupRulesWithOptions(configurator.t.Context(), secapi.WorkspacePath{Tenant: wref.Tenant, Workspace: wref.Workspace}, opts)
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)
@@ -827,13 +779,7 @@ func (configurator *StepsConfigurator) ListSecurityGroupV1Step(
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListSecurityGroup", wref.Name)
-		var iter *secapi.Iterator[schema.SecurityGroup]
-		var err error
-		if opts != nil {
-			iter, err = api.ListSecurityGroupsWithFilters(configurator.t.Context(), wref.Tenant, wref.Workspace, opts)
-		} else {
-			iter, err = api.ListSecurityGroups(configurator.t.Context(), wref.Tenant, wref.Workspace)
-		}
+		iter, err := api.ListSecurityGroupsWithOptions(configurator.t.Context(), secapi.WorkspacePath{Tenant: wref.Tenant, Workspace: wref.Workspace}, opts)
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)

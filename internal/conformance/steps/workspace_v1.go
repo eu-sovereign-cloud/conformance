@@ -71,13 +71,7 @@ func (configurator *StepsConfigurator) ListWorkspaceV1Step(
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
 	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
 		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, "ListWorkspace", string(tref.Tenant))
-		var iter *secapi.Iterator[schema.Workspace]
-		var err error
-		if opts != nil {
-			iter, err = api.ListWorkspacesWithFilters(configurator.t.Context(), tref.Tenant, opts)
-		} else {
-			iter, err = api.ListWorkspaces(configurator.t.Context(), tref.Tenant)
-		}
+		iter, err := api.ListWorkspacesWithOptions(configurator.t.Context(), secapi.TenantPath{Tenant: tref.Tenant}, opts)
 		requireNoError(sCtx, err)
 
 		verifyIterListStep(sCtx, configurator.t, *iter)

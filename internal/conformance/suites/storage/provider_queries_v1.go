@@ -238,12 +238,12 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// List block storages with label
 	stepsBuilder.ListBlockStorageV1Step("Get list of block storage with label", suite.Client.StorageV1, wref,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List block storages with limit and label
 	stepsBuilder.ListBlockStorageV1Step("Get list of block storage with limit and label", suite.Client.StorageV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvDevelopmentLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Image
 	images := suite.params.Images

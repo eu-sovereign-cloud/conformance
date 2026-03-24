@@ -13,8 +13,8 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"k8s.io/utils/ptr"
 )
 
 type ProviderLifeCycleV1TestSuite struct {
@@ -162,7 +162,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			SkuRef:        *networkSkuRefObj,
 			RouteTableRef: *routeTableRefObj,
 		}).Build()
@@ -175,7 +175,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			SkuRef:        *networkSkuRef2Obj,
 			RouteTableRef: *routeTableRefObj,
 		}).Build()
@@ -188,7 +188,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InternetGatewaySpec{
-			EgressOnly: ptr.To(false),
+			EgressOnly: false,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Internet Gateway: %v", err)
@@ -199,7 +199,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InternetGatewaySpec{
-			EgressOnly: ptr.To(true),
+			EgressOnly: true,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Internet Gateway: %v", err)
@@ -236,7 +236,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: &subnetCidr},
+			Cidr: schema.Cidr{Ipv4: subnetCidr},
 			Zone: zone1,
 		}).Build()
 	if err != nil {
@@ -248,7 +248,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: &subnetCidr},
+			Cidr: schema.Cidr{Ipv4: subnetCidr},
 			Zone: zone2,
 		}).Build()
 	if err != nil {
@@ -261,7 +261,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NicSpec{
 			Addresses:    []string{nicAddress1},
-			PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+			PublicIpRefs: []schema.Reference{*publicIpRefObj},
 			SubnetRef:    *subnetRefObj,
 		}).Build()
 	if err != nil {
@@ -274,7 +274,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NicSpec{
 			Addresses:    []string{nicAddress2},
-			PublicIpRefs: &[]schema.Reference{*publicIpRefObj},
+			PublicIpRefs: []schema.Reference{*publicIpRefObj},
 			SubnetRef:    *subnetRefObj,
 		}).Build()
 	if err != nil {
@@ -287,7 +287,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
-			Address: ptr.To(publicIpAddress1),
+			Address: publicIpAddress1,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Public IP: %v", err)
@@ -299,7 +299,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
-			Address: ptr.To(publicIpAddress2),
+			Address: publicIpAddress2,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Public IP: %v", err)
@@ -310,7 +310,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.SecurityGroupSpec{
-			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
+			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group: %v", err)
@@ -321,7 +321,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.SecurityGroupSpec{
-			Rules: &[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionEgress}},
+			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionEgress}},
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Security Group: %v", err)
@@ -760,7 +760,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the security group
-	groupRules := *group.Spec.Rules
+	groupRules := group.Spec.Rules
 	groupRules[0] = schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionEgress}
 	expectGroupSpec.Rules = group.Spec.Rules
 	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Update the security group", suite.Client.NetworkV1, group,

@@ -14,7 +14,6 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"k8s.io/utils/ptr"
 )
 
 type NetworkLifeCycleV1TestSuite struct {
@@ -73,7 +72,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			SkuRef:        *networkSkuRefObj,
 			RouteTableRef: *routeTableRefObj,
 		}).Build()
@@ -86,7 +85,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: ptr.To(suite.config.NetworkCidr)},
+			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			SkuRef:        *networkSkuRef2Obj,
 			RouteTableRef: *routeTableRefObj,
 		}).Build()
@@ -112,7 +111,7 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.InternetGatewaySpec{
-			EgressOnly: ptr.To(false),
+			EgressOnly: false,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Internet Gateway: %v", err)
