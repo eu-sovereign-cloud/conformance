@@ -62,6 +62,10 @@ run:
 	  --mock.enabled=true \
 	  --mock.server.url=http://localhost:8080
 
+.PHONY: summary
+summary:
+	$(DIST_BIN) summary $(RESULTS_PATH)
+
 .PHONY: report
 report:
 	@echo "Viewing report..."

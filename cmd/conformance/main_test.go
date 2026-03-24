@@ -63,6 +63,10 @@ func newRunCmd(m *testing.M) *cobra.Command {
 
 			// Run the test suites
 			code := m.Run()
+			if err := maybeWriteSummary(); err != nil {
+				slog.Error("Failed to write summary", "error", err)
+				os.Exit(1)
+			}
 			os.Exit(code)
 
 			return nil
@@ -126,6 +130,8 @@ func initCommands(m *testing.M) *cobra.Command {
 	runCmd.Flags().StringVar(&config.Parameters.ScenariosPublicIps, "scenarios.public.ips", "", "Scenario Public IPs Range")
 
 	runCmd.Flags().StringVar(&config.Parameters.ReportResultsPath, "report.results.path", "", "Report Results Path")
+	runCmd.Flags().StringVar(&config.Parameters.SummaryOutputPath, "output.summary.path", "", "Write JSON summary to this file after run")
+	runCmd.Flags().StringVar(&config.Parameters.SummaryFormat, "summary", "", "Print summary to stdout after run: json or text")
 
 	runCmd.Flags().BoolVar(&config.Parameters.MockEnabled, "mock.enabled", false, "Enable Mock Usage")
 	runCmd.Flags().StringVar(&config.Parameters.MockServerURL, "mock.server.url", "", "Mock Server URL")
@@ -149,6 +155,9 @@ func initCommands(m *testing.M) *cobra.Command {
 
 	listCmd := newListCmd()
 	rootCmd.AddCommand(listCmd)
+
+	summaryCmd := newSummaryCmd()
+	rootCmd.AddCommand(summaryCmd)
 
 	return rootCmd
 }
