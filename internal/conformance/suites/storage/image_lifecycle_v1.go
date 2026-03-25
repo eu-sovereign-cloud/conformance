@@ -201,7 +201,7 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Tenant: secapi.TenantID(image.Metadata.Tenant),
 		Name:   image.Metadata.Name,
 	}
-	image = stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
+	stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata: expectedImageMeta,
 			Spec:     expectedImageSpec,
