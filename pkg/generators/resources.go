@@ -4,126 +4,126 @@ import (
 	"fmt"
 )
 
-func GenerateSkuResource(provider, tenant, sku string) string {
-	return fmt.Sprintf(skuResource, provider, tenant, sku)
+func GenerateSkuResource(name string) string {
+	return fmt.Sprintf(skuResource, name)
 }
 
-func GenerateSkuListResource(provider, tenant string) string {
-	return fmt.Sprintf(skuListResource, provider, tenant)
+func GenerateSkuListResource() string {
+	return skuListResource
 }
 
-func GenerateRoleResource(provider, tenant, role string) string {
-	return fmt.Sprintf(roleResource, provider, tenant, role)
+func GenerateRoleResource(name string) string {
+	return fmt.Sprintf(roleResource, name)
 }
 
-func GenerateRoleListResource(provider, tenant string) string {
-	return fmt.Sprintf(roleListResource, provider, tenant)
+func GenerateRoleListResource() string {
+	return roleListResource
 }
 
-func GenerateRoleAssignmentResource(provider, tenant, roleAssignment string) string {
-	return fmt.Sprintf(roleAssignmentResource, provider, tenant, roleAssignment)
+func GenerateRoleAssignmentResource(name string) string {
+	return fmt.Sprintf(roleAssignmentResource, name)
 }
 
-func GenerateRoleAssignmentListResource(provider, tenant string) string {
-	return fmt.Sprintf(roleAssignmentListResource, provider, tenant)
+func GenerateRoleAssignmentListResource() string {
+	return roleAssignmentListResource
 }
 
-func GenerateRegionResource(provider, region string) string {
-	return fmt.Sprintf(regionResource, provider, region)
+func GenerateRegionResource(name string) string {
+	return fmt.Sprintf(regionResource, name)
 }
 
-func GenerateRegionListResource(provider string) string {
-	return fmt.Sprintf(regionListResource, provider)
+func GenerateRegionListResource() string {
+	return regionListResource
 }
 
-func GenerateWorkspaceResource(provider, tenant, workspace string) string {
-	return fmt.Sprintf(workspaceResource, provider, tenant, workspace)
+func GenerateWorkspaceResource(name string) string {
+	return fmt.Sprintf(workspaceResource, name)
 }
 
-func GenerateWorkspaceListResource(provider, tenant string) string {
-	return fmt.Sprintf(workspaceListResource, provider, tenant)
+func GenerateWorkspaceListResource() string {
+	return workspaceListResource
 }
 
-func GenerateBlockStorageResource(provider, tenant, workspace, blockStorage string) string {
-	return fmt.Sprintf(blockStorageResource, provider, tenant, workspace, blockStorage)
+func GenerateBlockStorageResource(name string) string {
+	return fmt.Sprintf(blockStorageResource, name)
 }
 
-func GenerateBlockStorageListResource(provider, tenant, workspace string) string {
-	return fmt.Sprintf(blockStorageListResource, provider, tenant, workspace)
+func GenerateBlockStorageListResource() string {
+	return blockStorageListResource
 }
 
-func GenerateImageResource(provider, tenant, image string) string {
-	return fmt.Sprintf(imageResource, provider, tenant, image)
+func GenerateImageResource(name string) string {
+	return fmt.Sprintf(imageResource, name)
 }
 
-func GenerateImageListResource(provider, tenant string) string {
-	return fmt.Sprintf(imageListResource, provider, tenant)
+func GenerateImageListResource() string {
+	return imageListResource
 }
 
-func GenerateInstanceResource(provider, tenant, workspace, instance string) string {
-	return fmt.Sprintf(instanceResource, provider, tenant, workspace, instance)
+func GenerateInstanceResource(name string) string {
+	return fmt.Sprintf(instanceResource, name)
 }
 
-func GenerateInstanceListResource(provider, tenant, workspace string) string {
-	return fmt.Sprintf(instanceListResource, provider, tenant, workspace)
+func GenerateInstanceListResource() string {
+	return instanceListResource
 }
 
-func GenerateNetworkResource(provider, tenant, workspace, network string) string {
-	return fmt.Sprintf(networkResource, provider, tenant, workspace, network)
+func GenerateNetworkResource(name string) string {
+	return fmt.Sprintf(networkResource, name)
 }
 
-func GenerateNetworkListResource(provider, tenant, workspace string) string {
-	return fmt.Sprintf(networkListResource, provider, tenant, workspace)
+func GenerateNetworkListResource() string {
+	return networkListResource
 }
 
-func GenerateInternetGatewayResource(provider, tenant, workspace, internetGateway string) string {
-	return fmt.Sprintf(internetGatewayResource, provider, tenant, workspace, internetGateway)
+func GenerateInternetGatewayResource(name string) string {
+	return fmt.Sprintf(internetGatewayResource, name)
 }
 
-func GenerateInternetGatewayListResource(provider, tenant, workspace string) string {
-	return fmt.Sprintf(internetGatewayListResource, provider, tenant, workspace)
+func GenerateInternetGatewayListResource() string {
+	return internetGatewayListResource
 }
 
-func GenerateNicResource(provider, tenant, workspace, nic string) string {
-	return fmt.Sprintf(nicResource, provider, tenant, workspace, nic)
+func GenerateNicResource(name string) string {
+	return fmt.Sprintf(nicResource, name)
 }
 
-func GenerateNicListResource(provider, tenant, workspace string) string {
-	return fmt.Sprintf(nicListResource, provider, tenant, workspace)
+func GenerateNicListResource() string {
+	return nicListResource
 }
 
-func GeneratePublicIpResource(provider, tenant, workspace, publicIp string) string {
-	return fmt.Sprintf(publicIpResource, provider, tenant, workspace, publicIp)
+func GeneratePublicIpResource(name string) string {
+	return fmt.Sprintf(publicIpResource, name)
 }
 
-func GeneratePublicIpListResource(provider, tenant, workspace string) string {
-	return fmt.Sprintf(publicIpListResource, provider, tenant, workspace)
+func GeneratePublicIpListResource() string {
+	return publicIpListResource
 }
 
-func GenerateRouteTableResource(provider, tenant, workspace, network, routeTable string) string {
-	return fmt.Sprintf(routeTableResource, provider, tenant, workspace, network, routeTable)
+func GenerateRouteTableResource(network, name string) string {
+	return fmt.Sprintf(routeTableResource, network, name)
 }
 
-func GenerateRouteTableListResource(provider, tenant, workspace, network string) string {
-	return fmt.Sprintf(routeTableListResource, provider, tenant, workspace, network)
+func GenerateRouteTableListResource(network string) string {
+	return fmt.Sprintf(routeTableListResource, network)
 }
 
-func GenerateSubnetResource(provider, tenant, workspace, network, subnet string) string {
-	return fmt.Sprintf(subnetResource, provider, tenant, workspace, network, subnet)
+func GenerateSubnetResource(network, name string) string {
+	return fmt.Sprintf(subnetResource, network, name)
 }
 
-func GenerateSubnetListResource(provider, tenant, workspace, network string) string {
-	return fmt.Sprintf(subnetListResource, provider, tenant, workspace, network)
+func GenerateSubnetListResource(network string) string {
+	return fmt.Sprintf(subnetListResource, network)
 }
 
-func GenerateSecurityGroupRuleResource(provider, tenant, workspace, securityGroupRule string) string {
-	return fmt.Sprintf(securityGroupRuleResource, provider, tenant, workspace, securityGroupRule)
+func GenerateSecurityGroupRuleResource(name string) string {
+	return fmt.Sprintf(securityGroupRuleResource, name)
 }
 
-func GenerateSecurityGroupResource(provider, tenant, workspace, securityGroup string) string {
-	return fmt.Sprintf(securityGroupResource, provider, tenant, workspace, securityGroup)
+func GenerateSecurityGroupResource(name string) string {
+	return fmt.Sprintf(securityGroupResource, name)
 }
 
-func GenerateSecurityGroupListResource(provider, tenant, workspace string) string {
-	return fmt.Sprintf(securityGroupListResource, provider, tenant, workspace)
+func GenerateSecurityGroupListResource() string {
+	return securityGroupListResource
 }

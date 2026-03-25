@@ -57,13 +57,13 @@ func (suite *NicLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to generate subnet cidr: %v", err)
 	}
 
-	subnetRefObj := generators.GenerateSubnetRefObject(networkName, subnetName)
+	subnetRefObj := generators.GenerateSubnetRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, subnetName)
 
-	networkSkuRefObj := generators.GenerateSkuRefObject(networkSkuName)
+	networkSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName)
 
-	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(internetGatewayName)
+	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, internetGatewayName)
 
-	routeTableRefObj := generators.GenerateRouteTableRefObject(networkName, routeTableName)
+	routeTableRefObj := generators.GenerateRouteTableRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, routeTableName)
 
 	// Generate the nic addresses
 	nicAddress1, err := generators.GenerateNicAddress(subnetCidr, 1)

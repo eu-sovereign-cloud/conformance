@@ -34,7 +34,7 @@ func (builder *StorageSkuIteratorBuilder) Build() (*storage.SkuIterator, error) 
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateSkuListResource(builder.metadata.Provider, builder.tenant)
+	builder.metadata.Resource = generators.GenerateSkuListResource()
 
 	return &storage.SkuIterator{
 		Metadata: *builder.metadata,
@@ -58,8 +58,8 @@ func NewBlockStorageMetadataBuilder() *BlockStorageMetadataBuilder {
 
 func (builder *BlockStorageMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage).
-		Resource(generators.GenerateBlockStorageResource(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
-		Ref(generators.GenerateBlockStorageRef(builder.metadata.Name)).
+		Resource(generators.GenerateBlockStorageResource(builder.metadata.Name)).
+		Ref(generators.GenerateBlockStorageRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -155,7 +155,7 @@ func (builder *BlockStorageIteratorBuilder) Build() (*storage.BlockStorageIterat
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateBlockStorageListResource(builder.metadata.Provider, builder.tenant, builder.workspace)
+	builder.metadata.Resource = generators.GenerateBlockStorageListResource()
 
 	return &storage.BlockStorageIterator{
 		Metadata: *builder.metadata,
@@ -179,8 +179,8 @@ func NewImageMetadataBuilder() *ImageMetadataBuilder {
 
 func (builder *ImageMetadataBuilder) Build() (*schema.RegionalResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalResourceMetadataKindResourceKindImage).
-		Resource(generators.GenerateImageResource(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Name)).
-		Ref(generators.GenerateImageRef(builder.metadata.Name)).
+		Resource(generators.GenerateImageResource(builder.metadata.Name)).
+		Ref(generators.GenerateImageRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -275,7 +275,7 @@ func (builder *ImageIteratorBuilder) Build() (*storage.ImageIterator, error) {
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateImageListResource(builder.metadata.Provider, builder.tenant)
+	builder.metadata.Resource = generators.GenerateImageListResource()
 
 	return &storage.ImageIterator{
 		Metadata: *builder.metadata,

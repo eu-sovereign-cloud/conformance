@@ -51,13 +51,13 @@ func (suite *RouteTableLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	instanceName := generators.GenerateInstanceName()
 
-	instanceRefObj := generators.GenerateInstanceRefObject(instanceName)
+	instanceRefObj := generators.GenerateInstanceRefObject(sdkconsts.ComputeProviderV1Name, suite.Tenant, workspaceName, instanceName)
 
-	routeTableRefObj := generators.GenerateRouteTableRefObject(networkName, routeTableName)
+	routeTableRefObj := generators.GenerateRouteTableRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, routeTableName)
 
-	networkSkuRefObj := generators.GenerateSkuRefObject(networkSkuName)
+	networkSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName)
 
-	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(internetGatewayName)
+	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, internetGatewayName)
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).

@@ -21,7 +21,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	regions := params.Regions
 
 	// Generate resource
-	regionsResource := generators.GenerateRegionListResource(sdkconsts.RegionProviderV1Name)
+	regionsResource := generators.GenerateRegionListResource()
 
 	// Generate URLs
 	regionsUrl := generators.GenerateRegionListURL(sdkconsts.RegionProviderV1Name)

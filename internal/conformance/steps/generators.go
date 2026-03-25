@@ -18,7 +18,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "RD100",
 				Provider: sdkconsts.StorageProviderV1Name,
-				Resource: generators.GenerateSkuResource(sdkconsts.StorageProviderV1Name, tenant, "RD100"),
+				Resource: generators.GenerateSkuResource("RD100"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
@@ -36,7 +36,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "RD500",
 				Provider: sdkconsts.StorageProviderV1Name,
-				Resource: generators.GenerateSkuResource(sdkconsts.StorageProviderV1Name, tenant, "RD500"),
+				Resource: generators.GenerateSkuResource("RD500"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
@@ -54,7 +54,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "RD2K",
 				Provider: sdkconsts.StorageProviderV1Name,
-				Resource: generators.GenerateSkuResource(sdkconsts.StorageProviderV1Name, tenant, "RD2K"),
+				Resource: generators.GenerateSkuResource("RD2K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
@@ -77,7 +77,7 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "D2XS",
 				Provider: sdkconsts.ComputeProviderV1Name,
-				Resource: generators.GenerateSkuResource(sdkconsts.ComputeProviderV1Name, tenant, "D2XS"),
+				Resource: generators.GenerateSkuResource("D2XS"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
@@ -95,7 +95,7 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "DXS",
 				Provider: sdkconsts.ComputeProviderV1Name,
-				Resource: generators.GenerateSkuResource(sdkconsts.ComputeProviderV1Name, tenant, "DXS"),
+				Resource: generators.GenerateSkuResource("DXS"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
@@ -113,7 +113,7 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "DS",
 				Provider: sdkconsts.ComputeProviderV1Name,
-				Resource: generators.GenerateSkuResource(sdkconsts.ComputeProviderV1Name, tenant, "DS"),
+				Resource: generators.GenerateSkuResource("DS"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
@@ -136,7 +136,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "N1K",
 				Provider: sdkconsts.NetworkProviderV1Name,
-				Resource: generators.GenerateSkuResource(sdkconsts.NetworkProviderV1Name, tenant, "N1K"),
+				Resource: generators.GenerateSkuResource("N1K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
@@ -153,7 +153,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "N5K",
 				Provider: sdkconsts.NetworkProviderV1Name,
-				Resource: generators.GenerateSkuResource(sdkconsts.NetworkProviderV1Name, tenant, "N5K"),
+				Resource: generators.GenerateSkuResource("N5K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},
@@ -170,7 +170,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 			Metadata: &schema.SkuResourceMetadata{
 				Name:     "N10K",
 				Provider: sdkconsts.NetworkProviderV1Name,
-				Resource: generators.GenerateSkuResource(sdkconsts.NetworkProviderV1Name, tenant, "N10K"),
+				Resource: generators.GenerateSkuResource("N10K"),
 				Verb:     http.MethodGet,
 				Tenant:   tenant,
 			},

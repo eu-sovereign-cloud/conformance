@@ -34,7 +34,7 @@ func (builder *InstanceSkuIteratorBuilder) Build() (*compute.SkuIterator, error)
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateSkuListResource(builder.metadata.Provider, builder.tenant)
+	builder.metadata.Resource = generators.GenerateSkuListResource()
 
 	return &compute.SkuIterator{
 		Metadata: *builder.metadata,
@@ -58,8 +58,8 @@ func NewInstanceMetadataBuilder() *InstanceMetadataBuilder {
 
 func (builder *InstanceMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance).
-		Resource(generators.GenerateInstanceResource(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
-		Ref(generators.GenerateInstanceRef(builder.metadata.Name)).
+		Resource(generators.GenerateInstanceResource(builder.metadata.Name)).
+		Ref(generators.GenerateInstanceRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -157,7 +157,7 @@ func (builder *InstanceIteratorBuilder) Build() (*compute.InstanceIterator, erro
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateInstanceListResource(builder.metadata.Provider, builder.tenant, builder.workspace)
+	builder.metadata.Resource = generators.GenerateInstanceListResource()
 
 	return &compute.InstanceIterator{
 		Metadata: *builder.metadata,

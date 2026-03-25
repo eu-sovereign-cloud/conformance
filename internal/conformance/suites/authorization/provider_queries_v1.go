@@ -52,7 +52,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	roleAssignmentName3 := generators.GenerateRoleAssignmentName()
 
 	imageName := generators.GenerateImageName()
-	imageResource := generators.GenerateImageResource(sdkconsts.StorageProviderV1Name, suite.Tenant, imageName)
+	imageResource := generators.GenerateImageResource(imageName)
 
 	// Roles
 	role1, err := builders.NewRoleBuilder().

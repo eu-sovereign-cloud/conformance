@@ -25,8 +25,8 @@ func NewRoleMetadataBuilder() *RoleMetadataBuilder {
 
 func (builder *RoleMetadataBuilder) Build() (*schema.GlobalTenantResourceMetadata, error) {
 	metadata, err := builder.kind(schema.GlobalTenantResourceMetadataKindResourceKindRole).
-		Resource(generators.GenerateRoleResource(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Name)).
-		Ref(generators.GenerateRoleRef(builder.metadata.Name)).
+		Resource(generators.GenerateRoleResource(builder.metadata.Name)).
+		Ref(generators.GenerateRoleRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -130,7 +130,7 @@ func (builder *RoleIteratorBuilder) Build() (*authorization.RoleIterator, error)
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateRoleListResource(builder.metadata.Provider, builder.tenant)
+	builder.metadata.Resource = generators.GenerateRoleListResource()
 
 	return &authorization.RoleIterator{
 		Metadata: *builder.metadata,
@@ -154,8 +154,8 @@ func NewRoleAssignmentMetadataBuilder() *RoleAssignmentMetadataBuilder {
 
 func (builder *RoleAssignmentMetadataBuilder) Build() (*schema.GlobalTenantResourceMetadata, error) {
 	metadata, err := builder.kind(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment).
-		Resource(generators.GenerateRoleAssignmentResource(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Name)).
-		Ref(generators.GenerateRoleAssignmentRef(builder.metadata.Name)).
+		Resource(generators.GenerateRoleAssignmentResource(builder.metadata.Name)).
+		Ref(generators.GenerateRoleAssignmentRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -261,7 +261,7 @@ func (builder *RoleAssignmentIteratorBuilder) Build() (*authorization.RoleAssign
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateRoleAssignmentListResource(builder.metadata.Provider, builder.tenant)
+	builder.metadata.Resource = generators.GenerateRoleAssignmentListResource()
 
 	return &authorization.RoleAssignmentIterator{
 		Metadata: *builder.metadata,
