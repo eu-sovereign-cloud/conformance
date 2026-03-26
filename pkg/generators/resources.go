@@ -120,6 +120,10 @@ func GenerateSecurityGroupRuleResource(name string) string {
 	return fmt.Sprintf(securityGroupRuleResource, name)
 }
 
+func GenerateSecurityGroupRuleListResource() string {
+	return securityGroupRuleListResource
+}
+
 func GenerateSecurityGroupResource(name string) string {
 	return fmt.Sprintf(securityGroupResource, name)
 }

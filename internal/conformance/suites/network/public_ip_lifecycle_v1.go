@@ -165,7 +165,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the public ip
-	publicIp.Spec = suite.params.PublicIpUpdated.Spec
+	publicIp = suite.params.PublicIpUpdated
 	expectPublicIpSpec.Address = publicIp.Spec.Address
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Update the public ip", suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{

@@ -153,7 +153,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
 		Name:      block.Metadata.Name,
 	}
-	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
+	stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
 			Spec:           expectedBlockSpec,
@@ -162,7 +162,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the block storage
-	block.Spec = suite.params.BlockStorageUpdated.Spec
+	block = suite.params.BlockStorageUpdated
 	expectedBlockSpec.SizeGB = block.Spec.SizeGB
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Update the block storage", suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{

@@ -106,6 +106,9 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	publicIpName2 := generators.GeneratePublicIpName()
 	publicIpRefObj := generators.GeneratePublicIpRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, publicIpName)
 
+	securityGroupRuleName := generators.GenerateSecurityGroupRuleName()
+	securityGroupRuleName2 := generators.GenerateSecurityGroupRuleName()
+
 	securityGroupName := generators.GenerateSecurityGroupName()
 	securityGroupName2 := generators.GenerateSecurityGroupName()
 
@@ -356,6 +359,34 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	publicIps := []schema.PublicIp{*publicIp, *publicIp2}
 
+	securityGroupRule, err := builders.NewSecurityGroupRuleBuilder().
+		Name(securityGroupRuleName).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionIngress}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Security Group Rule: %v", err)
+	}
+
+	securityGroupRule2, err := builders.NewSecurityGroupRuleBuilder().
+		Name(securityGroupRuleName2).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
+		Spec(&schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionIngress}).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build Security Group Rule: %v", err)
+	}
+
+	securityGroupRules := []schema.SecurityGroupRule{*securityGroupRule, *securityGroupRule2}
+
 	securityGroup, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
@@ -387,16 +418,17 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	securityGroups := []schema.SecurityGroup{*securityGroup, *securityGroup2}
 
 	params := &params.NetworkProviderQueriesV1Params{
-		Workspace:        workspace,
-		BlockStorage:     blockStorage,
-		Instance:         instance,
-		Networks:         networks,
-		InternetGateways: internetGateways,
-		RouteTables:      routeTables,
-		Subnets:          subnets,
-		Nics:             nics,
-		PublicIps:        publicIps,
-		SecurityGroups:   securityGroups,
+		Workspace:          workspace,
+		BlockStorage:       blockStorage,
+		Instance:           instance,
+		Networks:           networks,
+		InternetGateways:   internetGateways,
+		RouteTables:        routeTables,
+		Subnets:            subnets,
+		Nics:               nics,
+		PublicIps:          publicIps,
+		SecurityGroupRules: securityGroupRules,
+		SecurityGroups:     securityGroups,
 	}
 	suite.params = params
 	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureProviderQueriesV1, *params)
@@ -415,6 +447,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroupRule),
 	)
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
@@ -652,6 +685,39 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
+	// Security Group Rule
+	rules := suite.params.SecurityGroupRules
+
+	// Create security group rules
+	for _, rule := range rules {
+		expectRuleMeta := rule.Metadata
+		expectRuleSpec := &rule.Spec
+		stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Create a security group rule", suite.Client.NetworkV1, &rule,
+			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+				Metadata:       expectRuleMeta,
+				Spec:           expectRuleSpec,
+				ResourceStates: suites.CreatedResourceExpectedStates,
+			},
+		)
+	}
+
+	// List security group rules
+	stepsBuilder.ListSecurityGroupRuleV1Step("List Security Group Rule", suite.Client.NetworkV1, wref, nil)
+
+	// List security group rules with limit
+	stepsBuilder.ListSecurityGroupRuleV1Step("Get list of Security Group Rule with limit", suite.Client.NetworkV1, wref,
+		secapi.NewListOptions().WithLimit(1))
+
+	// List security group rules with label
+	stepsBuilder.ListSecurityGroupRuleV1Step("Get list of Security Group Rule with label", suite.Client.NetworkV1, wref,
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+
+	// List security group rules with limit and label
+	stepsBuilder.ListSecurityGroupRuleV1Step("Get list of Security Group Rule with limit and label", suite.Client.NetworkV1, wref,
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+
 	// Security Group
 	groups := suite.params.SecurityGroups
 
@@ -684,6 +750,18 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.ListSecurityGroupV1Step("Get list of Security Group with limit and label", suite.Client.NetworkV1, wref,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+
+	// Delete all security group rules
+	for _, rule := range rules {
+		stepsBuilder.DeleteSecurityGroupRuleV1Step("Delete the security group rule", suite.Client.NetworkV1, &rule)
+
+		ruleWRef := secapi.WorkspaceReference{
+			Tenant:    secapi.TenantID(rule.Metadata.Tenant),
+			Workspace: secapi.WorkspaceID(rule.Metadata.Workspace),
+			Name:      rule.Metadata.Name,
+		}
+		stepsBuilder.WatchSecurityGroupRuleUntilDeletedV1Step("Watch the security group rule deletion", suite.Client.NetworkV1, ruleWRef)
+	}
 
 	// Delete all security groups
 	for _, group := range groups {

@@ -145,7 +145,7 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the internet gateway
-	gateway.Spec = suite.params.InternetGatewayUpdated.Spec
+	gateway = suite.params.InternetGatewayUpdated
 	expectGatewaySpec.EgressOnly = gateway.Spec.EgressOnly
 	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Update the internet gateway", suite.Client.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{

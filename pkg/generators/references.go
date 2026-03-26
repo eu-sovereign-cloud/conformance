@@ -113,3 +113,8 @@ func GeneratePublicIpRefObject(provider, tenant, workspace, name string) *schema
 	urn := GeneratePublicIpRef(provider, tenant, workspace, name)
 	return &schema.Reference{Resource: urn}
 }
+
+func GenerateSecurityGroupRuleRefObject(provider, tenant, workspace, name string) *schema.Reference {
+	urn := GenerateSecurityGroupRuleRef(provider, tenant, workspace, name)
+	return &schema.Reference{Resource: urn}
+}

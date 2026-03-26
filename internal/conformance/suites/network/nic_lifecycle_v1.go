@@ -357,7 +357,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the nic
-	nic.Spec = suite.params.NicUpdated.Spec
+	nic = suite.params.NicUpdated
 	expectNicSpec = &nic.Spec
 	stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", suite.Client.NetworkV1, nic,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{

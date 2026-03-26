@@ -466,6 +466,13 @@ func (configurator *Configurator) ConfigureGetDeletingSecurityGroupStub(response
 	return nil
 }
 
+func (configurator *Configurator) ConfigureListSecurityGroupRuleStub(response *network.SecurityGroupRuleIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
+	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (configurator *Configurator) ConfigureListSecurityGroupStub(response *network.SecurityGroupIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
