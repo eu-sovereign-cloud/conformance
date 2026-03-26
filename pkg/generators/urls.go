@@ -29,7 +29,7 @@ func GenerateRegionURL(provider, region string) string {
 }
 
 func GenerateRegionProviderUrl(provider string) string {
-	return fmt.Sprintf("{{request.scheme}}://{{request.host}}:{{request.port}}%s%s", urlProvidersPrefix, provider)
+	return fmt.Sprintf("{{request.scheme}}://{{request.host}}:{{request.port}}"+urlProvidersPrefix, provider)
 }
 
 func GenerateWorkspaceURL(provider, tenant, workspace string) string {
@@ -41,11 +41,11 @@ func GenerateWorkspaceListURL(provider, tenant string) string {
 }
 
 func GenerateStorageSkuURL(provider, tenant, sku string) string {
-	return fmt.Sprintf(storageSkuURL, provider, tenant, sku)
+	return fmt.Sprintf(skuURL, provider, tenant, sku)
 }
 
 func GenerateStorageSkuListURL(provider, tenant string) string {
-	return fmt.Sprintf(storageSkuListURL, provider, tenant)
+	return fmt.Sprintf(skuListURL, provider, tenant)
 }
 
 func GenerateBlockStorageURL(provider, tenant, workspace, blockStorage string) string {
@@ -65,11 +65,11 @@ func GenerateImageListURL(provider, tenant string) string {
 }
 
 func GenerateInstanceSkuURL(provider, tenant, sku string) string {
-	return fmt.Sprintf(instanceSkuURL, provider, tenant, sku)
+	return fmt.Sprintf(skuURL, provider, tenant, sku)
 }
 
 func GenerateInstanceSkuListURL(provider, tenant string) string {
-	return fmt.Sprintf(instanceSkuListURL, provider, tenant)
+	return fmt.Sprintf(skuListURL, provider, tenant)
 }
 
 func GenerateInstanceURL(provider, tenant, workspace, instance string) string {
@@ -101,11 +101,11 @@ func GenerateNetworkListURL(provider, tenant, workspace string) string {
 }
 
 func GenerateNetworkSkuURL(provider, tenant, sku string) string {
-	return fmt.Sprintf(networkSkuURL, provider, tenant, sku)
+	return fmt.Sprintf(skuURL, provider, tenant, sku)
 }
 
 func GenerateNetworkSkuListURL(provider, tenant string) string {
-	return fmt.Sprintf(networkSkuListURL, provider, tenant)
+	return fmt.Sprintf(skuListURL, provider, tenant)
 }
 
 func GenerateInternetGatewayURL(provider, tenant, workspace, internetGateway string) string {
