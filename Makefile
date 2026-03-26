@@ -28,17 +28,17 @@ install:
 .PHONY: mock-run
 mock-run:
 	@echo "Running mock..."
-	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance up
+	docker compose -f "$(WIREMOCK_PATH)/docker-compose.yml" -p seca-conformance up
 
 .PHONY: mock-start
 mock-start:
 	@echo "Starting mock..."
-	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance up -d
+	docker compose -f "$(WIREMOCK_PATH)/docker-compose.yml" -p seca-conformance up -d
 
 .PHONY: mock-stop
 mock-stop:
 	@echo "Stopping mock..."
-	docker compose -f $(WIREMOCK_PATH)/docker-compose.yml -p seca-conformance down
+	docker compose -f "$(WIREMOCK_PATH)/docker-compose.yml" -p seca-conformance down
 
 .PHONY: run
 run:
@@ -61,6 +61,10 @@ run:
 	  --retry.max.attempts=3 \
 	  --mock.enabled=true \
 	  --mock.server.url=http://localhost:8080
+
+.PHONY: summary
+summary:
+	$(DIST_BIN) summary $(RESULTS_PATH)
 
 .PHONY: report
 report:

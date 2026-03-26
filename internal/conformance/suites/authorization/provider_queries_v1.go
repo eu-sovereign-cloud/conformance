@@ -45,13 +45,14 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	roleName1 := generators.GenerateRoleName()
 	roleName2 := generators.GenerateRoleName()
 	roleName3 := generators.GenerateRoleName()
-	// Generate scenario data
 
+	// Generate scenario data
 	roleAssignmentName1 := generators.GenerateRoleAssignmentName()
 	roleAssignmentName2 := generators.GenerateRoleAssignmentName()
 	roleAssignmentName3 := generators.GenerateRoleAssignmentName()
+
 	imageName := generators.GenerateImageName()
-	imageResource := generators.GenerateImageResource(suite.Tenant, imageName)
+	imageResource := generators.GenerateImageResource(imageName)
 
 	// Roles
 	role1, err := builders.NewRoleBuilder().

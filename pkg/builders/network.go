@@ -35,7 +35,7 @@ func (builder *NetworkSkuIteratorBuilder) Build() (*network.SkuIterator, error) 
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateSkuListResource(builder.tenant)
+	builder.metadata.Resource = generators.GenerateSkuListResource()
 
 	return &network.SkuIterator{
 		Metadata: *builder.metadata,
@@ -59,8 +59,8 @@ func NewNetworkMetadataBuilder() *NetworkMetadataBuilder {
 
 func (builder *NetworkMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork).
-		Resource(generators.GenerateNetworkResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
-		Ref(generators.GenerateNetworkRef(builder.metadata.Name)).
+		Resource(generators.GenerateNetworkResource(builder.metadata.Name)).
+		Ref(generators.GenerateNetworkRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -163,7 +163,7 @@ func (builder *NetworkIteratorBuilder) Build() (*network.NetworkIterator, error)
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateNetworkListResource(builder.tenant, builder.workspace)
+	builder.metadata.Resource = generators.GenerateNetworkListResource()
 
 	return &network.NetworkIterator{
 		Metadata: *builder.metadata,
@@ -187,8 +187,8 @@ func NewInternetGatewayMetadataBuilder() *InternetGatewayMetadataBuilder {
 
 func (builder *InternetGatewayMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway).
-		Resource(generators.GenerateInternetGatewayResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
-		Ref(generators.GenerateInternetGatewayRef(builder.metadata.Name)).
+		Resource(generators.GenerateInternetGatewayResource(builder.metadata.Name)).
+		Ref(generators.GenerateInternetGatewayRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -282,7 +282,7 @@ func (builder *InternetGatewayIteratorBuilder) Build() (*network.InternetGateway
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateInternetGatewayListResource(builder.tenant, builder.workspace)
+	builder.metadata.Resource = generators.GenerateInternetGatewayListResource()
 
 	return &network.InternetGatewayIterator{
 		Metadata: *builder.metadata,
@@ -306,8 +306,8 @@ func NewRouteTableMetadataBuilder() *RouteTableMetadataBuilder {
 
 func (builder *RouteTableMetadataBuilder) Build() (*schema.RegionalNetworkResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable).
-		Resource(generators.GenerateRouteTableResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Network, builder.metadata.Name)).
-		Ref(generators.GenerateRouteTableRef(builder.metadata.Name)).
+		Resource(generators.GenerateRouteTableResource(builder.metadata.Network, builder.metadata.Name)).
+		Ref(generators.GenerateRouteTableRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Network, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -412,7 +412,7 @@ func (builder *RouteTableIteratorBuilder) Build() (*network.RouteTableIterator, 
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateRouteTableListResource(builder.tenant, builder.workspace, builder.network)
+	builder.metadata.Resource = generators.GenerateRouteTableListResource(builder.network)
 
 	return &network.RouteTableIterator{
 		Metadata: *builder.metadata,
@@ -436,8 +436,8 @@ func NewSubnetMetadataBuilder() *SubnetMetadataBuilder {
 
 func (builder *SubnetMetadataBuilder) Build() (*schema.RegionalNetworkResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet).
-		Resource(generators.GenerateSubnetResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Network, builder.metadata.Name)).
-		Ref(generators.GenerateSubnetRef(builder.metadata.Name)).
+		Resource(generators.GenerateSubnetResource(builder.metadata.Network, builder.metadata.Name)).
+		Ref(generators.GenerateSubnetRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Network, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -534,7 +534,7 @@ func (builder *SubnetIteratorBuilder) Build() (*network.SubnetIterator, error) {
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateSubnetListResource(builder.tenant, builder.workspace, builder.network)
+	builder.metadata.Resource = generators.GenerateSubnetListResource(builder.network)
 
 	return &network.SubnetIterator{
 		Metadata: *builder.metadata,
@@ -558,8 +558,8 @@ func NewPublicIpMetadataBuilder() *PublicIpMetadataBuilder {
 
 func (builder *PublicIpMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP).
-		Resource(generators.GeneratePublicIpResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
-		Ref(generators.GeneratePublicIpRef(builder.metadata.Name)).
+		Resource(generators.GeneratePublicIpResource(builder.metadata.Name)).
+		Ref(generators.GeneratePublicIpRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -654,7 +654,7 @@ func (builder *PublicIpIteratorBuilder) Build() (*network.PublicIpIterator, erro
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GeneratePublicIpListResource(builder.tenant, builder.workspace)
+	builder.metadata.Resource = generators.GeneratePublicIpListResource()
 
 	return &network.PublicIpIterator{
 		Metadata: *builder.metadata,
@@ -678,8 +678,8 @@ func NewNicMetadataBuilder() *NicMetadataBuilder {
 
 func (builder *NicMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic).
-		Resource(generators.GenerateNicResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
-		Ref(generators.GenerateNicRef(builder.metadata.Name)).
+		Resource(generators.GenerateNicResource(builder.metadata.Name)).
+		Ref(generators.GenerateNicRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -775,7 +775,7 @@ func (builder *NicIteratorBuilder) Build() (*network.NicIterator, error) {
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateNicListResource(builder.tenant, builder.workspace)
+	builder.metadata.Resource = generators.GenerateNicListResource()
 
 	return &network.NicIterator{
 		Metadata: *builder.metadata,
@@ -799,8 +799,8 @@ func NewSecurityGroupRuleMetadataBuilder() *SecurityGroupRuleMetadataBuilder {
 
 func (builder *SecurityGroupRuleMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroupRule).
-		Resource(generators.GenerateSecurityGroupRuleResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
-		Ref(generators.GenerateSecurityGroupRuleRef(builder.metadata.Name)).
+		Resource(generators.GenerateSecurityGroupRuleResource(builder.metadata.Name)).
+		Ref(generators.GenerateSecurityGroupRuleRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -886,8 +886,8 @@ func NewSecurityGroupMetadataBuilder() *SecurityGroupMetadataBuilder {
 
 func (builder *SecurityGroupMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMetadata, error) {
 	metadata, err := builder.kind(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup).
-		Resource(generators.GenerateSecurityGroupResource(builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
-		Ref(generators.GenerateSecurityGroupRef(builder.metadata.Name)).
+		Resource(generators.GenerateSecurityGroupResource(builder.metadata.Name)).
+		Ref(generators.GenerateSecurityGroupRef(builder.metadata.Provider, builder.metadata.Tenant, builder.metadata.Workspace, builder.metadata.Name)).
 		build()
 	if err != nil {
 		return nil, err
@@ -1021,7 +1021,7 @@ func (builder *SecurityGroupIteratorBuilder) Build() (*network.SecurityGroupIter
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateSecurityGroupListResource(builder.tenant, builder.workspace)
+	builder.metadata.Resource = generators.GenerateSecurityGroupListResource()
 
 	return &network.SecurityGroupIterator{
 		Metadata: *builder.metadata,
