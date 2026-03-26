@@ -113,7 +113,7 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	publicIpRefObj := generators.GeneratePublicIpRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, publicIpName)
 
 	securityGroupRuleName := generators.GenerateSecurityGroupRuleName()
-	securityGroupRuleRefObj := generators.GenerateSecurityGroupRuleRefObject(securityGroupRuleName)
+	securityGroupRuleRefObj := generators.GenerateSecurityGroupRuleRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, securityGroupRuleName)
 
 	securityGroupName := generators.GenerateSecurityGroupName()
 

@@ -121,7 +121,7 @@ func GenerateSecurityGroupRuleResource(name string) string {
 }
 
 func GenerateSecurityGroupRuleListResource() string {
-	return fmt.Sprintf(securityGroupRuleListResource)
+	return securityGroupRuleListResource
 }
 
 func GenerateSecurityGroupResource(name string) string {

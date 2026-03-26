@@ -988,7 +988,7 @@ func (builder *SecurityGroupRuleIteratorBuilder) Build() (*network.SecurityGroup
 		return nil, err
 	}
 
-	builder.metadata.Resource = generators.GenerateSecurityGroupRuleListResource(builder.tenant, builder.workspace)
+	builder.metadata.Resource = generators.GenerateSecurityGroupRuleListResource()
 
 	return &network.SecurityGroupRuleIterator{
 		Metadata: *builder.metadata,
