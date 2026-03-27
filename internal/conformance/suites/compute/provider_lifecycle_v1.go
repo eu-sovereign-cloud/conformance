@@ -56,12 +56,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	blockStorageName := generators.GenerateBlockStorageName()
 	blockStorageSize := constants.BlockStorageInitialSize
 
-	storageSkuRefObj := generators.GenerateSkuRefObject(storageSkuName)
+	storageSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.StorageProviderV1Name, suite.Tenant, storageSkuName)
 
-	blockStorageRefObj := generators.GenerateBlockStorageRefObject(blockStorageName)
+	blockStorageRefObj := generators.GenerateBlockStorageRefObject(sdkconsts.StorageProviderV1Name, suite.Tenant, workspaceName, blockStorageName)
 
 	instanceName := generators.GenerateInstanceName()
-	instanceSkuRefObj := generators.GenerateSkuRefObject(instanceSkuName)
+	instanceSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.ComputeProviderV1Name, suite.Tenant, instanceSkuName)
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).

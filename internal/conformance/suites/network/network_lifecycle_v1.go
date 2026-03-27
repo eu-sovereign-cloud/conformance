@@ -48,12 +48,12 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	networkSkuName := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 	networkSkuName2 := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 
-	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
+	routeTableRefObj := generators.GenerateRouteTableRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, routeTableName)
 
-	networkSkuRefObj := generators.GenerateSkuRefObject(networkSkuName)
-	networkSkuRef2Obj := generators.GenerateSkuRefObject(networkSkuName2)
+	networkSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName)
+	networkSkuRef2Obj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName2)
 
-	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(internetGatewayName)
+	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, internetGatewayName)
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
@@ -265,7 +265,7 @@ func (suite *NetworkLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the network
-	network.Spec = suite.params.NetworkUpdated.Spec
+	network = suite.params.NetworkUpdated
 	expectNetworkSpec.SkuRef = network.Spec.SkuRef
 	stepsBuilder.CreateOrUpdateNetworkV1Step("Update the network", suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{

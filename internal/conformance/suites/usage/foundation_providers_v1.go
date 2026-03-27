@@ -86,34 +86,34 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 
 	roleAssignmentName := generators.GenerateRoleAssignmentName()
 
-	storageSkuRefObj := generators.GenerateSkuRefObject(storageSkuName)
+	storageSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.StorageProviderV1Name, suite.Tenant, storageSkuName)
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageRefObj := generators.GenerateBlockStorageRefObject(blockStorageName)
+	blockStorageRefObj := generators.GenerateBlockStorageRefObject(sdkconsts.StorageProviderV1Name, suite.Tenant, workspaceName, blockStorageName)
 	blockStorageSize := constants.BlockStorageInitialSize
 
 	imageName := generators.GenerateImageName()
-	imageResource := generators.GenerateImageResource(suite.Tenant, imageName)
+	imageResource := generators.GenerateImageResource(imageName)
 
-	instanceSkuRefObj := generators.GenerateSkuRefObject(instanceSkuName)
+	instanceSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.ComputeProviderV1Name, suite.Tenant, instanceSkuName)
 	instanceName := generators.GenerateInstanceName()
 
-	networkSkuRefObj := generators.GenerateSkuRefObject(networkSkuName)
+	networkSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName)
 	networkName := generators.GenerateNetworkName()
 
 	internetGatewayName := generators.GenerateInternetGatewayName()
-	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(internetGatewayName)
+	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, internetGatewayName)
 
 	routeTableName := generators.GenerateRouteTableName()
-	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
+	routeTableRefObj := generators.GenerateRouteTableRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, routeTableName)
 
 	subnetName := generators.GenerateSubnetName()
-	subnetRefObj := generators.GenerateSubnetRefObject(subnetName)
+	subnetRefObj := generators.GenerateSubnetRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, subnetName)
 
 	nicName := generators.GenerateNicName()
 
 	publicIpName := generators.GeneratePublicIpName()
-	publicIpRefObj := generators.GeneratePublicIpRefObject(publicIpName)
+	publicIpRefObj := generators.GeneratePublicIpRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, publicIpName)
 
 	securityGroupName := generators.GenerateSecurityGroupName()
 

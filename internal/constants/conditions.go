@@ -10,23 +10,23 @@ var (
 
 // Conditions
 var (
-	ActiveMessage = "Resource is active"
+	ActiveMessage = "Resource is active and ready."
 	ActiveReason  = "active"
 	ActiveType    = "active"
 
-	CreatingMessage = "Resource is being created"
+	CreatingMessage = "Resource is being created."
 	CreatingReason  = "creating"
 	CreatingType    = "creating"
 
-	PendingMessage = "Resource is being pending"
+	PendingMessage = "Resource is pending initialization."
 	PendingReason  = "pending"
 	PendingType    = "pending"
 
-	UpdatingMessage = "Resource is being updated"
+	UpdatingMessage = "Resource is being updated."
 	UpdatingReason  = "updating"
 	UpdatingType    = "updating"
 
-	DeletingMessage = "Resource is being deleted"
+	DeletingMessage = "Resource is being deleting."
 	DeletingReason  = "deleting"
 	DeletingType    = "deleting"
 

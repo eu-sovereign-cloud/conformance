@@ -55,11 +55,11 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to generate subnet cidr: %v", err)
 	}
 
-	networkSkuRefObj := generators.GenerateSkuRefObject(networkSkuName)
+	networkSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName)
 
-	routeTableRefObj := generators.GenerateRouteTableRefObject(routeTableName)
+	routeTableRefObj := generators.GenerateRouteTableRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, routeTableName)
 
-	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(internetGatewayName)
+	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, internetGatewayName)
 
 	// Select zones
 	zone1 := suite.config.RegionZones[rand.Intn(len(suite.config.RegionZones))]
@@ -318,7 +318,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the subnet
-	subnet.Spec = suite.params.SubnetUpdated.Spec
+	subnet = suite.params.SubnetUpdated
 	expectSubnetSpec.Zone = subnet.Spec.Zone
 	stepsBuilder.CreateOrUpdateSubnetV1Step("Update the subnet", suite.Client.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{

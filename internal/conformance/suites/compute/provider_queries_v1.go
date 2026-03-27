@@ -53,16 +53,16 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
-	instanceSkuRefObj := generators.GenerateSkuRefObject(instanceSkuName)
+	instanceSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.ComputeProviderV1Name, suite.Tenant, instanceSkuName)
 
 	instanceName1 := generators.GenerateInstanceName()
 	instanceName2 := generators.GenerateInstanceName()
 	instanceName3 := generators.GenerateInstanceName()
 
-	storageSkuRefObj := generators.GenerateSkuRefObject(storageSkuName)
+	storageSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.StorageProviderV1Name, suite.Tenant, storageSkuName)
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageRefObj := generators.GenerateBlockStorageRefObject(blockStorageName)
+	blockStorageRefObj := generators.GenerateBlockStorageRefObject(sdkconsts.StorageProviderV1Name, suite.Tenant, workspaceName, blockStorageName)
 	blockStorageSize := constants.BlockStorageInitialSize
 
 	workspace, err := builders.NewWorkspaceBuilder().

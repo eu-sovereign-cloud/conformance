@@ -42,10 +42,10 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
 
-	storageSkuRefObj := generators.GenerateSkuRefObject(storageSkuName)
+	storageSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.StorageProviderV1Name, suite.Tenant, storageSkuName)
 
 	blockStorageName := generators.GenerateBlockStorageName()
-	blockStorageRefObj := generators.GenerateBlockStorageRefObject(blockStorageName)
+	blockStorageRefObj := generators.GenerateBlockStorageRefObject(sdkconsts.StorageProviderV1Name, suite.Tenant, workspaceName, blockStorageName)
 
 	imageName := generators.GenerateImageName()
 
@@ -186,7 +186,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
 		Name:      block.Metadata.Name,
 	}
-	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
+	stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata: expectedBlockMeta,
 			Spec:     expectedBlockSpec,
@@ -198,7 +198,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the block storage
-	block.Spec = suite.params.BlockStorageUpdated.Spec
+	block = suite.params.BlockStorageUpdated
 	expectedBlockSpec.SizeGB = block.Spec.SizeGB
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Update the block storage", suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
@@ -239,7 +239,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Tenant: secapi.TenantID(image.Metadata.Tenant),
 		Name:   image.Metadata.Name,
 	}
-	image = stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
+	stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata: expectedImageMeta,
 			Spec:     expectedImageSpec,
@@ -251,7 +251,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Update the image
-	image.Spec = suite.params.ImageUpdated.Spec
+	image = suite.params.ImageUpdated
 	expectedImageSpec.CpuArchitecture = image.Spec.CpuArchitecture
 	stepsBuilder.CreateOrUpdateImageV1Step("Update the image", suite.Client.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
