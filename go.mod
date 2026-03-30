@@ -35,5 +35,4 @@ require (
 	golang.org/x/text v0.32.0 // indirect
 	google.golang.org/protobuf v1.34.2-0.20240506121844-09393c19510d // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/utils v0.0.0-20260319190234-28399d86e0b5
 )
