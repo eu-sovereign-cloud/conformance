@@ -65,7 +65,7 @@ func (configurator *Configurator) ConfigureGetDeletingInstanceStub(response *sch
 	return nil
 }
 
-func (configurator *Configurator) ConfigureListInstanceStub(response *compute.InstanceIterator, url string, params *mock.MockParams, pathParams map[string]string) error {	
+func (configurator *Configurator) ConfigureListInstanceStub(response *compute.InstanceIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
 	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
