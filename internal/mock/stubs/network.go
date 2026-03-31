@@ -1,8 +1,6 @@
 package stubs
 
 import (
-	"net/http"
-
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	network "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.network.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -473,8 +471,6 @@ func (configurator *Configurator) ConfigureListSecurityGroupStub(response *netwo
 }
 
 func (configurator *Configurator) ConfigureListNetworkSkuStub(response *network.SkuIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
-	response.Metadata.Verb = http.MethodGet
-
 	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
