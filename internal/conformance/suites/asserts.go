@@ -121,6 +121,12 @@ func (suite *TestSuite) VerifyStatusConditionsStep(ctx provider.StepCtx, expecte
 	})
 }
 
+func (suite *TestSuite) VerifyStatusPowerStateStep(ctx provider.StepCtx, expected schema.InstanceStatusPowerState, actual schema.InstanceStatusPowerState) {
+	ctx.WithNewStep("Verify status power state", func(stepCtx provider.StepCtx) {
+		stepCtx.Require().Equal(expected, actual, "Status power state should match expected")
+	})
+}
+
 func (suite *TestSuite) VerifyLabelsStep(ctx provider.StepCtx, expected schema.Labels, actual schema.Labels) {
 	ctx.WithNewStep("Verify label", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters(
