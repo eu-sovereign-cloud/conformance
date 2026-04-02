@@ -1,6 +1,10 @@
 package constants
 
-import "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+import (
+	"time"
+
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+)
 
 // Expected States
 var (
@@ -31,38 +35,28 @@ var (
 	DeletingType    = "deleting"
 
 	ActiveCondition = schema.StatusCondition{
-		Message: ActiveMessage,
-		Reason:  ActiveReason,
-		State:   schema.ResourceStateActive,
-		Type:    ActiveType,
+		LastTransitionAt: time.Now(),
+		State:            schema.ResourceStateActive,
 	}
 
 	CreatingCondition = schema.StatusCondition{
-		Message: CreatingMessage,
-		Reason:  CreatingReason,
-		State:   schema.ResourceStateCreating,
-		Type:    CreatingType,
+		LastTransitionAt: time.Now(),
+		State:            schema.ResourceStateCreating,
 	}
 
 	PendingCondition = schema.StatusCondition{
-		Message: PendingMessage,
-		Reason:  PendingReason,
-		State:   schema.ResourceStatePending,
-		Type:    PendingType,
+		LastTransitionAt: time.Now(),
+		State:            schema.ResourceStatePending,
 	}
 
 	UpdatingCondition = schema.StatusCondition{
-		Message: UpdatingMessage,
-		Reason:  UpdatingReason,
-		State:   schema.ResourceStateUpdating,
-		Type:    UpdatingType,
+		LastTransitionAt: time.Now(),
+		State:            schema.ResourceStateUpdating,
 	}
 
 	DeletingCondition = schema.StatusCondition{
-		Message: DeletingMessage,
-		Reason:  DeletingReason,
-		State:   schema.ResourceStateDeleting,
-		Type:    DeletingType,
+		LastTransitionAt: time.Now(),
+		State:            schema.ResourceStateDeleting,
 	}
 
 	GetConditionAfterCreating = []schema.StatusCondition{
@@ -71,6 +65,11 @@ var (
 		ActiveCondition,
 	}
 
+	GetConditionBeforeUpdating = []schema.StatusCondition{
+		PendingCondition,
+		CreatingCondition,
+		ActiveCondition,
+	}
 	GetConditionAfterUpdating = []schema.StatusCondition{
 		PendingCondition,
 		CreatingCondition,

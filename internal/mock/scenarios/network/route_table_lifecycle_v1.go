@@ -76,7 +76,6 @@ func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, pa
 	}
 
 	// Update route table
-	params.RouteTableUpdated.Status = routeTable.Status
 	routeTable = params.RouteTableUpdated
 	if err := configurator.ConfigureUpdateRouteTableStub(routeTable, routeTableURL, scenario.MockParams); err != nil {
 		return err

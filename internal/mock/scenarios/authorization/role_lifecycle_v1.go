@@ -32,7 +32,6 @@ func ConfigureRoleLifecycleScenarioV1(scenario *mockscenarios.Scenario, params p
 	}
 
 	// Update the role
-	params.RoleUpdated.Status = role.Status
 	role = params.RoleUpdated
 	if err := configurator.ConfigureUpdateRoleStub(role, roleUrl, scenario.MockParams); err != nil {
 		return err

@@ -174,7 +174,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Get the updated role
-	role = stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
+	stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
 		steps.ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata: expectRoleMeta,
 			Spec:     expectRoleSpec,

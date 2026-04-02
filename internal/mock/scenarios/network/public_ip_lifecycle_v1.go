@@ -46,7 +46,6 @@ func ConfigurePublicIpLifecycleScenarioV1(scenario *mockscenarios.Scenario, para
 	}
 
 	// Update public ip (change address)
-	params.PublicIpUpdated.Status = publicIp.Status
 	publicIp = params.PublicIpUpdated
 	if err := configurator.ConfigureUpdatePublicIpStub(publicIp, publicIpURL, scenario.MockParams); err != nil {
 		return err
