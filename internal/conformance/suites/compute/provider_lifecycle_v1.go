@@ -273,7 +273,6 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.RestartInstanceV1Step("Restart the instance", suite.Client.ComputeV1, instance)
 
 	// Get the restarted instance
-	// TODO Find an away to assert if the instance is restarted
 	instance = stepsBuilder.GetInstanceV1Step("Get the updated instance", suite.Client.ComputeV1, instanceWRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus]{
 			Metadata: expectInstanceMeta,
