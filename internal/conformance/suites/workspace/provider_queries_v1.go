@@ -82,7 +82,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectMeta := workspace.Metadata
 		expectLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
 		stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, &workspace,
-			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 				Labels:         expectLabels,
 				Metadata:       expectMeta,
 				ResourceStates: suites.CreatedResourceExpectedStates,
@@ -91,21 +91,22 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	}
 
-	// List workspaces
-	tref := &secapi.TenantReference{
+	tpath := secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
-	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, nil)
+
+	// List workspaces
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, tpath, nil)
 
 	// List workspaces with limit
-	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, secapi.NewListOptions().WithLimit(1))
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, tpath, secapi.NewListOptions().WithLimit(1))
 
 	// List workspaces with label
-	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, tpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List workspaces with label and limit
-	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
+	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all workspaces

@@ -96,7 +96,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRoleMeta := role.Metadata
 	expectRoleSpec := &role.Spec
 	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, role,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -109,7 +109,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   role.Metadata.Name,
 	}
 	stepsBuilder.GetRoleV1Step("Get the created role", suite.Client.AuthorizationV1, roleTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -120,7 +120,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	role = suite.params.RoleUpdated
 	expectRoleSpec = &role.Spec
 	stepsBuilder.CreateOrUpdateRoleV1Step("Update the role", suite.Client.AuthorizationV1, role,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
@@ -129,7 +129,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated role
 	role = stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},

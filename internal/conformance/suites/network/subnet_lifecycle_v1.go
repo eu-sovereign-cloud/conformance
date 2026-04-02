@@ -169,7 +169,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -182,7 +182,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -196,7 +196,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectNetworkMeta := network.Metadata
 	expectNetworkSpec := &network.Spec
 	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.Client.NetworkV1, network,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Metadata:       expectNetworkMeta,
 			Spec:           expectNetworkSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -210,7 +210,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectInternetGatMeta := internetGat.Metadata
 	expectInternetGatSpec := &internetGat.Spec
 	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", suite.Client.NetworkV1, internetGat,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:       expectInternetGatMeta,
 			Spec:           expectInternetGatSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -223,7 +223,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      internetGat.Metadata.Name,
 	}
 	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, internetGatWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:       expectInternetGatMeta,
 			Spec:           expectInternetGatSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -237,7 +237,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRouteMeta := route.Metadata
 	expectRouteSpec := &route.Spec
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, route,
-		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+		steps.StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -252,7 +252,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      route.Metadata.Name,
 	}
 	stepsBuilder.GetRouteTableV1Step("Get the created route table", suite.Client.NetworkV1, routeNRef,
-		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+		steps.StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -266,7 +266,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      network.Metadata.Name,
 	}
 	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Metadata:       expectNetworkMeta,
 			Spec:           expectNetworkSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -280,7 +280,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectSubnetMeta := subnet.Metadata
 	expectSubnetSpec := &subnet.Spec
 	stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", suite.Client.NetworkV1, subnet,
-		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+		steps.StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Metadata:       expectSubnetMeta,
 			Spec:           expectSubnetSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -295,7 +295,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      subnet.Metadata.Name,
 	}
 	stepsBuilder.GetSubnetV1Step("Get the created subnet", suite.Client.NetworkV1, subnetNRef,
-		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+		steps.StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Metadata:       expectSubnetMeta,
 			Spec:           expectSubnetSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -306,7 +306,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	subnet = suite.params.SubnetUpdated
 	expectSubnetSpec.Zone = subnet.Spec.Zone
 	stepsBuilder.CreateOrUpdateSubnetV1Step("Update the subnet", suite.Client.NetworkV1, subnet,
-		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+		steps.StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Metadata:       expectSubnetMeta,
 			Spec:           expectSubnetSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
@@ -315,7 +315,7 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated subnet
 	stepsBuilder.GetSubnetV1Step("Get the updated subnet", suite.Client.NetworkV1, subnetNRef,
-		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+		steps.StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Metadata:       expectSubnetMeta,
 			Spec:           expectSubnetSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},

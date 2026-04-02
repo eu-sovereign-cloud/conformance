@@ -177,7 +177,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -191,7 +191,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
 			Spec:           expectedBlockSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -206,7 +206,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectInstanceMeta := instance.Metadata
 		expectInstanceSpec := &instance.Spec
 		stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.Client.ComputeV1, &instance,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 				Metadata:       expectInstanceMeta,
 				Spec:           expectInstanceSpec,
 				ResourceStates: suites.CreatedResourceExpectedStates,
@@ -215,43 +215,42 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	// List instances
-	wref := secapi.WorkspaceReference{
-		Name:      workspace.Metadata.Name,
-		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+	wpath := secapi.WorkspacePath{
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
 	}
-	stepsBuilder.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wref, nil)
+	stepsBuilder.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wpath, nil)
 
 	// List instances with limit
-	stepsBuilder.ListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
+	stepsBuilder.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List Instances with label
-	stepsBuilder.ListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
+	stepsBuilder.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Instances with limit and label
-	stepsBuilder.ListInstanceV1Step("Get list of instances", suite.Client.ComputeV1, wref,
+	stepsBuilder.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Skus
 
 	// List skus
-	stepsBuilder.ListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
+	stepsBuilder.ListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
 
 	// List skus with limit
-	stepsBuilder.ListSkusV1Step("Get list of skus", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1))
 
 	// List skus with label
-	stepsBuilder.ListSkusV1Step("Get List skus with label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListSkusV1Step("List skus with label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
 
 	// List skus with limit and label
-	stepsBuilder.ListSkusV1Step("Get list of skus with limit and label", suite.Client.ComputeV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListSkusV1Step("List skus with limit and label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
 

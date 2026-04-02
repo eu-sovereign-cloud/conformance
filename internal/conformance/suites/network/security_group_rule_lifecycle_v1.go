@@ -100,7 +100,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -113,7 +113,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -127,7 +127,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRuleMeta := rule.Metadata
 	expectRuleSpec := &rule.Spec
 	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Create a security group rule", suite.Client.NetworkV1, rule,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
 			Metadata:       expectRuleMeta,
 			Spec:           expectRuleSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -141,7 +141,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      rule.Metadata.Name,
 	}
 	stepsBuilder.GetSecurityGroupRuleV1Step("Get the created security group rule", suite.Client.NetworkV1, ruleWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
 			Metadata:       expectRuleMeta,
 			Spec:           expectRuleSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -152,7 +152,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	rule.Spec.Direction = schema.SecurityGroupRuleDirectionEgress
 	expectRuleSpec.Direction = rule.Spec.Direction
 	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Update the security group rule", suite.Client.NetworkV1, rule,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
 			Metadata:       expectRuleMeta,
 			Spec:           expectRuleSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
@@ -161,7 +161,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated security group
 	stepsBuilder.GetSecurityGroupRuleV1Step("Get the updated security group rule", suite.Client.NetworkV1, ruleWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
 			Metadata:       expectRuleMeta,
 			Spec:           expectRuleSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},

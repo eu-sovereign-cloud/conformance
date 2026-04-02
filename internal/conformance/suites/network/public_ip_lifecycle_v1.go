@@ -116,7 +116,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -129,7 +129,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -143,7 +143,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectPublicIpMeta := publicIp.Metadata
 	expectPublicIpSpec := &publicIp.Spec
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.Client.NetworkV1, publicIp,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Metadata:       expectPublicIpMeta,
 			Spec:           expectPublicIpSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -157,7 +157,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      publicIp.Metadata.Name,
 	}
 	stepsBuilder.GetPublicIpV1Step("Get the created public ip", suite.Client.NetworkV1, publicIpWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Metadata:       expectPublicIpMeta,
 			Spec:           expectPublicIpSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -168,7 +168,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	publicIp = suite.params.PublicIpUpdated
 	expectPublicIpSpec.Address = publicIp.Spec.Address
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Update the public ip", suite.Client.NetworkV1, publicIp,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Metadata:       expectPublicIpMeta,
 			Spec:           expectPublicIpSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
@@ -177,7 +177,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated public ip
 	stepsBuilder.GetPublicIpV1Step("Get the updated public ip", suite.Client.NetworkV1, publicIpWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Metadata:       expectPublicIpMeta,
 			Spec:           expectPublicIpSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},

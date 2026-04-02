@@ -184,7 +184,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 		// Create a role
 		stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, &role,
-			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+			steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 				Metadata:       expectRoleMeta,
 				Spec:           &expectRoleSpec,
 				ResourceStates: suites.CreatedResourceExpectedStates,
@@ -192,24 +192,24 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		)
 	}
 
-	roleTRef := &secapi.TenantReference{
+	tpath := secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   suite.Tenant,
 	}
+
 	// List Roles
-	stepsBuilder.ListRoleV1Step("Get list of roles", suite.Client.AuthorizationV1, *roleTRef, nil)
+	stepsBuilder.ListRoleV1Step("List roles", suite.Client.AuthorizationV1, tpath, nil)
 
 	// List Roles with limit
-	stepsBuilder.ListRoleV1Step("Get list of roles with limit", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("List roles with limit", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Label
-	stepsBuilder.ListRoleV1Step("Get list of roles with label", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("List roles with label", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Limit and label
-	stepsBuilder.ListRoleV1Step("Get list of roles with limit and label", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("List roles with limit and label", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -223,29 +223,32 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 		// Create a role assignment
 		stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.Client.AuthorizationV1, &roleAssign,
-			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+			steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 				Metadata:       expectRoleAssignMeta,
 				Spec:           expectRoleAssignSpec,
 				ResourceStates: suites.CreatedResourceExpectedStates,
 			},
 		)
 	}
-	roleAssignTRef := &secapi.TenantReference{Tenant: secapi.TenantID(suite.Tenant)}
+
+	tpath = secapi.TenantPath{
+		Tenant: secapi.TenantID(suite.Tenant),
+	}
 
 	// List RoleAssignments
-	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef, nil)
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath, nil)
 
 	// List RoleAssignments with limit
-	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List RoleAssignments with Label
-	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List RoleAssignments with Limit and label
-	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 

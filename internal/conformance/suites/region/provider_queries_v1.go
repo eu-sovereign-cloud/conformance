@@ -74,11 +74,13 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	ctx := context.Background()
 
 	// Test List iterator's (Next and All) for Regions and verify both responses have the same length
-	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1)
+	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1, nil)
 
 	// Call Get Region and verify response
 	expectedRegionMeta := suite.params.Regions[0].Metadata
-	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, expectedRegionMeta)
+	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, regions[0].Metadata.Name,
+		steps.StepResponseExpects[schema.GlobalResourceMetadata, schema.RegionSpec]{Metadata: expectedRegionMeta},
+	)
 
 	suite.FinishScenario()
 }

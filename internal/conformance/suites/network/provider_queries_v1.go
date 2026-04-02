@@ -459,7 +459,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -474,7 +474,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectNetworkMeta := network.Metadata
 		expectNetworkSpec := &network.Spec
 		stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.Client.NetworkV1, &network,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 				Metadata:       expectNetworkMeta,
 				Spec:           expectNetworkSpec,
 				ResourceStates: suites.CreatedResourceExpectedStates,
@@ -482,35 +482,35 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		)
 	}
 
-	// List networks
-	wref := secapi.WorkspaceReference{
-		Name:      workspace.Metadata.Name,
-		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
+	wpath := secapi.WorkspacePath{
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
 	}
-	stepsBuilder.ListNetworkV1Step("List Network", suite.Client.NetworkV1, wref, nil)
+
+	// List networks
+	stepsBuilder.ListNetworkV1Step("List Network", suite.Client.NetworkV1, wpath, nil)
 
 	// List networks with limit
-	stepsBuilder.ListNetworkV1Step("Get list of Network with limit", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListNetworkV1Step("List Network with limit", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List networks with label
-	stepsBuilder.ListNetworkV1Step("Get list of Network with label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListNetworkV1Step("List Network with label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List networks with limit and label
-	stepsBuilder.ListNetworkV1Step("Get list of Network with limit and label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListNetworkV1Step("List Network with limit and label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Skus
 
 	// List skus
-	stepsBuilder.ListNetworkSkusV1Step("List skus", suite.Client.NetworkV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
+	stepsBuilder.ListNetworkSkusV1Step("List skus", suite.Client.NetworkV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
 
 	// List skus with limit
-	stepsBuilder.ListNetworkSkusV1Step("Get list of skus", suite.Client.NetworkV1, secapi.TenantReference{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListNetworkSkusV1Step("List skus", suite.Client.NetworkV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1))
 
 	// Internet gateway
@@ -521,7 +521,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectGatewayMeta := gateway.Metadata
 		expectGatewaySpec := &gateway.Spec
 		stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, &gateway,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 				Metadata:       expectGatewayMeta,
 				Spec:           expectGatewaySpec,
 				ResourceStates: suites.CreatedResourceExpectedStates,
@@ -531,19 +531,19 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	// List internet gateways
-	stepsBuilder.ListInternetGatewayV1Step("List Internet Gateway", suite.Client.NetworkV1, wref, nil)
+	stepsBuilder.ListInternetGatewayV1Step("List Internet Gateway", suite.Client.NetworkV1, wpath, nil)
 
 	// List internet gateways with limit
-	stepsBuilder.ListInternetGatewayV1Step("Get list of Internet Gateway with limit", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListInternetGatewayV1Step("List Internet Gateway with limit", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List internet gateways with label
-	stepsBuilder.ListInternetGatewayV1Step("Get list of Internet Gateway with label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListInternetGatewayV1Step("List Internet Gateway with label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List internet gateways with limit and label
-	stepsBuilder.ListInternetGatewayV1Step("Get list of Internet Gateway with limit and label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListInternetGatewayV1Step("List Internet Gateway with limit and label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -555,7 +555,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectRouteMeta := route.Metadata
 		expectRouteSpec := &route.Spec
 		stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, &route,
-			steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			steps.StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 				Metadata:       expectRouteMeta,
 				Spec:           expectRouteSpec,
 				ResourceStates: suites.CreatedResourceExpectedStates,
@@ -563,26 +563,26 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		)
 	}
 
-	// List route tables
-	nref := &secapi.NetworkReference{
+	npath := secapi.NetworkPath{
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID((workspace.Metadata.Name)),
 		Network:   secapi.NetworkID(networks[0].Metadata.Name),
-		Name:      routes[0].Metadata.Name,
 	}
-	stepsBuilder.ListRouteTableV1Step("List Route table", suite.Client.NetworkV1, *nref, nil)
+
+	// List route tables
+	stepsBuilder.ListRouteTableV1Step("List Route table", suite.Client.NetworkV1, npath, nil)
 
 	// List route tables with limit
-	stepsBuilder.ListRouteTableV1Step("Get list of Route table with limit", suite.Client.NetworkV1, *nref,
+	stepsBuilder.ListRouteTableV1Step("List Route table with limit", suite.Client.NetworkV1, npath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List route tables with label
-	stepsBuilder.ListRouteTableV1Step("Get list of Route table with label", suite.Client.NetworkV1, *nref,
+	stepsBuilder.ListRouteTableV1Step("List Route table with label", suite.Client.NetworkV1, npath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List route tables with limit and label
-	stepsBuilder.ListRouteTableV1Step("Get list of Route table with limit and label", suite.Client.NetworkV1, *nref,
+	stepsBuilder.ListRouteTableV1Step("List Route table with limit and label", suite.Client.NetworkV1, npath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -594,7 +594,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectSubnetMeta := subnet.Metadata
 		expectSubnetSpec := &subnet.Spec
 		stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", suite.Client.NetworkV1, &subnet,
-			steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			steps.StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 				Metadata:       expectSubnetMeta,
 				Spec:           expectSubnetSpec,
 				ResourceStates: suites.CreatedResourceExpectedStates,
@@ -603,19 +603,19 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	// List subnets
-	stepsBuilder.ListSubnetV1Step("List Subnet", suite.Client.NetworkV1, *nref, nil)
+	stepsBuilder.ListSubnetV1Step("List Subnet", suite.Client.NetworkV1, npath, nil)
 
 	// List subnets with limit
-	stepsBuilder.ListSubnetV1Step("Get list of Subnet with limit", suite.Client.NetworkV1, *nref,
+	stepsBuilder.ListSubnetV1Step("List Subnet with limit", suite.Client.NetworkV1, npath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List subnets with label
-	stepsBuilder.ListSubnetV1Step("Get list of Subnet with label", suite.Client.NetworkV1, *nref,
+	stepsBuilder.ListSubnetV1Step("List Subnet with label", suite.Client.NetworkV1, npath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List subnets with limit and label
-	stepsBuilder.ListSubnetV1Step("Get list of Subnet with limit and label", suite.Client.NetworkV1, *nref,
+	stepsBuilder.ListSubnetV1Step("List Subnet with limit and label", suite.Client.NetworkV1, npath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -627,7 +627,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectPublicIpMeta := publicIp.Metadata
 		expectPublicIpSpec := &publicIp.Spec
 		stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.Client.NetworkV1, &publicIp,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 				Metadata:       expectPublicIpMeta,
 				Spec:           expectPublicIpSpec,
 				ResourceStates: suites.CreatedResourceExpectedStates,
@@ -636,19 +636,19 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	// List public ips
-	stepsBuilder.ListPublicIpV1Step("List PublicIP", suite.Client.NetworkV1, wref, nil)
+	stepsBuilder.ListPublicIpV1Step("List PublicIP", suite.Client.NetworkV1, wpath, nil)
 
 	// List public ips with limit
-	stepsBuilder.ListPublicIpV1Step("Get list of PublicIP with limit", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListPublicIpV1Step("List PublicIP with limit", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List public ips with label
-	stepsBuilder.ListPublicIpV1Step("Get list of PublicIP with label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListPublicIpV1Step("List PublicIP with label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List public ips with limit and label
-	stepsBuilder.ListPublicIpV1Step("Get list of PublicIP with limit and label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListPublicIpV1Step("List PublicIP with limit and label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -660,7 +660,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectNicMeta := nic.Metadata
 		expectNicSpec := &nic.Spec
 		stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", suite.Client.NetworkV1, &nic,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+			steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 				Metadata:       expectNicMeta,
 				Spec:           expectNicSpec,
 				ResourceStates: suites.CreatedResourceExpectedStates,
@@ -669,19 +669,19 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	// List nics
-	stepsBuilder.ListNicV1Step("List Nic", suite.Client.NetworkV1, wref, nil)
+	stepsBuilder.ListNicV1Step("List Nic", suite.Client.NetworkV1, wpath, nil)
 
 	// List nics with limit
-	stepsBuilder.ListNicV1Step("Get list of Nic with limit", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListNicV1Step("List Nic with limit", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List nics with label
-	stepsBuilder.ListNicV1Step("Get list of Nic with label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListNicV1Step("List Nic with label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List nics with limit and label
-	stepsBuilder.ListNicV1Step("Get list of Nic with limit and label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListNicV1Step("List Nic with limit and label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -693,7 +693,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectRuleMeta := rule.Metadata
 		expectRuleSpec := &rule.Spec
 		stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Create a security group rule", suite.Client.NetworkV1, &rule,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
 				Metadata:       expectRuleMeta,
 				Spec:           expectRuleSpec,
 				ResourceStates: suites.CreatedResourceExpectedStates,
@@ -702,19 +702,19 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	// List security group rules
-	stepsBuilder.ListSecurityGroupRuleV1Step("List Security Group Rule", suite.Client.NetworkV1, wref, nil)
+	stepsBuilder.ListSecurityGroupRuleV1Step("List Security Group Rule", suite.Client.NetworkV1, wpath, nil)
 
 	// List security group rules with limit
-	stepsBuilder.ListSecurityGroupRuleV1Step("Get list of Security Group Rule with limit", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListSecurityGroupRuleV1Step("List Security Group Rule with limit", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List security group rules with label
-	stepsBuilder.ListSecurityGroupRuleV1Step("Get list of Security Group Rule with label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListSecurityGroupRuleV1Step("List Security Group Rule with label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List security group rules with limit and label
-	stepsBuilder.ListSecurityGroupRuleV1Step("Get list of Security Group Rule with limit and label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListSecurityGroupRuleV1Step("List Security Group Rule with limit and label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -726,7 +726,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		expectGroupMeta := group.Metadata
 		expectGroupSpec := &group.Spec
 		stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", suite.Client.NetworkV1, &group,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+			steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 				Metadata:       expectGroupMeta,
 				Spec:           expectGroupSpec,
 				ResourceStates: suites.CreatedResourceExpectedStates,
@@ -735,19 +735,19 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	// List security groups
-	stepsBuilder.ListSecurityGroupV1Step("List Security Group", suite.Client.NetworkV1, wref, nil)
+	stepsBuilder.ListSecurityGroupV1Step("List Security Group", suite.Client.NetworkV1, wpath, nil)
 
 	// List security groups with limit
-	stepsBuilder.ListSecurityGroupV1Step("Get list of Security Group with limit", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListSecurityGroupV1Step("List Security Group with limit", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List security groups with label
-	stepsBuilder.ListSecurityGroupV1Step("Get list of Security Group with label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListSecurityGroupV1Step("List Security Group with label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List security groups with limit and label
-	stepsBuilder.ListSecurityGroupV1Step("Get list of Security Group with limit and label", suite.Client.NetworkV1, wref,
+	stepsBuilder.ListSecurityGroupV1Step("List Security Group with limit and label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
