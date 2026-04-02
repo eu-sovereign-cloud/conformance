@@ -91,7 +91,6 @@ func ConfigureSubnetLifecycleScenarioV1(scenario *mockscenarios.Scenario, params
 	}
 
 	// Update subnet (change zone)
-	params.SubnetUpdated.Status = subnet.Status
 	subnet = params.SubnetUpdated
 	if err := configurator.ConfigureUpdateSubnetStub(subnet, subnetURL, scenario.MockParams); err != nil {
 		return err

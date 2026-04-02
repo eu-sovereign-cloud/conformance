@@ -1,8 +1,6 @@
 package stubs
 
 import (
-	"net/http"
-
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	network "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.network.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -21,6 +19,7 @@ func (configurator *Configurator) ConfigureCreateNetworkStub(response *schema.Ne
 
 func (configurator *Configurator) ConfigureUpdateNetworkStub(response *schema.Network, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
+	response.Status = beforeUpdateNetworkStatus()
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -79,6 +78,7 @@ func (configurator *Configurator) ConfigureCreateInternetGatewayStub(response *s
 
 func (configurator *Configurator) ConfigureUpdateInternetGatewayStub(response *schema.InternetGateway, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
+	response.Status = beforeUpdateResourceStatus()
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -137,6 +137,7 @@ func (configurator *Configurator) ConfigureCreateRouteTableStub(response *schema
 
 func (configurator *Configurator) ConfigureUpdateRouteTableStub(response *schema.RouteTable, url string, params *mock.MockParams) error {
 	setModifiedRegionalNetworkResourceMetadata(response.Metadata)
+	response.Status = beforeUpdateRouteTableStatus()
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -195,6 +196,7 @@ func (configurator *Configurator) ConfigureCreateSubnetStub(response *schema.Sub
 
 func (configurator *Configurator) ConfigureUpdateSubnetStub(response *schema.Subnet, url string, params *mock.MockParams) error {
 	setModifiedRegionalNetworkResourceMetadata(response.Metadata)
+	response.Status = beforeUpdateSubnetStatus()
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -253,6 +255,7 @@ func (configurator *Configurator) ConfigureCreatePublicIpStub(response *schema.P
 
 func (configurator *Configurator) ConfigureUpdatePublicIpStub(response *schema.PublicIp, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
+	response.Status = beforeUpdatePublicIpStatus()
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -311,6 +314,7 @@ func (configurator *Configurator) ConfigureCreateNicStub(response *schema.Nic, u
 
 func (configurator *Configurator) ConfigureUpdateNicStub(response *schema.Nic, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
+	response.Status = beforeUpdateNicStatus()
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -360,7 +364,7 @@ func (configurator *Configurator) ConfigureListNicStub(response *network.NicIter
 
 func (configurator *Configurator) ConfigureCreateSecurityGroupRuleStub(response *schema.SecurityGroupRule, url string, params *mock.MockParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
-	response.Status = newResourceStatus(schema.ResourceStatePending)
+	response.Status = newSecurityGroupRuleStatus(schema.ResourceStatePending)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -369,6 +373,8 @@ func (configurator *Configurator) ConfigureCreateSecurityGroupRuleStub(response 
 
 func (configurator *Configurator) ConfigureUpdateSecurityGroupRuleStub(response *schema.SecurityGroupRule, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
+	response.Status = beforeUpdateSecurityGroupRuleStatus()
+
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -376,7 +382,7 @@ func (configurator *Configurator) ConfigureUpdateSecurityGroupRuleStub(response 
 }
 
 func (configurator *Configurator) ConfigureGetCreatingSecurityGroupRuleStub(response *schema.SecurityGroupRule, url string, params *mock.MockParams) error {
-	setResourceState(response.Status, schema.ResourceStateCreating)
+	setSecurityGroupRuleState(response.Status, schema.ResourceStateCreating)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -384,7 +390,7 @@ func (configurator *Configurator) ConfigureGetCreatingSecurityGroupRuleStub(resp
 }
 
 func (configurator *Configurator) ConfigureGetActiveSecurityGroupRuleStub(response *schema.SecurityGroupRule, url string, params *mock.MockParams) error {
-	setResourceState(response.Status, schema.ResourceStateActive)
+	setSecurityGroupRuleState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -392,7 +398,7 @@ func (configurator *Configurator) ConfigureGetActiveSecurityGroupRuleStub(respon
 }
 
 func (configurator *Configurator) ConfigureGetUpdatingSecurityGroupRuleStub(response *schema.SecurityGroupRule, url string, params *mock.MockParams) error {
-	setResourceState(response.Status, schema.ResourceStateUpdating)
+	setSecurityGroupRuleState(response.Status, schema.ResourceStateUpdating)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -400,7 +406,7 @@ func (configurator *Configurator) ConfigureGetUpdatingSecurityGroupRuleStub(resp
 }
 
 func (configurator *Configurator) ConfigureGetDeletingSecurityGroupRuleStub(response *schema.SecurityGroupRule, url string, params *mock.MockParams) error {
-	setResourceState(response.Status, schema.ResourceStateDeleting)
+	setSecurityGroupRuleState(response.Status, schema.ResourceStateDeleting)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -420,6 +426,7 @@ func (configurator *Configurator) ConfigureCreateSecurityGroupStub(response *sch
 
 func (configurator *Configurator) ConfigureUpdateSecurityGroupStub(response *schema.SecurityGroup, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
+	response.Status = beforeUpdateSecurityGroupStatus()
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -473,8 +480,6 @@ func (configurator *Configurator) ConfigureListSecurityGroupStub(response *netwo
 }
 
 func (configurator *Configurator) ConfigureListNetworkSkuStub(response *network.SkuIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
-	response.Metadata.Verb = http.MethodGet
-
 	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

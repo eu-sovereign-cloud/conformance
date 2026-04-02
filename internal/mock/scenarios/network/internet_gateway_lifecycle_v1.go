@@ -46,7 +46,6 @@ func ConfigureInternetGatewayLifecycleScenarioV1(scenario *mockscenarios.Scenari
 	}
 
 	// Update the internet gateway (change egressOnly)
-	params.InternetGatewayUpdated.Status = internetGateway.Status
 	internetGateway = params.InternetGatewayUpdated
 	if err := configurator.ConfigureUpdateInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
 		return err

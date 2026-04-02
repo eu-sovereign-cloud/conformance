@@ -8,8 +8,14 @@ import (
 )
 
 func addStatusCondition(conditions []schema.StatusCondition, state schema.ResourceState) []schema.StatusCondition {
+	t := time.Now()
+	if len(conditions) > 0 {
+		if last := conditions[len(conditions)-1].LastTransitionAt; !t.After(last) {
+			t = last.Add(time.Millisecond)
+		}
+	}
 	return append(conditions, schema.StatusCondition{
-		LastTransitionAt: time.Now(),
+		LastTransitionAt: t,
 		State:            state,
 	})
 }
@@ -20,6 +26,13 @@ func newResourceStatus(state schema.ResourceState) *schema.Status {
 		Conditions: []schema.StatusCondition{
 			constants.PendingCondition,
 		},
+	}
+}
+
+func beforeUpdateResourceStatus() *schema.Status {
+	return &schema.Status{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
 	}
 }
 
@@ -39,6 +52,13 @@ func newWorkspaceStatus(state schema.ResourceState) *schema.WorkspaceStatus {
 	}
 }
 
+func beforeUpdateWorkspaceStatus() *schema.WorkspaceStatus {
+	return &schema.WorkspaceStatus{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
+	}
+}
+
 func setWorkspaceState(status *schema.WorkspaceStatus, state schema.ResourceState) {
 	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
@@ -55,6 +75,13 @@ func newBlockStorageStatus(state schema.ResourceState) *schema.BlockStorageStatu
 	}
 }
 
+func beforeUpdateBlockStorageStatus() *schema.BlockStorageStatus {
+	return &schema.BlockStorageStatus{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
+	}
+}
+
 func setBlockStorageState(status *schema.BlockStorageStatus, state schema.ResourceState) {
 	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
@@ -66,6 +93,13 @@ func newImageStatus(state schema.ResourceState) *schema.ImageStatus {
 		Conditions: []schema.StatusCondition{
 			constants.PendingCondition,
 		},
+	}
+}
+
+func beforeUpdateImageStatus() *schema.ImageStatus {
+	return &schema.ImageStatus{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
 	}
 }
 
@@ -85,6 +119,13 @@ func newInstanceStatus(state schema.ResourceState) *schema.InstanceStatus {
 	}
 }
 
+func beforeUpdateInstanceStatus() *schema.InstanceStatus {
+	return &schema.InstanceStatus{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
+	}
+}
+
 func setInstanceState(status *schema.InstanceStatus, state schema.ResourceState) {
 	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
@@ -98,6 +139,13 @@ func newNetworkStatus(state schema.ResourceState) *schema.NetworkStatus {
 		Conditions: []schema.StatusCondition{
 			constants.PendingCondition,
 		},
+	}
+}
+
+func beforeUpdateNetworkStatus() *schema.NetworkStatus {
+	return &schema.NetworkStatus{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
 	}
 }
 
@@ -115,6 +163,13 @@ func newRouteTableStatus(state schema.ResourceState) *schema.RouteTableStatus {
 	}
 }
 
+func beforeUpdateRouteTableStatus() *schema.RouteTableStatus {
+	return &schema.RouteTableStatus{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
+	}
+}
+
 func setRouteTableState(status *schema.RouteTableStatus, state schema.ResourceState) {
 	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
@@ -126,6 +181,13 @@ func newSubnetStatus(state schema.ResourceState) *schema.SubnetStatus {
 		Conditions: []schema.StatusCondition{
 			constants.PendingCondition,
 		},
+	}
+}
+
+func beforeUpdateSubnetStatus() *schema.SubnetStatus {
+	return &schema.SubnetStatus{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
 	}
 }
 
@@ -143,6 +205,13 @@ func newPublicIpStatus(state schema.ResourceState) *schema.PublicIpStatus {
 	}
 }
 
+func beforeUpdatePublicIpStatus() *schema.PublicIpStatus {
+	return &schema.PublicIpStatus{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
+	}
+}
+
 func setPublicIpState(status *schema.PublicIpStatus, state schema.ResourceState) {
 	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
@@ -157,7 +226,35 @@ func newNicStatus(state schema.ResourceState) *schema.NicStatus {
 	}
 }
 
+func beforeUpdateNicStatus() *schema.NicStatus {
+	return &schema.NicStatus{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
+	}
+}
+
 func setNicState(status *schema.NicStatus, state schema.ResourceState) {
+	status.State = state
+	status.Conditions = addStatusCondition(status.Conditions, state)
+}
+
+func newSecurityGroupRuleStatus(state schema.ResourceState) *schema.SecurityGroupRuleStatus {
+	return &schema.SecurityGroupRuleStatus{
+		State: state,
+		Conditions: []schema.StatusCondition{
+			constants.PendingCondition,
+		},
+	}
+}
+
+func beforeUpdateSecurityGroupRuleStatus() *schema.SecurityGroupRuleStatus {
+	return &schema.SecurityGroupRuleStatus{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
+	}
+}
+
+func setSecurityGroupRuleState(status *schema.SecurityGroupRuleStatus, state schema.ResourceState) {
 	status.State = state
 	status.Conditions = addStatusCondition(status.Conditions, state)
 }
@@ -168,6 +265,13 @@ func newSecurityGroupStatus(state schema.ResourceState) *schema.SecurityGroupSta
 		Conditions: []schema.StatusCondition{
 			constants.PendingCondition,
 		},
+	}
+}
+
+func beforeUpdateSecurityGroupStatus() *schema.SecurityGroupStatus {
+	return &schema.SecurityGroupStatus{
+		State:      schema.ResourceStateActive,
+		Conditions: constants.GetConditionBeforeUpdating(),
 	}
 }
 

@@ -1,6 +1,22 @@
 package constants
 
-import "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+import (
+	"time"
+
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+)
+
+func buildConditionSequence(states ...schema.ResourceState) []schema.StatusCondition {
+	base := time.Now()
+	conditions := make([]schema.StatusCondition, len(states))
+	for i, state := range states {
+		conditions[i] = schema.StatusCondition{
+			LastTransitionAt: base.Add(time.Duration(i) * time.Second),
+			State:            state,
+		}
+	}
+	return conditions
+}
 
 // Expected States
 var (
@@ -31,96 +47,94 @@ var (
 	DeletingType    = "deleting"
 
 	ActiveCondition = schema.StatusCondition{
-		Message: ActiveMessage,
-		Reason:  ActiveReason,
-		State:   schema.ResourceStateActive,
-		Type:    ActiveType,
+		LastTransitionAt: time.Now(),
+		State:            schema.ResourceStateActive,
 	}
 
 	CreatingCondition = schema.StatusCondition{
-		Message: CreatingMessage,
-		Reason:  CreatingReason,
-		State:   schema.ResourceStateCreating,
-		Type:    CreatingType,
+		LastTransitionAt: time.Now(),
+		State:            schema.ResourceStateCreating,
 	}
 
 	PendingCondition = schema.StatusCondition{
-		Message: PendingMessage,
-		Reason:  PendingReason,
-		State:   schema.ResourceStatePending,
-		Type:    PendingType,
+		LastTransitionAt: time.Now(),
+		State:            schema.ResourceStatePending,
 	}
 
 	UpdatingCondition = schema.StatusCondition{
-		Message: UpdatingMessage,
-		Reason:  UpdatingReason,
-		State:   schema.ResourceStateUpdating,
-		Type:    UpdatingType,
+		LastTransitionAt: time.Now(),
+		State:            schema.ResourceStateUpdating,
 	}
 
 	DeletingCondition = schema.StatusCondition{
-		Message: DeletingMessage,
-		Reason:  DeletingReason,
-		State:   schema.ResourceStateDeleting,
-		Type:    DeletingType,
+		LastTransitionAt: time.Now(),
+		State:            schema.ResourceStateDeleting,
 	}
 
-	GetConditionAfterCreating = []schema.StatusCondition{
-		PendingCondition,
-		CreatingCondition,
-		ActiveCondition,
-	}
+	GetConditionAfterCreating = buildConditionSequence(
+		schema.ResourceStatePending,
+		schema.ResourceStateCreating,
+		schema.ResourceStateActive,
+	)
 
-	GetConditionAfterUpdating = []schema.StatusCondition{
-		PendingCondition,
-		CreatingCondition,
-		ActiveCondition,
-		UpdatingCondition,
-		ActiveCondition,
-	}
+	GetConditionAfterUpdating = buildConditionSequence(
+		schema.ResourceStatePending,
+		schema.ResourceStateCreating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+	)
 
-	GetConditionAfterDeleting = []schema.StatusCondition{
-		PendingCondition,
-		CreatingCondition,
-		ActiveCondition,
-		UpdatingCondition,
-		ActiveCondition,
-		DeletingCondition,
-	}
+	GetConditionAfterDeleting = buildConditionSequence(
+		schema.ResourceStatePending,
+		schema.ResourceStateCreating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateDeleting,
+	)
 
-	GetConditionAfterStopping = []schema.StatusCondition{
-		PendingCondition,
-		CreatingCondition,
-		ActiveCondition,
-		UpdatingCondition,
-		ActiveCondition,
-		UpdatingCondition,
-		ActiveCondition,
-		UpdatingCondition,
-		ActiveCondition,
-		UpdatingCondition,
-		ActiveCondition,
-	}
+	GetConditionAfterStopping = buildConditionSequence(
+		schema.ResourceStatePending,
+		schema.ResourceStateCreating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+	)
 
-	GetConditionAfterStarting = []schema.StatusCondition{
-		PendingCondition,
-		CreatingCondition,
-		ActiveCondition,
-		UpdatingCondition,
-		ActiveCondition,
-		UpdatingCondition,
-		ActiveCondition,
-	}
+	GetConditionAfterStarting = buildConditionSequence(
+		schema.ResourceStatePending,
+		schema.ResourceStateCreating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+	)
 
-	GetConditionAfterRestarting = []schema.StatusCondition{
-		PendingCondition,
-		CreatingCondition,
-		ActiveCondition,
-		UpdatingCondition,
-		ActiveCondition,
-		UpdatingCondition,
-		ActiveCondition,
-		UpdatingCondition,
-		ActiveCondition,
-	}
+	GetConditionAfterRestarting = buildConditionSequence(
+		schema.ResourceStatePending,
+		schema.ResourceStateCreating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+	)
 )
+
+func GetConditionBeforeUpdating() []schema.StatusCondition {
+	return buildConditionSequence(
+		schema.ResourceStatePending,
+		schema.ResourceStateCreating,
+		schema.ResourceStateActive,
+	)
+}

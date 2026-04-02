@@ -1,8 +1,6 @@
 package stubs
 
 import (
-	"net/http"
-
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -21,6 +19,7 @@ func (configurator *Configurator) ConfigureCreateInstanceStub(response *schema.I
 
 func (configurator *Configurator) ConfigureUpdateInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
+	response.Status = beforeUpdateInstanceStatus()
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -68,8 +67,6 @@ func (configurator *Configurator) ConfigureGetDeletingInstanceStub(response *sch
 }
 
 func (configurator *Configurator) ConfigureListInstanceStub(response *compute.InstanceIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
-	response.Metadata.Verb = http.MethodGet
-
 	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -77,8 +74,6 @@ func (configurator *Configurator) ConfigureListInstanceStub(response *compute.In
 }
 
 func (configurator *Configurator) ConfigureListSkuStub(response *compute.SkuIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
-	response.Metadata.Verb = http.MethodGet
-
 	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

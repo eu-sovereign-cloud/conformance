@@ -117,6 +117,16 @@ func (suite *TestSuite) VerifyStatusConditionsStep(ctx provider.StepCtx, expecte
 		for i := range expected {
 			stepCtx.Require().Equal(expected[i].State, actual[i].State,
 				fmt.Sprintf("Condition [%d] state should match expected", i))
+
+			stepCtx.Require().NotEmpty(actual[i].LastTransitionAt)
+			stepCtx.Require().False(actual[i].LastTransitionAt.IsZero(),
+				fmt.Sprintf("Condition [%d] lastTransitionAt should not be zero", i))
+
+			if i != 0 {
+				stepCtx.Require().False(actual[i].LastTransitionAt.Before(actual[i-1].LastTransitionAt),
+					fmt.Sprintf("Condition [%d] lastTransitionAt should be after to previous condition's lastTransitionAt", i))
+			}
+
 		}
 	})
 }
