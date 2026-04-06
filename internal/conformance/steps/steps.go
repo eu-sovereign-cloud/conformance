@@ -22,6 +22,13 @@ type ResponseExpects[M types.MetadataType, E types.SpecType] struct {
 	ResourceStates []schema.ResourceState
 }
 
+type ResponseExpectsWithCondition[M types.MetadataType, E types.SpecType] struct {
+	Labels         schema.Labels
+	Metadata       *M
+	Spec           *E
+	ResourceStatus schema.Status
+}
+
 // Steps
 
 /// Create Or Update
@@ -163,21 +170,20 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 
 	// Status
 	if resp.GetStatus() != nil && len(params.expectedResourceStates) > 0 {
-		suite.VerifyStatusStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
+		suite.VerifyStatusStatesStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
 	} else {
 		log.Fatalln("Status verification failed: expected or actual Status is nil")
 	}
 }
 
-/// Get
-
+// / Get
 type getTenantResourceParams[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	stepName               string
 	stepParamsFunc         func(provider.StepCtx, constants.OperationName)
 	operationName          constants.OperationName
 	tref                   secapi.TenantReference
 	getValueFunc           func(context.Context, secapi.TenantReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (wrappers.ResourceWrapper[R, M, E, S], error)
-	expectedResourceStates []schema.ResourceState
+	expectedResourceStatus schema.Status
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
@@ -195,14 +201,14 @@ func getTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.S
 		resp = getResourceUntilValueStep(t, suite, sCtx,
 			getResourceUntilValueParams[R, M, E, S, secapi.TenantReference, schema.ResourceState]{
 				reference:              params.tref,
-				observerExpectedValues: params.expectedResourceStates,
+				observerExpectedValues: []schema.ResourceState{params.expectedResourceStatus.State},
 				getValueFunc:           params.getValueFunc,
 				expectedLabels:         params.expectedLabels,
 				expectedMetadata:       params.expectedMetadata,
 				verifyMetadataFunc:     params.verifyMetadataFunc,
 				expectedSpec:           params.expectedSpec,
 				verifySpecFunc:         params.verifySpecFunc,
-				expectedResourceStates: params.expectedResourceStates,
+				expectedResourceStatus: params.expectedResourceStatus,
 			},
 		)
 		requireNotNilResponse(sCtx, resp)
@@ -216,7 +222,7 @@ type getWorkspaceResourceParams[R types.ResourceType, M types.MetadataType, E ty
 	operationName          constants.OperationName
 	wref                   secapi.WorkspaceReference
 	getValueFunc           func(context.Context, secapi.WorkspaceReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (wrappers.ResourceWrapper[R, M, E, S], error)
-	expectedResourceStates []schema.ResourceState
+	expectedResourceStatus schema.Status
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
@@ -234,14 +240,14 @@ func getWorkspaceResourceStep[R types.ResourceType, M types.MetadataType, E type
 		resp = getResourceUntilValueStep(t, suite, sCtx,
 			getResourceUntilValueParams[R, M, E, S, secapi.WorkspaceReference, schema.ResourceState]{
 				reference:              params.wref,
-				observerExpectedValues: params.expectedResourceStates,
+				observerExpectedValues: []schema.ResourceState{params.expectedResourceStatus.State},
 				getValueFunc:           params.getValueFunc,
 				expectedLabels:         params.expectedLabels,
 				expectedMetadata:       params.expectedMetadata,
 				verifyMetadataFunc:     params.verifyMetadataFunc,
 				expectedSpec:           params.expectedSpec,
 				verifySpecFunc:         params.verifySpecFunc,
-				expectedResourceStates: params.expectedResourceStates,
+				expectedResourceStatus: params.expectedResourceStatus,
 			},
 		)
 		requireNotNilResponse(sCtx, resp)
@@ -255,7 +261,7 @@ type getNetworkResourceParams[R types.ResourceType, M types.MetadataType, E type
 	operationName          constants.OperationName
 	nref                   secapi.NetworkReference
 	getValueFunc           func(context.Context, secapi.NetworkReference, secapi.ResourceObserverUntilValueConfig[schema.ResourceState]) (wrappers.ResourceWrapper[R, M, E, S], error)
-	expectedResourceStates []schema.ResourceState
+	expectedResourceStatus schema.Status
 	expectedLabels         schema.Labels
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
@@ -273,14 +279,14 @@ func getNetworkResourceStep[R types.ResourceType, M types.MetadataType, E types.
 		resp = getResourceUntilValueStep(t, suite, sCtx,
 			getResourceUntilValueParams[R, M, E, S, secapi.NetworkReference, schema.ResourceState]{
 				reference:              params.nref,
-				observerExpectedValues: params.expectedResourceStates,
+				observerExpectedValues: []schema.ResourceState{params.expectedResourceStatus.State},
 				getValueFunc:           params.getValueFunc,
 				expectedLabels:         params.expectedLabels,
 				expectedMetadata:       params.expectedMetadata,
 				verifyMetadataFunc:     params.verifyMetadataFunc,
 				expectedSpec:           params.expectedSpec,
 				verifySpecFunc:         params.verifySpecFunc,
-				expectedResourceStates: params.expectedResourceStates,
+				expectedResourceStatus: params.expectedResourceStatus,
 			},
 		)
 		requireNotNilResponse(sCtx, resp)
@@ -297,7 +303,7 @@ type getResourceUntilValueParams[R types.ResourceType, M types.MetadataType, E t
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
 	expectedSpec           *E
 	verifySpecFunc         func(provider.StepCtx, *E, *E)
-	expectedResourceStates []schema.ResourceState
+	expectedResourceStatus schema.Status
 }
 
 func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType, F secapi.Reference, V any](
@@ -331,10 +337,16 @@ func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E typ
 	}
 
 	// Status
-	if len(params.expectedResourceStates) > 0 {
-		suite.VerifyStatusStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
+	if params.expectedResourceStatus.State != "" {
+		suite.VerifyStatusStateStep(sCtx, params.expectedResourceStatus.State, types.GetStatusState(resp.GetStatus()))
 	} else {
 		log.Fatalln("Status verification failed: expected or actual Status is nil")
+	}
+
+	// Conditions
+	if len(params.expectedResourceStatus.Conditions) > 0 {
+		actualConditions := types.GetStatusConditions(resp.GetStatus())
+		suite.VerifyStatusConditionsStep(sCtx, params.expectedResourceStatus.Conditions, actualConditions)
 	}
 
 	return resp.GetResource()

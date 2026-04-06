@@ -1,8 +1,6 @@
 package stubs
 
 import (
-	"net/http"
-
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	region "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.region.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -10,8 +8,6 @@ import (
 
 // Region
 func (configurator *Configurator) ConfigureListRegionStub(response *region.RegionIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
-	response.Metadata.Verb = http.MethodGet
-
 	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
@@ -19,8 +15,6 @@ func (configurator *Configurator) ConfigureListRegionStub(response *region.Regio
 }
 
 func (configurator *Configurator) ConfigureGetRegionStub(response *schema.Region, url string, params *mock.MockParams) error {
-	response.Metadata.Verb = http.MethodGet
-
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}

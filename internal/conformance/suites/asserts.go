@@ -99,9 +99,35 @@ func (suite TestSuite) verifyAssertState(stepCtx provider.StepCtx) {
 
 // Status
 
-func (suite *TestSuite) VerifyStatusStep(ctx provider.StepCtx, expected []schema.ResourceState, actual schema.ResourceState) {
+func (suite *TestSuite) VerifyStatusStateStep(ctx provider.StepCtx, expected schema.ResourceState, actual schema.ResourceState) {
+	ctx.WithNewStep("Verify status state", func(stepCtx provider.StepCtx) {
+		stepCtx.Require().Equal(expected, actual, "Status state should match expected")
+	})
+}
+
+func (suite *TestSuite) VerifyStatusStatesStep(ctx provider.StepCtx, expected []schema.ResourceState, actual schema.ResourceState) {
 	ctx.WithNewStep("Verify status state", func(stepCtx provider.StepCtx) {
 		stepCtx.Require().Contains(expected, actual, "Status state should match expected")
+	})
+}
+
+func (suite *TestSuite) VerifyStatusConditionsStep(ctx provider.StepCtx, expected []schema.StatusCondition, actual []schema.StatusCondition) {
+	ctx.WithNewStep("Verify status conditions", func(stepCtx provider.StepCtx) {
+		stepCtx.Require().Equal(len(expected), len(actual), "Status conditions length should match expected")
+		for i := range expected {
+			stepCtx.Require().Equal(expected[i].State, actual[i].State,
+				fmt.Sprintf("Condition [%d] state should match expected", i))
+
+			stepCtx.Require().NotEmpty(actual[i].LastTransitionAt)
+			stepCtx.Require().False(actual[i].LastTransitionAt.IsZero(),
+				fmt.Sprintf("Condition [%d] lastTransitionAt should not be zero", i))
+
+			if i != 0 {
+				stepCtx.Require().False(actual[i].LastTransitionAt.Before(actual[i-1].LastTransitionAt),
+					fmt.Sprintf("Condition [%d] lastTransitionAt should be after to previous condition's lastTransitionAt", i))
+			}
+
+		}
 	})
 }
 

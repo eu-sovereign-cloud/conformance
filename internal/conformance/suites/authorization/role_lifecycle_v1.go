@@ -109,10 +109,13 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   role.Metadata.Name,
 	}
 	stepsBuilder.GetRoleV1Step("Get the created role", suite.Client.AuthorizationV1, roleTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:       expectRoleMeta,
-			Spec:           expectRoleSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+			Metadata: expectRoleMeta,
+			Spec:     expectRoleSpec,
+			ResourceStatus: schema.Status{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -129,10 +132,13 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated role
 	role = stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
-		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-			Metadata:       expectRoleMeta,
-			Spec:           expectRoleSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+			Metadata: expectRoleMeta,
+			Spec:     expectRoleSpec,
+			ResourceStatus: schema.Status{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 

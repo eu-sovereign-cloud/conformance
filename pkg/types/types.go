@@ -99,3 +99,36 @@ func GetStatusState[S StatusType](status *S) schema.ResourceState {
 		return ""
 	}
 }
+
+func GetStatusConditions[S StatusType](status *S) []schema.StatusCondition {
+	if status == nil {
+		return nil
+	}
+
+	switch v := any(*status).(type) {
+	case schema.Status:
+		return v.Conditions
+	case schema.WorkspaceStatus:
+		return v.Conditions
+	case schema.BlockStorageStatus:
+		return v.Conditions
+	case schema.ImageStatus:
+		return v.Conditions
+	case schema.InstanceStatus:
+		return v.Conditions
+	case schema.NetworkStatus:
+		return v.Conditions
+	case schema.SubnetStatus:
+		return v.Conditions
+	case schema.RouteTableStatus:
+		return v.Conditions
+	case schema.NicStatus:
+		return v.Conditions
+	case schema.PublicIpStatus:
+		return v.Conditions
+	case schema.SecurityGroupStatus:
+		return v.Conditions
+	default:
+		return nil
+	}
+}
