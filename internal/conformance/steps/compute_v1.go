@@ -45,7 +45,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName str
 }
 
 func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus],
 ) *schema.Instance {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -66,6 +66,32 @@ func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api se
 			expectedSpec:           responseExpects.Spec,
 			verifySpecFunc:         configurator.suite.VerifyInstanceSpecStep,
 			expectedResourceStatus: responseExpects.ResourceStatus,
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) GetInstancePowerStateV1Step(stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference,
+	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus],
+) *schema.Instance {
+	responseExpects.Metadata.Verb = http.MethodGet
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	return getWorkspaceInstanceResourceStep(configurator.t, configurator.suite,
+		getWorkspaceInstanceResourceParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetComputeV1StepParams,
+			operationName:  constants.GetInstanceOperation,
+			wref:           wref,
+			getValueFunc: func(ctx context.Context, wref secapi.WorkspaceReference, config secapi.ResourceObserverUntilValueConfig[schema.InstanceStatusPowerState]) (
+				wrappers.ResourceWrapper[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
+			) {
+				resp, err := api.GetInstanceUntilPowerState(configurator.t.Context(), wref, config)
+				return wrappers.NewInstanceWrapper(resp), err
+			},
+			expectedMetadata:   responseExpects.Metadata,
+			verifyMetadataFunc: configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:       responseExpects.Spec,
+			verifySpecFunc:     configurator.suite.VerifyInstanceSpecStep,
+			expectedPowerState: responseExpects.ResourceStatus.PowerState,
 		},
 	)
 }

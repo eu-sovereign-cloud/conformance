@@ -67,7 +67,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName stri
 }
 
 func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus],
 ) *schema.Network {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -164,7 +164,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepN
 }
 
 func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.InternetGatewayStatus],
 ) *schema.InternetGateway {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -262,7 +262,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName s
 }
 
 func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus],
 ) *schema.RouteTable {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -359,7 +359,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName strin
 }
 
 func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus],
 ) *schema.Subnet {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -456,7 +456,7 @@ func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName str
 }
 
 func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus],
 ) *schema.PublicIp {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -554,7 +554,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, 
 }
 
 func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus],
 ) *schema.Nic {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -651,7 +651,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleV1Step(ste
 }
 
 func (configurator *StepsConfigurator) GetSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus],
 ) *schema.SecurityGroupRule {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -748,7 +748,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepNam
 }
 
 func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus],
 ) *schema.SecurityGroup {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))

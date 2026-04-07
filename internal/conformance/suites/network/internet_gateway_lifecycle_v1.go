@@ -109,10 +109,10 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
 			Labels:   expectWorkspaceLabels,
 			Metadata: expectWorkspaceMeta,
-			ResourceStatus: schema.Status{
+			ResourceStatus: schema.WorkspaceStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
@@ -140,10 +140,10 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      gateway.Metadata.Name,
 	}
 	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, gatewayWRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.InternetGatewayStatus]{
 			Metadata: expectGatewayMeta,
 			Spec:     expectGatewaySpec,
-			ResourceStatus: schema.Status{
+			ResourceStatus: schema.InternetGatewayStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
@@ -163,10 +163,10 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated internet gateway
 	stepsBuilder.GetInternetGatewayV1Step("Get the updated internet gateway", suite.Client.NetworkV1, gatewayWRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.InternetGatewayStatus]{
 			Metadata: expectGatewayMeta,
 			Spec:     expectGatewaySpec,
-			ResourceStatus: schema.Status{
+			ResourceStatus: schema.InternetGatewayStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
 			},

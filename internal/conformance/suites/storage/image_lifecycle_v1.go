@@ -141,10 +141,10 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
 			Labels:   expectWorkspaceLabels,
 			Metadata: expectWorkspaceMeta,
-			ResourceStatus: schema.Status{
+			ResourceStatus: schema.WorkspaceStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
@@ -172,10 +172,10 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      block.Metadata.Name,
 	}
 	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus]{
 			Metadata: expectedBlockMeta,
 			Spec:     expectedBlockSpec,
-			ResourceStatus: schema.Status{
+			ResourceStatus: schema.BlockStorageStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
@@ -202,10 +202,10 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   image.Metadata.Name,
 	}
 	stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec]{
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus]{
 			Metadata: expectedImageMeta,
 			Spec:     expectedImageSpec,
-			ResourceStatus: schema.Status{
+			ResourceStatus: schema.ImageStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
@@ -225,10 +225,10 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated image
 	image = stepsBuilder.GetImageV1Step("Get the updated image", suite.Client.StorageV1, imageTRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec]{
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus]{
 			Metadata: expectedImageMeta,
 			Spec:     expectedImageSpec,
-			ResourceStatus: schema.Status{
+			ResourceStatus: schema.ImageStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
 			},
