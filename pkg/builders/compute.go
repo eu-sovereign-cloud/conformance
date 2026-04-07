@@ -72,9 +72,11 @@ func (builder *InstanceMetadataBuilder) Build() (*schema.RegionalWorkspaceResour
 
 type InstanceBuilder struct {
 	*regionalWorkspaceResourceBuilder[InstanceBuilder, schema.InstanceSpec]
-	metadata *InstanceMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.InstanceSpec
+	metadata   *InstanceMetadataBuilder
+	labels     schema.Labels
+	annotatons schema.Annotations
+	extensions schema.Extensions
+	spec       *schema.InstanceSpec
 }
 
 func NewInstanceBuilder() *InstanceBuilder {
@@ -85,12 +87,14 @@ func NewInstanceBuilder() *InstanceBuilder {
 
 	builder.regionalWorkspaceResourceBuilder = newRegionalWorkspaceResourceBuilder(newRegionalWorkspaceResourceBuilderParams[InstanceBuilder, schema.InstanceSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[InstanceBuilder, schema.InstanceSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.InstanceSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotatons = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.InstanceSpec) { builder.spec = spec },
 		},
 		setTenant:    func(tenant string) { builder.metadata.Tenant(tenant) },
 		setWorkspace: func(workspace string) { builder.metadata.Workspace(workspace) },
@@ -125,10 +129,12 @@ func (builder *InstanceBuilder) Build() (*schema.Instance, error) {
 	}
 
 	return &schema.Instance{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.InstanceStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotatons,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.InstanceStatus{},
 	}, nil
 }
 

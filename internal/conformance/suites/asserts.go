@@ -142,6 +142,28 @@ func (suite *TestSuite) VerifyLabelsStep(ctx provider.StepCtx, expected schema.L
 	})
 }
 
+func (suite *TestSuite) VerifyAnnotationsStep(ctx provider.StepCtx, expected schema.Annotations, actual schema.Annotations) {
+	ctx.WithNewStep("Verify annotation", func(stepCtx provider.StepCtx) {
+		stepCtx.WithNewParameters(
+			"expected_annotations", expected,
+			"actual_annotations", actual,
+		)
+
+		stepCtx.Require().Equal(expected, actual, "Annotations should match expected")
+	})
+}
+
+func (suite *TestSuite) VerifyExtensionsStep(ctx provider.StepCtx, expected schema.Extensions, actual schema.Extensions) {
+	ctx.WithNewStep("Verify extension", func(stepCtx provider.StepCtx) {
+		stepCtx.WithNewParameters(
+			"expected_extensions", expected,
+			"actual_extensions", actual,
+		)
+
+		stepCtx.Require().Equal(expected, actual, "Extensions should match expected")
+	})
+}
+
 // Specs
 
 // Authorization Specs

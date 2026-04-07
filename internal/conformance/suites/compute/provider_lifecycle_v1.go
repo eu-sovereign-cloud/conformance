@@ -67,6 +67,9 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(workspaceName).
 		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		}).
@@ -79,6 +82,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(blockStorageName).
 		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Annotations(schema.Annotations{
+			"description": "Block storage for conformance testing",
+		}).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
 		Spec(&schema.BlockStorageSpec{
 			SkuRef: *storageSkuRefObj,
 			SizeGB: blockStorageSize,
@@ -92,6 +101,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(instanceName).
 		Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Annotations(schema.Annotations{
+			"description": "Instance for conformance testing",
+		}).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
 		Spec(&schema.InstanceSpec{
 			SkuRef: *instanceSkuRefObj,
 			Zone:   initialInstanceZone,
@@ -108,6 +123,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(instanceName).
 		Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Annotations(schema.Annotations{
+			"description": "Instance for conformance testing",
+		}).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
 		Spec(&schema.InstanceSpec{
 			SkuRef: *instanceSkuRefObj,
 			Zone:   updatedInstanceZone,
@@ -145,9 +166,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -175,9 +200,15 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	block := suite.params.BlockStorage
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
+	expectedBlockLabels := block.Labels
+	expectedBlockAnnotations := block.Annotations
+	expectedBlockExtensions := block.Extensions
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
+			Labels:         expectedBlockLabels,
+			Annotations:    expectedBlockAnnotations,
+			Extensions:     expectedBlockExtensions,
 			Spec:           expectedBlockSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -206,9 +237,15 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	instance := suite.params.InitialInstance
 	expectInstanceMeta := instance.Metadata
 	expectInstanceSpec := &instance.Spec
+	expectInstanceLabels := instance.Labels
+	expectInstanceAnnotations := instance.Annotations
+	expectInstanceExtensions := instance.Extensions
 	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.Client.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:       expectInstanceMeta,
+			Labels:         expectInstanceLabels,
+			Annotations:    expectInstanceAnnotations,
+			Extensions:     expectInstanceExtensions,
 			Spec:           expectInstanceSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -234,9 +271,15 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the instance
 	instance.Spec.Zone = suite.params.UpdatedInstance.Spec.Zone
 	expectInstanceSpec.Zone = instance.Spec.Zone
+	expectInstanceLabels = instance.Labels
+	expectInstanceAnnotations = instance.Annotations
+	expectInstanceExtensions = instance.Extensions
 	stepsBuilder.CreateOrUpdateInstanceV1Step("Update the instance", suite.Client.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:       expectInstanceMeta,
+			Labels:         expectInstanceLabels,
+			Annotations:    expectInstanceAnnotations,
+			Extensions:     expectInstanceExtensions,
 			Spec:           expectInstanceSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
 		},

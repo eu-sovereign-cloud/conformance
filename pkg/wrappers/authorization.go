@@ -22,6 +22,14 @@ func (wrapper *RoleWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
 }
 
+func (wrapper *RoleWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *RoleWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
+}
+
 func (wrapper *RoleWrapper) GetMetadata() *schema.GlobalTenantResourceMetadata {
 	return wrapper.resource.Metadata
 }
@@ -50,6 +58,14 @@ func (wrapper *RoleAssignmentWrapper) GetResource() *schema.RoleAssignment {
 
 func (wrapper *RoleAssignmentWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
+}
+
+func (wrapper *RoleAssignmentWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *RoleAssignmentWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
 }
 
 func (wrapper *RoleAssignmentWrapper) GetMetadata() *schema.GlobalTenantResourceMetadata {

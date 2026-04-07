@@ -39,9 +39,11 @@ func (builder *RoleMetadataBuilder) Build() (*schema.GlobalTenantResourceMetadat
 
 type RoleBuilder struct {
 	*globalTenantResourceBuilder[RoleBuilder, schema.RoleSpec]
-	metadata *RoleMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.RoleSpec
+	metadata    *RoleMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
+	spec        *schema.RoleSpec
 }
 
 func NewRoleBuilder() *RoleBuilder {
@@ -52,12 +54,14 @@ func NewRoleBuilder() *RoleBuilder {
 
 	builder.globalTenantResourceBuilder = newGlobalTenantResourceBuilder(newGlobalTenantResourceBuilderParams[RoleBuilder, schema.RoleSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[RoleBuilder, schema.RoleSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.RoleSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.RoleSpec) { builder.spec = spec },
 		},
 		setTenant: func(tenant string) { builder.metadata.Tenant(tenant) },
 	})
@@ -98,10 +102,12 @@ func (builder *RoleBuilder) Build() (*schema.Role, error) {
 	}
 
 	return &schema.Role{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.RoleStatus{},
+		Metadata:    metadata,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Labels:      builder.labels,
+		Spec:        *builder.spec,
+		Status:      &schema.RoleStatus{},
 	}, nil
 }
 
@@ -168,9 +174,11 @@ func (builder *RoleAssignmentMetadataBuilder) Build() (*schema.GlobalTenantResou
 
 type RoleAssignmentBuilder struct {
 	*globalTenantResourceBuilder[RoleAssignmentBuilder, schema.RoleAssignmentSpec]
-	metadata *RoleAssignmentMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.RoleAssignmentSpec
+	metadata    *RoleAssignmentMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
+	spec        *schema.RoleAssignmentSpec
 }
 
 func NewRoleAssignmentBuilder() *RoleAssignmentBuilder {
@@ -181,12 +189,14 @@ func NewRoleAssignmentBuilder() *RoleAssignmentBuilder {
 
 	builder.globalTenantResourceBuilder = newGlobalTenantResourceBuilder(newGlobalTenantResourceBuilderParams[RoleAssignmentBuilder, schema.RoleAssignmentSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[RoleAssignmentBuilder, schema.RoleAssignmentSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.RoleAssignmentSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.RoleAssignmentSpec) { builder.spec = spec },
 		},
 		setTenant: func(tenant string) { builder.metadata.Tenant(tenant) },
 	})
@@ -229,10 +239,12 @@ func (builder *RoleAssignmentBuilder) Build() (*schema.RoleAssignment, error) {
 	}
 
 	return &schema.RoleAssignment{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.RoleAssignmentStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.RoleAssignmentStatus{},
 	}, nil
 }
 

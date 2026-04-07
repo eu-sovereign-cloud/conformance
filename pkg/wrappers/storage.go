@@ -20,6 +20,14 @@ func (wrapper *BlockStorageWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
 }
 
+func (wrapper *BlockStorageWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *BlockStorageWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
+}
+
 func (wrapper *BlockStorageWrapper) GetMetadata() *schema.RegionalWorkspaceResourceMetadata {
 	return wrapper.resource.Metadata
 }
@@ -48,6 +56,14 @@ func (wrapper *ImageWrapper) GetResource() *schema.Image {
 
 func (wrapper *ImageWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
+}
+
+func (wrapper *ImageWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *ImageWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
 }
 
 func (wrapper *ImageWrapper) GetMetadata() *schema.RegionalResourceMetadata {

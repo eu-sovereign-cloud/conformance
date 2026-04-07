@@ -41,6 +41,9 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		}).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Workspace: %v", err)
@@ -50,6 +53,12 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(internetGatewayName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Internet Gateway for conformance testing",
+		}).
 		Spec(&schema.InternetGatewaySpec{
 			EgressOnly: false,
 		}).Build()
@@ -61,6 +70,12 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(internetGatewayName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Internet Gateway for conformance testing",
+		}).
 		Spec(&schema.InternetGatewaySpec{
 			EgressOnly: true,
 		}).Build()
@@ -95,9 +110,13 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -110,8 +129,10 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:   expectWorkspaceLabels,
-			Metadata: expectWorkspaceMeta,
+			Labels:      expectWorkspaceLabels,
+			Annotations: expectWorkspaceAnnotations,
+			Extensions:  expectWorkspaceExtensions,
+			Metadata:    expectWorkspaceMeta,
 			ResourceStatus: schema.Status{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
@@ -125,8 +146,14 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	gateway := suite.params.InternetGatewayInitial
 	expectGatewayMeta := gateway.Metadata
 	expectGatewaySpec := &gateway.Spec
+	expectGatewayLabels := gateway.Labels
+	expectGatewayAnnotations := gateway.Annotations
+	expectGatewayExtensions := gateway.Extensions
 	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Labels:         expectGatewayLabels,
+			Annotations:    expectGatewayAnnotations,
+			Extensions:     expectGatewayExtensions,
 			Metadata:       expectGatewayMeta,
 			Spec:           expectGatewaySpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -141,8 +168,11 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, gatewayWRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata: expectGatewayMeta,
-			Spec:     expectGatewaySpec,
+			Labels:      expectGatewayLabels,
+			Annotations: expectGatewayAnnotations,
+			Extensions:  expectGatewayExtensions,
+			Metadata:    expectGatewayMeta,
+			Spec:        expectGatewaySpec,
 			ResourceStatus: schema.Status{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
@@ -153,8 +183,14 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the internet gateway
 	gateway = suite.params.InternetGatewayUpdated
 	expectGatewaySpec.EgressOnly = gateway.Spec.EgressOnly
+	expectGatewayLabels = gateway.Labels
+	expectGatewayAnnotations = gateway.Annotations
+	expectGatewayExtensions = gateway.Extensions
 	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Update the internet gateway", suite.Client.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Labels:         expectGatewayLabels,
+			Annotations:    expectGatewayAnnotations,
+			Extensions:     expectGatewayExtensions,
 			Metadata:       expectGatewayMeta,
 			Spec:           expectGatewaySpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
@@ -164,8 +200,11 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Get the updated internet gateway
 	stepsBuilder.GetInternetGatewayV1Step("Get the updated internet gateway", suite.Client.NetworkV1, gatewayWRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata: expectGatewayMeta,
-			Spec:     expectGatewaySpec,
+			Labels:      expectGatewayLabels,
+			Annotations: expectGatewayAnnotations,
+			Extensions:  expectGatewayExtensions,
+			Metadata:    expectGatewayMeta,
+			Spec:        expectGatewaySpec,
 			ResourceStatus: schema.Status{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
