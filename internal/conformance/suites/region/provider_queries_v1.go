@@ -69,16 +69,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, sdkconsts.RegionProviderV1Name, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
-	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
+	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	ctx := context.Background()
 
 	// Test List iterator's (Next and All) for Regions and verify both responses have the same length
-	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1, nil)
+	regions := stepsConfigurator.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1, nil)
 
 	// Call Get Region and verify response
 	expectedRegionMeta := suite.params.Regions[0].Metadata
-	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, regions[0].Metadata.Name,
+	stepsConfigurator.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, regions[0].Metadata.Name,
 		steps.StepResponseExpects[schema.GlobalResourceMetadata, schema.RegionSpec]{Metadata: expectedRegionMeta},
 	)
 
