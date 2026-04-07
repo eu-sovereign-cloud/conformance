@@ -12,6 +12,15 @@ const (
 	tenantStepParameter    = "tenant"
 	workspaceStepParameter = "workspace"
 	networkStepParameter   = "network"
+
+	// Parent Suites
+	RegionParentSuite        = "Region"
+	AuthorizationParentSuite = "Authorization"
+	WorkspaceParentSuite     = "Workspace"
+	ComputeParentSuite       = "Compute"
+	StorageParentSuite       = "Storage"
+	NetworkParentSuite       = "Network"
+	UsageParentSuite         = "Usage"
 )
 
 // Expected States

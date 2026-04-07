@@ -31,7 +31,7 @@ func CreateProviderQueriesV1TestSuite(regionalTestSuite suites.RegionalTestSuite
 }
 
 func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Workspace")
+	t.AddParentSuite(suites.WorkspaceParentSuite)
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()

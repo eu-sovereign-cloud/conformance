@@ -41,7 +41,7 @@ type RouteTableLifeCycleV1Config struct {
 }
 
 func (suite *RouteTableLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Network")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	networkName := generators.GenerateNetworkName()

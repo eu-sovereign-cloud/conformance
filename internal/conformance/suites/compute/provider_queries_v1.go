@@ -41,7 +41,7 @@ func CreateProviderQueriesV1TestSuite(regionalTestSuite suites.RegionalTestSuite
 }
 
 func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Compute")
+	t.AddParentSuite(suites.ComputeParentSuite)
 
 	// Select skus
 	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]

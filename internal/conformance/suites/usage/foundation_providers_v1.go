@@ -46,7 +46,7 @@ func CreateFoundationProvidersV1TestSuite(mixedTestSuite suites.MixedTestSuite, 
 }
 
 func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Usage")
+	t.AddParentSuite(suites.UsageParentSuite)
 
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.config.NetworkCidr, 8, 1)
 	if err != nil {

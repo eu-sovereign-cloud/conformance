@@ -34,7 +34,7 @@ func CreateImageLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuite,
 }
 
 func (suite *ImageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Storage")
+	t.AddParentSuite(suites.StorageParentSuite)
 
 	// Select sku
 	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]

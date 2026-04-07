@@ -29,7 +29,7 @@ func CreateInternetGatewayLifeCycleV1TestSuite(regionalTestSuite suites.Regional
 }
 
 func (suite *InternetGatewayLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Network")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	internetGatewayName := generators.GenerateInternetGatewayName()

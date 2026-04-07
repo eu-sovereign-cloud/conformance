@@ -33,7 +33,7 @@ func CreateRoleLifeCycleV1TestSuite(globalTestSuite suites.GlobalTestSuite) *Rol
 }
 
 func (suite *RoleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Authorization")
+	t.AddParentSuite(suites.AuthorizationParentSuite)
 
 	// Generate scenario data
 	roleName := generators.GenerateRoleName()

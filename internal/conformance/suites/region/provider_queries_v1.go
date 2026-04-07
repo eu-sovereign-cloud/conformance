@@ -34,7 +34,7 @@ func CreateProviderQueriesV1TestSuite(globalTestSuite suites.GlobalTestSuite, cl
 }
 
 func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Region")
+	t.AddParentSuite(suites.RegionParentSuite)
 
 	// Generate scenario Names
 	var regions []schema.Region

@@ -36,7 +36,7 @@ func CreateRoleAssignmentLifeCycleV1TestSuite(globalTestSuite suites.GlobalTestS
 }
 
 func (suite *RoleAssignmentLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Authorization")
+	t.AddParentSuite(suites.AuthorizationParentSuite)
 
 	// Select subs
 	roleAssignmentSub1 := suite.Users[rand.Intn(len(suite.Users))]

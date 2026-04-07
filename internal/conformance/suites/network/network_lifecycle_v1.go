@@ -38,7 +38,7 @@ func CreateNetworkLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSuit
 }
 
 func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Network")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	networkName := generators.GenerateNetworkName()

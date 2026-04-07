@@ -29,7 +29,7 @@ func CreateSecurityGroupLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTe
 }
 
 func (suite *SecurityGroupLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Network")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	securityGroupName := generators.GenerateSecurityGroupName()
