@@ -36,8 +36,10 @@ func (builder *WorkspaceMetadataBuilder) Build() (*schema.RegionalResourceMetada
 
 type WorkspaceBuilder struct {
 	*regionalResourceBuilder[WorkspaceBuilder, schema.WorkspaceSpec]
-	metadata *WorkspaceMetadataBuilder
-	labels   schema.Labels
+	metadata    *WorkspaceMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
 }
 
 func NewWorkspaceBuilder() *WorkspaceBuilder {
@@ -47,11 +49,13 @@ func NewWorkspaceBuilder() *WorkspaceBuilder {
 
 	builder.regionalResourceBuilder = newRegionalResourceBuilder(newRegionalResourceBuilderParams[WorkspaceBuilder, schema.WorkspaceSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[WorkspaceBuilder, schema.WorkspaceSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
 		},
 		setTenant: func(tenant string) { builder.metadata.Tenant(tenant) },
 		setRegion: func(region string) { builder.metadata.Region(region) },
@@ -67,10 +71,12 @@ func (builder *WorkspaceBuilder) Build() (*schema.Workspace, error) {
 	}
 
 	return &schema.Workspace{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     schema.WorkspaceSpec{},
-		Status:   &schema.WorkspaceStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Spec:        schema.WorkspaceSpec{},
+		Status:      &schema.WorkspaceStatus{},
 	}, nil
 }
 

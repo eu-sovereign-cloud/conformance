@@ -73,9 +73,11 @@ func (builder *NetworkMetadataBuilder) Build() (*schema.RegionalWorkspaceResourc
 
 type NetworkBuilder struct {
 	*regionalWorkspaceResourceBuilder[NetworkBuilder, schema.NetworkSpec]
-	metadata *NetworkMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.NetworkSpec
+	metadata    *NetworkMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
+	spec        *schema.NetworkSpec
 }
 
 func NewNetworkBuilder() *NetworkBuilder {
@@ -86,12 +88,14 @@ func NewNetworkBuilder() *NetworkBuilder {
 
 	builder.regionalWorkspaceResourceBuilder = newRegionalWorkspaceResourceBuilder(newRegionalWorkspaceResourceBuilderParams[NetworkBuilder, schema.NetworkSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[NetworkBuilder, schema.NetworkSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.NetworkSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.NetworkSpec) { builder.spec = spec },
 		},
 		setTenant:    func(tenant string) { builder.metadata.Tenant(tenant) },
 		setWorkspace: func(workspace string) { builder.metadata.Workspace(workspace) },
@@ -131,10 +135,12 @@ func (builder *NetworkBuilder) Build() (*schema.Network, error) {
 	}
 
 	return &schema.Network{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.NetworkStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.NetworkStatus{},
 	}, nil
 }
 
@@ -201,9 +207,11 @@ func (builder *InternetGatewayMetadataBuilder) Build() (*schema.RegionalWorkspac
 
 type InternetGatewayBuilder struct {
 	*regionalWorkspaceResourceBuilder[InternetGatewayBuilder, schema.InternetGatewaySpec]
-	metadata *InternetGatewayMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.InternetGatewaySpec
+	metadata    *InternetGatewayMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
+	spec        *schema.InternetGatewaySpec
 }
 
 func NewInternetGatewayBuilder() *InternetGatewayBuilder {
@@ -214,12 +222,14 @@ func NewInternetGatewayBuilder() *InternetGatewayBuilder {
 
 	builder.regionalWorkspaceResourceBuilder = newRegionalWorkspaceResourceBuilder(newRegionalWorkspaceResourceBuilderParams[InternetGatewayBuilder, schema.InternetGatewaySpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[InternetGatewayBuilder, schema.InternetGatewaySpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.InternetGatewaySpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.InternetGatewaySpec) { builder.spec = spec },
 		},
 		setTenant:    func(tenant string) { builder.metadata.Tenant(tenant) },
 		setWorkspace: func(workspace string) { builder.metadata.Workspace(workspace) },
@@ -250,10 +260,12 @@ func (builder *InternetGatewayBuilder) Build() (*schema.InternetGateway, error) 
 	}
 
 	return &schema.InternetGateway{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.InternetGatewayStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.InternetGatewayStatus{},
 	}, nil
 }
 
@@ -320,9 +332,11 @@ func (builder *RouteTableMetadataBuilder) Build() (*schema.RegionalNetworkResour
 
 type RouteTableBuilder struct {
 	*regionalNetworkResourceBuilder[RouteTableBuilder, schema.RouteTableSpec]
-	metadata *RouteTableMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.RouteTableSpec
+	metadata    *RouteTableMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
+	spec        *schema.RouteTableSpec
 }
 
 func NewRouteTableBuilder() *RouteTableBuilder {
@@ -333,12 +347,14 @@ func NewRouteTableBuilder() *RouteTableBuilder {
 
 	builder.regionalNetworkResourceBuilder = newRegionalNetworkResourceBuilder(newRegionalNetworkResourceBuilderParams[RouteTableBuilder, schema.RouteTableSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[RouteTableBuilder, schema.RouteTableSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.RouteTableSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.RouteTableSpec) { builder.spec = spec },
 		},
 		setTenant:    func(tenant string) { builder.metadata.Tenant(tenant) },
 		setWorkspace: func(workspace string) { builder.metadata.Workspace(workspace) },
@@ -380,10 +396,12 @@ func (builder *RouteTableBuilder) Build() (*schema.RouteTable, error) {
 	}
 
 	return &schema.RouteTable{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.RouteTableStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.RouteTableStatus{},
 	}, nil
 }
 
@@ -450,9 +468,11 @@ func (builder *SubnetMetadataBuilder) Build() (*schema.RegionalNetworkResourceMe
 
 type SubnetBuilder struct {
 	*regionalNetworkResourceBuilder[SubnetBuilder, schema.SubnetSpec]
-	metadata *SubnetMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.SubnetSpec
+	metadata    *SubnetMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
+	spec        *schema.SubnetSpec
 }
 
 func NewSubnetBuilder() *SubnetBuilder {
@@ -463,12 +483,14 @@ func NewSubnetBuilder() *SubnetBuilder {
 
 	builder.regionalNetworkResourceBuilder = newRegionalNetworkResourceBuilder(newRegionalNetworkResourceBuilderParams[SubnetBuilder, schema.SubnetSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[SubnetBuilder, schema.SubnetSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.SubnetSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.SubnetSpec) { builder.spec = spec },
 		},
 		setTenant:    func(tenant string) { builder.metadata.Tenant(tenant) },
 		setWorkspace: func(workspace string) { builder.metadata.Workspace(workspace) },
@@ -502,10 +524,12 @@ func (builder *SubnetBuilder) Build() (*schema.Subnet, error) {
 	}
 
 	return &schema.Subnet{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.SubnetStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.SubnetStatus{},
 	}, nil
 }
 
@@ -572,9 +596,11 @@ func (builder *PublicIpMetadataBuilder) Build() (*schema.RegionalWorkspaceResour
 
 type PublicIpBuilder struct {
 	*regionalWorkspaceResourceBuilder[PublicIpBuilder, schema.PublicIpSpec]
-	metadata *PublicIpMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.PublicIpSpec
+	metadata    *PublicIpMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
+	spec        *schema.PublicIpSpec
 }
 
 func NewPublicIpBuilder() *PublicIpBuilder {
@@ -585,12 +611,14 @@ func NewPublicIpBuilder() *PublicIpBuilder {
 
 	builder.regionalWorkspaceResourceBuilder = newRegionalWorkspaceResourceBuilder(newRegionalWorkspaceResourceBuilderParams[PublicIpBuilder, schema.PublicIpSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[PublicIpBuilder, schema.PublicIpSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.PublicIpSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.PublicIpSpec) { builder.spec = spec },
 		},
 		setTenant:    func(tenant string) { builder.metadata.Tenant(tenant) },
 		setWorkspace: func(workspace string) { builder.metadata.Workspace(workspace) },
@@ -622,10 +650,12 @@ func (builder *PublicIpBuilder) Build() (*schema.PublicIp, error) {
 	}
 
 	return &schema.PublicIp{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.PublicIpStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.PublicIpStatus{},
 	}, nil
 }
 
@@ -692,9 +722,11 @@ func (builder *NicMetadataBuilder) Build() (*schema.RegionalWorkspaceResourceMet
 
 type NicBuilder struct {
 	*regionalWorkspaceResourceBuilder[NicBuilder, schema.NicSpec]
-	metadata *NicMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.NicSpec
+	metadata    *NicMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
+	spec        *schema.NicSpec
 }
 
 func NewNicBuilder() *NicBuilder {
@@ -705,12 +737,14 @@ func NewNicBuilder() *NicBuilder {
 
 	builder.regionalWorkspaceResourceBuilder = newRegionalWorkspaceResourceBuilder(newRegionalWorkspaceResourceBuilderParams[NicBuilder, schema.NicSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[NicBuilder, schema.NicSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.NicSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.NicSpec) { builder.spec = spec },
 		},
 		setTenant:    func(tenant string) { builder.metadata.Tenant(tenant) },
 		setWorkspace: func(workspace string) { builder.metadata.Workspace(workspace) },
@@ -743,10 +777,12 @@ func (builder *NicBuilder) Build() (*schema.Nic, error) {
 	}
 
 	return &schema.Nic{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.NicStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.NicStatus{},
 	}, nil
 }
 
@@ -813,9 +849,11 @@ func (builder *SecurityGroupRuleMetadataBuilder) Build() (*schema.RegionalWorksp
 
 type SecurityGroupRuleBuilder struct {
 	*regionalWorkspaceResourceBuilder[SecurityGroupRuleBuilder, schema.SecurityGroupRuleSpec]
-	metadata *SecurityGroupRuleMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.SecurityGroupRuleSpec
+	metadata    *SecurityGroupRuleMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
+	spec        *schema.SecurityGroupRuleSpec
 }
 
 func NewSecurityGroupRuleBuilder() *SecurityGroupRuleBuilder {
@@ -826,12 +864,14 @@ func NewSecurityGroupRuleBuilder() *SecurityGroupRuleBuilder {
 
 	builder.regionalWorkspaceResourceBuilder = newRegionalWorkspaceResourceBuilder(newRegionalWorkspaceResourceBuilderParams[SecurityGroupRuleBuilder, schema.SecurityGroupRuleSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[SecurityGroupRuleBuilder, schema.SecurityGroupRuleSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.SecurityGroupRuleSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.SecurityGroupRuleSpec) { builder.spec = spec },
 		},
 		setTenant:    func(tenant string) { builder.metadata.Tenant(tenant) },
 		setWorkspace: func(workspace string) { builder.metadata.Workspace(workspace) },
@@ -863,10 +903,12 @@ func (builder *SecurityGroupRuleBuilder) Build() (*schema.SecurityGroupRule, err
 	}
 
 	return &schema.SecurityGroupRule{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.Status{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.Status{},
 	}, nil
 }
 
@@ -900,9 +942,11 @@ func (builder *SecurityGroupMetadataBuilder) Build() (*schema.RegionalWorkspaceR
 
 type SecurityGroupBuilder struct {
 	*regionalWorkspaceResourceBuilder[SecurityGroupBuilder, schema.SecurityGroupSpec]
-	metadata *SecurityGroupMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.SecurityGroupSpec
+	metadata    *SecurityGroupMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
+	spec        *schema.SecurityGroupSpec
 }
 
 func NewSecurityGroupBuilder() *SecurityGroupBuilder {
@@ -913,12 +957,14 @@ func NewSecurityGroupBuilder() *SecurityGroupBuilder {
 
 	builder.regionalWorkspaceResourceBuilder = newRegionalWorkspaceResourceBuilder(newRegionalWorkspaceResourceBuilderParams[SecurityGroupBuilder, schema.SecurityGroupSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[SecurityGroupBuilder, schema.SecurityGroupSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.SecurityGroupSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.SecurityGroupSpec) { builder.spec = spec },
 		},
 		setTenant:    func(tenant string) { builder.metadata.Tenant(tenant) },
 		setWorkspace: func(workspace string) { builder.metadata.Workspace(workspace) },
@@ -956,10 +1002,12 @@ func (builder *SecurityGroupBuilder) Build() (*schema.SecurityGroup, error) {
 	}
 
 	return &schema.SecurityGroup{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.SecurityGroupStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.SecurityGroupStatus{},
 	}, nil
 }
 

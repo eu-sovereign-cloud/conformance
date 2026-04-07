@@ -72,6 +72,9 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		}).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Workspace: %v", err)
@@ -81,6 +84,12 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(networkName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Network for conformance testing",
+		}).
 		Spec(&schema.NetworkSpec{
 			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			SkuRef:        *networkSkuRefObj,
@@ -94,6 +103,12 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(subnetName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Subnet for conformance testing",
+		}).
 		Spec(&schema.SubnetSpec{
 			Cidr: schema.Cidr{Ipv4: subnetCidr},
 			Zone: zone1,
@@ -106,6 +121,12 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(subnetName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Subnet for conformance testing",
+		}).
 		Spec(&schema.SubnetSpec{
 			Cidr: schema.Cidr{Ipv4: subnetCidr},
 			Zone: zone2,
@@ -118,6 +139,12 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(routeTableName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Route Table for conformance testing",
+		}).
 		Spec(&schema.RouteTableSpec{
 			Routes: []schema.RouteSpec{
 				{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
@@ -131,6 +158,12 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(internetGatewayName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Internet Gateway for conformance testing",
+		}).
 		Spec(&schema.InternetGatewaySpec{
 			EgressOnly: false,
 		}).Build()
@@ -168,9 +201,13 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -198,8 +235,14 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	network := suite.params.Network
 	expectNetworkMeta := network.Metadata
 	expectNetworkSpec := &network.Spec
+	expectNetworkLabels := network.Labels
+	expectNetworkAnnotations := network.Annotations
+	expectNetworkExtensions := network.Extensions
 	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			Labels:         expectNetworkLabels,
+			Annotations:    expectNetworkAnnotations,
+			Extensions:     expectNetworkExtensions,
 			Metadata:       expectNetworkMeta,
 			Spec:           expectNetworkSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -212,8 +255,14 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	internetGat := suite.params.InternetGateway
 	expectInternetGatMeta := internetGat.Metadata
 	expectInternetGatSpec := &internetGat.Spec
+	expectInternetGatLabels := internetGat.Labels
+	expectInternetGatAnnotations := internetGat.Annotations
+	expectInternetGatExtensions := internetGat.Extensions
 	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", suite.Client.NetworkV1, internetGat,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Labels:         expectInternetGatLabels,
+			Annotations:    expectInternetGatAnnotations,
+			Extensions:     expectInternetGatExtensions,
 			Metadata:       expectInternetGatMeta,
 			Spec:           expectInternetGatSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -242,8 +291,14 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	route := suite.params.RouteTable
 	expectRouteMeta := route.Metadata
 	expectRouteSpec := &route.Spec
+	expectRouteLabels := route.Labels
+	expectRouteAnnotations := route.Annotations
+	expectRouteExtensions := route.Extensions
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			Labels:         expectRouteLabels,
+			Annotations:    expectRouteAnnotations,
+			Extensions:     expectRouteExtensions,
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -291,8 +346,14 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	subnet := suite.params.SubnetInitial
 	expectSubnetMeta := subnet.Metadata
 	expectSubnetSpec := &subnet.Spec
+	expectSubnetLabels := subnet.Labels
+	expectSubnetAnnotations := subnet.Annotations
+	expectSubnetExtensions := subnet.Extensions
 	stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", suite.Client.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			Labels:         expectSubnetLabels,
+			Annotations:    expectSubnetAnnotations,
+			Extensions:     expectSubnetExtensions,
 			Metadata:       expectSubnetMeta,
 			Spec:           expectSubnetSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -320,8 +381,14 @@ func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the subnet
 	subnet = suite.params.SubnetUpdated
 	expectSubnetSpec.Zone = subnet.Spec.Zone
+	expectSubnetLabels = subnet.Labels
+	expectSubnetAnnotations = subnet.Annotations
+	expectSubnetExtensions = subnet.Extensions
 	stepsBuilder.CreateOrUpdateSubnetV1Step("Update the subnet", suite.Client.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			Labels:         expectSubnetLabels,
+			Annotations:    expectSubnetAnnotations,
+			Extensions:     expectSubnetExtensions,
 			Metadata:       expectSubnetMeta,
 			Spec:           expectSubnetSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,

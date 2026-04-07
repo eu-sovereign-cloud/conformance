@@ -33,6 +33,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 				return wrappers.NewWorkspaceWrapper(resp), err
 			},
 			expectedLabels:         responseExpects.Labels,
+			expectedAnnotations:    responseExpects.Annotations,
+			expectedExtensions:     responseExpects.Extensions,
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,
 			expectedResourceStates: responseExpects.ResourceStates,

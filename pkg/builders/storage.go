@@ -72,9 +72,11 @@ func (builder *BlockStorageMetadataBuilder) Build() (*schema.RegionalWorkspaceRe
 
 type BlockStorageBuilder struct {
 	*regionalWorkspaceResourceBuilder[BlockStorageBuilder, schema.BlockStorageSpec]
-	metadata *BlockStorageMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.BlockStorageSpec
+	metadata   *BlockStorageMetadataBuilder
+	labels     schema.Labels
+	annotatons schema.Annotations
+	extensions schema.Extensions
+	spec       *schema.BlockStorageSpec
 }
 
 func NewBlockStorageBuilder() *BlockStorageBuilder {
@@ -85,12 +87,14 @@ func NewBlockStorageBuilder() *BlockStorageBuilder {
 
 	builder.regionalWorkspaceResourceBuilder = newRegionalWorkspaceResourceBuilder(newRegionalWorkspaceResourceBuilderParams[BlockStorageBuilder, schema.BlockStorageSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[BlockStorageBuilder, schema.BlockStorageSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.BlockStorageSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotatons = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.BlockStorageSpec) { builder.spec = spec },
 		},
 		setTenant:    func(tenant string) { builder.metadata.Tenant(tenant) },
 		setWorkspace: func(workspace string) { builder.metadata.Workspace(workspace) },
@@ -123,10 +127,12 @@ func (builder *BlockStorageBuilder) Build() (*schema.BlockStorage, error) {
 	}
 
 	return &schema.BlockStorage{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.BlockStorageStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotatons,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.BlockStorageStatus{},
 	}, nil
 }
 
@@ -193,9 +199,11 @@ func (builder *ImageMetadataBuilder) Build() (*schema.RegionalResourceMetadata, 
 
 type ImageBuilder struct {
 	*regionalResourceBuilder[ImageBuilder, schema.ImageSpec]
-	metadata *ImageMetadataBuilder
-	labels   schema.Labels
-	spec     *schema.ImageSpec
+	metadata    *ImageMetadataBuilder
+	labels      schema.Labels
+	annotations schema.Annotations
+	extensions  schema.Extensions
+	spec        *schema.ImageSpec
 }
 
 func NewImageBuilder() *ImageBuilder {
@@ -206,12 +214,14 @@ func NewImageBuilder() *ImageBuilder {
 
 	builder.regionalResourceBuilder = newRegionalResourceBuilder(newRegionalResourceBuilderParams[ImageBuilder, schema.ImageSpec]{
 		newGlobalResourceBuilderParams: &newGlobalResourceBuilderParams[ImageBuilder, schema.ImageSpec]{
-			parent:        builder,
-			setName:       func(name string) { builder.metadata.setName(name) },
-			setProvider:   func(provider string) { builder.metadata.setProvider(provider) },
-			setApiVersion: func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
-			setLabels:     func(labels schema.Labels) { builder.labels = labels },
-			setSpec:       func(spec *schema.ImageSpec) { builder.spec = spec },
+			parent:         builder,
+			setName:        func(name string) { builder.metadata.setName(name) },
+			setProvider:    func(provider string) { builder.metadata.setProvider(provider) },
+			setApiVersion:  func(apiVersion string) { builder.metadata.setApiVersion(apiVersion) },
+			setLabels:      func(labels schema.Labels) { builder.labels = labels },
+			setAnnotations: func(annotations schema.Annotations) { builder.annotations = annotations },
+			setExtensions:  func(extensions schema.Extensions) { builder.extensions = extensions },
+			setSpec:        func(spec *schema.ImageSpec) { builder.spec = spec },
 		},
 		setTenant: func(tenant string) { builder.metadata.Tenant(tenant) },
 		setRegion: func(region string) { builder.metadata.Region(region) },
@@ -243,10 +253,12 @@ func (builder *ImageBuilder) Build() (*schema.Image, error) {
 	}
 
 	return &schema.Image{
-		Metadata: metadata,
-		Labels:   builder.labels,
-		Spec:     *builder.spec,
-		Status:   &schema.ImageStatus{},
+		Metadata:    metadata,
+		Labels:      builder.labels,
+		Annotations: builder.annotations,
+		Extensions:  builder.extensions,
+		Spec:        *builder.spec,
+		Status:      &schema.ImageStatus{},
 	}, nil
 }
 

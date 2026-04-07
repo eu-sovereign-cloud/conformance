@@ -8,6 +8,8 @@ import (
 type ResourceWrapper[R types.ResourceType, M types.MetadataType, S types.SpecType, T types.StatusType] interface {
 	GetResource() *R
 	GetLabels() schema.Labels
+	GetAnnotations() schema.Annotations
+	GetExtensions() schema.Extensions
 	GetMetadata() *M
 	GetSpec() *S
 	GetStatus() *T

@@ -43,6 +43,9 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		}).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Build()
 	if err != nil {
 		slog.Error("Failed to build Workspace", "error", err)
@@ -53,6 +56,12 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(securityGroupRuleName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Security Group Rule for conformance testing",
+		}).
 		Spec(&schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionIngress}).
 		Build()
 	if err != nil {
@@ -64,6 +73,12 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(securityGroupRuleName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Security Group Rule for conformance testing",
+		}).
 		Spec(&schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionEgress}).
 		Build()
 	if err != nil {
@@ -99,9 +114,13 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -129,8 +148,14 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	rule := suite.params.SecurityGroupRuleInitial
 	expectRuleMeta := rule.Metadata
 	expectRuleSpec := &rule.Spec
+	expectRuleLabels := rule.Labels
+	expectRuleAnnotations := rule.Annotations
+	expectRuleExtensions := rule.Extensions
 	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Create a security group rule", suite.Client.NetworkV1, rule,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			Labels:         expectRuleLabels,
+			Annotations:    expectRuleAnnotations,
+			Extensions:     expectRuleExtensions,
 			Metadata:       expectRuleMeta,
 			Spec:           expectRuleSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -157,8 +182,14 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the security group
 	rule.Spec.Direction = schema.SecurityGroupRuleDirectionEgress
 	expectRuleSpec.Direction = rule.Spec.Direction
+	expectRuleLabels = rule.Labels
+	expectRuleAnnotations = rule.Annotations
+	expectRuleExtensions = rule.Extensions
 	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Update the security group rule", suite.Client.NetworkV1, rule,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			Labels:         expectRuleLabels,
+			Annotations:    expectRuleAnnotations,
+			Extensions:     expectRuleExtensions,
 			Metadata:       expectRuleMeta,
 			Spec:           expectRuleSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,

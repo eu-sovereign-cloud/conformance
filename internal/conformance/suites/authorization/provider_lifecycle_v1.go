@@ -55,6 +55,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(roleName).
 		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
+		Annotations(schema.Annotations{
+			"description": "Role for conformance testing",
+		}).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
 		Spec(&schema.RoleSpec{
 			Permissions: []schema.Permission{
 				{Provider: sdkconsts.StorageProviderV1Name, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
@@ -83,6 +89,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(roleAssignmentName).
 		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).
+		Annotations(schema.Annotations{
+			"description": "RoleAssignment for conformance testing",
+		}).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+		}).
 		Spec(&schema.RoleAssignmentSpec{
 			Roles: []string{roleName},
 			Subs:  []string{roleAssignmentSub1},
@@ -138,9 +150,15 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	role := suite.params.RoleInitial
 	expectRoleMeta := role.Metadata
 	expectRoleSpec := &role.Spec
+	expectRoleAnnotations := role.Annotations
+	expectRoleLabels := role.Labels
+	expectRoleExtensions := role.Extensions
 	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
+			Annotations:    expectRoleAnnotations,
+			Labels:         expectRoleLabels,
+			Extensions:     expectRoleExtensions,
 			Spec:           expectRoleSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -165,19 +183,28 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the role
 	role = suite.params.RoleUpdated
 	expectRoleSpec = &role.Spec
+	expectRoleAnnotations = role.Annotations
+	expectRoleLabels = role.Labels
+	expectRoleExtensions = role.Extensions
 	stepsBuilder.CreateOrUpdateRoleV1Step("Update the role", suite.Client.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
+			Annotations:    expectRoleAnnotations,
+			Labels:         expectRoleLabels,
+			Extensions:     expectRoleExtensions,
 			Spec:           expectRoleSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
 		},
 	)
 
 	// Get the updated role
-	role = stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
+	stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
 		steps.ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.RoleStatus]{
-			Metadata: expectRoleMeta,
-			Spec:     expectRoleSpec,
+			Metadata:    expectRoleMeta,
+			Annotations: expectRoleAnnotations,
+			Labels:      expectRoleLabels,
+			Extensions:  expectRoleExtensions,
+			Spec:        expectRoleSpec,
 			ResourceStatus: schema.RoleStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
@@ -191,9 +218,15 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	roleAssign := suite.params.RoleAssignmentInitial
 	expectRoleAssignMeta := roleAssign.Metadata
 	expectRoleAssignSpec := &roleAssign.Spec
+	expectRoleAssignLabels := roleAssign.Labels
+	expectRoleAssignAnnotations := roleAssign.Annotations
+	expectRoleAssignExtensions := roleAssign.Extensions
 	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.Client.AuthorizationV1, roleAssign,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,
+			Labels:         expectRoleAssignLabels,
+			Annotations:    expectRoleAssignAnnotations,
+			Extensions:     expectRoleAssignExtensions,
 			Spec:           expectRoleAssignSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -218,9 +251,15 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the role assignment
 	roleAssign = suite.params.RoleAssignmentUpdated
 	expectRoleAssignSpec.Subs = roleAssign.Spec.Subs
+	expectRoleAssignLabels = roleAssign.Labels
+	expectRoleAssignAnnotations = roleAssign.Annotations
+	expectRoleAssignExtensions = roleAssign.Extensions
 	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Update the role assignment", suite.Client.AuthorizationV1, roleAssign,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,
+			Labels:         expectRoleAssignLabels,
+			Annotations:    expectRoleAssignAnnotations,
+			Extensions:     expectRoleAssignExtensions,
 			Spec:           expectRoleAssignSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
 		},

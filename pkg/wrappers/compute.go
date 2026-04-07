@@ -20,6 +20,14 @@ func (wrapper *InstanceWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
 }
 
+func (wrapper *InstanceWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *InstanceWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
+}
+
 func (wrapper *InstanceWrapper) GetMetadata() *schema.RegionalWorkspaceResourceMetadata {
 	return wrapper.resource.Metadata
 }

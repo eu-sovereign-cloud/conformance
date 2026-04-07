@@ -39,6 +39,9 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvDevelopmentLabel}).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Workspace: %v", err)
@@ -49,6 +52,9 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Workspace: %v", err)
@@ -75,9 +81,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.WorkspaceInitial
 	expectMeta := workspace.Metadata
 	expectLabels := workspace.Labels
+	expectAnnotations := workspace.Annotations
+	expectExtensions := workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectLabels,
+			Annotations:    expectAnnotations,
+			Extensions:     expectExtensions,
 			Metadata:       expectMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -102,9 +112,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the workspace labels
 	workspace.Labels = suite.params.WorkspaceUpdated.Labels
 	expectLabels = workspace.Labels
+	expectAnnotations = workspace.Annotations
+	expectExtensions = workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Update the workspace", suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectLabels,
+			Annotations:    expectAnnotations,
+			Extensions:     expectExtensions,
 			Metadata:       expectMeta,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},

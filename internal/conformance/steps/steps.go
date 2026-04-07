@@ -17,6 +17,8 @@ import (
 
 type ResponseExpects[M types.MetadataType, E types.SpecType] struct {
 	Labels         schema.Labels
+	Annotations    schema.Annotations
+	Extensions     schema.Extensions
 	Metadata       *M
 	Spec           *E
 	ResourceStates []schema.ResourceState
@@ -24,6 +26,8 @@ type ResponseExpects[M types.MetadataType, E types.SpecType] struct {
 
 type ResponseExpectsWithCondition[M types.MetadataType, E types.SpecType, S types.StatusType] struct {
 	Labels         schema.Labels
+	Annotations    schema.Annotations
+	Extensions     schema.Extensions
 	Metadata       *M
 	Spec           *E
 	ResourceStatus S
@@ -40,6 +44,8 @@ type createOrUpdateTenantResourceParams[R types.ResourceType, M types.MetadataTy
 	resource               *R
 	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
+	expectedAnnotations    schema.Annotations
+	expectedExtensions     schema.Extensions
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
 	expectedSpec           *E
@@ -62,6 +68,8 @@ func createOrUpdateTenantResourceStep[R types.ResourceType, M types.MetadataType
 			expectedSpec:           params.expectedSpec,
 			verifySpecFunc:         params.verifySpecFunc,
 			expectedResourceStates: params.expectedResourceStates,
+			expectedAnnotations:    params.expectedAnnotations,
+			expectedExtensions:     params.expectedExtensions,
 		})
 	})
 }
@@ -79,6 +87,8 @@ type createOrUpdateWorkspaceResourceParams[R types.ResourceType, M types.Metadat
 	expectedSpec           *E
 	verifySpecFunc         func(provider.StepCtx, *E, *E)
 	expectedResourceStates []schema.ResourceState
+	expectedAnnotations    schema.Annotations
+	expectedExtensions     schema.Extensions
 }
 
 func createOrUpdateWorkspaceResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
@@ -96,6 +106,8 @@ func createOrUpdateWorkspaceResourceStep[R types.ResourceType, M types.MetadataT
 			expectedSpec:           params.expectedSpec,
 			verifySpecFunc:         params.verifySpecFunc,
 			expectedResourceStates: params.expectedResourceStates,
+			expectedAnnotations:    params.expectedAnnotations,
+			expectedExtensions:     params.expectedExtensions,
 		})
 	})
 }
@@ -114,6 +126,8 @@ type createOrUpdateNetworkResourceParams[R types.ResourceType, M types.MetadataT
 	expectedSpec           *E
 	verifySpecFunc         func(provider.StepCtx, *E, *E)
 	expectedResourceStates []schema.ResourceState
+	expectedAnnotations    schema.Annotations
+	expectedExtensions     schema.Extensions
 }
 
 func createOrUpdateNetworkResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
@@ -131,6 +145,8 @@ func createOrUpdateNetworkResourceStep[R types.ResourceType, M types.MetadataTyp
 			expectedSpec:           params.expectedSpec,
 			verifySpecFunc:         params.verifySpecFunc,
 			expectedResourceStates: params.expectedResourceStates,
+			expectedAnnotations:    params.expectedAnnotations,
+			expectedExtensions:     params.expectedExtensions,
 		})
 	})
 }
@@ -139,6 +155,8 @@ type createOrUpdateResourceParams[R types.ResourceType, M types.MetadataType, E 
 	resource               *R
 	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
+	expectedAnnotations    schema.Annotations
+	expectedExtensions     schema.Extensions
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
 	expectedSpec           *E
@@ -152,9 +170,19 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 	resp, err := params.createOrUpdateFunc(t.Context(), params.resource)
 	requireNoError(sCtx, err)
 
+	// Annotations
+	if params.expectedAnnotations != nil {
+		suite.VerifyAnnotationsStep(sCtx, params.expectedAnnotations, resp.GetAnnotations())
+	}
+
 	// Label
 	if params.expectedLabels != nil {
 		suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.GetLabels())
+	}
+
+	// Extensions
+	if params.expectedExtensions != nil {
+		suite.VerifyExtensionsStep(sCtx, params.expectedExtensions, resp.GetExtensions())
 	}
 
 	// Metadata
