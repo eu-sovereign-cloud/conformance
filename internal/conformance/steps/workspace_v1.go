@@ -51,8 +51,8 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api s
 	)
 }
 
-func (configurator *StepsConfigurator) WatchWorkspaceUntilDeletedV1Step(stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference) {
-	watchTenantResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchWorkspaceUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.WorkspaceV1, tref secapi.TenantReference) {
+	watchTenantResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchTenantResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.TenantReference]{
 				reference: tref,
@@ -67,11 +67,11 @@ func (configurator *StepsConfigurator) WatchWorkspaceUntilDeletedV1Step(stepName
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, resource *schema.Workspace,
+func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName string, stepCreator StepCreator, api secapi.WorkspaceV1, resource *schema.Workspace,
 	responseExpects StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateTenantResourceStep(configurator.t, configurator.suite,
+	createOrUpdateTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
@@ -91,8 +91,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, resource *schema.Workspace) {
-	deleteTenantResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteWorkspaceV1Step(stepName string, stepCreator StepCreator, api secapi.WorkspaceV1, resource *schema.Workspace) {
+	deleteTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteTenantResourceParams[schema.Workspace]{
 			deleteResourceParams: deleteResourceParams[schema.Workspace]{
 				resource: resource,

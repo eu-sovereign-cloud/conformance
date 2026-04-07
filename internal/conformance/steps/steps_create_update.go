@@ -77,12 +77,12 @@ type createOrUpdateResourceParams[R types.ResourceType, M types.MetadataType, E 
 // Steps
 
 func createOrUpdateTenantResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
-	t provider.T, suite *suites.TestSuite, params createOrUpdateTenantResourceParams[R, M, E, S],
+	ctx context.Context, suite *suites.TestSuite, stepCreator StepCreator, params createOrUpdateTenantResourceParams[R, M, E, S],
 ) {
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+	stepCreator.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName)
 
-		createOrUpdateResourceStep(t, suite, params.stepName, sCtx, createOrUpdateResourceParams[R, M, E, S]{
+		createOrUpdateResourceStep(ctx, suite, params.stepName, sCtx, createOrUpdateResourceParams[R, M, E, S]{
 			resource:               params.resource,
 			createOrUpdateFunc:     params.createOrUpdateFunc,
 			expectedLabels:         params.expectedLabels,
@@ -96,12 +96,12 @@ func createOrUpdateTenantResourceStep[R types.ResourceType, M types.MetadataType
 }
 
 func createOrUpdateWorkspaceResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
-	t provider.T, suite *suites.TestSuite, params createOrUpdateWorkspaceResourceParams[R, M, E, S],
+	ctx context.Context, suite *suites.TestSuite, stepCreator StepCreator, params createOrUpdateWorkspaceResourceParams[R, M, E, S],
 ) {
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+	stepCreator.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace)
 
-		createOrUpdateResourceStep(t, suite, params.stepName, sCtx, createOrUpdateResourceParams[R, M, E, S]{
+		createOrUpdateResourceStep(ctx, suite, params.stepName, sCtx, createOrUpdateResourceParams[R, M, E, S]{
 			resource:               params.resource,
 			createOrUpdateFunc:     params.createOrUpdateFunc,
 			expectedLabels:         params.expectedLabels,
@@ -115,12 +115,12 @@ func createOrUpdateWorkspaceResourceStep[R types.ResourceType, M types.MetadataT
 }
 
 func createOrUpdateNetworkResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
-	t provider.T, suite *suites.TestSuite, params createOrUpdateNetworkResourceParams[R, M, E, S],
+	ctx context.Context, suite *suites.TestSuite, stepCreator StepCreator, params createOrUpdateNetworkResourceParams[R, M, E, S],
 ) {
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+	stepCreator.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace, params.network)
 
-		createOrUpdateResourceStep(t, suite, params.stepName, sCtx, createOrUpdateResourceParams[R, M, E, S]{
+		createOrUpdateResourceStep(ctx, suite, params.stepName, sCtx, createOrUpdateResourceParams[R, M, E, S]{
 			resource:               params.resource,
 			createOrUpdateFunc:     params.createOrUpdateFunc,
 			expectedLabels:         params.expectedLabels,
@@ -134,13 +134,13 @@ func createOrUpdateNetworkResourceStep[R types.ResourceType, M types.MetadataTyp
 }
 
 func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E types.SpecType, S types.StatusType](
-	t provider.T, suite *suites.TestSuite, stepName string, sCtx provider.StepCtx, params createOrUpdateResourceParams[R, M, E, S],
+	ctx context.Context, suite *suites.TestSuite, stepName string, sCtx provider.StepCtx, params createOrUpdateResourceParams[R, M, E, S],
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", suite.ScenarioName, stepName))
 
 	requestResourceStep(sCtx, params.resource)
 
-	resp, err := params.createOrUpdateFunc(t.Context(), params.resource)
+	resp, err := params.createOrUpdateFunc(ctx, params.resource)
 	requireNoError(sCtx, err)
 	requireNotNilResponse(sCtx, resp)
 

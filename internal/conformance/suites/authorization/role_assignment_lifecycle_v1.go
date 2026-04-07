@@ -103,7 +103,7 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	roleAssign := suite.params.RoleAssignmentInitial
 	expectRoleAssignMeta := roleAssign.Metadata
 	expectRoleAssignSpec := &roleAssign.Spec
-	stepsConfigurator.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.Client.AuthorizationV1, roleAssign,
+	stepsConfigurator.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", t, suite.Client.AuthorizationV1, roleAssign,
 		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,
 			Spec:           expectRoleAssignSpec,
@@ -127,7 +127,7 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the role assignment
 	roleAssign = suite.params.RoleAssignmentUpdated
 	expectRoleAssignSpec = &roleAssign.Spec
-	stepsConfigurator.CreateOrUpdateRoleAssignmentV1Step("Update the role assignment", suite.Client.AuthorizationV1, roleAssign,
+	stepsConfigurator.CreateOrUpdateRoleAssignmentV1Step("Update the role assignment", t, suite.Client.AuthorizationV1, roleAssign,
 		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,
 			Spec:           expectRoleAssignSpec,
@@ -145,8 +145,8 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-	stepsConfigurator.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, roleAssign)
-	stepsConfigurator.WatchRoleAssignmentUntilDeletedV1Step("Watch the role assignment deletion", suite.Client.AuthorizationV1, roleAssignTRef)
+	stepsConfigurator.DeleteRoleAssignmentV1Step("Delete the role assignment", t, suite.Client.AuthorizationV1, roleAssign)
+	stepsConfigurator.WatchRoleAssignmentUntilDeletedV1Step("Watch the role assignment deletion", t, suite.Client.AuthorizationV1, roleAssignTRef)
 
 	suite.FinishScenario()
 }

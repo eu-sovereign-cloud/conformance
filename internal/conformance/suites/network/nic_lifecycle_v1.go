@@ -194,7 +194,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
-	stepsConfigurator.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
+	stepsConfigurator.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
@@ -220,7 +220,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	network := suite.params.Network
 	expectNetworkMeta := network.Metadata
 	expectNetworkSpec := &network.Spec
-	stepsConfigurator.CreateOrUpdateNetworkV1Step("Create a network", suite.Client.NetworkV1, network,
+	stepsConfigurator.CreateOrUpdateNetworkV1Step("Create a network", t, suite.Client.NetworkV1, network,
 		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Metadata:       expectNetworkMeta,
 			Spec:           expectNetworkSpec,
@@ -234,7 +234,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	gateway := suite.params.InternetGateway
 	expectGatewayMeta := gateway.Metadata
 	expectGatewaySpec := &gateway.Spec
-	stepsConfigurator.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, gateway,
+	stepsConfigurator.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", t, suite.Client.NetworkV1, gateway,
 		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:       expectGatewayMeta,
 			Spec:           expectGatewaySpec,
@@ -262,7 +262,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	route := suite.params.RouteTable
 	expectRouteMeta := route.Metadata
 	expectRouteSpec := &route.Spec
-	stepsConfigurator.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, route,
+	stepsConfigurator.CreateOrUpdateRouteTableV1Step("Create a route table", t, suite.Client.NetworkV1, route,
 		steps.StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
@@ -305,7 +305,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	subnet := suite.params.Subnet
 	expectSubnetMeta := subnet.Metadata
 	expectSubnetSpec := &subnet.Spec
-	stepsConfigurator.CreateOrUpdateSubnetV1Step("Create a subnet", suite.Client.NetworkV1, subnet,
+	stepsConfigurator.CreateOrUpdateSubnetV1Step("Create a subnet", t, suite.Client.NetworkV1, subnet,
 		steps.StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Metadata:       expectSubnetMeta,
 			Spec:           expectSubnetSpec,
@@ -334,7 +334,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	nic := suite.params.NicInitial
 	expectNicMeta := nic.Metadata
 	expectNicSpec := &nic.Spec
-	stepsConfigurator.CreateOrUpdateNicV1Step("Create a nic", suite.Client.NetworkV1, nic,
+	stepsConfigurator.CreateOrUpdateNicV1Step("Create a nic", t, suite.Client.NetworkV1, nic,
 		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			Metadata:       expectNicMeta,
 			Spec:           expectNicSpec,
@@ -359,7 +359,7 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the nic
 	nic = suite.params.NicUpdated
 	expectNicSpec = &nic.Spec
-	stepsConfigurator.CreateOrUpdateNicV1Step("Create a nic", suite.Client.NetworkV1, nic,
+	stepsConfigurator.CreateOrUpdateNicV1Step("Update the nic", t, suite.Client.NetworkV1, nic,
 		steps.StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			Metadata:       expectNicMeta,
 			Spec:           expectNicSpec,
@@ -376,20 +376,20 @@ func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-	stepsConfigurator.DeleteNicV1Step("Delete the nic", suite.Client.NetworkV1, nic)
-	stepsConfigurator.WatchNicUntilDeletedV1Step("Watch the nic deletion", suite.Client.NetworkV1, nicWRef)
+	stepsConfigurator.DeleteNicV1Step("Delete the nic", t, suite.Client.NetworkV1, nic)
+	stepsConfigurator.WatchNicUntilDeletedV1Step("Watch the nic deletion", t, suite.Client.NetworkV1, nicWRef)
 
-	stepsConfigurator.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.Client.NetworkV1, gateway)
-	stepsConfigurator.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", suite.Client.NetworkV1, gatewayWRef)
+	stepsConfigurator.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.Client.NetworkV1, gateway)
+	stepsConfigurator.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", t, suite.Client.NetworkV1, gatewayWRef)
 
-	stepsConfigurator.DeleteRouteTableV1Step("Delete the route table", suite.Client.NetworkV1, route)
-	stepsConfigurator.WatchRouteTableUntilDeletedV1Step("Watch the route table deletion", suite.Client.NetworkV1, routeNRef)
+	stepsConfigurator.DeleteRouteTableV1Step("Delete the route table", t, suite.Client.NetworkV1, route)
+	stepsConfigurator.WatchRouteTableUntilDeletedV1Step("Watch the route table deletion", t, suite.Client.NetworkV1, routeNRef)
 
-	stepsConfigurator.DeleteNetworkV1Step("Delete the network", suite.Client.NetworkV1, network)
-	stepsConfigurator.WatchNetworkUntilDeletedV1Step("Watch the network deletion", suite.Client.NetworkV1, networkWRef)
+	stepsConfigurator.DeleteNetworkV1Step("Delete the network", t, suite.Client.NetworkV1, network)
+	stepsConfigurator.WatchNetworkUntilDeletedV1Step("Watch the network deletion", t, suite.Client.NetworkV1, networkWRef)
 
-	stepsConfigurator.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsConfigurator.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsConfigurator.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsConfigurator.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

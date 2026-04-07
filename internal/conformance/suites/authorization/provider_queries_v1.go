@@ -177,20 +177,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// Role
 	roles := suite.params.Roles
-	// Create roles
-	for _, role := range roles {
-		expectRoleMeta := role.Metadata
-		expectRoleSpec := role.Spec
 
-		// Create a role
-		stepsConfigurator.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, &role,
-			steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-				Metadata:       expectRoleMeta,
-				Spec:           &expectRoleSpec,
-				ResourceStates: suites.CreatedResourceExpectedStates,
-			},
-		)
-	}
+	// Create roles
+	steps.BulkCreateRolesStepsV1(stepsConfigurator, suite.GlobalTestSuite, "Create roles", roles)
 
 	tpath := secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
@@ -217,19 +206,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	roleAssignments := suite.params.RoleAssignments
 
 	// Create role assignments
-	for _, roleAssign := range roleAssignments {
-		expectRoleAssignMeta := roleAssign.Metadata
-		expectRoleAssignSpec := &roleAssign.Spec
-
-		// Create a role assignment
-		stepsConfigurator.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.Client.AuthorizationV1, &roleAssign,
-			steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-				Metadata:       expectRoleAssignMeta,
-				Spec:           expectRoleAssignSpec,
-				ResourceStates: suites.CreatedResourceExpectedStates,
-			},
-		)
-	}
+	steps.BulkCreateRoleAssignmentsStepsV1(stepsConfigurator, suite.GlobalTestSuite, "Create role assignments", roleAssignments)
 
 	tpath = secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
@@ -239,7 +216,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	stepsConfigurator.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath, nil)
 
 	// List RoleAssignments with limit
-	stepsConfigurator.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath,
+	stepsConfigurator.ListRoleAssignmentsV1("List role assignments with limit", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List RoleAssignments with Label
@@ -248,33 +225,16 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List RoleAssignments with Limit and label
-	stepsConfigurator.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath,
+	stepsConfigurator.ListRoleAssignmentsV1("List role assignments with limit and label", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all role assignments
-	for _, roleAssign := range roleAssignments {
-		stepsConfigurator.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, &roleAssign)
-
-		// Get the deleted role assignment
-		roleAssignTRef := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.Tenant),
-			Name:   roleAssign.Metadata.Name,
-		}
-		stepsConfigurator.WatchRoleAssignmentUntilDeletedV1Step("Watch the role assignment deletion", suite.Client.AuthorizationV1, roleAssignTRef)
-	}
+	steps.BulkDeleteRoleAssignmentsStepsV1(stepsConfigurator, suite.GlobalTestSuite, "Delete all role assignments", roleAssignments)
 
 	// Delete all roles
-	for _, role := range roles {
-		stepsConfigurator.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, &role)
+	steps.BulkDeleteRolesStepsV1(stepsConfigurator, suite.GlobalTestSuite, "Delete all roles", roles)
 
-		// Get the deleted role
-		roleTRef := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.Tenant),
-			Name:   role.Metadata.Name,
-		}
-		stepsConfigurator.WatchRoleUntilDeletedV1Step("Watch the role deletion", suite.Client.AuthorizationV1, roleTRef)
-	}
 	suite.FinishScenario()
 }
 

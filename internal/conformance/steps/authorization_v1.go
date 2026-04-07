@@ -54,8 +54,8 @@ func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi
 	)
 }
 
-func (configurator *StepsConfigurator) WatchRoleUntilDeletedV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference) {
-	watchTenantResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchRoleUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, tref secapi.TenantReference) {
+	watchTenantResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchTenantResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.TenantReference]{
 				reference: tref,
@@ -70,11 +70,11 @@ func (configurator *StepsConfigurator) WatchRoleUntilDeletedV1Step(stepName stri
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string, api secapi.AuthorizationV1, resource *schema.Role,
+func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, resource *schema.Role,
 	responseExpects StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateTenantResourceStep(configurator.t, configurator.suite,
+	createOrUpdateTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateTenantResourceParams[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
@@ -95,8 +95,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string,
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteRoleV1Step(stepName string, api secapi.AuthorizationV1, resource *schema.Role) {
-	deleteTenantResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteRoleV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, resource *schema.Role) {
+	deleteTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteTenantResourceParams[schema.Role]{
 			deleteResourceParams: deleteResourceParams[schema.Role]{
 				resource: resource,
@@ -154,8 +154,8 @@ func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, 
 	)
 }
 
-func (configurator *StepsConfigurator) WatchRoleAssignmentUntilDeletedV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference) {
-	watchTenantResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchRoleAssignmentUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, tref secapi.TenantReference) {
+	watchTenantResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchTenantResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.TenantReference]{
 				reference: tref,
@@ -170,11 +170,11 @@ func (configurator *StepsConfigurator) WatchRoleAssignmentUntilDeletedV1Step(ste
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepName string, api secapi.AuthorizationV1, resource *schema.RoleAssignment,
+func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, resource *schema.RoleAssignment,
 	responseExpects StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateTenantResourceStep(configurator.t, configurator.suite,
+	createOrUpdateTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateTenantResourceParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
@@ -195,8 +195,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepNa
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteRoleAssignmentV1Step(stepName string, api secapi.AuthorizationV1, resource *schema.RoleAssignment) {
-	deleteTenantResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteRoleAssignmentV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, resource *schema.RoleAssignment) {
+	deleteTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteTenantResourceParams[schema.RoleAssignment]{
 			deleteResourceParams: deleteResourceParams[schema.RoleAssignment]{
 				resource: resource,

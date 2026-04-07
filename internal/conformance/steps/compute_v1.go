@@ -73,8 +73,8 @@ func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api se
 	)
 }
 
-func (configurator *StepsConfigurator) WatchInstanceUntilDeletedV1Step(stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference) {
-	watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchInstanceUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.ComputeV1, wref secapi.WorkspaceReference) {
+	watchWorkspaceResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchWorkspaceResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
 				reference: wref,
@@ -89,11 +89,11 @@ func (configurator *StepsConfigurator) WatchInstanceUntilDeletedV1Step(stepName 
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName string, api secapi.ComputeV1, resource *schema.Instance,
+func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName string, stepCreator StepCreator, api secapi.ComputeV1, resource *schema.Instance,
 	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateWorkspaceResourceParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetComputeV1StepParams,
@@ -166,8 +166,8 @@ func (configurator *StepsConfigurator) RestartInstanceV1Step(stepName string, ap
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteInstanceV1Step(stepName string, api secapi.ComputeV1, resource *schema.Instance) {
-	deleteWorkspaceResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteInstanceV1Step(stepName string, stepCreator StepCreator, api secapi.ComputeV1, resource *schema.Instance) {
+	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.Instance]{
 			deleteResourceParams: deleteResourceParams[schema.Instance]{
 				resource: resource,

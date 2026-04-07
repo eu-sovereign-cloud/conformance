@@ -73,8 +73,8 @@ func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, ap
 	)
 }
 
-func (configurator *StepsConfigurator) WatchBlockStorageUntilDeletedV1Step(stepName string, api secapi.StorageV1, wref secapi.WorkspaceReference) {
-	watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchBlockStorageUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.StorageV1, wref secapi.WorkspaceReference) {
+	watchWorkspaceResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchWorkspaceResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
 				reference: wref,
@@ -89,11 +89,11 @@ func (configurator *StepsConfigurator) WatchBlockStorageUntilDeletedV1Step(stepN
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName string, api secapi.StorageV1, resource *schema.BlockStorage,
+func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName string, stepCreator StepCreator, api secapi.StorageV1, resource *schema.BlockStorage,
 	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateWorkspaceResourceParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageWorkspaceV1StepParams,
@@ -115,8 +115,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteBlockStorageV1Step(stepName string, api secapi.StorageV1, resource *schema.BlockStorage) {
-	deleteWorkspaceResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteBlockStorageV1Step(stepName string, stepCreator StepCreator, api secapi.StorageV1, resource *schema.BlockStorage) {
+	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.BlockStorage]{
 			deleteResourceParams: deleteResourceParams[schema.BlockStorage]{
 				resource: resource,
@@ -175,8 +175,8 @@ func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api secap
 	)
 }
 
-func (configurator *StepsConfigurator) WatchImageUntilDeletedV1Step(stepName string, api secapi.StorageV1, tref secapi.TenantReference) {
-	watchTenantResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchImageUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.StorageV1, tref secapi.TenantReference) {
+	watchTenantResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchTenantResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.TenantReference]{
 				reference: tref,
@@ -191,11 +191,11 @@ func (configurator *StepsConfigurator) WatchImageUntilDeletedV1Step(stepName str
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string, api secapi.StorageV1, resource *schema.Image,
+func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string, stepCreator StepCreator, api secapi.StorageV1, resource *schema.Image,
 	responseExpects StepResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateTenantResourceStep(configurator.t, configurator.suite,
+	createOrUpdateTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateTenantResourceParams[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageV1StepParams,
@@ -216,8 +216,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteImageV1Step(stepName string, api secapi.StorageV1, resource *schema.Image) {
-	deleteTenantResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteImageV1Step(stepName string, stepCreator StepCreator, api secapi.StorageV1, resource *schema.Image) {
+	deleteTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteTenantResourceParams[schema.Image]{
 			deleteResourceParams: deleteResourceParams[schema.Image]{
 				resource: resource,

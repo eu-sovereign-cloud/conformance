@@ -46,32 +46,32 @@ type deleteResourceParams[R types.ResourceType] struct {
 
 // Steps
 
-func deleteTenantResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, params deleteTenantResourceParams[R]) {
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+func deleteTenantResourceStep[R types.ResourceType](ctx context.Context, suite *suites.TestSuite, stepCreator StepCreator, params deleteTenantResourceParams[R]) {
+	stepCreator.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName)
-		deleteResourceStep(t, suite, params.stepName, sCtx, params.deleteResourceParams)
+		deleteResourceStep(ctx, suite, params.stepName, sCtx, params.deleteResourceParams)
 	})
 }
 
-func deleteWorkspaceResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, params deleteWorkspaceResourceParams[R]) {
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+func deleteWorkspaceResourceStep[R types.ResourceType](ctx context.Context, suite *suites.TestSuite, stepCreator StepCreator, params deleteWorkspaceResourceParams[R]) {
+	stepCreator.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace)
-		deleteResourceStep(t, suite, params.stepName, sCtx, params.deleteResourceParams)
+		deleteResourceStep(ctx, suite, params.stepName, sCtx, params.deleteResourceParams)
 	})
 }
 
-func deleteNetworkResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, params deleteNetworkResourceParams[R]) {
-	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+func deleteNetworkResourceStep[R types.ResourceType](ctx context.Context, suite *suites.TestSuite, stepCreator StepCreator, params deleteNetworkResourceParams[R]) {
+	stepCreator.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace, params.network)
-		deleteResourceStep(t, suite, params.stepName, sCtx, params.deleteResourceParams)
+		deleteResourceStep(ctx, suite, params.stepName, sCtx, params.deleteResourceParams)
 	})
 }
 
-func deleteResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, stepName string, sCtx provider.StepCtx, params deleteResourceParams[R]) {
+func deleteResourceStep[R types.ResourceType](ctx context.Context, suite *suites.TestSuite, stepName string, sCtx provider.StepCtx, params deleteResourceParams[R]) {
 	slog.Info(fmt.Sprintf("[%s] %s", suite.ScenarioName, stepName))
 
 	requestResourceStep(sCtx, params.resource)
-	err := params.deleteFunc(t.Context(), params.resource)
+	err := params.deleteFunc(ctx, params.resource)
 	emptyResponseStep(sCtx)
 
 	requireNoError(sCtx, err)

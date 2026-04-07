@@ -73,8 +73,8 @@ func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api sec
 	)
 }
 
-func (configurator *StepsConfigurator) WatchNetworkUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
-	watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchNetworkUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
+	watchWorkspaceResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchWorkspaceResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
 				reference: wref,
@@ -89,11 +89,11 @@ func (configurator *StepsConfigurator) WatchNetworkUntilDeletedV1Step(stepName s
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName string, api secapi.NetworkV1, resource *schema.Network,
+func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Network,
 	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
@@ -115,8 +115,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName stri
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteNetworkV1Step(stepName string, api secapi.NetworkV1, resource *schema.Network) {
-	deleteWorkspaceResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteNetworkV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Network) {
+	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.Network]{
 			deleteResourceParams: deleteResourceParams[schema.Network]{
 				resource: resource,
@@ -176,8 +176,8 @@ func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string,
 	)
 }
 
-func (configurator *StepsConfigurator) WatchInternetGatewayUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
-	watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchInternetGatewayUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
+	watchWorkspaceResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchWorkspaceResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
 				reference: wref,
@@ -192,11 +192,11 @@ func (configurator *StepsConfigurator) WatchInternetGatewayUntilDeletedV1Step(st
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepName string, api secapi.NetworkV1, resource *schema.InternetGateway,
+func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.InternetGateway,
 	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
@@ -218,8 +218,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepN
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteInternetGatewayV1Step(stepName string, api secapi.NetworkV1, resource *schema.InternetGateway) {
-	deleteWorkspaceResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteInternetGatewayV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.InternetGateway) {
+	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.InternetGateway]{
 			deleteResourceParams: deleteResourceParams[schema.InternetGateway]{
 				resource: resource,
@@ -279,8 +279,8 @@ func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api 
 	)
 }
 
-func (configurator *StepsConfigurator) WatchRouteTableUntilDeletedV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference) {
-	watchNetworkResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchRouteTableUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, nref secapi.NetworkReference) {
+	watchNetworkResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchNetworkResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.NetworkReference]{
 				reference: nref,
@@ -295,11 +295,11 @@ func (configurator *StepsConfigurator) WatchRouteTableUntilDeletedV1Step(stepNam
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName string, api secapi.NetworkV1, resource *schema.RouteTable,
+func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.RouteTable,
 	responseExpects StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateNetworkResourceStep(configurator.t, configurator.suite,
+	createOrUpdateNetworkResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
@@ -322,8 +322,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName s
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteRouteTableV1Step(stepName string, api secapi.NetworkV1, resource *schema.RouteTable) {
-	deleteNetworkResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteRouteTableV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.RouteTable) {
+	deleteNetworkResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteNetworkResourceParams[schema.RouteTable]{
 			deleteResourceParams: deleteResourceParams[schema.RouteTable]{
 				resource: resource,
@@ -384,8 +384,8 @@ func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api seca
 	)
 }
 
-func (configurator *StepsConfigurator) WatchSubnetUntilDeletedV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference) {
-	watchNetworkResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchSubnetUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, nref secapi.NetworkReference) {
+	watchNetworkResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchNetworkResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.NetworkReference]{
 				reference: nref,
@@ -400,11 +400,11 @@ func (configurator *StepsConfigurator) WatchSubnetUntilDeletedV1Step(stepName st
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName string, api secapi.NetworkV1, resource *schema.Subnet,
+func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Subnet,
 	responseExpects StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateNetworkResourceStep(configurator.t, configurator.suite,
+	createOrUpdateNetworkResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
@@ -427,8 +427,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName strin
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteSubnetV1Step(stepName string, api secapi.NetworkV1, resource *schema.Subnet) {
-	deleteNetworkResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteSubnetV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Subnet) {
+	deleteNetworkResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteNetworkResourceParams[schema.Subnet]{
 			deleteResourceParams: deleteResourceParams[schema.Subnet]{
 				resource: resource,
@@ -489,8 +489,8 @@ func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api se
 	)
 }
 
-func (configurator *StepsConfigurator) WatchPublicIpUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
-	watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchPublicIpUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
+	watchWorkspaceResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchWorkspaceResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
 				reference: wref,
@@ -505,11 +505,11 @@ func (configurator *StepsConfigurator) WatchPublicIpUntilDeletedV1Step(stepName 
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName string, api secapi.NetworkV1, resource *schema.PublicIp,
+func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.PublicIp,
 	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
@@ -531,8 +531,8 @@ func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName str
 	)
 }
 
-func (configurator *StepsConfigurator) DeletePublicIpV1Step(stepName string, api secapi.NetworkV1, resource *schema.PublicIp) {
-	deleteWorkspaceResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeletePublicIpV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.PublicIp) {
+	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.PublicIp]{
 			deleteResourceParams: deleteResourceParams[schema.PublicIp]{
 				resource: resource,
@@ -592,8 +592,8 @@ func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api secapi.
 	)
 }
 
-func (configurator *StepsConfigurator) WatchNicUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
-	watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchNicUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
+	watchWorkspaceResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchWorkspaceResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
 				reference: wref,
@@ -608,11 +608,11 @@ func (configurator *StepsConfigurator) WatchNicUntilDeletedV1Step(stepName strin
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, api secapi.NetworkV1, resource *schema.Nic,
+func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Nic,
 	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
@@ -634,8 +634,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, 
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteNicV1Step(stepName string, api secapi.NetworkV1, resource *schema.Nic) {
-	deleteWorkspaceResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteNicV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Nic) {
+	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.Nic]{
 			deleteResourceParams: deleteResourceParams[schema.Nic]{
 				resource: resource,
@@ -695,8 +695,8 @@ func (configurator *StepsConfigurator) GetSecurityGroupRuleV1Step(stepName strin
 	)
 }
 
-func (configurator *StepsConfigurator) WatchSecurityGroupRuleUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
-	watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchSecurityGroupRuleUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
+	watchWorkspaceResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchWorkspaceResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
 				reference: wref,
@@ -711,11 +711,11 @@ func (configurator *StepsConfigurator) WatchSecurityGroupRuleUntilDeletedV1Step(
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroupRule,
+func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.SecurityGroupRule,
 	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateWorkspaceResourceParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.Status]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
@@ -737,8 +737,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleV1Step(ste
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroupRule) {
-	deleteWorkspaceResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteSecurityGroupRuleV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.SecurityGroupRule) {
+	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.SecurityGroupRule]{
 			deleteResourceParams: deleteResourceParams[schema.SecurityGroupRule]{
 				resource: resource,
@@ -798,8 +798,8 @@ func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, a
 	)
 }
 
-func (configurator *StepsConfigurator) WatchSecurityGroupUntilDeletedV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
-	watchWorkspaceResourceUntilDeletedStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) WatchSecurityGroupUntilDeletedV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, wref secapi.WorkspaceReference) {
+	watchWorkspaceResourceUntilDeletedStep(configurator.t.Context(), configurator.suite, stepCreator,
 		watchWorkspaceResourceUntilDeletedParams{
 			watchResourceUntilDeletedParams: watchResourceUntilDeletedParams[secapi.WorkspaceReference]{
 				reference: wref,
@@ -814,11 +814,11 @@ func (configurator *StepsConfigurator) WatchSecurityGroupUntilDeletedV1Step(step
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroup,
+func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.SecurityGroup,
 	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t, configurator.suite,
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		createOrUpdateWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus]{
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
@@ -840,8 +840,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepNam
 	)
 }
 
-func (configurator *StepsConfigurator) DeleteSecurityGroupV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroup) {
-	deleteWorkspaceResourceStep(configurator.t, configurator.suite,
+func (configurator *StepsConfigurator) DeleteSecurityGroupV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.SecurityGroup) {
+	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.SecurityGroup]{
 			deleteResourceParams: deleteResourceParams[schema.SecurityGroup]{
 				resource: resource,
