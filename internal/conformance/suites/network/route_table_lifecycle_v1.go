@@ -198,12 +198,10 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:      expectWorkspaceLabels,
-			Annotations: expectWorkspaceAnnotations,
-			Extensions:  expectWorkspaceExtensions,
-			Metadata:    expectWorkspaceMeta,
-			ResourceStatus: schema.Status{
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
+			ResourceStatus: schema.WorkspaceStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
@@ -258,13 +256,10 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, internetGatWRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Labels:      expectInternetGatLabels,
-			Annotations: expectInternetGatAnnotations,
-			Extensions:  expectInternetGatExtensions,
-			Metadata:    expectInternetGatMeta,
-			Spec:        expectInternetGatSpec,
-			ResourceStatus: schema.Status{
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.InternetGatewayStatus]{
+			Metadata: expectInternetGatMeta,
+			Spec:     expectInternetGatSpec,
+			ResourceStatus: schema.InternetGatewayStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
@@ -299,13 +294,10 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      route.Metadata.Name,
 	}
 	stepsBuilder.GetRouteTableV1Step("Get the created route table", suite.Client.NetworkV1, routeNRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
-			Labels:      expectRouteLabels,
-			Annotations: expectRouteAnnotations,
-			Extensions:  expectRouteExtensions,
-			Metadata:    expectRouteMeta,
-			Spec:        expectRouteSpec,
-			ResourceStatus: schema.Status{
+		steps.ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
+			Metadata: expectRouteMeta,
+			Spec:     expectRouteSpec,
+			ResourceStatus: schema.RouteTableStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
@@ -319,13 +311,10 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      network.Metadata.Name,
 	}
 	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Labels:      expectNetworkLabels,
-			Annotations: expectNetworkAnnotations,
-			Extensions:  expectNetworkExtensions,
-			Metadata:    expectNetworkMeta,
-			Spec:        expectNetworkSpec,
-			ResourceStatus: schema.Status{
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
+			Metadata: expectNetworkMeta,
+			Spec:     expectNetworkSpec,
+			ResourceStatus: schema.NetworkStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
@@ -351,13 +340,10 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated route table
 	stepsBuilder.GetRouteTableV1Step("Get the updated route table", suite.Client.NetworkV1, routeNRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
-			Labels:      expectRouteLabels,
-			Annotations: expectRouteAnnotations,
-			Extensions:  expectRouteExtensions,
-			Metadata:    expectRouteMeta,
-			Spec:        expectRouteSpec,
-			ResourceStatus: schema.Status{
+		steps.ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
+			Metadata: expectRouteMeta,
+			Spec:     expectRouteSpec,
+			ResourceStatus: schema.RouteTableStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
 			},

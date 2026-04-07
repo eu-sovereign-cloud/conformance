@@ -47,7 +47,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string,
 }
 
 func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference,
-	responseExpects ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleSpec],
+	responseExpects ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.RoleStatus],
 ) *schema.Role {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -147,7 +147,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepNa
 }
 
 func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference,
-	responseExpects ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec],
+	responseExpects ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.RoleAssignmentStatus],
 ) *schema.RoleAssignment {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))

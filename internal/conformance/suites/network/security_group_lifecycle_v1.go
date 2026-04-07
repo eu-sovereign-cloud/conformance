@@ -128,12 +128,10 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:      expectWorkspaceLabels,
-			Annotations: expectWorkspaceAnnotations,
-			Extensions:  expectWorkspaceExtensions,
-			Metadata:    expectWorkspaceMeta,
-			ResourceStatus: schema.Status{
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
+			ResourceStatus: schema.WorkspaceStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
@@ -167,13 +165,10 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      group.Metadata.Name,
 	}
 	stepsBuilder.GetSecurityGroupV1Step("Get the created security group", suite.Client.NetworkV1, groupWRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-			Labels:      expectGroupLabels,
-			Annotations: expectGroupAnnotations,
-			Extensions:  expectGroupExtensions,
-			Metadata:    expectGroupMeta,
-			Spec:        expectGroupSpec,
-			ResourceStatus: schema.Status{
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus]{
+			Metadata: expectGroupMeta,
+			Spec:     expectGroupSpec,
+			ResourceStatus: schema.SecurityGroupStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
@@ -200,13 +195,10 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated security group
 	stepsBuilder.GetSecurityGroupV1Step("Get the updated security group", suite.Client.NetworkV1, groupWRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-			Labels:      expectGroupLabels,
-			Annotations: expectGroupAnnotations,
-			Extensions:  expectGroupExtensions,
-			Metadata:    expectGroupMeta,
-			Spec:        expectGroupSpec,
-			ResourceStatus: schema.Status{
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus]{
+			Metadata: expectGroupMeta,
+			Spec:     expectGroupSpec,
+			ResourceStatus: schema.SecurityGroupStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterUpdating,
 			},

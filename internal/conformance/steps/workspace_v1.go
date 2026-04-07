@@ -43,7 +43,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 }
 
 func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus],
 ) *schema.Workspace {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))

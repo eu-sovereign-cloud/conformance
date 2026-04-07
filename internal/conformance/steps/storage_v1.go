@@ -48,7 +48,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName
 }
 
 func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, api secapi.StorageV1, wref secapi.WorkspaceReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus],
 ) *schema.BlockStorage {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
@@ -145,7 +145,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string
 }
 
 func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api secapi.StorageV1, tref secapi.TenantReference,
-	responseExpects ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus],
 ) *schema.Image {
 	responseExpects.Metadata.Verb = http.MethodGet
 	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))

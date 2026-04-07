@@ -132,3 +132,16 @@ func GetStatusConditions[S StatusType](status *S) []schema.StatusCondition {
 		return nil
 	}
 }
+
+func GetStatusPowerState[S StatusType](status *S) schema.InstanceStatusPowerState {
+	if status == nil {
+		return ""
+	}
+
+	switch v := any(*status).(type) {
+	case schema.InstanceStatus:
+		return v.PowerState
+	default:
+		return ""
+	}
+}
