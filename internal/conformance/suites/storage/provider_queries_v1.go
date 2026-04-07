@@ -186,11 +186,13 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.StorageProviderV1Name,
+	suite.StartScenario(t, sdkconsts.StorageProviderV1Name)
+	suite.ConfigureResources(t,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindStorageSku),
 	)
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
 

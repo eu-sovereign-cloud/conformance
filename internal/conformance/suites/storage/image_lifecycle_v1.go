@@ -113,9 +113,11 @@ func (suite *ImageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.StorageProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
+	suite.StartScenario(t, sdkconsts.StorageProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage))
+	suite.ConfigureDepends(t,
+		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 	)
 
 	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)

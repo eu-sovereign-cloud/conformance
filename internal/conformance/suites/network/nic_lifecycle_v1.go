@@ -180,10 +180,14 @@ func (suite *NicLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *NicLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic))
+	suite.ConfigureDepends(t,
+		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
+		string(schema.RegionalResourceMetadataKindResourceKindNetwork),
+		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
+		string(schema.RegionalResourceMetadataKindResourceKindSubnet),
 	)
 
 	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)

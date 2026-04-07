@@ -165,8 +165,14 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.ComputeProviderV1Name, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.StartScenario(t, sdkconsts.ComputeProviderV1Name)
+	suite.ConfigureResources(t,
+		string(schema.RegionalResourceMetadataKindResourceKindInstance),
+		string(schema.RegionalResourceMetadataKindResourceKindInstanceSku),
+	)
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
+		string(schema.RegionalResourceMetadataKindResourceKindBlockStorage),
+	)
 
 	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
 

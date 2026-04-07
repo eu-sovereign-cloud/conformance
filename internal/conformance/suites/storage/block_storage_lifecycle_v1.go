@@ -98,10 +98,9 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.StorageProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
-	)
+	suite.StartScenario(t, sdkconsts.StorageProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage))
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
 

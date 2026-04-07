@@ -438,9 +438,9 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetworkSku),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP),
@@ -448,6 +448,10 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroupRule),
+	)
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
+		string(schema.RegionalResourceMetadataKindResourceKindBlockStorage),
+		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 	)
 
 	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)

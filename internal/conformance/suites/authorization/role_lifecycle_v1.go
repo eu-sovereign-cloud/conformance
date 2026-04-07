@@ -82,10 +82,8 @@ func (suite *RoleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.AuthorizationProviderV1Name,
-		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
-	)
+	suite.StartScenario(t, sdkconsts.AuthorizationProviderV1Name)
+	suite.ConfigureResources(t, string(schema.GlobalTenantResourceMetadataKindResourceKindRole))
 
 	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
 

@@ -183,7 +183,6 @@ func BulkDeleteBlockStoragesStepsV1(configurator *StepsConfigurator, suite suite
 			configurator.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", sCtx, suite.Client.StorageV1, blockWRef)
 		}
 	})
-
 }
 
 func BulkCreateImagesStepsV1(configurator *StepsConfigurator, suite suites.RegionalTestSuite, stepName string, images []schema.Image) {
@@ -202,7 +201,6 @@ func BulkCreateImagesStepsV1(configurator *StepsConfigurator, suite suites.Regio
 			)
 		}
 	})
-
 }
 
 func BulkDeleteImagesStepsV1(configurator *StepsConfigurator, suite suites.RegionalTestSuite, stepName string, images []schema.Image) {

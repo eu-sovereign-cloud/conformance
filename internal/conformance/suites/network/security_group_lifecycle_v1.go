@@ -81,11 +81,9 @@ func (suite *SecurityGroupLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *SecurityGroupLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
-	)
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalNetworkResourceMetadataKindResourceKindSecurityGroup))
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
 

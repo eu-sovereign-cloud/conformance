@@ -66,8 +66,8 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.WorkspaceProviderV1Name, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.StartScenario(t, sdkconsts.WorkspaceProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
 

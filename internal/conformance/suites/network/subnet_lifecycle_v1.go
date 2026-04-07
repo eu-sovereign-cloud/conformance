@@ -154,9 +154,12 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *SubnetLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSubnet))
+	suite.ConfigureDepends(t,
+		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
+		string(schema.RegionalResourceMetadataKindResourceKindNetwork),
+		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 	)
 

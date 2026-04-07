@@ -167,8 +167,8 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.AuthorizationProviderV1Name,
+	suite.StartScenario(t, sdkconsts.AuthorizationProviderV1Name)
+	suite.ConfigureResources(t,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)

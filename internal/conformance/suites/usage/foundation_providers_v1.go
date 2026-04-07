@@ -307,31 +307,28 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t,
+	suite.StartScenario(t,
 		sdkconsts.AuthorizationProviderV1Name,
+		sdkconsts.WorkspaceProviderV1Name,
+		sdkconsts.StorageProviderV1Name,
+		sdkconsts.ComputeProviderV1Name,
+		sdkconsts.NetworkProviderV1Name,
+	)
+	suite.ConfigureResources(t,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
-		sdkconsts.WorkspaceProviderV1Name,
 		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
-		sdkconsts.StorageProviderV1Name,
 		string(schema.RegionalResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalResourceMetadataKindResourceKindImage),
-		sdkconsts.NetworkProviderV1Name,
+		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 		string(schema.RegionalResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
-		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
-		string(schema.RegionalResourceMetadataKindResourceKindNic),
 		string(schema.RegionalResourceMetadataKindResourceKindNic),
 		string(schema.RegionalResourceMetadataKindResourceKindPublicIP),
-		string(schema.RegionalResourceMetadataKindResourceKindPublicIP),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroupRule),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
-		sdkconsts.ComputeProviderV1Name,
-		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 	)
 
 	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
