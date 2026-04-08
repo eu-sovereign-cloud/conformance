@@ -85,7 +85,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t, sdkconsts.AuthorizationProviderV1Name)
 	suite.ConfigureResources(t, string(schema.GlobalTenantResourceMetadataKindResourceKindRole))
 
-	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Role
 
@@ -93,7 +93,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	role := suite.params.RoleInitial
 	expectRoleMeta := role.Metadata
 	expectRoleSpec := &role.Spec
-	stepsConfigurator.CreateOrUpdateRoleV1Step("Create a role", t, suite.Client.AuthorizationV1, role,
+	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", t, suite.Client.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
@@ -106,7 +106,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Tenant: secapi.TenantID(suite.Tenant),
 		Name:   role.Metadata.Name,
 	}
-	stepsConfigurator.GetRoleV1Step("Get the created role", suite.Client.AuthorizationV1, roleTRef,
+	stepsBuilder.GetRoleV1Step("Get the created role", suite.Client.AuthorizationV1, roleTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
@@ -117,7 +117,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the role
 	role = suite.params.RoleUpdated
 	expectRoleSpec = &role.Spec
-	stepsConfigurator.CreateOrUpdateRoleV1Step("Update the role", t, suite.Client.AuthorizationV1, role,
+	stepsBuilder.CreateOrUpdateRoleV1Step("Update the role", t, suite.Client.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
@@ -126,7 +126,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Get the updated role
-	role = stepsConfigurator.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
+	role = stepsBuilder.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
@@ -135,8 +135,8 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-	stepsConfigurator.DeleteRoleV1Step("Delete the role", t, suite.Client.AuthorizationV1, role)
-	stepsConfigurator.WatchRoleUntilDeletedV1Step("Watch the role deletion", t, suite.Client.AuthorizationV1, roleTRef)
+	stepsBuilder.DeleteRoleV1Step("Delete the role", t, suite.Client.AuthorizationV1, role)
+	stepsBuilder.WatchRoleUntilDeletedV1Step("Watch the role deletion", t, suite.Client.AuthorizationV1, roleTRef)
 
 	suite.FinishScenario()
 }

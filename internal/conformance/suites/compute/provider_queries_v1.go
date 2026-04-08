@@ -174,7 +174,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalResourceMetadataKindResourceKindBlockStorage),
 	)
 
-	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Workspace
 	workspace := suite.params.Workspace
@@ -182,7 +182,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Create a workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
-	stepsConfigurator.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
@@ -196,7 +196,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Create a block storage
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
-	stepsConfigurator.CreateOrUpdateBlockStorageV1Step("Create a block storage", t, suite.Client.StorageV1, block,
+	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", t, suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
 			Spec:           expectedBlockSpec,
@@ -208,7 +208,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	instances := suite.params.Instances
 
 	// Create instances
-	steps.BulkCreateInstancesStepsV1(stepsConfigurator, suite.RegionalTestSuite, "Create instances", instances)
+	steps.BulkCreateInstancesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create instances", instances)
 
 	wpath := secapi.WorkspacePath{
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
@@ -216,46 +216,46 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	// List instances
-	stepsConfigurator.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wpath, nil)
+	stepsBuilder.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wpath, nil)
 
 	// List instances with limit
-	stepsConfigurator.ListInstanceV1Step("List instances with limit", suite.Client.ComputeV1, wpath,
+	stepsBuilder.ListInstanceV1Step("List instances with limit", suite.Client.ComputeV1, wpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List instances with label
-	stepsConfigurator.ListInstanceV1Step("List instances with label", suite.Client.ComputeV1, wpath,
+	stepsBuilder.ListInstanceV1Step("List instances with label", suite.Client.ComputeV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List instances with limit and label
-	stepsConfigurator.ListInstanceV1Step("List instances with limit and label", suite.Client.ComputeV1, wpath,
+	stepsBuilder.ListInstanceV1Step("List instances with limit and label", suite.Client.ComputeV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Skus
 
 	// List skus
-	stepsConfigurator.ListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
+	stepsBuilder.ListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
 
 	// List skus with limit
-	stepsConfigurator.ListSkusV1Step("List skus with limit", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListSkusV1Step("List skus with limit", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1))
 
 	// List skus with label
-	stepsConfigurator.ListSkusV1Step("List skus with label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListSkusV1Step("List skus with label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
 
 	// List skus with limit and label
-	stepsConfigurator.ListSkusV1Step("List skus with limit and label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListSkusV1Step("List skus with limit and label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
 
 	// Delete all instances
-	steps.BulkDeleteInstancesStepsV1(stepsConfigurator, suite.RegionalTestSuite, "Delete all instances", instances)
+	steps.BulkDeleteInstancesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all instances", instances)
 
 	// Delete the block storage
-	stepsConfigurator.DeleteBlockStorageV1Step("Delete the block storage", t, suite.Client.StorageV1, block)
+	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", t, suite.Client.StorageV1, block)
 
 	// Get the deleted block storage
 	blockWRef := secapi.WorkspaceReference{
@@ -263,17 +263,17 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
 		Name:      block.Metadata.Name,
 	}
-	stepsConfigurator.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", t, suite.Client.StorageV1, blockWRef)
+	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", t, suite.Client.StorageV1, blockWRef)
 
 	// Delete the workspace
-	stepsConfigurator.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
 
 	// Get the deleted workspace
 	workspaceTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
 	}
-	stepsConfigurator.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

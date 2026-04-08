@@ -120,7 +120,7 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 	)
 
-	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Workspace
 
@@ -129,7 +129,7 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
 
-	stepsConfigurator.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
@@ -142,7 +142,7 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
 	}
-	stepsConfigurator.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
+	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
@@ -156,7 +156,7 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	block := suite.params.BlockStorage
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
-	stepsConfigurator.CreateOrUpdateBlockStorageV1Step("Create a block storage", t, suite.Client.StorageV1, block,
+	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", t, suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
 			Spec:           expectedBlockSpec,
@@ -170,7 +170,7 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
 		Name:      block.Metadata.Name,
 	}
-	block = stepsConfigurator.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
+	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
 			Spec:           expectedBlockSpec,
@@ -184,7 +184,7 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	image := suite.params.ImageInitial
 	expectedImageMeta := image.Metadata
 	expectedImageSpec := &image.Spec
-	stepsConfigurator.CreateOrUpdateImageV1Step("Create an image", t, suite.Client.StorageV1, image,
+	stepsBuilder.CreateOrUpdateImageV1Step("Create an image", t, suite.Client.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:       expectedImageMeta,
 			Spec:           expectedImageSpec,
@@ -197,7 +197,7 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Tenant: secapi.TenantID(image.Metadata.Tenant),
 		Name:   image.Metadata.Name,
 	}
-	stepsConfigurator.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
+	stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:       expectedImageMeta,
 			Spec:           expectedImageSpec,
@@ -208,7 +208,7 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the image
 	image = suite.params.ImageUpdated
 	expectedImageSpec.CpuArchitecture = image.Spec.CpuArchitecture
-	stepsConfigurator.CreateOrUpdateImageV1Step("Update the image", t, suite.Client.StorageV1, image,
+	stepsBuilder.CreateOrUpdateImageV1Step("Update the image", t, suite.Client.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:       expectedImageMeta,
 			Spec:           expectedImageSpec,
@@ -217,7 +217,7 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Get the updated image
-	image = stepsConfigurator.GetImageV1Step("Get the updated image", suite.Client.StorageV1, imageTRef,
+	image = stepsBuilder.GetImageV1Step("Get the updated image", suite.Client.StorageV1, imageTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:       expectedImageMeta,
 			Spec:           expectedImageSpec,
@@ -227,14 +227,14 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 
-	stepsConfigurator.DeleteImageV1Step("Delete the image", t, suite.Client.StorageV1, image)
-	stepsConfigurator.WatchImageUntilDeletedV1Step("Watch the image deletion", t, suite.Client.StorageV1, imageTRef)
+	stepsBuilder.DeleteImageV1Step("Delete the image", t, suite.Client.StorageV1, image)
+	stepsBuilder.WatchImageUntilDeletedV1Step("Watch the image deletion", t, suite.Client.StorageV1, imageTRef)
 
-	stepsConfigurator.DeleteBlockStorageV1Step("Delete the block storage", t, suite.Client.StorageV1, block)
-	stepsConfigurator.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", t, suite.Client.StorageV1, blockWRef)
+	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", t, suite.Client.StorageV1, block)
+	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", t, suite.Client.StorageV1, blockWRef)
 
-	stepsConfigurator.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
-	stepsConfigurator.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

@@ -72,34 +72,34 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t, sdkconsts.WorkspaceProviderV1Name)
 	suite.ConfigureResources(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
-	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Workspace
 	workspaces := suite.params.Workspaces
 
 	// Create workspaces
-	steps.BulkCreateWorkspacesStepsV1(stepsConfigurator, suite.RegionalTestSuite, "Create workspaces", workspaces)
+	steps.BulkCreateWorkspacesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create workspaces", workspaces)
 
 	tpath := secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
 
 	// List workspaces
-	stepsConfigurator.ListWorkspaceV1Step("list workspaces", suite.Client.WorkspaceV1, tpath, nil)
+	stepsBuilder.ListWorkspaceV1Step("list workspaces", suite.Client.WorkspaceV1, tpath, nil)
 
 	// List workspaces with limit
-	stepsConfigurator.ListWorkspaceV1Step("list workspaces with limit", suite.Client.WorkspaceV1, tpath, secapi.NewListOptions().WithLimit(1))
+	stepsBuilder.ListWorkspaceV1Step("list workspaces with limit", suite.Client.WorkspaceV1, tpath, secapi.NewListOptions().WithLimit(1))
 
 	// List workspaces with label
-	stepsConfigurator.ListWorkspaceV1Step("list workspaces with label", suite.Client.WorkspaceV1, tpath,
+	stepsBuilder.ListWorkspaceV1Step("list workspaces with label", suite.Client.WorkspaceV1, tpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List workspaces with label and limit
-	stepsConfigurator.ListWorkspaceV1Step("list workspaces with label and limit", suite.Client.WorkspaceV1, tpath,
+	stepsBuilder.ListWorkspaceV1Step("list workspaces with label and limit", suite.Client.WorkspaceV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all workspaces
-	steps.BulkDeleteWorkspacesStepsV1(stepsConfigurator, suite.RegionalTestSuite, "Delete all workspaces", workspaces)
+	steps.BulkDeleteWorkspacesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all workspaces", workspaces)
 
 	suite.FinishScenario()
 }

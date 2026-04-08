@@ -147,7 +147,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
 	)
 
-	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Workspace
 
@@ -155,7 +155,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
-	stepsConfigurator.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
@@ -168,7 +168,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
 	}
-	stepsConfigurator.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
+	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
@@ -182,7 +182,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	network := suite.params.Network
 	expectNetworkMeta := network.Metadata
 	expectNetworkSpec := &network.Spec
-	stepsConfigurator.CreateOrUpdateNetworkV1Step("Create a network", t, suite.Client.NetworkV1, network,
+	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", t, suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Metadata:       expectNetworkMeta,
 			Spec:           expectNetworkSpec,
@@ -196,7 +196,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	internetGat := suite.params.InternetGateway
 	expectInternetGatMeta := internetGat.Metadata
 	expectInternetGatSpec := &internetGat.Spec
-	stepsConfigurator.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", t, suite.Client.NetworkV1, internetGat,
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", t, suite.Client.NetworkV1, internetGat,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:       expectInternetGatMeta,
 			Spec:           expectInternetGatSpec,
@@ -211,7 +211,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      internetGat.Metadata.Name,
 	}
 
-	stepsConfigurator.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, internetGatWRef,
+	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, internetGatWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:       expectInternetGatMeta,
 			Spec:           expectInternetGatSpec,
@@ -225,7 +225,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	route := suite.params.RouteTableInitial
 	expectRouteMeta := route.Metadata
 	expectRouteSpec := &route.Spec
-	stepsConfigurator.CreateOrUpdateRouteTableV1Step("Create a route table", t, suite.Client.NetworkV1, route,
+	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", t, suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
@@ -240,7 +240,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Network:   secapi.NetworkID(route.Metadata.Network),
 		Name:      route.Metadata.Name,
 	}
-	stepsConfigurator.GetRouteTableV1Step("Get the created route table", suite.Client.NetworkV1, routeNRef,
+	stepsBuilder.GetRouteTableV1Step("Get the created route table", suite.Client.NetworkV1, routeNRef,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
@@ -254,7 +254,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
 		Name:      network.Metadata.Name,
 	}
-	stepsConfigurator.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
+	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Metadata:       expectNetworkMeta,
 			Spec:           expectNetworkSpec,
@@ -265,7 +265,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the route table
 	route = suite.params.RouteTableUpdated
 	expectRouteSpec.Routes = route.Spec.Routes
-	stepsConfigurator.CreateOrUpdateRouteTableV1Step("Update the route table", t, suite.Client.NetworkV1, route,
+	stepsBuilder.CreateOrUpdateRouteTableV1Step("Update the route table", t, suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
@@ -274,7 +274,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Get the updated route table
-	stepsConfigurator.GetRouteTableV1Step("Get the updated route table", suite.Client.NetworkV1, routeNRef,
+	stepsBuilder.GetRouteTableV1Step("Get the updated route table", suite.Client.NetworkV1, routeNRef,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
@@ -284,18 +284,18 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 
-	stepsConfigurator.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.Client.NetworkV1, internetGat)
-	stepsConfigurator.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", t, suite.Client.NetworkV1, internetGatWRef)
+	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.Client.NetworkV1, internetGat)
+	stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", t, suite.Client.NetworkV1, internetGatWRef)
 
 	// Resources deletion
-	stepsConfigurator.DeleteRouteTableV1Step("Delete the route table", t, suite.Client.NetworkV1, route)
-	stepsConfigurator.WatchRouteTableUntilDeletedV1Step("Watch the route table deletion", t, suite.Client.NetworkV1, routeNRef)
+	stepsBuilder.DeleteRouteTableV1Step("Delete the route table", t, suite.Client.NetworkV1, route)
+	stepsBuilder.WatchRouteTableUntilDeletedV1Step("Watch the route table deletion", t, suite.Client.NetworkV1, routeNRef)
 
-	stepsConfigurator.DeleteNetworkV1Step("Delete the network", t, suite.Client.NetworkV1, network)
-	stepsConfigurator.WatchNetworkUntilDeletedV1Step("Watch the network deletion", t, suite.Client.NetworkV1, networkWRef)
+	stepsBuilder.DeleteNetworkV1Step("Delete the network", t, suite.Client.NetworkV1, network)
+	stepsBuilder.WatchNetworkUntilDeletedV1Step("Watch the network deletion", t, suite.Client.NetworkV1, networkWRef)
 
-	stepsConfigurator.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
-	stepsConfigurator.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

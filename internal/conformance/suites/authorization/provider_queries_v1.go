@@ -173,32 +173,32 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
 
-	stepsConfigurator := steps.NewStepsConfigurator(suite.TestSuite, t)
+	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Role
 	roles := suite.params.Roles
 
 	// Create roles
-	steps.BulkCreateRolesStepsV1(stepsConfigurator, suite.GlobalTestSuite, "Create roles", roles)
+	steps.BulkCreateRolesStepsV1(stepsBuilder, suite.GlobalTestSuite, "Create roles", roles)
 
 	tpath := secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
 
 	// List Roles
-	stepsConfigurator.ListRoleV1Step("List roles", suite.Client.AuthorizationV1, tpath, nil)
+	stepsBuilder.ListRoleV1Step("List roles", suite.Client.AuthorizationV1, tpath, nil)
 
 	// List Roles with limit
-	stepsConfigurator.ListRoleV1Step("List roles with limit", suite.Client.AuthorizationV1, tpath,
+	stepsBuilder.ListRoleV1Step("List roles with limit", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Label
-	stepsConfigurator.ListRoleV1Step("List roles with label", suite.Client.AuthorizationV1, tpath,
+	stepsBuilder.ListRoleV1Step("List roles with label", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Limit and label
-	stepsConfigurator.ListRoleV1Step("List roles with limit and label", suite.Client.AuthorizationV1, tpath,
+	stepsBuilder.ListRoleV1Step("List roles with limit and label", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -206,34 +206,34 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	roleAssignments := suite.params.RoleAssignments
 
 	// Create role assignments
-	steps.BulkCreateRoleAssignmentsStepsV1(stepsConfigurator, suite.GlobalTestSuite, "Create role assignments", roleAssignments)
+	steps.BulkCreateRoleAssignmentsStepsV1(stepsBuilder, suite.GlobalTestSuite, "Create role assignments", roleAssignments)
 
 	tpath = secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
 
 	// List RoleAssignments
-	stepsConfigurator.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath, nil)
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath, nil)
 
 	// List RoleAssignments with limit
-	stepsConfigurator.ListRoleAssignmentsV1("List role assignments with limit", suite.Client.AuthorizationV1, tpath,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments with limit", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List RoleAssignments with Label
-	stepsConfigurator.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List RoleAssignments with Limit and label
-	stepsConfigurator.ListRoleAssignmentsV1("List role assignments with limit and label", suite.Client.AuthorizationV1, tpath,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments with limit and label", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all role assignments
-	steps.BulkDeleteRoleAssignmentsStepsV1(stepsConfigurator, suite.GlobalTestSuite, "Delete all role assignments", roleAssignments)
+	steps.BulkDeleteRoleAssignmentsStepsV1(stepsBuilder, suite.GlobalTestSuite, "Delete all role assignments", roleAssignments)
 
 	// Delete all roles
-	steps.BulkDeleteRolesStepsV1(stepsConfigurator, suite.GlobalTestSuite, "Delete all roles", roles)
+	steps.BulkDeleteRolesStepsV1(stepsBuilder, suite.GlobalTestSuite, "Delete all roles", roles)
 
 	suite.FinishScenario()
 }
