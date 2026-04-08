@@ -31,6 +31,32 @@ func (configurator *StepsConfigurator) ListNetworkSkusV1Step(stepName string, ap
 
 // Network
 
+func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Network,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateNetworkOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Network) (
+				wrappers.ResourceWrapper[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus], error,
+			) {
+				resp, err := api.CreateOrUpdateNetwork(configurator.t.Context(), resource)
+				return wrappers.NewNetworkWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyNetworkSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListNetworkV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.Network, schema.RegionalWorkspaceResourceMetadata]{
@@ -49,7 +75,7 @@ func (configurator *StepsConfigurator) ListNetworkV1Step(stepName string, api se
 }
 
 func (configurator *StepsConfigurator) GetNetworkV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
 ) *schema.Network {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
@@ -89,32 +115,6 @@ func (configurator *StepsConfigurator) WatchNetworkUntilDeletedV1Step(stepName s
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Network,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateWorkspaceResourceParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  constants.CreateOrUpdateNetworkOperation,
-			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.Network) (
-				wrappers.ResourceWrapper[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus], error,
-			) {
-				resp, err := api.CreateOrUpdateNetwork(configurator.t.Context(), resource)
-				return wrappers.NewNetworkWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifyNetworkSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
-		},
-	)
-}
-
 func (configurator *StepsConfigurator) DeleteNetworkV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Network) {
 	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.Network]{
@@ -134,6 +134,32 @@ func (configurator *StepsConfigurator) DeleteNetworkV1Step(stepName string, step
 
 // Internet Gateway
 
+func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.InternetGateway,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateInternetGatewayOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.InternetGateway) (
+				wrappers.ResourceWrapper[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status], error,
+			) {
+				resp, err := api.CreateOrUpdateInternetGateway(configurator.t.Context(), resource)
+				return wrappers.NewInternetGatewayWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyInternetGatewaySpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListInternetGatewayV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata]{
@@ -152,7 +178,7 @@ func (configurator *StepsConfigurator) ListInternetGatewayV1Step(stepName string
 }
 
 func (configurator *StepsConfigurator) GetInternetGatewayV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
 ) *schema.InternetGateway {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
@@ -192,32 +218,6 @@ func (configurator *StepsConfigurator) WatchInternetGatewayUntilDeletedV1Step(st
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.InternetGateway,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateWorkspaceResourceParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  constants.CreateOrUpdateInternetGatewayOperation,
-			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.InternetGateway) (
-				wrappers.ResourceWrapper[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.Status], error,
-			) {
-				resp, err := api.CreateOrUpdateInternetGateway(configurator.t.Context(), resource)
-				return wrappers.NewInternetGatewayWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifyInternetGatewaySpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
-		},
-	)
-}
-
 func (configurator *StepsConfigurator) DeleteInternetGatewayV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.InternetGateway) {
 	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.InternetGateway]{
@@ -237,6 +237,33 @@ func (configurator *StepsConfigurator) DeleteInternetGatewayV1Step(stepName stri
 
 // Route Table
 
+func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.RouteTable,
+	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateNetworkResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateRouteTableOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			network:        secapi.NetworkID(resource.Metadata.Network),
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.RouteTable) (
+				wrappers.ResourceWrapper[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus], error,
+			) {
+				resp, err := api.CreateOrUpdateRouteTable(configurator.t.Context(), resource)
+				return wrappers.NewRouteTableWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyRouteTableSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListRouteTableV1Step(stepName string, api secapi.NetworkV1, npath secapi.NetworkPath, opts *secapi.ListOptions) {
 	listNetworkResourcesStep(configurator.t, configurator.suite,
 		listNetworkResourcesParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata]{
@@ -255,7 +282,7 @@ func (configurator *StepsConfigurator) ListRouteTableV1Step(stepName string, api
 }
 
 func (configurator *StepsConfigurator) GetRouteTableV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference,
-	responseExpects StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
+	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
 ) *schema.RouteTable {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getNetworkResourceStep(configurator.t, configurator.suite,
@@ -295,33 +322,6 @@ func (configurator *StepsConfigurator) WatchRouteTableUntilDeletedV1Step(stepNam
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.RouteTable,
-	responseExpects StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateNetworkResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateNetworkResourceParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
-			operationName:  constants.CreateOrUpdateRouteTableOperation,
-			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
-			network:        secapi.NetworkID(resource.Metadata.Network),
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.RouteTable) (
-				wrappers.ResourceWrapper[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus], error,
-			) {
-				resp, err := api.CreateOrUpdateRouteTable(configurator.t.Context(), resource)
-				return wrappers.NewRouteTableWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifyRouteTableSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
-		},
-	)
-}
-
 func (configurator *StepsConfigurator) DeleteRouteTableV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.RouteTable) {
 	deleteNetworkResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteNetworkResourceParams[schema.RouteTable]{
@@ -342,6 +342,33 @@ func (configurator *StepsConfigurator) DeleteRouteTableV1Step(stepName string, s
 
 // Subnet
 
+func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Subnet,
+	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateNetworkResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateSubnetOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			network:        secapi.NetworkID(resource.Metadata.Network),
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Subnet) (
+				wrappers.ResourceWrapper[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus], error,
+			) {
+				resp, err := api.CreateOrUpdateSubnet(configurator.t.Context(), resource)
+				return wrappers.NewSubnetWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySubnetSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListSubnetV1Step(stepName string, api secapi.NetworkV1, npath secapi.NetworkPath, opts *secapi.ListOptions) {
 	listNetworkResourcesStep(configurator.t, configurator.suite,
 		listNetworkResourcesParams[schema.Subnet, schema.RegionalNetworkResourceMetadata]{
@@ -360,7 +387,7 @@ func (configurator *StepsConfigurator) ListSubnetV1Step(stepName string, api sec
 }
 
 func (configurator *StepsConfigurator) GetSubnetV1Step(stepName string, api secapi.NetworkV1, nref secapi.NetworkReference,
-	responseExpects StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
+	responseExpects ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
 ) *schema.Subnet {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getNetworkResourceStep(configurator.t, configurator.suite,
@@ -400,33 +427,6 @@ func (configurator *StepsConfigurator) WatchSubnetUntilDeletedV1Step(stepName st
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Subnet,
-	responseExpects StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateNetworkResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateNetworkResourceParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
-			operationName:  constants.CreateOrUpdateSubnetOperation,
-			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
-			network:        secapi.NetworkID(resource.Metadata.Network),
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.Subnet) (
-				wrappers.ResourceWrapper[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus], error,
-			) {
-				resp, err := api.CreateOrUpdateSubnet(configurator.t.Context(), resource)
-				return wrappers.NewSubnetWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyRegionalNetworkResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifySubnetSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
-		},
-	)
-}
-
 func (configurator *StepsConfigurator) DeleteSubnetV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Subnet) {
 	deleteNetworkResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteNetworkResourceParams[schema.Subnet]{
@@ -447,6 +447,32 @@ func (configurator *StepsConfigurator) DeleteSubnetV1Step(stepName string, stepC
 
 // Public Ip
 
+func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.PublicIp,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdatePublicIpOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.PublicIp) (
+				wrappers.ResourceWrapper[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus], error,
+			) {
+				resp, err := api.CreateOrUpdatePublicIp(configurator.t.Context(), resource)
+				return wrappers.NewPublicIpWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyPublicIpSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListPublicIpV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata]{
@@ -465,7 +491,7 @@ func (configurator *StepsConfigurator) ListPublicIpV1Step(stepName string, api s
 }
 
 func (configurator *StepsConfigurator) GetPublicIpV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
 ) *schema.PublicIp {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
@@ -505,32 +531,6 @@ func (configurator *StepsConfigurator) WatchPublicIpUntilDeletedV1Step(stepName 
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.PublicIp,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateWorkspaceResourceParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  constants.CreateOrUpdatePublicIpOperation,
-			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.PublicIp) (
-				wrappers.ResourceWrapper[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus], error,
-			) {
-				resp, err := api.CreateOrUpdatePublicIp(configurator.t.Context(), resource)
-				return wrappers.NewPublicIpWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifyPublicIpSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
-		},
-	)
-}
-
 func (configurator *StepsConfigurator) DeletePublicIpV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.PublicIp) {
 	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.PublicIp]{
@@ -550,6 +550,32 @@ func (configurator *StepsConfigurator) DeletePublicIpV1Step(stepName string, ste
 
 // Nic
 
+func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Nic,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateNicOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Nic) (
+				wrappers.ResourceWrapper[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus], error,
+			) {
+				resp, err := api.CreateOrUpdateNic(configurator.t.Context(), resource)
+				return wrappers.NewNicWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyNicSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListNicV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata]{
@@ -568,7 +594,7 @@ func (configurator *StepsConfigurator) ListNicV1Step(stepName string, api secapi
 }
 
 func (configurator *StepsConfigurator) GetNicV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
 ) *schema.Nic {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
@@ -608,32 +634,6 @@ func (configurator *StepsConfigurator) WatchNicUntilDeletedV1Step(stepName strin
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Nic,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateWorkspaceResourceParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  constants.CreateOrUpdateNicOperation,
-			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.Nic) (
-				wrappers.ResourceWrapper[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus], error,
-			) {
-				resp, err := api.CreateOrUpdateNic(configurator.t.Context(), resource)
-				return wrappers.NewNicWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifyNicSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
-		},
-	)
-}
-
 func (configurator *StepsConfigurator) DeleteNicV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Nic) {
 	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.Nic]{
@@ -653,6 +653,32 @@ func (configurator *StepsConfigurator) DeleteNicV1Step(stepName string, stepCrea
 
 // Security Group Rule
 
+func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.SecurityGroupRule,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateWorkspaceResourceParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.Status]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateSecurityGroupRuleOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.SecurityGroupRule) (
+				wrappers.ResourceWrapper[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus], error,
+			) {
+				resp, err := api.CreateOrUpdateSecurityGroupRule(configurator.t.Context(), resource)
+				return wrappers.NewSecurityGroupRuleWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySecurityGroupRuleSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata]{
@@ -671,7 +697,7 @@ func (configurator *StepsConfigurator) ListSecurityGroupRuleV1Step(stepName stri
 }
 
 func (configurator *StepsConfigurator) GetSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec],
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec],
 ) *schema.SecurityGroupRule {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
@@ -711,32 +737,6 @@ func (configurator *StepsConfigurator) WatchSecurityGroupRuleUntilDeletedV1Step(
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.SecurityGroupRule,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateWorkspaceResourceParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.Status]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  constants.CreateOrUpdateSecurityGroupRuleOperation,
-			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.SecurityGroupRule) (
-				wrappers.ResourceWrapper[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus], error,
-			) {
-				resp, err := api.CreateOrUpdateSecurityGroupRule(configurator.t.Context(), resource)
-				return wrappers.NewSecurityGroupRuleWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifySecurityGroupRuleSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
-		},
-	)
-}
-
 func (configurator *StepsConfigurator) DeleteSecurityGroupRuleV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.SecurityGroupRule) {
 	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.SecurityGroupRule]{
@@ -756,6 +756,32 @@ func (configurator *StepsConfigurator) DeleteSecurityGroupRuleV1Step(stepName st
 
 // Security Group
 
+func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.SecurityGroup,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateSecurityGroupOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.SecurityGroup) (
+				wrappers.ResourceWrapper[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus], error,
+			) {
+				resp, err := api.CreateOrUpdateSecurityGroup(configurator.t.Context(), resource)
+				return wrappers.NewSecurityGroupWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifySecurityGroupSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListSecurityGroupV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata]{
@@ -774,7 +800,7 @@ func (configurator *StepsConfigurator) ListSecurityGroupV1Step(stepName string, 
 }
 
 func (configurator *StepsConfigurator) GetSecurityGroupV1Step(stepName string, api secapi.NetworkV1, wref secapi.WorkspaceReference,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
 ) *schema.SecurityGroup {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
@@ -810,32 +836,6 @@ func (configurator *StepsConfigurator) WatchSecurityGroupUntilDeletedV1Step(step
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  constants.GetSecurityGroupOperation,
-		},
-	)
-}
-
-func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.SecurityGroup,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateWorkspaceResourceParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
-			operationName:  constants.CreateOrUpdateSecurityGroupOperation,
-			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.SecurityGroup) (
-				wrappers.ResourceWrapper[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus], error,
-			) {
-				resp, err := api.CreateOrUpdateSecurityGroup(configurator.t.Context(), resource)
-				return wrappers.NewSecurityGroupWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifySecurityGroupSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }

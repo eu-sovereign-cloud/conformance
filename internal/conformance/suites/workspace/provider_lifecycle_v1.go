@@ -76,7 +76,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectMeta := workspace.Metadata
 	expectLabels := workspace.Labels
 	stepsConfigurator.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
-		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectLabels,
 			Metadata:       expectMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -89,7 +89,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	workspace = stepsConfigurator.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, tref,
-		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectLabels,
 			Metadata:       expectMeta,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -100,7 +100,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace.Labels = suite.params.WorkspaceUpdated.Labels
 	expectLabels = workspace.Labels
 	stepsConfigurator.CreateOrUpdateWorkspaceV1Step("Update the workspace", t, suite.Client.WorkspaceV1, workspace,
-		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectLabels,
 			Metadata:       expectMeta,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -109,7 +109,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated workspace
 	workspace = stepsConfigurator.GetWorkspaceV1Step("Get the updated workspace", suite.Client.WorkspaceV1, tref,
-		steps.StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectLabels,
 			Metadata:       expectMeta,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},

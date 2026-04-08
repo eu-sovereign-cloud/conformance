@@ -94,7 +94,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRoleMeta := role.Metadata
 	expectRoleSpec := &role.Spec
 	stepsConfigurator.CreateOrUpdateRoleV1Step("Create a role", t, suite.Client.AuthorizationV1, role,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -107,7 +107,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   role.Metadata.Name,
 	}
 	stepsConfigurator.GetRoleV1Step("Get the created role", suite.Client.AuthorizationV1, roleTRef,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -118,7 +118,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	role = suite.params.RoleUpdated
 	expectRoleSpec = &role.Spec
 	stepsConfigurator.CreateOrUpdateRoleV1Step("Update the role", t, suite.Client.AuthorizationV1, role,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
@@ -127,7 +127,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated role
 	role = stepsConfigurator.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},

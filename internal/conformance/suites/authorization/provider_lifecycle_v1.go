@@ -139,7 +139,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRoleMeta := role.Metadata
 	expectRoleSpec := &role.Spec
 	stepsConfigurator.CreateOrUpdateRoleV1Step("Create a role", t, suite.Client.AuthorizationV1, role,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -152,7 +152,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   role.Metadata.Name,
 	}
 	stepsConfigurator.GetRoleV1Step("Get the created role", suite.Client.AuthorizationV1, roleTRef,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -163,7 +163,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	role = suite.params.RoleUpdated
 	expectRoleSpec = &role.Spec
 	stepsConfigurator.CreateOrUpdateRoleV1Step("Update the role", t, suite.Client.AuthorizationV1, role,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
@@ -172,7 +172,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated role
 	role = stepsConfigurator.GetRoleV1Step("Get the updated role", suite.Client.AuthorizationV1, roleTRef,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -186,7 +186,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRoleAssignMeta := roleAssign.Metadata
 	expectRoleAssignSpec := &roleAssign.Spec
 	stepsConfigurator.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", t, suite.Client.AuthorizationV1, roleAssign,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,
 			Spec:           expectRoleAssignSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -199,7 +199,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   roleAssign.Metadata.Name,
 	}
 	stepsConfigurator.GetRoleAssignmentV1Step("Get the created role assignment", suite.Client.AuthorizationV1, roleAssignTRef,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,
 			Spec:           expectRoleAssignSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -210,7 +210,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	roleAssign = suite.params.RoleAssignmentUpdated
 	expectRoleAssignSpec.Subs = roleAssign.Spec.Subs
 	stepsConfigurator.CreateOrUpdateRoleAssignmentV1Step("Update the role assignment", t, suite.Client.AuthorizationV1, roleAssign,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,
 			Spec:           expectRoleAssignSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
@@ -219,7 +219,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated role assignment
 	roleAssign = stepsConfigurator.GetRoleAssignmentV1Step("Get the updated role assignment", suite.Client.AuthorizationV1, roleAssignTRef,
-		steps.StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,
 			Spec:           expectRoleAssignSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},

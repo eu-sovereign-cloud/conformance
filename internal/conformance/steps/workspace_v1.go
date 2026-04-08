@@ -11,6 +11,30 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 )
 
+func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName string, stepCreator StepCreator, api secapi.WorkspaceV1, resource *schema.Workspace,
+	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
+			operationName:  constants.CreateOrUpdateWorkspaceOperation,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Workspace) (
+				wrappers.ResourceWrapper[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
+			) {
+				resp, err := api.CreateOrUpdateWorkspace(configurator.t.Context(), resource)
+				return wrappers.NewWorkspaceWrapper(resp), err
+			},
+			expectedLabels:         responseExpects.Labels,
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.Workspace, schema.GlobalTenantResourceMetadata]{
@@ -28,7 +52,7 @@ func (configurator *StepsConfigurator) ListWorkspaceV1Step(stepName string, api 
 }
 
 func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference,
-	responseExpects StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
+	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
 ) *schema.Workspace {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getTenantResourceStep(configurator.t, configurator.suite,
@@ -63,30 +87,6 @@ func (configurator *StepsConfigurator) WatchWorkspaceUntilDeletedV1Step(stepName
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
 			operationName:  constants.GetWorkspaceOperation,
-		},
-	)
-}
-
-func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName string, stepCreator StepCreator, api secapi.WorkspaceV1, resource *schema.Workspace,
-	responseExpects StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateTenantResourceParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
-			operationName:  constants.CreateOrUpdateWorkspaceOperation,
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.Workspace) (
-				wrappers.ResourceWrapper[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus], error,
-			) {
-				resp, err := api.CreateOrUpdateWorkspace(configurator.t.Context(), resource)
-				return wrappers.NewWorkspaceWrapper(resp), err
-			},
-			expectedLabels:         responseExpects.Labels,
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,
-			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }

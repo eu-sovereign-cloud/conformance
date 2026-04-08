@@ -12,7 +12,7 @@ import (
 )
 
 func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx context.Context, api secapi.RegionV1, regionName string,
-	responseExpects StepResponseExpects[schema.GlobalResourceMetadata, schema.RegionSpec],
+	responseExpects ResponseExpects[schema.GlobalResourceMetadata, schema.RegionSpec],
 ) *schema.Region {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getGlobalResourceStep(configurator.t,

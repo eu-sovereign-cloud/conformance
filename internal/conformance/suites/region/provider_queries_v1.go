@@ -79,7 +79,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Call Get Region and verify response
 	expectedRegionMeta := suite.params.Regions[0].Metadata
 	stepsConfigurator.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, regions[0].Metadata.Name,
-		steps.StepResponseExpects[schema.GlobalResourceMetadata, schema.RegionSpec]{Metadata: expectedRegionMeta},
+		steps.ResponseExpects[schema.GlobalResourceMetadata, schema.RegionSpec]{Metadata: expectedRegionMeta},
 	)
 
 	suite.FinishScenario()

@@ -31,6 +31,32 @@ func (configurator *StepsConfigurator) ListSkusV1Step(stepName string, api secap
 
 // Instance
 
+func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName string, stepCreator StepCreator, api secapi.ComputeV1, resource *schema.Instance,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateWorkspaceResourceParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetComputeV1StepParams,
+			operationName:  constants.CreateOrUpdateInstanceOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Instance) (
+				wrappers.ResourceWrapper[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
+			) {
+				resp, err := api.CreateOrUpdateInstance(configurator.t.Context(), resource)
+				return wrappers.NewInstanceWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyInstanceSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListInstanceV1Step(stepName string, api secapi.ComputeV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata]{
@@ -49,7 +75,7 @@ func (configurator *StepsConfigurator) ListInstanceV1Step(stepName string, api s
 }
 
 func (configurator *StepsConfigurator) GetInstanceV1Step(stepName string, api secapi.ComputeV1, wref secapi.WorkspaceReference,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
 ) *schema.Instance {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
@@ -85,32 +111,6 @@ func (configurator *StepsConfigurator) WatchInstanceUntilDeletedV1Step(stepName 
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetComputeV1StepParams,
 			operationName:  constants.GetInstanceOperation,
-		},
-	)
-}
-
-func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName string, stepCreator StepCreator, api secapi.ComputeV1, resource *schema.Instance,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateWorkspaceResourceParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetComputeV1StepParams,
-			operationName:  constants.CreateOrUpdateInstanceOperation,
-			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.Instance) (
-				wrappers.ResourceWrapper[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus], error,
-			) {
-				resp, err := api.CreateOrUpdateInstance(configurator.t.Context(), resource)
-				return wrappers.NewInstanceWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifyInstanceSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }

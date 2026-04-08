@@ -17,7 +17,7 @@ func BulkCreateRolesStepsV1(configurator *StepsConfigurator, suite suites.Global
 
 			// Create a role
 			configurator.CreateOrUpdateRoleV1Step("Create a role", sCtx, suite.Client.AuthorizationV1, &role,
-				StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+				ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 					Metadata:       expectRoleMeta,
 					Spec:           &expectRoleSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -50,7 +50,7 @@ func BulkCreateRoleAssignmentsStepsV1(configurator *StepsConfigurator, suite sui
 
 			// Create a role assignment
 			configurator.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", sCtx, suite.Client.AuthorizationV1, &roleAssign,
-				StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+				ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 					Metadata:       expectRoleAssignMeta,
 					Spec:           expectRoleAssignSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -85,7 +85,7 @@ func BulkCreateWorkspacesStepsV1(configurator *StepsConfigurator, suite suites.R
 
 			// Create a workspace
 			configurator.CreateOrUpdateWorkspaceV1Step("Create a workspace", sCtx, suite.Client.WorkspaceV1, &workspace,
-				StepResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+				ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 					Metadata:       expectWorkspaceMeta,
 					Spec:           expectWorkspaceSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -121,7 +121,7 @@ func BulkCreateInstancesStepsV1(configurator *StepsConfigurator, suite suites.Re
 
 			// Create an instance
 			configurator.CreateOrUpdateInstanceV1Step("Create an instance", sCtx, suite.Client.ComputeV1, &instance,
-				StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+				ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 					Metadata:       expectInstanceMeta,
 					Spec:           expectInstanceSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -158,7 +158,7 @@ func BulkCreateBlockStoragesStepsV1(configurator *StepsConfigurator, suite suite
 
 			// Create a block storage
 			configurator.CreateOrUpdateBlockStorageV1Step("Create a block storage", sCtx, suite.Client.StorageV1, &blockStorage,
-				StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+				ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 					Metadata:       expectedBlockMeta,
 					Spec:           expectedBlockSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -193,7 +193,7 @@ func BulkCreateImagesStepsV1(configurator *StepsConfigurator, suite suites.Regio
 
 			// Create an image
 			configurator.CreateOrUpdateImageV1Step("Create an image", sCtx, suite.Client.StorageV1, &image,
-				StepResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
+				ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 					Metadata:       expectedImageMeta,
 					Spec:           expectedImageSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -227,7 +227,7 @@ func BulkCreateNetworksStepsV1(configurator *StepsConfigurator, suite suites.Reg
 			expectNetworkMeta := network.Metadata
 			expectNetworkSpec := &network.Spec
 			configurator.CreateOrUpdateNetworkV1Step("Create a network", sCtx, suite.Client.NetworkV1, &network,
-				StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+				ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 					Metadata:       expectNetworkMeta,
 					Spec:           expectNetworkSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -262,7 +262,7 @@ func BulkCreateInternetGatewaysStepsV1(configurator *StepsConfigurator, suite su
 
 			// Create an internet gateway
 			configurator.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", sCtx, suite.Client.NetworkV1, &internetGateway,
-				StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+				ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 					Metadata:       expectGatewayMeta,
 					Spec:           expectGatewaySpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -297,7 +297,7 @@ func BulkCreateRouteTablesStepsV1(configurator *StepsConfigurator, suite suites.
 
 			// Create a route table
 			configurator.CreateOrUpdateRouteTableV1Step("Create a route table", sCtx, suite.Client.NetworkV1, &routeTable,
-				StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+				ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 					Metadata:       expectRouteMeta,
 					Spec:           expectRouteSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -333,7 +333,7 @@ func BulkCreateSubnetsStepsV1(configurator *StepsConfigurator, suite suites.Regi
 
 			// Create a subnet
 			configurator.CreateOrUpdateSubnetV1Step("Create a subnet", sCtx, suite.Client.NetworkV1, &subnet,
-				StepResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+				ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 					Metadata:       expectSubnetMeta,
 					Spec:           expectSubnetSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -369,7 +369,7 @@ func BulkCreatePublicIpsStepsV1(configurator *StepsConfigurator, suite suites.Re
 
 			// Create a public ip
 			configurator.CreateOrUpdatePublicIpV1Step("Create a public ip", sCtx, suite.Client.NetworkV1, &publicIp,
-				StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+				ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 					Metadata:       expectPublicIpMeta,
 					Spec:           expectPublicIpSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -404,7 +404,7 @@ func BulkCreateNicsStepsV1(configurator *StepsConfigurator, suite suites.Regiona
 
 			// Create a nic
 			configurator.CreateOrUpdateNicV1Step("Create a nic", sCtx, suite.Client.NetworkV1, &nic,
-				StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+				ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 					Metadata:       expectNicMeta,
 					Spec:           expectNicSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -439,7 +439,7 @@ func BulkCreateSecurityGroupRulesStepsV1(configurator *StepsConfigurator, suite 
 
 			// Create a security group rule
 			configurator.CreateOrUpdateSecurityGroupRuleV1Step("Create a security group rule", sCtx, suite.Client.NetworkV1, &securityGroupRule,
-				StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+				ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
 					Metadata:       expectRuleMeta,
 					Spec:           expectRuleSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,
@@ -474,7 +474,7 @@ func BulkCreateSecurityGroupsStepsV1(configurator *StepsConfigurator, suite suit
 
 			// Create a security group
 			configurator.CreateOrUpdateSecurityGroupV1Step("Create a security group", sCtx, suite.Client.NetworkV1, &securityGroup,
-				StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+				ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 					Metadata:       expectGroupMeta,
 					Spec:           expectGroupSpec,
 					ResourceStates: suites.CreatedResourceExpectedStates,

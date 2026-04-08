@@ -13,6 +13,31 @@ import (
 
 // Role
 
+func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, resource *schema.Role,
+	responseExpects ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateTenantResourceParams[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
+			operationName:  constants.CreateOrUpdateRoleOperation,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.Role) (
+				wrappers.ResourceWrapper[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status], error,
+			) {
+				resp, err := api.CreateOrUpdateRole(configurator.t.Context(), resource)
+				return wrappers.NewRoleWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyRoleSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListRoleV1Step(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.Role, schema.GlobalTenantResourceMetadata]{
@@ -30,7 +55,7 @@ func (configurator *StepsConfigurator) ListRoleV1Step(stepName string, api secap
 }
 
 func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference,
-	responseExpects StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec],
+	responseExpects ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec],
 ) *schema.Role {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getTenantResourceStep(configurator.t, configurator.suite,
@@ -70,31 +95,6 @@ func (configurator *StepsConfigurator) WatchRoleUntilDeletedV1Step(stepName stri
 	)
 }
 
-func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, resource *schema.Role,
-	responseExpects StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateTenantResourceParams[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
-			operationName:  constants.CreateOrUpdateRoleOperation,
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.Role) (
-				wrappers.ResourceWrapper[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.Status], error,
-			) {
-				resp, err := api.CreateOrUpdateRole(configurator.t.Context(), resource)
-				return wrappers.NewRoleWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifyRoleSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
-		},
-	)
-}
-
 func (configurator *StepsConfigurator) DeleteRoleV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, resource *schema.Role) {
 	deleteTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteTenantResourceParams[schema.Role]{
@@ -113,6 +113,31 @@ func (configurator *StepsConfigurator) DeleteRoleV1Step(stepName string, stepCre
 
 // Role Assignment
 
+func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, resource *schema.RoleAssignment,
+	responseExpects ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateTenantResourceParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
+			operationName:  constants.CreateOrUpdateRoleAssignmentOperation,
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.RoleAssignment) (
+				wrappers.ResourceWrapper[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status], error,
+			) {
+				resp, err := api.CreateOrUpdateRoleAssignment(configurator.t.Context(), resource)
+				return wrappers.NewRoleAssignmentWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyRoleAssignmentSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListRoleAssignmentsV1(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata]{
@@ -130,7 +155,7 @@ func (configurator *StepsConfigurator) ListRoleAssignmentsV1(stepName string, ap
 }
 
 func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference,
-	responseExpects StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec],
+	responseExpects ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec],
 ) *schema.RoleAssignment {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getTenantResourceStep(configurator.t, configurator.suite,
@@ -166,31 +191,6 @@ func (configurator *StepsConfigurator) WatchRoleAssignmentUntilDeletedV1Step(ste
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
 			operationName:  constants.GetRoleAssignmentOperation,
-		},
-	)
-}
-
-func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, resource *schema.RoleAssignment,
-	responseExpects StepResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateTenantResourceParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
-			operationName:  constants.CreateOrUpdateRoleAssignmentOperation,
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.RoleAssignment) (
-				wrappers.ResourceWrapper[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.Status], error,
-			) {
-				resp, err := api.CreateOrUpdateRoleAssignment(configurator.t.Context(), resource)
-				return wrappers.NewRoleAssignmentWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifyRoleAssignmentSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }

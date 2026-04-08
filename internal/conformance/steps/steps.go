@@ -8,7 +8,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type StepResponseExpects[M types.MetadataType, E types.SpecType] struct {
+type ResponseExpects[M types.MetadataType, E types.SpecType] struct {
 	Labels         schema.Labels
 	Metadata       *M
 	Spec           *E

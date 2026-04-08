@@ -13,6 +13,32 @@ import (
 
 // Sku
 
+func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName string, stepCreator StepCreator, api secapi.StorageV1, resource *schema.BlockStorage,
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
+) {
+	responseExpects.Metadata.Verb = http.MethodPut
+	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
+		createOrUpdateWorkspaceResourceParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus]{
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetStorageWorkspaceV1StepParams,
+			operationName:  constants.CreateOrUpdateBlockStorageOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			resource:       resource,
+			createOrUpdateFunc: func(context.Context, *schema.BlockStorage) (
+				wrappers.ResourceWrapper[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus], error,
+			) {
+				resp, err := api.CreateOrUpdateBlockStorage(configurator.t.Context(), resource)
+				return wrappers.NewBlockStorageWrapper(resp), err
+			},
+			expectedMetadata:       responseExpects.Metadata,
+			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedSpec:           responseExpects.Spec,
+			verifySpecFunc:         configurator.suite.VerifyBlockStorageSpecStep,
+			expectedResourceStates: responseExpects.ResourceStates,
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) ListSkuV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.StorageSku, schema.SkuResourceMetadata]{
@@ -49,7 +75,7 @@ func (configurator *StepsConfigurator) ListBlockStorageV1Step(stepName string, a
 }
 
 func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, api secapi.StorageV1, wref secapi.WorkspaceReference,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
+	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
 ) *schema.BlockStorage {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
@@ -85,32 +111,6 @@ func (configurator *StepsConfigurator) WatchBlockStorageUntilDeletedV1Step(stepN
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageWorkspaceV1StepParams,
 			operationName:  constants.GetBlockStorageOperation,
-		},
-	)
-}
-
-func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName string, stepCreator StepCreator, api secapi.StorageV1, resource *schema.BlockStorage,
-	responseExpects StepResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
-) {
-	responseExpects.Metadata.Verb = http.MethodPut
-	createOrUpdateWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
-		createOrUpdateWorkspaceResourceParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus]{
-			stepName:       stepName,
-			stepParamsFunc: configurator.suite.SetStorageWorkspaceV1StepParams,
-			operationName:  constants.CreateOrUpdateBlockStorageOperation,
-			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
-			resource:       resource,
-			createOrUpdateFunc: func(context.Context, *schema.BlockStorage) (
-				wrappers.ResourceWrapper[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus], error,
-			) {
-				resp, err := api.CreateOrUpdateBlockStorage(configurator.t.Context(), resource)
-				return wrappers.NewBlockStorageWrapper(resp), err
-			},
-			expectedMetadata:       responseExpects.Metadata,
-			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
-			expectedSpec:           responseExpects.Spec,
-			verifySpecFunc:         configurator.suite.VerifyBlockStorageSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
 		},
 	)
 }
@@ -151,7 +151,7 @@ func (configurator *StepsConfigurator) ListImageV1Step(stepName string, api seca
 }
 
 func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api secapi.StorageV1, tref secapi.TenantReference,
-	responseExpects StepResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
+	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
 ) *schema.Image {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getTenantResourceStep(configurator.t, configurator.suite,
@@ -192,7 +192,7 @@ func (configurator *StepsConfigurator) WatchImageUntilDeletedV1Step(stepName str
 }
 
 func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string, stepCreator StepCreator, api secapi.StorageV1, resource *schema.Image,
-	responseExpects StepResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
+	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
 ) {
 	responseExpects.Metadata.Verb = http.MethodPut
 	createOrUpdateTenantResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
