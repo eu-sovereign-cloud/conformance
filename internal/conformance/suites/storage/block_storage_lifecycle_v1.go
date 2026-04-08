@@ -56,6 +56,9 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		}).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Workspace: %v", err)
@@ -65,6 +68,12 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(blockStorageName).
 		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Annotations(schema.Annotations{
+			"description": "BlockStorage for conformance testing",
+		}).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
 		Spec(&schema.BlockStorageSpec{
 			SkuRef: *storageSkuRefObj,
 			SizeGB: initialStorageSize,
@@ -77,6 +86,12 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(blockStorageName).
 		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Annotations(schema.Annotations{
+			"description": "BlockStorage for conformance testing",
+		}).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
 		Spec(&schema.BlockStorageSpec{
 			SkuRef: *storageSkuRefObj,
 			SizeGB: updatedStorageSize,
@@ -110,9 +125,12 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
-
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtension := workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtension,
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -125,10 +143,13 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         expectWorkspaceLabels,
-			Metadata:       expectWorkspaceMeta,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
+			ResourceStatus: schema.WorkspaceStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -138,9 +159,15 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	block := suite.params.BlockStorageInitial
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
+	expectedBlockLabels := block.Labels
+	expectedBlockAnnotations := block.Annotations
+	expectedBlockExtensions := block.Extensions
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", t, suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
+			Labels:         expectedBlockLabels,
+			Annotations:    expectedBlockAnnotations,
+			Extensions:     expectedBlockExtensions,
 			Spec:           expectedBlockSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -152,20 +179,30 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
 		Name:      block.Metadata.Name,
 	}
-	stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:       expectedBlockMeta,
-			Spec:           expectedBlockSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus]{
+			Metadata: expectedBlockMeta,
+			Spec:     expectedBlockSpec,
+			ResourceStatus: schema.BlockStorageStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
 	// Update the block storage
+	suite.params.BlockStorageUpdated.Status = block.Status
 	block = suite.params.BlockStorageUpdated
 	expectedBlockSpec.SizeGB = block.Spec.SizeGB
+	expectedBlockLabels = block.Labels
+	expectedBlockAnnotations = block.Annotations
+	expectedBlockExtensions = block.Extensions
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Update the block storage", t, suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
+			Labels:         expectedBlockLabels,
+			Annotations:    expectedBlockAnnotations,
+			Extensions:     expectedBlockExtensions,
 			Spec:           expectedBlockSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
 		},
@@ -173,10 +210,13 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated block storage
 	block = stepsBuilder.GetBlockStorageV1Step("Get the updated block storage", suite.Client.StorageV1, blockWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:       expectedBlockMeta,
-			Spec:           expectedBlockSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus]{
+			Metadata: expectedBlockMeta,
+			Spec:     expectedBlockSpec,
+			ResourceStatus: schema.BlockStorageStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 

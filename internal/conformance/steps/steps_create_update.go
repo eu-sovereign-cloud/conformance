@@ -25,6 +25,8 @@ type createOrUpdateTenantResourceParams[R types.ResourceType, M types.MetadataTy
 	resource               *R
 	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
+	expectedAnnotations    schema.Annotations
+	expectedExtensions     schema.Extensions
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
 	expectedSpec           *E
@@ -40,6 +42,8 @@ type createOrUpdateWorkspaceResourceParams[R types.ResourceType, M types.Metadat
 	resource               *R
 	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
+	expectedAnnotations    schema.Annotations
+	expectedExtensions     schema.Extensions
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
 	expectedSpec           *E
@@ -56,6 +60,8 @@ type createOrUpdateNetworkResourceParams[R types.ResourceType, M types.MetadataT
 	resource               *R
 	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
+	expectedAnnotations    schema.Annotations
+	expectedExtensions     schema.Extensions
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
 	expectedSpec           *E
@@ -67,6 +73,8 @@ type createOrUpdateResourceParams[R types.ResourceType, M types.MetadataType, E 
 	resource               *R
 	createOrUpdateFunc     func(context.Context, *R) (wrappers.ResourceWrapper[R, M, E, S], error)
 	expectedLabels         schema.Labels
+	expectedAnnotations    schema.Annotations
+	expectedExtensions     schema.Extensions
 	expectedMetadata       *M
 	verifyMetadataFunc     func(provider.StepCtx, *M, *M)
 	expectedSpec           *E
@@ -86,6 +94,8 @@ func createOrUpdateTenantResourceStep[R types.ResourceType, M types.MetadataType
 			resource:               params.resource,
 			createOrUpdateFunc:     params.createOrUpdateFunc,
 			expectedLabels:         params.expectedLabels,
+			expectedAnnotations:    params.expectedAnnotations,
+			expectedExtensions:     params.expectedExtensions,
 			expectedMetadata:       params.expectedMetadata,
 			verifyMetadataFunc:     params.verifyMetadataFunc,
 			expectedSpec:           params.expectedSpec,
@@ -105,6 +115,8 @@ func createOrUpdateWorkspaceResourceStep[R types.ResourceType, M types.MetadataT
 			resource:               params.resource,
 			createOrUpdateFunc:     params.createOrUpdateFunc,
 			expectedLabels:         params.expectedLabels,
+			expectedAnnotations:    params.expectedAnnotations,
+			expectedExtensions:     params.expectedExtensions,
 			expectedMetadata:       params.expectedMetadata,
 			verifyMetadataFunc:     params.verifyMetadataFunc,
 			expectedSpec:           params.expectedSpec,
@@ -124,6 +136,8 @@ func createOrUpdateNetworkResourceStep[R types.ResourceType, M types.MetadataTyp
 			resource:               params.resource,
 			createOrUpdateFunc:     params.createOrUpdateFunc,
 			expectedLabels:         params.expectedLabels,
+			expectedAnnotations:    params.expectedAnnotations,
+			expectedExtensions:     params.expectedExtensions,
 			expectedMetadata:       params.expectedMetadata,
 			verifyMetadataFunc:     params.verifyMetadataFunc,
 			expectedSpec:           params.expectedSpec,
@@ -146,9 +160,19 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 
 	responseResourceStep(sCtx, resp.GetResource())
 
-	// Label
+	// Labels
 	if params.expectedLabels != nil {
 		suite.VerifyLabelsStep(sCtx, params.expectedLabels, resp.GetLabels())
+	}
+
+	// Extensions
+	if params.expectedExtensions != nil {
+		suite.VerifyExtensionsStep(sCtx, params.expectedExtensions, resp.GetExtensions())
+	}
+
+	// Annotations
+	if params.expectedAnnotations != nil {
+		suite.VerifyAnnotationsStep(sCtx, params.expectedAnnotations, resp.GetAnnotations())
 	}
 
 	// Metadata
@@ -164,7 +188,7 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 
 	// Status
 	if resp.GetStatus() != nil && len(params.expectedResourceStates) > 0 {
-		suite.VerifyStatusStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
+		suite.VerifyStatusStatesStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
 	} else {
 		log.Fatalln("Status verification failed: expected or actual Status is nil")
 	}

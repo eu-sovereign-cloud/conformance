@@ -39,6 +39,9 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvDevelopmentLabel}).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Workspace: %v", err)
@@ -49,6 +52,9 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Workspace: %v", err)
@@ -75,9 +81,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.WorkspaceInitial
 	expectMeta := workspace.Metadata
 	expectLabels := workspace.Labels
+	expectAnnotations := workspace.Annotations
+	expectExtensions := workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectLabels,
+			Annotations:    expectAnnotations,
+			Extensions:     expectExtensions,
 			Metadata:       expectMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -89,19 +99,26 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	workspace = stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, tref,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         expectLabels,
-			Metadata:       expectMeta,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
+			Labels:   expectLabels,
+			Metadata: expectMeta,
+			ResourceStatus: schema.WorkspaceStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
 	// Update the workspace labels
 	workspace.Labels = suite.params.WorkspaceUpdated.Labels
 	expectLabels = workspace.Labels
+	expectAnnotations = workspace.Annotations
+	expectExtensions = workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Update the workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectLabels,
+			Annotations:    expectAnnotations,
+			Extensions:     expectExtensions,
 			Metadata:       expectMeta,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
 		},
@@ -109,10 +126,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated workspace
 	workspace = stepsBuilder.GetWorkspaceV1Step("Get the updated workspace", suite.Client.WorkspaceV1, tref,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         expectLabels,
-			Metadata:       expectMeta,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
+			Labels:   expectLabels,
+			Metadata: expectMeta,
+			ResourceStatus: schema.WorkspaceStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 

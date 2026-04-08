@@ -32,6 +32,9 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
+			expectedLabels:         responseExpects.Labels,
+			expectedAnnotations:    responseExpects.Annotations,
+			expectedExtensions:     responseExpects.Extensions,
 			expectedSpec:           responseExpects.Spec,
 			verifySpecFunc:         configurator.suite.VerifyBlockStorageSpecStep,
 			expectedResourceStates: responseExpects.ResourceStates,
@@ -75,7 +78,7 @@ func (configurator *StepsConfigurator) ListBlockStorageV1Step(stepName string, a
 }
 
 func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, api secapi.StorageV1, wref secapi.WorkspaceReference,
-	responseExpects ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus],
 ) *schema.BlockStorage {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getWorkspaceResourceStep(configurator.t, configurator.suite,
@@ -94,7 +97,7 @@ func (configurator *StepsConfigurator) GetBlockStorageV1Step(stepName string, ap
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalWorkspaceResourceMetadataStep,
 			expectedSpec:           responseExpects.Spec,
 			verifySpecFunc:         configurator.suite.VerifyBlockStorageSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
+			expectedResourceStatus: responseExpects.ResourceStatus,
 		},
 	)
 }
@@ -151,7 +154,7 @@ func (configurator *StepsConfigurator) ListImageV1Step(stepName string, api seca
 }
 
 func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api secapi.StorageV1, tref secapi.TenantReference,
-	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus],
 ) *schema.Image {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getTenantResourceStep(configurator.t, configurator.suite,
@@ -170,7 +173,7 @@ func (configurator *StepsConfigurator) GetImageV1Step(stepName string, api secap
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,
 			expectedSpec:           responseExpects.Spec,
 			verifySpecFunc:         configurator.suite.VerifyImageSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
+			expectedResourceStatus: responseExpects.ResourceStatus,
 		},
 	)
 }

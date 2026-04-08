@@ -58,6 +58,9 @@ func (suite *ImageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		}).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Workspace: %v", err)
@@ -67,6 +70,12 @@ func (suite *ImageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(blockStorageName).
 		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Annotations(schema.Annotations{
+			"description": "BlockStorage for conformance testing",
+		}).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
 		Spec(&schema.BlockStorageSpec{
 			SkuRef: *storageSkuRefObj,
 			SizeGB: storageSize,
@@ -79,6 +88,12 @@ func (suite *ImageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(imageName).
 		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
+		Annotations(schema.Annotations{
+			"description": "Image for conformance testing",
+		}).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
 		Spec(&schema.ImageSpec{
 			BlockStorageRef: *blockStorageRefObj,
 			CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
@@ -91,6 +106,12 @@ func (suite *ImageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(imageName).
 		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Region(suite.Region).
+		Annotations(schema.Annotations{
+			"description": "Image for conformance testing",
+		}).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
 		Spec(&schema.ImageSpec{
 			BlockStorageRef: *blockStorageRefObj,
 			CpuArchitecture: schema.ImageSpecCpuArchitectureArm64,
@@ -128,10 +149,13 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
-
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -143,10 +167,13 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         expectWorkspaceLabels,
-			Metadata:       expectWorkspaceMeta,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
+			ResourceStatus: schema.WorkspaceStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -156,9 +183,15 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	block := suite.params.BlockStorage
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
+	expectedBlockLabels := block.Labels
+	expectedBlockAnnotations := block.Annotations
+	expectedBlockExtensions := block.Extensions
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", t, suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
+			Labels:         expectedBlockLabels,
+			Annotations:    expectedBlockAnnotations,
+			Extensions:     expectedBlockExtensions,
 			Spec:           expectedBlockSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -171,10 +204,13 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      block.Metadata.Name,
 	}
 	block = stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:       expectedBlockMeta,
-			Spec:           expectedBlockSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus]{
+			Metadata: expectedBlockMeta,
+			Spec:     expectedBlockSpec,
+			ResourceStatus: schema.BlockStorageStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -184,9 +220,15 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	image := suite.params.ImageInitial
 	expectedImageMeta := image.Metadata
 	expectedImageSpec := &image.Spec
+	expectedImageLabels := image.Labels
+	expectedImageAnnotations := image.Annotations
+	expectedImageExtensions := image.Extensions
 	stepsBuilder.CreateOrUpdateImageV1Step("Create an image", t, suite.Client.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:       expectedImageMeta,
+			Labels:         expectedImageLabels,
+			Annotations:    expectedImageAnnotations,
+			Extensions:     expectedImageExtensions,
 			Spec:           expectedImageSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -198,10 +240,13 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   image.Metadata.Name,
 	}
 	stepsBuilder.GetImageV1Step("Get the created image", suite.Client.StorageV1, imageTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:       expectedImageMeta,
-			Spec:           expectedImageSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus]{
+			Metadata: expectedImageMeta,
+			Spec:     expectedImageSpec,
+			ResourceStatus: schema.ImageStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -211,6 +256,9 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder.CreateOrUpdateImageV1Step("Update the image", t, suite.Client.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:       expectedImageMeta,
+			Labels:         expectedImageLabels,
+			Annotations:    expectedImageAnnotations,
+			Extensions:     expectedImageExtensions,
 			Spec:           expectedImageSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
 		},
@@ -218,10 +266,13 @@ func (suite *ImageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated image
 	image = stepsBuilder.GetImageV1Step("Get the updated image", suite.Client.StorageV1, imageTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-			Metadata:       expectedImageMeta,
-			Spec:           expectedImageSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.ImageSpec, schema.ImageStatus]{
+			Metadata: expectedImageMeta,
+			Spec:     expectedImageSpec,
+			ResourceStatus: schema.ImageStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 

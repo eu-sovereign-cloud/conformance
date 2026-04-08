@@ -31,6 +31,9 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string,
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
+			expectedLabels:         responseExpects.Labels,
+			expectedAnnotations:    responseExpects.Annotations,
+			expectedExtensions:     responseExpects.Extensions,
 			expectedSpec:           responseExpects.Spec,
 			verifySpecFunc:         configurator.suite.VerifyRoleSpecStep,
 			expectedResourceStates: responseExpects.ResourceStates,
@@ -55,7 +58,7 @@ func (configurator *StepsConfigurator) ListRoleV1Step(stepName string, api secap
 }
 
 func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference,
-	responseExpects ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec],
+	responseExpects ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleSpec, schema.RoleStatus],
 ) *schema.Role {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getTenantResourceStep(configurator.t, configurator.suite,
@@ -74,7 +77,7 @@ func (configurator *StepsConfigurator) GetRoleV1Step(stepName string, api secapi
 			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
 			expectedSpec:           responseExpects.Spec,
 			verifySpecFunc:         configurator.suite.VerifyRoleSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
+			expectedResourceStatus: responseExpects.ResourceStatus,
 		},
 	)
 }
@@ -131,6 +134,9 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepNa
 			},
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
+			expectedAnnotations:    responseExpects.Annotations,
+			expectedExtensions:     responseExpects.Extensions,
+			expectedLabels:         responseExpects.Labels,
 			expectedSpec:           responseExpects.Spec,
 			verifySpecFunc:         configurator.suite.VerifyRoleAssignmentSpecStep,
 			expectedResourceStates: responseExpects.ResourceStates,
@@ -155,7 +161,7 @@ func (configurator *StepsConfigurator) ListRoleAssignmentsV1(stepName string, ap
 }
 
 func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, api secapi.AuthorizationV1, tref secapi.TenantReference,
-	responseExpects ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec],
+	responseExpects ResponseExpectsWithCondition[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, schema.RoleAssignmentStatus],
 ) *schema.RoleAssignment {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getTenantResourceStep(configurator.t, configurator.suite,
@@ -174,7 +180,7 @@ func (configurator *StepsConfigurator) GetRoleAssignmentV1Step(stepName string, 
 			verifyMetadataFunc:     configurator.suite.VerifyGlobalTenantResourceMetadataStep,
 			expectedSpec:           responseExpects.Spec,
 			verifySpecFunc:         configurator.suite.VerifyRoleAssignmentSpecStep,
-			expectedResourceStates: responseExpects.ResourceStates,
+			expectedResourceStatus: responseExpects.ResourceStatus,
 		},
 	)
 }

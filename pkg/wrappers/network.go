@@ -20,6 +20,14 @@ func (wrapper *NetworkWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
 }
 
+func (wrapper *NetworkWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *NetworkWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
+}
+
 func (wrapper *NetworkWrapper) GetMetadata() *schema.RegionalWorkspaceResourceMetadata {
 	return wrapper.resource.Metadata
 }
@@ -50,6 +58,14 @@ func (wrapper *InternetGatewayWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
 }
 
+func (wrapper *InternetGatewayWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *InternetGatewayWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
+}
+
 func (wrapper *InternetGatewayWrapper) GetMetadata() *schema.RegionalWorkspaceResourceMetadata {
 	return wrapper.resource.Metadata
 }
@@ -78,6 +94,14 @@ func (wrapper *RouteTableWrapper) GetResource() *schema.RouteTable {
 
 func (wrapper *RouteTableWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
+}
+
+func (wrapper *RouteTableWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *RouteTableWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
 }
 
 func (wrapper *RouteTableWrapper) GetMetadata() *schema.RegionalNetworkResourceMetadata {
@@ -114,6 +138,14 @@ func (wrapper *SubnetWrapper) GetMetadata() *schema.RegionalNetworkResourceMetad
 	return wrapper.resource.Metadata
 }
 
+func (wrapper *SubnetWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *SubnetWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
+}
+
 func (wrapper *SubnetWrapper) GetSpec() *schema.SubnetSpec {
 	return &wrapper.resource.Spec
 }
@@ -138,6 +170,14 @@ func (wrapper *PublicIpWrapper) GetResource() *schema.PublicIp {
 
 func (wrapper *PublicIpWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
+}
+
+func (wrapper *PublicIpWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *PublicIpWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
 }
 
 func (wrapper *PublicIpWrapper) GetMetadata() *schema.RegionalWorkspaceResourceMetadata {
@@ -174,6 +214,14 @@ func (wrapper *NicWrapper) GetMetadata() *schema.RegionalWorkspaceResourceMetada
 	return wrapper.resource.Metadata
 }
 
+func (wrapper *NicWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *NicWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
+}
+
 func (wrapper *NicWrapper) GetSpec() *schema.NicSpec {
 	return &wrapper.resource.Spec
 }
@@ -198,6 +246,14 @@ func (wrapper *SecurityGroupRuleWrapper) GetResource() *schema.SecurityGroupRule
 
 func (wrapper *SecurityGroupRuleWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
+}
+
+func (wrapper *SecurityGroupRuleWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *SecurityGroupRuleWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
 }
 
 func (wrapper *SecurityGroupRuleWrapper) GetMetadata() *schema.RegionalWorkspaceResourceMetadata {
@@ -228,6 +284,14 @@ func (wrapper *SecurityGroupWrapper) GetResource() *schema.SecurityGroup {
 
 func (wrapper *SecurityGroupWrapper) GetLabels() schema.Labels {
 	return wrapper.resource.Labels
+}
+
+func (wrapper *SecurityGroupWrapper) GetAnnotations() schema.Annotations {
+	return wrapper.resource.Annotations
+}
+
+func (wrapper *SecurityGroupWrapper) GetExtensions() schema.Extensions {
+	return wrapper.resource.Extensions
 }
 
 func (wrapper *SecurityGroupWrapper) GetMetadata() *schema.RegionalWorkspaceResourceMetadata {

@@ -1,6 +1,9 @@
 package suites
 
-import "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+import (
+	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+)
 
 const (
 	// Asserts
@@ -25,6 +28,25 @@ const (
 
 // Expected States
 var (
-	CreatedResourceExpectedStates = []schema.ResourceState{schema.ResourceStatePending, schema.ResourceStateCreating, schema.ResourceStateActive}
-	UpdatedResourceExpectedStates = []schema.ResourceState{schema.ResourceStateActive, schema.ResourceStateUpdating}
+	CreatedResourceExpectedStates = constants.CreatedResourceExpectedStates
+	UpdatedResourceExpectedStates = constants.UpdatedResourceExpectedStates
 )
+
+// Conditions
+var (
+	ActiveCondition   = constants.ActiveCondition
+	CreatingCondition = constants.CreatingCondition
+	PendingCondition  = constants.PendingCondition
+	UpdatingCondition = constants.UpdatingCondition
+	DeletingCondition = constants.DeletingCondition
+
+	GetConditionAfterCreating   = constants.GetConditionAfterCreating
+	GetConditionAfterUpdating   = constants.GetConditionAfterUpdating
+	GetConditionAfterDeleting   = constants.GetConditionAfterDeleting
+	GetConditionAfterStopping   = constants.GetConditionAfterStopping
+	GetConditionAfterStarting   = constants.GetConditionAfterStarting
+	GetConditionAfterRestarting = constants.GetConditionAfterRestarting
+)
+
+// suppress unused import warning - schema is used transitively via constants
+var _ schema.StatusCondition

@@ -28,6 +28,8 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 				return wrappers.NewWorkspaceWrapper(resp), err
 			},
 			expectedLabels:         responseExpects.Labels,
+			expectedAnnotations:    responseExpects.Annotations,
+			expectedExtensions:     responseExpects.Extensions,
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,
 			expectedResourceStates: responseExpects.ResourceStates,
@@ -52,7 +54,7 @@ func (configurator *StepsConfigurator) ListWorkspaceV1Step(stepName string, api 
 }
 
 func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, tref secapi.TenantReference,
-	responseExpects ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec],
+	responseExpects ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus],
 ) *schema.Workspace {
 	responseExpects.Metadata.Verb = http.MethodGet
 	return getTenantResourceStep(configurator.t, configurator.suite,
@@ -70,7 +72,7 @@ func (configurator *StepsConfigurator) GetWorkspaceV1Step(stepName string, api s
 			expectedLabels:         responseExpects.Labels,
 			expectedMetadata:       responseExpects.Metadata,
 			verifyMetadataFunc:     configurator.suite.VerifyRegionalResourceMetadataStep,
-			expectedResourceStates: responseExpects.ResourceStates,
+			expectedResourceStatus: responseExpects.ResourceStatus,
 		},
 	)
 }

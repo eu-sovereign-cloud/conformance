@@ -77,33 +77,39 @@ func (builder *resourceMetadataBuilder[B, K]) Ref(ref string) *B {
 /// globalResourceBuilder
 
 type globalResourceBuilder[B any, S types.SpecType] struct {
-	validator     *validator.Validate
-	parent        *B
-	setName       func(string)
-	setProvider   func(string)
-	setApiVersion func(string)
-	setLabels     func(schema.Labels)
-	setSpec       func(*S)
+	validator      *validator.Validate
+	parent         *B
+	setName        func(string)
+	setProvider    func(string)
+	setApiVersion  func(string)
+	setLabels      func(schema.Labels)
+	setAnnotations func(schema.Annotations)
+	setExtensions  func(schema.Extensions)
+	setSpec        func(*S)
 }
 
 type newGlobalResourceBuilderParams[B any, S types.SpecType] struct {
-	parent        *B
-	setName       func(string)
-	setProvider   func(string)
-	setApiVersion func(string)
-	setLabels     func(schema.Labels)
-	setSpec       func(*S)
+	parent         *B
+	setName        func(string)
+	setProvider    func(string)
+	setApiVersion  func(string)
+	setLabels      func(schema.Labels)
+	setAnnotations func(schema.Annotations)
+	setExtensions  func(schema.Extensions)
+	setSpec        func(*S)
 }
 
 func newGlobalResourceBuilder[B any, S types.SpecType](params newGlobalResourceBuilderParams[B, S]) *globalResourceBuilder[B, S] {
 	return &globalResourceBuilder[B, S]{
-		validator:     validator.New(),
-		parent:        params.parent,
-		setName:       params.setName,
-		setProvider:   params.setProvider,
-		setApiVersion: params.setApiVersion,
-		setLabels:     params.setLabels,
-		setSpec:       params.setSpec,
+		validator:      validator.New(),
+		parent:         params.parent,
+		setName:        params.setName,
+		setProvider:    params.setProvider,
+		setApiVersion:  params.setApiVersion,
+		setLabels:      params.setLabels,
+		setAnnotations: params.setAnnotations,
+		setExtensions:  params.setExtensions,
+		setSpec:        params.setSpec,
 	}
 }
 
@@ -124,6 +130,16 @@ func (builder *globalResourceBuilder[B, S]) ApiVersion(apiVersion string) *B {
 
 func (builder *globalResourceBuilder[B, S]) Labels(labels schema.Labels) *B {
 	builder.setLabels(labels)
+	return builder.parent
+}
+
+func (builder *globalResourceBuilder[B, S]) Annotations(annotations schema.Annotations) *B {
+	builder.setAnnotations(annotations)
+	return builder.parent
+}
+
+func (builder *globalResourceBuilder[B, S]) Extensions(extensions schema.Extensions) *B {
+	builder.setExtensions(extensions)
 	return builder.parent
 }
 
@@ -149,13 +165,15 @@ type newGlobalTenantResourceBuilderParams[B any, S types.SpecType] struct {
 func newGlobalTenantResourceBuilder[B any, S types.SpecType](params newGlobalTenantResourceBuilderParams[B, S]) *globalTenantResourceBuilder[B, S] {
 	return &globalTenantResourceBuilder[B, S]{
 		globalResourceBuilder: &globalResourceBuilder[B, S]{
-			validator:     validator.New(),
-			parent:        params.parent,
-			setName:       params.setName,
-			setProvider:   params.setProvider,
-			setApiVersion: params.setApiVersion,
-			setLabels:     params.setLabels,
-			setSpec:       params.setSpec,
+			validator:      validator.New(),
+			parent:         params.parent,
+			setName:        params.setName,
+			setProvider:    params.setProvider,
+			setApiVersion:  params.setApiVersion,
+			setLabels:      params.setLabels,
+			setAnnotations: params.setAnnotations,
+			setExtensions:  params.setExtensions,
+			setSpec:        params.setSpec,
 		},
 		setTenant: params.setTenant,
 	}
@@ -185,13 +203,15 @@ type newRegionalResourceBuilderParams[B any, S types.SpecType] struct {
 func newRegionalResourceBuilder[B any, S types.SpecType](params newRegionalResourceBuilderParams[B, S]) *regionalResourceBuilder[B, S] {
 	return &regionalResourceBuilder[B, S]{
 		globalResourceBuilder: &globalResourceBuilder[B, S]{
-			validator:     validator.New(),
-			parent:        params.parent,
-			setName:       params.setName,
-			setProvider:   params.setProvider,
-			setApiVersion: params.setApiVersion,
-			setLabels:     params.setLabels,
-			setSpec:       params.setSpec,
+			validator:      validator.New(),
+			parent:         params.parent,
+			setName:        params.setName,
+			setProvider:    params.setProvider,
+			setApiVersion:  params.setApiVersion,
+			setLabels:      params.setLabels,
+			setAnnotations: params.setAnnotations,
+			setExtensions:  params.setExtensions,
+			setSpec:        params.setSpec,
 		},
 		setTenant: params.setTenant,
 		setRegion: params.setRegion,
@@ -229,13 +249,15 @@ type newRegionalWorkspaceResourceBuilderParams[B any, S types.SpecType] struct {
 func newRegionalWorkspaceResourceBuilder[B any, S types.SpecType](params newRegionalWorkspaceResourceBuilderParams[B, S]) *regionalWorkspaceResourceBuilder[B, S] {
 	return &regionalWorkspaceResourceBuilder[B, S]{
 		globalResourceBuilder: &globalResourceBuilder[B, S]{
-			validator:     validator.New(),
-			parent:        params.parent,
-			setName:       params.setName,
-			setProvider:   params.setProvider,
-			setApiVersion: params.setApiVersion,
-			setLabels:     params.setLabels,
-			setSpec:       params.setSpec,
+			validator:      validator.New(),
+			parent:         params.parent,
+			setName:        params.setName,
+			setProvider:    params.setProvider,
+			setApiVersion:  params.setApiVersion,
+			setLabels:      params.setLabels,
+			setAnnotations: params.setAnnotations,
+			setExtensions:  params.setExtensions,
+			setSpec:        params.setSpec,
 		},
 		setTenant:    params.setTenant,
 		setWorkspace: params.setWorkspace,
@@ -281,13 +303,15 @@ type newRegionalNetworkResourceBuilderParams[B any, S types.SpecType] struct {
 func newRegionalNetworkResourceBuilder[B any, S types.SpecType](params newRegionalNetworkResourceBuilderParams[B, S]) *regionalNetworkResourceBuilder[B, S] {
 	return &regionalNetworkResourceBuilder[B, S]{
 		globalResourceBuilder: &globalResourceBuilder[B, S]{
-			validator:     validator.New(),
-			parent:        params.parent,
-			setName:       params.setName,
-			setProvider:   params.setProvider,
-			setApiVersion: params.setApiVersion,
-			setLabels:     params.setLabels,
-			setSpec:       params.setSpec,
+			validator:      validator.New(),
+			parent:         params.parent,
+			setName:        params.setName,
+			setProvider:    params.setProvider,
+			setApiVersion:  params.setApiVersion,
+			setLabels:      params.setLabels,
+			setAnnotations: params.setAnnotations,
+			setExtensions:  params.setExtensions,
+			setSpec:        params.setSpec,
 		},
 		setTenant:    params.setTenant,
 		setWorkspace: params.setWorkspace,

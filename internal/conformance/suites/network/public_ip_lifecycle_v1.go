@@ -59,6 +59,9 @@ func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		}).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Workspace: %v", err)
@@ -68,6 +71,12 @@ func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(publicIpName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Public IP for conformance testing",
+		}).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
 			Address: publicIpAddress1,
@@ -80,6 +89,12 @@ func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(publicIpName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Public IP for conformance testing",
+		}).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
 			Address: publicIpAddress2,
@@ -113,9 +128,13 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -127,10 +146,13 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         expectWorkspaceLabels,
-			Metadata:       expectWorkspaceMeta,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
+			ResourceStatus: schema.WorkspaceStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -140,8 +162,14 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	publicIp := suite.params.PublicIpInitial
 	expectPublicIpMeta := publicIp.Metadata
 	expectPublicIpSpec := &publicIp.Spec
+	expectPublicIpLabels := publicIp.Labels
+	expectPublicIpAnnotations := publicIp.Annotations
+	expectPublicIpExtensions := publicIp.Extensions
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", t, suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			Labels:         expectPublicIpLabels,
+			Annotations:    expectPublicIpAnnotations,
+			Extensions:     expectPublicIpExtensions,
 			Metadata:       expectPublicIpMeta,
 			Spec:           expectPublicIpSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -155,18 +183,27 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      publicIp.Metadata.Name,
 	}
 	stepsBuilder.GetPublicIpV1Step("Get the created public ip", suite.Client.NetworkV1, publicIpWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:       expectPublicIpMeta,
-			Spec:           expectPublicIpSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus]{
+			Metadata: expectPublicIpMeta,
+			Spec:     expectPublicIpSpec,
+			ResourceStatus: schema.PublicIpStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
 	// Update the public ip
 	publicIp = suite.params.PublicIpUpdated
 	expectPublicIpSpec.Address = publicIp.Spec.Address
+	expectPublicIpLabels = publicIp.Labels
+	expectPublicIpAnnotations = publicIp.Annotations
+	expectPublicIpExtensions = publicIp.Extensions
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Update the public ip", t, suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			Labels:         expectPublicIpLabels,
+			Annotations:    expectPublicIpAnnotations,
+			Extensions:     expectPublicIpExtensions,
 			Metadata:       expectPublicIpMeta,
 			Spec:           expectPublicIpSpec,
 			ResourceStates: suites.UpdatedResourceExpectedStates,
@@ -175,10 +212,13 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated public ip
 	stepsBuilder.GetPublicIpV1Step("Get the updated public ip", suite.Client.NetworkV1, publicIpWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:       expectPublicIpMeta,
-			Spec:           expectPublicIpSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus]{
+			Metadata: expectPublicIpMeta,
+			Spec:     expectPublicIpSpec,
+			ResourceStatus: schema.PublicIpStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 

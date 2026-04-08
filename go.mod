@@ -6,8 +6,8 @@ require (
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/eu-sovereign-cloud/go-sdk v0.3.51
 	github.com/go-playground/validator/v10 v10.30.2
-	github.com/ozontech/allure-go/pkg/allure v0.8.1
-	github.com/ozontech/allure-go/pkg/framework v0.8.2
+	github.com/ozontech/allure-go/pkg/allure v0.8.2
+	github.com/ozontech/allure-go/pkg/framework v0.8.1
 	github.com/spf13/cobra v1.10.2
 	github.com/wiremock/go-wiremock v1.15.0
 )

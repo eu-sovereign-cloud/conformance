@@ -218,13 +218,6 @@ func (c *Common) FailNow() {
 			r.Status = allure.Failed
 		}
 	})
-
-	if c.xSkip {
-		c.registerError("[XSkip] test marked as xskip but failed")
-		c.TestingT.Skip()
-		return
-	}
-
 	c.TestingT.FailNow()
 }
 
@@ -241,12 +234,6 @@ func (c *Common) BrokenNow() {
 	c.withResult(func(r *allure.Result) {
 		r.Status = allure.Broken
 	})
-
-	if c.xSkip {
-		c.registerError("[XSkip] test marked as xskip but broken")
-		c.TestingT.Skip()
-		return
-	}
 
 	c.TestingT.FailNow()
 }

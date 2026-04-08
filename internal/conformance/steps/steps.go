@@ -10,9 +10,20 @@ import (
 
 type ResponseExpects[M types.MetadataType, E types.SpecType] struct {
 	Labels         schema.Labels
+	Annotations    schema.Annotations
+	Extensions     schema.Extensions
 	Metadata       *M
 	Spec           *E
 	ResourceStates []schema.ResourceState
+}
+
+type ResponseExpectsWithCondition[M types.MetadataType, E types.SpecType, S types.StatusType] struct {
+	Labels         schema.Labels
+	Extensions     schema.Extensions
+	Annotations    schema.Annotations
+	Metadata       *M
+	Spec           *E
+	ResourceStatus S
 }
 
 type StepCreator interface {

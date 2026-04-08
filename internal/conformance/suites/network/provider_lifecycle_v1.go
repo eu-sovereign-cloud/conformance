@@ -126,6 +126,9 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Labels(schema.Labels{
 			constants.EnvLabel: constants.EnvDevelopmentLabel,
 		}).
+		Annotations(schema.Annotations{
+			"description": "Workspace for conformance testing",
+		}).
 		Build()
 	if err != nil {
 		t.Fatalf("Failed to build Workspace: %v", err)
@@ -135,6 +138,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(blockStorageName).
 		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Block Storage for conformance testing",
+		}).
 		Spec(&schema.BlockStorageSpec{
 			SkuRef: *storageSkuRefObj,
 			SizeGB: blockStorageSize,
@@ -148,6 +157,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(instanceName).
 		Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Instance for conformance testing",
+		}).
 		Spec(&schema.InstanceSpec{
 			SkuRef: *instanceSkuRefObj,
 			Zone:   zone1,
@@ -164,6 +179,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(networkName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Network for conformance testing",
+		}).
 		Spec(&schema.NetworkSpec{
 			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			SkuRef:        *networkSkuRefObj,
@@ -177,6 +198,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(networkName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Network for conformance testing",
+		}).
 		Spec(&schema.NetworkSpec{
 			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			SkuRef:        *networkSkuRef2Obj,
@@ -190,6 +217,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(internetGatewayName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Internet Gateway for conformance testing",
+		}).
 		Spec(&schema.InternetGatewaySpec{
 			EgressOnly: false,
 		}).Build()
@@ -201,6 +234,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(internetGatewayName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Internet Gateway for conformance testing",
+		}).
 		Spec(&schema.InternetGatewaySpec{
 			EgressOnly: true,
 		}).Build()
@@ -212,6 +251,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(routeTableName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Route Table for conformance testing",
+		}).
 		Spec(&schema.RouteTableSpec{
 			Routes: []schema.RouteSpec{
 				{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
@@ -225,6 +270,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(routeTableName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Route Table for conformance testing",
+		}).
 		Spec(&schema.RouteTableSpec{
 			Routes: []schema.RouteSpec{
 				{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *instanceRefObj},
@@ -238,6 +289,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(subnetName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Subnet for conformance testing",
+		}).
 		Spec(&schema.SubnetSpec{
 			Cidr: schema.Cidr{Ipv4: subnetCidr},
 			Zone: zone1,
@@ -250,6 +307,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(subnetName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Subnet for conformance testing",
+		}).
 		Spec(&schema.SubnetSpec{
 			Cidr: schema.Cidr{Ipv4: subnetCidr},
 			Zone: zone2,
@@ -262,6 +325,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(nicName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Nic for conformance testing",
+		}).
 		Spec(&schema.NicSpec{
 			Addresses:    []string{nicAddress1},
 			PublicIpRefs: []schema.Reference{*publicIpRefObj},
@@ -275,6 +344,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(nicName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Nic for conformance testing",
+		}).
 		Spec(&schema.NicSpec{
 			Addresses:    []string{nicAddress2},
 			PublicIpRefs: []schema.Reference{*publicIpRefObj},
@@ -288,6 +363,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(publicIpName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Public IP for conformance testing",
+		}).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
 			Address: publicIpAddress1,
@@ -300,6 +381,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(publicIpName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Public IP for conformance testing",
+		}).
 		Spec(&schema.PublicIpSpec{
 			Version: schema.IPVersionIPv4,
 			Address: publicIpAddress2,
@@ -312,6 +399,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(securityGroupRuleName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Security Group Rule for conformance testing",
+		}).
 		Spec(&schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionIngress}).
 		Build()
 	if err != nil {
@@ -322,6 +415,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(securityGroupRuleName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Security Group Rule for conformance testing",
+		}).
 		Spec(&schema.SecurityGroupRuleSpec{Direction: schema.SecurityGroupRuleDirectionEgress}).
 		Build()
 	if err != nil {
@@ -332,6 +431,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(securityGroupName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Security Group for conformance testing",
+		}).
 		Spec(&schema.SecurityGroupSpec{
 			RuleRefs: []schema.Reference{*securityGroupRuleRefObj},
 		}).Build()
@@ -343,6 +448,12 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		Name(securityGroupName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(schema.Labels{
+			constants.EnvLabel: constants.EnvDevelopmentLabel,
+		}).
+		Annotations(schema.Annotations{
+			"description": "Security Group for conformance testing",
+		}).
 		Spec(&schema.SecurityGroupSpec{
 			Rules: []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}},
 		}).Build()
@@ -402,9 +513,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
 	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
 			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
@@ -416,10 +531,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:   workspace.Metadata.Name,
 	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
-		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         expectWorkspaceLabels,
-			Metadata:       expectWorkspaceMeta,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
+			ResourceStatus: schema.WorkspaceStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -429,8 +547,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	network := suite.params.NetworkInitial
 	expectNetworkMeta := network.Metadata
 	expectNetworkSpec := &network.Spec
+	expectNetworkLabels := network.Labels
+	expectNetworkAnnotations := network.Annotations
+	expectNetworkExtensions := network.Extensions
 	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", t, suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			Labels:         expectNetworkLabels,
+			Annotations:    expectNetworkAnnotations,
+			Extensions:     expectNetworkExtensions,
 			Metadata:       expectNetworkMeta,
 			Spec:           expectNetworkSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -449,8 +573,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	gateway := suite.params.InternetGatewayInitial
 	expectGatewayMeta := gateway.Metadata
 	expectGatewaySpec := &gateway.Spec
+	expectGatewayLabels := gateway.Labels
+	expectGatewayAnnotations := gateway.Annotations
+	expectGatewayExtensions := gateway.Extensions
 	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", t, suite.Client.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Labels:         expectGatewayLabels,
+			Annotations:    expectGatewayAnnotations,
+			Extensions:     expectGatewayExtensions,
 			Metadata:       expectGatewayMeta,
 			Spec:           expectGatewaySpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -465,10 +595,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the created internet gateway
 	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, gatewayWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:       expectGatewayMeta,
-			Spec:           expectGatewaySpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.InternetGatewayStatus]{
+			Metadata: expectGatewayMeta,
+			Spec:     expectGatewaySpec,
+			ResourceStatus: schema.InternetGatewayStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -477,6 +610,9 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectGatewaySpec.EgressOnly = gateway.Spec.EgressOnly
 	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Update the internet gateway", t, suite.Client.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Labels:         expectGatewayLabels,
+			Annotations:    expectGatewayAnnotations,
+			Extensions:     expectGatewayExtensions,
 			Metadata:       expectGatewayMeta,
 			Spec:           expectGatewaySpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -485,10 +621,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated internet gateway
 	stepsBuilder.GetInternetGatewayV1Step("Get the updated internet gateway", suite.Client.NetworkV1, gatewayWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Metadata:       expectGatewayMeta,
-			Spec:           expectGatewaySpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.InternetGatewayStatus]{
+			Metadata: expectGatewayMeta,
+			Spec:     expectGatewaySpec,
+			ResourceStatus: schema.InternetGatewayStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 
@@ -498,8 +637,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	route := suite.params.RouteTableInitial
 	expectRouteMeta := route.Metadata
 	expectRouteSpec := &route.Spec
+	expectRouteLabels := route.Labels
+	expectRouteAnnotations := route.Annotations
+	expectRouteExtensions := route.Extensions
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", t, suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			Labels:         expectRouteLabels,
+			Annotations:    expectRouteAnnotations,
+			Extensions:     expectRouteExtensions,
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -515,27 +660,39 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the created route table
 	stepsBuilder.GetRouteTableV1Step("Get the created route table", suite.Client.NetworkV1, routeNRef,
-		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
-			Metadata:       expectRouteMeta,
-			Spec:           expectRouteSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
+			Metadata: expectRouteMeta,
+			Spec:     expectRouteSpec,
+			ResourceStatus: schema.RouteTableStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
 	// Get the created network
 	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:       expectNetworkMeta,
-			Spec:           expectNetworkSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
+			Metadata: expectNetworkMeta,
+			Spec:     expectNetworkSpec,
+			ResourceStatus: schema.NetworkStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
 	// Update the route table
 	route = suite.params.RouteTableUpdated
 	expectRouteSpec.Routes = route.Spec.Routes
+	expectRouteLabels = route.Labels
+	expectRouteAnnotations = route.Annotations
+	expectRouteExtensions = route.Extensions
 	stepsBuilder.CreateOrUpdateRouteTableV1Step("Update the route table", t, suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			Labels:         expectRouteLabels,
+			Annotations:    expectRouteAnnotations,
+			Extensions:     expectRouteExtensions,
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -544,10 +701,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated route table
 	stepsBuilder.GetRouteTableV1Step("Get the updated route table", suite.Client.NetworkV1, routeNRef,
-		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
-			Metadata:       expectRouteMeta,
-			Spec:           expectRouteSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
+			Metadata: expectRouteMeta,
+			Spec:     expectRouteSpec,
+			ResourceStatus: schema.RouteTableStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 
@@ -556,8 +716,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the network
 	network = suite.params.NetworkUpdated
 	expectNetworkSpec.SkuRef = network.Spec.SkuRef
+	expectNetworkLabels = network.Labels
+	expectNetworkAnnotations = network.Annotations
+	expectNetworkExtensions = network.Extensions
 	stepsBuilder.CreateOrUpdateNetworkV1Step("Update the network", t, suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			Labels:         expectNetworkLabels,
+			Annotations:    expectNetworkAnnotations,
+			Extensions:     expectNetworkExtensions,
 			Metadata:       expectNetworkMeta,
 			Spec:           expectNetworkSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -566,10 +732,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated network
 	stepsBuilder.GetNetworkV1Step("Get the updated network", suite.Client.NetworkV1, networkWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Metadata:       expectNetworkMeta,
-			Spec:           expectNetworkSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
+			Metadata: expectNetworkMeta,
+			Spec:     expectNetworkSpec,
+			ResourceStatus: schema.NetworkStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 
@@ -579,8 +748,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	subnet := suite.params.SubnetInitial
 	expectSubnetMeta := subnet.Metadata
 	expectSubnetSpec := &subnet.Spec
+	expectSubnetLabels := subnet.Labels
+	expectSubnetAnnotations := subnet.Annotations
+	expectSubnetExtensions := subnet.Extensions
 	stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", t, suite.Client.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			Labels:         expectSubnetLabels,
+			Annotations:    expectSubnetAnnotations,
+			Extensions:     expectSubnetExtensions,
 			Metadata:       expectSubnetMeta,
 			Spec:           expectSubnetSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -596,18 +771,27 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the created subnet
 	stepsBuilder.GetSubnetV1Step("Get the created subnet", suite.Client.NetworkV1, subnetNRef,
-		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
-			Metadata:       expectSubnetMeta,
-			Spec:           expectSubnetSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus]{
+			Metadata: expectSubnetMeta,
+			Spec:     expectSubnetSpec,
+			ResourceStatus: schema.SubnetStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
 	// Update the subnet
 	subnet = suite.params.SubnetUpdated
 	expectSubnetSpec.Zone = subnet.Spec.Zone
+	expectSubnetLabels = subnet.Labels
+	expectSubnetAnnotations = subnet.Annotations
+	expectSubnetExtensions = subnet.Extensions
 	stepsBuilder.CreateOrUpdateSubnetV1Step("Update the subnet", t, suite.Client.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			Labels:         expectSubnetLabels,
+			Annotations:    expectSubnetAnnotations,
+			Extensions:     expectSubnetExtensions,
 			Metadata:       expectSubnetMeta,
 			Spec:           expectSubnetSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -616,10 +800,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated subnet
 	stepsBuilder.GetSubnetV1Step("Get the updated subnet", suite.Client.NetworkV1, subnetNRef,
-		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
-			Metadata:       expectSubnetMeta,
-			Spec:           expectSubnetSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, schema.SubnetStatus]{
+			Metadata: expectSubnetMeta,
+			Spec:     expectSubnetSpec,
+			ResourceStatus: schema.SubnetStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 	// Nic
@@ -628,8 +815,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	nic := suite.params.NicInitial
 	expectNicMeta := nic.Metadata
 	expectNicSpec := &nic.Spec
+	expectNicLabels := nic.Labels
+	expectNicAnnotations := nic.Annotations
+	expectNicExtensions := nic.Extensions
 	stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", t, suite.Client.NetworkV1, nic,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+			Labels:         expectNicLabels,
+			Annotations:    expectNicAnnotations,
+			Extensions:     expectNicExtensions,
 			Metadata:       expectNicMeta,
 			Spec:           expectNicSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -644,18 +837,27 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the created nic
 	stepsBuilder.GetNicV1Step("Get the created nic", suite.Client.NetworkV1, nicWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
-			Metadata:       expectNicMeta,
-			Spec:           expectNicSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus]{
+			Metadata: expectNicMeta,
+			Spec:     expectNicSpec,
+			ResourceStatus: schema.NicStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
 	// Update the nic
 	nic = suite.params.NicUpdated
 	expectNicSpec.Addresses = nic.Spec.Addresses
+	expectNicLabels = nic.Labels
+	expectNicAnnotations = nic.Annotations
+	expectNicExtensions = nic.Extensions
 	stepsBuilder.CreateOrUpdateNicV1Step("Update the nic", t, suite.Client.NetworkV1, nic,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+			Labels:         expectNicLabels,
+			Annotations:    expectNicAnnotations,
+			Extensions:     expectNicExtensions,
 			Metadata:       expectNicMeta,
 			Spec:           expectNicSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -664,10 +866,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated nic
 	stepsBuilder.GetNicV1Step("Get the updated nic", suite.Client.NetworkV1, nicWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
-			Metadata:       expectNicMeta,
-			Spec:           expectNicSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, schema.NicStatus]{
+			Metadata: expectNicMeta,
+			Spec:     expectNicSpec,
+			ResourceStatus: schema.NicStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 	// Public ip
@@ -676,8 +881,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	publicIp := suite.params.PublicIpInitial
 	expectPublicIpMeta := publicIp.Metadata
 	expectPublicIpSpec := &publicIp.Spec
+	expectPublicIpLabels := publicIp.Labels
+	expectPublicIpAnnotations := publicIp.Annotations
+	expectPublicIpExtensions := publicIp.Extensions
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", t, suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			Labels:         expectPublicIpLabels,
+			Annotations:    expectPublicIpAnnotations,
+			Extensions:     expectPublicIpExtensions,
 			Metadata:       expectPublicIpMeta,
 			Spec:           expectPublicIpSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -691,18 +902,27 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      publicIp.Metadata.Name,
 	}
 	stepsBuilder.GetPublicIpV1Step("Get the created public ip", suite.Client.NetworkV1, publicIpWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:       expectPublicIpMeta,
-			Spec:           expectPublicIpSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus]{
+			Metadata: expectPublicIpMeta,
+			Spec:     expectPublicIpSpec,
+			ResourceStatus: schema.PublicIpStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
 	// Update the public ip
 	publicIp = suite.params.PublicIpUpdated
 	expectPublicIpSpec.Address = publicIp.Spec.Address
+	expectPublicIpLabels = publicIp.Labels
+	expectPublicIpAnnotations = publicIp.Annotations
+	expectPublicIpExtensions = publicIp.Extensions
 	stepsBuilder.CreateOrUpdatePublicIpV1Step("Update the public ip", t, suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			Labels:         expectPublicIpLabels,
+			Annotations:    expectPublicIpAnnotations,
+			Extensions:     expectPublicIpExtensions,
 			Metadata:       expectPublicIpMeta,
 			Spec:           expectPublicIpSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -711,10 +931,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated public ip
 	stepsBuilder.GetPublicIpV1Step("Get the updated public ip", suite.Client.NetworkV1, publicIpWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
-			Metadata:       expectPublicIpMeta,
-			Spec:           expectPublicIpSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, schema.PublicIpStatus]{
+			Metadata: expectPublicIpMeta,
+			Spec:     expectPublicIpSpec,
+			ResourceStatus: schema.PublicIpStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 
@@ -724,8 +947,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	rule := suite.params.SecurityGroupRuleInitial
 	expectRuleMeta := rule.Metadata
 	expectRuleSpec := &rule.Spec
+	expectRuleLabels := rule.Labels
+	expectRuleAnnotations := rule.Annotations
+	expectRuleExtensions := rule.Extensions
 	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Create a security group rule", t, suite.Client.NetworkV1, rule,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			Labels:         expectRuleLabels,
+			Annotations:    expectRuleAnnotations,
+			Extensions:     expectRuleExtensions,
 			Metadata:       expectRuleMeta,
 			Spec:           expectRuleSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -739,18 +968,27 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      rule.Metadata.Name,
 	}
 	stepsBuilder.GetSecurityGroupRuleV1Step("Get the created security group rule", suite.Client.NetworkV1, ruleWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
-			Metadata:       expectRuleMeta,
-			Spec:           expectRuleSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus]{
+			Metadata: expectRuleMeta,
+			Spec:     expectRuleSpec,
+			ResourceStatus: schema.SecurityGroupRuleStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
 	// Update the security group rule
 	rule = suite.params.SecurityGroupRuleUpdated
 	expectRuleSpec.Direction = rule.Spec.Direction
+	expectRuleLabels = rule.Labels
+	expectRuleAnnotations = rule.Annotations
+	expectRuleExtensions = rule.Extensions
 	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Update the security group rule", t, suite.Client.NetworkV1, rule,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			Labels:         expectRuleLabels,
+			Annotations:    expectRuleAnnotations,
+			Extensions:     expectRuleExtensions,
 			Metadata:       expectRuleMeta,
 			Spec:           expectRuleSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -759,10 +997,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated security group rule
 	stepsBuilder.GetSecurityGroupRuleV1Step("Get the updated security group rule", suite.Client.NetworkV1, ruleWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
-			Metadata:       expectRuleMeta,
-			Spec:           expectRuleSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus]{
+			Metadata: expectRuleMeta,
+			Spec:     expectRuleSpec,
+			ResourceStatus: schema.SecurityGroupRuleStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 
@@ -772,8 +1013,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	group := suite.params.SecurityGroupInitial
 	expectGroupMeta := group.Metadata
 	expectGroupSpec := &group.Spec
+	expectGroupLabels := group.Labels
+	expectGroupAnnotations := group.Annotations
+	expectGroupExtensions := group.Extensions
 	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", t, suite.Client.NetworkV1, group,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+			Labels:         expectGroupLabels,
+			Annotations:    expectGroupAnnotations,
+			Extensions:     expectGroupExtensions,
 			Metadata:       expectGroupMeta,
 			Spec:           expectGroupSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -787,10 +1034,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      group.Metadata.Name,
 	}
 	stepsBuilder.GetSecurityGroupV1Step("Get the created security group", suite.Client.NetworkV1, groupWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-			Metadata:       expectGroupMeta,
-			Spec:           expectGroupSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus]{
+			Metadata: expectGroupMeta,
+			Spec:     expectGroupSpec,
+			ResourceStatus: schema.SecurityGroupStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -798,9 +1048,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	group.Spec.Rules = []schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress}}
 	expectGroupSpec = &group.Spec
-
+	expectGroupLabels = group.Labels
+	expectGroupAnnotations = group.Annotations
+	expectGroupExtensions = group.Extensions
 	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Update the security group", t, suite.Client.NetworkV1, group,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+			Labels:         expectGroupLabels,
+			Annotations:    expectGroupAnnotations,
+			Extensions:     expectGroupExtensions,
 			Metadata:       expectGroupMeta,
 			Spec:           expectGroupSpec,
 			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
@@ -809,10 +1064,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Get the updated security group
 	stepsBuilder.GetSecurityGroupV1Step("Get the updated security group", suite.Client.NetworkV1, groupWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
-			Metadata:       expectGroupMeta,
-			Spec:           expectGroupSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, schema.SecurityGroupStatus]{
+			Metadata: expectGroupMeta,
+			Spec:     expectGroupSpec,
+			ResourceStatus: schema.SecurityGroupStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterUpdating,
+			},
 		},
 	)
 
@@ -822,8 +1080,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	block := suite.params.BlockStorage
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
+	expectedBlockLabels := block.Labels
+	expectedBlockAnnotations := block.Annotations
+	expectedBlockExtensions := block.Extensions
 	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", t, suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			Labels:         expectedBlockLabels,
+			Annotations:    expectedBlockAnnotations,
+			Extensions:     expectedBlockExtensions,
 			Metadata:       expectedBlockMeta,
 			Spec:           expectedBlockSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -837,10 +1101,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      block.Metadata.Name,
 	}
 	stepsBuilder.GetBlockStorageV1Step("Get the created block storage", suite.Client.StorageV1, blockWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-			Metadata:       expectedBlockMeta,
-			Spec:           expectedBlockSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, schema.BlockStorageStatus]{
+			Metadata: expectedBlockMeta,
+			Spec:     expectedBlockSpec,
+			ResourceStatus: schema.BlockStorageStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
@@ -850,8 +1117,14 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	instance := suite.params.Instance
 	expectInstanceMeta := instance.Metadata
 	expectInstanceSpec := &instance.Spec
+	expectInstanceLabels := instance.Labels
+	expectInstanceAnnotations := instance.Annotations
+	expectInstanceExtensions := instance.Extensions
 	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", t, suite.Client.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			Labels:         expectInstanceLabels,
+			Annotations:    expectInstanceAnnotations,
+			Extensions:     expectInstanceExtensions,
 			Metadata:       expectInstanceMeta,
 			Spec:           expectInstanceSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
@@ -865,10 +1138,13 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		Name:      instance.Metadata.Name,
 	}
 	instance = stepsBuilder.GetInstanceV1Step("Get the created instance", suite.Client.ComputeV1, instanceWRef,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
-			Metadata:       expectInstanceMeta,
-			Spec:           expectInstanceSpec,
-			ResourceStates: []schema.ResourceState{schema.ResourceStateActive},
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus]{
+			Metadata: expectInstanceMeta,
+			Spec:     expectInstanceSpec,
+			ResourceStatus: schema.InstanceStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
 		},
 	)
 
