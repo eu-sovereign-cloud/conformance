@@ -1,8 +1,8 @@
 package wrappers
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/pkg/types"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/types"
 )
 
 // Resource Wrapper
