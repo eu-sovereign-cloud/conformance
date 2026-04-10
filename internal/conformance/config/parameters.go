@@ -32,6 +32,7 @@ type ParametersHolder struct {
 
 	MockEnabled   bool
 	MockServerURL string
+	MockProviders []string
 }
 
 var (

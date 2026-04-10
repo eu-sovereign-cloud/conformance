@@ -4,4 +4,6 @@ package params
 
 type ClientsInitParams struct {
 	Region string
+	Zones     []string
+	Providers []string
 }
