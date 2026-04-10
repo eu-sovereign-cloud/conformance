@@ -2,7 +2,6 @@ package types
 
 import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
-	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 )
 
 type ResourceType interface {
@@ -147,12 +146,4 @@ func GetStatusPowerState[S StatusType](status *S) schema.InstanceStatusPowerStat
 	default:
 		return ""
 	}
-}
-
-type ReferenceType interface {
-	secapi.TenantReference | secapi.WorkspaceReference | secapi.NetworkReference
-}
-
-type PathType interface {
-	secapi.TenantPath | secapi.WorkspacePath | secapi.NetworkPath
 }

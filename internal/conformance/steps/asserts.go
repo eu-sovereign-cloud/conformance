@@ -3,7 +3,7 @@ package steps
 import (
 	"fmt"
 
-	"github.com/eu-sovereign-cloud/conformance/pkg/types"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/types"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 

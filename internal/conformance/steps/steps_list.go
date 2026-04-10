@@ -7,7 +7,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/pkg/types"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/types"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -47,7 +47,7 @@ type listNetworkResourcesParams[R types.ResourceType, M types.MetadataType] stru
 	operationName  constants.OperationName
 }
 
-type listResourcesParams[R types.ResourceType, M types.MetadataType, P types.PathType] struct {
+type listResourcesParams[R types.ResourceType, M types.MetadataType, P secapi.PathType] struct {
 	path        P
 	listOptions *secapi.ListOptions
 	listFunc    func(context.Context, P, *secapi.ListOptions) (*secapi.Iterator[R], error)
@@ -113,7 +113,7 @@ func listNetworkResourcesStep[R types.ResourceType, M types.MetadataType](
 	return resp
 }
 
-func listResourcesStep[R types.ResourceType, M types.MetadataType, P types.PathType](
+func listResourcesStep[R types.ResourceType, M types.MetadataType, P secapi.PathType](
 	t provider.T, suite *suites.TestSuite, stepName string, sCtx provider.StepCtx, params listResourcesParams[R, M, P],
 ) []*R {
 	slog.Info(fmt.Sprintf("[%s] %s", suite.ScenarioName, stepName))

@@ -10,8 +10,8 @@ github.com/cenkalti/backoff/v4
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/eu-sovereign-cloud/go-sdk v0.3.51
-## explicit; go 1.24
+# github.com/eu-sovereign-cloud/go-sdk v0.3.56
+## explicit; go 1.24.0
 github.com/eu-sovereign-cloud/go-sdk/internal/secatest
 github.com/eu-sovereign-cloud/go-sdk/mock/spec/extensions.wellknown.v1
 github.com/eu-sovereign-cloud/go-sdk/mock/spec/foundation.authorization.v1
@@ -29,6 +29,7 @@ github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.region.v1
 github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1
 github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1
 github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema
+github.com/eu-sovereign-cloud/go-sdk/pkg/types
 github.com/eu-sovereign-cloud/go-sdk/secapi
 github.com/eu-sovereign-cloud/go-sdk/secapi/builders
 # github.com/gabriel-vasile/mimetype v1.4.13
@@ -73,8 +74,8 @@ github.com/inconshreveable/mousetrap
 ## explicit; go 1.18
 github.com/leodido/go-urn
 github.com/leodido/go-urn/scim/schema
-# github.com/oapi-codegen/runtime v1.3.1
-## explicit; go 1.24
+# github.com/oapi-codegen/runtime v1.4.0
+## explicit; go 1.24.0
 github.com/oapi-codegen/runtime
 github.com/oapi-codegen/runtime/types
 # github.com/ozontech/allure-go/pkg/allure v0.8.2
