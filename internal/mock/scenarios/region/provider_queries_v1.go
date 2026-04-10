@@ -21,7 +21,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return err
 	}
 
-	var regionsMetadata = params.RegionsMetadata
+	regionsMetadata := params.RegionsMetadata
 
 	// Generate resource
 	regionsResource := generators.GenerateRegionListResource()

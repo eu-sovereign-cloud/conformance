@@ -3,7 +3,7 @@ package params
 // Clients
 
 type ClientsInitParams struct {
-	Region string
+	Region    string
 	Zones     []string
 	Providers []string
 }
