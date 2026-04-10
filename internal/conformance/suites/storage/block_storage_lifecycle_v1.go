@@ -34,7 +34,7 @@ func CreateBlockStorageLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTes
 }
 
 func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Storage")
+	t.AddParentSuite(suites.StorageParentSuite)
 
 	// Select sku
 	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
@@ -113,10 +113,9 @@ func (suite *BlockStorageLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.StorageProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
-	)
+	suite.StartScenario(t, sdkconsts.StorageProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage))
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -128,7 +127,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	expectWorkspaceAnnotations := workspace.Annotations
 	expectWorkspaceExtension := workspace.Extensions
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Annotations:    expectWorkspaceAnnotations,
 			Extensions:     expectWorkspaceExtension,
@@ -163,7 +162,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectedBlockLabels := block.Labels
 	expectedBlockAnnotations := block.Annotations
 	expectedBlockExtensions := block.Extensions
-	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
+	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", t, suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
 			Labels:         expectedBlockLabels,
@@ -198,7 +197,7 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectedBlockLabels = block.Labels
 	expectedBlockAnnotations = block.Annotations
 	expectedBlockExtensions = block.Extensions
-	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Update the block storage", suite.Client.StorageV1, block,
+	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Update the block storage", t, suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
 			Labels:         expectedBlockLabels,
@@ -223,11 +222,11 @@ func (suite *BlockStorageLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 
-	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
-	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", suite.Client.StorageV1, blockWRef)
+	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", t, suite.Client.StorageV1, block)
+	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", t, suite.Client.StorageV1, blockWRef)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

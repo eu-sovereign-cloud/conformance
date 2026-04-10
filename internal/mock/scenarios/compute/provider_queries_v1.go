@@ -11,6 +11,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 )
 
 func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.ComputeProviderQueriesV1Params) error {
@@ -88,7 +89,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Create skus
-	skusList := steps.GenerateInstanceSkusV1(workspace.Metadata.Tenant)
+	skusList := steps.GenerateInstanceSkusV1(secapi.TenantID(workspace.Metadata.Tenant))
 	skuResponse, err := builders.NewInstanceSkuIteratorBuilder().Provider(sdkconsts.StorageProviderV1Name).Tenant(workspace.Metadata.Tenant).Items(skusList).Build()
 	if err != nil {
 		return err

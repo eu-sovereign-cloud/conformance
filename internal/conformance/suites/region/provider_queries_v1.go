@@ -34,7 +34,7 @@ func CreateProviderQueriesV1TestSuite(globalTestSuite suites.GlobalTestSuite, cl
 }
 
 func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Region")
+	t.AddParentSuite(suites.RegionParentSuite)
 
 	// Generate scenario Names
 	var regions []schema.Region
@@ -66,19 +66,21 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.RegionProviderV1Name, string(schema.GlobalResourceMetadataKindResourceKindRegion))
+	suite.StartScenario(t, sdkconsts.RegionProviderV1Name)
+	suite.ConfigureResources(t, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	ctx := context.Background()
 
 	// Test List iterator's (Next and All) for Regions and verify both responses have the same length
-	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1)
+	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1, nil)
 
 	// Call Get Region and verify response
 	expectedRegionMeta := suite.params.Regions[0].Metadata
-	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, expectedRegionMeta)
+	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, regions[0].Metadata.Name,
+		steps.ResponseExpects[schema.GlobalResourceMetadata, schema.RegionSpec]{Metadata: expectedRegionMeta},
+	)
 
 	suite.FinishScenario()
 }

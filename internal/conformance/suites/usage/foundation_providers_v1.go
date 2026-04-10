@@ -46,7 +46,7 @@ func CreateFoundationProvidersV1TestSuite(mixedTestSuite suites.MixedTestSuite, 
 }
 
 func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Usage")
+	t.AddParentSuite(suites.UsageParentSuite)
 
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.config.NetworkCidr, 8, 1)
 	if err != nil {
@@ -307,31 +307,28 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t,
+	suite.StartScenario(t,
 		sdkconsts.AuthorizationProviderV1Name,
+		sdkconsts.WorkspaceProviderV1Name,
+		sdkconsts.StorageProviderV1Name,
+		sdkconsts.ComputeProviderV1Name,
+		sdkconsts.NetworkProviderV1Name,
+	)
+	suite.ConfigureResources(t,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
-		sdkconsts.WorkspaceProviderV1Name,
 		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
-		sdkconsts.StorageProviderV1Name,
 		string(schema.RegionalResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalResourceMetadataKindResourceKindImage),
-		sdkconsts.NetworkProviderV1Name,
+		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 		string(schema.RegionalResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
-		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
-		string(schema.RegionalResourceMetadataKindResourceKindNic),
 		string(schema.RegionalResourceMetadataKindResourceKindNic),
 		string(schema.RegionalResourceMetadataKindResourceKindPublicIP),
-		string(schema.RegionalResourceMetadataKindResourceKindPublicIP),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroupRule),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
-		sdkconsts.ComputeProviderV1Name,
-		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 	)
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
@@ -342,7 +339,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	role := suite.params.Role
 	expectRoleMeta := role.Metadata
 	expectRoleSpec := &role.Spec
-	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.GlobalClient.AuthorizationV1, role,
+	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", t, suite.GlobalClient.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Spec:           expectRoleSpec,
@@ -369,7 +366,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	roleAssign := suite.params.RoleAssignment
 	expectRoleAssignMeta := roleAssign.Metadata
 	expectRoleAssignSpec := &roleAssign.Spec
-	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.GlobalClient.AuthorizationV1, roleAssign,
+	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", t, suite.GlobalClient.AuthorizationV1, roleAssign,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,
 			Spec:           expectRoleAssignSpec,
@@ -398,7 +395,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.RegionalClient.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.RegionalClient.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
@@ -428,7 +425,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	image := suite.params.Image
 	expectedImageMeta := image.Metadata
 	expectedImageSpec := &image.Spec
-	stepsBuilder.CreateOrUpdateImageV1Step("Create an image", suite.RegionalClient.StorageV1, image,
+	stepsBuilder.CreateOrUpdateImageV1Step("Create an image", t, suite.RegionalClient.StorageV1, image,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
 			Metadata:       expectedImageMeta,
 			Spec:           expectedImageSpec,
@@ -456,7 +453,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	block := suite.params.BlockStorage
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
-	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.RegionalClient.StorageV1, block,
+	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", t, suite.RegionalClient.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Metadata:       expectedBlockMeta,
 			Spec:           expectedBlockSpec,
@@ -487,7 +484,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	network := suite.params.Network
 	expectNetworkMeta := network.Metadata
 	expectNetworkSpec := &network.Spec
-	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.RegionalClient.NetworkV1, network,
+	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", t, suite.RegionalClient.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Metadata:       expectNetworkMeta,
 			Spec:           expectNetworkSpec,
@@ -499,7 +496,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	gateway := suite.params.InternetGateway
 	expectGatewayMeta := gateway.Metadata
 	expectGatewaySpec := &gateway.Spec
-	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.RegionalClient.NetworkV1, gateway,
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", t, suite.RegionalClient.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Metadata:       expectGatewayMeta,
 			Spec:           expectGatewaySpec,
@@ -528,7 +525,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	route := suite.params.RouteTable
 	expectRouteMeta := route.Metadata
 	expectRouteSpec := &route.Spec
-	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.RegionalClient.NetworkV1, route,
+	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", t, suite.RegionalClient.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Metadata:       expectRouteMeta,
 			Spec:           expectRouteSpec,
@@ -575,7 +572,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	subnet := suite.params.Subnet
 	expectSubnetMeta := subnet.Metadata
 	expectSubnetSpec := &subnet.Spec
-	stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", suite.RegionalClient.NetworkV1, subnet,
+	stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", t, suite.RegionalClient.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Metadata:       expectSubnetMeta,
 			Spec:           expectSubnetSpec,
@@ -605,7 +602,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	group := suite.params.SecurityGroup
 	expectGroupMeta := group.Metadata
 	expectGroupSpec := &group.Spec
-	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", suite.RegionalClient.NetworkV1, group,
+	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", t, suite.RegionalClient.NetworkV1, group,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			Metadata:       expectGroupMeta,
 			Spec:           expectGroupSpec,
@@ -634,7 +631,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	publicIp := suite.params.PublicIp
 	expectPublicIpMeta := publicIp.Metadata
 	expectPublicIpSpec := &publicIp.Spec
-	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.RegionalClient.NetworkV1, publicIp,
+	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", t, suite.RegionalClient.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Metadata:       expectPublicIpMeta,
 			Spec:           expectPublicIpSpec,
@@ -663,7 +660,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	nic := suite.params.Nic
 	expectNicMeta := nic.Metadata
 	expectNicSpec := &nic.Spec
-	stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", suite.RegionalClient.NetworkV1, nic,
+	stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", t, suite.RegionalClient.NetworkV1, nic,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			Metadata:       expectNicMeta,
 			Spec:           expectNicSpec,
@@ -694,7 +691,7 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	instance := suite.params.Instance
 	expectInstanceMeta := instance.Metadata
 	expectInstanceSpec := &instance.Spec
-	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.RegionalClient.ComputeV1, instance,
+	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", t, suite.RegionalClient.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Metadata:       expectInstanceMeta,
 			Spec:           expectInstanceSpec,
@@ -720,23 +717,23 @@ func (suite *FoundationProvidersV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-	stepsBuilder.DeleteInstanceV1Step("Delete the instance", suite.RegionalClient.ComputeV1, instance)
+	stepsBuilder.DeleteInstanceV1Step("Delete the instance", t, suite.RegionalClient.ComputeV1, instance)
 
-	stepsBuilder.DeleteSecurityGroupV1Step("Delete the security group", suite.RegionalClient.NetworkV1, group)
-	stepsBuilder.DeleteNicV1Step("Delete the nic", suite.RegionalClient.NetworkV1, nic)
-	stepsBuilder.DeletePublicIpV1Step("Delete the public ip", suite.RegionalClient.NetworkV1, publicIp)
-	stepsBuilder.DeleteSubnetV1Step("Delete the subnet", suite.RegionalClient.NetworkV1, subnet)
-	stepsBuilder.DeleteRouteTableV1Step("Delete the route table", suite.RegionalClient.NetworkV1, route)
-	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.RegionalClient.NetworkV1, gateway)
-	stepsBuilder.DeleteNetworkV1Step("Delete the network", suite.RegionalClient.NetworkV1, network)
+	stepsBuilder.DeleteSecurityGroupV1Step("Delete the security group", t, suite.RegionalClient.NetworkV1, group)
+	stepsBuilder.DeleteNicV1Step("Delete the nic", t, suite.RegionalClient.NetworkV1, nic)
+	stepsBuilder.DeletePublicIpV1Step("Delete the public ip", t, suite.RegionalClient.NetworkV1, publicIp)
+	stepsBuilder.DeleteSubnetV1Step("Delete the subnet", t, suite.RegionalClient.NetworkV1, subnet)
+	stepsBuilder.DeleteRouteTableV1Step("Delete the route table", t, suite.RegionalClient.NetworkV1, route)
+	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.RegionalClient.NetworkV1, gateway)
+	stepsBuilder.DeleteNetworkV1Step("Delete the network", t, suite.RegionalClient.NetworkV1, network)
 
-	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.RegionalClient.StorageV1, block)
-	stepsBuilder.DeleteImageV1Step("Delete the image", suite.RegionalClient.StorageV1, image)
+	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", t, suite.RegionalClient.StorageV1, block)
+	stepsBuilder.DeleteImageV1Step("Delete the image", t, suite.RegionalClient.StorageV1, image)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.RegionalClient.WorkspaceV1, workspace)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.RegionalClient.WorkspaceV1, workspace)
 
-	stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.GlobalClient.AuthorizationV1, roleAssign)
-	stepsBuilder.DeleteRoleV1Step("Delete the role", suite.GlobalClient.AuthorizationV1, role)
+	stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", t, suite.GlobalClient.AuthorizationV1, roleAssign)
+	stepsBuilder.DeleteRoleV1Step("Delete the role", t, suite.GlobalClient.AuthorizationV1, role)
 
 	suite.FinishScenario()
 }

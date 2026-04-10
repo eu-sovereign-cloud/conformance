@@ -37,7 +37,7 @@ func CreatePublicIpLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSui
 }
 
 func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Network")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	publicIpName := generators.GeneratePublicIpName()
@@ -116,11 +116,9 @@ func (suite *PublicIpLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
-	)
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalNetworkResourceMetadataKindResourceKindPublicIP))
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -132,7 +130,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	expectWorkspaceAnnotations := workspace.Annotations
 	expectWorkspaceExtensions := workspace.Extensions
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Annotations:    expectWorkspaceAnnotations,
@@ -167,7 +165,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectPublicIpLabels := publicIp.Labels
 	expectPublicIpAnnotations := publicIp.Annotations
 	expectPublicIpExtensions := publicIp.Extensions
-	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.Client.NetworkV1, publicIp,
+	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", t, suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Labels:         expectPublicIpLabels,
 			Annotations:    expectPublicIpAnnotations,
@@ -201,7 +199,7 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectPublicIpLabels = publicIp.Labels
 	expectPublicIpAnnotations = publicIp.Annotations
 	expectPublicIpExtensions = publicIp.Extensions
-	stepsBuilder.CreateOrUpdatePublicIpV1Step("Update the public ip", suite.Client.NetworkV1, publicIp,
+	stepsBuilder.CreateOrUpdatePublicIpV1Step("Update the public ip", t, suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Labels:         expectPublicIpLabels,
 			Annotations:    expectPublicIpAnnotations,
@@ -225,11 +223,11 @@ func (suite *PublicIpLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-	stepsBuilder.DeletePublicIpV1Step("Delete the public ip", suite.Client.NetworkV1, publicIp)
-	stepsBuilder.WatchPublicIpUntilDeletedV1Step("Watch the public ip deletion", suite.Client.NetworkV1, publicIpWRef)
+	stepsBuilder.DeletePublicIpV1Step("Delete the public ip", t, suite.Client.NetworkV1, publicIp)
+	stepsBuilder.WatchPublicIpUntilDeletedV1Step("Watch the public ip deletion", t, suite.Client.NetworkV1, publicIpWRef)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

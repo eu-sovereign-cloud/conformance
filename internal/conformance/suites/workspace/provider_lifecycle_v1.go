@@ -29,7 +29,7 @@ func CreateProviderLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSui
 }
 
 func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Workspace")
+	t.AddParentSuite(suites.WorkspaceParentSuite)
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
@@ -72,8 +72,8 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.WorkspaceProviderV1Name, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.StartScenario(t, sdkconsts.WorkspaceProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -83,7 +83,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectLabels := workspace.Labels
 	expectAnnotations := workspace.Annotations
 	expectExtensions := workspace.Extensions
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectLabels,
 			Annotations:    expectAnnotations,
@@ -114,7 +114,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectLabels = workspace.Labels
 	expectAnnotations = workspace.Annotations
 	expectExtensions = workspace.Extensions
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Update the workspace", suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Update the workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectLabels,
 			Annotations:    expectAnnotations,
@@ -137,8 +137,8 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, tref)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, tref)
 
 	suite.FinishScenario()
 }

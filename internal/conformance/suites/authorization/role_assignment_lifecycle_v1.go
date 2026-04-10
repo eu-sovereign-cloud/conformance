@@ -36,7 +36,7 @@ func CreateRoleAssignmentLifeCycleV1TestSuite(globalTestSuite suites.GlobalTestS
 }
 
 func (suite *RoleAssignmentLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Authorization")
+	t.AddParentSuite(suites.AuthorizationParentSuite)
 
 	// Select subs
 	roleAssignmentSub1 := suite.Users[rand.Intn(len(suite.Users))]
@@ -102,10 +102,8 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.AuthorizationProviderV1Name,
-		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
-	)
+	suite.StartScenario(t, sdkconsts.AuthorizationProviderV1Name)
+	suite.ConfigureResources(t, string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -118,7 +116,7 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRoleAssignAnnotations := roleAssign.Annotations
 	expectRoleAssignLabels := roleAssign.Labels
 	expectRoleAssignExtensions := roleAssign.Extensions
-	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.Client.AuthorizationV1, roleAssign,
+	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", t, suite.Client.AuthorizationV1, roleAssign,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,
 			Annotations:    expectRoleAssignAnnotations,
@@ -151,7 +149,7 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRoleAssignAnnotations = roleAssign.Annotations
 	expectRoleAssignLabels = roleAssign.Labels
 	expectRoleAssignExtensions = roleAssign.Extensions
-	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Update the role assignment", suite.Client.AuthorizationV1, roleAssign,
+	stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Update the role assignment", t, suite.Client.AuthorizationV1, roleAssign,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
 			Metadata:       expectRoleAssignMeta,
 			Annotations:    expectRoleAssignAnnotations,
@@ -175,8 +173,8 @@ func (suite *RoleAssignmentLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-	stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, roleAssign)
-	stepsBuilder.WatchRoleAssignmentUntilDeletedV1Step("Watch the role assignment deletion", suite.Client.AuthorizationV1, roleAssignTRef)
+	stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", t, suite.Client.AuthorizationV1, roleAssign)
+	stepsBuilder.WatchRoleAssignmentUntilDeletedV1Step("Watch the role assignment deletion", t, suite.Client.AuthorizationV1, roleAssignTRef)
 
 	suite.FinishScenario()
 }

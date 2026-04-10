@@ -31,7 +31,7 @@ func CreateSecurityGroupRuleLifeCycleV1TestSuite(regionalTestSuite suites.Region
 }
 
 func (suite *SecurityGroupRuleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Network")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	securityGroupRuleName := generators.GenerateSecurityGroupRuleName()
@@ -100,11 +100,9 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
-	)
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalNetworkResourceMetadataKindResourceKindSecurityGroupRule))
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -116,7 +114,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	expectWorkspaceAnnotations := workspace.Annotations
 	expectWorkspaceExtensions := workspace.Extensions
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Annotations:    expectWorkspaceAnnotations,
@@ -151,7 +149,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRuleLabels := rule.Labels
 	expectRuleAnnotations := rule.Annotations
 	expectRuleExtensions := rule.Extensions
-	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Create a security group rule", suite.Client.NetworkV1, rule,
+	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Create a security group rule", t, suite.Client.NetworkV1, rule,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
 			Labels:         expectRuleLabels,
 			Annotations:    expectRuleAnnotations,
@@ -162,7 +160,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Get the created security group
+	// Get the created security group rule
 	ruleWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(rule.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(rule.Metadata.Workspace),
@@ -179,13 +177,13 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Update the security group
+	// Update the security group rule
 	rule.Spec.Direction = schema.SecurityGroupRuleDirectionEgress
 	expectRuleSpec.Direction = rule.Spec.Direction
 	expectRuleLabels = rule.Labels
 	expectRuleAnnotations = rule.Annotations
 	expectRuleExtensions = rule.Extensions
-	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Update the security group rule", suite.Client.NetworkV1, rule,
+	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Update the security group rule", t, suite.Client.NetworkV1, rule,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
 			Labels:         expectRuleLabels,
 			Annotations:    expectRuleAnnotations,
@@ -196,7 +194,7 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Get the updated security group
+	// Get the updated security group rule
 	stepsBuilder.GetSecurityGroupRuleV1Step("Get the updated security group rule", suite.Client.NetworkV1, ruleWRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, schema.SecurityGroupRuleStatus]{
 			Metadata: expectRuleMeta,
@@ -209,11 +207,11 @@ func (suite *SecurityGroupRuleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-	stepsBuilder.DeleteSecurityGroupRuleV1Step("Delete the security group rule", suite.Client.NetworkV1, rule)
-	stepsBuilder.WatchSecurityGroupRuleUntilDeletedV1Step("Watch the security group rule deletion", suite.Client.NetworkV1, ruleWRef)
+	stepsBuilder.DeleteSecurityGroupRuleV1Step("Delete the security group rule", t, suite.Client.NetworkV1, rule)
+	stepsBuilder.WatchSecurityGroupRuleUntilDeletedV1Step("Watch the security group rule deletion", t, suite.Client.NetworkV1, ruleWRef)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

@@ -36,7 +36,7 @@ func CreateProviderQueriesV1TestSuite(regionalTestSuite suites.RegionalTestSuite
 }
 
 func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Storage")
+	t.AddParentSuite(suites.StorageParentSuite)
 
 	// Select sku
 	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
@@ -186,11 +186,13 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.StorageProviderV1Name,
+	suite.StartScenario(t, sdkconsts.StorageProviderV1Name)
+	suite.ConfigureResources(t,
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindImage),
+		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindStorageSku),
 	)
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -200,7 +202,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Create a workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Metadata:       expectWorkspaceMeta,
@@ -211,37 +213,28 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Block storage
 	blocks := suite.params.BlockStorages
 
-	// Create the block storages
-	for _, block := range blocks {
-		expectedBlockMeta := block.Metadata
-		expectedBlockSpec := &block.Spec
-		stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, &block,
-			steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
-				Metadata:       expectedBlockMeta,
-				Spec:           expectedBlockSpec,
-				ResourceStates: suites.CreatedResourceExpectedStates,
-			},
-		)
-	}
+	// Create block storages
+	steps.BulkCreateBlockStoragesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create block storages", blocks)
 
-	// List block storages
-	wref := secapi.WorkspaceReference{
+	wpath := secapi.WorkspacePath{
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
 	}
-	stepsBuilder.ListBlockStorageV1Step("List block storage", suite.Client.StorageV1, wref, nil)
+
+	// List block storages
+	stepsBuilder.ListBlockStorageV1Step("List block storages", suite.Client.StorageV1, wpath, nil)
 
 	// List block storages with limit
-	stepsBuilder.ListBlockStorageV1Step("Get List block storage with limit", suite.Client.StorageV1, wref,
+	stepsBuilder.ListBlockStorageV1Step("List block storages with limit", suite.Client.StorageV1, wpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List block storages with label
-	stepsBuilder.ListBlockStorageV1Step("Get list of block storage with label", suite.Client.StorageV1, wref,
+	stepsBuilder.ListBlockStorageV1Step("List block storages with label", suite.Client.StorageV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List block storages with limit and label
-	stepsBuilder.ListBlockStorageV1Step("Get list of block storage with limit and label", suite.Client.StorageV1, wref,
+	stepsBuilder.ListBlockStorageV1Step("List block storages with limit and label", suite.Client.StorageV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -249,80 +242,51 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	images := suite.params.Images
 
 	// Create images
-	for _, image := range images {
-		expectedImageMeta := image.Metadata
-		expectedImageSpec := &image.Spec
-		stepsBuilder.CreateOrUpdateImageV1Step("Create an image", suite.Client.StorageV1, &image,
-			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.ImageSpec]{
-				Metadata:       expectedImageMeta,
-				Spec:           expectedImageSpec,
-				ResourceStates: suites.CreatedResourceExpectedStates,
-			},
-		)
+	steps.BulkCreateImagesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create images", images)
+
+	tpath := secapi.TenantPath{
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 	}
 
 	// List images
-	tref := secapi.TenantReference{
-		Name:   workspace.Metadata.Tenant,
-		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
-	}
-	stepsBuilder.ListImageV1Step("List image", suite.Client.StorageV1, tref, nil)
+	stepsBuilder.ListImageV1Step("List images", suite.Client.StorageV1, tpath, nil)
 
 	// List images with limit
-	stepsBuilder.ListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
+	stepsBuilder.ListImageV1Step("List images with limit", suite.Client.StorageV1, tpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List images with label
-	stepsBuilder.ListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
+	stepsBuilder.ListImageV1Step("List images with label", suite.Client.StorageV1, tpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List images with limit and label
-	stepsBuilder.ListImageV1Step("Get list of images", suite.Client.StorageV1, tref,
+	stepsBuilder.ListImageV1Step("List images", suite.Client.StorageV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Skus
 
 	// List Skus
-	stepsBuilder.ListSkuV1Step("List skus", suite.Client.StorageV1, tref, nil)
+	stepsBuilder.ListSkuV1Step("List skus", suite.Client.StorageV1, tpath, nil)
 
 	// List Skus with limit
-	stepsBuilder.ListSkuV1Step("Get list of skus", suite.Client.StorageV1, tref,
+	stepsBuilder.ListSkuV1Step("List skus with limit", suite.Client.StorageV1, tpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// Delete all images
-	for _, image := range images {
-		stepsBuilder.DeleteImageV1Step("Delete image", suite.Client.StorageV1, &image)
-
-		// Get the deleted image
-		imageTRef := secapi.TenantReference{
-			Tenant: secapi.TenantID(workspace.Metadata.Tenant),
-			Name:   image.Metadata.Name,
-		}
-		stepsBuilder.WatchImageUntilDeletedV1Step("Watch the image deletion", suite.Client.StorageV1, imageTRef)
-	}
+	steps.BulkDeleteImagesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete images", images)
 
 	// Delete all block storages
-	for _, block := range blocks {
-		stepsBuilder.DeleteBlockStorageV1Step("Delete block storage 1", suite.Client.StorageV1, &block)
-
-		// Get the deleted block storage
-		blockWRef := secapi.WorkspaceReference{
-			Tenant:    secapi.TenantID(block.Metadata.Tenant),
-			Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
-			Name:      block.Metadata.Name,
-		}
-		stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", suite.Client.StorageV1, blockWRef)
-	}
+	steps.BulkDeleteBlockStoragesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete block storages", blocks)
 
 	// Delete the workspace
 	workspaceTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
 	}
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

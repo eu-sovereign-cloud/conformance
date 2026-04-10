@@ -29,7 +29,7 @@ func CreateInternetGatewayLifeCycleV1TestSuite(regionalTestSuite suites.Regional
 }
 
 func (suite *InternetGatewayLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Network")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	internetGatewayName := generators.GenerateInternetGatewayName()
@@ -96,11 +96,9 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
-	)
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway))
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -112,7 +110,7 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	expectWorkspaceAnnotations := workspace.Annotations
 	expectWorkspaceExtensions := workspace.Extensions
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Annotations:    expectWorkspaceAnnotations,
@@ -147,7 +145,7 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectGatewayLabels := gateway.Labels
 	expectGatewayAnnotations := gateway.Annotations
 	expectGatewayExtensions := gateway.Extensions
-	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, gateway,
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", t, suite.Client.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Labels:         expectGatewayLabels,
 			Annotations:    expectGatewayAnnotations,
@@ -181,7 +179,7 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectGatewayLabels = gateway.Labels
 	expectGatewayAnnotations = gateway.Annotations
 	expectGatewayExtensions = gateway.Extensions
-	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Update the internet gateway", suite.Client.NetworkV1, gateway,
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Update the internet gateway", t, suite.Client.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Labels:         expectGatewayLabels,
 			Annotations:    expectGatewayAnnotations,
@@ -205,11 +203,11 @@ func (suite *InternetGatewayLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.Client.NetworkV1, gateway)
-	stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", suite.Client.NetworkV1, gatewayWRef)
+	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.Client.NetworkV1, gateway)
+	stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", t, suite.Client.NetworkV1, gatewayWRef)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

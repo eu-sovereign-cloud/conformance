@@ -7,12 +7,13 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 )
 
 // Skus
 
 // TODO Find a better package to it
-func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
+func GenerateStorageSkusV1(tenant secapi.TenantID) []schema.StorageSku {
 	return []schema.StorageSku{
 		{
 			Metadata: &schema.SkuResourceMetadata{
@@ -20,7 +21,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 				Provider: sdkconsts.StorageProviderV1Name,
 				Resource: generators.GenerateSkuResource("RD100"),
 				Verb:     http.MethodGet,
-				Tenant:   tenant,
+				Tenant:   string(tenant),
 			},
 			Labels: schema.Labels{
 				constants.ProviderLabel: constants.ProviderSecaLabel,
@@ -38,7 +39,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 				Provider: sdkconsts.StorageProviderV1Name,
 				Resource: generators.GenerateSkuResource("RD500"),
 				Verb:     http.MethodGet,
-				Tenant:   tenant,
+				Tenant:   string(tenant),
 			},
 			Labels: schema.Labels{
 				constants.ProviderLabel: constants.ProviderSecaLabel,
@@ -56,7 +57,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 				Provider: sdkconsts.StorageProviderV1Name,
 				Resource: generators.GenerateSkuResource("RD2K"),
 				Verb:     http.MethodGet,
-				Tenant:   tenant,
+				Tenant:   string(tenant),
 			},
 			Labels: schema.Labels{
 				constants.ProviderLabel: constants.ProviderSecaLabel,
@@ -71,7 +72,7 @@ func GenerateStorageSkusV1(tenant string) []schema.StorageSku {
 	}
 }
 
-func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
+func GenerateInstanceSkusV1(tenant secapi.TenantID) []schema.InstanceSku {
 	return []schema.InstanceSku{
 		{
 			Metadata: &schema.SkuResourceMetadata{
@@ -79,7 +80,7 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 				Provider: sdkconsts.ComputeProviderV1Name,
 				Resource: generators.GenerateSkuResource("D2XS"),
 				Verb:     http.MethodGet,
-				Tenant:   tenant,
+				Tenant:   string(tenant),
 			},
 			Labels: schema.Labels{
 				constants.ArchitectureLabel: constants.ArchitectureAmd64Label,
@@ -97,7 +98,7 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 				Provider: sdkconsts.ComputeProviderV1Name,
 				Resource: generators.GenerateSkuResource("DXS"),
 				Verb:     http.MethodGet,
-				Tenant:   tenant,
+				Tenant:   string(tenant),
 			},
 			Labels: schema.Labels{
 				constants.ArchitectureLabel: constants.ArchitectureAmd64Label,
@@ -115,7 +116,7 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 				Provider: sdkconsts.ComputeProviderV1Name,
 				Resource: generators.GenerateSkuResource("DS"),
 				Verb:     http.MethodGet,
-				Tenant:   tenant,
+				Tenant:   string(tenant),
 			},
 			Labels: schema.Labels{
 				constants.ArchitectureLabel: constants.ArchitectureAmd64Label,
@@ -130,7 +131,7 @@ func GenerateInstanceSkusV1(tenant string) []schema.InstanceSku {
 	}
 }
 
-func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
+func GenerateNetworkSkusV1(tenant secapi.TenantID) []schema.NetworkSku {
 	return []schema.NetworkSku{
 		{
 			Metadata: &schema.SkuResourceMetadata{
@@ -138,7 +139,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 				Provider: sdkconsts.NetworkProviderV1Name,
 				Resource: generators.GenerateSkuResource("N1K"),
 				Verb:     http.MethodGet,
-				Tenant:   tenant,
+				Tenant:   string(tenant),
 			},
 			Labels: schema.Labels{
 				constants.ProviderLabel: constants.ProviderSecaLabel,
@@ -155,7 +156,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 				Provider: sdkconsts.NetworkProviderV1Name,
 				Resource: generators.GenerateSkuResource("N5K"),
 				Verb:     http.MethodGet,
-				Tenant:   tenant,
+				Tenant:   string(tenant),
 			},
 			Labels: schema.Labels{
 				constants.ProviderLabel: constants.ProviderSecaLabel,
@@ -172,7 +173,7 @@ func GenerateNetworkSkusV1(tenant string) []schema.NetworkSku {
 				Provider: sdkconsts.NetworkProviderV1Name,
 				Resource: generators.GenerateSkuResource("N10K"),
 				Verb:     http.MethodGet,
-				Tenant:   tenant,
+				Tenant:   string(tenant),
 			},
 			Labels: schema.Labels{
 				constants.ProviderLabel: constants.ProviderSecaLabel,
