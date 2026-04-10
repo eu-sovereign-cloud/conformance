@@ -135,6 +135,7 @@ func initCommands(m *testing.M) *cobra.Command {
 
 	runCmd.Flags().BoolVar(&config.Parameters.MockEnabled, "mock.enabled", false, "Enable Mock Usage")
 	runCmd.Flags().StringVar(&config.Parameters.MockServerURL, "mock.server.url", "", "Mock Server URL")
+	runCmd.Flags().StringSliceVar(&config.Parameters.MockProviders, "mock.providers", nil, "Mock Available Providers")
 
 	runCmd.Flags().IntVar(&config.Parameters.BaseDelay, "retry.base.delay", 5, "Retry Base Delay in seconds")
 	runCmd.Flags().IntVar(&config.Parameters.BaseInterval, "retry.base.interval", 30, "Retry Base Interval in seconds")
