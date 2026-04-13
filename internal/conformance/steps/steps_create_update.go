@@ -152,13 +152,13 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 ) {
 	slog.Info(fmt.Sprintf("[%s] %s", suite.ScenarioName, stepName))
 
-	requestResourceStep(sCtx, params.resource)
+	resourceRequestStep(sCtx, params.resource)
 
 	resp, err := params.createOrUpdateFunc(ctx, params.resource)
 	requireNoError(sCtx, err)
 	requireNotNilResponse(sCtx, resp)
 
-	responseResourceStep(sCtx, resp.GetResource())
+	resourceResponseStep(sCtx, resp.GetResource())
 
 	// Labels
 	if params.expectedLabels != nil {

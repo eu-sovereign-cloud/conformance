@@ -72,7 +72,7 @@ func listGlobalResourcesStep[R types.ResourceType, M types.MetadataType](
 		items, err = resp.All(t.Context())
 		requireNoError(sCtx, err)
 
-		responseResourcesStep(sCtx, items)
+		iteratorResponseStep(sCtx, items)
 
 		requireNotNilResponse(sCtx, items)
 		requireNotEmptyResponse(sCtx, items)
@@ -118,7 +118,7 @@ func listResourcesStep[R types.ResourceType, M types.MetadataType, P secapi.Path
 ) []*R {
 	slog.Info(fmt.Sprintf("[%s] %s", suite.ScenarioName, stepName))
 
-	requestResourceStep(sCtx, params.path)
+	pathRequestStep(sCtx, params.path, params.listOptions)
 	resp, err := params.listFunc(t.Context(), params.path, params.listOptions)
 
 	requireNoError(sCtx, err)
@@ -128,7 +128,7 @@ func listResourcesStep[R types.ResourceType, M types.MetadataType, P secapi.Path
 	items, err := resp.All(t.Context())
 	requireNoError(sCtx, err)
 
-	responseResourcesStep(sCtx, items)
+	iteratorResponseStep(sCtx, items)
 
 	requireNotNilResponse(sCtx, items)
 	requireNotEmptyResponse(sCtx, items)

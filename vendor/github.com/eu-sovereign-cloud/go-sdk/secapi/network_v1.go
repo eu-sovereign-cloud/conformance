@@ -497,7 +497,7 @@ func (api *NetworkV1Impl) ListSkusWithOptions(ctx context.Context, tpath TenantP
 			} else {
 				params = &network.ListSkusParams{
 					Accept:    AcceptHeaderJson[network.ListSkusParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -558,7 +558,7 @@ func (api *NetworkV1Impl) ListNetworksWithOptions(ctx context.Context, wpath Wor
 			} else {
 				params = &network.ListNetworksParams{
 					Accept:    AcceptHeaderJson[network.ListNetworksParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -723,7 +723,7 @@ func (api *NetworkV1Impl) ListSubnetsWithOptions(ctx context.Context, npath Netw
 			} else {
 				params = &network.ListSubnetsParams{
 					Accept:    AcceptHeaderJson[network.ListSubnetsParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -888,7 +888,7 @@ func (api *NetworkV1Impl) ListRouteTablesWithOptions(ctx context.Context, npath 
 			} else {
 				params = &network.ListRouteTablesParams{
 					Accept:    AcceptHeaderJson[network.ListRouteTablesParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -1053,7 +1053,7 @@ func (api *NetworkV1Impl) ListInternetGatewaysWithOptions(ctx context.Context, w
 			} else {
 				params = &network.ListInternetGatewaysParams{
 					Accept:    AcceptHeaderJson[network.ListInternetGatewaysParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -1218,7 +1218,7 @@ func (api *NetworkV1Impl) ListSecurityGroupRulesWithOptions(ctx context.Context,
 			} else {
 				params = &network.ListSecurityGroupRulesParams{
 					Accept:    AcceptHeaderJson[network.ListSecurityGroupRulesParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -1383,7 +1383,7 @@ func (api *NetworkV1Impl) ListSecurityGroupsWithOptions(ctx context.Context, wpa
 			} else {
 				params = &network.ListSecurityGroupsParams{
 					Accept:    AcceptHeaderJson[network.ListSecurityGroupsParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -1548,7 +1548,7 @@ func (api *NetworkV1Impl) ListNicsWithOptions(ctx context.Context, wpath Workspa
 			} else {
 				params = &network.ListNicsParams{
 					Accept:    AcceptHeaderJson[network.ListNicsParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -1713,7 +1713,7 @@ func (api *NetworkV1Impl) ListPublicIpsWithOptions(ctx context.Context, wpath Wo
 			} else {
 				params = &network.ListPublicIpsParams{
 					Accept:    AcceptHeaderJson[network.ListPublicIpsParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}

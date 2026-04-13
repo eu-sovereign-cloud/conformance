@@ -40,7 +40,7 @@ func actionWorkspaceResourceStep[R types.ResourceType](t provider.T, suite *suit
 func actionResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, stepName string, sCtx provider.StepCtx, params actionResourceParams[R]) {
 	slog.Info(fmt.Sprintf("[%s] %s", suite.ScenarioName, stepName))
 
-	requestResourceStep(sCtx, params.resource)
+	resourceRequestStep(sCtx, params.resource)
 	err := params.actionFunc(t.Context(), params.resource)
 	emptyResponseStep(sCtx)
 

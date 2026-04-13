@@ -106,7 +106,7 @@ func (api *WorkspaceV1Impl) ListWorkspacesWithOptions(ctx context.Context, tpath
 			} else {
 				params = &workspace.ListWorkspacesParams{
 					Accept:    AcceptHeaderJson[workspace.ListWorkspacesParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
