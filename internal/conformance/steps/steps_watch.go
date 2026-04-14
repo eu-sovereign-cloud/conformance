@@ -76,6 +76,7 @@ func watchResourceUntilDeletedStep[F secapi.Reference](
 		Interval:    time.Duration(suite.BaseInterval) * time.Second,
 		MaxAttempts: suite.MaxAttempts,
 	}
+	referenceRequestStep(sCtx, params.reference)
 
 	err := params.getErrorFunc(tctx, params.reference, config)
 	requireNoError(sCtx, err)

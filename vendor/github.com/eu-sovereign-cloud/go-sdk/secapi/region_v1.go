@@ -59,7 +59,7 @@ func (api *RegionV1Impl) ListRegionsWithOptions(ctx context.Context, options *Li
 			if options != nil {
 				params = &region.ListRegionsParams{
 					Accept:    AcceptHeaderJson[region.ListRegionsParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}

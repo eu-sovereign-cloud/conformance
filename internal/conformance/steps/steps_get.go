@@ -117,7 +117,7 @@ func getGlobalResourceStep[R types.ResourceType, M types.MetadataType, E types.S
 		requireNoError(sCtx, err)
 		requireNotNilResponse(sCtx, resp)
 
-		responseResourceStep(sCtx, resp.GetResource())
+		resourceResponseStep(sCtx, resp.GetResource())
 
 		// Metadata
 		if resp.GetMetadata() != nil && params.expectedMetadata != nil {
@@ -245,13 +245,13 @@ func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E typ
 		Interval:       time.Duration(suite.BaseInterval) * time.Second,
 		MaxAttempts:    suite.MaxAttempts,
 	}
-	requestResourceStep(sCtx, params.reference)
+	referenceRequestStep(sCtx, params.reference)
 
 	resp, err := params.getValueFunc(t.Context(), params.reference, config)
 	requireNoError(sCtx, err)
 	requireNotNilResponse(sCtx, resp)
 
-	responseResourceStep(sCtx, resp.GetResource())
+	resourceResponseStep(sCtx, resp.GetResource())
 
 	// Label
 	if params.expectedLabels != nil {

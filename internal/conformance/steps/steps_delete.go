@@ -70,7 +70,7 @@ func deleteNetworkResourceStep[R types.ResourceType](ctx context.Context, suite 
 func deleteResourceStep[R types.ResourceType](ctx context.Context, suite *suites.TestSuite, stepName string, sCtx provider.StepCtx, params deleteResourceParams[R]) {
 	slog.Info(fmt.Sprintf("[%s] %s", suite.ScenarioName, stepName))
 
-	requestResourceStep(sCtx, params.resource)
+	resourceRequestStep(sCtx, params.resource)
 	err := params.deleteFunc(ctx, params.resource)
 	emptyResponseStep(sCtx)
 
