@@ -181,6 +181,16 @@ func (configurator *StepsConfigurator) ListInstanceV1Step(
 	return resp
 }
 
+func (configurator *StepsConfigurator) CreateOrUpdateInstanceExpectViolationV1Step(stepName string, api secapi.ComputeV1, resource *schema.Instance) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetComputeV1StepParams(sCtx, constants.CreateOrUpdateInstanceOperation, resource.Metadata.Workspace)
+
+		_, err := api.CreateOrUpdateInstance(configurator.t.Context(), resource)
+		requireError(sCtx, err)
+	})
+}
+
 func (configurator *StepsConfigurator) ListSkusV1Step(
 	stepName string, api secapi.ComputeV1, tref secapi.TenantReference, opts *secapi.ListOptions,
 ) []*schema.InstanceSku {

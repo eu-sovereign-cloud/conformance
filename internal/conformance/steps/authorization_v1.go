@@ -115,6 +115,16 @@ func (configurator *StepsConfigurator) DeleteRoleV1Step(stepName string, api sec
 	})
 }
 
+func (configurator *StepsConfigurator) CreateOrUpdateRoleExpectViolationV1Step(stepName string, api secapi.AuthorizationV1, resource *schema.Role) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetAuthorizationV1StepParams(sCtx, constants.CreateOrUpdateRoleOperation)
+
+		_, err := api.CreateOrUpdateRole(configurator.t.Context(), resource)
+		requireError(sCtx, err)
+	})
+}
+
 // Role Assignment
 
 func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepName string, api secapi.AuthorizationV1, resource *schema.RoleAssignment,
@@ -212,5 +222,15 @@ func (configurator *StepsConfigurator) DeleteRoleAssignmentV1Step(stepName strin
 
 		err := api.DeleteRoleAssignment(configurator.t.Context(), resource)
 		requireNoError(sCtx, err)
+	})
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentExpectViolationV1Step(stepName string, api secapi.AuthorizationV1, resource *schema.RoleAssignment) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetAuthorizationV1StepParams(sCtx, constants.CreateOrUpdateRoleAssignmentOperation)
+
+		_, err := api.CreateOrUpdateRoleAssignment(configurator.t.Context(), resource)
+		requireError(sCtx, err)
 	})
 }

@@ -116,6 +116,16 @@ func (configurator *StepsConfigurator) DeleteBlockStorageV1Step(stepName string,
 	})
 }
 
+func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageExpectViolationV1Step(stepName string, api secapi.StorageV1, resource *schema.BlockStorage) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetStorageWorkspaceV1StepParams(sCtx, constants.CreateOrUpdateBlockStorageOperation, resource.Metadata.Workspace)
+
+		_, err := api.CreateOrUpdateBlockStorage(configurator.t.Context(), resource)
+		requireError(sCtx, err)
+	})
+}
+
 // Image
 
 func (configurator *StepsConfigurator) CreateOrUpdateImageV1Step(stepName string, api secapi.StorageV1, resource *schema.Image,
@@ -209,6 +219,16 @@ func (configurator *StepsConfigurator) DeleteImageV1Step(stepName string, api se
 
 		err := api.DeleteImage(configurator.t.Context(), resource)
 		requireNoError(sCtx, err)
+	})
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateImageExpectViolationV1Step(stepName string, api secapi.StorageV1, resource *schema.Image) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetStorageV1StepParams(sCtx, constants.CreateOrUpdateImageOperation)
+
+		_, err := api.CreateOrUpdateImage(configurator.t.Context(), resource)
+		requireError(sCtx, err)
 	})
 }
 

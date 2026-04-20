@@ -108,3 +108,13 @@ func (configurator *StepsConfigurator) DeleteWorkspaceV1Step(stepName string, ap
 		requireNoError(sCtx, err)
 	})
 }
+
+func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceExpectViolationV1Step(stepName string, api secapi.WorkspaceV1, resource *schema.Workspace) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetWorkspaceV1StepParams(sCtx, constants.CreateOrUpdateWorkspaceOperation)
+
+		_, err := api.CreateOrUpdateWorkspace(configurator.t.Context(), resource)
+		requireError(sCtx, err)
+	})
+}

@@ -23,6 +23,9 @@ func (suite *TestSuite) VerifyGlobalTenantResourceMetadataStep(ctx provider.Step
 
 		suite.verifyAssertState(stepCtx)
 	})
+	ctx.WithNewStep("Verify metadata constraints", func(stepCtx provider.StepCtx) {
+		stepCtx.Assert().LessOrEqual(len(actual.Tenant), 64, "Tenant identifier max length should be <= 64")
+	})
 }
 
 func (suite *TestSuite) VerifyGlobalResourceMetadataStep(ctx provider.StepCtx, expected *schema.GlobalResourceMetadata, actual *schema.GlobalResourceMetadata) {
@@ -53,6 +56,10 @@ func (suite *TestSuite) VerifyRegionalResourceMetadataStep(ctx provider.StepCtx,
 
 		suite.verifyAssertState(stepCtx)
 	})
+	ctx.WithNewStep("Verify metadata constraints", func(stepCtx provider.StepCtx) {
+		stepCtx.Assert().LessOrEqual(len(actual.Tenant), 64, "Tenant identifier max length should be <= 64")
+		stepCtx.Assert().LessOrEqual(len(actual.Region), 64, "Region identifier max length should be <= 64")
+	})
 }
 
 func (suite *TestSuite) VerifyRegionalWorkspaceResourceMetadataStep(ctx provider.StepCtx, expected *schema.RegionalWorkspaceResourceMetadata, actual *schema.RegionalWorkspaceResourceMetadata) {
@@ -69,6 +76,11 @@ func (suite *TestSuite) VerifyRegionalWorkspaceResourceMetadataStep(ctx provider
 		stepCtx.Assert().Equal(expected.Region, actual.Region, "Metadata: Region should match expected")
 
 		suite.verifyAssertState(stepCtx)
+	})
+	ctx.WithNewStep("Verify metadata constraints", func(stepCtx provider.StepCtx) {
+		stepCtx.Assert().LessOrEqual(len(actual.Tenant), 64, "Tenant identifier max length should be <= 64")
+		stepCtx.Assert().LessOrEqual(len(actual.Workspace), 64, "Workspace identifier max length should be <= 64")
+		stepCtx.Assert().LessOrEqual(len(actual.Region), 64, "Region identifier max length should be <= 64")
 	})
 }
 
@@ -87,6 +99,12 @@ func (suite *TestSuite) VerifyRegionalNetworkResourceMetadataStep(ctx provider.S
 		stepCtx.Assert().Equal(expected.Region, actual.Region, "Metadata: Region should match expected")
 
 		suite.verifyAssertState(stepCtx)
+	})
+	ctx.WithNewStep("Verify metadata constraints", func(stepCtx provider.StepCtx) {
+		stepCtx.Assert().LessOrEqual(len(actual.Tenant), 64, "Tenant identifier max length should be <= 64")
+		stepCtx.Assert().LessOrEqual(len(actual.Workspace), 64, "Workspace identifier max length should be <= 64")
+		stepCtx.Assert().LessOrEqual(len(actual.Network), 64, "Network identifier max length should be <= 64")
+		stepCtx.Assert().LessOrEqual(len(actual.Region), 64, "Region identifier max length should be <= 64")
 	})
 }
 
@@ -146,6 +164,14 @@ func (suite *TestSuite) VerifyLabelsStep(ctx provider.StepCtx, expected schema.L
 
 		stepCtx.Require().Equal(expected, actual, "Labels should match expected")
 	})
+	ctx.WithNewStep("Verify label constraints", func(stepCtx provider.StepCtx) {
+		stepCtx.WithNewParameters(
+			"actual_labels", actual,
+		)
+		for key, value := range actual {
+			stepCtx.Assert().LessOrEqual(len(value), 63, fmt.Sprintf("Label %q value max length should be <= 63", key))
+		}
+	})
 }
 
 func (suite *TestSuite) VerifyAnnotationsStep(ctx provider.StepCtx, expected schema.Annotations, actual schema.Annotations) {
@@ -156,6 +182,15 @@ func (suite *TestSuite) VerifyAnnotationsStep(ctx provider.StepCtx, expected sch
 		)
 
 		stepCtx.Require().Equal(expected, actual, "Annotations should match expected")
+	})
+
+	ctx.WithNewStep("Verify annotation constraints", func(stepCtx provider.StepCtx) {
+		stepCtx.WithNewParameters(
+			"actual_annotations", actual,
+		)
+		for key, value := range actual {
+			stepCtx.Assert().LessOrEqual(len(value), 1024, fmt.Sprintf("Annotation %q value max length should be <= 1024", key))
+		}
 	})
 }
 

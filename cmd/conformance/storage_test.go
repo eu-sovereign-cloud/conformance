@@ -35,4 +35,16 @@ func TestStorageV1Suites(t *testing.T) {
 	if imageLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, imageLifeCycleSuite)
 	}
+
+	// Block Storage Constraints Violations Suite
+	blockStorageConstraintsSuite := storage.CreateBlockStorageConstraintsV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if blockStorageConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, blockStorageConstraintsSuite)
+	}
+
+	// Image Constraints Violations Suite
+	imageConstraintsSuite := storage.CreateImageConstraintsV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if imageConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, imageConstraintsSuite)
+	}
 }

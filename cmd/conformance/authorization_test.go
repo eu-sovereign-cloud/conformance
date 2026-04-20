@@ -35,4 +35,16 @@ func TestAuthorizationV1Suites(t *testing.T) {
 	if roleAssignmentLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, roleAssignmentLifeCycleSuite)
 	}
+
+	// Role Constraints Violations Suite
+	roleConstraintsViolationsSuite := authorization.CreateRoleConstraintsViolationsV1TestSuite(globalTestSuite)
+	if roleConstraintsViolationsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, roleConstraintsViolationsSuite)
+	}
+
+	// Role Assignment Constraints Violations Suite
+	roleAssignmentConstraintsSuite := authorization.CreateRoleAssignmentConstraintsViolationsV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
+	if roleAssignmentConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, roleAssignmentConstraintsSuite)
+	}
 }

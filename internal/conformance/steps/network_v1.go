@@ -337,6 +337,16 @@ func (configurator *StepsConfigurator) DeleteRouteTableV1Step(stepName string, a
 	})
 }
 
+func (configurator *StepsConfigurator) CreateOrUpdateRouteTableExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.RouteTable) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetNetworkNetworkV1StepParams(sCtx, constants.CreateOrUpdateRouteTableOperation, resource.Metadata.Workspace, resource.Metadata.Network)
+
+		_, err := api.CreateOrUpdateRouteTable(configurator.t.Context(), resource)
+		requireError(sCtx, err)
+	})
+}
+
 // Subnet
 
 func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName string, api secapi.NetworkV1, resource *schema.Subnet,
@@ -836,5 +846,68 @@ func (configurator *StepsConfigurator) DeleteSecurityGroupV1Step(stepName string
 
 		err := api.DeleteSecurityGroup(configurator.t.Context(), resource)
 		requireNoError(sCtx, err)
+	})
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateNetworkExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.Network) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetNetworkV1StepParams(sCtx, constants.CreateOrUpdateNetworkOperation, resource.Metadata.Workspace)
+		_, err := api.CreateOrUpdateNetwork(configurator.t.Context(), resource)
+		requireError(sCtx, err)
+	})
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.InternetGateway) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetNetworkV1StepParams(sCtx, constants.CreateOrUpdateInternetGatewayOperation, resource.Metadata.Workspace)
+		_, err := api.CreateOrUpdateInternetGateway(configurator.t.Context(), resource)
+		requireError(sCtx, err)
+	})
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdatePublicIpExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.PublicIp) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetNetworkV1StepParams(sCtx, constants.CreateOrUpdatePublicIpOperation, resource.Metadata.Workspace)
+		_, err := api.CreateOrUpdatePublicIp(configurator.t.Context(), resource)
+		requireError(sCtx, err)
+	})
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateNicExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.Nic) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetNetworkV1StepParams(sCtx, constants.CreateOrUpdateNicOperation, resource.Metadata.Workspace)
+		_, err := api.CreateOrUpdateNic(configurator.t.Context(), resource)
+		requireError(sCtx, err)
+	})
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroup) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetNetworkV1StepParams(sCtx, constants.CreateOrUpdateSecurityGroupOperation, resource.Metadata.Workspace)
+		_, err := api.CreateOrUpdateSecurityGroup(configurator.t.Context(), resource)
+		requireError(sCtx, err)
+	})
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroupRule) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetNetworkV1StepParams(sCtx, constants.CreateOrUpdateSecurityGroupRuleOperation, resource.Metadata.Workspace)
+		_, err := api.CreateOrUpdateSecurityGroupRule(configurator.t.Context(), resource)
+		requireError(sCtx, err)
+	})
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateSubnetExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.Subnet) {
+	slog.Info(fmt.Sprintf("[%s] %s", configurator.suite.ScenarioName, stepName))
+	configurator.t.WithNewStep(stepName, func(sCtx provider.StepCtx) {
+		configurator.suite.SetNetworkNetworkV1StepParams(sCtx, constants.CreateOrUpdateSubnetOperation, resource.Metadata.Workspace, resource.Metadata.Network)
+		_, err := api.CreateOrUpdateSubnet(configurator.t.Context(), resource)
+		requireError(sCtx, err)
 	})
 }
