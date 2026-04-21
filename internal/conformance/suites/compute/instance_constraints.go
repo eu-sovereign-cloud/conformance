@@ -18,7 +18,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-// InstanceConstraintsViolationsV1TestSuite verifies that Instance resources violating
+// InstanceConstraintsValidationV1TestSuite verifies that Instance resources violating
 // field constraints are rejected by the API with 422 Unprocessable Entity.
 //
 // Constraints tested:
@@ -26,29 +26,29 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
-type InstanceConstraintsViolationsV1TestSuite struct {
+type InstanceConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
-	config *InstanceContraintsV1Config
+	config *InstanceContraintsValidationV1Config
 
-	params *params.InstanceConstraintsViolationsV1Params
+	params *params.InstanceConstraintsValidationV1Params
 }
 
-type InstanceContraintsV1Config struct {
+type InstanceContraintsValidationV1Config struct {
 	AvailableZones []string
 	InstanceSkus   []string
 	StorageSkus    []string
 }
 
-func CreateInstanceConstraintsViolationsV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *InstanceContraintsV1Config) *InstanceConstraintsViolationsV1TestSuite {
-	suite := &InstanceConstraintsViolationsV1TestSuite{
+func CreateInstanceConstraintsValidationV1TestSuite(regionalTestSuite suites.RegionalTestSuite, config *InstanceContraintsValidationV1Config) *InstanceConstraintsValidationV1TestSuite {
+	suite := &InstanceConstraintsValidationV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		config:            config,
 	}
-	suite.ScenarioName = constants.InstanceConstraintsV1SuiteName.String()
+	suite.ScenarioName = constants.InstanceConstraintsValidationV1SuiteName.String()
 	return suite
 }
 
-func (suite *InstanceConstraintsViolationsV1TestSuite) BeforeAll(t provider.T) {
+func (suite *InstanceConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Constraints")
 
 	// Select skus
@@ -180,7 +180,7 @@ func (suite *InstanceConstraintsViolationsV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build overLengthAnnotationInstance: %v", err)
 	}
 
-	p := &params.InstanceConstraintsViolationsV1Params{
+	p := &params.InstanceConstraintsValidationV1Params{
 		Workspace:                    workspace,
 		BlockStorage:                 blockStorage,
 		OverLengthNameInstance:       overLengthNameInstance,
@@ -189,12 +189,12 @@ func (suite *InstanceConstraintsViolationsV1TestSuite) BeforeAll(t provider.T) {
 		OverLengthAnnotationInstance: overLengthAnnotationInstance,
 	}
 	suite.params = p
-	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockcompute.ConfigureInstanceConstraintsViolationsV1, *p); err != nil {
+	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockcompute.ConfigureInstanceConstraintsValidationV1, *p); err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *InstanceConstraintsViolationsV1TestSuite) TestScenario(t provider.T) {
+func (suite *InstanceConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, sdkconsts.ComputeProviderV1Name, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInstance))
 
@@ -261,6 +261,6 @@ func (suite *InstanceConstraintsViolationsV1TestSuite) TestScenario(t provider.T
 	suite.FinishScenario()
 }
 
-func (suite *InstanceConstraintsViolationsV1TestSuite) AfterAll(t provider.T) {
+func (suite *InstanceConstraintsValidationV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

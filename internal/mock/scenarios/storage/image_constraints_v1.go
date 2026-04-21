@@ -10,7 +10,7 @@ import (
 // ConfigureImageConstraintsViolationsV1 sets up mock stubs for the image constraints
 // violations suite. Each image in the params targets a different constraint violation,
 // all returning 422 Unprocessable Entity.
-func ConfigureImageConstraintsViolationsV1(scenario *mockscenarios.Scenario, params params.ImageConstraintsViolationsV1Params) error {
+func ConfigureImageConstraintsViolationsV1(scenario *mockscenarios.Scenario, params params.ImageConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err

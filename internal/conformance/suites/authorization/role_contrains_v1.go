@@ -17,7 +17,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-// RoleConstraintsViolationsV1TestSuite verifies that Role resources violating field constraints
+// RoleConstraintsValidationV1TestSuite verifies that Role resources violating field constraints
 // are rejected by the API with an error (422 Unprocessable Entity).
 //
 // Constraints tested:
@@ -25,21 +25,21 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
-type RoleConstraintsViolationsV1TestSuite struct {
+type RoleConstraintsValidationV1TestSuite struct {
 	suites.GlobalTestSuite
 
-	params *params.RoleConstraintsViolationsV1Params
+	params *params.RoleConstraintsValidationV1Params
 }
 
-func CreateRoleConstraintsViolationsV1TestSuite(globalTestSuite suites.GlobalTestSuite) *RoleConstraintsViolationsV1TestSuite {
-	suite := &RoleConstraintsViolationsV1TestSuite{
+func CreateRoleConstraintsValidationV1TestSuite(globalTestSuite suites.GlobalTestSuite) *RoleConstraintsValidationV1TestSuite {
+	suite := &RoleConstraintsValidationV1TestSuite{
 		GlobalTestSuite: globalTestSuite,
 	}
-	suite.ScenarioName = constants.RoleConstraintsV1SuiteName.String()
+	suite.ScenarioName = constants.RoleConstraintsValidationV1SuiteName.String()
 	return suite
 }
 
-func (suite *RoleConstraintsViolationsV1TestSuite) BeforeAll(t provider.T) {
+func (suite *RoleConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Constraints")
 
 	imageName := generators.GenerateImageName()
@@ -108,19 +108,19 @@ func (suite *RoleConstraintsViolationsV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build overLengthAnnotationRole: %v", err)
 	}
 
-	p := &params.RoleConstraintsViolationsV1Params{
+	p := &params.RoleConstraintsValidationV1Params{
 		OverLengthNameRole:       overLengthNameRole,
 		InvalidPatternNameRole:   invalidPatternNameRole,
 		OverLengthLabelValueRole: overLengthLabelRole,
 		OverLengthAnnotationRole: overLengthAnnotationRole,
 	}
 	suite.params = p
-	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleConstraintsViolationsV1, *p); err != nil {
+	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleConstraintsValidationV1, *p); err != nil {
 		t.Fatalf("Failed to setup mock: %v", err)
 	}
 }
 
-func (suite *RoleConstraintsViolationsV1TestSuite) TestScenario(t provider.T) {
+func (suite *RoleConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, sdkconsts.AuthorizationProviderV1Name, string(schema.GlobalTenantResourceMetadataKindResourceKindRole))
 
@@ -157,6 +157,6 @@ func (suite *RoleConstraintsViolationsV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *RoleConstraintsViolationsV1TestSuite) AfterAll(t provider.T) {
+func (suite *RoleConstraintsValidationV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

@@ -7,7 +7,7 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureRouteTableConstraintsViolationsV1(scenario *mockscenarios.Scenario, p params.RouteTableConstraintsViolationsV1Params) error {
+func ConfigureRouteTableConstraintsValidationV1(scenario *mockscenarios.Scenario, p params.RouteTableConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -52,15 +52,32 @@ func ConfigureRouteTableConstraintsViolationsV1(scenario *mockscenarios.Scenario
 		return err
 	}
 
-	for _, url := range []string{
-		generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, p.OverLengthNameRouteTable.Metadata.Tenant, p.OverLengthNameRouteTable.Metadata.Workspace, p.OverLengthNameRouteTable.Metadata.Network, p.OverLengthNameRouteTable.Metadata.Name),
-		generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, p.InvalidPatternNameRouteTable.Metadata.Tenant, p.InvalidPatternNameRouteTable.Metadata.Workspace, p.InvalidPatternNameRouteTable.Metadata.Network, p.InvalidPatternNameRouteTable.Metadata.Name),
-		generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, p.OverLengthLabelValueRouteTable.Metadata.Tenant, p.OverLengthLabelValueRouteTable.Metadata.Workspace, p.OverLengthLabelValueRouteTable.Metadata.Network, p.OverLengthLabelValueRouteTable.Metadata.Name),
-		generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, p.OverLengthAnnotationRouteTable.Metadata.Tenant, p.OverLengthAnnotationRouteTable.Metadata.Workspace, p.OverLengthAnnotationRouteTable.Metadata.Network, p.OverLengthAnnotationRouteTable.Metadata.Name),
-	} {
-		if err := configurator.ConfigurePutUnprocessableEntityStub(url, scenario.MockParams); err != nil {
-			return err
-		}
+	// Over-length name Validation
+	overLengthNameRouteTable := p.OverLengthNameRouteTable
+	overLengthNameURL := generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, overLengthNameRouteTable.Metadata.Tenant, overLengthNameRouteTable.Metadata.Workspace, overLengthNameRouteTable.Metadata.Network, overLengthNameRouteTable.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthNameURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Invalid pattern name Validation
+	invalidPatternNameRouteTable := p.InvalidPatternNameRouteTable
+	invalidPatternNameURL := generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, invalidPatternNameRouteTable.Metadata.Tenant, invalidPatternNameRouteTable.Metadata.Workspace, invalidPatternNameRouteTable.Metadata.Network, invalidPatternNameRouteTable.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(invalidPatternNameURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length label value Validation
+	overLengthLabelRouteTable := p.OverLengthLabelValueRouteTable
+	overLengthLabelURL := generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, overLengthLabelRouteTable.Metadata.Tenant, overLengthLabelRouteTable.Metadata.Workspace, overLengthLabelRouteTable.Metadata.Network, overLengthLabelRouteTable.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthLabelURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length annotation value Validation
+	overLengthAnnotationRouteTable := p.OverLengthAnnotationRouteTable
+	overLengthAnnotationURL := generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, overLengthAnnotationRouteTable.Metadata.Tenant, overLengthAnnotationRouteTable.Metadata.Workspace, overLengthAnnotationRouteTable.Metadata.Network, overLengthAnnotationRouteTable.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthAnnotationURL, scenario.MockParams); err != nil {
+		return err
 	}
 
 	if err := configurator.ConfigureDeleteStub(gatewayURL, scenario.MockParams); err != nil {

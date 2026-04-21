@@ -7,7 +7,7 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureNicConstraintsViolationsV1(scenario *mockscenarios.Scenario, p params.NicConstraintsViolationsV1Params) error {
+func ConfigureNicConstraintsValidationV1(scenario *mockscenarios.Scenario, p params.NicConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -26,15 +26,32 @@ func ConfigureNicConstraintsViolationsV1(scenario *mockscenarios.Scenario, p par
 		return err
 	}
 
-	for _, url := range []string{
-		generators.GenerateNicURL(sdkconsts.NetworkProviderV1Name, p.OverLengthNameNic.Metadata.Tenant, p.OverLengthNameNic.Metadata.Workspace, p.OverLengthNameNic.Metadata.Name),
-		generators.GenerateNicURL(sdkconsts.NetworkProviderV1Name, p.InvalidPatternNameNic.Metadata.Tenant, p.InvalidPatternNameNic.Metadata.Workspace, p.InvalidPatternNameNic.Metadata.Name),
-		generators.GenerateNicURL(sdkconsts.NetworkProviderV1Name, p.OverLengthLabelValueNic.Metadata.Tenant, p.OverLengthLabelValueNic.Metadata.Workspace, p.OverLengthLabelValueNic.Metadata.Name),
-		generators.GenerateNicURL(sdkconsts.NetworkProviderV1Name, p.OverLengthAnnotationNic.Metadata.Tenant, p.OverLengthAnnotationNic.Metadata.Workspace, p.OverLengthAnnotationNic.Metadata.Name),
-	} {
-		if err := configurator.ConfigurePutUnprocessableEntityStub(url, scenario.MockParams); err != nil {
-			return err
-		}
+	// Over-length name Validation
+	overLengthNameNic := p.OverLengthNameNic
+	overLengthNameURL := generators.GenerateNicURL(sdkconsts.NetworkProviderV1Name, overLengthNameNic.Metadata.Tenant, overLengthNameNic.Metadata.Workspace, overLengthNameNic.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthNameURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Invalid pattern name Validation
+	invalidPatternNameNic := p.InvalidPatternNameNic
+	invalidPatternNameURL := generators.GenerateNicURL(sdkconsts.NetworkProviderV1Name, invalidPatternNameNic.Metadata.Tenant, invalidPatternNameNic.Metadata.Workspace, invalidPatternNameNic.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(invalidPatternNameURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length label value Validation
+	overLengthLabelNic := p.OverLengthLabelValueNic
+	overLengthLabelURL := generators.GenerateNicURL(sdkconsts.NetworkProviderV1Name, overLengthLabelNic.Metadata.Tenant, overLengthLabelNic.Metadata.Workspace, overLengthLabelNic.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthLabelURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length annotation value Validation
+	overLengthAnnotationNic := p.OverLengthAnnotationNic
+	overLengthAnnotationURL := generators.GenerateNicURL(sdkconsts.NetworkProviderV1Name, overLengthAnnotationNic.Metadata.Tenant, overLengthAnnotationNic.Metadata.Workspace, overLengthAnnotationNic.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthAnnotationURL, scenario.MockParams); err != nil {
+		return err
 	}
 
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {

@@ -18,7 +18,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-// BlockStorageConstraintsV1TestSuite verifies that BlockStorage resources violating
+// BlockStorageConstraintsValidationV1TestSuite verifies that BlockStorage resources violating
 // field constraints are rejected by the API with 422 Unprocessable Entity.
 //
 // Constraints tested:
@@ -26,24 +26,24 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
-type BlockStorageConstraintsV1TestSuite struct {
+type BlockStorageConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 
 	StorageSkus []string
 
-	params *params.BlockStorageConstraintsViolationsV1Params
+	params *params.BlockStorageConstraintsValidationV1Params
 }
 
-func CreateBlockStorageConstraintsV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *BlockStorageConstraintsV1TestSuite {
-	suite := &BlockStorageConstraintsV1TestSuite{
+func CreateBlockStorageConstraintsValidationV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *BlockStorageConstraintsValidationV1TestSuite {
+	suite := &BlockStorageConstraintsValidationV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		StorageSkus:       storageSkus,
 	}
-	suite.ScenarioName = constants.BlockStorageConstraintsV1SuiteName.String()
+	suite.ScenarioName = constants.BlockStorageConstraintsValidationV1SuiteName.String()
 	return suite
 }
 
-func (suite *BlockStorageConstraintsV1TestSuite) BeforeAll(t provider.T) {
+func (suite *BlockStorageConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Constraints")
 
 	// Select sku
@@ -134,7 +134,7 @@ func (suite *BlockStorageConstraintsV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build overLengthAnnotationBlockStorage: %v", err)
 	}
 
-	p := &params.BlockStorageConstraintsViolationsV1Params{
+	p := &params.BlockStorageConstraintsValidationV1Params{
 		Workspace:                        workspace,
 		OverLengthNameBlockStorage:       overLengthNameBlockStorage,
 		InvalidPatternNameBlockStorage:   invalidPatternNameBlockStorage,
@@ -147,7 +147,7 @@ func (suite *BlockStorageConstraintsV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *BlockStorageConstraintsV1TestSuite) TestScenario(t provider.T) {
+func (suite *BlockStorageConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, sdkconsts.StorageProviderV1Name, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindBlockStorage))
 
@@ -214,6 +214,6 @@ func (suite *BlockStorageConstraintsV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *BlockStorageConstraintsV1TestSuite) AfterAll(t provider.T) {
+func (suite *BlockStorageConstraintsValidationV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

@@ -7,37 +7,37 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-// ConfigureRoleAssignmentConstraintsViolationsV1 sets up mock stubs for the role assignment
-// constraints violations suite. Each role assignment in the params targets a different
-// constraint violation, all returning 422 Unprocessable Entity.
-func ConfigureRoleAssignmentConstraintsViolationsV1(scenario *mockscenarios.Scenario, p params.RoleAssignmentConstraintsViolationsV1Params) error {
+// ConfigureRoleAssignmentConstraintsValidationV1 sets up mock stubs for the role assignment
+// constraints validation suite. Each role assignment in the params targets a different
+// constraint Validation, all returning 422 Unprocessable Entity.
+func ConfigureRoleAssignmentConstraintsValidationV1(scenario *mockscenarios.Scenario, p params.RoleAssignmentConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
 	}
 
-	// Over-length name violation
+	// Over-length name Validation
 	overLengthNameRoleAssignment := p.OverLengthNameRoleAssignment
 	overLengthNameURL := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, overLengthNameRoleAssignment.Metadata.Tenant, overLengthNameRoleAssignment.Metadata.Name)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthNameURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Invalid pattern name violation
+	// Invalid pattern name Validation
 	invalidPatternNameRoleAssignment := p.InvalidPatternNameRoleAssignment
 	invalidPatternNameURL := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, invalidPatternNameRoleAssignment.Metadata.Tenant, invalidPatternNameRoleAssignment.Metadata.Name)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(invalidPatternNameURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Over-length label value violation
+	// Over-length label value Validation
 	overLengthLabelRoleAssignment := p.OverLengthLabelValueRoleAssignment
 	overLengthLabelURL := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, overLengthLabelRoleAssignment.Metadata.Tenant, overLengthLabelRoleAssignment.Metadata.Name)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthLabelURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Over-length annotation value violation
+	// Over-length annotation value Validation
 	overLengthAnnotationRoleAssignment := p.OverLengthAnnotationRoleAssignment
 	overLengthAnnotationURL := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, overLengthAnnotationRoleAssignment.Metadata.Tenant, overLengthAnnotationRoleAssignment.Metadata.Name)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthAnnotationURL, scenario.MockParams); err != nil {

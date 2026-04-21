@@ -7,7 +7,7 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureNetworkConstraintsViolationsV1(scenario *mockscenarios.Scenario, p params.NetworkConstraintsViolationsV1Params) error {
+func ConfigureNetworkConstraintsValidationV1(scenario *mockscenarios.Scenario, p params.NetworkConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -41,18 +41,34 @@ func ConfigureNetworkConstraintsViolationsV1(scenario *mockscenarios.Scenario, p
 		return err
 	}
 
-	for _, url := range []string{
-		generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, p.OverLengthNameNetwork.Metadata.Tenant, p.OverLengthNameNetwork.Metadata.Workspace, p.OverLengthNameNetwork.Metadata.Name),
-		generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, p.InvalidPatternNameNetwork.Metadata.Tenant, p.InvalidPatternNameNetwork.Metadata.Workspace, p.InvalidPatternNameNetwork.Metadata.Name),
-		generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, p.OverLengthLabelValueNetwork.Metadata.Tenant, p.OverLengthLabelValueNetwork.Metadata.Workspace, p.OverLengthLabelValueNetwork.Metadata.Name),
-		generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, p.OverLengthAnnotationNetwork.Metadata.Tenant, p.OverLengthAnnotationNetwork.Metadata.Workspace, p.OverLengthAnnotationNetwork.Metadata.Name),
-	} {
-		if err := configurator.ConfigurePutUnprocessableEntityStub(url, scenario.MockParams); err != nil {
-			return err
-		}
+	// Over-length name Validation
+	overLengthNameNetwork := p.OverLengthNameNetwork
+	overLengthNameURL := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, overLengthNameNetwork.Metadata.Tenant, overLengthNameNetwork.Metadata.Workspace, overLengthNameNetwork.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthNameURL, scenario.MockParams); err != nil {
+		return err
 	}
 
-	// Teardown internet gateway
+	// Invalid pattern name Validation
+	invalidPatternNameNetwork := p.InvalidPatternNameNetwork
+	invalidPatternNameURL := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, invalidPatternNameNetwork.Metadata.Tenant, invalidPatternNameNetwork.Metadata.Workspace, invalidPatternNameNetwork.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(invalidPatternNameURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length label value Validation
+	overLengthLabelNetwork := p.OverLengthLabelValueNetwork
+	overLengthLabelURL := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, overLengthLabelNetwork.Metadata.Tenant, overLengthLabelNetwork.Metadata.Workspace, overLengthLabelNetwork.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthLabelURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length annotation value Validation
+	overLengthAnnotationNetwork := p.OverLengthAnnotationNetwork
+	overLengthAnnotationURL := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, overLengthAnnotationNetwork.Metadata.Tenant, overLengthAnnotationNetwork.Metadata.Workspace, overLengthAnnotationNetwork.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthAnnotationURL, scenario.MockParams); err != nil {
+		return err
+	}
+
 	if err := configurator.ConfigureDeleteStub(gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}

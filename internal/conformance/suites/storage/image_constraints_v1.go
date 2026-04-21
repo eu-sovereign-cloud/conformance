@@ -18,7 +18,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-// ImageConstraintsV1TestSuite verifies that Image resources violating
+// ImageConstraintsValidationV1TestSuite verifies that Image resources violating
 // field constraints are rejected by the API with 422 Unprocessable Entity.
 //
 // Constraints tested:
@@ -26,23 +26,23 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 64 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
-type ImageConstraintsV1TestSuite struct {
+type ImageConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 	StorageSkus []string
 
-	params *params.ImageConstraintsViolationsV1Params
+	params *params.ImageConstraintsValidationV1Params
 }
 
-func CreateImageConstraintsV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *ImageConstraintsV1TestSuite {
-	suite := &ImageConstraintsV1TestSuite{
+func CreateImageConstraintsValidationV1TestSuite(regionalTestSuite suites.RegionalTestSuite, storageSkus []string) *ImageConstraintsValidationV1TestSuite {
+	suite := &ImageConstraintsValidationV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 		StorageSkus:       storageSkus,
 	}
-	suite.ScenarioName = constants.ImageConstraintsV1SuiteName.String()
+	suite.ScenarioName = constants.ImageConstraintsValidationV1SuiteName.String()
 	return suite
 }
 
-func (suite *ImageConstraintsV1TestSuite) BeforeAll(t provider.T) {
+func (suite *ImageConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Constraints")
 
 	// Select sku
@@ -159,7 +159,7 @@ func (suite *ImageConstraintsV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build overLengthAnnotationImage: %v", err)
 	}
 
-	p := &params.ImageConstraintsViolationsV1Params{
+	p := &params.ImageConstraintsValidationV1Params{
 		Workspace:                 workspace,
 		BlockStorage:              blockStorage,
 		OverLengthNameImage:       overLengthNameImage,
@@ -173,7 +173,7 @@ func (suite *ImageConstraintsV1TestSuite) BeforeAll(t provider.T) {
 	}
 }
 
-func (suite *ImageConstraintsV1TestSuite) TestScenario(t provider.T) {
+func (suite *ImageConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, sdkconsts.StorageProviderV1Name, string(schema.GlobalTenantResourceMetadataKindResourceKindImage))
 
@@ -281,6 +281,6 @@ func (suite *ImageConstraintsV1TestSuite) TestScenario(t provider.T) {
 	suite.FinishScenario()
 }
 
-func (suite *ImageConstraintsV1TestSuite) AfterAll(t provider.T) {
+func (suite *ImageConstraintsValidationV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

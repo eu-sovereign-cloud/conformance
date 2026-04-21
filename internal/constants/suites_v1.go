@@ -42,20 +42,20 @@ const (
 
 	// Constraints
 
-	RoleConstraintsV1SuiteName              SuiteName = "Authorization.V1.RoleConstraints"
-	RoleAssignmentConstraintsV1SuiteName    SuiteName = "Authorization.V1.RoleAssignmentConstraints"
-	InstanceConstraintsV1SuiteName          SuiteName = "Compute.V1.InstanceConstraints"
-	WorkspaceConstraintsV1SuiteName         SuiteName = "Workspace.V1.WorkspaceConstraints"
-	BlockStorageConstraintsV1SuiteName      SuiteName = "BlockStorageConstraintsV1"
-	ImageConstraintsV1SuiteName             SuiteName = "ImageConstraintsV1"
-	NetworkConstraintsV1SuiteName           SuiteName = "NetworkConstraintsV1"
-	InternetGatewayConstraintsV1SuiteName   SuiteName = "InternetGatewayConstraintsV1"
-	PublicIpConstraintsV1SuiteName          SuiteName = "PublicIpConstraintsV1"
-	NicConstraintsV1SuiteName               SuiteName = "NicConstraintsV1"
-	SecurityGroupConstraintsV1SuiteName     SuiteName = "SecurityGroupConstraintsV1"
-	SecurityGroupRuleConstraintsV1SuiteName SuiteName = "SecurityGroupRuleConstraintsV1"
-	RouteTableConstraintsV1SuiteName        SuiteName = "RouteTableConstraintsV1"
-	SubnetConstraintsV1SuiteName            SuiteName = "SubnetConstraintsV1"
+	RoleConstraintsValidationV1SuiteName              SuiteName = "Authorization.V1.RoleConstraintsValidation"
+	RoleAssignmentConstraintsValidationV1SuiteName    SuiteName = "Authorization.V1.RoleAssignmentConstraintsValidation"
+	InstanceConstraintsValidationV1SuiteName          SuiteName = "Compute.V1.InstanceConstraintsValidation"
+	WorkspaceConstraintsValidationV1SuiteName         SuiteName = "Workspace.V1.WorkspaceConstraintsValidation"
+	BlockStorageConstraintsValidationV1SuiteName      SuiteName = "Storage.V1.BlockStorageConstraintsValidation"
+	ImageConstraintsValidationV1SuiteName             SuiteName = "Storage.V1.ImageConstraintsValidation"
+	NetworkConstraintsValidationV1SuiteName           SuiteName = "Network.V1.NetworkConstraintsValidation"
+	InternetGatewayConstraintsValidationV1SuiteName   SuiteName = "Network.V1.InternetGatewayConstraintsValidation"
+	PublicIpConstraintsValidationV1SuiteName          SuiteName = "Network.V1.PublicIpConstraintsValidation"
+	NicConstraintsValidationV1SuiteName               SuiteName = "Network.V1.NicConstraintsValidation"
+	SecurityGroupConstraintsValidationV1SuiteName     SuiteName = "Network.V1.SecurityGroupConstraintsValidation"
+	SecurityGroupRuleConstraintsValidationV1SuiteName SuiteName = "Network.V1.SecurityGroupRuleConstraintsValidation"
+	RouteTableConstraintsValidationV1SuiteName        SuiteName = "Network.V1.RouteTableConstraintsValidation"
+	SubnetConstraintsValidationV1SuiteName            SuiteName = "Network.V1.SubnetConstraintsValidation"
 )
 
 var AllSuiteNames = []SuiteName{
@@ -63,19 +63,25 @@ var AllSuiteNames = []SuiteName{
 	AuthorizationProviderQueriesV1SuiteName,
 	RoleLifeCycleV1SuiteName,
 	RoleAssignmentLifeCycleV1SuiteName,
+	RoleConstraintsValidationV1SuiteName,
+	RoleAssignmentConstraintsValidationV1SuiteName,
 
 	RegionProviderQueriesV1SuiteName,
 
 	WorkspaceProviderLifeCycleV1SuiteName,
 	WorkspaceProviderQueriesV1SuiteName,
+	WorkspaceConstraintsValidationV1SuiteName,
 
 	ComputeProviderLifeCycleV1SuiteName,
 	ComputeProviderQueriesV1SuiteName,
+	InstanceConstraintsValidationV1SuiteName,
 
 	StorageProviderLifeCycleV1SuiteName,
 	StorageProviderQueriesV1SuiteName,
 	BlockStorageLifeCycleV1SuiteName,
 	ImageLifeCycleV1SuiteName,
+	BlockStorageConstraintsValidationV1SuiteName,
+	ImageConstraintsValidationV1SuiteName,
 
 	NetworkProviderLifeCycleV1SuiteName,
 	NetworkProviderQueriesV1SuiteName,
@@ -87,21 +93,14 @@ var AllSuiteNames = []SuiteName{
 	PublicIpLifeCycleV1SuiteName,
 	NicLifeCycleV1SuiteName,
 	RouteTableLifeCycleV1SuiteName,
+	NetworkConstraintsValidationV1SuiteName,
+	InternetGatewayConstraintsValidationV1SuiteName,
+	PublicIpConstraintsValidationV1SuiteName,
+	NicConstraintsValidationV1SuiteName,
+	SecurityGroupConstraintsValidationV1SuiteName,
+	SecurityGroupRuleConstraintsValidationV1SuiteName,
+	RouteTableConstraintsValidationV1SuiteName,
+	SubnetConstraintsValidationV1SuiteName,
 
 	UsageFoundationProvidersV1SuiteName,
-
-	RoleConstraintsV1SuiteName,
-	RoleAssignmentConstraintsV1SuiteName,
-	InstanceConstraintsV1SuiteName,
-	WorkspaceConstraintsV1SuiteName,
-	BlockStorageConstraintsV1SuiteName,
-	ImageConstraintsV1SuiteName,
-	NetworkConstraintsV1SuiteName,
-	InternetGatewayConstraintsV1SuiteName,
-	PublicIpConstraintsV1SuiteName,
-	NicConstraintsV1SuiteName,
-	SecurityGroupConstraintsV1SuiteName,
-	SecurityGroupRuleConstraintsV1SuiteName,
-	RouteTableConstraintsV1SuiteName,
-	SubnetConstraintsV1SuiteName,
 }

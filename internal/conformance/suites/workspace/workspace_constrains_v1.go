@@ -16,7 +16,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-// WorkspaceConstraintsViolationsV1TestSuite verifies that Workspace resources violating
+// WorkspaceConstraintsValidationV1TestSuite verifies that Workspace resources violating
 // field constraints are rejected by the API with 422 Unprocessable Entity.
 //
 // Constraints tested:
@@ -24,21 +24,21 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
-type WorkspaceConstraintsViolationsV1TestSuite struct {
+type WorkspaceConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 
-	params *params.WorkspaceConstraintsViolationsV1Params
+	params *params.WorkspaceConstraintsValidationV1Params
 }
 
-func CreateWorkspaceConstraintsViolationsV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *WorkspaceConstraintsViolationsV1TestSuite {
-	suite := &WorkspaceConstraintsViolationsV1TestSuite{
+func CreateWorkspaceConstraintsValidationV1TestSuite(regionalTestSuite suites.RegionalTestSuite) *WorkspaceConstraintsValidationV1TestSuite {
+	suite := &WorkspaceConstraintsValidationV1TestSuite{
 		RegionalTestSuite: regionalTestSuite,
 	}
-	suite.ScenarioName = constants.WorkspaceConstraintsV1SuiteName.String()
+	suite.ScenarioName = constants.WorkspaceConstraintsValidationV1SuiteName.String()
 	return suite
 }
 
-func (suite *WorkspaceConstraintsViolationsV1TestSuite) BeforeAll(t provider.T) {
+func (suite *WorkspaceConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Constraints")
 
 	// Workspace with name exceeding maxLength: 128 (129 chars)
@@ -97,7 +97,7 @@ func (suite *WorkspaceConstraintsViolationsV1TestSuite) BeforeAll(t provider.T) 
 		t.Fatalf("Failed to build overLengthAnnotationWorkspace: %v", err)
 	}
 
-	p := &params.WorkspaceConstraintsViolationsV1Params{
+	p := &params.WorkspaceConstraintsValidationV1Params{
 		OverLengthNameWorkspace:       overLengthNameWorkspace,
 		InvalidPatternNameWorkspace:   invalidPatternNameWorkspace,
 		OverLengthLabelValueWorkspace: overLengthLabelWorkspace,
@@ -109,7 +109,7 @@ func (suite *WorkspaceConstraintsViolationsV1TestSuite) BeforeAll(t provider.T) 
 	}
 }
 
-func (suite *WorkspaceConstraintsViolationsV1TestSuite) TestScenario(t provider.T) {
+func (suite *WorkspaceConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t)
 	suite.ConfigureTags(t, sdkconsts.WorkspaceProviderV1Name, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
@@ -146,6 +146,6 @@ func (suite *WorkspaceConstraintsViolationsV1TestSuite) TestScenario(t provider.
 	suite.FinishScenario()
 }
 
-func (suite *WorkspaceConstraintsViolationsV1TestSuite) AfterAll(t provider.T) {
+func (suite *WorkspaceConstraintsValidationV1TestSuite) AfterAll(t provider.T) {
 	suite.ResetAllScenarios()
 }

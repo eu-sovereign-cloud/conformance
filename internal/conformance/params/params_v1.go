@@ -89,45 +89,22 @@ type ImageLifeCycleV1Params struct {
 	ImageUpdated *schema.Image
 }
 
-// Constraints
+// Constraints Validation
 
-type TenantConstraintsValidationV1Params struct {
-	Role *schema.Role
-}
-
-type WorkspaceConstraintsValidationV1Params struct {
-	Workspace *schema.Workspace
-}
-
-type NetworkConstraintsValidationV1Params struct {
-	Workspace       *schema.Workspace
-	NetworkResource *schema.Network
-}
-
-type RegionConstraintsValidationV1Params struct {
-	Workspace *schema.Workspace
-}
-
-// Constraints Violations
-
-type TenantConstraintsViolationsV1Params struct {
-	Role *schema.Role
-}
-
-type RoleConstraintsViolationsV1Params struct {
+type RoleConstraintsValidationV1Params struct {
 	OverLengthNameRole       *schema.Role
 	InvalidPatternNameRole   *schema.Role
 	OverLengthLabelValueRole *schema.Role
 	OverLengthAnnotationRole *schema.Role
 }
-type RoleAssignmentConstraintsViolationsV1Params struct {
+type RoleAssignmentConstraintsValidationV1Params struct {
 	OverLengthNameRoleAssignment       *schema.RoleAssignment
 	InvalidPatternNameRoleAssignment   *schema.RoleAssignment
 	OverLengthLabelValueRoleAssignment *schema.RoleAssignment
 	OverLengthAnnotationRoleAssignment *schema.RoleAssignment
 }
 
-type InstanceConstraintsViolationsV1Params struct {
+type InstanceConstraintsValidationV1Params struct {
 	Workspace                    *schema.Workspace
 	BlockStorage                 *schema.BlockStorage
 	OverLengthNameInstance       *schema.Instance
@@ -136,14 +113,14 @@ type InstanceConstraintsViolationsV1Params struct {
 	OverLengthAnnotationInstance *schema.Instance
 }
 
-type WorkspaceConstraintsViolationsV1Params struct {
+type WorkspaceConstraintsValidationV1Params struct {
 	OverLengthNameWorkspace       *schema.Workspace
 	InvalidPatternNameWorkspace   *schema.Workspace
 	OverLengthLabelValueWorkspace *schema.Workspace
 	OverLengthAnnotationWorkspace *schema.Workspace
 }
 
-type BlockStorageConstraintsViolationsV1Params struct {
+type BlockStorageConstraintsValidationV1Params struct {
 	Workspace                        *schema.Workspace
 	OverLengthNameBlockStorage       *schema.BlockStorage
 	InvalidPatternNameBlockStorage   *schema.BlockStorage
@@ -151,7 +128,7 @@ type BlockStorageConstraintsViolationsV1Params struct {
 	OverLengthAnnotationBlockStorage *schema.BlockStorage
 }
 
-type ImageConstraintsViolationsV1Params struct {
+type ImageConstraintsValidationV1Params struct {
 	Workspace                 *schema.Workspace
 	BlockStorage              *schema.BlockStorage
 	OverLengthNameImage       *schema.Image
@@ -275,9 +252,9 @@ type FoundationUsageV1Params struct {
 	Instance        *schema.Instance
 }
 
-// Network Constraints Violations
+// Network Constraints
 
-type NetworkConstraintsViolationsV1Params struct {
+type NetworkConstraintsValidationV1Params struct {
 	Workspace                   *schema.Workspace
 	InternetGateway             *schema.InternetGateway
 	OverLengthNameNetwork       *schema.Network
@@ -286,7 +263,7 @@ type NetworkConstraintsViolationsV1Params struct {
 	OverLengthAnnotationNetwork *schema.Network
 }
 
-type InternetGatewayConstraintsViolationsV1Params struct {
+type InternetGatewayConstraintsValidationV1Params struct {
 	Workspace                           *schema.Workspace
 	OverLengthNameInternetGateway       *schema.InternetGateway
 	InvalidPatternNameInternetGateway   *schema.InternetGateway
@@ -294,7 +271,7 @@ type InternetGatewayConstraintsViolationsV1Params struct {
 	OverLengthAnnotationInternetGateway *schema.InternetGateway
 }
 
-type PublicIpConstraintsViolationsV1Params struct {
+type PublicIpConstraintsValidationV1Params struct {
 	Workspace                    *schema.Workspace
 	OverLengthNamePublicIp       *schema.PublicIp
 	InvalidPatternNamePublicIp   *schema.PublicIp
@@ -302,7 +279,7 @@ type PublicIpConstraintsViolationsV1Params struct {
 	OverLengthAnnotationPublicIp *schema.PublicIp
 }
 
-type NicConstraintsViolationsV1Params struct {
+type NicConstraintsValidationV1Params struct {
 	Workspace               *schema.Workspace
 	OverLengthNameNic       *schema.Nic
 	InvalidPatternNameNic   *schema.Nic
@@ -310,7 +287,7 @@ type NicConstraintsViolationsV1Params struct {
 	OverLengthAnnotationNic *schema.Nic
 }
 
-type SecurityGroupConstraintsViolationsV1Params struct {
+type SecurityGroupConstraintsValidationV1Params struct {
 	Workspace                         *schema.Workspace
 	OverLengthNameSecurityGroup       *schema.SecurityGroup
 	InvalidPatternNameSecurityGroup   *schema.SecurityGroup
@@ -318,7 +295,7 @@ type SecurityGroupConstraintsViolationsV1Params struct {
 	OverLengthAnnotationSecurityGroup *schema.SecurityGroup
 }
 
-type SecurityGroupRuleConstraintsViolationsV1Params struct {
+type SecurityGroupRuleConstraintsValidationV1Params struct {
 	Workspace                             *schema.Workspace
 	OverLengthNameSecurityGroupRule       *schema.SecurityGroupRule
 	InvalidPatternNameSecurityGroupRule   *schema.SecurityGroupRule
@@ -326,7 +303,7 @@ type SecurityGroupRuleConstraintsViolationsV1Params struct {
 	OverLengthAnnotationSecurityGroupRule *schema.SecurityGroupRule
 }
 
-type RouteTableConstraintsViolationsV1Params struct {
+type RouteTableConstraintsValidationV1Params struct {
 	Workspace                      *schema.Workspace
 	Network                        *schema.Network
 	InternetGateway                *schema.InternetGateway
@@ -336,7 +313,7 @@ type RouteTableConstraintsViolationsV1Params struct {
 	OverLengthAnnotationRouteTable *schema.RouteTable
 }
 
-type SubnetConstraintsViolationsV1Params struct {
+type SubnetConstraintsValidationV1Params struct {
 	Workspace                  *schema.Workspace
 	Network                    *schema.Network
 	InternetGateway            *schema.InternetGateway

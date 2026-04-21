@@ -25,7 +25,7 @@ func TestWorkspaceV1Suites(t *testing.T) {
 	}
 
 	// Constraints Violations Suite
-	workspaceConstraintsSuite := workspace.CreateWorkspaceConstraintsViolationsV1TestSuite(regionalTestSuite)
+	workspaceConstraintsSuite := workspace.CreateWorkspaceConstraintsValidationV1TestSuite(regionalTestSuite)
 	if workspaceConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, workspaceConstraintsSuite)
 	}

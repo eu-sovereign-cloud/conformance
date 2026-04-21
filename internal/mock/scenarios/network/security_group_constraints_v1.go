@@ -7,7 +7,7 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureSecurityGroupConstraintsViolationsV1(scenario *mockscenarios.Scenario, p params.SecurityGroupConstraintsViolationsV1Params) error {
+func ConfigureSecurityGroupConstraintsValidationV1(scenario *mockscenarios.Scenario, p params.SecurityGroupConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -26,15 +26,32 @@ func ConfigureSecurityGroupConstraintsViolationsV1(scenario *mockscenarios.Scena
 		return err
 	}
 
-	for _, url := range []string{
-		generators.GenerateSecurityGroupURL(sdkconsts.NetworkProviderV1Name, p.OverLengthNameSecurityGroup.Metadata.Tenant, p.OverLengthNameSecurityGroup.Metadata.Workspace, p.OverLengthNameSecurityGroup.Metadata.Name),
-		generators.GenerateSecurityGroupURL(sdkconsts.NetworkProviderV1Name, p.InvalidPatternNameSecurityGroup.Metadata.Tenant, p.InvalidPatternNameSecurityGroup.Metadata.Workspace, p.InvalidPatternNameSecurityGroup.Metadata.Name),
-		generators.GenerateSecurityGroupURL(sdkconsts.NetworkProviderV1Name, p.OverLengthLabelValueSecurityGroup.Metadata.Tenant, p.OverLengthLabelValueSecurityGroup.Metadata.Workspace, p.OverLengthLabelValueSecurityGroup.Metadata.Name),
-		generators.GenerateSecurityGroupURL(sdkconsts.NetworkProviderV1Name, p.OverLengthAnnotationSecurityGroup.Metadata.Tenant, p.OverLengthAnnotationSecurityGroup.Metadata.Workspace, p.OverLengthAnnotationSecurityGroup.Metadata.Name),
-	} {
-		if err := configurator.ConfigurePutUnprocessableEntityStub(url, scenario.MockParams); err != nil {
-			return err
-		}
+	// Over-length name Validation
+	overLengthNameSecurityGroup := p.OverLengthNameSecurityGroup
+	overLengthNameURL := generators.GenerateSecurityGroupURL(sdkconsts.NetworkProviderV1Name, overLengthNameSecurityGroup.Metadata.Tenant, overLengthNameSecurityGroup.Metadata.Workspace, overLengthNameSecurityGroup.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthNameURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Invalid pattern name Validation
+	invalidPatternNameSecurityGroup := p.InvalidPatternNameSecurityGroup
+	invalidPatternNameURL := generators.GenerateSecurityGroupURL(sdkconsts.NetworkProviderV1Name, invalidPatternNameSecurityGroup.Metadata.Tenant, invalidPatternNameSecurityGroup.Metadata.Workspace, invalidPatternNameSecurityGroup.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(invalidPatternNameURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length label value Validation
+	overLengthLabelSecurityGroup := p.OverLengthLabelValueSecurityGroup
+	overLengthLabelURL := generators.GenerateSecurityGroupURL(sdkconsts.NetworkProviderV1Name, overLengthLabelSecurityGroup.Metadata.Tenant, overLengthLabelSecurityGroup.Metadata.Workspace, overLengthLabelSecurityGroup.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthLabelURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length annotation value Validation
+	overLengthAnnotationSecurityGroup := p.OverLengthAnnotationSecurityGroup
+	overLengthAnnotationURL := generators.GenerateSecurityGroupURL(sdkconsts.NetworkProviderV1Name, overLengthAnnotationSecurityGroup.Metadata.Tenant, overLengthAnnotationSecurityGroup.Metadata.Workspace, overLengthAnnotationSecurityGroup.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthAnnotationURL, scenario.MockParams); err != nil {
+		return err
 	}
 
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {

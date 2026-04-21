@@ -7,7 +7,7 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureSubnetConstraintsViolationsV1(scenario *mockscenarios.Scenario, p params.SubnetConstraintsViolationsV1Params) error {
+func ConfigureSubnetConstraintsValidationV1(scenario *mockscenarios.Scenario, p params.SubnetConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -64,15 +64,32 @@ func ConfigureSubnetConstraintsViolationsV1(scenario *mockscenarios.Scenario, p 
 		return err
 	}
 
-	for _, url := range []string{
-		generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, p.OverLengthNameSubnet.Metadata.Tenant, p.OverLengthNameSubnet.Metadata.Workspace, p.OverLengthNameSubnet.Metadata.Network, p.OverLengthNameSubnet.Metadata.Name),
-		generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, p.InvalidPatternNameSubnet.Metadata.Tenant, p.InvalidPatternNameSubnet.Metadata.Workspace, p.InvalidPatternNameSubnet.Metadata.Network, p.InvalidPatternNameSubnet.Metadata.Name),
-		generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, p.OverLengthLabelValueSubnet.Metadata.Tenant, p.OverLengthLabelValueSubnet.Metadata.Workspace, p.OverLengthLabelValueSubnet.Metadata.Network, p.OverLengthLabelValueSubnet.Metadata.Name),
-		generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, p.OverLengthAnnotationSubnet.Metadata.Tenant, p.OverLengthAnnotationSubnet.Metadata.Workspace, p.OverLengthAnnotationSubnet.Metadata.Network, p.OverLengthAnnotationSubnet.Metadata.Name),
-	} {
-		if err := configurator.ConfigurePutUnprocessableEntityStub(url, scenario.MockParams); err != nil {
-			return err
-		}
+	// Over-length name Validation
+	overLengthNameSubnet := p.OverLengthNameSubnet
+	overLengthNameURL := generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, overLengthNameSubnet.Metadata.Tenant, overLengthNameSubnet.Metadata.Workspace, overLengthNameSubnet.Metadata.Network, overLengthNameSubnet.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthNameURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Invalid pattern name Validation
+	invalidPatternNameSubnet := p.InvalidPatternNameSubnet
+	invalidPatternNameURL := generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, invalidPatternNameSubnet.Metadata.Tenant, invalidPatternNameSubnet.Metadata.Workspace, invalidPatternNameSubnet.Metadata.Network, invalidPatternNameSubnet.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(invalidPatternNameURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length label value Validation
+	overLengthLabelSubnet := p.OverLengthLabelValueSubnet
+	overLengthLabelURL := generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, overLengthLabelSubnet.Metadata.Tenant, overLengthLabelSubnet.Metadata.Workspace, overLengthLabelSubnet.Metadata.Network, overLengthLabelSubnet.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthLabelURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length annotation value Validation
+	overLengthAnnotationSubnet := p.OverLengthAnnotationSubnet
+	overLengthAnnotationURL := generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, overLengthAnnotationSubnet.Metadata.Tenant, overLengthAnnotationSubnet.Metadata.Workspace, overLengthAnnotationSubnet.Metadata.Network, overLengthAnnotationSubnet.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthAnnotationURL, scenario.MockParams); err != nil {
+		return err
 	}
 
 	if err := configurator.ConfigureDeleteStub(gatewayURL, scenario.MockParams); err != nil {

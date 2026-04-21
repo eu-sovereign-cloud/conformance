@@ -10,7 +10,7 @@ import (
 // ConfigureBlockStorageConstraintsV1 sets up mock stubs for the block storage
 // constraints violations suite. Creates a valid workspace environment before testing
 // violations, all invalid block storage requests returning 422 Unprocessable Entity.
-func ConfigureBlockStorageConstraintsV1(scenario *mockscenarios.Scenario, p params.BlockStorageConstraintsViolationsV1Params) error {
+func ConfigureBlockStorageConstraintsV1(scenario *mockscenarios.Scenario, p params.BlockStorageConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err

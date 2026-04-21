@@ -7,10 +7,10 @@ import (
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-// ConfigureInstanceConstraintsViolationsV1 sets up mock stubs for the instance constraints
-// violations suite. Creates a valid workspace + block storage environment before testing
-// violations, all invalid instance requests returning 422 Unprocessable Entity.
-func ConfigureInstanceConstraintsViolationsV1(scenario *mockscenarios.Scenario, p params.InstanceConstraintsViolationsV1Params) error {
+// ConfigureInstanceConstraintsValidationV1 sets up mock stubs for the instance constraints
+// validation suite. Creates a valid workspace + block storage environment before testing
+// validation, all invalid instance requests returning 422 Unprocessable Entity.
+func ConfigureInstanceConstraintsValidationV1(scenario *mockscenarios.Scenario, p params.InstanceConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
