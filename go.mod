@@ -9,7 +9,7 @@ require (
 	github.com/ozontech/allure-go/pkg/allure v0.8.2
 	github.com/ozontech/allure-go/pkg/framework v0.8.1
 	github.com/spf13/cobra v1.10.2
-	github.com/wiremock/go-wiremock v1.15.0
+	github.com/wiremock/go-wiremock v1.16.0
 )
 
 require (
