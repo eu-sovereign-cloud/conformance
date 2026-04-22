@@ -91,29 +91,39 @@ func (suite *SecurityGroupRuleConstraintsValidationV1TestSuite) BeforeAll(t prov
 }
 
 func (suite *SecurityGroupRuleConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroupRule))
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalNetworkResourceMetadataKindResourceKindSecurityGroupRule))
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
-	workspace := suite.params.Workspace
-	workspaceTRef := secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   workspace.Metadata.Name,
-	}
+	// Workspace
 
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create workspace for test environment", suite.Client.WorkspaceV1, workspace,
+	// Create a workspace
+	workspace := suite.params.Workspace
+	expectWorkspaceMeta := workspace.Metadata
+	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         workspace.Labels,
-			Annotations:    workspace.Annotations,
-			Metadata:       workspace.Metadata,
+			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
+			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
+
+	// Get the created Workspace
+	workspaceTRef := secapi.TenantReference{
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+		Name:   workspace.Metadata.Name,
+	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
-			Labels:   workspace.Labels,
-			Metadata: workspace.Metadata,
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
 			ResourceStatus: schema.WorkspaceStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
@@ -121,6 +131,7 @@ func (suite *SecurityGroupRuleConstraintsValidationV1TestSuite) TestScenario(t p
 		},
 	)
 
+	// Security Group Rule
 	stepsBuilder.CreateOrUpdateSecurityGroupRuleExpectViolationV1Step(
 		"Create a security group rule with name exceeding maxLength:128 — expect rejection",
 		suite.Client.NetworkV1,
@@ -142,8 +153,8 @@ func (suite *SecurityGroupRuleConstraintsValidationV1TestSuite) TestScenario(t p
 		suite.params.OverLengthAnnotationSecurityGroupRule,
 	)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

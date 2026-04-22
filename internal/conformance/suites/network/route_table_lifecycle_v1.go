@@ -41,7 +41,7 @@ type RouteTableLifeCycleV1Config struct {
 }
 
 func (suite *RouteTableLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Network")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	networkName := generators.GenerateNetworkName()
@@ -166,10 +166,12 @@ func (suite *RouteTableLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
-		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable))
+	suite.ConfigureDepends(t,
+		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
+		string(schema.RegionalResourceMetadataKindResourceKindNetwork),
+		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
 	)
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
@@ -182,7 +184,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	expectWorkspaceAnnotations := workspace.Annotations
 	expectWorkspaceExtensions := workspace.Extensions
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Annotations:    expectWorkspaceAnnotations,
@@ -217,7 +219,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectNetworkLabels := network.Labels
 	expectNetworkAnnotations := network.Annotations
 	expectNetworkExtensions := network.Extensions
-	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.Client.NetworkV1, network,
+	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", t, suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Labels:         expectNetworkLabels,
 			Annotations:    expectNetworkAnnotations,
@@ -237,7 +239,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectInternetGatLabels := internetGat.Labels
 	expectInternetGatAnnotations := internetGat.Annotations
 	expectInternetGatExtensions := internetGat.Extensions
-	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", suite.Client.NetworkV1, internetGat,
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", t, suite.Client.NetworkV1, internetGat,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Labels:         expectInternetGatLabels,
 			Annotations:    expectInternetGatAnnotations,
@@ -275,7 +277,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRouteLabels := route.Labels
 	expectRouteAnnotations := route.Annotations
 	expectRouteExtensions := route.Extensions
-	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, route,
+	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", t, suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Labels:         expectRouteLabels,
 			Annotations:    expectRouteAnnotations,
@@ -327,7 +329,7 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRouteLabels = route.Labels
 	expectRouteAnnotations = route.Annotations
 	expectRouteExtensions = route.Extensions
-	stepsBuilder.CreateOrUpdateRouteTableV1Step("Update the route table", suite.Client.NetworkV1, route,
+	stepsBuilder.CreateOrUpdateRouteTableV1Step("Update the route table", t, suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Labels:         expectRouteLabels,
 			Annotations:    expectRouteAnnotations,
@@ -352,18 +354,18 @@ func (suite *RouteTableLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 
-	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.Client.NetworkV1, internetGat)
-	stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", suite.Client.NetworkV1, internetGatWRef)
+	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.Client.NetworkV1, internetGat)
+	stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", t, suite.Client.NetworkV1, internetGatWRef)
 
 	// Resources deletion
-	stepsBuilder.DeleteRouteTableV1Step("Delete the route table", suite.Client.NetworkV1, route)
-	stepsBuilder.WatchRouteTableUntilDeletedV1Step("Watch the route table deletion", suite.Client.NetworkV1, routeNRef)
+	stepsBuilder.DeleteRouteTableV1Step("Delete the route table", t, suite.Client.NetworkV1, route)
+	stepsBuilder.WatchRouteTableUntilDeletedV1Step("Watch the route table deletion", t, suite.Client.NetworkV1, routeNRef)
 
-	stepsBuilder.DeleteNetworkV1Step("Delete the network", suite.Client.NetworkV1, network)
-	stepsBuilder.WatchNetworkUntilDeletedV1Step("Watch the network deletion", suite.Client.NetworkV1, networkWRef)
+	stepsBuilder.DeleteNetworkV1Step("Delete the network", t, suite.Client.NetworkV1, network)
+	stepsBuilder.WatchNetworkUntilDeletedV1Step("Watch the network deletion", t, suite.Client.NetworkV1, networkWRef)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

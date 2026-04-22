@@ -48,71 +48,42 @@ func (suite *RoleConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		{Provider: sdkconsts.StorageProviderV1Name, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
 	}
 
-	// Role with name exceeding maxLength: 128 (129 chars)
-	overLengthName := strings.Repeat("a", 129)
-	overLengthNameRole, err := builders.NewRoleBuilder().
-		Name(overLengthName).
-		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "Role with over-length name"}).
-		Spec(&schema.RoleSpec{Permissions: basePermissions}).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthNameRole: %v", err)
-	}
-
-	// Role with name violating kebab-case pattern (uppercase letters)
-	invalidPatternName := "Invalid-Name-With-Uppercase"
-	invalidPatternNameRole, err := builders.NewRoleBuilder().
-		Name(invalidPatternName).
-		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "Role with non-kebab-case name"}).
-		Spec(&schema.RoleSpec{Permissions: basePermissions}).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build invalidPatternNameRole: %v", err)
-	}
-
-	// Role with label value exceeding maxLength: 63 (64 chars)
-	overLengthLabelRole, err := builders.NewRoleBuilder().
-		Name(generators.GenerateRoleName()).
-		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).
-		Labels(schema.Labels{
-			constants.EnvLabel: constants.EnvConformanceLabel,
-			"constraint-test":  strings.Repeat("x", 64),
-		}).
-		Annotations(schema.Annotations{"description": "Role with over-length label value"}).
-		Spec(&schema.RoleSpec{Permissions: basePermissions}).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthLabelRole: %v", err)
-	}
-
-	// Role with annotation value exceeding maxLength: 1024 (1025 chars)
-	overLengthAnnotationRole, err := builders.NewRoleBuilder().
-		Name(generators.GenerateRoleName()).
-		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{
-			"description":     "Role with over-length annotation value",
-			"long-annotation": strings.Repeat("y", 1025),
-		}).
-		Spec(&schema.RoleSpec{Permissions: basePermissions}).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthAnnotationRole: %v", err)
+	buildRole := func(name string, labels schema.Labels, annotations schema.Annotations) *schema.Role {
+		role, err := builders.NewRoleBuilder().
+			Name(name).
+			Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).
+			Labels(labels).
+			Annotations(annotations).
+			Spec(&schema.RoleSpec{Permissions: basePermissions}).
+			Build()
+		if err != nil {
+			t.Fatalf("Failed to build Role: %v", err)
+		}
+		return role
 	}
 
 	p := &params.RoleConstraintsValidationV1Params{
-		OverLengthNameRole:       overLengthNameRole,
-		InvalidPatternNameRole:   invalidPatternNameRole,
-		OverLengthLabelValueRole: overLengthLabelRole,
-		OverLengthAnnotationRole: overLengthAnnotationRole,
+		OverLengthNameRole: buildRole(
+			strings.Repeat("a", 129),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "Role with over-length name"},
+		),
+		InvalidPatternNameRole: buildRole(
+			"Invalid-Name-With-Uppercase",
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "Role with non-kebab-case name"},
+		),
+		OverLengthLabelValueRole: buildRole(
+			generators.GenerateRoleName(),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel, "constraint-test": strings.Repeat("x", 64)},
+			schema.Annotations{"description": "Role with over-length label value"},
+		),
+		OverLengthAnnotationRole: buildRole(
+			generators.GenerateRoleName(),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "Role with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleConstraintsValidationV1, *p); err != nil {
@@ -121,33 +92,26 @@ func (suite *RoleConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *RoleConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.AuthorizationProviderV1Name, string(schema.GlobalTenantResourceMetadataKindResourceKindRole))
+	suite.StartScenario(t, sdkconsts.AuthorizationProviderV1Name)
+	suite.ConfigureResources(t, string(schema.GlobalTenantResourceMetadataKindResourceKindRole))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
-	// name: maxLength 128 — must be rejected
 	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
 		"Create a role with name exceeding maxLength:128 — expect rejection",
 		suite.Client.AuthorizationV1,
 		suite.params.OverLengthNameRole,
 	)
-
-	// name: pattern — must be rejected
 	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
 		"Create a role with invalid name pattern (not kebab-case) — expect rejection",
 		suite.Client.AuthorizationV1,
 		suite.params.InvalidPatternNameRole,
 	)
-
-	// labels value: maxLength 63 — must be rejected
 	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
 		"Create a role with label value exceeding maxLength:63 — expect rejection",
 		suite.Client.AuthorizationV1,
 		suite.params.OverLengthLabelValueRole,
 	)
-
-	// annotations value: maxLength 1024 — must be rejected
 	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
 		"Create a role with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.AuthorizationV1,

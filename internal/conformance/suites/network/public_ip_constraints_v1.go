@@ -62,62 +62,44 @@ func (suite *PublicIpConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Workspace: %v", err)
 	}
 
-	overLengthNamePublicIp, err := builders.NewPublicIpBuilder().
-		Name(strings.Repeat("a", 129)).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "PublicIp with over-length name"}).
-		Spec(&schema.PublicIpSpec{Version: schema.IPVersionIPv4, Address: publicIpAddress}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthNamePublicIp: %v", err)
-	}
-
-	invalidPatternNamePublicIp, err := builders.NewPublicIpBuilder().
-		Name("Invalid-Name-With-Uppercase").
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "PublicIp with non-kebab-case name"}).
-		Spec(&schema.PublicIpSpec{Version: schema.IPVersionIPv4, Address: publicIpAddress}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build invalidPatternNamePublicIp: %v", err)
-	}
-
-	overLengthLabelPublicIp, err := builders.NewPublicIpBuilder().
-		Name(generators.GeneratePublicIpName()).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{
-			constants.EnvLabel: constants.EnvConformanceLabel,
-			"constraint-test":  strings.Repeat("x", 64),
-		}).
-		Annotations(schema.Annotations{"description": "PublicIp with over-length label value"}).
-		Spec(&schema.PublicIpSpec{Version: schema.IPVersionIPv4, Address: publicIpAddress}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthLabelPublicIp: %v", err)
-	}
-
-	overLengthAnnotationPublicIp, err := builders.NewPublicIpBuilder().
-		Name(generators.GeneratePublicIpName()).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{
-			"description":     "PublicIp with over-length annotation value",
-			"long-annotation": strings.Repeat("y", 1025),
-		}).
-		Spec(&schema.PublicIpSpec{Version: schema.IPVersionIPv4, Address: publicIpAddress}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthAnnotationPublicIp: %v", err)
+	buildPublicIp := func(name string, labels schema.Labels, annotations schema.Annotations) *schema.PublicIp {
+		pip, err := builders.NewPublicIpBuilder().
+			Name(name).
+			Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+			Labels(labels).Annotations(annotations).
+			Spec(&schema.PublicIpSpec{
+				Version: schema.IPVersionIPv4,
+				Address: publicIpAddress,
+			}).Build()
+		if err != nil {
+			t.Fatalf("Failed to build PublicIp: %v", err)
+		}
+		return pip
 	}
 
 	p := &params.PublicIpConstraintsValidationV1Params{
-		Workspace:                    workspace,
-		OverLengthNamePublicIp:       overLengthNamePublicIp,
-		InvalidPatternNamePublicIp:   invalidPatternNamePublicIp,
-		OverLengthLabelValuePublicIp: overLengthLabelPublicIp,
-		OverLengthAnnotationPublicIp: overLengthAnnotationPublicIp,
+		Workspace: workspace,
+		OverLengthNamePublicIp: buildPublicIp(
+			strings.Repeat("a", 129),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "PublicIp with over-length name"},
+		),
+		InvalidPatternNamePublicIp: buildPublicIp(
+			"Invalid-Name-With-Uppercase",
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "PublicIp with non-kebab-case name"},
+		),
+		OverLengthLabelValuePublicIp: buildPublicIp(
+			generators.GeneratePublicIpName(),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel, "constraint-test": strings.Repeat("x", 64)},
+			schema.Annotations{"description": "PublicIp with over-length label value"},
+		),
+		OverLengthAnnotationPublicIp: buildPublicIp(
+			generators.GeneratePublicIpName(),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "PublicIp with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigurePublicIpConstraintsValidationV1, *p); err != nil {
@@ -126,29 +108,39 @@ func (suite *PublicIpConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *PublicIpConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP))
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalNetworkResourceMetadataKindResourceKindPublicIP))
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
-	workspace := suite.params.Workspace
-	workspaceTRef := secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   workspace.Metadata.Name,
-	}
+	// Workspace
 
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create workspace for test environment", suite.Client.WorkspaceV1, workspace,
+	// Create a workspace
+	workspace := suite.params.Workspace
+	expectWorkspaceMeta := workspace.Metadata
+	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         workspace.Labels,
-			Annotations:    workspace.Annotations,
-			Metadata:       workspace.Metadata,
+			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
+			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
+
+	// Get the created Workspace
+	workspaceTRef := secapi.TenantReference{
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+		Name:   workspace.Metadata.Name,
+	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
-			Labels:   workspace.Labels,
-			Metadata: workspace.Metadata,
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
 			ResourceStatus: schema.WorkspaceStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
@@ -156,6 +148,7 @@ func (suite *PublicIpConstraintsValidationV1TestSuite) TestScenario(t provider.T
 		},
 	)
 
+	// Public ip constraints violations
 	stepsBuilder.CreateOrUpdatePublicIpExpectViolationV1Step(
 		"Create a public ip with name exceeding maxLength:128 — expect rejection",
 		suite.Client.NetworkV1,
@@ -177,8 +170,8 @@ func (suite *PublicIpConstraintsValidationV1TestSuite) TestScenario(t provider.T
 		suite.params.OverLengthAnnotationPublicIp,
 	)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

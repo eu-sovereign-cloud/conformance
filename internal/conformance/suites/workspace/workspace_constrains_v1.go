@@ -41,67 +41,40 @@ func CreateWorkspaceConstraintsValidationV1TestSuite(regionalTestSuite suites.Re
 func (suite *WorkspaceConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Constraints")
 
-	// Workspace with name exceeding maxLength: 128 (129 chars)
-	overLengthName := strings.Repeat("a", 129)
-	overLengthNameWorkspace, err := builders.NewWorkspaceBuilder().
-		Name(overLengthName).
-		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "Workspace with over-length name"}).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthNameWorkspace: %v", err)
-	}
-
-	// Workspace with name violating kebab-case pattern (uppercase letters)
-	invalidPatternName := "Invalid-Name-With-Uppercase"
-	invalidPatternNameWorkspace, err := builders.NewWorkspaceBuilder().
-		Name(invalidPatternName).
-		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "Workspace with non-kebab-case name"}).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build invalidPatternNameWorkspace: %v", err)
-	}
-
-	// Workspace with label value exceeding maxLength: 63 (64 chars)
-	overLengthLabelWorkspace, err := builders.NewWorkspaceBuilder().
-		Name(generators.GenerateWorkspaceName()).
-		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Region(suite.Region).
-		Labels(schema.Labels{
-			constants.EnvLabel: constants.EnvConformanceLabel,
-			"constraint-test":  strings.Repeat("x", 64),
-		}).
-		Annotations(schema.Annotations{"description": "Workspace with over-length label value"}).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthLabelWorkspace: %v", err)
-	}
-
-	// Workspace with annotation value exceeding maxLength: 1024 (1025 chars)
-	overLengthAnnotationWorkspace, err := builders.NewWorkspaceBuilder().
-		Name(generators.GenerateWorkspaceName()).
-		Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{
-			"description":     "Workspace with over-length annotation value",
-			"long-annotation": strings.Repeat("y", 1025),
-		}).
-		Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthAnnotationWorkspace: %v", err)
+	buildWorkspace := func(name string, labels schema.Labels, annotations schema.Annotations) *schema.Workspace {
+		ws, err := builders.NewWorkspaceBuilder().
+			Name(name).
+			Provider(sdkconsts.WorkspaceProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).Region(suite.Region).
+			Labels(labels).Annotations(annotations).
+			Build()
+		if err != nil {
+			t.Fatalf("Failed to build Workspace: %v", err)
+		}
+		return ws
 	}
 
 	p := &params.WorkspaceConstraintsValidationV1Params{
-		OverLengthNameWorkspace:       overLengthNameWorkspace,
-		InvalidPatternNameWorkspace:   invalidPatternNameWorkspace,
-		OverLengthLabelValueWorkspace: overLengthLabelWorkspace,
-		OverLengthAnnotationWorkspace: overLengthAnnotationWorkspace,
+		OverLengthNameWorkspace: buildWorkspace(
+			strings.Repeat("a", 129),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "Workspace with over-length name"},
+		),
+		InvalidPatternNameWorkspace: buildWorkspace(
+			"Invalid-Name-With-Uppercase",
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "Workspace with non-kebab-case name"},
+		),
+		OverLengthLabelValueWorkspace: buildWorkspace(
+			generators.GenerateWorkspaceName(),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel, "constraint-test": strings.Repeat("x", 64)},
+			schema.Annotations{"description": "Workspace with over-length label value"},
+		),
+		OverLengthAnnotationWorkspace: buildWorkspace(
+			generators.GenerateWorkspaceName(),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "Workspace with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockworkspace.ConfigureWorkspaceConstraintsViolationsV1, *p); err != nil {
@@ -110,33 +83,26 @@ func (suite *WorkspaceConstraintsValidationV1TestSuite) BeforeAll(t provider.T) 
 }
 
 func (suite *WorkspaceConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.WorkspaceProviderV1Name, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.StartScenario(t, sdkconsts.WorkspaceProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
-	// name: maxLength 128 — must be rejected
 	stepsBuilder.CreateOrUpdateWorkspaceExpectViolationV1Step(
 		"Create a workspace with name exceeding maxLength:128 — expect rejection",
 		suite.Client.WorkspaceV1,
 		suite.params.OverLengthNameWorkspace,
 	)
-
-	// name: pattern — must be rejected
 	stepsBuilder.CreateOrUpdateWorkspaceExpectViolationV1Step(
 		"Create a workspace with invalid name pattern (not kebab-case) — expect rejection",
 		suite.Client.WorkspaceV1,
 		suite.params.InvalidPatternNameWorkspace,
 	)
-
-	// labels value: maxLength 63 — must be rejected
 	stepsBuilder.CreateOrUpdateWorkspaceExpectViolationV1Step(
 		"Create a workspace with label value exceeding maxLength:63 — expect rejection",
 		suite.Client.WorkspaceV1,
 		suite.params.OverLengthLabelValueWorkspace,
 	)
-
-	// annotations value: maxLength 1024 — must be rejected
 	stepsBuilder.CreateOrUpdateWorkspaceExpectViolationV1Step(
 		"Create a workspace with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.WorkspaceV1,

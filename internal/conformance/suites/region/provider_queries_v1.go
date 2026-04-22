@@ -3,11 +3,11 @@ package region
 import (
 	"context"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	mockRegion "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/region"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
@@ -34,29 +34,26 @@ func CreateProviderQueriesV1TestSuite(globalTestSuite suites.GlobalTestSuite, cl
 }
 
 func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Region")
+	t.AddParentSuite(suites.RegionParentSuite)
 
 	// Generate scenario Names
-	var regions []schema.Region
+	var regionsMetadata []schema.GlobalResourceMetadata
 	for _, region := range suite.Regions {
 
-		resource, err := builders.NewRegionBuilder().
+		metadata, err := builders.NewRegionMetadataBuilder().
 			Name(region).
 			Provider(sdkconsts.RegionProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-			Spec(&schema.RegionSpec{
-				AvailableZones: []string{constants.ZoneA, constants.ZoneB},
-				Providers:      mock.BuildProviderSpecV1(),
-			}).
 			Build()
 		if err != nil {
 			t.Fatalf("Failed to build Region: %v", err)
 		}
 
-		regions = append(regions, *resource)
+		regionsMetadata = append(regionsMetadata, *metadata)
 	}
 
 	params := &params.RegionProviderQueriesV1Params{
-		Regions: regions,
+		RegionsMetadata: regionsMetadata,
+		MockProviders:   config.Parameters.MockProviders,
 	}
 	suite.params = params
 	err := suites.SetupMockIfEnabled(suite.TestSuite, mockRegion.ConfigureProviderQueriesV1, *params)
@@ -66,19 +63,21 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.RegionProviderV1Name, string(schema.GlobalResourceMetadataKindResourceKindRegion))
+	suite.StartScenario(t, sdkconsts.RegionProviderV1Name)
+	suite.ConfigureResources(t, string(schema.GlobalResourceMetadataKindResourceKindRegion))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	ctx := context.Background()
 
 	// Test List iterator's (Next and All) for Regions and verify both responses have the same length
-	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1)
+	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1, nil)
 
 	// Call Get Region and verify response
-	expectedRegionMeta := suite.params.Regions[0].Metadata
-	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, expectedRegionMeta)
+	expectedRegionMeta := suite.params.RegionsMetadata[0]
+	stepsBuilder.GetRegionV1Step("Get region "+regions[0].Metadata.Name, ctx, suite.Client.RegionV1, regions[0].Metadata.Name,
+		steps.ResponseExpects[schema.GlobalResourceMetadata, schema.RegionSpec]{Metadata: &expectedRegionMeta},
+	)
 
 	suite.FinishScenario()
 }

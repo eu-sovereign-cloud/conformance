@@ -14,10 +14,8 @@ func ConfigureNetworkConstraintsValidationV1(scenario *mockscenarios.Scenario, p
 	}
 
 	workspace := p.Workspace
-	internetGateway := p.InternetGateway
 
 	workspaceURL := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	gatewayURL := generators.GenerateInternetGatewayURL(sdkconsts.NetworkProviderV1Name, internetGateway.Metadata.Tenant, internetGateway.Metadata.Workspace, internetGateway.Metadata.Name)
 
 	// Create workspace
 	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
@@ -27,17 +25,6 @@ func ConfigureNetworkConstraintsValidationV1(scenario *mockscenarios.Scenario, p
 		return err
 	}
 	if err := configurator.ConfigureGetActiveWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Create internet gateway (needed as dependency for network spec)
-	if err := configurator.ConfigureCreateInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetCreatingInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetActiveInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}
 
@@ -69,17 +56,6 @@ func ConfigureNetworkConstraintsValidationV1(scenario *mockscenarios.Scenario, p
 		return err
 	}
 
-	if err := configurator.ConfigureDeleteStub(gatewayURL, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetDeletingInternetGatewayStub(internetGateway, gatewayURL, scenario.MockParams); err != nil {
-		return err
-	}
-	if err := configurator.ConfigureGetNotFoundStub(gatewayURL, scenario.MockParams); err != nil {
-		return err
-	}
-
-	// Teardown workspace
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}

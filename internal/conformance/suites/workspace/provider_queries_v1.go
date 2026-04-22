@@ -31,7 +31,7 @@ func CreateProviderQueriesV1TestSuite(regionalTestSuite suites.RegionalTestSuite
 }
 
 func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Workspace")
+	t.AddParentSuite(suites.WorkspaceParentSuite)
 
 	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
@@ -69,8 +69,8 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.WorkspaceProviderV1Name, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.StartScenario(t, sdkconsts.WorkspaceProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -78,47 +78,28 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	workspaces := suite.params.Workspaces
 
 	// Create workspaces
-	for _, workspace := range workspaces {
-		expectMeta := workspace.Metadata
-		expectLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
-		stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, &workspace,
-			steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-				Labels:         expectLabels,
-				Metadata:       expectMeta,
-				ResourceStates: suites.CreatedResourceExpectedStates,
-			},
-		)
+	steps.BulkCreateWorkspacesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create workspaces", workspaces)
 
+	tpath := secapi.TenantPath{
+		Tenant: secapi.TenantID(suite.Tenant),
 	}
 
 	// List workspaces
-	tref := &secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-	}
-	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, nil)
+	stepsBuilder.ListWorkspaceV1Step("list workspaces", suite.Client.WorkspaceV1, tpath, nil)
 
 	// List workspaces with limit
-	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref, secapi.NewListOptions().WithLimit(1))
+	stepsBuilder.ListWorkspaceV1Step("list workspaces with limit", suite.Client.WorkspaceV1, tpath, secapi.NewListOptions().WithLimit(1))
 
 	// List workspaces with label
-	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
+	stepsBuilder.ListWorkspaceV1Step("list workspaces with label", suite.Client.WorkspaceV1, tpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List workspaces with label and limit
-	stepsBuilder.ListWorkspaceV1Step("list workspace", suite.Client.WorkspaceV1, *tref,
+	stepsBuilder.ListWorkspaceV1Step("list workspaces with label and limit", suite.Client.WorkspaceV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all workspaces
-	for _, workspace := range workspaces {
-		stepsBuilder.DeleteWorkspaceV1Step("Delete workspace 1", suite.Client.WorkspaceV1, &workspace)
-
-		// Get the deleted workspace
-		workspaceTRef := secapi.TenantReference{
-			Tenant: secapi.TenantID(workspace.Metadata.Tenant),
-			Name:   workspace.Metadata.Name,
-		}
-		stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
-	}
+	steps.BulkDeleteWorkspacesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all workspaces", workspaces)
 
 	suite.FinishScenario()
 }

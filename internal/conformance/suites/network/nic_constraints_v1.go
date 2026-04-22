@@ -1,7 +1,6 @@
 package network
 
 import (
-	"math/rand"
 	"strings"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
@@ -28,8 +27,8 @@ import (
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
 type NicConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
-
 	config *NicLifeCycleV1Config
+
 	params *params.NicConstraintsValidationV1Params
 }
 
@@ -48,24 +47,19 @@ func (suite *NicConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	workspaceName := generators.GenerateWorkspaceName()
 	networkName := generators.GenerateNetworkName()
 	subnetName := generators.GenerateSubnetName()
-	networkSkuName := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
-	zone := suite.config.RegionZones[rand.Intn(len(suite.config.RegionZones))]
 
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.config.NetworkCidr, 8, 1)
 	if err != nil {
 		t.Fatalf("Failed to generate subnet cidr: %v", err)
 	}
+
+	subnetRefObj := generators.GenerateSubnetRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, subnetName)
+
+	// Generate the nic addresses
 	nicAddress, err := generators.GenerateNicAddress(subnetCidr, 1)
 	if err != nil {
 		t.Fatalf("Failed to generate nic address: %v", err)
 	}
-
-	subnetRefObj := generators.GenerateSubnetRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, subnetName)
-	networkSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName)
-	internetGatewayName := generators.GenerateInternetGatewayName()
-	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, internetGatewayName)
-	routeTableName := generators.GenerateRouteTableName()
-	routeTableRefObj := generators.GenerateRouteTableRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, routeTableName)
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
@@ -77,12 +71,6 @@ func (suite *NicConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	if err != nil {
 		t.Fatalf("Failed to build Workspace: %v", err)
 	}
-
-	_ = networkSkuRefObj
-	_ = routeTableRefObj
-	_ = internetGatewayRefObj
-	_ = zone
-	_ = subnetCidr
 
 	buildNic := func(name string, labels schema.Labels, annotations schema.Annotations) *schema.Nic {
 		nic, err := builders.NewNicBuilder().
@@ -102,18 +90,26 @@ func (suite *NicConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 
 	p := &params.NicConstraintsValidationV1Params{
 		Workspace: workspace,
-		OverLengthNameNic: buildNic(strings.Repeat("a", 129),
+		OverLengthNameNic: buildNic(
+			strings.Repeat("a", 129),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "Nic with over-length name"}),
-		InvalidPatternNameNic: buildNic("Invalid-Name-With-Uppercase",
+			schema.Annotations{"description": "Nic with over-length name"},
+		),
+		InvalidPatternNameNic: buildNic(
+			"Invalid-Name-With-Uppercase",
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "Nic with non-kebab-case name"}),
-		OverLengthLabelValueNic: buildNic(generators.GenerateNicName(),
+			schema.Annotations{"description": "Nic with non-kebab-case name"},
+		),
+		OverLengthLabelValueNic: buildNic(
+			generators.GenerateNicName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel, "constraint-test": strings.Repeat("x", 64)},
-			schema.Annotations{"description": "Nic with over-length label value"}),
-		OverLengthAnnotationNic: buildNic(generators.GenerateNicName(),
+			schema.Annotations{"description": "Nic with over-length label value"},
+		),
+		OverLengthAnnotationNic: buildNic(
+			generators.GenerateNicName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "Nic with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)}),
+			schema.Annotations{"description": "Nic with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureNicConstraintsValidationV1, *p); err != nil {
@@ -122,36 +118,47 @@ func (suite *NicConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *NicConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic))
-
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic))
+	suite.ConfigureDepends(t,
+		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
+	)
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
-	workspace := suite.params.Workspace
-	workspaceTRef := secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   workspace.Metadata.Name,
-	}
+	// Workspace
 
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create workspace for test environment", suite.Client.WorkspaceV1, workspace,
+	// Create a workspace
+	workspace := suite.params.Workspace
+	expectWorkspaceMeta := workspace.Metadata
+	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         workspace.Labels,
-			Annotations:    workspace.Annotations,
-			Metadata:       workspace.Metadata,
+			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
+			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
+
+	// Get the created Workspace
+	workspaceTRef := secapi.TenantReference{
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+		Name:   workspace.Metadata.Name,
+	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
-			Labels:   workspace.Labels,
-			Metadata: workspace.Metadata,
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
 			ResourceStatus: schema.WorkspaceStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
 	)
-
+	// Nic constraints violations
 	stepsBuilder.CreateOrUpdateNicExpectViolationV1Step(
 		"Create a nic with name exceeding maxLength:128 — expect rejection",
 		suite.Client.NetworkV1,
@@ -173,8 +180,8 @@ func (suite *NicConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 		suite.params.OverLengthAnnotationNic,
 	)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

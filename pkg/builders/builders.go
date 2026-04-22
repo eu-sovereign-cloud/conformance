@@ -1,8 +1,8 @@
 package builders
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/pkg/types"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/types"
 	"github.com/go-playground/validator/v10"
 )
 

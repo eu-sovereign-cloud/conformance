@@ -28,8 +28,8 @@ import (
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
 type NetworkConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
-
 	config *NetworkLifeCycleV1Config
+
 	params *params.NetworkConstraintsValidationV1Params
 }
 
@@ -46,13 +46,11 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Constraints")
 
 	workspaceName := generators.GenerateWorkspaceName()
-	internetGatewayName := generators.GenerateInternetGatewayName()
-	routeTableName := generators.GenerateRouteTableName()
 	networkName := generators.GenerateNetworkName()
+	routeTableName := generators.GenerateRouteTableName()
 	networkSkuName := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 
 	networkSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName)
-	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, internetGatewayName)
 	routeTableRefObj := generators.GenerateRouteTableRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, routeTableName)
 
 	workspace, err := builders.NewWorkspaceBuilder().
@@ -66,21 +64,8 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Workspace: %v", err)
 	}
 
-	internetGateway, err := builders.NewInternetGatewayBuilder().
-		Name(internetGatewayName).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "InternetGateway for network constraints testing"}).
-		Spec(&schema.InternetGatewaySpec{EgressOnly: false}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build InternetGateway: %v", err)
-	}
-
-	_ = internetGatewayRefObj
-
 	buildNetwork := func(name string, labels schema.Labels, annotations schema.Annotations) *schema.Network {
-		n, err := builders.NewNetworkBuilder().
+		network, err := builders.NewNetworkBuilder().
 			Name(name).
 			Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
@@ -93,24 +78,31 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		if err != nil {
 			t.Fatalf("Failed to build Network: %v", err)
 		}
-		return n
+		return network
 	}
 
 	p := &params.NetworkConstraintsValidationV1Params{
-		Workspace:       workspace,
-		InternetGateway: internetGateway,
-		OverLengthNameNetwork: buildNetwork(strings.Repeat("a", 129),
+		Workspace: workspace,
+		OverLengthNameNetwork: buildNetwork(
+			strings.Repeat("a", 129),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "Network with over-length name"}),
-		InvalidPatternNameNetwork: buildNetwork("Invalid-Name-With-Uppercase",
+			schema.Annotations{"description": "Network with over-length name"},
+		),
+		InvalidPatternNameNetwork: buildNetwork(
+			"Invalid-Name-With-Uppercase",
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "Network with non-kebab-case name"}),
-		OverLengthLabelValueNetwork: buildNetwork(generators.GenerateNetworkName(),
+			schema.Annotations{"description": "Network with non-kebab-case name"},
+		),
+		OverLengthLabelValueNetwork: buildNetwork(
+			generators.GenerateNetworkName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel, "constraint-test": strings.Repeat("x", 64)},
-			schema.Annotations{"description": "Network with over-length label value"}),
-		OverLengthAnnotationNetwork: buildNetwork(generators.GenerateNetworkName(),
+			schema.Annotations{"description": "Network with over-length label value"},
+		),
+		OverLengthAnnotationNetwork: buildNetwork(
+			generators.GenerateNetworkName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "Network with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)}),
+			schema.Annotations{"description": "Network with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureNetworkConstraintsValidationV1, *p); err != nil {
@@ -119,35 +111,40 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *NetworkConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork))
-
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork))
+	suite.ConfigureDepends(t,
+		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
+	)
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
-	workspace := suite.params.Workspace
-	workspaceTRef := secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   workspace.Metadata.Name,
-	}
-	internetGateway := suite.params.InternetGateway
-	gatewayWRef := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(internetGateway.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(internetGateway.Metadata.Workspace),
-		Name:      internetGateway.Metadata.Name,
-	}
+	// Workspace
 
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create workspace for test environment", suite.Client.WorkspaceV1, workspace,
+	// Create a workspace
+	workspace := suite.params.Workspace
+	expectWorkspaceMeta := workspace.Metadata
+	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         workspace.Labels,
-			Annotations:    workspace.Annotations,
-			Metadata:       workspace.Metadata,
+			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
+			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
+
+	// Get the created Workspace
+	workspaceTRef := secapi.TenantReference{
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+		Name:   workspace.Metadata.Name,
+	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
-			Labels:   workspace.Labels,
-			Metadata: workspace.Metadata,
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
 			ResourceStatus: schema.WorkspaceStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
@@ -155,26 +152,7 @@ func (suite *NetworkConstraintsValidationV1TestSuite) TestScenario(t provider.T)
 		},
 	)
 
-	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create internet gateway for test environment", suite.Client.NetworkV1, internetGateway,
-		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Labels:         internetGateway.Labels,
-			Annotations:    internetGateway.Annotations,
-			Metadata:       internetGateway.Metadata,
-			Spec:           &internetGateway.Spec,
-			ResourceStates: suites.CreatedResourceExpectedStates,
-		},
-	)
-	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, gatewayWRef,
-		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.InternetGatewayStatus]{
-			Metadata: internetGateway.Metadata,
-			Spec:     &internetGateway.Spec,
-			ResourceStatus: schema.InternetGatewayStatus{
-				State:      schema.ResourceStateActive,
-				Conditions: suites.GetConditionAfterCreating,
-			},
-		},
-	)
-
+	// Networks with invalid fields
 	stepsBuilder.CreateOrUpdateNetworkExpectViolationV1Step(
 		"Create a network with name exceeding maxLength:128 — expect rejection",
 		suite.Client.NetworkV1,
@@ -196,11 +174,8 @@ func (suite *NetworkConstraintsValidationV1TestSuite) TestScenario(t provider.T)
 		suite.params.OverLengthAnnotationNetwork,
 	)
 
-	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.Client.NetworkV1, internetGateway)
-	stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", suite.Client.NetworkV1, gatewayWRef)
-
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

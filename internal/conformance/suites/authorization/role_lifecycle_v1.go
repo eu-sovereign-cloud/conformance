@@ -33,7 +33,7 @@ func CreateRoleLifeCycleV1TestSuite(globalTestSuite suites.GlobalTestSuite) *Rol
 }
 
 func (suite *RoleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Authorization")
+	t.AddParentSuite(suites.AuthorizationParentSuite)
 
 	// Generate scenario data
 	roleName := generators.GenerateRoleName()
@@ -94,10 +94,8 @@ func (suite *RoleLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.AuthorizationProviderV1Name,
-		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
-	)
+	suite.StartScenario(t, sdkconsts.AuthorizationProviderV1Name)
+	suite.ConfigureResources(t, string(schema.GlobalTenantResourceMetadataKindResourceKindRole))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -110,7 +108,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRoleAnnotations := role.Annotations
 	expectRoleLabels := role.Labels
 	expectRoleExtensions := role.Extensions
-	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, role,
+	stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", t, suite.Client.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Annotations:    expectRoleAnnotations,
@@ -143,7 +141,7 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRoleAnnotations = role.Annotations
 	expectRoleLabels = role.Labels
 	expectRoleExtensions = role.Extensions
-	stepsBuilder.CreateOrUpdateRoleV1Step("Update the role", suite.Client.AuthorizationV1, role,
+	stepsBuilder.CreateOrUpdateRoleV1Step("Update the role", t, suite.Client.AuthorizationV1, role,
 		steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
 			Metadata:       expectRoleMeta,
 			Annotations:    expectRoleAnnotations,
@@ -167,8 +165,8 @@ func (suite *RoleLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Resources deletion
-	stepsBuilder.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, role)
-	stepsBuilder.WatchRoleUntilDeletedV1Step("Watch the role deletion", suite.Client.AuthorizationV1, roleTRef)
+	stepsBuilder.DeleteRoleV1Step("Delete the role", t, suite.Client.AuthorizationV1, role)
+	stepsBuilder.WatchRoleUntilDeletedV1Step("Watch the role deletion", t, suite.Client.AuthorizationV1, roleTRef)
 
 	suite.FinishScenario()
 }

@@ -37,7 +37,7 @@ func CreateProviderQueriesV1TestSuite(globalTestSuite suites.GlobalTestSuite, us
 }
 
 func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Authorization")
+	t.AddParentSuite(suites.AuthorizationParentSuite)
 
 	// Select subs
 	roleAssignmentSub1 := suite.Users[rand.Intn(len(suite.Users))]
@@ -167,8 +167,8 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.AuthorizationProviderV1Name,
+	suite.StartScenario(t, sdkconsts.AuthorizationProviderV1Name)
+	suite.ConfigureResources(t,
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRole),
 		string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment),
 	)
@@ -177,39 +177,28 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// Role
 	roles := suite.params.Roles
+
 	// Create roles
-	for _, role := range roles {
-		expectRoleMeta := role.Metadata
-		expectRoleSpec := role.Spec
+	steps.BulkCreateRolesStepsV1(stepsBuilder, suite.GlobalTestSuite, "Create roles", roles)
 
-		// Create a role
-		stepsBuilder.CreateOrUpdateRoleV1Step("Create a role", suite.Client.AuthorizationV1, &role,
-			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
-				Metadata:       expectRoleMeta,
-				Spec:           &expectRoleSpec,
-				ResourceStates: suites.CreatedResourceExpectedStates,
-			},
-		)
-	}
-
-	roleTRef := &secapi.TenantReference{
+	tpath := secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   suite.Tenant,
 	}
+
 	// List Roles
-	stepsBuilder.ListRoleV1Step("Get list of roles", suite.Client.AuthorizationV1, *roleTRef, nil)
+	stepsBuilder.ListRoleV1Step("List roles", suite.Client.AuthorizationV1, tpath, nil)
 
 	// List Roles with limit
-	stepsBuilder.ListRoleV1Step("Get list of roles with limit", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("List roles with limit", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Label
-	stepsBuilder.ListRoleV1Step("Get list of roles with label", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("List roles with label", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List Roles with Limit and label
-	stepsBuilder.ListRoleV1Step("Get list of roles with limit and label", suite.Client.AuthorizationV1, *roleTRef,
+	stepsBuilder.ListRoleV1Step("List roles with limit and label", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
@@ -217,61 +206,35 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	roleAssignments := suite.params.RoleAssignments
 
 	// Create role assignments
-	for _, roleAssign := range roleAssignments {
-		expectRoleAssignMeta := roleAssign.Metadata
-		expectRoleAssignSpec := &roleAssign.Spec
+	steps.BulkCreateRoleAssignmentsStepsV1(stepsBuilder, suite.GlobalTestSuite, "Create role assignments", roleAssignments)
 
-		// Create a role assignment
-		stepsBuilder.CreateOrUpdateRoleAssignmentV1Step("Create a role assignment", suite.Client.AuthorizationV1, &roleAssign,
-			steps.ResponseExpects[schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
-				Metadata:       expectRoleAssignMeta,
-				Spec:           expectRoleAssignSpec,
-				ResourceStates: suites.CreatedResourceExpectedStates,
-			},
-		)
+	tpath = secapi.TenantPath{
+		Tenant: secapi.TenantID(suite.Tenant),
 	}
-	roleAssignTRef := &secapi.TenantReference{Tenant: secapi.TenantID(suite.Tenant)}
 
 	// List RoleAssignments
-	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef, nil)
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath, nil)
 
 	// List RoleAssignments with limit
-	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments with limit", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1))
 
 	// List RoleAssignments with Label
-	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// List RoleAssignments with Limit and label
-	stepsBuilder.ListRoleAssignmentsV1("Get list of role assignments", suite.Client.AuthorizationV1, *roleAssignTRef,
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments with limit and label", suite.Client.AuthorizationV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all role assignments
-	for _, roleAssign := range roleAssignments {
-		stepsBuilder.DeleteRoleAssignmentV1Step("Delete the role assignment", suite.Client.AuthorizationV1, &roleAssign)
-
-		// Get the deleted role assignment
-		roleAssignTRef := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.Tenant),
-			Name:   roleAssign.Metadata.Name,
-		}
-		stepsBuilder.WatchRoleAssignmentUntilDeletedV1Step("Watch the role assignment deletion", suite.Client.AuthorizationV1, roleAssignTRef)
-	}
+	steps.BulkDeleteRoleAssignmentsStepsV1(stepsBuilder, suite.GlobalTestSuite, "Delete all role assignments", roleAssignments)
 
 	// Delete all roles
-	for _, role := range roles {
-		stepsBuilder.DeleteRoleV1Step("Delete the role", suite.Client.AuthorizationV1, &role)
+	steps.BulkDeleteRolesStepsV1(stepsBuilder, suite.GlobalTestSuite, "Delete all roles", roles)
 
-		// Get the deleted role
-		roleTRef := secapi.TenantReference{
-			Tenant: secapi.TenantID(suite.Tenant),
-			Name:   role.Metadata.Name,
-		}
-		stepsBuilder.WatchRoleUntilDeletedV1Step("Watch the role deletion", suite.Client.AuthorizationV1, roleTRef)
-	}
 	suite.FinishScenario()
 }
 

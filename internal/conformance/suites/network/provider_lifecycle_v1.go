@@ -43,7 +43,7 @@ func CreateProviderLifeCycleV1TestSuite(regionalTestSuite suites.RegionalTestSui
 }
 
 func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Network")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	// Generate the subnet cidr
 	subnetCidr, err := generators.GenerateSubnetCidr(suite.config.NetworkCidr, 8, 1)
@@ -490,15 +490,19 @@ func (suite *ProviderLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 }
 
 func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name,
-		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNic),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindPublicIP),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
 		string(schema.RegionalNetworkResourceMetadataKindResourceKindSubnet),
 		string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup),
+	)
+	suite.ConfigureDepends(t,
+		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
+		string(schema.RegionalResourceMetadataKindResourceKindBlockStorage),
+		string(schema.RegionalResourceMetadataKindResourceKindInstance),
 	)
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
@@ -511,7 +515,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectWorkspaceLabels := workspace.Labels
 	expectWorkspaceAnnotations := workspace.Annotations
 	expectWorkspaceExtensions := workspace.Extensions
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", suite.Client.WorkspaceV1, workspace,
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
 			Labels:         expectWorkspaceLabels,
 			Annotations:    expectWorkspaceAnnotations,
@@ -546,7 +550,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectNetworkLabels := network.Labels
 	expectNetworkAnnotations := network.Annotations
 	expectNetworkExtensions := network.Extensions
-	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", suite.Client.NetworkV1, network,
+	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", t, suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Labels:         expectNetworkLabels,
 			Annotations:    expectNetworkAnnotations,
@@ -572,7 +576,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectGatewayLabels := gateway.Labels
 	expectGatewayAnnotations := gateway.Annotations
 	expectGatewayExtensions := gateway.Extensions
-	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", suite.Client.NetworkV1, gateway,
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create a internet gateway", t, suite.Client.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Labels:         expectGatewayLabels,
 			Annotations:    expectGatewayAnnotations,
@@ -604,7 +608,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	// Update the internet gateway
 	gateway = suite.params.InternetGatewayUpdated
 	expectGatewaySpec.EgressOnly = gateway.Spec.EgressOnly
-	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Update the internet gateway", suite.Client.NetworkV1, gateway,
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Update the internet gateway", t, suite.Client.NetworkV1, gateway,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
 			Labels:         expectGatewayLabels,
 			Annotations:    expectGatewayAnnotations,
@@ -636,7 +640,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRouteLabels := route.Labels
 	expectRouteAnnotations := route.Annotations
 	expectRouteExtensions := route.Extensions
-	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", suite.Client.NetworkV1, route,
+	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", t, suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Labels:         expectRouteLabels,
 			Annotations:    expectRouteAnnotations,
@@ -684,7 +688,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRouteLabels = route.Labels
 	expectRouteAnnotations = route.Annotations
 	expectRouteExtensions = route.Extensions
-	stepsBuilder.CreateOrUpdateRouteTableV1Step("Update the route table", suite.Client.NetworkV1, route,
+	stepsBuilder.CreateOrUpdateRouteTableV1Step("Update the route table", t, suite.Client.NetworkV1, route,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
 			Labels:         expectRouteLabels,
 			Annotations:    expectRouteAnnotations,
@@ -715,7 +719,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectNetworkLabels = network.Labels
 	expectNetworkAnnotations = network.Annotations
 	expectNetworkExtensions = network.Extensions
-	stepsBuilder.CreateOrUpdateNetworkV1Step("Update the network", suite.Client.NetworkV1, network,
+	stepsBuilder.CreateOrUpdateNetworkV1Step("Update the network", t, suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			Labels:         expectNetworkLabels,
 			Annotations:    expectNetworkAnnotations,
@@ -747,7 +751,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectSubnetLabels := subnet.Labels
 	expectSubnetAnnotations := subnet.Annotations
 	expectSubnetExtensions := subnet.Extensions
-	stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", suite.Client.NetworkV1, subnet,
+	stepsBuilder.CreateOrUpdateSubnetV1Step("Create a subnet", t, suite.Client.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Labels:         expectSubnetLabels,
 			Annotations:    expectSubnetAnnotations,
@@ -783,7 +787,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectSubnetLabels = subnet.Labels
 	expectSubnetAnnotations = subnet.Annotations
 	expectSubnetExtensions = subnet.Extensions
-	stepsBuilder.CreateOrUpdateSubnetV1Step("Update the subnet", suite.Client.NetworkV1, subnet,
+	stepsBuilder.CreateOrUpdateSubnetV1Step("Update the subnet", t, suite.Client.NetworkV1, subnet,
 		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
 			Labels:         expectSubnetLabels,
 			Annotations:    expectSubnetAnnotations,
@@ -814,7 +818,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectNicLabels := nic.Labels
 	expectNicAnnotations := nic.Annotations
 	expectNicExtensions := nic.Extensions
-	stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", suite.Client.NetworkV1, nic,
+	stepsBuilder.CreateOrUpdateNicV1Step("Create a nic", t, suite.Client.NetworkV1, nic,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			Labels:         expectNicLabels,
 			Annotations:    expectNicAnnotations,
@@ -849,7 +853,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectNicLabels = nic.Labels
 	expectNicAnnotations = nic.Annotations
 	expectNicExtensions = nic.Extensions
-	stepsBuilder.CreateOrUpdateNicV1Step("Update the nic", suite.Client.NetworkV1, nic,
+	stepsBuilder.CreateOrUpdateNicV1Step("Update the nic", t, suite.Client.NetworkV1, nic,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
 			Labels:         expectNicLabels,
 			Annotations:    expectNicAnnotations,
@@ -880,7 +884,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectPublicIpLabels := publicIp.Labels
 	expectPublicIpAnnotations := publicIp.Annotations
 	expectPublicIpExtensions := publicIp.Extensions
-	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", suite.Client.NetworkV1, publicIp,
+	stepsBuilder.CreateOrUpdatePublicIpV1Step("Create a public ip", t, suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Labels:         expectPublicIpLabels,
 			Annotations:    expectPublicIpAnnotations,
@@ -914,7 +918,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectPublicIpLabels = publicIp.Labels
 	expectPublicIpAnnotations = publicIp.Annotations
 	expectPublicIpExtensions = publicIp.Extensions
-	stepsBuilder.CreateOrUpdatePublicIpV1Step("Update the public ip", suite.Client.NetworkV1, publicIp,
+	stepsBuilder.CreateOrUpdatePublicIpV1Step("Update the public ip", t, suite.Client.NetworkV1, publicIp,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
 			Labels:         expectPublicIpLabels,
 			Annotations:    expectPublicIpAnnotations,
@@ -946,7 +950,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRuleLabels := rule.Labels
 	expectRuleAnnotations := rule.Annotations
 	expectRuleExtensions := rule.Extensions
-	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Create a security group rule", suite.Client.NetworkV1, rule,
+	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Create a security group rule", t, suite.Client.NetworkV1, rule,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
 			Labels:         expectRuleLabels,
 			Annotations:    expectRuleAnnotations,
@@ -980,7 +984,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectRuleLabels = rule.Labels
 	expectRuleAnnotations = rule.Annotations
 	expectRuleExtensions = rule.Extensions
-	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Update the security group rule", suite.Client.NetworkV1, rule,
+	stepsBuilder.CreateOrUpdateSecurityGroupRuleV1Step("Update the security group rule", t, suite.Client.NetworkV1, rule,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
 			Labels:         expectRuleLabels,
 			Annotations:    expectRuleAnnotations,
@@ -1012,7 +1016,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectGroupLabels := group.Labels
 	expectGroupAnnotations := group.Annotations
 	expectGroupExtensions := group.Extensions
-	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", suite.Client.NetworkV1, group,
+	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Create a security group", t, suite.Client.NetworkV1, group,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			Labels:         expectGroupLabels,
 			Annotations:    expectGroupAnnotations,
@@ -1047,7 +1051,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectGroupLabels = group.Labels
 	expectGroupAnnotations = group.Annotations
 	expectGroupExtensions = group.Extensions
-	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Update the security group", suite.Client.NetworkV1, group,
+	stepsBuilder.CreateOrUpdateSecurityGroupV1Step("Update the security group", t, suite.Client.NetworkV1, group,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
 			Labels:         expectGroupLabels,
 			Annotations:    expectGroupAnnotations,
@@ -1079,7 +1083,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectedBlockLabels := block.Labels
 	expectedBlockAnnotations := block.Annotations
 	expectedBlockExtensions := block.Extensions
-	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", suite.Client.StorageV1, block,
+	stepsBuilder.CreateOrUpdateBlockStorageV1Step("Create a block storage", t, suite.Client.StorageV1, block,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
 			Labels:         expectedBlockLabels,
 			Annotations:    expectedBlockAnnotations,
@@ -1116,7 +1120,7 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 	expectInstanceLabels := instance.Labels
 	expectInstanceAnnotations := instance.Annotations
 	expectInstanceExtensions := instance.Extensions
-	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", suite.Client.ComputeV1, instance,
+	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", t, suite.Client.ComputeV1, instance,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
 			Labels:         expectInstanceLabels,
 			Annotations:    expectInstanceAnnotations,
@@ -1146,38 +1150,38 @@ func (suite *ProviderLifeCycleV1TestSuite) TestScenario(t provider.T) {
 
 	// Resources deletion
 
-	stepsBuilder.DeleteInstanceV1Step("Delete the instance", suite.Client.ComputeV1, instance)
-	stepsBuilder.WatchInstanceUntilDeletedV1Step("Watch the instance deletion", suite.Client.ComputeV1, instanceWRef)
+	stepsBuilder.DeleteInstanceV1Step("Delete the instance", t, suite.Client.ComputeV1, instance)
+	stepsBuilder.WatchInstanceUntilDeletedV1Step("Watch the instance deletion", t, suite.Client.ComputeV1, instanceWRef)
 
-	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", suite.Client.StorageV1, block)
-	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", suite.Client.StorageV1, blockWRef)
+	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", t, suite.Client.StorageV1, block)
+	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", t, suite.Client.StorageV1, blockWRef)
 
-	stepsBuilder.DeleteSecurityGroupRuleV1Step("Delete the security group rule", suite.Client.NetworkV1, rule)
-	stepsBuilder.WatchSecurityGroupRuleUntilDeletedV1Step("Watch the security group rule deletion", suite.Client.NetworkV1, ruleWRef)
+	stepsBuilder.DeleteSecurityGroupRuleV1Step("Delete the security group rule", t, suite.Client.NetworkV1, rule)
+	stepsBuilder.WatchSecurityGroupRuleUntilDeletedV1Step("Watch the security group rule deletion", t, suite.Client.NetworkV1, ruleWRef)
 
-	stepsBuilder.DeleteSecurityGroupV1Step("Delete the security group", suite.Client.NetworkV1, group)
-	stepsBuilder.WatchSecurityGroupUntilDeletedV1Step("Watch the security group deletion", suite.Client.NetworkV1, groupWRef)
+	stepsBuilder.DeleteSecurityGroupV1Step("Delete the security group", t, suite.Client.NetworkV1, group)
+	stepsBuilder.WatchSecurityGroupUntilDeletedV1Step("Watch the security group deletion", t, suite.Client.NetworkV1, groupWRef)
 
-	stepsBuilder.DeleteNicV1Step("Delete the nic", suite.Client.NetworkV1, nic)
-	stepsBuilder.WatchNicUntilDeletedV1Step("Watch the nic deletion", suite.Client.NetworkV1, nicWRef)
+	stepsBuilder.DeleteNicV1Step("Delete the nic", t, suite.Client.NetworkV1, nic)
+	stepsBuilder.WatchNicUntilDeletedV1Step("Watch the nic deletion", t, suite.Client.NetworkV1, nicWRef)
 
-	stepsBuilder.DeletePublicIpV1Step("Delete the public ip", suite.Client.NetworkV1, publicIp)
-	stepsBuilder.WatchPublicIpUntilDeletedV1Step("Watch the public ip deletion", suite.Client.NetworkV1, publicIpWRef)
+	stepsBuilder.DeletePublicIpV1Step("Delete the public ip", t, suite.Client.NetworkV1, publicIp)
+	stepsBuilder.WatchPublicIpUntilDeletedV1Step("Watch the public ip deletion", t, suite.Client.NetworkV1, publicIpWRef)
 
-	stepsBuilder.DeleteSubnetV1Step("Delete the subnet", suite.Client.NetworkV1, subnet)
-	stepsBuilder.WatchSubnetUntilDeletedV1Step("Watch the subnet deletion", suite.Client.NetworkV1, subnetNRef)
+	stepsBuilder.DeleteSubnetV1Step("Delete the subnet", t, suite.Client.NetworkV1, subnet)
+	stepsBuilder.WatchSubnetUntilDeletedV1Step("Watch the subnet deletion", t, suite.Client.NetworkV1, subnetNRef)
 
-	stepsBuilder.DeleteRouteTableV1Step("Delete the route table", suite.Client.NetworkV1, route)
-	stepsBuilder.WatchRouteTableUntilDeletedV1Step("Watch the route table deletion", suite.Client.NetworkV1, routeNRef)
+	stepsBuilder.DeleteRouteTableV1Step("Delete the route table", t, suite.Client.NetworkV1, route)
+	stepsBuilder.WatchRouteTableUntilDeletedV1Step("Watch the route table deletion", t, suite.Client.NetworkV1, routeNRef)
 
-	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.Client.NetworkV1, gateway)
-	stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", suite.Client.NetworkV1, gatewayWRef)
+	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.Client.NetworkV1, gateway)
+	stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", t, suite.Client.NetworkV1, gatewayWRef)
 
-	stepsBuilder.DeleteNetworkV1Step("Delete the network", suite.Client.NetworkV1, network)
-	stepsBuilder.WatchNetworkUntilDeletedV1Step("Watch the network deletion", suite.Client.NetworkV1, networkWRef)
+	stepsBuilder.DeleteNetworkV1Step("Delete the network", t, suite.Client.NetworkV1, network)
+	stepsBuilder.WatchNetworkUntilDeletedV1Step("Watch the network deletion", t, suite.Client.NetworkV1, networkWRef)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

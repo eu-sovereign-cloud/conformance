@@ -55,62 +55,41 @@ func (suite *InternetGatewayConstraintsValidationV1TestSuite) BeforeAll(t provid
 		t.Fatalf("Failed to build Workspace: %v", err)
 	}
 
-	overLengthNameInternetGateway, err := builders.NewInternetGatewayBuilder().
-		Name(strings.Repeat("a", 129)).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "InternetGateway with over-length name"}).
-		Spec(&schema.InternetGatewaySpec{EgressOnly: false}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthNameInternetGateway: %v", err)
-	}
-
-	invalidPatternNameInternetGateway, err := builders.NewInternetGatewayBuilder().
-		Name("Invalid-Name-With-Uppercase").
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "InternetGateway with non-kebab-case name"}).
-		Spec(&schema.InternetGatewaySpec{EgressOnly: false}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build invalidPatternNameInternetGateway: %v", err)
-	}
-
-	overLengthLabelInternetGateway, err := builders.NewInternetGatewayBuilder().
-		Name(generators.GenerateInternetGatewayName()).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{
-			constants.EnvLabel: constants.EnvConformanceLabel,
-			"constraint-test":  strings.Repeat("x", 64),
-		}).
-		Annotations(schema.Annotations{"description": "InternetGateway with over-length label value"}).
-		Spec(&schema.InternetGatewaySpec{EgressOnly: false}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthLabelInternetGateway: %v", err)
-	}
-
-	overLengthAnnotationInternetGateway, err := builders.NewInternetGatewayBuilder().
-		Name(generators.GenerateInternetGatewayName()).
-		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{
-			"description":     "InternetGateway with over-length annotation value",
-			"long-annotation": strings.Repeat("y", 1025),
-		}).
-		Spec(&schema.InternetGatewaySpec{EgressOnly: false}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthAnnotationInternetGateway: %v", err)
+	buildInternetGateway := func(name string, labels schema.Labels, annotations schema.Annotations) *schema.InternetGateway {
+		ig, err := builders.NewInternetGatewayBuilder().
+			Name(name).
+			Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+			Labels(labels).Annotations(annotations).
+			Spec(&schema.InternetGatewaySpec{EgressOnly: false}).Build()
+		if err != nil {
+			t.Fatalf("Failed to build InternetGateway: %v", err)
+		}
+		return ig
 	}
 
 	p := &params.InternetGatewayConstraintsValidationV1Params{
-		Workspace:                           workspace,
-		OverLengthNameInternetGateway:       overLengthNameInternetGateway,
-		InvalidPatternNameInternetGateway:   invalidPatternNameInternetGateway,
-		OverLengthLabelValueInternetGateway: overLengthLabelInternetGateway,
-		OverLengthAnnotationInternetGateway: overLengthAnnotationInternetGateway,
+		Workspace: workspace,
+		OverLengthNameInternetGateway: buildInternetGateway(
+			strings.Repeat("a", 129),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "InternetGateway with over-length name"},
+		),
+		InvalidPatternNameInternetGateway: buildInternetGateway(
+			"Invalid-Name-With-Uppercase",
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "InternetGateway with non-kebab-case name"},
+		),
+		OverLengthLabelValueInternetGateway: buildInternetGateway(
+			generators.GenerateInternetGatewayName(),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel, "constraint-test": strings.Repeat("x", 64)},
+			schema.Annotations{"description": "InternetGateway with over-length label value"},
+		),
+		OverLengthAnnotationInternetGateway: buildInternetGateway(
+			generators.GenerateInternetGatewayName(),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "InternetGateway with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureInternetGatewayConstraintsValidationV1, *p); err != nil {
@@ -119,29 +98,39 @@ func (suite *InternetGatewayConstraintsValidationV1TestSuite) BeforeAll(t provid
 }
 
 func (suite *InternetGatewayConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway))
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindInternetGateway))
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
-	workspace := suite.params.Workspace
-	workspaceTRef := secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   workspace.Metadata.Name,
-	}
+	// Workspace
 
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create workspace for test environment", suite.Client.WorkspaceV1, workspace,
+	// Create a workspace
+	workspace := suite.params.Workspace
+	expectWorkspaceMeta := workspace.Metadata
+	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         workspace.Labels,
-			Annotations:    workspace.Annotations,
-			Metadata:       workspace.Metadata,
+			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
+			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
+
+	// Get the created Workspace
+	workspaceTRef := secapi.TenantReference{
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+		Name:   workspace.Metadata.Name,
+	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
-			Labels:   workspace.Labels,
-			Metadata: workspace.Metadata,
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
 			ResourceStatus: schema.WorkspaceStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
@@ -170,8 +159,8 @@ func (suite *InternetGatewayConstraintsValidationV1TestSuite) TestScenario(t pro
 		suite.params.OverLengthAnnotationInternetGateway,
 	)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

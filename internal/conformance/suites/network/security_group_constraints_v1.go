@@ -72,18 +72,26 @@ func (suite *SecurityGroupConstraintsValidationV1TestSuite) BeforeAll(t provider
 
 	p := &params.SecurityGroupConstraintsValidationV1Params{
 		Workspace: workspace,
-		OverLengthNameSecurityGroup: buildSG(strings.Repeat("a", 129),
+		OverLengthNameSecurityGroup: buildSG(
+			strings.Repeat("a", 129),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "SecurityGroup with over-length name"}),
-		InvalidPatternNameSecurityGroup: buildSG("Invalid-Name-With-Uppercase",
+			schema.Annotations{"description": "SecurityGroup with over-length name"},
+		),
+		InvalidPatternNameSecurityGroup: buildSG(
+			"Invalid-Name-With-Uppercase",
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "SecurityGroup with non-kebab-case name"}),
-		OverLengthLabelValueSecurityGroup: buildSG(generators.GenerateSecurityGroupName(),
+			schema.Annotations{"description": "SecurityGroup with non-kebab-case name"},
+		),
+		OverLengthLabelValueSecurityGroup: buildSG(
+			generators.GenerateSecurityGroupName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel, "constraint-test": strings.Repeat("x", 64)},
-			schema.Annotations{"description": "SecurityGroup with over-length label value"}),
-		OverLengthAnnotationSecurityGroup: buildSG(generators.GenerateSecurityGroupName(),
+			schema.Annotations{"description": "SecurityGroup with over-length label value"},
+		),
+		OverLengthAnnotationSecurityGroup: buildSG(
+			generators.GenerateSecurityGroupName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "SecurityGroup with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)}),
+			schema.Annotations{"description": "SecurityGroup with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureSecurityGroupConstraintsValidationV1, *p); err != nil {
@@ -92,29 +100,39 @@ func (suite *SecurityGroupConstraintsValidationV1TestSuite) BeforeAll(t provider
 }
 
 func (suite *SecurityGroupConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindSecurityGroup))
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalNetworkResourceMetadataKindResourceKindSecurityGroup))
+	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
-	workspace := suite.params.Workspace
-	workspaceTRef := secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   workspace.Metadata.Name,
-	}
+	// Workspace
 
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create workspace for test environment", suite.Client.WorkspaceV1, workspace,
+	// Create a workspace
+	workspace := suite.params.Workspace
+	expectWorkspaceMeta := workspace.Metadata
+	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         workspace.Labels,
-			Annotations:    workspace.Annotations,
-			Metadata:       workspace.Metadata,
+			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
+			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
+
+	// Get the created Workspace
+	workspaceTRef := secapi.TenantReference{
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+		Name:   workspace.Metadata.Name,
+	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
-			Labels:   workspace.Labels,
-			Metadata: workspace.Metadata,
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
 			ResourceStatus: schema.WorkspaceStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
@@ -122,6 +140,7 @@ func (suite *SecurityGroupConstraintsValidationV1TestSuite) TestScenario(t provi
 		},
 	)
 
+	// Security Group
 	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
 		"Create a security group with name exceeding maxLength:128 — expect rejection",
 		suite.Client.NetworkV1,
@@ -143,8 +162,8 @@ func (suite *SecurityGroupConstraintsValidationV1TestSuite) TestScenario(t provi
 		suite.params.OverLengthAnnotationSecurityGroup,
 	)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

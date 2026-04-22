@@ -23,7 +23,7 @@ import (
 // Constraints tested:
 //   - name: maxLength 128 (NameMetadata)
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
-//   - labels values: maxLength 64 (UserResourceMetadata)
+//   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
 type RoleAssignmentConstraintsValidationV1TestSuite struct {
 	suites.GlobalTestSuite
@@ -46,91 +46,47 @@ func (suite *RoleAssignmentConstraintsValidationV1TestSuite) BeforeAll(t provide
 	roleName := generators.GenerateRoleName()
 	roleAssignmentSub := suite.Users[rand.Intn(len(suite.Users))]
 
-	// RoleAssignment with name exceeding maxLength: 128 (129 chars)
-	overLengthName := strings.Repeat("a", 129)
-	overLengthNameRoleAssignment, err := builders.NewRoleAssignmentBuilder().
-		Name(overLengthName).
-		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "RoleAssignment with over-length name"}).
-		Spec(&schema.RoleAssignmentSpec{
-			Roles: []string{roleName},
-			Subs:  []string{roleAssignmentSub},
-			Scopes: []schema.RoleAssignmentScope{
-				{Tenants: []string{suite.Tenant}},
-			},
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthNameRoleAssignment: %v", err)
-	}
-
-	// RoleAssignment with name violating kebab-case pattern (uppercase letters)
-	invalidPatternName := "Invalid-Name-With-Uppercase"
-	invalidPatternNameRoleAssignment, err := builders.NewRoleAssignmentBuilder().
-		Name(invalidPatternName).
-		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "RoleAssignment with non-kebab-case name"}).
-		Spec(&schema.RoleAssignmentSpec{
-			Roles: []string{roleName},
-			Subs:  []string{roleAssignmentSub},
-			Scopes: []schema.RoleAssignmentScope{
-				{Tenants: []string{suite.Tenant}},
-			},
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build invalidPatternNameRoleAssignment: %v", err)
-	}
-
-	// RoleAssignment with label value exceeding maxLength: 63 (64 chars)
-	overLengthLabelRoleAssignment, err := builders.NewRoleAssignmentBuilder().
-		Name(generators.GenerateRoleAssignmentName()).
-		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).
-		Labels(schema.Labels{
-			constants.EnvLabel: constants.EnvConformanceLabel,
-			"constraint-test":  strings.Repeat("x", 64),
-		}).
-		Annotations(schema.Annotations{"description": "RoleAssignment with over-length label value"}).
-		Spec(&schema.RoleAssignmentSpec{
-			Roles: []string{roleName},
-			Subs:  []string{roleAssignmentSub},
-			Scopes: []schema.RoleAssignmentScope{
-				{Tenants: []string{suite.Tenant}},
-			},
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthLabelRoleAssignment: %v", err)
-	}
-
-	// RoleAssignment with annotation value exceeding maxLength: 1024 (1025 chars)
-	overLengthAnnotationRoleAssignment, err := builders.NewRoleAssignmentBuilder().
-		Name(generators.GenerateRoleAssignmentName()).
-		Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{
-			"description":     "RoleAssignment with over-length annotation value",
-			"long-annotation": strings.Repeat("y", 1025),
-		}).
-		Spec(&schema.RoleAssignmentSpec{
-			Roles: []string{roleName},
-			Subs:  []string{roleAssignmentSub},
-			Scopes: []schema.RoleAssignmentScope{
-				{Tenants: []string{suite.Tenant}},
-			},
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthAnnotationRoleAssignment: %v", err)
+	buildRoleAssignment := func(name string, labels schema.Labels, annotations schema.Annotations) *schema.RoleAssignment {
+		ra, err := builders.NewRoleAssignmentBuilder().
+			Name(name).
+			Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).
+			Labels(labels).
+			Annotations(annotations).
+			Spec(&schema.RoleAssignmentSpec{
+				Roles: []string{roleName},
+				Subs:  []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{
+					{Tenants: []string{suite.Tenant}},
+				},
+			}).Build()
+		if err != nil {
+			t.Fatalf("Failed to build RoleAssignment: %v", err)
+		}
+		return ra
 	}
 
 	p := &params.RoleAssignmentConstraintsValidationV1Params{
-		OverLengthNameRoleAssignment:       overLengthNameRoleAssignment,
-		InvalidPatternNameRoleAssignment:   invalidPatternNameRoleAssignment,
-		OverLengthLabelValueRoleAssignment: overLengthLabelRoleAssignment,
-		OverLengthAnnotationRoleAssignment: overLengthAnnotationRoleAssignment,
+		OverLengthNameRoleAssignment: buildRoleAssignment(
+			strings.Repeat("a", 129),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "RoleAssignment with over-length name"},
+		),
+		InvalidPatternNameRoleAssignment: buildRoleAssignment(
+			"Invalid-Name-With-Uppercase",
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "RoleAssignment with non-kebab-case name"},
+		),
+		OverLengthLabelValueRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel, "constraint-test": strings.Repeat("x", 64)},
+			schema.Annotations{"description": "RoleAssignment with over-length label value"},
+		),
+		OverLengthAnnotationRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(),
+			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			schema.Annotations{"description": "RoleAssignment with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleAssignmentConstraintsValidationV1, *p); err != nil {
@@ -139,33 +95,26 @@ func (suite *RoleAssignmentConstraintsValidationV1TestSuite) BeforeAll(t provide
 }
 
 func (suite *RoleAssignmentConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.AuthorizationProviderV1Name, string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment))
+	suite.StartScenario(t, sdkconsts.AuthorizationProviderV1Name)
+	suite.ConfigureResources(t, string(schema.GlobalTenantResourceMetadataKindResourceKindRoleAssignment))
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
-	// name: maxLength 128 — must be rejected
 	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
 		"Create a role assignment with name exceeding maxLength:128 — expect rejection",
 		suite.Client.AuthorizationV1,
 		suite.params.OverLengthNameRoleAssignment,
 	)
-
-	// name: pattern — must be rejected
 	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
 		"Create a role assignment with invalid name pattern (not kebab-case) — expect rejection",
 		suite.Client.AuthorizationV1,
 		suite.params.InvalidPatternNameRoleAssignment,
 	)
-
-	// labels value: maxLength 64 — must be rejected
 	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
-		"Create a role assignment with label value exceeding maxLength:64 — expect rejection",
+		"Create a role assignment with label value exceeding maxLength:63 — expect rejection",
 		suite.Client.AuthorizationV1,
 		suite.params.OverLengthLabelValueRoleAssignment,
 	)
-
-	// annotations value: maxLength 1024 — must be rejected
 	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
 		"Create a role assignment with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.AuthorizationV1,

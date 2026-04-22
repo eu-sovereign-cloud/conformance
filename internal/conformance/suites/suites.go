@@ -52,19 +52,27 @@ func (suite *TestSuite) CanRun(regexp *regexp.Regexp) bool {
 	}
 }
 
-func (suite *TestSuite) StartScenario(t provider.T) {
+func (suite *TestSuite) StartScenario(t provider.T, provider ...string) {
 	slog.Info("Starting execution of scenario " + suite.ScenarioName)
 	t.Title(suite.ScenarioName)
+	for _, provider := range provider {
+		t.Tags("provider:" + provider)
+	}
 }
 
 func (suite *TestSuite) FinishScenario() {
 	slog.Info("Finishing execution of scenario " + suite.ScenarioName)
 }
 
-func (suite *TestSuite) ConfigureTags(t provider.T, provider string, kinds ...string) {
-	t.Tags("provider:" + provider)
+func (suite *TestSuite) ConfigureResources(t provider.T, kinds ...string) {
 	for _, kind := range kinds {
-		t.Tags("kind:" + kind)
+		t.Tags("resource:" + kind)
+	}
+}
+
+func (suite *TestSuite) ConfigureDepends(t provider.T, kinds ...string) {
+	for _, kind := range kinds {
+		t.Tags("depends:" + kind)
 	}
 }
 

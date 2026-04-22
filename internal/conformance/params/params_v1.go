@@ -31,7 +31,9 @@ type RoleAssignmentLifeCycleV1Params struct {
 // Region
 
 type RegionProviderQueriesV1Params struct {
-	Regions []schema.Region
+	RegionsMetadata []schema.GlobalResourceMetadata
+
+	MockProviders []string
 }
 
 // Workspace

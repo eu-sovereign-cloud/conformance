@@ -166,7 +166,7 @@ func (api *StorageV1Impl) ListSkusWithOptions(ctx context.Context, tpath TenantP
 	}
 
 	iter := Iterator[schema.StorageSku]{
-		fn: func(ctx context.Context, skipToken *string) ([]schema.StorageSku, *string, error) {
+		fn: func(ctx context.Context, skipToken *string) ([]schema.StorageSku, *schema.ResponseMetadata, error) {
 			var params *storage.ListSkusParams
 			if options == nil {
 				params = &storage.ListSkusParams{
@@ -176,7 +176,7 @@ func (api *StorageV1Impl) ListSkusWithOptions(ctx context.Context, tpath TenantP
 			} else {
 				params = &storage.ListSkusParams{
 					Accept:    AcceptHeaderJson[storage.ListSkusParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -188,7 +188,7 @@ func (api *StorageV1Impl) ListSkusWithOptions(ctx context.Context, tpath TenantP
 			}
 
 			if checkSuccessGetStatusCode(resp.StatusCode()) {
-				return resp.JSON200.Items, resp.JSON200.Metadata.SkipToken, nil
+				return resp.JSON200.Items, &resp.JSON200.Metadata, nil
 			} else {
 				return nil, nil, mapStatusCodeToError(resp.StatusCode())
 			}
@@ -227,7 +227,7 @@ func (api *StorageV1Impl) ListBlockStoragesWithOptions(ctx context.Context, wpat
 	}
 
 	iter := Iterator[schema.BlockStorage]{
-		fn: func(ctx context.Context, skipToken *string) ([]schema.BlockStorage, *string, error) {
+		fn: func(ctx context.Context, skipToken *string) ([]schema.BlockStorage, *schema.ResponseMetadata, error) {
 			var params *storage.ListBlockStoragesParams
 			if options == nil {
 				params = &storage.ListBlockStoragesParams{
@@ -237,7 +237,7 @@ func (api *StorageV1Impl) ListBlockStoragesWithOptions(ctx context.Context, wpat
 			} else {
 				params = &storage.ListBlockStoragesParams{
 					Accept:    AcceptHeaderJson[storage.ListBlockStoragesParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -249,7 +249,7 @@ func (api *StorageV1Impl) ListBlockStoragesWithOptions(ctx context.Context, wpat
 			}
 
 			if checkSuccessGetStatusCode(resp.StatusCode()) {
-				return resp.JSON200.Items, resp.JSON200.Metadata.SkipToken, nil
+				return resp.JSON200.Items, &resp.JSON200.Metadata, nil
 			} else {
 				return nil, nil, mapStatusCodeToError(resp.StatusCode())
 			}
@@ -391,7 +391,7 @@ func (api *StorageV1Impl) ListImagesWithOptions(ctx context.Context, tpath Tenan
 	}
 
 	iter := Iterator[schema.Image]{
-		fn: func(ctx context.Context, skipToken *string) ([]schema.Image, *string, error) {
+		fn: func(ctx context.Context, skipToken *string) ([]schema.Image, *schema.ResponseMetadata, error) {
 			var params *storage.ListImagesParams
 			if options == nil {
 				params = &storage.ListImagesParams{
@@ -401,7 +401,7 @@ func (api *StorageV1Impl) ListImagesWithOptions(ctx context.Context, tpath Tenan
 			} else {
 				params = &storage.ListImagesParams{
 					Accept:    AcceptHeaderJson[storage.ListImagesParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -413,7 +413,7 @@ func (api *StorageV1Impl) ListImagesWithOptions(ctx context.Context, tpath Tenan
 			}
 
 			if checkSuccessGetStatusCode(resp.StatusCode()) {
-				return resp.JSON200.Items, resp.JSON200.Metadata.SkipToken, nil
+				return resp.JSON200.Items, &resp.JSON200.Metadata, nil
 			} else {
 				return nil, nil, mapStatusCodeToError(resp.StatusCode())
 			}

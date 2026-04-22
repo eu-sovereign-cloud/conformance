@@ -149,7 +149,7 @@ func (api *AuthorizationV1Impl) ListRolesWithOptions(ctx context.Context, tpath 
 	}
 
 	iter := Iterator[schema.Role]{
-		fn: func(ctx context.Context, skipToken *string) ([]schema.Role, *string, error) {
+		fn: func(ctx context.Context, skipToken *string) ([]schema.Role, *schema.ResponseMetadata, error) {
 			var params *authorization.ListRolesParams
 			if options == nil {
 				params = &authorization.ListRolesParams{
@@ -159,7 +159,7 @@ func (api *AuthorizationV1Impl) ListRolesWithOptions(ctx context.Context, tpath 
 			} else {
 				params = &authorization.ListRolesParams{
 					Accept:    AcceptHeaderJson[authorization.ListRolesParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -171,7 +171,7 @@ func (api *AuthorizationV1Impl) ListRolesWithOptions(ctx context.Context, tpath 
 			}
 
 			if checkSuccessGetStatusCode(resp.StatusCode()) {
-				return resp.JSON200.Items, resp.JSON200.Metadata.SkipToken, nil
+				return resp.JSON200.Items, &resp.JSON200.Metadata, nil
 			} else {
 				return nil, nil, mapStatusCodeToError(resp.StatusCode())
 			}
@@ -314,7 +314,7 @@ func (api *AuthorizationV1Impl) ListRoleAssignmentsWithOptions(ctx context.Conte
 	}
 
 	iter := Iterator[schema.RoleAssignment]{
-		fn: func(ctx context.Context, skipToken *string) ([]schema.RoleAssignment, *string, error) {
+		fn: func(ctx context.Context, skipToken *string) ([]schema.RoleAssignment, *schema.ResponseMetadata, error) {
 			var params *authorization.ListRoleAssignmentsParams
 			if options == nil {
 				params = &authorization.ListRoleAssignmentsParams{
@@ -324,7 +324,7 @@ func (api *AuthorizationV1Impl) ListRoleAssignmentsWithOptions(ctx context.Conte
 			} else {
 				params = &authorization.ListRoleAssignmentsParams{
 					Accept:    AcceptHeaderJson[authorization.ListRoleAssignmentsParamsAccept](),
-					Labels:    options.Labels.BuildPtr(),
+					Labels:    options.Labels,
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -336,7 +336,7 @@ func (api *AuthorizationV1Impl) ListRoleAssignmentsWithOptions(ctx context.Conte
 			}
 
 			if checkSuccessGetStatusCode(resp.StatusCode()) {
-				return resp.JSON200.Items, resp.JSON200.Metadata.SkipToken, nil
+				return resp.JSON200.Items, &resp.JSON200.Metadata, nil
 			} else {
 				return nil, nil, mapStatusCodeToError(resp.StatusCode())
 			}

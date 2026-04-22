@@ -133,42 +133,42 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) BeforeAll(t provider.T)
 }
 
 func (suite *RouteTableConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
-	suite.StartScenario(t)
-	suite.ConfigureTags(t, sdkconsts.NetworkProviderV1Name, string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable))
-
+	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
+	suite.ConfigureResources(t, string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable))
+	suite.ConfigureDepends(t,
+		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
+		string(schema.RegionalResourceMetadataKindResourceKindNetwork),
+		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
+	)
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
+	// Workspace
+
+	// Create a workspace
 	workspace := suite.params.Workspace
-	network := suite.params.Network
-	internetGateway := suite.params.InternetGateway
-
-	workspaceTRef := secapi.TenantReference{
-		Tenant: secapi.TenantID(suite.Tenant),
-		Name:   workspace.Metadata.Name,
-	}
-	networkWRef := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(network.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
-		Name:      network.Metadata.Name,
-	}
-	gatewayWRef := secapi.WorkspaceReference{
-		Tenant:    secapi.TenantID(internetGateway.Metadata.Tenant),
-		Workspace: secapi.WorkspaceID(internetGateway.Metadata.Workspace),
-		Name:      internetGateway.Metadata.Name,
-	}
-
-	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create workspace for test environment", suite.Client.WorkspaceV1, workspace,
+	expectWorkspaceMeta := workspace.Metadata
+	expectWorkspaceLabels := workspace.Labels
+	expectWorkspaceAnnotations := workspace.Annotations
+	expectWorkspaceExtensions := workspace.Extensions
+	stepsBuilder.CreateOrUpdateWorkspaceV1Step("Create a workspace", t, suite.Client.WorkspaceV1, workspace,
 		steps.ResponseExpects[schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
-			Labels:         workspace.Labels,
-			Annotations:    workspace.Annotations,
-			Metadata:       workspace.Metadata,
+			Labels:         expectWorkspaceLabels,
+			Annotations:    expectWorkspaceAnnotations,
+			Extensions:     expectWorkspaceExtensions,
+			Metadata:       expectWorkspaceMeta,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
+
+	// Get the created Workspace
+	workspaceTRef := secapi.TenantReference{
+		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
+		Name:   workspace.Metadata.Name,
+	}
 	stepsBuilder.GetWorkspaceV1Step("Get the created workspace", suite.Client.WorkspaceV1, workspaceTRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalResourceMetadata, schema.WorkspaceSpec, schema.WorkspaceStatus]{
-			Labels:   workspace.Labels,
-			Metadata: workspace.Metadata,
+			Labels:   expectWorkspaceLabels,
+			Metadata: expectWorkspaceMeta,
 			ResourceStatus: schema.WorkspaceStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
@@ -176,35 +176,70 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) TestScenario(t provider
 		},
 	)
 
-	stepsBuilder.CreateOrUpdateNetworkV1Step("Create network for test environment", suite.Client.NetworkV1, network,
+	// Network
+
+	// Create a network
+	network := suite.params.Network
+	expectNetworkMeta := network.Metadata
+	expectNetworkSpec := &network.Spec
+	expectNetworkLabels := network.Labels
+	expectNetworkAnnotations := network.Annotations
+	expectNetworkExtensions := network.Extensions
+	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", t, suite.Client.NetworkV1, network,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
-			Labels:         network.Labels,
-			Annotations:    network.Annotations,
-			Metadata:       network.Metadata,
-			Spec:           &network.Spec,
+			Labels:         expectNetworkLabels,
+			Annotations:    expectNetworkAnnotations,
+			Extensions:     expectNetworkExtensions,
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
 
-	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create internet gateway for test environment", suite.Client.NetworkV1, internetGateway,
+	networkWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(network.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
+		Name:      network.Metadata.Name,
+	}
+
+	// Internet gateway
+
+	// Create an internet gateway
+	internetGat := suite.params.InternetGateway
+	expectInternetGatMeta := internetGat.Metadata
+	expectInternetGatSpec := &internetGat.Spec
+	expectInternetGatLabels := internetGat.Labels
+	expectInternetGatAnnotations := internetGat.Annotations
+	expectInternetGatExtensions := internetGat.Extensions
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", t, suite.Client.NetworkV1, internetGat,
 		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
-			Labels:         internetGateway.Labels,
-			Annotations:    internetGateway.Annotations,
-			Metadata:       internetGateway.Metadata,
-			Spec:           &internetGateway.Spec,
+			Labels:         expectInternetGatLabels,
+			Annotations:    expectInternetGatAnnotations,
+			Extensions:     expectInternetGatExtensions,
+			Metadata:       expectInternetGatMeta,
+			Spec:           expectInternetGatSpec,
 			ResourceStates: suites.CreatedResourceExpectedStates,
 		},
 	)
-	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, gatewayWRef,
+
+	// Get the created internet gateway
+	internetGatWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(internetGat.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(internetGat.Metadata.Workspace),
+		Name:      internetGat.Metadata.Name,
+	}
+
+	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, internetGatWRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.InternetGatewayStatus]{
-			Metadata: internetGateway.Metadata,
-			Spec:     &internetGateway.Spec,
+			Metadata: expectInternetGatMeta,
+			Spec:     expectInternetGatSpec,
 			ResourceStatus: schema.InternetGatewayStatus{
 				State:      schema.ResourceStateActive,
 				Conditions: suites.GetConditionAfterCreating,
 			},
 		},
 	)
+
 	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
 		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
 			Metadata: network.Metadata,
@@ -237,14 +272,14 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) TestScenario(t provider
 		suite.params.OverLengthAnnotationRouteTable,
 	)
 
-	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", suite.Client.NetworkV1, internetGateway)
-	stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", suite.Client.NetworkV1, gatewayWRef)
+	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.Client.NetworkV1, internetGat)
+	stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", t, suite.Client.NetworkV1, internetGatWRef)
 
-	stepsBuilder.DeleteNetworkV1Step("Delete the network", suite.Client.NetworkV1, network)
-	stepsBuilder.WatchNetworkUntilDeletedV1Step("Watch the network deletion", suite.Client.NetworkV1, networkWRef)
+	stepsBuilder.DeleteNetworkV1Step("Delete the network", t, suite.Client.NetworkV1, network)
+	stepsBuilder.WatchNetworkUntilDeletedV1Step("Watch the network deletion", t, suite.Client.NetworkV1, networkWRef)
 
-	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", suite.Client.WorkspaceV1, workspace)
-	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", suite.Client.WorkspaceV1, workspaceTRef)
+	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
+	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)
 
 	suite.FinishScenario()
 }

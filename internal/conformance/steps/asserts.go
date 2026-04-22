@@ -3,7 +3,7 @@ package steps
 import (
 	"fmt"
 
-	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/types"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
@@ -28,20 +28,10 @@ func requireNotNilResponse(sCtx provider.StepCtx, resp any) {
 	})
 }
 
-func requireLenResponse(sCtx provider.StepCtx, resp int) {
+func requireNotEmptyResponse[R types.ResourceType](sCtx provider.StepCtx, resp []*R) {
 	sCtx.WithNewStep("Verify response length", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters("response", fmt.Sprintf("%v", resp))
 		stepCtx.Require().NotNil(resp, "Should be not nil")
-		stepCtx.Require().GreaterOrEqual(resp, 1, "Should have length greater than 1")
-	})
-}
-
-func verifyIterListStep[R any](ctx provider.StepCtx, t provider.T, iter secapi.Iterator[R]) {
-	ctx.WithNewStep("Verify Iter List", func(stepCtx provider.StepCtx) {
-		// Iterate through all items
-		resp, err := iter.All(t.Context())
-		requireNoError(stepCtx, err)
-		requireNotNilResponse(stepCtx, resp)
-		requireLenResponse(stepCtx, len(resp))
+		stepCtx.Require().GreaterOrEqual(len(resp), 1, "Should have length greater than 1")
 	})
 }

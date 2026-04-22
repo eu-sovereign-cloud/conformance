@@ -46,7 +46,8 @@ func InitClients(ctx context.Context) error {
 			},
 		)
 		params := params.ClientsInitParams{
-			Region: Parameters.ClientRegion,
+			Region:    Parameters.ClientRegion,
+			Providers: Parameters.MockProviders,
 		}
 		err := mockclients.ConfigureInitScenarioV1(mockScenario, params)
 		if err != nil {
