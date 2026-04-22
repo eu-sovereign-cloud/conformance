@@ -1,23 +1,21 @@
 package secapi
 
-import (
-	"github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
-)
+import "github.com/eu-sovereign-cloud/go-sdk/secapi/builders"
 
 // Options
 
 const defaultListLimit = 1000
 
 type ListOptions struct {
-	Limit  *int    `json:"Limit,omitempty"`
-	Labels *string `json:"Labels,omitempty"`
+	Limit  *int
+	Labels *builders.LabelsBuilder
 }
 
 func NewListOptions() *ListOptions {
 	limit := defaultListLimit
 	return &ListOptions{
 		Limit:  &limit,
-		Labels: nil,
+		Labels: builders.NewLabelsBuilder(),
 	}
 }
 
@@ -27,6 +25,6 @@ func (o *ListOptions) WithLimit(limit int) *ListOptions {
 }
 
 func (o *ListOptions) WithLabels(labels *builders.LabelsBuilder) *ListOptions {
-	o.Labels = labels.BuildPtr()
+	o.Labels = labels
 	return o
 }

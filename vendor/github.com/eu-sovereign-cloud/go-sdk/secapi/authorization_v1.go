@@ -159,7 +159,7 @@ func (api *AuthorizationV1Impl) ListRolesWithOptions(ctx context.Context, tpath 
 			} else {
 				params = &authorization.ListRolesParams{
 					Accept:    AcceptHeaderJson[authorization.ListRolesParamsAccept](),
-					Labels:    options.Labels,
+					Labels:    options.Labels.BuildPtr(),
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -324,7 +324,7 @@ func (api *AuthorizationV1Impl) ListRoleAssignmentsWithOptions(ctx context.Conte
 			} else {
 				params = &authorization.ListRoleAssignmentsParams{
 					Accept:    AcceptHeaderJson[authorization.ListRoleAssignmentsParamsAccept](),
-					Labels:    options.Labels,
+					Labels:    options.Labels.BuildPtr(),
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}

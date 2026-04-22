@@ -162,7 +162,7 @@ func (api *ComputeV1Impl) ListSkusWithOptions(ctx context.Context, tpath TenantP
 			} else {
 				params = &compute.ListSkusParams{
 					Accept:    AcceptHeaderJson[compute.ListSkusParamsAccept](),
-					Labels:    options.Labels,
+					Labels:    options.Labels.BuildPtr(),
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -222,7 +222,7 @@ func (api *ComputeV1Impl) ListInstancesWithOptions(ctx context.Context, wpath Wo
 			} else {
 				params = &compute.ListInstancesParams{
 					Accept:    AcceptHeaderJson[compute.ListInstancesParamsAccept](),
-					Labels:    options.Labels,
+					Labels:    options.Labels.BuildPtr(),
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
