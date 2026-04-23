@@ -114,6 +114,23 @@ func (configurator *StepsConfigurator) DeleteRoleV1Step(stepName string, stepCre
 	)
 }
 
+func (configurator *StepsConfigurator) CreateOrUpdateRoleExpectViolationV1Step(stepName string, api secapi.AuthorizationV1, resource *schema.Role) {
+	violationTenantResourceStep(configurator.t, configurator.suite,
+		actionTenantResourceParams[schema.Role]{
+			actionResourceParams: actionResourceParams[schema.Role]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.Role) error {
+					_, err := api.CreateOrUpdateRole(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
+			operationName:  constants.CreateOrUpdateRoleOperation,
+		},
+	)
+}
+
 // Role Assignment
 
 func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepName string, stepCreator StepCreator, api secapi.AuthorizationV1, resource *schema.RoleAssignment,
@@ -213,6 +230,23 @@ func (configurator *StepsConfigurator) DeleteRoleAssignmentV1Step(stepName strin
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
 			operationName:  constants.DeleteRoleAssignmentOperation,
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentExpectViolationV1Step(stepName string, api secapi.AuthorizationV1, resource *schema.RoleAssignment) {
+	violationTenantResourceStep(configurator.t, configurator.suite,
+		actionTenantResourceParams[schema.RoleAssignment]{
+			actionResourceParams: actionResourceParams[schema.RoleAssignment]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.RoleAssignment) error {
+					_, err := api.CreateOrUpdateRoleAssignment(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
+			operationName:  constants.CreateOrUpdateRoleAssignmentOperation,
 		},
 	)
 }

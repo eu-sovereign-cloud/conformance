@@ -118,6 +118,11 @@ func configureDeleteStub(wm *wiremock.Client, scenarioName string, stubConfig *s
 	return configureStub(wm, scenarioName, stubConfig)
 }
 
+func configureUnprocessableEntityStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
+	stubConfig.httpStatus = http.StatusUnprocessableEntity
+	return configureStub(wm, scenarioName, stubConfig)
+}
+
 func parseResponseBody(configResponse any) (string, error) {
 	responseBytes, err := json.Marshal(configResponse)
 	if err != nil {

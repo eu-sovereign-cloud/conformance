@@ -135,6 +135,24 @@ func (configurator *StepsConfigurator) DeleteBlockStorageV1Step(stepName string,
 	)
 }
 
+func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageExpectViolationV1Step(stepName string, api secapi.StorageV1, resource *schema.BlockStorage) {
+	violationWorkspaceResourceStep(configurator.t, configurator.suite,
+		actionWorkspaceResourceParams[schema.BlockStorage]{
+			actionResourceParams: actionResourceParams[schema.BlockStorage]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.BlockStorage) error {
+					_, err := api.CreateOrUpdateBlockStorage(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetStorageWorkspaceV1StepParams,
+			operationName:  constants.CreateOrUpdateBlockStorageOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+		},
+	)
+}
+
 // Image
 
 func (configurator *StepsConfigurator) ListImageV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
@@ -231,6 +249,23 @@ func (configurator *StepsConfigurator) DeleteImageV1Step(stepName string, stepCr
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageV1StepParams,
 			operationName:  constants.DeleteImageOperation,
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateImageExpectViolationV1Step(stepName string, api secapi.StorageV1, resource *schema.Image) {
+	violationTenantResourceStep(configurator.t, configurator.suite,
+		actionTenantResourceParams[schema.Image]{
+			actionResourceParams: actionResourceParams[schema.Image]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.Image) error {
+					_, err := api.CreateOrUpdateImage(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetStorageV1StepParams,
+			operationName:  constants.CreateOrUpdateImageOperation,
 		},
 	)
 }

@@ -202,5 +202,175 @@
                 "list",
             ]
         },
+        {
+            "name": "Run Constraints.V1.TenantMetadata",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/cmd/conformance",
+            "args": [
+                "run",
+                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Constraints.V1.TenantMetadata",
+                "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Constraints.V1.WorkspaceMetadata",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/cmd/conformance",
+            "args": [
+                "run",
+                "--provider.workspace.v1=http://localhost:8080/providers/seca.workspace",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Constraints.V1.WorkspaceMetadata",
+                "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Constraints.V1.NetworkMetadata",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/cmd/conformance",
+            "args": [
+                "run",
+                "--provider.workspace.v1=http://localhost:8080/providers/seca.workspace",
+                "--provider.network.v1=http://localhost:8080/providers/seca.network",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Constraints.V1.NetworkMetadata",
+                "--scenarios.cidr=10.1.0.0/16",
+                "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Constraints.V1.RegionMetadata",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/cmd/conformance",
+            "args": [
+                "run",
+                "--provider.workspace.v1=http://localhost:8080/providers/seca.workspace",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Constraints.V1.RegionMetadata",
+                "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Constraints.V1.TenantMetadataViolations",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/cmd/conformance",
+            "args": [
+                "run",
+                "--provider.authorization.v1=http://localhost:8080/providers/seca.authorization",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Constraints.V1.TenantMetadataViolations",
+                "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Constraints.V1.WorkspaceMetadataViolations",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/cmd/conformance",
+            "args": [
+                "run",
+                "--provider.workspace.v1=http://localhost:8080/providers/seca.workspace",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Constraints.V1.WorkspaceMetadataViolations",
+                "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Constraints.V1.NetworkMetadataViolations",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/cmd/conformance",
+            "args": [
+                "run",
+                "--provider.network.v1=http://localhost:8080/providers/seca.network",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Constraints.V1.NetworkMetadataViolations",
+                "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
+        {
+            "name": "Run Constraints.V1.RegionMetadataViolations",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/cmd/conformance",
+            "args": [
+                "run",
+                "--provider.workspace.v1=http://localhost:8080/providers/seca.workspace",
+                "--client.auth.token=test-token",
+                "--client.region=region-1",
+                "--client.tenant=tenant-1",
+                "--scenarios.filter=Constraints.V1.RegionMetadataViolations",
+                "--report.results.path=../reports/results",
+                "--retry.base.delay=0",
+                "--retry.base.interval=1",
+                "--retry.max.attempts=3",
+                "--mock.enabled=true",
+                "--mock.server.url=http://localhost:8080"
+            ]
+        },
     ]
 }
