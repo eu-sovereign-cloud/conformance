@@ -10,7 +10,7 @@ github.com/cenkalti/backoff/v4
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/eu-sovereign-cloud/go-sdk v0.4.0
+# github.com/eu-sovereign-cloud/go-sdk v0.5.0-beta.1
 ## explicit; go 1.24.0
 github.com/eu-sovereign-cloud/go-sdk/internal/secatest
 github.com/eu-sovereign-cloud/go-sdk/mock/spec/extensions.wellknown.v1
