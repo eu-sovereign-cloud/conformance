@@ -1,14 +1,14 @@
 package stubs
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	"github.com/eu-sovereign-cloud/conformance/pkg/wiremock"
 	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
 // Instance
 
-func (configurator *Configurator) ConfigureCreateInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureCreateInstanceStub(response *schema.Instance, url string, params wiremock.MockParams) error {
 	setCreatedRegionalWorkspaceResourceMetadata(response.Metadata)
 	response.Status = newInstanceStatus(schema.ResourceStatePending)
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -17,7 +17,7 @@ func (configurator *Configurator) ConfigureCreateInstanceStub(response *schema.I
 	return nil
 }
 
-func (configurator *Configurator) ConfigureUpdateInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureUpdateInstanceStub(response *schema.Instance, url string, params wiremock.MockParams) error {
 	setModifiedRegionalWorkspaceResourceMetadata(response.Metadata)
 	response.Status = beforeUpdateInstanceStatus()
 	if err := configurator.ConfigurePutStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
@@ -26,7 +26,7 @@ func (configurator *Configurator) ConfigureUpdateInstanceStub(response *schema.I
 	return nil
 }
 
-func (configurator *Configurator) ConfigureInstanceOperationStub(response *schema.Instance, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureInstanceOperationStub(response *schema.Instance, url string, params wiremock.MockParams) error {
 	setInstanceState(response.Status, schema.ResourceStateUpdating)
 	if err := configurator.ConfigurePostStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -34,7 +34,7 @@ func (configurator *Configurator) ConfigureInstanceOperationStub(response *schem
 	return nil
 }
 
-func (configurator *Configurator) ConfigureGetCreatingInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureGetCreatingInstanceStub(response *schema.Instance, url string, params wiremock.MockParams) error {
 	setInstanceState(response.Status, schema.ResourceStateCreating)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -42,7 +42,7 @@ func (configurator *Configurator) ConfigureGetCreatingInstanceStub(response *sch
 	return nil
 }
 
-func (configurator *Configurator) ConfigureGetActiveInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureGetActiveInstanceStub(response *schema.Instance, url string, params wiremock.MockParams) error {
 	setInstanceState(response.Status, schema.ResourceStateActive)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -50,7 +50,7 @@ func (configurator *Configurator) ConfigureGetActiveInstanceStub(response *schem
 	return nil
 }
 
-func (configurator *Configurator) ConfigureGetUpdatingInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureGetUpdatingInstanceStub(response *schema.Instance, url string, params wiremock.MockParams) error {
 	setInstanceState(response.Status, schema.ResourceStateUpdating)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -58,7 +58,7 @@ func (configurator *Configurator) ConfigureGetUpdatingInstanceStub(response *sch
 	return nil
 }
 
-func (configurator *Configurator) ConfigureGetDeletingInstanceStub(response *schema.Instance, url string, params *mock.MockParams) error {
+func (configurator *Configurator) ConfigureGetDeletingInstanceStub(response *schema.Instance, url string, params wiremock.MockParams) error {
 	setInstanceState(response.Status, schema.ResourceStateDeleting)
 	if err := configurator.ConfigureGetStub(url, params, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
@@ -66,15 +66,15 @@ func (configurator *Configurator) ConfigureGetDeletingInstanceStub(response *sch
 	return nil
 }
 
-func (configurator *Configurator) ConfigureListInstanceStub(response *compute.InstanceIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
-	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+func (configurator *Configurator) ConfigureListInstanceStub(response *compute.InstanceIterator, url string, params wiremock.MockParams, pathParams map[string]string) error {
+	if err := configurator.ConfigureGetWithPathStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (configurator *Configurator) ConfigureListSkuStub(response *compute.SkuIterator, url string, params *mock.MockParams, pathParams map[string]string) error {
-	if err := configurator.ConfigureListStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
+func (configurator *Configurator) ConfigureListSkuStub(response *compute.SkuIterator, url string, params wiremock.MockParams, pathParams map[string]string) error {
+	if err := configurator.ConfigureGetWithPathStub(url, params, pathParams, func(verb string) { response.Metadata.Verb = verb }, response); err != nil {
 		return err
 	}
 	return nil

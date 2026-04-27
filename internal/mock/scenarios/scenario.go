@@ -4,20 +4,18 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
-
-	"github.com/wiremock/go-wiremock"
+	"github.com/eu-sovereign-cloud/conformance/pkg/wiremock"
 )
 
 type Scenario struct {
 	Name       string
-	MockParams *mock.MockParams
-	client     *wiremock.Client
+	MockParams wiremock.MockParams
+	client     *wiremock.MockClient
 }
 
 func NewScenario(name string,
-	params *mock.MockParams,
+	params wiremock.MockParams,
 ) *Scenario {
 	return &Scenario{
 		Name:       name,
