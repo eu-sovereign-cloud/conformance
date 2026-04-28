@@ -7,9 +7,9 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	mockclients "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/clients"
+	"github.com/eu-sovereign-cloud/conformance/pkg/wiremock"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 )
 
@@ -40,7 +40,7 @@ func InitClients(ctx context.Context) error {
 	var mockScenario *mockscenarios.Scenario
 	if Parameters.MockEnabled {
 		mockScenario = mockscenarios.NewScenario(constants.ClientsInitScenarioName,
-			&mock.MockParams{
+			wiremock.MockParams{
 				ServerURL: Parameters.MockServerURL,
 				AuthToken: Parameters.ClientAuthToken,
 			},
