@@ -349,6 +349,25 @@ func (configurator *StepsConfigurator) DeleteRouteTableV1Step(stepName string, s
 	)
 }
 
+func (configurator *StepsConfigurator) CreateOrUpdateRouteTableExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.RouteTable) {
+	violationNetworkResourceStep(configurator.t, configurator.suite,
+		actionNetworkResourceParams[schema.RouteTable]{
+			actionResourceParams: actionResourceParams[schema.RouteTable]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.RouteTable) error {
+					_, err := api.CreateOrUpdateRouteTable(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateRouteTableOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			network:        secapi.NetworkID(resource.Metadata.Network),
+		},
+	)
+}
+
 // Subnet
 
 func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName string, stepCreator StepCreator, api secapi.NetworkV1, resource *schema.Subnet,
@@ -877,6 +896,133 @@ func (configurator *StepsConfigurator) DeleteSecurityGroupV1Step(stepName string
 			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
 			operationName:  constants.DeleteSecurityGroupOperation,
 			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateNetworkExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.Network) {
+	violationWorkspaceResourceStep(configurator.t, configurator.suite,
+		actionWorkspaceResourceParams[schema.Network]{
+			actionResourceParams: actionResourceParams[schema.Network]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.Network) error {
+					_, err := api.CreateOrUpdateNetwork(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateNetworkOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.InternetGateway) {
+	violationWorkspaceResourceStep(configurator.t, configurator.suite,
+		actionWorkspaceResourceParams[schema.InternetGateway]{
+			actionResourceParams: actionResourceParams[schema.InternetGateway]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.InternetGateway) error {
+					_, err := api.CreateOrUpdateInternetGateway(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateInternetGatewayOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdatePublicIpExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.PublicIp) {
+	violationWorkspaceResourceStep(configurator.t, configurator.suite,
+		actionWorkspaceResourceParams[schema.PublicIp]{
+			actionResourceParams: actionResourceParams[schema.PublicIp]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.PublicIp) error {
+					_, err := api.CreateOrUpdatePublicIp(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdatePublicIpOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateNicExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.Nic) {
+	violationWorkspaceResourceStep(configurator.t, configurator.suite,
+		actionWorkspaceResourceParams[schema.Nic]{
+			actionResourceParams: actionResourceParams[schema.Nic]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.Nic) error {
+					_, err := api.CreateOrUpdateNic(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateNicOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroup) {
+	violationWorkspaceResourceStep(configurator.t, configurator.suite,
+		actionWorkspaceResourceParams[schema.SecurityGroup]{
+			actionResourceParams: actionResourceParams[schema.SecurityGroup]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.SecurityGroup) error {
+					_, err := api.CreateOrUpdateSecurityGroup(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateSecurityGroupOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.SecurityGroupRule) {
+	violationWorkspaceResourceStep(configurator.t, configurator.suite,
+		actionWorkspaceResourceParams[schema.SecurityGroupRule]{
+			actionResourceParams: actionResourceParams[schema.SecurityGroupRule]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.SecurityGroupRule) error {
+					_, err := api.CreateOrUpdateSecurityGroupRule(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateSecurityGroupRuleOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+		},
+	)
+}
+
+func (configurator *StepsConfigurator) CreateOrUpdateSubnetExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.Subnet) {
+	violationNetworkResourceStep(configurator.t, configurator.suite,
+		actionNetworkResourceParams[schema.Subnet]{
+			actionResourceParams: actionResourceParams[schema.Subnet]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.Subnet) error {
+					_, err := api.CreateOrUpdateSubnet(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkNetworkV1StepParams,
+			operationName:  constants.CreateOrUpdateSubnetOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+			network:        secapi.NetworkID(resource.Metadata.Network),
 		},
 	)
 }

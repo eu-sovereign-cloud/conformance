@@ -91,6 +91,54 @@ type ImageLifeCycleV1Params struct {
 	ImageUpdated *schema.Image
 }
 
+// Constraints Validation
+
+type RoleConstraintsValidationV1Params struct {
+	OverLengthNameRole       *schema.Role
+	InvalidPatternNameRole   *schema.Role
+	OverLengthLabelValueRole *schema.Role
+	OverLengthAnnotationRole *schema.Role
+}
+type RoleAssignmentConstraintsValidationV1Params struct {
+	OverLengthNameRoleAssignment       *schema.RoleAssignment
+	InvalidPatternNameRoleAssignment   *schema.RoleAssignment
+	OverLengthLabelValueRoleAssignment *schema.RoleAssignment
+	OverLengthAnnotationRoleAssignment *schema.RoleAssignment
+}
+
+type InstanceConstraintsValidationV1Params struct {
+	Workspace                    *schema.Workspace
+	BlockStorage                 *schema.BlockStorage
+	OverLengthNameInstance       *schema.Instance
+	InvalidPatternNameInstance   *schema.Instance
+	OverLengthLabelValueInstance *schema.Instance
+	OverLengthAnnotationInstance *schema.Instance
+}
+
+type WorkspaceConstraintsValidationV1Params struct {
+	OverLengthNameWorkspace       *schema.Workspace
+	InvalidPatternNameWorkspace   *schema.Workspace
+	OverLengthLabelValueWorkspace *schema.Workspace
+	OverLengthAnnotationWorkspace *schema.Workspace
+}
+
+type BlockStorageConstraintsValidationV1Params struct {
+	Workspace                        *schema.Workspace
+	OverLengthNameBlockStorage       *schema.BlockStorage
+	InvalidPatternNameBlockStorage   *schema.BlockStorage
+	OverLengthLabelValueBlockStorage *schema.BlockStorage
+	OverLengthAnnotationBlockStorage *schema.BlockStorage
+}
+
+type ImageConstraintsValidationV1Params struct {
+	Workspace                 *schema.Workspace
+	BlockStorage              *schema.BlockStorage
+	OverLengthNameImage       *schema.Image
+	InvalidPatternNameImage   *schema.Image
+	OverLengthLabelValueImage *schema.Image
+	OverLengthAnnotationImage *schema.Image
+}
+
 // Network
 
 type NetworkProviderLifeCycleV1Params struct {
@@ -204,4 +252,76 @@ type FoundationUsageV1Params struct {
 	PublicIp        *schema.PublicIp
 	Nic             *schema.Nic
 	Instance        *schema.Instance
+}
+
+// Network Constraints
+
+type NetworkConstraintsValidationV1Params struct {
+	Workspace                   *schema.Workspace
+	InternetGateway             *schema.InternetGateway
+	OverLengthNameNetwork       *schema.Network
+	InvalidPatternNameNetwork   *schema.Network
+	OverLengthLabelValueNetwork *schema.Network
+	OverLengthAnnotationNetwork *schema.Network
+}
+
+type InternetGatewayConstraintsValidationV1Params struct {
+	Workspace                           *schema.Workspace
+	OverLengthNameInternetGateway       *schema.InternetGateway
+	InvalidPatternNameInternetGateway   *schema.InternetGateway
+	OverLengthLabelValueInternetGateway *schema.InternetGateway
+	OverLengthAnnotationInternetGateway *schema.InternetGateway
+}
+
+type PublicIpConstraintsValidationV1Params struct {
+	Workspace                    *schema.Workspace
+	OverLengthNamePublicIp       *schema.PublicIp
+	InvalidPatternNamePublicIp   *schema.PublicIp
+	OverLengthLabelValuePublicIp *schema.PublicIp
+	OverLengthAnnotationPublicIp *schema.PublicIp
+}
+
+type NicConstraintsValidationV1Params struct {
+	Workspace               *schema.Workspace
+	OverLengthNameNic       *schema.Nic
+	InvalidPatternNameNic   *schema.Nic
+	OverLengthLabelValueNic *schema.Nic
+	OverLengthAnnotationNic *schema.Nic
+}
+
+type SecurityGroupConstraintsValidationV1Params struct {
+	Workspace                         *schema.Workspace
+	OverLengthNameSecurityGroup       *schema.SecurityGroup
+	InvalidPatternNameSecurityGroup   *schema.SecurityGroup
+	OverLengthLabelValueSecurityGroup *schema.SecurityGroup
+	OverLengthAnnotationSecurityGroup *schema.SecurityGroup
+}
+
+type SecurityGroupRuleConstraintsValidationV1Params struct {
+	Workspace                             *schema.Workspace
+	OverLengthNameSecurityGroupRule       *schema.SecurityGroupRule
+	InvalidPatternNameSecurityGroupRule   *schema.SecurityGroupRule
+	OverLengthLabelValueSecurityGroupRule *schema.SecurityGroupRule
+	OverLengthAnnotationSecurityGroupRule *schema.SecurityGroupRule
+}
+
+type RouteTableConstraintsValidationV1Params struct {
+	Workspace                      *schema.Workspace
+	Network                        *schema.Network
+	InternetGateway                *schema.InternetGateway
+	OverLengthNameRouteTable       *schema.RouteTable
+	InvalidPatternNameRouteTable   *schema.RouteTable
+	OverLengthLabelValueRouteTable *schema.RouteTable
+	OverLengthAnnotationRouteTable *schema.RouteTable
+}
+
+type SubnetConstraintsValidationV1Params struct {
+	Workspace                  *schema.Workspace
+	Network                    *schema.Network
+	InternetGateway            *schema.InternetGateway
+	RouteTable                 *schema.RouteTable
+	OverLengthNameSubnet       *schema.Subnet
+	InvalidPatternNameSubnet   *schema.Subnet
+	OverLengthLabelValueSubnet *schema.Subnet
+	OverLengthAnnotationSubnet *schema.Subnet
 }

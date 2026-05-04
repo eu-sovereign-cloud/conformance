@@ -28,6 +28,22 @@ type actionResourceParams[R types.ResourceType] struct {
 	actionFunc func(context.Context, *R) error
 }
 
+type actionTenantResourceParams[R types.ResourceType] struct {
+	actionResourceParams[R]
+	stepName       string
+	stepParamsFunc func(provider.StepCtx, constants.OperationName)
+	operationName  constants.OperationName
+}
+
+type actionNetworkResourceParams[R types.ResourceType] struct {
+	actionResourceParams[R]
+	stepName       string
+	stepParamsFunc func(provider.StepCtx, constants.OperationName, secapi.WorkspaceID, secapi.NetworkID)
+	operationName  constants.OperationName
+	workspace      secapi.WorkspaceID
+	network        secapi.NetworkID
+}
+
 // Steps
 
 func actionWorkspaceResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, params actionWorkspaceResourceParams[R]) {
@@ -45,4 +61,35 @@ func actionResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSu
 	emptyResponseStep(sCtx)
 
 	requireNoError(sCtx, err)
+}
+
+func violationWorkspaceResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, params actionWorkspaceResourceParams[R]) {
+	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+		params.stepParamsFunc(sCtx, params.operationName, params.workspace)
+		violationResourceStep(t, suite, params.stepName, sCtx, params.actionResourceParams)
+	})
+}
+
+func violationResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, stepName string, sCtx provider.StepCtx, params actionResourceParams[R]) {
+	slog.Info(fmt.Sprintf("[%s] %s", suite.ScenarioName, stepName))
+
+	resourceRequestStep(sCtx, params.resource)
+	err := params.actionFunc(t.Context(), params.resource)
+	emptyResponseStep(sCtx)
+
+	requireError(sCtx, err)
+}
+
+func violationTenantResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, params actionTenantResourceParams[R]) {
+	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+		params.stepParamsFunc(sCtx, params.operationName)
+		violationResourceStep(t, suite, params.stepName, sCtx, params.actionResourceParams)
+	})
+}
+
+func violationNetworkResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, params actionNetworkResourceParams[R]) {
+	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+		params.stepParamsFunc(sCtx, params.operationName, params.workspace, params.network)
+		violationResourceStep(t, suite, params.stepName, sCtx, params.actionResourceParams)
+	})
 }
