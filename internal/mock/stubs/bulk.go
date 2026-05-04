@@ -2,9 +2,9 @@
 package stubs
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	"github.com/eu-sovereign-cloud/conformance/pkg/wiremock"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
@@ -13,7 +13,7 @@ import (
 
 // TODO Find a better package to it
 func BulkCreateRolesStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	rolesParams []schema.Role,
 ) error {
 	for _, role := range rolesParams {
@@ -39,7 +39,7 @@ func BulkCreateRolesStubV1(configurator *Configurator,
 }
 
 func BulkCreateRoleAssignmentsStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	roleAssignmentParams []schema.RoleAssignment,
 ) error {
 	for _, roleAssignment := range roleAssignmentParams {
@@ -68,7 +68,7 @@ func BulkCreateRoleAssignmentsStubV1(configurator *Configurator,
 // Workspace
 
 func BulkCreateWorkspacesStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	workspaceParams []schema.Workspace,
 ) error {
 	for _, workspace := range workspaceParams {
@@ -95,7 +95,7 @@ func BulkCreateWorkspacesStubV1(configurator *Configurator,
 // Compute
 
 func BulkCreateInstancesStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	instanceParams []schema.Instance,
 ) error {
 	for _, instance := range instanceParams {
@@ -123,7 +123,7 @@ func BulkCreateInstancesStubV1(configurator *Configurator,
 // Storage
 
 func BulkCreateBlockStoragesStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	blockStorageParams []schema.BlockStorage,
 ) error {
 	for _, block := range blockStorageParams {
@@ -150,7 +150,7 @@ func BulkCreateBlockStoragesStubV1(configurator *Configurator,
 }
 
 func BulkCreateImagesStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	imageParams []schema.Image,
 ) error {
 	for _, image := range imageParams {
@@ -178,7 +178,7 @@ func BulkCreateImagesStubV1(configurator *Configurator,
 // Network
 
 func BulkCreateNetworksStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	networkParams []schema.Network,
 ) error {
 	for _, network := range networkParams {
@@ -204,7 +204,7 @@ func BulkCreateNetworksStubV1(configurator *Configurator,
 }
 
 func BulkCreateInternetGatewaysStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	internetGatewayParams []schema.InternetGateway,
 ) error {
 	for _, gateway := range internetGatewayParams {
@@ -230,7 +230,7 @@ func BulkCreateInternetGatewaysStubV1(configurator *Configurator,
 }
 
 func BulkCreateRouteTableStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	routeTableParams []schema.RouteTable,
 ) error {
 	for _, routeTable := range routeTableParams {
@@ -255,7 +255,7 @@ func BulkCreateRouteTableStubV1(configurator *Configurator,
 }
 
 func BulkCreateSubnetsStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	subnetParams []schema.Subnet,
 ) error {
 	for _, subnet := range subnetParams {
@@ -280,7 +280,7 @@ func BulkCreateSubnetsStubV1(configurator *Configurator,
 }
 
 func BulkCreatePublicIpsStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	publicIpParams []schema.PublicIp,
 ) error {
 	for _, publicIp := range publicIpParams {
@@ -305,7 +305,7 @@ func BulkCreatePublicIpsStubV1(configurator *Configurator,
 }
 
 func BulkCreateNicsStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	nicParams []schema.Nic,
 ) error {
 	for _, nic := range nicParams {
@@ -330,7 +330,7 @@ func BulkCreateNicsStubV1(configurator *Configurator,
 }
 
 func BulkCreateSecurityGroupRulesStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	securityGroupRuleParams []schema.SecurityGroupRule,
 ) error {
 	for _, securityGroupRule := range securityGroupRuleParams {
@@ -356,7 +356,7 @@ func BulkCreateSecurityGroupRulesStubV1(configurator *Configurator,
 }
 
 func BulkCreateSecurityGroupsStubV1(configurator *Configurator,
-	mockParams *mock.MockParams,
+	mockParams wiremock.MockParams,
 	securityGroupParams []schema.SecurityGroup,
 ) error {
 	for _, securityGroup := range securityGroupParams {

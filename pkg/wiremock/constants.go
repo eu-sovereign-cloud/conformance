@@ -1,4 +1,4 @@
-package stubs
+package wiremock
 
 const (
 	// Scenario Priorities

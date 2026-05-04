@@ -1,0 +1,67 @@
+on:
+  repository_dispatch:
+    types: [sdk-upgrade]
+
+name: Go SDK Upgrade
+jobs:
+  sdk-upgrade:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Configure git
+        run: |
+          git config user.name "seca-ci-bot[bot]"
+          git config user.email "seca-ci-bot@secapi.cloud"
+
+      - name: Create branch
+        id: branch
+        run: |
+          BRANCH="go-sdk-${{ github.event.client_payload.tag }}-upgrade"
+          git checkout -b "$BRANCH"
+          echo "name=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Upgrade the go-sdk
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          TAG="${{ github.event.client_payload.tag }}"
+          go get github.com/eu-sovereign-cloud/go-sdk@$TAG
+          go mod tidy
+          go mod vendor
+
+      - name: Commit and push
+        run: |
+          git add -A
+          git commit -m "Upgrade to go-sdk ${{ github.event.client_payload.tag }}"
+          git push origin "${{ steps.branch.outputs.name }}"
+
+      - name: Open pull request
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "${{ steps.branch.outputs.name }}" \
+            --title "Upgrade to go-sdk ${{ github.event.client_payload.tag }}" \
+            --body "Automated upgrade to go-sdk ${{ github.event.client_payload.tag }}, triggered by a new go-sdk release"

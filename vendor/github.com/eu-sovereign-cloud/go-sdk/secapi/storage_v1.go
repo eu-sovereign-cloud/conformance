@@ -176,7 +176,7 @@ func (api *StorageV1Impl) ListSkusWithOptions(ctx context.Context, tpath TenantP
 			} else {
 				params = &storage.ListSkusParams{
 					Accept:    AcceptHeaderJson[storage.ListSkusParamsAccept](),
-					Labels:    options.Labels,
+					Labels:    options.Labels.BuildPtr(),
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -237,7 +237,7 @@ func (api *StorageV1Impl) ListBlockStoragesWithOptions(ctx context.Context, wpat
 			} else {
 				params = &storage.ListBlockStoragesParams{
 					Accept:    AcceptHeaderJson[storage.ListBlockStoragesParamsAccept](),
-					Labels:    options.Labels,
+					Labels:    options.Labels.BuildPtr(),
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
@@ -401,7 +401,7 @@ func (api *StorageV1Impl) ListImagesWithOptions(ctx context.Context, tpath Tenan
 			} else {
 				params = &storage.ListImagesParams{
 					Accept:    AcceptHeaderJson[storage.ListImagesParamsAccept](),
-					Labels:    options.Labels,
+					Labels:    options.Labels.BuildPtr(),
 					Limit:     options.Limit,
 					SkipToken: skipToken,
 				}
