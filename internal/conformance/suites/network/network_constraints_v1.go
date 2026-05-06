@@ -26,6 +26,10 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
+//   - spec.cidr.ipv4: minLength 9, maxLength 18 (NetworkSpec)
+//   - spec.cidr.ipv6: minLength 4, maxLength 43 (NetworkSpec)
+//   - spec.additionalCidrs[].ipv4: minLength 9, maxLength 18 (NetworkSpec)
+//   - spec.additionalCidrs[].ipv6: minLength 4, maxLength 43 (NetworkSpec)
 type NetworkConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 	config *NetworkLifeCycleV1Config
@@ -81,16 +85,37 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		return network
 	}
 
+	buildNetworkWithCidr := func(name string, cidr schema.Cidr, additionalCidrs []schema.Cidr) *schema.Network {
+		network, err := builders.NewNetworkBuilder().
+			Name(name).
+			Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+			Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+			Annotations(schema.Annotations{"description": "Network with invalid cidr"}).
+			Spec(&schema.NetworkSpec{
+				Cidr:            cidr,
+				AdditionalCidrs: additionalCidrs,
+				SkuRef:          *networkSkuRefObj,
+				RouteTableRef:   *routeTableRefObj,
+			}).Build()
+		if err != nil {
+			t.Fatalf("Failed to build Network: %v", err)
+		}
+		return network
+	}
+
+	baseLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
+
 	p := &params.NetworkConstraintsValidationV1Params{
 		Workspace: workspace,
 		OverLengthNameNetwork: buildNetwork(
 			strings.Repeat("a", 129),
-			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			baseLabels,
 			schema.Annotations{"description": "Network with over-length name"},
 		),
 		InvalidPatternNameNetwork: buildNetwork(
 			"Invalid-Name-With-Uppercase",
-			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			baseLabels,
 			schema.Annotations{"description": "Network with non-kebab-case name"},
 		),
 		OverLengthLabelValueNetwork: buildNetwork(
@@ -100,8 +125,38 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		),
 		OverLengthAnnotationNetwork: buildNetwork(
 			generators.GenerateNetworkName(),
-			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			baseLabels,
 			schema.Annotations{"description": "Network with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
+		OverLengthCidrIpv4Network: buildNetworkWithCidr(
+			generators.GenerateNetworkName(),
+			schema.Cidr{Ipv4: strings.Repeat("1", 19)},
+			nil,
+		),
+		UnderLengthCidrIpv4Network: buildNetworkWithCidr(
+			generators.GenerateNetworkName(),
+			schema.Cidr{Ipv4: "1.0/8"},
+			nil,
+		),
+		OverLengthCidrIpv6Network: buildNetworkWithCidr(
+			generators.GenerateNetworkName(),
+			schema.Cidr{Ipv6: strings.Repeat("a", 44)},
+			nil,
+		),
+		UnderLengthCidrIpv6Network: buildNetworkWithCidr(
+			generators.GenerateNetworkName(),
+			schema.Cidr{Ipv6: "::/"},
+			nil,
+		),
+		OverLengthAdditionalCidrIpv4Network: buildNetworkWithCidr(
+			generators.GenerateNetworkName(),
+			schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			[]schema.Cidr{{Ipv4: strings.Repeat("1", 19)}},
+		),
+		OverLengthAdditionalCidrIpv6Network: buildNetworkWithCidr(
+			generators.GenerateNetworkName(),
+			schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			[]schema.Cidr{{Ipv6: strings.Repeat("a", 44)}},
 		),
 	}
 	suite.params = p
@@ -152,7 +207,7 @@ func (suite *NetworkConstraintsValidationV1TestSuite) TestScenario(t provider.T)
 		},
 	)
 
-	// Networks with invalid fields
+	// Constraint violations
 	stepsBuilder.CreateOrUpdateNetworkExpectViolationV1Step(
 		"Create a network with name exceeding maxLength:128 — expect rejection",
 		suite.Client.NetworkV1,
@@ -172,6 +227,36 @@ func (suite *NetworkConstraintsValidationV1TestSuite) TestScenario(t provider.T)
 		"Create a network with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.NetworkV1,
 		suite.params.OverLengthAnnotationNetwork,
+	)
+	stepsBuilder.CreateOrUpdateNetworkExpectViolationV1Step(
+		"Create a network with cidr.ipv4 exceeding maxLength:18 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverLengthCidrIpv4Network,
+	)
+	stepsBuilder.CreateOrUpdateNetworkExpectViolationV1Step(
+		"Create a network with cidr.ipv4 below minLength:9 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.UnderLengthCidrIpv4Network,
+	)
+	stepsBuilder.CreateOrUpdateNetworkExpectViolationV1Step(
+		"Create a network with cidr.ipv6 exceeding maxLength:43 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverLengthCidrIpv6Network,
+	)
+	stepsBuilder.CreateOrUpdateNetworkExpectViolationV1Step(
+		"Create a network with cidr.ipv6 below minLength:4 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.UnderLengthCidrIpv6Network,
+	)
+	stepsBuilder.CreateOrUpdateNetworkExpectViolationV1Step(
+		"Create a network with additionalCidrs[].ipv4 exceeding maxLength:18 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverLengthAdditionalCidrIpv4Network,
+	)
+	stepsBuilder.CreateOrUpdateNetworkExpectViolationV1Step(
+		"Create a network with additionalCidrs[].ipv6 exceeding maxLength:43 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverLengthAdditionalCidrIpv6Network,
 	)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)

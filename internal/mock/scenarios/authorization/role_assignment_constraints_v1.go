@@ -44,5 +44,40 @@ func ConfigureRoleAssignmentConstraintsValidationV1(scenario *mockscenarios.Scen
 		return err
 	}
 
+	// Over-length sub Validation
+	overLengthSubRA := p.OverLengthSubRoleAssignment
+	overLengthSubURL := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, overLengthSubRA.Metadata.Tenant, overLengthSubRA.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthSubURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length role name Validation
+	overLengthRoleNameRA := p.OverLengthRoleNameRoleAssignment
+	overLengthRoleNameURL := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, overLengthRoleNameRA.Metadata.Tenant, overLengthRoleNameRA.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthRoleNameURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length scope tenant Validation
+	overLengthScopeTenantRA := p.OverLengthScopeTenantRoleAssignment
+	overLengthScopeTenantURL := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, overLengthScopeTenantRA.Metadata.Tenant, overLengthScopeTenantRA.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthScopeTenantURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length scope region Validation
+	overLengthScopeRegionRA := p.OverLengthScopeRegionRoleAssignment
+	overLengthScopeRegionURL := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, overLengthScopeRegionRA.Metadata.Tenant, overLengthScopeRegionRA.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthScopeRegionURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length scope workspace Validation
+	overLengthScopeWorkspaceRA := p.OverLengthScopeWorkspaceRoleAssignment
+	overLengthScopeWorkspaceURL := generators.GenerateRoleAssignmentURL(sdkconsts.AuthorizationProviderV1Name, overLengthScopeWorkspaceRA.Metadata.Tenant, overLengthScopeWorkspaceRA.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthScopeWorkspaceURL, scenario.MockParams); err != nil {
+		return err
+	}
+
 	return scenario.FinishConfiguration(configurator)
 }

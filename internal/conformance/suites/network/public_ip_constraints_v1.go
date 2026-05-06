@@ -25,6 +25,7 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
+//   - spec.address: maxLength 39 (PublicIpSpec)
 type PublicIpConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 
@@ -78,6 +79,23 @@ func (suite *PublicIpConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		return pip
 	}
 
+	buildPublicIpWithAddress := func(name string, address string) *schema.PublicIp {
+		pip, err := builders.NewPublicIpBuilder().
+			Name(name).
+			Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+			Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+			Annotations(schema.Annotations{"description": "PublicIp with invalid address"}).
+			Spec(&schema.PublicIpSpec{
+				Version: schema.IPVersionIPv4,
+				Address: address,
+			}).Build()
+		if err != nil {
+			t.Fatalf("Failed to build PublicIp: %v", err)
+		}
+		return pip
+	}
+
 	p := &params.PublicIpConstraintsValidationV1Params{
 		Workspace: workspace,
 		OverLengthNamePublicIp: buildPublicIp(
@@ -99,6 +117,10 @@ func (suite *PublicIpConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 			generators.GeneratePublicIpName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
 			schema.Annotations{"description": "PublicIp with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
+		OverLengthAddressPublicIp: buildPublicIpWithAddress(
+			generators.GeneratePublicIpName(),
+			strings.Repeat("a", 40),
 		),
 	}
 	suite.params = p
@@ -168,6 +190,11 @@ func (suite *PublicIpConstraintsValidationV1TestSuite) TestScenario(t provider.T
 		"Create a public ip with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.NetworkV1,
 		suite.params.OverLengthAnnotationPublicIp,
+	)
+	stepsBuilder.CreateOrUpdatePublicIpExpectViolationV1Step(
+		"Create a public ip with address exceeding maxLength:39 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverLengthAddressPublicIp,
 	)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)

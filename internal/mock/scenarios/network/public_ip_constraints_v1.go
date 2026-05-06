@@ -16,6 +16,7 @@ func ConfigurePublicIpConstraintsValidationV1(scenario *mockscenarios.Scenario, 
 	workspace := p.Workspace
 	workspaceURL := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
 
+	// Create workspace
 	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -26,34 +27,62 @@ func ConfigurePublicIpConstraintsValidationV1(scenario *mockscenarios.Scenario, 
 		return err
 	}
 
-	// Over-length name Validation
-	overLengthNamePublicIp := p.OverLengthNamePublicIp
-	overLengthNameURL := generators.GeneratePublicIpURL(sdkconsts.NetworkProviderV1Name, overLengthNamePublicIp.Metadata.Tenant, overLengthNamePublicIp.Metadata.Workspace, overLengthNamePublicIp.Metadata.Name)
+	// Over-length name violation
+	overLengthNameURL := generators.GeneratePublicIpURL(
+		sdkconsts.NetworkProviderV1Name,
+		p.OverLengthNamePublicIp.Metadata.Tenant,
+		p.OverLengthNamePublicIp.Metadata.Workspace,
+		p.OverLengthNamePublicIp.Metadata.Name,
+	)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthNameURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Invalid pattern name Validation
-	invalidPatternNamePublicIp := p.InvalidPatternNamePublicIp
-	invalidPatternNameURL := generators.GeneratePublicIpURL(sdkconsts.NetworkProviderV1Name, invalidPatternNamePublicIp.Metadata.Tenant, invalidPatternNamePublicIp.Metadata.Workspace, invalidPatternNamePublicIp.Metadata.Name)
+	// Invalid pattern name violation
+	invalidPatternNameURL := generators.GeneratePublicIpURL(
+		sdkconsts.NetworkProviderV1Name,
+		p.InvalidPatternNamePublicIp.Metadata.Tenant,
+		p.InvalidPatternNamePublicIp.Metadata.Workspace,
+		p.InvalidPatternNamePublicIp.Metadata.Name,
+	)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(invalidPatternNameURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Over-length label value Validation
-	overLengthLabelPublicIp := p.OverLengthLabelValuePublicIp
-	overLengthLabelURL := generators.GeneratePublicIpURL(sdkconsts.NetworkProviderV1Name, overLengthLabelPublicIp.Metadata.Tenant, overLengthLabelPublicIp.Metadata.Workspace, overLengthLabelPublicIp.Metadata.Name)
+	// Over-length label value violation
+	overLengthLabelURL := generators.GeneratePublicIpURL(
+		sdkconsts.NetworkProviderV1Name,
+		p.OverLengthLabelValuePublicIp.Metadata.Tenant,
+		p.OverLengthLabelValuePublicIp.Metadata.Workspace,
+		p.OverLengthLabelValuePublicIp.Metadata.Name,
+	)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthLabelURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Over-length annotation value Validation
-	overLengthAnnotationPublicIp := p.OverLengthAnnotationPublicIp
-	overLengthAnnotationURL := generators.GeneratePublicIpURL(sdkconsts.NetworkProviderV1Name, overLengthAnnotationPublicIp.Metadata.Tenant, overLengthAnnotationPublicIp.Metadata.Workspace, overLengthAnnotationPublicIp.Metadata.Name)
+	// Over-length annotation value violation
+	overLengthAnnotationURL := generators.GeneratePublicIpURL(
+		sdkconsts.NetworkProviderV1Name,
+		p.OverLengthAnnotationPublicIp.Metadata.Tenant,
+		p.OverLengthAnnotationPublicIp.Metadata.Workspace,
+		p.OverLengthAnnotationPublicIp.Metadata.Name,
+	)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthAnnotationURL, scenario.MockParams); err != nil {
 		return err
 	}
 
+	// Over-length address violation
+	overLengthAddressURL := generators.GeneratePublicIpURL(
+		sdkconsts.NetworkProviderV1Name,
+		p.OverLengthAddressPublicIp.Metadata.Tenant,
+		p.OverLengthAddressPublicIp.Metadata.Workspace,
+		p.OverLengthAddressPublicIp.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthAddressURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Delete workspace teardown
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}

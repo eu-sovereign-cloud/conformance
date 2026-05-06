@@ -46,20 +46,19 @@ func (suite *RoleAssignmentConstraintsValidationV1TestSuite) BeforeAll(t provide
 	roleName := generators.GenerateRoleName()
 	roleAssignmentSub := suite.Users[rand.Intn(len(suite.Users))]
 
-	buildRoleAssignment := func(name string, labels schema.Labels, annotations schema.Annotations) *schema.RoleAssignment {
+	validScope := schema.RoleAssignmentScope{
+		Tenants: []string{suite.Tenant},
+	}
+
+	buildRoleAssignment := func(name string, labels schema.Labels, annotations schema.Annotations, spec *schema.RoleAssignmentSpec) *schema.RoleAssignment {
 		ra, err := builders.NewRoleAssignmentBuilder().
 			Name(name).
 			Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 			Tenant(suite.Tenant).
 			Labels(labels).
 			Annotations(annotations).
-			Spec(&schema.RoleAssignmentSpec{
-				Roles: []string{roleName},
-				Subs:  []string{roleAssignmentSub},
-				Scopes: []schema.RoleAssignmentScope{
-					{Tenants: []string{suite.Tenant}},
-				},
-			}).Build()
+			Spec(spec).
+			Build()
 		if err != nil {
 			t.Fatalf("Failed to build RoleAssignment: %v", err)
 		}
@@ -71,21 +70,99 @@ func (suite *RoleAssignmentConstraintsValidationV1TestSuite) BeforeAll(t provide
 			strings.Repeat("a", 129),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
 			schema.Annotations{"description": "RoleAssignment with over-length name"},
+			&schema.RoleAssignmentSpec{
+				Roles: []string{roleName},
+				Subs:  []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{
+					{Tenants: []string{suite.Tenant}},
+				},
+			},
 		),
 		InvalidPatternNameRoleAssignment: buildRoleAssignment(
 			"Invalid-Name-With-Uppercase",
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "RoleAssignment with non-kebab-case name"},
+			schema.Annotations{"description": "RoleAssignment with over-length name"},
+			&schema.RoleAssignmentSpec{
+				Roles: []string{roleName},
+				Subs:  []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{
+					validScope,
+				},
+			},
 		),
 		OverLengthLabelValueRoleAssignment: buildRoleAssignment(
 			generators.GenerateRoleAssignmentName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel, "constraint-test": strings.Repeat("x", 64)},
 			schema.Annotations{"description": "RoleAssignment with over-length label value"},
+			&schema.RoleAssignmentSpec{
+				Roles: []string{roleName},
+				Subs:  []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{
+					validScope,
+				},
+			},
 		),
 		OverLengthAnnotationRoleAssignment: buildRoleAssignment(
 			generators.GenerateRoleAssignmentName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
 			schema.Annotations{"description": "RoleAssignment with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+			&schema.RoleAssignmentSpec{
+				Roles: []string{roleName},
+				Subs:  []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{
+					validScope,
+				},
+			},
+		),
+		OverLengthSubRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(),
+			schema.Labels{},
+			schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Subs:   []string{strings.Repeat("a", 129)},
+				Scopes: []schema.RoleAssignmentScope{validScope},
+				Roles:  []string{"viewer"},
+			},
+		),
+		OverLengthRoleNameRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(),
+			schema.Labels{},
+			schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Subs:   []string{"user1@example.com"},
+				Scopes: []schema.RoleAssignmentScope{validScope},
+				Roles:  []string{strings.Repeat("a", 65)},
+			},
+		),
+		OverLengthScopeTenantRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(),
+			schema.Labels{},
+			schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Subs:   []string{"user1@example.com"},
+				Scopes: []schema.RoleAssignmentScope{{Tenants: []string{strings.Repeat("a", 65)}}},
+				Roles:  []string{"viewer"},
+			},
+		),
+		OverLengthScopeRegionRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(),
+			schema.Labels{},
+			schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Subs:   []string{"user1@example.com"},
+				Scopes: []schema.RoleAssignmentScope{{Regions: []string{strings.Repeat("a", 65)}}},
+				Roles:  []string{"viewer"},
+			},
+		),
+		OverLengthScopeWorkspaceRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(),
+			schema.Labels{},
+			schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Subs:   []string{"user1@example.com"},
+				Scopes: []schema.RoleAssignmentScope{{Workspaces: []string{strings.Repeat("a", 65)}}},
+				Roles:  []string{"viewer"},
+			},
 		),
 	}
 	suite.params = p
@@ -120,7 +197,31 @@ func (suite *RoleAssignmentConstraintsValidationV1TestSuite) TestScenario(t prov
 		suite.Client.AuthorizationV1,
 		suite.params.OverLengthAnnotationRoleAssignment,
 	)
-
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with sub exceeding maxLength:128 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverLengthSubRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with role name exceeding maxLength:64 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverLengthRoleNameRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with scope tenant exceeding maxLength:64 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverLengthScopeTenantRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with scope region exceeding maxLength:64 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverLengthScopeRegionRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with scope workspace exceeding maxLength:64 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverLengthScopeWorkspaceRoleAssignment,
+	)
 	suite.FinishScenario()
 }
 

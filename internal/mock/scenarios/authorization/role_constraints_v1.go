@@ -43,5 +43,26 @@ func ConfigureRoleConstraintsValidationV1(scenario *mockscenarios.Scenario, p pa
 		return err
 	}
 
+	// Over-length permission provider Validation
+	overLengthProviderRole := p.OverLengthPermissionProviderRole
+	overLengthProviderURL := generators.GenerateRoleURL(sdkconsts.AuthorizationProviderV1Name, overLengthProviderRole.Metadata.Tenant, overLengthProviderRole.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthProviderURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length permission resource Validation
+	overLengthResourceRole := p.OverLengthPermissionResourceRole
+	overLengthResourceURL := generators.GenerateRoleURL(sdkconsts.AuthorizationProviderV1Name, overLengthResourceRole.Metadata.Tenant, overLengthResourceRole.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthResourceURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length permission verb Validation
+	overLengthVerbRole := p.OverLengthPermissionVerbRole
+	overLengthVerbURL := generators.GenerateRoleURL(sdkconsts.AuthorizationProviderV1Name, overLengthVerbRole.Metadata.Tenant, overLengthVerbRole.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthVerbURL, scenario.MockParams); err != nil {
+		return err
+	}
+
 	return scenario.FinishConfiguration(configurator)
 }

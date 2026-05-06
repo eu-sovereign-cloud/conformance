@@ -26,6 +26,7 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
+//   - spec.routes[].destinationCidrBlock: maxLength 43 (RouteSpec)
 type RouteTableConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 
@@ -109,6 +110,22 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) BeforeAll(t provider.T)
 		return rt
 	}
 
+	buildRTWithRoutes := func(name string, routes []schema.RouteSpec) *schema.RouteTable {
+		rt, err := builders.NewRouteTableBuilder().
+			Name(name).
+			Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+			Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+			Annotations(schema.Annotations{"description": "RouteTable with invalid destinationCidrBlock"}).
+			Spec(&schema.RouteTableSpec{
+				Routes: routes,
+			}).Build()
+		if err != nil {
+			t.Fatalf("Failed to build RouteTable: %v", err)
+		}
+		return rt
+	}
+
 	p := &params.RouteTableConstraintsValidationV1Params{
 		Workspace:       workspace,
 		Network:         network,
@@ -125,6 +142,12 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) BeforeAll(t provider.T)
 		OverLengthAnnotationRouteTable: buildRT(generators.GenerateRouteTableName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
 			schema.Annotations{"description": "RouteTable with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)}),
+		OverLengthDestinationCidrBlockRouteTable: buildRTWithRoutes(
+			generators.GenerateRouteTableName(),
+			[]schema.RouteSpec{
+				{DestinationCidrBlock: strings.Repeat("a", 44), TargetRef: *internetGatewayRefObj},
+			},
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureRouteTableConstraintsValidationV1, *p); err != nil {
@@ -270,6 +293,11 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) TestScenario(t provider
 		"Create a route table with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.NetworkV1,
 		suite.params.OverLengthAnnotationRouteTable,
+	)
+	stepsBuilder.CreateOrUpdateRouteTableExpectViolationV1Step(
+		"Create a route table with routes[].destinationCidrBlock exceeding maxLength:43 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverLengthDestinationCidrBlockRouteTable,
 	)
 
 	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.Client.NetworkV1, internetGat)

@@ -63,6 +63,20 @@ func (suite *RoleConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		return role
 	}
 
+	buildRoleWithPermission := func(name string, permissions []schema.Permission) *schema.Role {
+		role, err := builders.NewRoleBuilder().
+			Name(name).
+			Provider(sdkconsts.AuthorizationProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).
+			Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+			Spec(&schema.RoleSpec{Permissions: permissions}).
+			Build()
+		if err != nil {
+			t.Fatalf("Failed to build Role: %v", err)
+		}
+		return role
+	}
+
 	p := &params.RoleConstraintsValidationV1Params{
 		OverLengthNameRole: buildRole(
 			strings.Repeat("a", 129),
@@ -83,6 +97,30 @@ func (suite *RoleConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 			generators.GenerateRoleName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
 			schema.Annotations{"description": "Role with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
+		OverLengthPermissionProviderRole: buildRoleWithPermission(
+			generators.GenerateRoleName(),
+			[]schema.Permission{{
+				Provider:  strings.Repeat("a", 65),
+				Resources: []string{"images/*"},
+				Verb:      []string{"get"},
+			}},
+		),
+		OverLengthPermissionResourceRole: buildRoleWithPermission(
+			generators.GenerateRoleName(),
+			[]schema.Permission{{
+				Provider:  "seca.storage/v1",
+				Resources: []string{strings.Repeat("a", 257)},
+				Verb:      []string{"get"},
+			}},
+		),
+		OverLengthPermissionVerbRole: buildRoleWithPermission(
+			generators.GenerateRoleName(),
+			[]schema.Permission{{
+				Provider:  "seca.storage/v1",
+				Resources: []string{"images/*"},
+				Verb:      []string{strings.Repeat("a", 8)},
+			}},
 		),
 	}
 	suite.params = p
@@ -116,6 +154,21 @@ func (suite *RoleConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 		"Create a role with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.AuthorizationV1,
 		suite.params.OverLengthAnnotationRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with permission provider exceeding maxLength:64 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverLengthPermissionProviderRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with permission resource exceeding maxLength:256 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverLengthPermissionResourceRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with permission verb exceeding maxLength:7 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverLengthPermissionVerbRole,
 	)
 
 	suite.FinishScenario()

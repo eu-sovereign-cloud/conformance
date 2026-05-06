@@ -26,6 +26,9 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
+//   - spec.userData: maxLength 65536 (InstanceSpec)
+//   - spec.antiAffinityGroup: maxLength 64 (InstanceSpec)
+//   - spec.sshKeys[]: maxLength 4096 (InstanceSpec)
 type InstanceConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 	config *InstanceContraintsValidationV1Config
@@ -88,48 +91,85 @@ func (suite *InstanceConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build BlockStorage: %v", err)
 	}
 
-	buildInstance := func(name string, labels schema.Labels, annotations schema.Annotations) *schema.Instance {
+	buildInstance := func(name string, labels schema.Labels, annotations schema.Annotations, spec *schema.InstanceSpec) *schema.Instance {
 		instance, err := builders.NewInstanceBuilder().
 			Name(name).
 			Provider(sdkconsts.ComputeProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 			Labels(labels).
 			Annotations(annotations).
-			Spec(&schema.InstanceSpec{
-				SkuRef: *instanceSkuRefObj,
-				Zone:   zone,
-				BootVolume: schema.VolumeReference{
-					DeviceRef: *blockStorageRefObj,
-				},
-			}).Build()
+			Spec(spec).Build()
 		if err != nil {
 			t.Fatalf("Failed to build Instance: %v", err)
 		}
 		return instance
 	}
 
+	baseSpec := func() *schema.InstanceSpec {
+		return &schema.InstanceSpec{
+			SkuRef: *instanceSkuRefObj,
+			Zone:   zone,
+			BootVolume: schema.VolumeReference{
+				DeviceRef: *blockStorageRefObj,
+			},
+		}
+	}
+
+	baseLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
+
+	overLengthUserDataSpec := baseSpec()
+	overLengthUserDataSpec.UserData = strings.Repeat("a", 65537)
+
+	overLengthAntiAffinityGroupSpec := baseSpec()
+	overLengthAntiAffinityGroupSpec.AntiAffinityGroup = strings.Repeat("a", 65)
+
+	overLengthSshKeySpec := baseSpec()
+	overLengthSshKeySpec.SshKeys = []string{strings.Repeat("a", 4097)}
+
 	p := &params.InstanceConstraintsValidationV1Params{
 		Workspace:    workspace,
 		BlockStorage: blockStorage,
 		OverLengthNameInstance: buildInstance(
 			strings.Repeat("a", 129),
-			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			baseLabels,
 			schema.Annotations{"description": "Instance with over-length name"},
+			baseSpec(),
 		),
 		InvalidPatternNameInstance: buildInstance(
 			"Invalid-Name-With-Uppercase",
-			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			baseLabels,
 			schema.Annotations{"description": "Instance with non-kebab-case name"},
+			baseSpec(),
 		),
 		OverLengthLabelValueInstance: buildInstance(
 			generators.GenerateInstanceName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel, "constraint-test": strings.Repeat("x", 64)},
 			schema.Annotations{"description": "Instance with over-length label value"},
+			baseSpec(),
 		),
 		OverLengthAnnotationInstance: buildInstance(
 			generators.GenerateInstanceName(),
-			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+			baseLabels,
 			schema.Annotations{"description": "Instance with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+			baseSpec(),
+		),
+		OverLengthUserDataInstance: buildInstance(
+			generators.GenerateInstanceName(),
+			baseLabels,
+			schema.Annotations{"description": "Instance with over-length userData"},
+			overLengthUserDataSpec,
+		),
+		OverLengthAntiAffinityGroupInstance: buildInstance(
+			generators.GenerateInstanceName(),
+			baseLabels,
+			schema.Annotations{"description": "Instance with over-length antiAffinityGroup"},
+			overLengthAntiAffinityGroupSpec,
+		),
+		OverLengthSshKeyInstance: buildInstance(
+			generators.GenerateInstanceName(),
+			baseLabels,
+			schema.Annotations{"description": "Instance with over-length sshKey"},
+			overLengthSshKeySpec,
 		),
 	}
 	suite.params = p
@@ -150,7 +190,6 @@ func (suite *InstanceConstraintsValidationV1TestSuite) TestScenario(t provider.T
 
 	// Workspace
 
-	// Create a workspace
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
@@ -166,7 +205,6 @@ func (suite *InstanceConstraintsValidationV1TestSuite) TestScenario(t provider.T
 		},
 	)
 
-	// Get the created Workspace
 	workspaceTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(suite.Tenant),
 		Name:   suite.params.Workspace.Metadata.Name,
@@ -184,7 +222,6 @@ func (suite *InstanceConstraintsValidationV1TestSuite) TestScenario(t provider.T
 
 	// Block storage
 
-	// Create a block storage
 	block := suite.params.BlockStorage
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
@@ -202,7 +239,6 @@ func (suite *InstanceConstraintsValidationV1TestSuite) TestScenario(t provider.T
 		},
 	)
 
-	// Get the created block storage
 	blockWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(suite.Tenant),
 		Workspace: secapi.WorkspaceID(suite.params.Workspace.Metadata.Name),
@@ -218,6 +254,8 @@ func (suite *InstanceConstraintsValidationV1TestSuite) TestScenario(t provider.T
 			},
 		},
 	)
+
+	// Constraint violations
 
 	stepsBuilder.CreateOrUpdateInstanceExpectViolationV1Step(
 		"Create an instance with name exceeding maxLength:128 — expect rejection",
@@ -238,6 +276,21 @@ func (suite *InstanceConstraintsValidationV1TestSuite) TestScenario(t provider.T
 		"Create an instance with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.ComputeV1,
 		suite.params.OverLengthAnnotationInstance,
+	)
+	stepsBuilder.CreateOrUpdateInstanceExpectViolationV1Step(
+		"Create an instance with userData exceeding maxLength:65536 — expect rejection",
+		suite.Client.ComputeV1,
+		suite.params.OverLengthUserDataInstance,
+	)
+	stepsBuilder.CreateOrUpdateInstanceExpectViolationV1Step(
+		"Create an instance with antiAffinityGroup exceeding maxLength:64 — expect rejection",
+		suite.Client.ComputeV1,
+		suite.params.OverLengthAntiAffinityGroupInstance,
+	)
+	stepsBuilder.CreateOrUpdateInstanceExpectViolationV1Step(
+		"Create an instance with sshKey exceeding maxLength:4096 — expect rejection",
+		suite.Client.ComputeV1,
+		suite.params.OverLengthSshKeyInstance,
 	)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)

@@ -93,6 +93,39 @@ func ConfigureInstanceConstraintsValidationV1(scenario *mockscenarios.Scenario, 
 		return err
 	}
 
+	// Over-length userData violation
+	overLengthUserDataURL := generators.GenerateInstanceURL(
+		sdkconsts.ComputeProviderV1Name,
+		p.OverLengthUserDataInstance.Metadata.Tenant,
+		p.OverLengthUserDataInstance.Metadata.Workspace,
+		p.OverLengthUserDataInstance.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthUserDataURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length antiAffinityGroup violation
+	overLengthAntiAffinityGroupURL := generators.GenerateInstanceURL(
+		sdkconsts.ComputeProviderV1Name,
+		p.OverLengthAntiAffinityGroupInstance.Metadata.Tenant,
+		p.OverLengthAntiAffinityGroupInstance.Metadata.Workspace,
+		p.OverLengthAntiAffinityGroupInstance.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthAntiAffinityGroupURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length sshKey violation
+	overLengthSshKeyURL := generators.GenerateInstanceURL(
+		sdkconsts.ComputeProviderV1Name,
+		p.OverLengthSshKeyInstance.Metadata.Tenant,
+		p.OverLengthSshKeyInstance.Metadata.Workspace,
+		p.OverLengthSshKeyInstance.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthSshKeyURL, scenario.MockParams); err != nil {
+		return err
+	}
+
 	// Delete block storage teardown
 	if err := configurator.ConfigureDeleteStub(blockURL, scenario.MockParams); err != nil {
 		return err

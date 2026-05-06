@@ -80,6 +80,13 @@ func ConfigureRouteTableConstraintsValidationV1(scenario *mockscenarios.Scenario
 		return err
 	}
 
+	// Over-length destinationCidrBlock Validation
+	overLengthDestinationCidrBlockRouteTable := p.OverLengthDestinationCidrBlockRouteTable
+	overLengthDestinationCidrBlockURL := generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, overLengthDestinationCidrBlockRouteTable.Metadata.Tenant, overLengthDestinationCidrBlockRouteTable.Metadata.Workspace, overLengthDestinationCidrBlockRouteTable.Metadata.Network, overLengthDestinationCidrBlockRouteTable.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthDestinationCidrBlockURL, scenario.MockParams); err != nil {
+		return err
+	}
+
 	if err := configurator.ConfigureDeleteStub(gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}

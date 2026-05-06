@@ -25,6 +25,14 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
+//   - spec.rules[].direction: enum [ingress, egress] (SecurityGroupRuleSpec)
+//   - spec.rules[].version: enum [IPv4, IPv6] (SecurityGroupRuleSpec)
+//   - spec.rules[].protocol: enum [tcp, udp, tcp+udp, icmp] (SecurityGroupRuleSpec)
+//   - spec.rules[].ports.from: minimum 1, maximum 65535 (Port)
+//   - spec.rules[].ports.to: minimum 1, maximum 65535 (Port)
+//   - spec.rules[].ports.list[]: minimum 1, maximum 65535 (Port)
+//   - spec.rules[].icmp.type: maximum 8 (IcmpConfig)
+//   - spec.rules[].icmp.code: maximum 5 (IcmpConfig)
 type SecurityGroupConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 
@@ -70,6 +78,25 @@ func (suite *SecurityGroupConstraintsValidationV1TestSuite) BeforeAll(t provider
 		return sg
 	}
 
+	buildSGWithRules := func(name string, rules []schema.SecurityGroupRuleSpec) *schema.SecurityGroup {
+		sg, err := builders.NewSecurityGroupBuilder().
+			Name(name).
+			Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+			Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+			Annotations(schema.Annotations{"description": "SecurityGroup with invalid inline rule"}).
+			Spec(&schema.SecurityGroupSpec{Rules: rules}).Build()
+		if err != nil {
+			t.Fatalf("Failed to build SecurityGroup: %v", err)
+		}
+		return sg
+	}
+
+	overMaxPort := 65536
+	underMinPort := 0
+	overMaxIcmpType := 9
+	overMaxIcmpCode := 6
+
 	p := &params.SecurityGroupConstraintsValidationV1Params{
 		Workspace: workspace,
 		OverLengthNameSecurityGroup: buildSG(
@@ -92,6 +119,50 @@ func (suite *SecurityGroupConstraintsValidationV1TestSuite) BeforeAll(t provider
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
 			schema.Annotations{"description": "SecurityGroup with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
 		),
+		InvalidDirectionSecurityGroup: buildSGWithRules(
+			generators.GenerateSecurityGroupName(),
+			[]schema.SecurityGroupRuleSpec{{Direction: "invalid-direction"}},
+		),
+		InvalidVersionSecurityGroup: buildSGWithRules(
+			generators.GenerateSecurityGroupName(),
+			[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress, Version: "IPv5"}},
+		),
+		InvalidProtocolSecurityGroup: buildSGWithRules(
+			generators.GenerateSecurityGroupName(),
+			[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress, Protocol: "ftp"}},
+		),
+		OverMaxPortFromSecurityGroup: buildSGWithRules(
+			generators.GenerateSecurityGroupName(),
+			[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress, Ports: &schema.Ports{From: overMaxPort}}},
+		),
+		UnderMinPortFromSecurityGroup: buildSGWithRules(
+			generators.GenerateSecurityGroupName(),
+			[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress, Ports: &schema.Ports{From: underMinPort}}},
+		),
+		OverMaxPortToSecurityGroup: buildSGWithRules(
+			generators.GenerateSecurityGroupName(),
+			[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress, Ports: &schema.Ports{To: overMaxPort}}},
+		),
+		UnderMinPortToSecurityGroup: buildSGWithRules(
+			generators.GenerateSecurityGroupName(),
+			[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress, Ports: &schema.Ports{To: underMinPort}}},
+		),
+		OverMaxPortListSecurityGroup: buildSGWithRules(
+			generators.GenerateSecurityGroupName(),
+			[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress, Ports: &schema.Ports{List: []int{overMaxPort}}}},
+		),
+		UnderMinPortListSecurityGroup: buildSGWithRules(
+			generators.GenerateSecurityGroupName(),
+			[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress, Ports: &schema.Ports{List: []int{underMinPort}}}},
+		),
+		OverMaxIcmpTypeSecurityGroup: buildSGWithRules(
+			generators.GenerateSecurityGroupName(),
+			[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress, Icmp: &schema.IcmpConfig{Type: overMaxIcmpType, Code: 0}}},
+		),
+		OverMaxIcmpCodeSecurityGroup: buildSGWithRules(
+			generators.GenerateSecurityGroupName(),
+			[]schema.SecurityGroupRuleSpec{{Direction: schema.SecurityGroupRuleDirectionIngress, Icmp: &schema.IcmpConfig{Type: 0, Code: overMaxIcmpCode}}},
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureSecurityGroupConstraintsValidationV1, *p); err != nil {
@@ -107,8 +178,6 @@ func (suite *SecurityGroupConstraintsValidationV1TestSuite) TestScenario(t provi
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Workspace
-
-	// Create a workspace
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
@@ -124,7 +193,6 @@ func (suite *SecurityGroupConstraintsValidationV1TestSuite) TestScenario(t provi
 		},
 	)
 
-	// Get the created Workspace
 	workspaceTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
@@ -140,7 +208,7 @@ func (suite *SecurityGroupConstraintsValidationV1TestSuite) TestScenario(t provi
 		},
 	)
 
-	// Security Group
+	// Security Group metadata violations
 	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
 		"Create a security group with name exceeding maxLength:128 — expect rejection",
 		suite.Client.NetworkV1,
@@ -160,6 +228,63 @@ func (suite *SecurityGroupConstraintsValidationV1TestSuite) TestScenario(t provi
 		"Create a security group with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.NetworkV1,
 		suite.params.OverLengthAnnotationSecurityGroup,
+	)
+
+	// Security Group inline rule violations
+	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
+		"Create a security group with rules[].direction outside enum [ingress, egress] — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.InvalidDirectionSecurityGroup,
+	)
+	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
+		"Create a security group with rules[].version outside enum [IPv4, IPv6] — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.InvalidVersionSecurityGroup,
+	)
+	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
+		"Create a security group with rules[].protocol outside enum [tcp, udp, tcp+udp, icmp] — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.InvalidProtocolSecurityGroup,
+	)
+	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
+		"Create a security group with rules[].ports.from exceeding maximum:65535 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverMaxPortFromSecurityGroup,
+	)
+	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
+		"Create a security group with rules[].ports.from below minimum:1 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.UnderMinPortFromSecurityGroup,
+	)
+	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
+		"Create a security group with rules[].ports.to exceeding maximum:65535 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverMaxPortToSecurityGroup,
+	)
+	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
+		"Create a security group with rules[].ports.to below minimum:1 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.UnderMinPortToSecurityGroup,
+	)
+	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
+		"Create a security group with rules[].ports.list[] exceeding maximum:65535 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverMaxPortListSecurityGroup,
+	)
+	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
+		"Create a security group with rules[].ports.list[] below minimum:1 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.UnderMinPortListSecurityGroup,
+	)
+	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
+		"Create a security group with rules[].icmp.type exceeding maximum:8 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverMaxIcmpTypeSecurityGroup,
+	)
+	stepsBuilder.CreateOrUpdateSecurityGroupExpectViolationV1Step(
+		"Create a security group with rules[].icmp.code exceeding maximum:5 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverMaxIcmpCodeSecurityGroup,
 	)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)

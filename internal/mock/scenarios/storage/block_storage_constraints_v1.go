@@ -74,6 +74,28 @@ func ConfigureBlockStorageConstraintsV1(scenario *mockscenarios.Scenario, p para
 		return err
 	}
 
+	// Over max size violation
+	overMaxSizeURL := generators.GenerateBlockStorageURL(
+		sdkconsts.StorageProviderV1Name,
+		p.OverMaxSizeBlockStorage.Metadata.Tenant,
+		p.OverMaxSizeBlockStorage.Metadata.Workspace,
+		p.OverMaxSizeBlockStorage.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overMaxSizeURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Zero size violation
+	zeroSizeURL := generators.GenerateBlockStorageURL(
+		sdkconsts.StorageProviderV1Name,
+		p.ZeroSizeBlockStorage.Metadata.Tenant,
+		p.ZeroSizeBlockStorage.Metadata.Workspace,
+		p.ZeroSizeBlockStorage.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(zeroSizeURL, scenario.MockParams); err != nil {
+		return err
+	}
+
 	// Delete workspace teardown
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {
 		return err

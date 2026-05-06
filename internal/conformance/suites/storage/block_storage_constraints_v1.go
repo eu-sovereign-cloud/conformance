@@ -26,6 +26,8 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
+//   - spec.sizeGB: maximum 1000000 (BlockStorageSpec)
+//   - spec.sizeGB: must be >= 1 (BlockStorageSpec)
 type BlockStorageConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 
@@ -66,80 +68,69 @@ func (suite *BlockStorageConstraintsValidationV1TestSuite) BeforeAll(t provider.
 		t.Fatalf("Failed to build Workspace: %v", err)
 	}
 
-	// BlockStorage with name exceeding maxLength: 128 (129 chars)
-	overLengthName := strings.Repeat("a", 129)
-	overLengthNameBlockStorage, err := builders.NewBlockStorageBuilder().
-		Name(overLengthName).
-		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "BlockStorage with over-length name"}).
-		Spec(&schema.BlockStorageSpec{
-			SkuRef: *storageSkuRefObj,
-			SizeGB: storageSize,
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthNameBlockStorage: %v", err)
+	buildBlockStorage := func(name string, labels schema.Labels, annotations schema.Annotations, sizeGB int) *schema.BlockStorage {
+		bs, err := builders.NewBlockStorageBuilder().
+			Name(name).
+			Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+			Labels(labels).
+			Annotations(annotations).
+			Spec(&schema.BlockStorageSpec{
+				SkuRef: *storageSkuRefObj,
+				SizeGB: sizeGB,
+			}).Build()
+		if err != nil {
+			t.Fatalf("Failed to build BlockStorage: %v", err)
+		}
+		return bs
 	}
 
-	// BlockStorage with name violating kebab-case pattern (uppercase letters)
-	invalidPatternName := "Invalid-Name-With-Uppercase"
-	invalidPatternNameBlockStorage, err := builders.NewBlockStorageBuilder().
-		Name(invalidPatternName).
-		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "BlockStorage with non-kebab-case name"}).
-		Spec(&schema.BlockStorageSpec{
-			SkuRef: *storageSkuRefObj,
-			SizeGB: storageSize,
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build invalidPatternNameBlockStorage: %v", err)
-	}
-
-	// BlockStorage with label value exceeding maxLength: 63 (64 chars)
-	overLengthLabelBlockStorage, err := builders.NewBlockStorageBuilder().
-		Name(generators.GenerateBlockStorageName()).
-		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{
-			constants.EnvLabel: constants.EnvConformanceLabel,
-			"constraint-test":  strings.Repeat("x", 64),
-		}).
-		Annotations(schema.Annotations{"description": "BlockStorage with over-length label value"}).
-		Spec(&schema.BlockStorageSpec{
-			SkuRef: *storageSkuRefObj,
-			SizeGB: storageSize,
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthLabelBlockStorage: %v", err)
-	}
-
-	// BlockStorage with annotation value exceeding maxLength: 1024 (1025 chars)
-	overLengthAnnotationBlockStorage, err := builders.NewBlockStorageBuilder().
-		Name(generators.GenerateBlockStorageName()).
-		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{
-			"description":     "BlockStorage with over-length annotation value",
-			"long-annotation": strings.Repeat("y", 1025),
-		}).
-		Spec(&schema.BlockStorageSpec{
-			SkuRef: *storageSkuRefObj,
-			SizeGB: storageSize,
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthAnnotationBlockStorage: %v", err)
-	}
+	baseLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
 
 	p := &params.BlockStorageConstraintsValidationV1Params{
-		Workspace:                        workspace,
-		OverLengthNameBlockStorage:       overLengthNameBlockStorage,
-		InvalidPatternNameBlockStorage:   invalidPatternNameBlockStorage,
-		OverLengthLabelValueBlockStorage: overLengthLabelBlockStorage,
-		OverLengthAnnotationBlockStorage: overLengthAnnotationBlockStorage,
+		Workspace: workspace,
+		OverLengthNameBlockStorage: buildBlockStorage(
+			strings.Repeat("a", 129),
+			baseLabels,
+			schema.Annotations{"description": "BlockStorage with over-length name"},
+			storageSize,
+		),
+		InvalidPatternNameBlockStorage: buildBlockStorage(
+			"Invalid-Name-With-Uppercase",
+			baseLabels,
+			schema.Annotations{"description": "BlockStorage with non-kebab-case name"},
+			storageSize,
+		),
+		OverLengthLabelValueBlockStorage: buildBlockStorage(
+			generators.GenerateBlockStorageName(),
+			schema.Labels{
+				constants.EnvLabel: constants.EnvConformanceLabel,
+				"constraint-test":  strings.Repeat("x", 64),
+			},
+			schema.Annotations{"description": "BlockStorage with over-length label value"},
+			storageSize,
+		),
+		OverLengthAnnotationBlockStorage: buildBlockStorage(
+			generators.GenerateBlockStorageName(),
+			baseLabels,
+			schema.Annotations{
+				"description":     "BlockStorage with over-length annotation value",
+				"long-annotation": strings.Repeat("y", 1025),
+			},
+			storageSize,
+		),
+		OverMaxSizeBlockStorage: buildBlockStorage(
+			generators.GenerateBlockStorageName(),
+			baseLabels,
+			schema.Annotations{"description": "BlockStorage with sizeGB exceeding maximum:1000000"},
+			1000001,
+		),
+		ZeroSizeBlockStorage: buildBlockStorage(
+			generators.GenerateBlockStorageName(),
+			baseLabels,
+			schema.Annotations{"description": "BlockStorage with sizeGB equal to 0"},
+			-1,
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockstorage.ConfigureBlockStorageConstraintsV1, *p); err != nil {
@@ -202,9 +193,9 @@ func (suite *BlockStorageConstraintsValidationV1TestSuite) TestScenario(t provid
 		suite.params.InvalidPatternNameBlockStorage,
 	)
 
-	// labels value: maxLength 64 — must be rejected
+	// labels value: maxLength 63 — must be rejected
 	stepsBuilder.CreateOrUpdateBlockStorageExpectViolationV1Step(
-		"Create a block storage with label value exceeding maxLength:64 — expect rejection",
+		"Create a block storage with label value exceeding maxLength:63 — expect rejection",
 		suite.Client.StorageV1,
 		suite.params.OverLengthLabelValueBlockStorage,
 	)
@@ -214,6 +205,20 @@ func (suite *BlockStorageConstraintsValidationV1TestSuite) TestScenario(t provid
 		"Create a block storage with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.StorageV1,
 		suite.params.OverLengthAnnotationBlockStorage,
+	)
+
+	// spec.sizeGB: maximum 1000000 — must be rejected
+	stepsBuilder.CreateOrUpdateBlockStorageExpectViolationV1Step(
+		"Create a block storage with sizeGB exceeding maximum:1000000 — expect rejection",
+		suite.Client.StorageV1,
+		suite.params.OverMaxSizeBlockStorage,
+	)
+
+	// spec.sizeGB: must be >= 1 — must be rejected
+	stepsBuilder.CreateOrUpdateBlockStorageExpectViolationV1Step(
+		"Create a block storage with sizeGB below minimum:1 — expect rejection",
+		suite.Client.StorageV1,
+		suite.params.ZeroSizeBlockStorage,
 	)
 
 	// Teardown workspace

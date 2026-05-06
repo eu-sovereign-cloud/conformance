@@ -25,6 +25,7 @@ import (
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
 //   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
+//   - spec.addresses[] (NicIp): maxLength 39 (NicIp)
 type NicConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 	config *NicLifeCycleV1Config
@@ -88,6 +89,23 @@ func (suite *NicConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		return nic
 	}
 
+	buildNicWithAddresses := func(name string, addresses []string) *schema.Nic {
+		nic, err := builders.NewNicBuilder().
+			Name(name).
+			Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+			Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+			Annotations(schema.Annotations{"description": "Nic with invalid address"}).
+			Spec(&schema.NicSpec{
+				Addresses: addresses,
+				SubnetRef: *subnetRefObj,
+			}).Build()
+		if err != nil {
+			t.Fatalf("Failed to build Nic: %v", err)
+		}
+		return nic
+	}
+
 	p := &params.NicConstraintsValidationV1Params{
 		Workspace: workspace,
 		OverLengthNameNic: buildNic(
@@ -109,6 +127,10 @@ func (suite *NicConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 			generators.GenerateNicName(),
 			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
 			schema.Annotations{"description": "Nic with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
+		),
+		OverLengthAddressNic: buildNicWithAddresses(
+			generators.GenerateNicName(),
+			[]string{strings.Repeat("a", 40)},
 		),
 	}
 	suite.params = p
@@ -178,6 +200,11 @@ func (suite *NicConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 		"Create a nic with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.NetworkV1,
 		suite.params.OverLengthAnnotationNic,
+	)
+	stepsBuilder.CreateOrUpdateNicExpectViolationV1Step(
+		"Create a nic with address exceeding maxLength:39 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverLengthAddressNic,
 	)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)

@@ -24,8 +24,11 @@ import (
 // Constraints tested:
 //   - name: maxLength 128 (NameMetadata)
 //   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
-//   - labels values: maxLength 64 (UserResourceMetadata)
+//   - labels values: maxLength 63 (UserResourceMetadata)
 //   - annotations values: maxLength 1024 (UserResourceMetadata)
+//   - spec.cpuArchitecture: enum [amd64, arm64] (ImageSpec)
+//   - spec.initializer: enum [none, cloudinit-22] (ImageSpec)
+//   - spec.boot: enum [UEFI, BIOS] (ImageSpec)
 type ImageConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 	StorageSkus []string
@@ -45,17 +48,12 @@ func CreateImageConstraintsValidationV1TestSuite(regionalTestSuite suites.Region
 func (suite *ImageConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite("Constraints")
 
-	// Select sku
 	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
 
-	// Generate scenario data
 	workspaceName := generators.GenerateWorkspaceName()
-
 	storageSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.StorageProviderV1Name, suite.Tenant, storageSkuName)
-
 	blockStorageName := generators.GenerateBlockStorageName()
 	blockStorageRefObj := generators.GenerateBlockStorageRefObject(sdkconsts.StorageProviderV1Name, suite.Tenant, workspaceName, blockStorageName)
-
 	storageSize := constants.BlockStorageInitialSize
 
 	workspace, err := builders.NewWorkspaceBuilder().
@@ -91,81 +89,88 @@ func (suite *ImageConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build BlockStorage: %v", err)
 	}
 
-	// Image with name exceeding maxLength: 128 (129 chars)
-	overLengthName := strings.Repeat("a", 129)
-	overLengthNameImage, err := builders.NewImageBuilder().
-		Name(overLengthName).
-		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "Image with over-length name"}).
-		Spec(&schema.ImageSpec{
-			BlockStorageRef: *blockStorageRefObj,
-			CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthNameImage: %v", err)
+	buildImage := func(name string, labels schema.Labels, annotations schema.Annotations, spec *schema.ImageSpec) *schema.Image {
+		image, err := builders.NewImageBuilder().
+			Name(name).
+			Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+			Tenant(suite.Tenant).Region(suite.Region).
+			Labels(labels).
+			Annotations(annotations).
+			Spec(spec).Build()
+		if err != nil {
+			t.Fatalf("Failed to build Image: %v", err)
+		}
+		return image
 	}
 
-	// Image with name violating kebab-case pattern (uppercase letters)
-	invalidPatternName := "Invalid-Name-With-Uppercase"
-	invalidPatternNameImage, err := builders.NewImageBuilder().
-		Name(invalidPatternName).
-		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{"description": "Image with non-kebab-case name"}).
-		Spec(&schema.ImageSpec{
+	baseLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
+	baseSpec := func() *schema.ImageSpec {
+		return &schema.ImageSpec{
 			BlockStorageRef: *blockStorageRefObj,
 			CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build invalidPatternNameImage: %v", err)
+		}
 	}
 
-	// Image with label value exceeding maxLength: 64
-	overLengthLabelImage, err := builders.NewImageBuilder().
-		Name(generators.GenerateImageName()).
-		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Region(suite.Region).
-		Labels(schema.Labels{
-			constants.EnvLabel: constants.EnvConformanceLabel,
-			"constraint-test":  strings.Repeat("x", 64),
-		}).
-		Annotations(schema.Annotations{"description": "Image with over-length label value"}).
-		Spec(&schema.ImageSpec{
-			BlockStorageRef: *blockStorageRefObj,
-			CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthLabelImage: %v", err)
-	}
+	invalidCpuArchSpec := baseSpec()
+	invalidCpuArchSpec.CpuArchitecture = "x86_64"
 
-	// Image with annotation value exceeding maxLength: 1024 (1025 chars)
-	overLengthAnnotationImage, err := builders.NewImageBuilder().
-		Name(generators.GenerateImageName()).
-		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
-		Tenant(suite.Tenant).Region(suite.Region).
-		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-		Annotations(schema.Annotations{
-			"description":     "Image with over-length annotation value",
-			"long-annotation": strings.Repeat("y", 1025),
-		}).
-		Spec(&schema.ImageSpec{
-			BlockStorageRef: *blockStorageRefObj,
-			CpuArchitecture: schema.ImageSpecCpuArchitectureAmd64,
-		}).Build()
-	if err != nil {
-		t.Fatalf("Failed to build overLengthAnnotationImage: %v", err)
-	}
+	invalidInitializerSpec := baseSpec()
+	invalidInitializerSpec.Initializer = "invalid-initializer"
+
+	invalidBootSpec := baseSpec()
+	invalidBootSpec.Boot = "PXE"
 
 	p := &params.ImageConstraintsValidationV1Params{
-		Workspace:                 workspace,
-		BlockStorage:              blockStorage,
-		OverLengthNameImage:       overLengthNameImage,
-		InvalidPatternNameImage:   invalidPatternNameImage,
-		OverLengthLabelValueImage: overLengthLabelImage,
-		OverLengthAnnotationImage: overLengthAnnotationImage,
+		Workspace:    workspace,
+		BlockStorage: blockStorage,
+		OverLengthNameImage: buildImage(
+			strings.Repeat("a", 129),
+			baseLabels,
+			schema.Annotations{"description": "Image with over-length name"},
+			baseSpec(),
+		),
+		InvalidPatternNameImage: buildImage(
+			"Invalid-Name-With-Uppercase",
+			baseLabels,
+			schema.Annotations{"description": "Image with non-kebab-case name"},
+			baseSpec(),
+		),
+		OverLengthLabelValueImage: buildImage(
+			generators.GenerateImageName(),
+			schema.Labels{
+				constants.EnvLabel: constants.EnvConformanceLabel,
+				"constraint-test":  strings.Repeat("x", 64),
+			},
+			schema.Annotations{"description": "Image with over-length label value"},
+			baseSpec(),
+		),
+		OverLengthAnnotationImage: buildImage(
+			generators.GenerateImageName(),
+			baseLabels,
+			schema.Annotations{
+				"description":     "Image with over-length annotation value",
+				"long-annotation": strings.Repeat("y", 1025),
+			},
+			baseSpec(),
+		),
+		InvalidCpuArchitectureImage: buildImage(
+			generators.GenerateImageName(),
+			baseLabels,
+			schema.Annotations{"description": "Image with invalid cpuArchitecture enum value"},
+			invalidCpuArchSpec,
+		),
+		InvalidInitializerImage: buildImage(
+			generators.GenerateImageName(),
+			baseLabels,
+			schema.Annotations{"description": "Image with invalid initializer enum value"},
+			invalidInitializerSpec,
+		),
+		InvalidBootImage: buildImage(
+			generators.GenerateImageName(),
+			baseLabels,
+			schema.Annotations{"description": "Image with invalid boot enum value"},
+			invalidBootSpec,
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockstorage.ConfigureImageConstraintsViolationsV1, *p); err != nil {
@@ -184,8 +189,6 @@ func (suite *ImageConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
 	// Workspace
-
-	// Create a workspace
 	workspace := suite.params.Workspace
 	expectWorkspaceMeta := workspace.Metadata
 	expectWorkspaceLabels := workspace.Labels
@@ -201,7 +204,6 @@ func (suite *ImageConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Get the created Workspace
 	workspaceTRef := secapi.TenantReference{
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 		Name:   workspace.Metadata.Name,
@@ -218,8 +220,6 @@ func (suite *ImageConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 	)
 
 	// Block storage
-
-	// Create a block storage
 	block := suite.params.BlockStorage
 	expectedBlockMeta := block.Metadata
 	expectedBlockSpec := &block.Spec
@@ -237,7 +237,6 @@ func (suite *ImageConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// Get the created block storage
 	blockWRef := secapi.WorkspaceReference{
 		Tenant:    secapi.TenantID(block.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID(block.Metadata.Workspace),
@@ -254,32 +253,41 @@ func (suite *ImageConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 		},
 	)
 
-	// name: maxLength 128 — must be rejected
+	// Constraint violations
 	stepsBuilder.CreateOrUpdateImageExpectViolationV1Step(
 		"Create an image with name exceeding maxLength:128 — expect rejection",
 		suite.Client.StorageV1,
 		suite.params.OverLengthNameImage,
 	)
-
-	// name: pattern — must be rejected
 	stepsBuilder.CreateOrUpdateImageExpectViolationV1Step(
 		"Create an image with invalid name pattern (not kebab-case) — expect rejection",
 		suite.Client.StorageV1,
 		suite.params.InvalidPatternNameImage,
 	)
-
-	// labels value: maxLength 64 — must be rejected
 	stepsBuilder.CreateOrUpdateImageExpectViolationV1Step(
-		"Create an image with label value exceeding maxLength:64 — expect rejection",
+		"Create an image with label value exceeding maxLength:63 — expect rejection",
 		suite.Client.StorageV1,
 		suite.params.OverLengthLabelValueImage,
 	)
-
-	// annotations value: maxLength 1024 — must be rejected
 	stepsBuilder.CreateOrUpdateImageExpectViolationV1Step(
 		"Create an image with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.StorageV1,
 		suite.params.OverLengthAnnotationImage,
+	)
+	stepsBuilder.CreateOrUpdateImageExpectViolationV1Step(
+		"Create an image with invalid cpuArchitecture enum value — expect rejection",
+		suite.Client.StorageV1,
+		suite.params.InvalidCpuArchitectureImage,
+	)
+	stepsBuilder.CreateOrUpdateImageExpectViolationV1Step(
+		"Create an image with invalid initializer enum value — expect rejection",
+		suite.Client.StorageV1,
+		suite.params.InvalidInitializerImage,
+	)
+	stepsBuilder.CreateOrUpdateImageExpectViolationV1Step(
+		"Create an image with invalid boot enum value — expect rejection",
+		suite.Client.StorageV1,
+		suite.params.InvalidBootImage,
 	)
 
 	suite.FinishScenario()
