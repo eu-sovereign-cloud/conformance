@@ -77,7 +77,7 @@ func violationResourceStep[R types.ResourceType](t provider.T, suite *suites.Tes
 	err := params.actionFunc(t.Context(), params.resource)
 	emptyResponseStep(sCtx)
 
-	requireError(sCtx, err)
+	requirePreConditionFailedError(sCtx, err)
 }
 
 func violationTenantResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, params actionTenantResourceParams[R]) {

@@ -116,8 +116,8 @@ func configureDeleteStub(wm *wiremock.Client, scenarioName string, stubConfig *s
 	return configureStub(wm, scenarioName, stubConfig)
 }
 
-func configureUnprocessableEntityStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
-	stubConfig.httpStatus = http.StatusUnprocessableEntity
+func configurePreconditionFailedStub(wm *wiremock.Client, scenarioName string, stubConfig *stubConfig) error {
+	stubConfig.httpStatus = http.StatusPreconditionFailed
 	return configureStub(wm, scenarioName, stubConfig)
 }
 

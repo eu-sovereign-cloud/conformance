@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/types"
+	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
@@ -14,10 +15,11 @@ func requireNoError(sCtx provider.StepCtx, err error) {
 	})
 }
 
-func requireError(sCtx provider.StepCtx, err error) {
+func requirePreConditionFailedError(sCtx provider.StepCtx, err error) {
 	sCtx.WithNewStep("Verify error returned", func(stepCtx provider.StepCtx) {
 		stepCtx.WithNewParameters("error", fmt.Sprintf("%v", err))
 		stepCtx.Require().Error(err, "Should return an error")
+		stepCtx.Require().Equal(err.Error(), secapi.ErrRequestPreconditionFailed.Error(), "expected error message")
 	})
 }
 

@@ -110,7 +110,7 @@ func (configurator *Configurator) ConfigureDeleteStub(url string, params MockPar
 func (configurator *Configurator) ConfigurePutUnprocessableEntityStub(url string, params MockParams) error {
 	return configurator.configureStub(func(wm *wiremock.Client, scenarioName string, sc *stubConfig) error {
 		sc.httpMethod = http.MethodPut
-		return configureUnprocessableEntityStub(wm, scenarioName, sc)
+		return configurePreconditionFailedStub(wm, scenarioName, sc)
 	}, url, params, nil, nil)
 }
 
