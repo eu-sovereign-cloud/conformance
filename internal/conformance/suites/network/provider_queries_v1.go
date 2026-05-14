@@ -198,7 +198,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	networks := []schema.Network{*network, *network2}
 	networkIterator, err := builders.NewNetworkIteratorBuilder().
 		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(suite.Tenant).
+		Tenant(suite.Tenant).Workspace(workspaceName).
 		Items(networks).
 		Build()
 	if err != nil {
@@ -236,7 +236,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	internetGateways := []schema.InternetGateway{*internetGateway, *internetGateway2}
 	internetGatewayIterator, err := builders.NewInternetGatewayIteratorBuilder().
 		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(suite.Tenant).
+		Tenant(suite.Tenant).Workspace(workspaceName).
 		Items(internetGateways).
 		Build()
 	if err != nil {
@@ -278,7 +278,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	routeTables := []schema.RouteTable{*routeTable, *routeTable2}
 	routeTableIterator, err := builders.NewRouteTableIteratorBuilder().
 		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(suite.Tenant).
+		Tenant(suite.Tenant).Workspace(workspaceName).Network(networkName).
 		Items(routeTables).
 		Build()
 	if err != nil {
@@ -318,7 +318,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	subnets := []schema.Subnet{*subnet, *subnet2}
 	subnetIterator, err := builders.NewSubnetIteratorBuilder().
 		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(suite.Tenant).
+		Tenant(suite.Tenant).Workspace(workspaceName).Network(networkName).
 		Items(subnets).
 		Build()
 	if err != nil {
@@ -360,7 +360,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	nics := []schema.Nic{*nic, *nic2}
 	nicIterator, err := builders.NewNicIteratorBuilder().
 		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(suite.Tenant).
+		Tenant(suite.Tenant).Workspace(workspaceName).
 		Items(nics).
 		Build()
 	if err != nil {
@@ -400,7 +400,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	publicIps := []schema.PublicIp{*publicIp, *publicIp2}
 	publicIpIterator, err := builders.NewPublicIpIteratorBuilder().
 		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(suite.Tenant).
+		Tenant(suite.Tenant).Workspace(workspaceName).
 		Items(publicIps).
 		Build()
 	if err != nil {
@@ -436,7 +436,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	securityGroupRules := []schema.SecurityGroupRule{*securityGroupRule, *securityGroupRule2}
 	securityGroupRuleIterator, err := builders.NewSecurityGroupRuleIteratorBuilder().
 		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(suite.Tenant).
+		Tenant(suite.Tenant).Workspace(workspaceName).
 		Items(securityGroupRules).
 		Build()
 	if err != nil {
@@ -474,7 +474,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	securityGroups := []schema.SecurityGroup{*securityGroup, *securityGroup2}
 	securityGroupIterator, err := builders.NewSecurityGroupIteratorBuilder().
 		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(suite.Tenant).
+		Tenant(suite.Tenant).Workspace(workspaceName).
 		Items(securityGroups).
 		Build()
 	if err != nil {
