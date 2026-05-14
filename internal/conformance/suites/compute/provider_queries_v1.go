@@ -154,7 +154,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	instanceIterator, err := builders.NewInstanceIteratorBuilder().
 		Provider(sdkconsts.ComputeProviderV1Name).
-		Tenant(suite.Tenant).
+		Tenant(suite.Tenant).Workspace(workspaceName).
 		Items(instances).
 		Build()
 	if err != nil {

@@ -124,7 +124,7 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorageIterator, err := builders.NewBlockStorageIteratorBuilder().
 		Provider(sdkconsts.StorageProviderV1Name).
-		Tenant(suite.Tenant).
+		Tenant(suite.Tenant).Workspace(workspaceName).
 		Items(blockStorages).
 		Build()
 	if err != nil {
