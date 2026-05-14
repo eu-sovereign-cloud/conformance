@@ -152,10 +152,19 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	instances := []schema.Instance{*instance1, *instance2, *instance3}
 
+	instanceIterator, err := builders.NewInstanceIteratorBuilder().
+		Provider(sdkconsts.ComputeProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(instances).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build RoleIterator: %v", err)
+	}
+
 	params := &params.ComputeProviderQueriesV1Params{
 		Workspace:    workspace,
 		BlockStorage: blockStorage,
-		Instances:    instances,
+		Instances:    *instanceIterator,
 	}
 	suite.params = params
 	err = suites.SetupMockIfEnabled(suite.TestSuite, mockCompute.ConfigureProviderQueriesV1, *params)
@@ -208,7 +217,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	instances := suite.params.Instances
 
 	// Create instances
-	steps.BulkCreateInstancesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create instances", instances)
+	steps.BulkCreateInstancesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create instances", instances.Items)
 
 	wpath := secapi.WorkspacePath{
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
@@ -252,7 +261,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
 
 	// Delete all instances
-	steps.BulkDeleteInstancesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all instances", instances)
+	steps.BulkDeleteInstancesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all instances", instances.Items)
 
 	// Delete the block storage
 	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", t, suite.Client.StorageV1, block)

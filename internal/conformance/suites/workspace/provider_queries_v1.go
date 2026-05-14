@@ -57,9 +57,16 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	workspaces := []schema.Workspace{*workspace, *workspace2}
-
+	workspaceIterator, err := builders.NewWorkspaceIteratorBuilder().
+		Provider(sdkconsts.WorkspaceProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(workspaces).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build WorkspaceIterator: %v", err)
+	}
 	params := &params.WorkspaceProviderQueriesV1Params{
-		Workspaces: workspaces,
+		Workspaces: *workspaceIterator,
 	}
 	suite.params = params
 	err = suites.SetupMockIfEnabled(suite.TestSuite, mockWorkspace.ConfigureProviderQueriesV1, *params)
@@ -78,7 +85,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	workspaces := suite.params.Workspaces
 
 	// Create workspaces
-	steps.BulkCreateWorkspacesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create workspaces", workspaces)
+	steps.BulkCreateWorkspacesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create workspaces", workspaces.Items)
 
 	tpath := secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
@@ -99,7 +106,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all workspaces
-	steps.BulkDeleteWorkspacesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all workspaces", workspaces)
+	steps.BulkDeleteWorkspacesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all workspaces", workspaces.Items)
 
 	suite.FinishScenario()
 }

@@ -196,6 +196,14 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	networks := []schema.Network{*network, *network2}
+	networkIterator, err := builders.NewNetworkIteratorBuilder().
+		Provider(sdkconsts.NetworkProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(networks).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build NetworkIterator: %v", err)
+	}
 
 	internetGateway, err := builders.NewInternetGatewayBuilder().
 		Name(internetGatewayName).
@@ -226,6 +234,14 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	internetGateways := []schema.InternetGateway{*internetGateway, *internetGateway2}
+	internetGatewayIterator, err := builders.NewInternetGatewayIteratorBuilder().
+		Provider(sdkconsts.NetworkProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(internetGateways).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build InternetGatewayIterator: %v", err)
+	}
 
 	routeTable, err := builders.NewRouteTableBuilder().
 		Name(routeTableName).
@@ -260,6 +276,14 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	routeTables := []schema.RouteTable{*routeTable, *routeTable2}
+	routeTableIterator, err := builders.NewRouteTableIteratorBuilder().
+		Provider(sdkconsts.NetworkProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(routeTables).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build RouteTableIterator: %v", err)
+	}
 
 	subnet, err := builders.NewSubnetBuilder().
 		Name(subnetName).
@@ -292,6 +316,14 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	subnets := []schema.Subnet{*subnet, *subnet2}
+	subnetIterator, err := builders.NewSubnetIteratorBuilder().
+		Provider(sdkconsts.NetworkProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(subnets).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build SubnetIterator: %v", err)
+	}
 
 	nic, err := builders.NewNicBuilder().
 		Name(nicName).
@@ -326,6 +358,14 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	nics := []schema.Nic{*nic, *nic2}
+	nicIterator, err := builders.NewNicIteratorBuilder().
+		Provider(sdkconsts.NetworkProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(nics).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build NicIterator: %v", err)
+	}
 
 	publicIp, err := builders.NewPublicIpBuilder().
 		Name(publicIpName).
@@ -358,6 +398,14 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	publicIps := []schema.PublicIp{*publicIp, *publicIp2}
+	publicIpIterator, err := builders.NewPublicIpIteratorBuilder().
+		Provider(sdkconsts.NetworkProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(publicIps).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build PublicIpIterator: %v", err)
+	}
 
 	securityGroupRule, err := builders.NewSecurityGroupRuleBuilder().
 		Name(securityGroupRuleName).
@@ -386,6 +434,14 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	securityGroupRules := []schema.SecurityGroupRule{*securityGroupRule, *securityGroupRule2}
+	securityGroupRuleIterator, err := builders.NewSecurityGroupRuleIteratorBuilder().
+		Provider(sdkconsts.NetworkProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(securityGroupRules).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build SecurityGroupRuleIterator: %v", err)
+	}
 
 	securityGroup, err := builders.NewSecurityGroupBuilder().
 		Name(securityGroupName).
@@ -416,19 +472,26 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 	}
 
 	securityGroups := []schema.SecurityGroup{*securityGroup, *securityGroup2}
-
+	securityGroupIterator, err := builders.NewSecurityGroupIteratorBuilder().
+		Provider(sdkconsts.NetworkProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(securityGroups).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build SecurityGroupIterator: %v", err)
+	}
 	params := &params.NetworkProviderQueriesV1Params{
 		Workspace:          workspace,
 		BlockStorage:       blockStorage,
 		Instance:           instance,
-		Networks:           networks,
-		InternetGateways:   internetGateways,
-		RouteTables:        routeTables,
-		Subnets:            subnets,
-		Nics:               nics,
-		PublicIps:          publicIps,
-		SecurityGroupRules: securityGroupRules,
-		SecurityGroups:     securityGroups,
+		Networks:           *networkIterator,
+		InternetGateways:   *internetGatewayIterator,
+		RouteTables:        *routeTableIterator,
+		Subnets:            *subnetIterator,
+		Nics:               *nicIterator,
+		PublicIps:          *publicIpIterator,
+		SecurityGroupRules: *securityGroupRuleIterator,
+		SecurityGroups:     *securityGroupIterator,
 	}
 	suite.params = params
 	err = suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureProviderQueriesV1, *params)
@@ -474,7 +537,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	networks := suite.params.Networks
 
 	// Create networks
-	steps.BulkCreateNetworksStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create networks", networks)
+	steps.BulkCreateNetworksStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create networks", networks.Items)
 
 	wpath := secapi.WorkspacePath{
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
@@ -511,7 +574,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	gateways := suite.params.InternetGateways
 
 	// Create internet gateways
-	steps.BulkCreateInternetGatewaysStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create internet gateways", gateways)
+	steps.BulkCreateInternetGatewaysStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create internet gateways", gateways.Items)
 
 	// List internet gateways
 	stepsBuilder.ListInternetGatewayV1Step("List internet gateways", suite.Client.NetworkV1, wpath, nil)
@@ -534,12 +597,12 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	routes := suite.params.RouteTables
 
 	// Create route tables
-	steps.BulkCreateRouteTablesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create route tables", routes)
+	steps.BulkCreateRouteTablesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create route tables", routes.Items)
 
 	npath := secapi.NetworkPath{
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
 		Workspace: secapi.WorkspaceID((workspace.Metadata.Name)),
-		Network:   secapi.NetworkID(networks[0].Metadata.Name),
+		Network:   secapi.NetworkID(networks.Items[0].Metadata.Name),
 	}
 
 	// List route tables
@@ -563,7 +626,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	subnets := suite.params.Subnets
 
 	// Create subnets
-	steps.BulkCreateSubnetsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create subnets", subnets)
+	steps.BulkCreateSubnetsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create subnets", subnets.Items)
 
 	// List subnets
 	stepsBuilder.ListSubnetV1Step("List subnets", suite.Client.NetworkV1, npath, nil)
@@ -586,7 +649,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	publicIps := suite.params.PublicIps
 
 	// Create public ips
-	steps.BulkCreatePublicIpsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create public ips", publicIps)
+	steps.BulkCreatePublicIpsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create public ips", publicIps.Items)
 
 	// List public ips
 	stepsBuilder.ListPublicIpV1Step("List public ips", suite.Client.NetworkV1, wpath, nil)
@@ -609,7 +672,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	nics := suite.params.Nics
 
 	// Create nics
-	steps.BulkCreateNicsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create nics", nics)
+	steps.BulkCreateNicsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create nics", nics.Items)
 
 	// List nics
 	stepsBuilder.ListNicV1Step("List nics", suite.Client.NetworkV1, wpath, nil)
@@ -632,7 +695,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	rules := suite.params.SecurityGroupRules
 
 	// Create security group rules
-	steps.BulkCreateSecurityGroupRulesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create security group rules", rules)
+	steps.BulkCreateSecurityGroupRulesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create security group rules", rules.Items)
 
 	// List security group rules
 	stepsBuilder.ListSecurityGroupRuleV1Step("List security group rules", suite.Client.NetworkV1, wpath, nil)
@@ -655,7 +718,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	groups := suite.params.SecurityGroups
 
 	// Create security groups
-	steps.BulkCreateSecurityGroupsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create security groups", groups)
+	steps.BulkCreateSecurityGroupsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create security groups", groups.Items)
 
 	// List security groups
 	stepsBuilder.ListSecurityGroupV1Step("List security groups", suite.Client.NetworkV1, wpath, nil)
@@ -675,28 +738,28 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all security group rules
-	steps.BulkDeleteSecurityGroupRulesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all security group rules", rules)
+	steps.BulkDeleteSecurityGroupRulesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all security group rules", rules.Items)
 
 	// Delete all security groups
-	steps.BulkDeleteSecurityGroupsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all security groups", groups)
+	steps.BulkDeleteSecurityGroupsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all security groups", groups.Items)
 
 	// Delete all nics
-	steps.BulkDeleteNicsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all nics", nics)
+	steps.BulkDeleteNicsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all nics", nics.Items)
 
 	// Delete all public ips
-	steps.BulkDeletePublicIpsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all public ips", publicIps)
+	steps.BulkDeletePublicIpsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all public ips", publicIps.Items)
 
 	// Delete all subnets
-	steps.BulkDeleteSubnetsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all subnets", subnets)
+	steps.BulkDeleteSubnetsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all subnets", subnets.Items)
 
 	// Delete all route tables
-	steps.BulkDeleteRouteTablesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all route tables", routes)
+	steps.BulkDeleteRouteTablesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all route tables", routes.Items)
 
 	// Delete all internet gateways
-	steps.BulkDeleteInternetGatewaysStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all internet gateways", gateways)
+	steps.BulkDeleteInternetGatewaysStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all internet gateways", gateways.Items)
 
 	// Delete all networks
-	steps.BulkDeleteNetworksStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all networks", networks)
+	steps.BulkDeleteNetworksStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all networks", networks.Items)
 
 	// Delete the workspace
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
