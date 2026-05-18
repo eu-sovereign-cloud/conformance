@@ -40,7 +40,7 @@ func CreateRoleConstraintsValidationV1TestSuite(globalTestSuite suites.GlobalTes
 }
 
 func (suite *RoleConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.AuthorizationParentSuite)
 
 	imageName := generators.GenerateImageName()
 	imageResource := generators.GenerateImageResource(imageName)

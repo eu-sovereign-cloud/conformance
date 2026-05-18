@@ -43,7 +43,7 @@ func CreateSubnetConstraintsValidationV1TestSuite(regionalTestSuite suites.Regio
 }
 
 func (suite *SubnetConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	networkName := generators.GenerateNetworkName()

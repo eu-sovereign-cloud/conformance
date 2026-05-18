@@ -41,7 +41,7 @@ func CreateRoleAssignmentConstraintsValidationV1TestSuite(globalTestSuite suites
 }
 
 func (suite *RoleAssignmentConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.AuthorizationParentSuite)
 
 	roleName := generators.GenerateRoleName()
 	roleAssignmentSub := suite.Users[rand.Intn(len(suite.Users))]

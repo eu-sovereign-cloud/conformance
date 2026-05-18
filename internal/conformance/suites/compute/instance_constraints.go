@@ -52,7 +52,7 @@ func CreateInstanceConstraintsValidationV1TestSuite(regionalTestSuite suites.Reg
 }
 
 func (suite *InstanceConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.ComputeParentSuite)
 
 	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
 	storageSkuName := suite.config.StorageSkus[rand.Intn(len(suite.config.StorageSkus))]
@@ -292,6 +292,9 @@ func (suite *InstanceConstraintsValidationV1TestSuite) TestScenario(t provider.T
 		suite.Client.ComputeV1,
 		suite.params.OverLengthSshKeyInstance,
 	)
+
+	stepsBuilder.DeleteBlockStorageV1Step("Delete the blockstorage", t, suite.Client.StorageV1, block)
+	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the blockstorage deletion", t, suite.Client.StorageV1, blockWRef)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
 	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)

@@ -44,7 +44,7 @@ func CreateRouteTableConstraintsValidationV1TestSuite(regionalTestSuite suites.R
 }
 
 func (suite *RouteTableConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	networkName := generators.GenerateNetworkName()

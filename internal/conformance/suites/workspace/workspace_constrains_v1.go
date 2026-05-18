@@ -39,7 +39,7 @@ func CreateWorkspaceConstraintsValidationV1TestSuite(regionalTestSuite suites.Re
 }
 
 func (suite *WorkspaceConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.WorkspaceParentSuite)
 
 	buildWorkspace := func(name string, labels schema.Labels, annotations schema.Annotations) *schema.Workspace {
 		ws, err := builders.NewWorkspaceBuilder().
