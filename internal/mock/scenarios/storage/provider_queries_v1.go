@@ -36,18 +36,11 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Create block storages
-	err = stubs.BulkCreateBlockStoragesStubV1(configurator, scenario.MockParams, blockStorages)
+	err = stubs.BulkCreateBlockStoragesStubV1(configurator, scenario.MockParams, blockStorages.Items)
 	if err != nil {
 		return err
 	}
-	blockListResponse, err := builders.NewBlockStorageIteratorBuilder().
-		Provider(sdkconsts.StorageProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
-		Items(blockStorages).
-		Build()
-	if err != nil {
-		return err
-	}
+	blockListResponse := &params.BlockStorages
 
 	// List block storages
 	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, nil); err != nil {
@@ -55,7 +48,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List with limit 1
-	blockListResponse.Items = blockStorages[:1]
+	blockListResponse.Items = blockStorages.Items[:1]
 	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
@@ -70,30 +63,23 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 		return filteredInstances
 	}
-	blockListResponse.Items = blocksWithLabel(blockStorages)
+	blockListResponse.Items = blocksWithLabel(blockStorages.Items)
 	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
-	blockListResponse.Items = blocksWithLabel(blockStorages)[:1]
+	blockListResponse.Items = blocksWithLabel(blockStorages.Items)[:1]
 	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// Create images
-	err = stubs.BulkCreateImagesStubV1(configurator, scenario.MockParams, images)
+	err = stubs.BulkCreateImagesStubV1(configurator, scenario.MockParams, images.Items)
 	if err != nil {
 		return err
 	}
-	imageListResponse, err := builders.NewImageIteratorBuilder().
-		Provider(sdkconsts.StorageProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).
-		Items(images).
-		Build()
-	if err != nil {
-		return err
-	}
+	imageListResponse := &params.Images
 
 	// List images
 	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, nil); err != nil {
@@ -101,7 +87,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List with limit 1
-	imageListResponse.Items = images[:1]
+	imageListResponse.Items = images.Items[:1]
 	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
@@ -117,13 +103,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredImages
 	}
 
-	imageListResponse.Items = imagesWithLabel(images)
+	imageListResponse.Items = imagesWithLabel(images.Items)
 	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with Limit and Label
-	imageListResponse.Items = imagesWithLabel(images)[:1]
+	imageListResponse.Items = imagesWithLabel(images.Items)[:1]
 	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
@@ -153,7 +139,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	// Delete Lifecycle
 
 	// Delete Images
-	for _, image := range images {
+	for _, image := range images.Items {
 		url := generators.GenerateImageURL(sdkconsts.StorageProviderV1Name, image.Metadata.Tenant, image.Metadata.Name)
 
 		// Delete the Image
@@ -171,7 +157,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Delete the block storages
-	for _, block := range blockStorages {
+	for _, block := range blockStorages.Items {
 		url := generators.GenerateBlockStorageURL(sdkconsts.StorageProviderV1Name, block.Metadata.Tenant, block.Metadata.Workspace, block.Metadata.Name)
 
 		// Delete the block storage

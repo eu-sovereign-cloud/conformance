@@ -48,18 +48,11 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Create networks
-	err = stubs.BulkCreateNetworksStubV1(configurator, scenario.MockParams, networks)
+	err = stubs.BulkCreateNetworksStubV1(configurator, scenario.MockParams, networks.Items)
 	if err != nil {
 		return err
 	}
-	networkResponse, err := builders.NewNetworkIteratorBuilder().
-		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
-		Items(networks).
-		Build()
-	if err != nil {
-		return err
-	}
+	networkResponse := &params.Networks
 
 	// List
 	if err := configurator.ConfigureListNetworkStub(networkResponse, networkListUrl, scenario.MockParams, nil); err != nil {
@@ -67,7 +60,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List with limit 1
-	networkResponse.Items = networks[:1]
+	networkResponse.Items = networks.Items[:1]
 	if err := configurator.ConfigureListNetworkStub(networkResponse, networkListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
@@ -82,13 +75,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 		return filteredNetworks
 	}
-	networkResponse.Items = networksWithLabel(networks)
+	networkResponse.Items = networksWithLabel(networks.Items)
 	if err := configurator.ConfigureListNetworkStub(networkResponse, networkListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
-	networkResponse.Items = networksWithLabel(networks)[:1]
+	networkResponse.Items = networksWithLabel(networks.Items)[:1]
 	if err := configurator.ConfigureListNetworkStub(networkResponse, networkListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
@@ -113,18 +106,11 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Create internet gateways
-	err = stubs.BulkCreateInternetGatewaysStubV1(configurator, scenario.MockParams, internetGateways)
+	err = stubs.BulkCreateInternetGatewaysStubV1(configurator, scenario.MockParams, internetGateways.Items)
 	if err != nil {
 		return err
 	}
-	gatewayResponse, err := builders.NewInternetGatewayIteratorBuilder().
-		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
-		Items(internetGateways).
-		Build()
-	if err != nil {
-		return err
-	}
+	gatewayResponse := &params.InternetGateways
 
 	// List
 	if err := configurator.ConfigureListInternetGatewayStub(gatewayResponse, gatewayListUrl, scenario.MockParams, nil); err != nil {
@@ -132,7 +118,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List with limit 1
-	gatewayResponse.Items = internetGateways[:1]
+	gatewayResponse.Items = internetGateways.Items[:1]
 	if err := configurator.ConfigureListInternetGatewayStub(gatewayResponse, gatewayListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
@@ -147,31 +133,24 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 		return filteredGateway
 	}
-	gatewayResponse.Items = gatewayWithLabel(internetGateways)
+	gatewayResponse.Items = gatewayWithLabel(internetGateways.Items)
 	if err := configurator.ConfigureListInternetGatewayStub(gatewayResponse, gatewayListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
-	gatewayResponse.Items = gatewayWithLabel(internetGateways)[:1]
+	gatewayResponse.Items = gatewayWithLabel(internetGateways.Items)[:1]
 	if err := configurator.ConfigureListInternetGatewayStub(gatewayResponse, gatewayListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// Create route tables
-	err = stubs.BulkCreateRouteTableStubV1(configurator, scenario.MockParams, routeTables)
+	err = stubs.BulkCreateRouteTableStubV1(configurator, scenario.MockParams, routeTables.Items)
 	if err != nil {
 		return err
 	}
-	networkName := networks[0].Metadata.Name
-	routeTableResponse, err := builders.NewRouteTableIteratorBuilder().
-		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).Network(networkName).
-		Items(routeTables).
-		Build()
-	if err != nil {
-		return err
-	}
+	networkName := networks.Items[0].Metadata.Name
+	routeTableResponse := &params.RouteTables
 
 	// List
 	routeTableListUrl := generators.GenerateRouteTableListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName)
@@ -180,7 +159,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List with limit 1
-	routeTableResponse.Items = routeTables[:1]
+	routeTableResponse.Items = routeTables.Items[:1]
 	if err := configurator.ConfigureListRouteTableStub(routeTableResponse, routeTableListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
@@ -196,30 +175,23 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredRouteTable
 	}
 
-	routeTableResponse.Items = routeTableWithLabel(routeTables)
+	routeTableResponse.Items = routeTableWithLabel(routeTables.Items)
 	if err := configurator.ConfigureListRouteTableStub(routeTableResponse, routeTableListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
-	routeTableResponse.Items = routeTableWithLabel(routeTables)[:1]
+	routeTableResponse.Items = routeTableWithLabel(routeTables.Items)[:1]
 	if err := configurator.ConfigureListRouteTableStub(routeTableResponse, routeTableListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// Subnet
-	err = stubs.BulkCreateSubnetsStubV1(configurator, scenario.MockParams, subnets)
+	err = stubs.BulkCreateSubnetsStubV1(configurator, scenario.MockParams, subnets.Items)
 	if err != nil {
 		return err
 	}
-	subnetResponse, err := builders.NewSubnetIteratorBuilder().
-		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).Network(networkName).
-		Items(subnets).
-		Build()
-	if err != nil {
-		return err
-	}
+	subnetResponse := &params.Subnets
 
 	// List
 	subnetListUrl := generators.GenerateSubnetListURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName)
@@ -228,7 +200,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List with limit 1
-	subnetResponse.Items = subnets[:1]
+	subnetResponse.Items = subnets.Items[:1]
 	if err := configurator.ConfigureListSubnetStub(subnetResponse, subnetListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
@@ -243,30 +215,23 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 		return filteredSubnet
 	}
-	subnetResponse.Items = subnetWithLabel(subnets)
+	subnetResponse.Items = subnetWithLabel(subnets.Items)
 	if err := configurator.ConfigureListSubnetStub(subnetResponse, subnetListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
-	subnetResponse.Items = subnetWithLabel(subnets)[:1]
+	subnetResponse.Items = subnetWithLabel(subnets.Items)[:1]
 	if err := configurator.ConfigureListSubnetStub(subnetResponse, subnetListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// Cretae public ips
-	err = stubs.BulkCreatePublicIpsStubV1(configurator, scenario.MockParams, publicIps)
+	err = stubs.BulkCreatePublicIpsStubV1(configurator, scenario.MockParams, publicIps.Items)
 	if err != nil {
 		return err
 	}
-	publicIpResponse, err := builders.NewPublicIpIteratorBuilder().
-		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
-		Items(publicIps).
-		Build()
-	if err != nil {
-		return err
-	}
+	publicIpResponse := &params.PublicIps
 
 	// List
 	if err := configurator.ConfigureListPublicIpStub(publicIpResponse, publicIpListUrl, scenario.MockParams, nil); err != nil {
@@ -274,7 +239,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List with limit 1
-	publicIpResponse.Items = publicIps[:1]
+	publicIpResponse.Items = publicIps.Items[:1]
 	if err := configurator.ConfigureListPublicIpStub(publicIpResponse, publicIpListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
@@ -289,30 +254,23 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 		return filteredPublicIp
 	}
-	publicIpResponse.Items = publicIpWithLabel(publicIps)
+	publicIpResponse.Items = publicIpWithLabel(publicIps.Items)
 	if err := configurator.ConfigureListPublicIpStub(publicIpResponse, publicIpListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
-	publicIpResponse.Items = publicIpWithLabel(publicIps)[:1]
+	publicIpResponse.Items = publicIpWithLabel(publicIps.Items)[:1]
 	if err := configurator.ConfigureListPublicIpStub(publicIpResponse, publicIpListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// Create nics
-	err = stubs.BulkCreateNicsStubV1(configurator, scenario.MockParams, nics)
+	err = stubs.BulkCreateNicsStubV1(configurator, scenario.MockParams, nics.Items)
 	if err != nil {
 		return err
 	}
-	nicResponse, err := builders.NewNicIteratorBuilder().
-		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
-		Items(nics).
-		Build()
-	if err != nil {
-		return err
-	}
+	nicResponse := &params.Nics
 
 	// List
 	if err := configurator.ConfigureListNicStub(nicResponse, nicListUrl, scenario.MockParams, nil); err != nil {
@@ -320,7 +278,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List with limit 1
-	nicResponse.Items = nics[:1]
+	nicResponse.Items = nics.Items[:1]
 	if err := configurator.ConfigureListNicStub(nicResponse, nicListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
@@ -335,30 +293,23 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 		return filteredNic
 	}
-	nicResponse.Items = nicWithLabel(nics)
+	nicResponse.Items = nicWithLabel(nics.Items)
 	if err := configurator.ConfigureListNicStub(nicResponse, nicListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
-	nicResponse.Items = nicWithLabel(nics)[:1]
+	nicResponse.Items = nicWithLabel(nics.Items)[:1]
 	if err := configurator.ConfigureListNicStub(nicResponse, nicListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// Create security group rules
-	err = stubs.BulkCreateSecurityGroupRulesStubV1(configurator, scenario.MockParams, securityGroupRules)
+	err = stubs.BulkCreateSecurityGroupRulesStubV1(configurator, scenario.MockParams, securityGroupRules.Items)
 	if err != nil {
 		return err
 	}
-	securityGroupRuleResponse, err := builders.NewSecurityGroupRuleIteratorBuilder().
-		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
-		Items(securityGroupRules).
-		Build()
-	if err != nil {
-		return err
-	}
+	securityGroupRuleResponse := &params.SecurityGroupRules
 
 	// List
 	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, nil); err != nil {
@@ -366,7 +317,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List with limit 1
-	securityGroupRuleResponse.Items = securityGroupRules[:1]
+	securityGroupRuleResponse.Items = securityGroupRules.Items[:1]
 	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
@@ -382,30 +333,23 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredSecurityRule
 	}
 
-	securityGroupRuleResponse.Items = secGroupRuleWithLabel(securityGroupRules)
+	securityGroupRuleResponse.Items = secGroupRuleWithLabel(securityGroupRules.Items)
 	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
-	securityGroupRuleResponse.Items = secGroupRuleWithLabel(securityGroupRules)[:1]
+	securityGroupRuleResponse.Items = secGroupRuleWithLabel(securityGroupRules.Items)[:1]
 	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// Create security groups
-	err = stubs.BulkCreateSecurityGroupsStubV1(configurator, scenario.MockParams, securityGroups)
+	err = stubs.BulkCreateSecurityGroupsStubV1(configurator, scenario.MockParams, securityGroups.Items)
 	if err != nil {
 		return err
 	}
-	securityGroupResponse, err := builders.NewSecurityGroupIteratorBuilder().
-		Provider(sdkconsts.NetworkProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
-		Items(securityGroups).
-		Build()
-	if err != nil {
-		return err
-	}
+	securityGroupResponse := &params.SecurityGroups
 
 	// List
 	if err := configurator.ConfigureListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, scenario.MockParams, nil); err != nil {
@@ -413,7 +357,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List with limit 1
-	securityGroupResponse.Items = securityGroups[:1]
+	securityGroupResponse.Items = securityGroups.Items[:1]
 	if err := configurator.ConfigureListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
@@ -429,19 +373,19 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredSecurity
 	}
 
-	securityGroupResponse.Items = secGroupWithLabel(securityGroups)
+	securityGroupResponse.Items = secGroupWithLabel(securityGroups.Items)
 	if err := configurator.ConfigureListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
-	securityGroupResponse.Items = secGroupWithLabel(securityGroups)[:1]
+	securityGroupResponse.Items = secGroupWithLabel(securityGroups.Items)[:1]
 	if err := configurator.ConfigureListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// Delete the security group rules
-	for _, securityGroupRule := range securityGroupRules {
+	for _, securityGroupRule := range securityGroupRules.Items {
 		securityGroupRuleUrl := generators.GenerateSecurityGroupRuleURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, securityGroupRule.Metadata.Name)
 
 		// Delete the security group rule
@@ -459,7 +403,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Delete the security groups
-	for _, securityGroup := range securityGroups {
+	for _, securityGroup := range securityGroups.Items {
 		securityGroupUrl := generators.GenerateSecurityGroupURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, securityGroup.Metadata.Name)
 
 		// Delete the security group
@@ -477,7 +421,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Delete the nics
-	for _, nic := range nics {
+	for _, nic := range nics.Items {
 		nicUrl := generators.GenerateNicURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, nic.Metadata.Name)
 
 		// Delete the nic
@@ -495,7 +439,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Delete the public ips
-	for _, publicIp := range publicIps {
+	for _, publicIp := range publicIps.Items {
 		publicIpUrl := generators.GeneratePublicIpURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, publicIp.Metadata.Name)
 
 		// Delete the public ip
@@ -513,7 +457,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Delete the subnets
-	for _, subnet := range subnets {
+	for _, subnet := range subnets.Items {
 		subnetUrl := generators.GenerateSubnetURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName, subnet.Metadata.Name)
 
 		// Delete the subnet
@@ -531,7 +475,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Delete the route tables
-	for _, routeTable := range routeTables {
+	for _, routeTable := range routeTables.Items {
 		routeTableUrl := generators.GenerateRouteTableURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, networkName, routeTable.Metadata.Name)
 
 		// Delete the route table
@@ -549,7 +493,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Delete the internet gateways
-	for _, gateway := range internetGateways {
+	for _, gateway := range internetGateways.Items {
 		gatewayUrl := generators.GenerateInternetGatewayURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, gateway.Metadata.Name)
 
 		// Delete the internet gateway
@@ -567,7 +511,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Delete the networks
-	for _, network := range networks {
+	for _, network := range networks.Items {
 		networkUrl := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name, network.Metadata.Name)
 
 		// Delete the network

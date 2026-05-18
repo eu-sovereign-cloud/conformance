@@ -1,6 +1,11 @@
 package params
 
 import (
+	authorization "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.authorization.v1"
+	compute "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.compute.v1"
+	network "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.network.v1"
+	storage "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.storage.v1"
+	workspace "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.workspace.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
@@ -14,8 +19,8 @@ type AuthorizationProviderLifeCycleV1Params struct {
 }
 
 type AuthorizationProviderQueriesV1Params struct {
-	Roles           []schema.Role
-	RoleAssignments []schema.RoleAssignment
+	Roles           authorization.RoleIterator
+	RoleAssignments authorization.RoleAssignmentIterator
 }
 
 type RoleLifeCycleV1Params struct {
@@ -44,7 +49,7 @@ type WorkspaceProviderLifeCycleV1Params struct {
 }
 
 type WorkspaceProviderQueriesV1Params struct {
-	Workspaces []schema.Workspace
+	Workspaces workspace.WorkspaceIterator
 }
 
 // Compute
@@ -59,7 +64,7 @@ type ComputeProviderLifeCycleV1Params struct {
 type ComputeProviderQueriesV1Params struct {
 	Workspace    *schema.Workspace
 	BlockStorage *schema.BlockStorage
-	Instances    []schema.Instance
+	Instances    compute.InstanceIterator
 }
 
 // Storage
@@ -74,8 +79,8 @@ type StorageProviderLifeCycleV1Params struct {
 
 type StorageProviderQueriesV1Params struct {
 	Workspace     *schema.Workspace
-	BlockStorages []schema.BlockStorage
-	Images        []schema.Image
+	BlockStorages storage.BlockStorageIterator
+	Images        storage.ImageIterator
 }
 
 type BlockStorageLifeCycleV1Params struct {
@@ -183,14 +188,14 @@ type NetworkProviderQueriesV1Params struct {
 	Workspace          *schema.Workspace
 	BlockStorage       *schema.BlockStorage
 	Instance           *schema.Instance
-	Networks           []schema.Network
-	InternetGateways   []schema.InternetGateway
-	RouteTables        []schema.RouteTable
-	Subnets            []schema.Subnet
-	Nics               []schema.Nic
-	PublicIps          []schema.PublicIp
-	SecurityGroupRules []schema.SecurityGroupRule
-	SecurityGroups     []schema.SecurityGroup
+	Networks           network.NetworkIterator
+	InternetGateways   network.InternetGatewayIterator
+	RouteTables        network.RouteTableIterator
+	Subnets            network.SubnetIterator
+	Nics               network.NicIterator
+	PublicIps          network.PublicIpIterator
+	SecurityGroupRules network.SecurityGroupRuleIterator
+	SecurityGroups     network.SecurityGroupIterator
 }
 
 type NetworkLifeCycleV1Params struct {

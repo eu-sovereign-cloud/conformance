@@ -43,18 +43,11 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Instance
-	err = stubs.BulkCreateInstancesStubV1(configurator, scenario.MockParams, instances)
+	err = stubs.BulkCreateInstancesStubV1(configurator, scenario.MockParams, instances.Items)
 	if err != nil {
 		return err
 	}
-	instanceResponse, err := builders.NewInstanceIteratorBuilder().
-		Provider(sdkconsts.StorageProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).Workspace(workspace.Metadata.Name).
-		Items(instances).
-		Build()
-	if err != nil {
-		return err
-	}
+	instanceResponse := &params.Instances
 
 	// List instances
 	if err := configurator.ConfigureListInstanceStub(instanceResponse, instanceListUrl, scenario.MockParams, nil); err != nil {
@@ -62,7 +55,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List roles with limit 1
-	instanceResponse.Items = instances[:1]
+	instanceResponse.Items = instances.Items[:1]
 	if err := configurator.ConfigureListInstanceStub(instanceResponse, instanceListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
 		return err
 	}
@@ -77,13 +70,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 		return filteredInstances
 	}
-	instanceResponse.Items = instancesWithLabel(instances)
+	instanceResponse.Items = instancesWithLabel(instances.Items)
 	if err := configurator.ConfigureListInstanceStub(instanceResponse, instanceListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List instances with limit and label
-	instanceResponse.Items = instancesWithLabel(instances)[:1]
+	instanceResponse.Items = instancesWithLabel(instances.Items)[:1]
 	if err := configurator.ConfigureListInstanceStub(instanceResponse, instanceListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
@@ -126,7 +119,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// Delete instances
-	for _, instance := range instances {
+	for _, instance := range instances.Items {
 		url := generators.GenerateInstanceURL(sdkconsts.ComputeProviderV1Name, instance.Metadata.Tenant, workspace.Metadata.Name, instance.Metadata.Name)
 		if err := configurator.ConfigureDeleteStub(url, scenario.MockParams); err != nil {
 			return err

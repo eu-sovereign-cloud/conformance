@@ -6,7 +6,6 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
-	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
@@ -19,23 +18,15 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	workspaces := params.Workspaces
-	workspace := workspaces[0]
 
-	url := generators.GenerateWorkspaceListURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant)
+	url := generators.GenerateWorkspaceListURL(sdkconsts.WorkspaceProviderV1Name, workspaces.Items[0].Metadata.Tenant)
 
 	// Create workspaces
-	err = stubs.BulkCreateWorkspacesStubV1(configurator, scenario.MockParams, workspaces)
+	err = stubs.BulkCreateWorkspacesStubV1(configurator, scenario.MockParams, workspaces.Items)
 	if err != nil {
 		return err
 	}
-	workspaceListResponse, err := builders.NewWorkspaceIteratorBuilder().
-		Provider(sdkconsts.WorkspaceProviderV1Name).
-		Tenant(workspace.Metadata.Tenant).
-		Items(workspaces).
-		Build()
-	if err != nil {
-		return err
-	}
+	workspaceListResponse := &params.Workspaces
 
 	// List
 	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, nil); err != nil {
@@ -57,18 +48,18 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		}
 		return filteredWorkspaces
 	}
-	workspaceListResponse.Items = workspaceWithLabel(workspaces)
+	workspaceListResponse.Items = workspaceWithLabel(workspaces.Items)
 	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit & labels
-	workspaceListResponse.Items = workspaceWithLabel(workspaces[:1])
+	workspaceListResponse.Items = workspaceWithLabel(workspaces.Items[:1])
 	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
-	for _, workspace := range workspaces {
+	for _, workspace := range workspaces.Items {
 		url := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Name, workspace.Metadata.Name)
 
 		// Delete the workspace

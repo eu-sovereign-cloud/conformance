@@ -122,6 +122,15 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 
 	blockStorages := []schema.BlockStorage{*blockStorage1, *blockStorage2, *blockStorage3}
 
+	blockStorageIterator, err := builders.NewBlockStorageIteratorBuilder().
+		Provider(sdkconsts.StorageProviderV1Name).
+		Tenant(suite.Tenant).Workspace(workspaceName).
+		Items(blockStorages).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build BlockStorageIterator: %v", err)
+	}
+
 	image1, err := builders.NewImageBuilder().
 		Name(imageName1).
 		Provider(sdkconsts.StorageProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
@@ -172,11 +181,19 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Image: %v", err)
 	}
 	images := []schema.Image{*image1, *image2, *image3}
+	imageIterator, err := builders.NewImageIteratorBuilder().
+		Provider(sdkconsts.StorageProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(images).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build ImageIterator: %v", err)
+	}
 
 	params := &params.StorageProviderQueriesV1Params{
 		Workspace:     workspace,
-		BlockStorages: blockStorages,
-		Images:        images,
+		BlockStorages: *blockStorageIterator,
+		Images:        *imageIterator,
 	}
 	suite.params = params
 	err = suites.SetupMockIfEnabled(suite.TestSuite, mockStorage.ConfigureProviderQueriesV1, *params)
@@ -214,7 +231,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	blocks := suite.params.BlockStorages
 
 	// Create block storages
-	steps.BulkCreateBlockStoragesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create block storages", blocks)
+	steps.BulkCreateBlockStoragesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create block storages", blocks.Items)
 
 	wpath := secapi.WorkspacePath{
 		Tenant:    secapi.TenantID(workspace.Metadata.Tenant),
@@ -242,7 +259,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	images := suite.params.Images
 
 	// Create images
-	steps.BulkCreateImagesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create images", images)
+	steps.BulkCreateImagesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create images", images.Items)
 
 	tpath := secapi.TenantPath{
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
@@ -275,10 +292,10 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		secapi.NewListOptions().WithLimit(1))
 
 	// Delete all images
-	steps.BulkDeleteImagesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete images", images)
+	steps.BulkDeleteImagesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete images", images.Items)
 
 	// Delete all block storages
-	steps.BulkDeleteBlockStoragesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete block storages", blocks)
+	steps.BulkDeleteBlockStoragesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete block storages", blocks.Items)
 
 	// Delete the workspace
 	workspaceTRef := secapi.TenantReference{

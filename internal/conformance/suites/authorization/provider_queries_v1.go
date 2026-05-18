@@ -104,6 +104,15 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		*role3,
 	}
 
+	rolesIterator, err := builders.NewRoleIteratorBuilder().
+		Provider(sdkconsts.AuthorizationProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(roles).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build RoleIterator: %v", err)
+	}
+
 	// Roles Assignment
 	roleAssignment1, err := builders.NewRoleAssignmentBuilder().
 		Name(roleAssignmentName1).
@@ -155,9 +164,18 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 		*roleAssignment2,
 		*roleAssignment3,
 	}
+
+	roleAssignmentsIterator, err := builders.NewRoleAssignmentIteratorBuilder().
+		Provider(sdkconsts.AuthorizationProviderV1Name).
+		Tenant(suite.Tenant).
+		Items(roleAssignments).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build RoleAssignmentIterator: %v", err)
+	}
 	params := &params.AuthorizationProviderQueriesV1Params{
-		Roles:           roles,
-		RoleAssignments: roleAssignments,
+		Roles:           *rolesIterator,
+		RoleAssignments: *roleAssignmentsIterator,
 	}
 	suite.params = params
 	err = suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureProviderQueriesV1, *params)
@@ -179,7 +197,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	roles := suite.params.Roles
 
 	// Create roles
-	steps.BulkCreateRolesStepsV1(stepsBuilder, suite.GlobalTestSuite, "Create roles", roles)
+	steps.BulkCreateRolesStepsV1(stepsBuilder, suite.GlobalTestSuite, "Create roles", roles.Items)
 
 	tpath := secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
@@ -206,7 +224,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	roleAssignments := suite.params.RoleAssignments
 
 	// Create role assignments
-	steps.BulkCreateRoleAssignmentsStepsV1(stepsBuilder, suite.GlobalTestSuite, "Create role assignments", roleAssignments)
+	steps.BulkCreateRoleAssignmentsStepsV1(stepsBuilder, suite.GlobalTestSuite, "Create role assignments", roleAssignments.Items)
 
 	tpath = secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
@@ -230,10 +248,10 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
 
 	// Delete all role assignments
-	steps.BulkDeleteRoleAssignmentsStepsV1(stepsBuilder, suite.GlobalTestSuite, "Delete all role assignments", roleAssignments)
+	steps.BulkDeleteRoleAssignmentsStepsV1(stepsBuilder, suite.GlobalTestSuite, "Delete all role assignments", roleAssignments.Items)
 
 	// Delete all roles
-	steps.BulkDeleteRolesStepsV1(stepsBuilder, suite.GlobalTestSuite, "Delete all roles", roles)
+	steps.BulkDeleteRolesStepsV1(stepsBuilder, suite.GlobalTestSuite, "Delete all roles", roles.Items)
 
 	suite.FinishScenario()
 }
