@@ -119,4 +119,82 @@ func TestNetworkV1Suites(t *testing.T) {
 	if securityGroupLifecycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, securityGroupLifecycleSuite)
 	}
+
+	// Network Constraints Suite
+	networkConstraintsSuite := network.CreateNetworkConstraintsValidationV1TestSuite(regionalTestSuite,
+		&network.NetworkLifeCycleV1Config{
+			NetworkCidr: config.Parameters.ScenariosCidr,
+			NetworkSkus: config.Clients.NetworkSkus,
+		},
+	)
+	if networkConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, networkConstraintsSuite)
+	}
+
+	// Internet Gateway Constraints Suite
+	internetGatewayConstraintsSuite := network.CreateInternetGatewayConstraintsValidationV1TestSuite(regionalTestSuite)
+	if internetGatewayConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, internetGatewayConstraintsSuite)
+	}
+
+	// Public IP Constraints Suite
+	publicIpConstraintsSuite := network.CreatePublicIpConstraintsValidationV1TestSuite(regionalTestSuite,
+		&network.PublicIpLifeCycleV1Config{
+			PublicIpsRange: config.Parameters.ScenariosPublicIps,
+			NetworkSkus:    config.Clients.NetworkSkus,
+		},
+	)
+	if publicIpConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, publicIpConstraintsSuite)
+	}
+
+	// Nic Constraints Suite
+	nicConstraintsSuite := network.CreateNicConstraintsValidationV1TestSuite(regionalTestSuite,
+		&network.NicLifeCycleV1Config{
+			NetworkCidr:    config.Parameters.ScenariosCidr,
+			PublicIpsRange: config.Parameters.ScenariosPublicIps,
+			RegionZones:    config.Clients.RegionZones,
+			NetworkSkus:    config.Clients.NetworkSkus,
+		},
+	)
+	if nicConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, nicConstraintsSuite)
+	}
+
+	// Security Group Constraints Suite
+	securityGroupConstraintsSuite := network.CreateSecurityGroupConstraintsValidationV1TestSuite(regionalTestSuite)
+	if securityGroupConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, securityGroupConstraintsSuite)
+	}
+
+	// Security Group Rule Constraints Suite
+	securityGroupRuleConstraintsSuite := network.CreateSecurityGroupRuleConstraintsValidationV1TestSuite(regionalTestSuite)
+	if securityGroupRuleConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, securityGroupRuleConstraintsSuite)
+	}
+
+	// Route Table Constraints Suite
+	routeTableConstraintsSuite := network.CreateRouteTableConstraintsValidationV1TestSuite(regionalTestSuite,
+		&network.RouteTableLifeCycleV1Config{
+			NetworkCidr:    config.Parameters.ScenariosCidr,
+			PublicIpsRange: config.Parameters.ScenariosPublicIps,
+			RegionZones:    config.Clients.RegionZones,
+			NetworkSkus:    config.Clients.NetworkSkus,
+		},
+	)
+	if routeTableConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, routeTableConstraintsSuite)
+	}
+
+	// Subnet Constraints Suite
+	subnetConstraintsSuite := network.CreateSubnetConstraintsValidationV1TestSuite(regionalTestSuite,
+		&network.SubnetLifeCycleV1Config{
+			NetworkCidr: config.Parameters.ScenariosCidr,
+			RegionZones: config.Clients.RegionZones,
+			NetworkSkus: config.Clients.NetworkSkus,
+		},
+	)
+	if subnetConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, subnetConstraintsSuite)
+	}
 }

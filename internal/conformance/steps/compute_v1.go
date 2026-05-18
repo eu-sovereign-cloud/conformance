@@ -194,6 +194,24 @@ func (configurator *StepsConfigurator) RestartInstanceV1Step(stepName string, ap
 	)
 }
 
+func (configurator *StepsConfigurator) CreateOrUpdateInstanceExpectViolationV1Step(stepName string, api secapi.ComputeV1, resource *schema.Instance) {
+	violationWorkspaceResourceStep(configurator.t, configurator.suite,
+		actionWorkspaceResourceParams[schema.Instance]{
+			actionResourceParams: actionResourceParams[schema.Instance]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.Instance) error {
+					_, err := api.CreateOrUpdateInstance(ctx, r)
+					return err
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetComputeV1StepParams,
+			operationName:  constants.CreateOrUpdateInstanceOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) DeleteInstanceV1Step(stepName string, stepCreator StepCreator, api secapi.ComputeV1, resource *schema.Instance) {
 	deleteWorkspaceResourceStep(configurator.t.Context(), configurator.suite, stepCreator,
 		deleteWorkspaceResourceParams[schema.Instance]{

@@ -109,10 +109,6 @@ func (suite *NicLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		t.Fatalf("Failed to build Network: %v", err)
 	}
 
-	if err != nil {
-		t.Fatalf("Failed to build Network: %v", err)
-	}
-
 	internetGateway, err := builders.NewInternetGatewayBuilder().
 		Name(internetGatewayName).
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
