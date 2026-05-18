@@ -35,4 +35,14 @@ func TestComputeV1Suites(t *testing.T) {
 	if providerQueriesSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, providerQueriesSuite)
 	}
+
+	// Instance Constraints Violations Suite
+	instanceConstraintsSuite := compute.CreateInstanceConstraintsValidationV1TestSuite(regionalTestSuite, &compute.InstanceContraintsValidationV1Config{
+		AvailableZones: config.Clients.RegionZones,
+		InstanceSkus:   config.Clients.InstanceSkus,
+		StorageSkus:    config.Clients.StorageSkus,
+	})
+	if instanceConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, instanceConstraintsSuite)
+	}
 }
