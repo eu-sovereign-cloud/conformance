@@ -3,13 +3,13 @@ module github.com/eu-sovereign-cloud/conformance
 go 1.25.0
 
 require (
-	github.com/apparentlymart/go-cidr v1.1.0
+	github.com/apparentlymart/go-cidr v1.1.1
 	github.com/eu-sovereign-cloud/go-sdk v0.4.0
 	github.com/go-playground/validator/v10 v10.30.2
 	github.com/ozontech/allure-go/pkg/allure v0.8.2
 	github.com/ozontech/allure-go/pkg/framework v0.8.1
 	github.com/spf13/cobra v1.10.2
-	github.com/wiremock/go-wiremock v1.15.0
+	github.com/wiremock/go-wiremock v1.16.0
 )
 
 require (
