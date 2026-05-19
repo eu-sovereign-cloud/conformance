@@ -1,4 +1,4 @@
-package wiremock
+package mock
 
 type MockParams struct {
 	ServerURL string
