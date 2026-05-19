@@ -124,5 +124,9 @@ clean:
 .PHONY: libs
 libs:
 	@echo "Updating libraries..."
+	cd tools
+	go mod tidy
+	cd ..
+	go mod tidy
 	go mod vendor
 	go mod tidy
