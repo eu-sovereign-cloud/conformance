@@ -1,10 +1,11 @@
-package wiremock
+package stubs
 
 import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
 
+	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/wiremock/go-wiremock"
 )
 
@@ -12,7 +13,7 @@ type stubConfig struct {
 	url          string
 	httpMethod   string
 	httpStatus   int
-	params       MockParams
+	params       mock.MockParams
 	pathParams   map[string]string
 	responseBody any
 	currentState string
