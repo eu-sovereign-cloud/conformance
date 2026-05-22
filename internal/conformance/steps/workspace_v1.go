@@ -37,7 +37,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 	)
 }
 
-func (configurator *StepsConfigurator) ListWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.Workspace, schema.GlobalTenantResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.Workspace, schema.GlobalTenantResourceMetadata, secapi.TenantPath]{
@@ -45,6 +45,7 @@ func (configurator *StepsConfigurator) ListWorkspaceV1Step(stepName string, api 
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.Workspace], error) {
 					return api.ListWorkspacesWithOptions(ctx, path, options)
 				},
+				expects: expects,
 			},
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,

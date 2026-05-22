@@ -41,7 +41,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string,
 	)
 }
 
-func (configurator *StepsConfigurator) ListRoleV1Step(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListRoleV1Step(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.Role, schema.GlobalTenantResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.Role, schema.GlobalTenantResourceMetadata, secapi.TenantPath]{
@@ -49,6 +49,7 @@ func (configurator *StepsConfigurator) ListRoleV1Step(stepName string, api secap
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.Role], error) {
 					return api.ListRolesWithOptions(ctx, path, options)
 				},
+				expects: expects,
 			},
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
@@ -161,7 +162,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepNa
 	)
 }
 
-func (configurator *StepsConfigurator) ListRoleAssignmentsV1(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListRoleAssignmentsV1(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, secapi.TenantPath]{
@@ -169,6 +170,7 @@ func (configurator *StepsConfigurator) ListRoleAssignmentsV1(stepName string, ap
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.RoleAssignment], error) {
 					return api.ListRoleAssignmentsWithOptions(ctx, path, options)
 				},
+				expects: expects,
 			},
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,

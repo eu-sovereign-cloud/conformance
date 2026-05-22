@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log/slog"
 
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/types"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -82,10 +83,22 @@ func iteratorResponseStep[R types.ResourceType](ctx provider.StepCtx, resources 
 			stepCtx.FailNow()
 		} else {
 			stepCtx.WithNewParameters("iterator", string(data))
+
 		}
 	})
 }
 
 func emptyResponseStep(ctx provider.StepCtx) {
 	ctx.WithNewStep("Receive response", func(stepCtx provider.StepCtx) {})
+}
+
+func metadataResponseStep(ctx provider.StepCtx, metadata schema.ResponseMetadata) {
+	ctx.WithNewStep("Receive response metadata", func(stepCtx provider.StepCtx) {
+		if data, err := json.Marshal(metadata); err != nil {
+			slog.Error("Error marshaling metadata to json", "error", err)
+			stepCtx.FailNow()
+		} else {
+			stepCtx.WithNewParameters("metadata", string(data))
+		}
+	})
 }

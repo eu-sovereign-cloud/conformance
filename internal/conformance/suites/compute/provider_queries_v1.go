@@ -224,22 +224,28 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
 	}
 
+	instanceExpects := steps.ListResponseExpects{
+		ResponseMetadata: suite.params.Instances.Metadata,
+	}
+
 	// List instances
-	stepsBuilder.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wpath, nil)
+	stepsBuilder.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wpath, nil, instanceExpects)
 
 	// List instances with limit
 	stepsBuilder.ListInstanceV1Step("List instances with limit", suite.Client.ComputeV1, wpath,
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1), instanceExpects)
 
 	// List instances with label
 	stepsBuilder.ListInstanceV1Step("List instances with label", suite.Client.ComputeV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		instanceExpects)
 
 	// List instances with limit and label
 	stepsBuilder.ListInstanceV1Step("List instances with limit and label", suite.Client.ComputeV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		instanceExpects)
 
 	// Skus
 

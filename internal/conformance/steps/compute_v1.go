@@ -60,7 +60,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName str
 	)
 }
 
-func (configurator *StepsConfigurator) ListInstanceV1Step(stepName string, api secapi.ComputeV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListInstanceV1Step(stepName string, api secapi.ComputeV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
@@ -68,6 +68,7 @@ func (configurator *StepsConfigurator) ListInstanceV1Step(stepName string, api s
 				listFunc: func(ctx context.Context, path secapi.WorkspacePath, options *secapi.ListOptions) (*secapi.Iterator[schema.Instance], error) {
 					return api.ListInstancesWithOptions(ctx, path, options)
 				},
+				expects: expects,
 			},
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetComputeV1StepParams,

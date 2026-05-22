@@ -60,7 +60,7 @@ func (configurator *StepsConfigurator) ListSkuV1Step(stepName string, api secapi
 
 // BlockStorage
 
-func (configurator *StepsConfigurator) ListBlockStorageV1Step(stepName string, api secapi.StorageV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListBlockStorageV1Step(stepName string, api secapi.StorageV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
@@ -68,6 +68,7 @@ func (configurator *StepsConfigurator) ListBlockStorageV1Step(stepName string, a
 				listFunc: func(ctx context.Context, path secapi.WorkspacePath, options *secapi.ListOptions) (*secapi.Iterator[schema.BlockStorage], error) {
 					return api.ListBlockStoragesWithOptions(ctx, path, options)
 				},
+				expects: expects,
 			},
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageWorkspaceV1StepParams,
@@ -155,7 +156,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageExpectViolation
 
 // Image
 
-func (configurator *StepsConfigurator) ListImageV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListImageV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.Image, schema.GlobalTenantResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.Image, schema.GlobalTenantResourceMetadata, secapi.TenantPath]{
@@ -163,6 +164,7 @@ func (configurator *StepsConfigurator) ListImageV1Step(stepName string, api seca
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.Image], error) {
 					return api.ListImagesWithOptions(ctx, path, options)
 				},
+				expects: expects,
 			},
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetStorageV1StepParams,

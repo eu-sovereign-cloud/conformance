@@ -7,6 +7,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/types"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -15,12 +16,17 @@ import (
 
 // Params
 
+type ListResponseExpects struct {
+	ResponseMetadata schema.ResponseMetadata
+}
+
 type listGlobalResourcesParams[R types.ResourceType, M types.MetadataType] struct {
 	listOptions    *secapi.ListOptions
 	listFunc       func(context.Context, *secapi.ListOptions) (*secapi.Iterator[R], error)
 	stepName       string
 	stepParamsFunc func(provider.StepCtx, constants.OperationName)
 	operationName  constants.OperationName
+	expects        ListResponseExpects
 }
 
 type listTenantResourcesParams[R types.ResourceType, M types.MetadataType] struct {
@@ -28,6 +34,7 @@ type listTenantResourcesParams[R types.ResourceType, M types.MetadataType] struc
 	stepName       string
 	stepParamsFunc func(provider.StepCtx, constants.OperationName)
 	operationName  constants.OperationName
+	expects        ListResponseExpects
 }
 
 type listWorkspaceResourcesParams[R types.ResourceType, M types.MetadataType] struct {
@@ -36,6 +43,7 @@ type listWorkspaceResourcesParams[R types.ResourceType, M types.MetadataType] st
 	workspace      secapi.WorkspaceID
 	stepParamsFunc func(provider.StepCtx, constants.OperationName, secapi.WorkspaceID)
 	operationName  constants.OperationName
+	expects        ListResponseExpects
 }
 
 type listNetworkResourcesParams[R types.ResourceType, M types.MetadataType] struct {
@@ -45,12 +53,14 @@ type listNetworkResourcesParams[R types.ResourceType, M types.MetadataType] stru
 	network        secapi.NetworkID
 	stepParamsFunc func(provider.StepCtx, constants.OperationName, secapi.WorkspaceID, secapi.NetworkID)
 	operationName  constants.OperationName
+	expects        ListResponseExpects
 }
 
 type listResourcesParams[R types.ResourceType, M types.MetadataType, P secapi.PathType] struct {
 	path        P
 	listOptions *secapi.ListOptions
 	listFunc    func(context.Context, P, *secapi.ListOptions) (*secapi.Iterator[R], error)
+	expects     ListResponseExpects
 }
 
 // Steps
@@ -70,8 +80,11 @@ func listGlobalResourcesStep[R types.ResourceType, M types.MetadataType](
 
 		// Items
 		items, err = resp.All(t.Context())
-		requireNoError(sCtx, err)
+		metadata := resp.Metadata()
 
+		requireNoError(sCtx, err)
+		requireValidResponseMetadata(sCtx, metadata, params.expects.ResponseMetadata)
+		metadataResponseStep(sCtx, metadata)
 		iteratorResponseStep(sCtx, items)
 
 		requireNotNilResponse(sCtx, items)
@@ -125,9 +138,13 @@ func listResourcesStep[R types.ResourceType, M types.MetadataType, P secapi.Path
 	requireNotNilResponse(sCtx, resp)
 
 	// Items
-	items, err := resp.All(t.Context())
-	requireNoError(sCtx, err)
+	var items []*R
+	items, err = resp.All(t.Context())
+	metadata := resp.Metadata()
 
+	requireNoError(sCtx, err)
+	requireValidResponseMetadata(sCtx, metadata, params.expects.ResponseMetadata)
+	metadataResponseStep(sCtx, metadata)
 	iteratorResponseStep(sCtx, items)
 
 	requireNotNilResponse(sCtx, items)

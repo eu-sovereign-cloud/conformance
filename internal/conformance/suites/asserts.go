@@ -205,6 +205,21 @@ func (suite *TestSuite) VerifyExtensionsStep(ctx provider.StepCtx, expected sche
 	})
 }
 
+// Verify Metadata
+func (suite *TestSuite) RequireValidResponseMetadata(sCtx provider.StepCtx, metadata schema.ResponseMetadata) {
+	sCtx.WithNewStep("Verify response metadata", func(stepCtx provider.StepCtx) {
+		stepCtx.WithNewParameters(
+			"provider", metadata.Provider,
+			"resource", metadata.Resource,
+			"verb", metadata.Verb,
+		)
+
+		stepCtx.Require().NotEmpty(metadata.Provider, "ResponseMetadata: Provider should not be empty")
+		stepCtx.Require().NotEmpty(metadata.Resource, "ResponseMetadata: Resource should not be empty")
+		stepCtx.Require().NotEmpty(metadata.Verb, "ResponseMetadata: Verb should not be empty")
+	})
+}
+
 // Specs
 
 // Authorization Specs
