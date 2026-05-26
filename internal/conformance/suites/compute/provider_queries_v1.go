@@ -224,8 +224,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
 	}
 
-	instanceExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.Instances.Metadata,
+	instanceExpects := steps.ListResponseExpects[schema.Instance]{
+		Metadata: suite.params.Instances.Metadata,
+		Items:    instances.Items,
 	}
 
 	// List instances

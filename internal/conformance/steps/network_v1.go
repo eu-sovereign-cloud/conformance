@@ -166,7 +166,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepN
 	)
 }
 
-func (configurator *StepsConfigurator) ListInternetGatewayV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects) {
+func (configurator *StepsConfigurator) ListInternetGatewayV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.InternetGateway]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
@@ -274,7 +274,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName s
 	)
 }
 
-func (configurator *StepsConfigurator) ListRouteTableV1Step(stepName string, api secapi.NetworkV1, npath secapi.NetworkPath, opts *secapi.ListOptions, expects ListResponseExpects) {
+func (configurator *StepsConfigurator) ListRouteTableV1Step(stepName string, api secapi.NetworkV1, npath secapi.NetworkPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.RouteTable]) {
 	listNetworkResourcesStep(configurator.t, configurator.suite,
 		listNetworkResourcesParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, secapi.NetworkPath]{
@@ -402,7 +402,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName strin
 	)
 }
 
-func (configurator *StepsConfigurator) ListSubnetV1Step(stepName string, api secapi.NetworkV1, npath secapi.NetworkPath, opts *secapi.ListOptions, expects ListResponseExpects) {
+func (configurator *StepsConfigurator) ListSubnetV1Step(stepName string, api secapi.NetworkV1, npath secapi.NetworkPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Subnet]) {
 	listNetworkResourcesStep(configurator.t, configurator.suite,
 		listNetworkResourcesParams[schema.Subnet, schema.RegionalNetworkResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, secapi.NetworkPath]{
@@ -510,7 +510,7 @@ func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName str
 	)
 }
 
-func (configurator *StepsConfigurator) ListPublicIpV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects) {
+func (configurator *StepsConfigurator) ListPublicIpV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.PublicIp]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
@@ -617,7 +617,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, 
 	)
 }
 
-func (configurator *StepsConfigurator) ListNicV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects) {
+func (configurator *StepsConfigurator) ListNicV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Nic]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
@@ -724,7 +724,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleV1Step(ste
 	)
 }
 
-func (configurator *StepsConfigurator) ListSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects) {
+func (configurator *StepsConfigurator) ListSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.SecurityGroupRule]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
@@ -831,7 +831,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepNam
 	)
 }
 
-func (configurator *StepsConfigurator) ListSecurityGroupV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects) {
+func (configurator *StepsConfigurator) ListSecurityGroupV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.SecurityGroup]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{

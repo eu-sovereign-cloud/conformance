@@ -576,8 +576,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Create internet gateways
 	steps.BulkCreateInternetGatewaysStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create internet gateways", gateways.Items)
 
-	internetGatewayExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.InternetGateways.Metadata,
+	internetGatewayExpects := steps.ListResponseExpects[schema.InternetGateway]{
+		Metadata: suite.params.InternetGateways.Metadata,
+		Items:    gateways.Items,
 	}
 
 	// List internet gateways
@@ -611,8 +612,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Network:   secapi.NetworkID(networks.Items[0].Metadata.Name),
 	}
 
-	routeTableExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.RouteTables.Metadata,
+	routeTableExpects := steps.ListResponseExpects[schema.RouteTable]{
+		Metadata: suite.params.RouteTables.Metadata,
+		Items:    routes.Items,
 	}
 
 	// List route tables
@@ -640,8 +642,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Create subnets
 	steps.BulkCreateSubnetsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create subnets", subnets.Items)
 
-	subnetExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.Subnets.Metadata,
+	subnetExpects := steps.ListResponseExpects[schema.Subnet]{
+		Metadata: suite.params.Subnets.Metadata,
+		Items:    subnets.Items,
 	}
 
 	// List subnets
@@ -669,8 +672,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Create public ips
 	steps.BulkCreatePublicIpsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create public ips", publicIps.Items)
 
-	publicIpExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.PublicIps.Metadata,
+	publicIpExpects := steps.ListResponseExpects[schema.PublicIp]{
+		Metadata: suite.params.PublicIps.Metadata,
+		Items:    publicIps.Items,
 	}
 
 	// List public ips
@@ -698,8 +702,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Create nics
 	steps.BulkCreateNicsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create nics", nics.Items)
 
-	nicExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.Nics.Metadata,
+	nicExpects := steps.ListResponseExpects[schema.Nic]{
+		Metadata: suite.params.Nics.Metadata,
+		Items:    nics.Items,
 	}
 
 	// List nics
@@ -727,8 +732,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Create security group rules
 	steps.BulkCreateSecurityGroupRulesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create security group rules", rules.Items)
 
-	securityGroupRuleExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.SecurityGroupRules.Metadata,
+	securityGroupRuleExpects := steps.ListResponseExpects[schema.SecurityGroupRule]{
+		Metadata: suite.params.SecurityGroupRules.Metadata,
+		Items:    rules.Items,
 	}
 
 	// List security group rules
@@ -756,8 +762,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Create security groups
 	steps.BulkCreateSecurityGroupsStepsV1(stepsBuilder, suite.RegionalTestSuite, "Create security groups", groups.Items)
 
-	securityGroupExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.SecurityGroups.Metadata,
+	securityGroupExpects := steps.ListResponseExpects[schema.SecurityGroup]{
+		Metadata: suite.params.SecurityGroups.Metadata,
+		Items:    groups.Items,
 	}
 
 	// List security groups

@@ -60,7 +60,7 @@ func (configurator *StepsConfigurator) ListSkuV1Step(stepName string, api secapi
 
 // BlockStorage
 
-func (configurator *StepsConfigurator) ListBlockStorageV1Step(stepName string, api secapi.StorageV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects) {
+func (configurator *StepsConfigurator) ListBlockStorageV1Step(stepName string, api secapi.StorageV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.BlockStorage]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
@@ -156,7 +156,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageExpectViolation
 
 // Image
 
-func (configurator *StepsConfigurator) ListImageV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects) {
+func (configurator *StepsConfigurator) ListImageV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Image]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.Image, schema.GlobalTenantResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.Image, schema.GlobalTenantResourceMetadata, secapi.TenantPath]{

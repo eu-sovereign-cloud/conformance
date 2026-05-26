@@ -202,9 +202,10 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	tpath := secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
-
-	roleExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.Roles.Metadata,
+	roleItems := roles.Items
+	roleExpects := steps.ListResponseExpects[schema.Role]{
+		Metadata: suite.params.Roles.Metadata,
+		Items:    roleItems,
 	}
 	// List Roles
 	stepsBuilder.ListRoleV1Step("List roles", suite.Client.AuthorizationV1, tpath, nil, roleExpects)
@@ -234,11 +235,12 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
 
-	roleAssignmentExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.RoleAssignments.Metadata,
+	roleAssignmentExpects := steps.ListResponseExpects[schema.RoleAssignment]{
+		Metadata: suite.params.RoleAssignments.Metadata,
+		Items:    roleAssignments.Items,
 	}
 
-	// List RoleAssignments
+	// List RoleAssignments\
 	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath, nil, roleAssignmentExpects)
 
 	// List RoleAssignments with limit

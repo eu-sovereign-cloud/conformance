@@ -41,7 +41,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string,
 	)
 }
 
-func (configurator *StepsConfigurator) ListRoleV1Step(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects) {
+func (configurator *StepsConfigurator) ListRoleV1Step(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Role]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.Role, schema.GlobalTenantResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.Role, schema.GlobalTenantResourceMetadata, secapi.TenantPath]{
@@ -162,7 +162,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepNa
 	)
 }
 
-func (configurator *StepsConfigurator) ListRoleAssignmentsV1(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects) {
+func (configurator *StepsConfigurator) ListRoleAssignmentsV1(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.RoleAssignment]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata]{
 			listResourcesParams: listResourcesParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, secapi.TenantPath]{

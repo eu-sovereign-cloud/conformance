@@ -16,8 +16,9 @@ import (
 
 // Params
 
-type ListResponseExpects struct {
-	ResponseMetadata schema.ResponseMetadata
+type ListResponseExpects[R types.ResourceType] struct {
+	Metadata schema.ResponseMetadata
+	Items    []R
 }
 
 type listGlobalResourcesParams[R types.ResourceType, M types.MetadataType] struct {
@@ -26,7 +27,7 @@ type listGlobalResourcesParams[R types.ResourceType, M types.MetadataType] struc
 	stepName       string
 	stepParamsFunc func(provider.StepCtx, constants.OperationName)
 	operationName  constants.OperationName
-	expects        ListResponseExpects
+	expects        ListResponseExpects[R]
 }
 
 type listTenantResourcesParams[R types.ResourceType, M types.MetadataType] struct {
@@ -57,7 +58,7 @@ type listResourcesParams[R types.ResourceType, M types.MetadataType, P secapi.Pa
 	path        P
 	listOptions *secapi.ListOptions
 	listFunc    func(context.Context, P, *secapi.ListOptions) (*secapi.Iterator[R], error)
-	expects     ListResponseExpects
+	expects     ListResponseExpects[R]
 }
 
 // Steps
@@ -80,9 +81,12 @@ func listGlobalResourcesStep[R types.ResourceType, M types.MetadataType](
 		metadata := resp.Metadata()
 
 		requireNoError(sCtx, err)
-		requireValidResponseMetadata(sCtx, metadata, params.expects.ResponseMetadata)
+
+		// Metadata
 		metadataResponseStep(sCtx, metadata)
-		iteratorResponseStep(sCtx, items)
+		requireValidResponseMetadata(sCtx, metadata, params.expects.Metadata)
+
+		iteratorResponseStep(sCtx, items, params.expects.Items)
 
 		requireNotNilResponse(sCtx, items)
 		requireNotEmptyResponse(sCtx, items)
@@ -140,9 +144,12 @@ func listResourcesStep[R types.ResourceType, M types.MetadataType, P secapi.Path
 	metadata := resp.Metadata()
 
 	requireNoError(sCtx, err)
-	requireValidResponseMetadata(sCtx, metadata, params.expects.ResponseMetadata)
+
+	// Metadata
 	metadataResponseStep(sCtx, metadata)
-	iteratorResponseStep(sCtx, items)
+	requireValidResponseMetadata(sCtx, metadata, params.expects.Metadata)
+
+	iteratorResponseStep(sCtx, items, params.expects.Items)
 
 	requireNotNilResponse(sCtx, items)
 	requireNotEmptyResponse(sCtx, items)

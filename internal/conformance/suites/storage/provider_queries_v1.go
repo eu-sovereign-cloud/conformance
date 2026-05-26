@@ -238,8 +238,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
 	}
 
-	blockStorageExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.BlockStorages.Metadata,
+	blockStorageExpects := steps.ListResponseExpects[schema.BlockStorage]{
+		Metadata: suite.params.BlockStorages.Metadata,
+		Items:    blocks.Items,
 	}
 
 	// List block storages
@@ -271,8 +272,9 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 	}
 
-	imageExpects := steps.ListResponseExpects{
-		ResponseMetadata: suite.params.Images.Metadata,
+	imageExpects := steps.ListResponseExpects[schema.Image]{
+		Metadata: suite.params.Images.Metadata,
+		Items:    images.Items,
 	}
 
 	// List images
