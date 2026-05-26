@@ -72,13 +72,10 @@ func resourceResponseStep[R types.ResourceType](ctx provider.StepCtx, resource *
 	})
 }
 
-func iteratorResponseStep[R types.ResourceType](ctx provider.StepCtx, resources []R) {
+func iteratorResponseStep[R types.ResourceType](ctx provider.StepCtx, resources []*R) {
 	ctx.WithNewStep("Receive response", func(stepCtx provider.StepCtx) {
 		if resources == nil {
 			return
-		}
-		for _, resp := range resources {
-		resp.
 		}
 
 		if data, err := json.Marshal(resources); err != nil {

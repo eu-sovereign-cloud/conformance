@@ -86,7 +86,7 @@ func listGlobalResourcesStep[R types.ResourceType, M types.MetadataType](
 		metadataResponseStep(sCtx, metadata)
 		requireValidResponseMetadata(sCtx, metadata, params.expects.Metadata)
 
-		iteratorResponseStep(sCtx, items, params.expects.Items)
+		iteratorResponseStep(sCtx, items)
 
 		requireNotNilResponse(sCtx, items)
 		requireNotEmptyResponse(sCtx, items)
@@ -149,7 +149,7 @@ func listResourcesStep[R types.ResourceType, M types.MetadataType, P secapi.Path
 	metadataResponseStep(sCtx, metadata)
 	requireValidResponseMetadata(sCtx, metadata, params.expects.Metadata)
 
-	iteratorResponseStep(sCtx, items, params.expects.Items)
+	iteratorResponseStep(sCtx, items)
 
 	requireNotNilResponse(sCtx, items)
 	requireNotEmptyResponse(sCtx, items)
