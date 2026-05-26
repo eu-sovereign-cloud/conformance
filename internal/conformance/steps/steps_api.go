@@ -83,7 +83,6 @@ func iteratorResponseStep[R types.ResourceType](ctx provider.StepCtx, resources 
 			stepCtx.FailNow()
 		} else {
 			stepCtx.WithNewParameters("iterator", string(data))
-
 		}
 	})
 }

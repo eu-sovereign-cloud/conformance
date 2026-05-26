@@ -34,7 +34,6 @@ type listTenantResourcesParams[R types.ResourceType, M types.MetadataType] struc
 	stepName       string
 	stepParamsFunc func(provider.StepCtx, constants.OperationName)
 	operationName  constants.OperationName
-	expects        ListResponseExpects
 }
 
 type listWorkspaceResourcesParams[R types.ResourceType, M types.MetadataType] struct {
@@ -43,7 +42,6 @@ type listWorkspaceResourcesParams[R types.ResourceType, M types.MetadataType] st
 	workspace      secapi.WorkspaceID
 	stepParamsFunc func(provider.StepCtx, constants.OperationName, secapi.WorkspaceID)
 	operationName  constants.OperationName
-	expects        ListResponseExpects
 }
 
 type listNetworkResourcesParams[R types.ResourceType, M types.MetadataType] struct {
@@ -53,7 +51,6 @@ type listNetworkResourcesParams[R types.ResourceType, M types.MetadataType] stru
 	network        secapi.NetworkID
 	stepParamsFunc func(provider.StepCtx, constants.OperationName, secapi.WorkspaceID, secapi.NetworkID)
 	operationName  constants.OperationName
-	expects        ListResponseExpects
 }
 
 type listResourcesParams[R types.ResourceType, M types.MetadataType, P secapi.PathType] struct {
