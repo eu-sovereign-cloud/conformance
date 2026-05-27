@@ -225,7 +225,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	instanceExpects := steps.ListResponseExpects[schema.Instance]{
-		Metadata: suite.params.Instances.Metadata,
+		Metadata: &suite.params.Instances.Metadata,
 		Items:    instances.Items,
 	}
 
@@ -251,19 +251,19 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	// Skus
 
 	// List skus
-	stepsBuilder.ListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
+	stepsBuilder.ListInstanceSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
 
 	// List skus with limit
-	stepsBuilder.ListSkusV1Step("List skus with limit", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListInstanceSkusV1Step("List skus with limit", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1))
 
 	// List skus with label
-	stepsBuilder.ListSkusV1Step("List skus with label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListInstanceSkusV1Step("List skus with label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
 
 	// List skus with limit and label
-	stepsBuilder.ListSkusV1Step("List skus with limit and label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListInstanceSkusV1Step("List skus with limit and label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
 			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
 

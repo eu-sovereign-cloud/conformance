@@ -72,113 +72,24 @@ func resourceResponseStep[R types.ResourceType](ctx provider.StepCtx, resource *
 	})
 }
 
-func iteratorResponseStep[R types.ResourceType](ctx provider.StepCtx, resources []*R) {
+func resourcesResponseStep[R types.ResourceType](ctx provider.StepCtx, metadata schema.ResponseMetadata, items []*R) {
 	ctx.WithNewStep("Receive response", func(stepCtx provider.StepCtx) {
-		if resources == nil {
-			return
-		}
-
-		if data, err := json.Marshal(resources); err != nil {
-			slog.Error("Error marshaling iterator to json", "error", err)
-			stepCtx.FailNow()
-		} else {
-			stepCtx.WithNewParameters("iterator", string(data))
-		}
-	})
-}
-
-func emptyResponseStep(ctx provider.StepCtx) {
-	ctx.WithNewStep("Receive response", func(stepCtx provider.StepCtx) {})
-}
-
-func metadataResponseStep(ctx provider.StepCtx, metadata schema.ResponseMetadata) {
-	ctx.WithNewStep("Receive response metadata", func(stepCtx provider.StepCtx) {
 		if data, err := json.Marshal(metadata); err != nil {
 			slog.Error("Error marshaling metadata to json", "error", err)
 			stepCtx.FailNow()
 		} else {
 			stepCtx.WithNewParameters("metadata", string(data))
 		}
+
+		if data, err := json.Marshal(items); err != nil {
+			slog.Error("Error marshaling items to json", "error", err)
+			stepCtx.FailNow()
+		} else {
+			stepCtx.WithNewParameters("items", string(data))
+		}
 	})
 }
 
-func getResourceName[R types.ResourceType](r *R) string {
-	if r == nil {
-		return ""
-	}
-	switch v := any(*r).(type) {
-	case schema.Role:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.RoleAssignment:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.Workspace:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.BlockStorage:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.Image:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.Instance:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.StorageSku:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.InstanceSku:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.Network:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.NetworkSku:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.InternetGateway:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.RouteTable:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.Subnet:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.PublicIp:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.Nic:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.SecurityGroupRule:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.SecurityGroup:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	case schema.Region:
-		if v.Metadata != nil {
-			return v.Metadata.Name
-		}
-	}
-	return ""
+func emptyResponseStep(ctx provider.StepCtx) {
+	ctx.WithNewStep("Receive response", func(stepCtx provider.StepCtx) {})
 }

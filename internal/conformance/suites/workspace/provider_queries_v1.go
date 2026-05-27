@@ -92,7 +92,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	workspaceExpects := steps.ListResponseExpects[schema.Workspace]{
-		Metadata: suite.params.Workspaces.Metadata,
+		Metadata: &suite.params.Workspaces.Metadata,
 		Items:    workspaces.Items,
 	}
 

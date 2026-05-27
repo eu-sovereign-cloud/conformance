@@ -9,6 +9,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
 // Role
@@ -43,13 +44,19 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleV1Step(stepName string,
 
 func (configurator *StepsConfigurator) ListRoleV1Step(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Role]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
-		listTenantResourcesParams[schema.Role, schema.GlobalTenantResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.Role, schema.GlobalTenantResourceMetadata, secapi.TenantPath]{
+		listTenantResourcesParams[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec]{
+			listResourcesParams: listResourcesParams[schema.Role, schema.GlobalTenantResourceMetadata, schema.RoleSpec, secapi.TenantPath]{
 				path: tpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.Role], error) {
 					return api.ListRolesWithOptions(ctx, path, options)
 				},
 				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.Role) {
+					configurator.suite.VerifyRoleItemsStep(ctx, items)
+				},
 			},
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,
@@ -164,13 +171,19 @@ func (configurator *StepsConfigurator) CreateOrUpdateRoleAssignmentV1Step(stepNa
 
 func (configurator *StepsConfigurator) ListRoleAssignmentsV1(stepName string, api secapi.AuthorizationV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.RoleAssignment]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
-		listTenantResourcesParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, secapi.TenantPath]{
+		listTenantResourcesParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec]{
+			listResourcesParams: listResourcesParams[schema.RoleAssignment, schema.GlobalTenantResourceMetadata, schema.RoleAssignmentSpec, secapi.TenantPath]{
 				path: tpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.RoleAssignment], error) {
 					return api.ListRoleAssignmentsWithOptions(ctx, path, options)
 				},
 				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.RoleAssignment) {
+					configurator.suite.VerifyRoleAssignmentItemsStep(ctx, items)
+				},
 			},
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetAuthorizationV1StepParams,

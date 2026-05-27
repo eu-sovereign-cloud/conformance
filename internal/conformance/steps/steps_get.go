@@ -3,7 +3,6 @@ package steps
 import (
 	"context"
 	"fmt"
-	"log"
 	"log/slog"
 	"time"
 
@@ -262,7 +261,8 @@ func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E typ
 	if params.expectedMetadata != nil {
 		params.verifyMetadataFunc(sCtx, params.expectedMetadata, resp.GetMetadata())
 	} else {
-		log.Fatalln("Metadata verification failed: expected or actual metadata is nil")
+		slog.Error("Metadata verification failed: expected or actual metadata is nil")
+		t.Fail()
 	}
 
 	if params.expectedSpec != nil {
@@ -274,7 +274,8 @@ func getResourceUntilValueStep[R types.ResourceType, M types.MetadataType, E typ
 	if expectedState != "" {
 		suite.VerifyStatusStateStep(sCtx, expectedState, types.GetStatusState(resp.GetStatus()))
 	} else {
-		log.Fatalln("Status verification failed: expected or actual Status is nil")
+		slog.Error("Status verification failed: expected or actual Status is nil")
+		t.Fail()
 	}
 
 	// Conditions

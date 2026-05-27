@@ -239,7 +239,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	blockStorageExpects := steps.ListResponseExpects[schema.BlockStorage]{
-		Metadata: suite.params.BlockStorages.Metadata,
+		Metadata: &suite.params.BlockStorages.Metadata,
 		Items:    blocks.Items,
 	}
 
@@ -273,7 +273,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	imageExpects := steps.ListResponseExpects[schema.Image]{
-		Metadata: suite.params.Images.Metadata,
+		Metadata: &suite.params.Images.Metadata,
 		Items:    images.Items,
 	}
 

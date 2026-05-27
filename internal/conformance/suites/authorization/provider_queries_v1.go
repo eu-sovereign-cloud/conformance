@@ -204,7 +204,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 	roleItems := roles.Items
 	roleExpects := steps.ListResponseExpects[schema.Role]{
-		Metadata: suite.params.Roles.Metadata,
+		Metadata: &suite.params.Roles.Metadata,
 		Items:    roleItems,
 	}
 	// List Roles
@@ -236,7 +236,7 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	roleAssignmentExpects := steps.ListResponseExpects[schema.RoleAssignment]{
-		Metadata: suite.params.RoleAssignments.Metadata,
+		Metadata: &suite.params.RoleAssignments.Metadata,
 		Items:    roleAssignments.Items,
 	}
 

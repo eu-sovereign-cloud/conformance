@@ -9,6 +9,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
 func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx context.Context, api secapi.RegionV1, regionName string,
@@ -35,7 +36,7 @@ func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx cont
 
 func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx context.Context, api secapi.RegionV1, opts *secapi.ListOptions) []*schema.Region {
 	return listGlobalResourcesStep(configurator.t, configurator.suite, stepName,
-		listGlobalResourcesParams[schema.Region, schema.GlobalResourceMetadata]{
+		listGlobalResourcesParams[schema.Region, schema.GlobalResourceMetadata, schema.RegionSpec]{
 			listOptions: opts,
 			listFunc: func(ctx context.Context, options *secapi.ListOptions) (*secapi.Iterator[schema.Region], error) {
 				return api.ListRegionsWithOptions(ctx, options)
@@ -43,6 +44,12 @@ func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx co
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetRegionV1StepParams,
 			operationName:  constants.ListRegionsOperation,
+			verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+				configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+			},
+			verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.Region) {
+				configurator.suite.VerifyRegionItemsStep(ctx, items)
+			},
 		},
 	)
 }
