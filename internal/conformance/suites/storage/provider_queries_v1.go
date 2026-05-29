@@ -2,7 +2,6 @@ package storage
 
 import (
 	"math/rand"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
@@ -299,14 +298,17 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// Skus
 
-	skuExpects := steps.ListResponseExpects[schema.StorageSku]{
-		Metadata: &schema.ResponseMetadata{
-			Provider: sdkconsts.StorageProviderV1Name,
-			Resource: generators.GenerateSkuListResource(),
-			Verb:     http.MethodGet,
-		},
+	skuMetadata, err := builders.NewStorageSkuListMetadataBuilder().
+		Provider(sdkconsts.StorageProviderV1Name).
+		Tenant(suite.Tenant).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build StorageSku list metadata: %v", err)
 	}
 
+	skuExpects := steps.ListResponseExpects[schema.StorageSku]{
+		Metadata: skuMetadata,
+	}
 	// List Skus
 	stepsBuilder.ListSkuV1Step("List skus", suite.Client.StorageV1, tpath, nil, skuExpects)
 

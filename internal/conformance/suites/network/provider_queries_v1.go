@@ -2,7 +2,6 @@ package network
 
 import (
 	"math/rand"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
@@ -567,13 +566,20 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 			Equals(constants.EnvLabel, constants.EnvConformanceLabel)), networkExpects)
 
 	// Skus
-	skuExpects := steps.ListResponseExpects[schema.NetworkSku]{
-		Metadata: &schema.ResponseMetadata{
-			Provider: sdkconsts.NetworkProviderV1Name,
-			Resource: generators.GenerateSkuListResource(),
-			Verb:     http.MethodGet,
-		},
+
+	skuMetadata, err := builders.NewNetworkSkuListMetadataBuilder().
+		Provider(sdkconsts.NetworkProviderV1Name).
+		Workspace(workspace.Metadata.Name).
+		Tenant(suite.Tenant).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build StorageSku list metadata: %v", err)
 	}
+
+	skuExpects := steps.ListResponseExpects[schema.NetworkSku]{
+		Metadata: skuMetadata,
+	}
+
 	// List skus
 	stepsBuilder.ListNetworkSkusV1Step("List skus", suite.Client.NetworkV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil, skuExpects)
 

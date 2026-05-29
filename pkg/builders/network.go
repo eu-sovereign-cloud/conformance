@@ -177,6 +177,27 @@ func (builder *NetworkIteratorBuilder) Build() (*network.NetworkIterator, error)
 	}, nil
 }
 
+/// NetworkSkuListMetadataBuilder (sem items)
+
+type NetworkSkuListMetadataBuilder struct {
+	*workspaceResponseMetadataBuilder[NetworkSkuListMetadataBuilder]
+}
+
+func NewNetworkSkuListMetadataBuilder() *NetworkSkuListMetadataBuilder {
+	builder := &NetworkSkuListMetadataBuilder{}
+	builder.workspaceResponseMetadataBuilder = newWorkspaceResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *NetworkSkuListMetadataBuilder) Build() (*schema.ResponseMetadata, error) {
+	if err := builder.validate(); err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateSkuListResource()
+	return builder.metadata, nil
+}
+
 // InternetGateway
 
 /// InternetGatewayMetadataBuilder

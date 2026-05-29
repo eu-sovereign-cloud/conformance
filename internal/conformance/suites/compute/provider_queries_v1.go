@@ -2,7 +2,6 @@ package compute
 
 import (
 	"math/rand"
-	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
@@ -251,13 +250,18 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// Skus
 
-	skuExpects := steps.ListResponseExpects[schema.InstanceSku]{
-		Metadata: &schema.ResponseMetadata{
-			Provider: sdkconsts.ComputeProviderV1Name,
-			Resource: generators.GenerateSkuListResource(),
-			Verb:     http.MethodGet,
-		},
+	skuMetadata, err := builders.NewInstanceSkuListMetadataBuilder().
+		Provider(sdkconsts.ComputeProviderV1Name).
+		Tenant(suite.Tenant).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build InstanceSku list metadata: %v", err)
 	}
+
+	skuExpects := steps.ListResponseExpects[schema.InstanceSku]{
+		Metadata: skuMetadata, // se o teu struct já mudou: ResponseMetadata: *skuMetadata
+	}
+
 	// List skus
 	stepsBuilder.ListInstanceSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil, skuExpects)
 
