@@ -116,7 +116,7 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) BeforeAll(t provider.T)
 			Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 			Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
-			Annotations(schema.Annotations{"description": "RouteTable with invalid destinationCidrBlock"}).
+			Annotations(schema.Annotations{"description": "RouteTable with invalid routes constraints"}).
 			Spec(&schema.RouteTableSpec{
 				Routes: routes,
 			}).Build()
@@ -124,6 +124,19 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) BeforeAll(t provider.T)
 			t.Fatalf("Failed to build RouteTable: %v", err)
 		}
 		return rt
+	}
+
+	repeatRoutes := func(r schema.RouteSpec, n int) []schema.RouteSpec {
+		out := make([]schema.RouteSpec, n)
+		for i := range out {
+			out[i] = r
+		}
+		return out
+	}
+
+	baseRoute := schema.RouteSpec{
+		DestinationCidrBlock: constants.RouteTableDefaultDestination,
+		TargetRef:            *internetGatewayRefObj,
 	}
 
 	p := &params.RouteTableConstraintsValidationV1Params{
@@ -146,6 +159,20 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) BeforeAll(t provider.T)
 			generators.GenerateRouteTableName(),
 			[]schema.RouteSpec{
 				{DestinationCidrBlock: strings.Repeat("a", 44), TargetRef: *internetGatewayRefObj},
+			},
+		),
+		EmptyRoutesRouteTable: buildRTWithRoutes(
+			generators.GenerateRouteTableName(),
+			[]schema.RouteSpec{},
+		),
+		OverMaxItemsRoutesRouteTable: buildRTWithRoutes(
+			generators.GenerateRouteTableName(),
+			repeatRoutes(baseRoute, 1001),
+		),
+		InvalidDestinationCidrBlockRouteTable: buildRTWithRoutes(
+			generators.GenerateRouteTableName(),
+			[]schema.RouteSpec{
+				{DestinationCidrBlock: "not-a-cidr", TargetRef: *internetGatewayRefObj},
 			},
 		),
 	}
@@ -298,6 +325,16 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) TestScenario(t provider
 		"Create a route table with routes[].destinationCidrBlock exceeding maxLength:43 — expect rejection",
 		suite.Client.NetworkV1,
 		suite.params.OverLengthDestinationCidrBlockRouteTable,
+	)
+	stepsBuilder.CreateOrUpdateRouteTableExpectViolationV1Step(
+		"Create a route table with routes empty (minItems:1) — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.EmptyRoutesRouteTable,
+	)
+	stepsBuilder.CreateOrUpdateRouteTableExpectViolationV1Step(
+		"Create a route table with routes exceeding maxItems:1000 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverMaxItemsRoutesRouteTable,
 	)
 
 	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.Client.NetworkV1, internetGat)

@@ -50,6 +50,22 @@ func (suite *RoleAssignmentConstraintsValidationV1TestSuite) BeforeAll(t provide
 		Tenants: []string{suite.Tenant},
 	}
 
+	repeatStrings := func(value string, n int) []string {
+		out := make([]string, n)
+		for i := range out {
+			out[i] = value
+		}
+		return out
+	}
+
+	repeatScopes := func(scope schema.RoleAssignmentScope, n int) []schema.RoleAssignmentScope {
+		out := make([]schema.RoleAssignmentScope, n)
+		for i := range out {
+			out[i] = scope
+		}
+		return out
+	}
+
 	buildRoleAssignment := func(name string, labels schema.Labels, annotations schema.Annotations, spec *schema.RoleAssignmentSpec) *schema.RoleAssignment {
 		ra, err := builders.NewRoleAssignmentBuilder().
 			Name(name).
@@ -164,6 +180,130 @@ func (suite *RoleAssignmentConstraintsValidationV1TestSuite) BeforeAll(t provide
 				Roles:  []string{"viewer"},
 			},
 		),
+		EmptyRolesRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles:  []string{},
+				Subs:   []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{validScope},
+			},
+		),
+		OverMaxItemsRolesRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles:  repeatStrings("viewer", 33),
+				Subs:   []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{validScope},
+			},
+		),
+		EmptyRoleValueRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles:  []string{""},
+				Subs:   []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{validScope},
+			},
+		),
+		EmptySubsRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles:  []string{roleName},
+				Subs:   []string{},
+				Scopes: []schema.RoleAssignmentScope{validScope},
+			},
+		),
+		OverMaxItemsSubsRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles:  []string{roleName},
+				Subs:   repeatStrings("user@example.com", 257),
+				Scopes: []schema.RoleAssignmentScope{validScope},
+			},
+		),
+		EmptySubValueRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles:  []string{roleName},
+				Subs:   []string{""},
+				Scopes: []schema.RoleAssignmentScope{validScope},
+			},
+		),
+		EmptyScopesRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles:  []string{roleName},
+				Subs:   []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{},
+			},
+		),
+		OverMaxItemsScopesRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles:  []string{roleName},
+				Subs:   []string{roleAssignmentSub},
+				Scopes: repeatScopes(validScope, 257),
+			},
+		),
+		EmptyScopeTenantValueRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles: []string{roleName},
+				Subs:  []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{
+					{Tenants: []string{""}},
+				},
+			},
+		),
+		OverMaxItemsScopeTenantsRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles: []string{roleName},
+				Subs:  []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{
+					{Tenants: repeatStrings("tenant-a", 65)},
+				},
+			},
+		),
+		EmptyScopeRegionValueRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles: []string{roleName},
+				Subs:  []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{
+					{Regions: []string{""}},
+				},
+			},
+		),
+		OverMaxItemsScopeRegionsRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles: []string{roleName},
+				Subs:  []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{
+					{Regions: repeatStrings("eu-1", 65)},
+				},
+			},
+		),
+		EmptyScopeWorkspaceValueRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles: []string{roleName},
+				Subs:  []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{
+					{Workspaces: []string{""}},
+				},
+			},
+		),
+		OverMaxItemsScopeWorkspacesRoleAssignment: buildRoleAssignment(
+			generators.GenerateRoleAssignmentName(), schema.Labels{}, schema.Annotations{},
+			&schema.RoleAssignmentSpec{
+				Roles: []string{roleName},
+				Subs:  []string{roleAssignmentSub},
+				Scopes: []schema.RoleAssignmentScope{
+					{Workspaces: repeatStrings("ws-a", 257)},
+				},
+			},
+		),
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockauthorization.ConfigureRoleAssignmentConstraintsValidationV1, *p); err != nil {
@@ -221,6 +361,76 @@ func (suite *RoleAssignmentConstraintsValidationV1TestSuite) TestScenario(t prov
 		"Create a role assignment with scope workspace exceeding maxLength:64 — expect rejection",
 		suite.Client.AuthorizationV1,
 		suite.params.OverLengthScopeWorkspaceRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with roles empty (minItems:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyRolesRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with roles exceeding maxItems:32 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverMaxItemsRolesRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with empty role value (minLength:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyRoleValueRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with subs empty (minItems:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptySubsRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with subs exceeding maxItems:256 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverMaxItemsSubsRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with empty sub value (minLength:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptySubValueRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with scopes empty (minItems:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyScopesRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with scopes exceeding maxItems:256 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverMaxItemsScopesRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with empty scope tenant value (minLength:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyScopeTenantValueRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with scope tenants exceeding maxItems:64 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverMaxItemsScopeTenantsRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with empty scope region value (minLength:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyScopeRegionValueRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with scope regions exceeding maxItems:64 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverMaxItemsScopeRegionsRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with empty scope workspace value (minLength:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyScopeWorkspaceValueRoleAssignment,
+	)
+	stepsBuilder.CreateOrUpdateRoleAssignmentExpectViolationV1Step(
+		"Create a role assignment with scope workspaces exceeding maxItems:256 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverMaxItemsScopeWorkspacesRoleAssignment,
 	)
 	suite.FinishScenario()
 }
