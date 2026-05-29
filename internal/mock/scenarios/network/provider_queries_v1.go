@@ -90,7 +90,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// Create skus
 	skusList := steps.GenerateNetworkSkusV1(secapi.TenantID(workspace.Metadata.Tenant))
-	skuResponse, err := builders.NewNetworkSkuIteratorBuilder().Provider(sdkconsts.StorageProviderV1Name).Tenant(workspace.Metadata.Tenant).Items(skusList).Build()
+	skuResponse, err := builders.NewNetworkSkuIteratorBuilder().Provider(sdkconsts.NetworkProviderV1Name).Tenant(workspace.Metadata.Tenant).Items(skusList).Build()
 	if err != nil {
 		return err
 	}

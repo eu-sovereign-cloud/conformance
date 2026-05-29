@@ -2,6 +2,7 @@ package storage
 
 import (
 	"math/rand"
+	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
@@ -298,12 +299,20 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// Skus
 
+	skuExpects := steps.ListResponseExpects[schema.StorageSku]{
+		Metadata: &schema.ResponseMetadata{
+			Provider: sdkconsts.StorageProviderV1Name,
+			Resource: generators.GenerateSkuListResource(),
+			Verb:     http.MethodGet,
+		},
+	}
+
 	// List Skus
-	stepsBuilder.ListSkuV1Step("List skus", suite.Client.StorageV1, tpath, nil)
+	stepsBuilder.ListSkuV1Step("List skus", suite.Client.StorageV1, tpath, nil, skuExpects)
 
 	// List Skus with limit
 	stepsBuilder.ListSkuV1Step("List skus with limit", suite.Client.StorageV1, tpath,
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1), skuExpects)
 
 	// Delete all images
 	steps.BulkDeleteImagesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete images", images.Items)

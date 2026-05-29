@@ -153,7 +153,8 @@ func listResourcesStep[R types.ResourceType, M types.MetadataType, E types.SpecT
 	params.verifyMetadataFunc(sCtx, &metadata, params.expects.Metadata)
 
 	// Items
-	params.verifyItemsFunc(sCtx, items)
-
+	if params.expects.Items != nil {
+		params.verifyItemsFunc(sCtx, items)
+	}
 	return items
 }

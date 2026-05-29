@@ -2,6 +2,7 @@ package network
 
 import (
 	"math/rand"
+	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
@@ -545,30 +546,40 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	}
 
 	// List networks
-	stepsBuilder.ListNetworkV1Step("List networks", suite.Client.NetworkV1, wpath, nil)
+	networkExpects := steps.ListResponseExpects[schema.Network]{
+		Metadata: &suite.params.Networks.Metadata,
+		Items:    networks.Items,
+	}
+	stepsBuilder.ListNetworkV1Step("List networks", suite.Client.NetworkV1, wpath, nil, networkExpects)
 
 	// List networks with limit
 	stepsBuilder.ListNetworkV1Step("List networks with limit", suite.Client.NetworkV1, wpath,
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1), networkExpects)
 
 	// List networks with label
 	stepsBuilder.ListNetworkV1Step("List networks with label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)), networkExpects)
 
 	// List networks with limit and label
 	stepsBuilder.ListNetworkV1Step("List networks with limit and label", suite.Client.NetworkV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)), networkExpects)
 
 	// Skus
-
+	skuExpects := steps.ListResponseExpects[schema.NetworkSku]{
+		Metadata: &schema.ResponseMetadata{
+			Provider: sdkconsts.NetworkProviderV1Name,
+			Resource: generators.GenerateSkuListResource(),
+			Verb:     http.MethodGet,
+		},
+	}
 	// List skus
-	stepsBuilder.ListNetworkSkusV1Step("List skus", suite.Client.NetworkV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
+	stepsBuilder.ListNetworkSkusV1Step("List skus", suite.Client.NetworkV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil, skuExpects)
 
 	// List skus with limit
 	stepsBuilder.ListNetworkSkusV1Step("List skus with limit", suite.Client.NetworkV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1), skuExpects)
 
 	// Internet gateway
 	gateways := suite.params.InternetGateways

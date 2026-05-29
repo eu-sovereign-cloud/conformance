@@ -43,7 +43,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName
 	)
 }
 
-func (configurator *StepsConfigurator) ListSkuV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListSkuV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.StorageSku]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.StorageSku, schema.SkuResourceMetadata, schema.StorageSkuSpec]{
 			listResourcesParams: listResourcesParams[schema.StorageSku, schema.SkuResourceMetadata, schema.StorageSkuSpec, secapi.TenantPath]{
@@ -51,6 +51,7 @@ func (configurator *StepsConfigurator) ListSkuV1Step(stepName string, api secapi
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.StorageSku], error) {
 					return api.ListSkusWithOptions(ctx, path, options)
 				},
+				expects: expects,
 				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
 					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
 				},

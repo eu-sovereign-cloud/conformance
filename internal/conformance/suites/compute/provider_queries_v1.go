@@ -2,6 +2,7 @@ package compute
 
 import (
 	"math/rand"
+	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
@@ -250,22 +251,29 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 
 	// Skus
 
+	skuExpects := steps.ListResponseExpects[schema.InstanceSku]{
+		Metadata: &schema.ResponseMetadata{
+			Provider: sdkconsts.ComputeProviderV1Name,
+			Resource: generators.GenerateSkuListResource(),
+			Verb:     http.MethodGet,
+		},
+	}
 	// List skus
-	stepsBuilder.ListInstanceSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
+	stepsBuilder.ListInstanceSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil, skuExpects)
 
 	// List skus with limit
 	stepsBuilder.ListInstanceSkusV1Step("List skus with limit", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1), skuExpects)
 
 	// List skus with label
 	stepsBuilder.ListInstanceSkusV1Step("List skus with label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
+			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)), skuExpects)
 
 	// List skus with limit and label
 	stepsBuilder.ListInstanceSkusV1Step("List skus with limit and label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
+			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)), skuExpects)
 
 	// Delete all instances
 	steps.BulkDeleteInstancesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all instances", instances.Items)

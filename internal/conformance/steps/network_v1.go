@@ -14,7 +14,7 @@ import (
 
 // Sku
 
-func (configurator *StepsConfigurator) ListNetworkSkusV1Step(stepName string, api secapi.NetworkV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListNetworkSkusV1Step(stepName string, api secapi.NetworkV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.NetworkSku]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.NetworkSku, schema.SkuResourceMetadata, schema.NetworkSkuSpec]{
 			listResourcesParams: listResourcesParams[schema.NetworkSku, schema.SkuResourceMetadata, schema.NetworkSkuSpec, secapi.TenantPath]{
@@ -22,6 +22,7 @@ func (configurator *StepsConfigurator) ListNetworkSkusV1Step(stepName string, ap
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.NetworkSku], error) {
 					return api.ListSkusWithOptions(ctx, path, options)
 				},
+				expects: expects,
 				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
 					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
 				},
@@ -67,7 +68,7 @@ func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName stri
 	)
 }
 
-func (configurator *StepsConfigurator) ListNetworkV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListNetworkV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Network]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
 		listWorkspaceResourcesParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
 			listResourcesParams: listResourcesParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, secapi.WorkspacePath]{
@@ -75,6 +76,7 @@ func (configurator *StepsConfigurator) ListNetworkV1Step(stepName string, api se
 				listFunc: func(ctx context.Context, path secapi.WorkspacePath, options *secapi.ListOptions) (*secapi.Iterator[schema.Network], error) {
 					return api.ListNetworksWithOptions(ctx, path, options)
 				},
+				expects: expects,
 				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
 					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
 				},

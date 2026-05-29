@@ -34,13 +34,14 @@ func (configurator *StepsConfigurator) GetRegionV1Step(stepName string, ctx cont
 	)
 }
 
-func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx context.Context, api secapi.RegionV1, opts *secapi.ListOptions) []*schema.Region {
+func (configurator *StepsConfigurator) ListRegionsV1Step(stepName string, ctx context.Context, api secapi.RegionV1, opts *secapi.ListOptions, expects ListResponseExpects[schema.Region]) []*schema.Region {
 	return listGlobalResourcesStep(configurator.t, configurator.suite, stepName,
 		listGlobalResourcesParams[schema.Region, schema.GlobalResourceMetadata, schema.RegionSpec]{
 			listOptions: opts,
 			listFunc: func(ctx context.Context, options *secapi.ListOptions) (*secapi.Iterator[schema.Region], error) {
 				return api.ListRegionsWithOptions(ctx, options)
 			},
+			expects:        expects,
 			stepName:       stepName,
 			stepParamsFunc: configurator.suite.SetRegionV1StepParams,
 			operationName:  constants.ListRegionsOperation,

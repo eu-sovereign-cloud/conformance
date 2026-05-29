@@ -14,7 +14,7 @@ import (
 
 // Sku
 
-func (configurator *StepsConfigurator) ListInstanceSkusV1Step(stepName string, api secapi.ComputeV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListInstanceSkusV1Step(stepName string, api secapi.ComputeV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.InstanceSku]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
 		listTenantResourcesParams[schema.InstanceSku, schema.SkuResourceMetadata, schema.InstanceSkuSpec]{
 			listResourcesParams: listResourcesParams[schema.InstanceSku, schema.SkuResourceMetadata, schema.InstanceSkuSpec, secapi.TenantPath]{
@@ -22,6 +22,7 @@ func (configurator *StepsConfigurator) ListInstanceSkusV1Step(stepName string, a
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.InstanceSku], error) {
 					return api.ListSkusWithOptions(ctx, path, options)
 				},
+				expects: expects,
 				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
 					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
 				},
