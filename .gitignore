@@ -5,6 +5,9 @@
 # Build
 dist/
 
+## Dependencies
+vendor/
+
 # Debug
 **/__debug_bin*
 
