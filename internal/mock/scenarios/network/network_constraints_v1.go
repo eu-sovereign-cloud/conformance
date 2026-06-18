@@ -98,6 +98,27 @@ func ConfigureNetworkConstraintsValidationV1(scenario *mockscenarios.Scenario, p
 		return err
 	}
 
+	// Under-length additional cidr ipv4 Validation
+	underLengthAdditionalCidrIpv4Network := p.UnderLengthAdditionalCidrIpv4Network
+	underLengthAdditionalCidrIpv4URL := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, underLengthAdditionalCidrIpv4Network.Metadata.Tenant, underLengthAdditionalCidrIpv4Network.Metadata.Workspace, underLengthAdditionalCidrIpv4Network.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(underLengthAdditionalCidrIpv4URL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Under-length additional cidr ipv6 Validation
+	underLengthAdditionalCidrIpv6Network := p.UnderLengthAdditionalCidrIpv6Network
+	underLengthAdditionalCidrIpv6URL := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, underLengthAdditionalCidrIpv6Network.Metadata.Tenant, underLengthAdditionalCidrIpv6Network.Metadata.Workspace, underLengthAdditionalCidrIpv6Network.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(underLengthAdditionalCidrIpv6URL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length additional cidr ipv4 Validation
+	overMaxItemsAdditionalCidrsNetwork := p.OverMaxItemsAdditionalCidrsNetwork
+	overMaxItemsAdditionalCidrsURL := generators.GenerateNetworkURL(sdkconsts.NetworkProviderV1Name, overMaxItemsAdditionalCidrsNetwork.Metadata.Tenant, overMaxItemsAdditionalCidrsNetwork.Metadata.Workspace, overMaxItemsAdditionalCidrsNetwork.Metadata.Name)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overMaxItemsAdditionalCidrsURL, scenario.MockParams); err != nil {
+		return err
+	}
+
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}

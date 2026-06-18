@@ -106,7 +106,18 @@ type RoleConstraintsValidationV1Params struct {
 	OverLengthPermissionProviderRole *schema.Role
 	OverLengthPermissionResourceRole *schema.Role
 	OverLengthPermissionVerbRole     *schema.Role
+
+	EmptyPermissionsRole                *schema.Role
+	OverMaxItemsPermissionsRole         *schema.Role
+	EmptyPermissionProviderRole         *schema.Role
+	EmptyPermissionResourcesRole        *schema.Role
+	OverMaxItemsPermissionResourcesRole *schema.Role
+	EmptyPermissionResourceValueRole    *schema.Role
+	EmptyPermissionVerbsRole            *schema.Role
+	OverMaxItemsPermissionVerbsRole     *schema.Role
+	EmptyPermissionVerbValueRole        *schema.Role
 }
+
 type RoleAssignmentConstraintsValidationV1Params struct {
 	OverLengthNameRoleAssignment           *schema.RoleAssignment
 	InvalidPatternNameRoleAssignment       *schema.RoleAssignment
@@ -117,6 +128,21 @@ type RoleAssignmentConstraintsValidationV1Params struct {
 	OverLengthScopeTenantRoleAssignment    *schema.RoleAssignment
 	OverLengthScopeRegionRoleAssignment    *schema.RoleAssignment
 	OverLengthScopeWorkspaceRoleAssignment *schema.RoleAssignment
+
+	EmptyRolesRoleAssignment                  *schema.RoleAssignment
+	OverMaxItemsRolesRoleAssignment           *schema.RoleAssignment
+	EmptyRoleValueRoleAssignment              *schema.RoleAssignment
+	EmptySubsRoleAssignment                   *schema.RoleAssignment
+	OverMaxItemsSubsRoleAssignment            *schema.RoleAssignment
+	EmptySubValueRoleAssignment               *schema.RoleAssignment
+	EmptyScopesRoleAssignment                 *schema.RoleAssignment
+	OverMaxItemsScopesRoleAssignment          *schema.RoleAssignment
+	EmptyScopeTenantValueRoleAssignment       *schema.RoleAssignment
+	OverMaxItemsScopeTenantsRoleAssignment    *schema.RoleAssignment
+	EmptyScopeRegionValueRoleAssignment       *schema.RoleAssignment
+	OverMaxItemsScopeRegionsRoleAssignment    *schema.RoleAssignment
+	EmptyScopeWorkspaceValueRoleAssignment    *schema.RoleAssignment
+	OverMaxItemsScopeWorkspacesRoleAssignment *schema.RoleAssignment
 }
 
 type InstanceConstraintsValidationV1Params struct {
@@ -129,6 +155,12 @@ type InstanceConstraintsValidationV1Params struct {
 	OverLengthUserDataInstance          *schema.Instance
 	OverLengthAntiAffinityGroupInstance *schema.Instance
 	OverLengthSshKeyInstance            *schema.Instance
+
+	OverMaxItemsSshKeysInstance     *schema.Instance
+	EmptySshKeyValueInstance        *schema.Instance
+	OverLengthZoneInstance          *schema.Instance
+	EmptyZoneInstance               *schema.Instance
+	OverMaxItemsDataVolumesInstance *schema.Instance
 }
 
 type WorkspaceConstraintsValidationV1Params struct {
@@ -289,6 +321,10 @@ type NetworkConstraintsValidationV1Params struct {
 	UnderLengthCidrIpv6Network          *schema.Network
 	OverLengthAdditionalCidrIpv4Network *schema.Network
 	OverLengthAdditionalCidrIpv6Network *schema.Network
+
+	UnderLengthAdditionalCidrIpv4Network *schema.Network
+	UnderLengthAdditionalCidrIpv6Network *schema.Network
+	OverMaxItemsAdditionalCidrsNetwork   *schema.Network
 }
 
 type InternetGatewayConstraintsValidationV1Params struct {
@@ -364,6 +400,11 @@ type RouteTableConstraintsValidationV1Params struct {
 	OverLengthLabelValueRouteTable           *schema.RouteTable
 	OverLengthAnnotationRouteTable           *schema.RouteTable
 	OverLengthDestinationCidrBlockRouteTable *schema.RouteTable
+
+	EmptyRoutesRouteTable                 *schema.RouteTable
+	OverMaxItemsRoutesRouteTable          *schema.RouteTable
+	EmptyDestinationCidrBlockRouteTable   *schema.RouteTable
+	InvalidDestinationCidrBlockRouteTable *schema.RouteTable
 }
 
 type SubnetConstraintsValidationV1Params struct {
@@ -375,4 +416,6 @@ type SubnetConstraintsValidationV1Params struct {
 	InvalidPatternNameSubnet   *schema.Subnet
 	OverLengthLabelValueSubnet *schema.Subnet
 	OverLengthAnnotationSubnet *schema.Subnet
+
+	OverLengthZoneSubnet *schema.Subnet
 }
