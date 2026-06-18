@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/apparentlymart/go-cidr v1.1.1
 	github.com/eu-sovereign-cloud/go-sdk v0.4.1
-	github.com/go-playground/validator/v10 v10.30.2
+	github.com/go-playground/validator/v10 v10.30.3
 	github.com/ozontech/allure-go/pkg/allure v0.8.2
 	github.com/ozontech/allure-go/pkg/framework v0.8.1
 	github.com/spf13/cobra v1.10.2
@@ -30,9 +30,9 @@ require (
 	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
-	golang.org/x/crypto v0.49.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/text v0.35.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	google.golang.org/protobuf v1.34.2-0.20240506121844-09393c19510d // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
