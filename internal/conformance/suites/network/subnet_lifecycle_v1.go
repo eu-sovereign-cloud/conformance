@@ -128,9 +128,9 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 			"description": "Subnet for conformance testing",
 		}).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: subnetCidr},
+			Cidr:          schema.Cidr{Ipv4: subnetCidr},
 			RouteTableRef: *routeTableRefObj,
-			Zone: zone2,
+			Zone:          zone2,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Subnet: %v", err)
