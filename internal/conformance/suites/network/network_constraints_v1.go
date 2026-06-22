@@ -50,12 +50,9 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
-	networkName := generators.GenerateNetworkName()
-	routeTableName := generators.GenerateRouteTableName()
 	networkSkuName := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 
 	networkSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName)
-	routeTableRefObj := generators.GenerateRouteTableRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, routeTableName)
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
@@ -75,9 +72,8 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 			Labels(labels).Annotations(annotations).
 			Spec(&schema.NetworkSpec{
-				Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
-				SkuRef:        *networkSkuRefObj,
-				RouteTableRef: *routeTableRefObj,
+				Cidr:   schema.Cidr{Ipv4: suite.config.NetworkCidr},
+				SkuRef: *networkSkuRefObj,
 			}).Build()
 		if err != nil {
 			t.Fatalf("Failed to build Network: %v", err)
@@ -96,7 +92,6 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 				Cidr:            cidr,
 				AdditionalCidrs: additionalCidrs,
 				SkuRef:          *networkSkuRefObj,
-				RouteTableRef:   *routeTableRefObj,
 			}).Build()
 		if err != nil {
 			t.Fatalf("Failed to build Network: %v", err)

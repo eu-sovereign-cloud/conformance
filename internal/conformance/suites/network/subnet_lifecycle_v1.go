@@ -91,9 +91,8 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 			"description": "Network for conformance testing",
 		}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
-			SkuRef:        *networkSkuRefObj,
-			RouteTableRef: *routeTableRefObj,
+			Cidr:   schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			SkuRef: *networkSkuRefObj,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Network: %v", err)
@@ -110,8 +109,9 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 			"description": "Subnet for conformance testing",
 		}).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: subnetCidr},
-			Zone: zone1,
+			Cidr:          schema.Cidr{Ipv4: subnetCidr},
+			RouteTableRef: *routeTableRefObj,
+			Zone:          zone1,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Subnet: %v", err)
@@ -129,6 +129,7 @@ func (suite *SubnetLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 		}).
 		Spec(&schema.SubnetSpec{
 			Cidr: schema.Cidr{Ipv4: subnetCidr},
+			RouteTableRef: *routeTableRefObj,
 			Zone: zone2,
 		}).Build()
 	if err != nil {

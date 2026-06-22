@@ -288,7 +288,6 @@ func (suite *TestSuite) VerifyNetworkSpecStep(ctx provider.StepCtx, expected *sc
 		}
 
 		stepCtx.Require().Equal(expected.SkuRef, actual.SkuRef, "SkuRef should match expected")
-		stepCtx.Require().Equal(expected.RouteTableRef, actual.RouteTableRef, "RouteTableRef should match expected")
 	})
 }
 
@@ -318,6 +317,8 @@ func (suite *TestSuite) VerifySubnetSpecStep(ctx provider.StepCtx, expected *sch
 		if actual.Cidr.Ipv6 != "" {
 			stepCtx.Require().Equal(expected.Cidr.Ipv6, actual.Cidr.Ipv6, "Cidr.Ipv6 should match expected")
 		}
+		stepCtx.Require().Equal(expected.SkuRef, actual.SkuRef, "SkuRef should match expected")
+		stepCtx.Require().Equal(expected.RouteTableRef, actual.RouteTableRef, "RouteTableRef should match expected")
 		stepCtx.Require().Equal(expected.Zone, actual.Zone, "Zone should match expected")
 	})
 }

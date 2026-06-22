@@ -49,12 +49,10 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) BeforeAll(t provider.T)
 	workspaceName := generators.GenerateWorkspaceName()
 	networkName := generators.GenerateNetworkName()
 	internetGatewayName := generators.GenerateInternetGatewayName()
-	routeTableName := generators.GenerateRouteTableName()
 	networkSkuName := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 
 	networkSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName)
 	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, internetGatewayName)
-	routeTableRefObj := generators.GenerateRouteTableRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, routeTableName)
 
 	workspace, err := builders.NewWorkspaceBuilder().
 		Name(workspaceName).
@@ -74,9 +72,8 @@ func (suite *RouteTableConstraintsValidationV1TestSuite) BeforeAll(t provider.T)
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
 		Annotations(schema.Annotations{"description": "Network for route table constraints testing"}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
-			SkuRef:        *networkSkuRefObj,
-			RouteTableRef: *routeTableRefObj,
+			Cidr:   schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			SkuRef: *networkSkuRefObj,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Network: %v", err)
