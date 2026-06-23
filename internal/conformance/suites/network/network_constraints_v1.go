@@ -47,7 +47,7 @@ func CreateNetworkConstraintsValidationV1TestSuite(regionalTestSuite suites.Regi
 }
 
 func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	networkName := generators.GenerateNetworkName()
@@ -106,8 +106,17 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 
 	baseLabels := schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}
 
+	repeatCidrs := func(c schema.Cidr, n int) []schema.Cidr {
+		out := make([]schema.Cidr, n)
+		for i := range out {
+			out[i] = c
+		}
+		return out
+	}
+
 	p := &params.NetworkConstraintsValidationV1Params{
 		Workspace: workspace,
+
 		OverLengthNameNetwork: buildNetwork(
 			strings.Repeat("a", 129),
 			baseLabels,
@@ -148,6 +157,16 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 			schema.Cidr{Ipv6: "::/"},
 			nil,
 		),
+		UnderLengthAdditionalCidrIpv4Network: buildNetworkWithCidr(
+			generators.GenerateNetworkName(),
+			schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			[]schema.Cidr{{Ipv4: "1.0/8"}},
+		),
+		UnderLengthAdditionalCidrIpv6Network: buildNetworkWithCidr(
+			generators.GenerateNetworkName(),
+			schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			[]schema.Cidr{{Ipv6: "::/"}},
+		),
 		OverLengthAdditionalCidrIpv4Network: buildNetworkWithCidr(
 			generators.GenerateNetworkName(),
 			schema.Cidr{Ipv4: suite.config.NetworkCidr},
@@ -157,6 +176,11 @@ func (suite *NetworkConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 			generators.GenerateNetworkName(),
 			schema.Cidr{Ipv4: suite.config.NetworkCidr},
 			[]schema.Cidr{{Ipv6: strings.Repeat("a", 44)}},
+		),
+		OverMaxItemsAdditionalCidrsNetwork: buildNetworkWithCidr(
+			generators.GenerateNetworkName(),
+			schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			repeatCidrs(schema.Cidr{Ipv4: "10.0.0.0/24"}, 33),
 		),
 	}
 	suite.params = p
@@ -257,6 +281,21 @@ func (suite *NetworkConstraintsValidationV1TestSuite) TestScenario(t provider.T)
 		"Create a network with additionalCidrs[].ipv6 exceeding maxLength:43 — expect rejection",
 		suite.Client.NetworkV1,
 		suite.params.OverLengthAdditionalCidrIpv6Network,
+	)
+	stepsBuilder.CreateOrUpdateNetworkExpectViolationV1Step(
+		"Create a network with additionalCidrs[].ipv4 below minLength:9 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.UnderLengthAdditionalCidrIpv4Network,
+	)
+	stepsBuilder.CreateOrUpdateNetworkExpectViolationV1Step(
+		"Create a network with additionalCidrs[].ipv6 below minLength:4 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.UnderLengthAdditionalCidrIpv6Network,
+	)
+	stepsBuilder.CreateOrUpdateNetworkExpectViolationV1Step(
+		"Create a network with additionalCidrs exceeding maxItems:32 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverMaxItemsAdditionalCidrsNetwork,
 	)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)

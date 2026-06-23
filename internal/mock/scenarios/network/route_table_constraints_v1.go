@@ -87,6 +87,32 @@ func ConfigureRouteTableConstraintsValidationV1(scenario *mockscenarios.Scenario
 		return err
 	}
 
+	// Empty routes route table
+	emptyRoutesRouteTable := p.EmptyRoutesRouteTable
+	emptyRoutesURL := generators.GenerateRouteTableURL(
+		sdkconsts.NetworkProviderV1Name,
+		emptyRoutesRouteTable.Metadata.Tenant,
+		emptyRoutesRouteTable.Metadata.Workspace,
+		emptyRoutesRouteTable.Metadata.Network,
+		emptyRoutesRouteTable.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(emptyRoutesURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-max items routes route table
+	overMaxItemsRoutesRouteTable := p.OverMaxItemsRoutesRouteTable
+	overMaxItemsRoutesURL := generators.GenerateRouteTableURL(
+		sdkconsts.NetworkProviderV1Name,
+		overMaxItemsRoutesRouteTable.Metadata.Tenant,
+		overMaxItemsRoutesRouteTable.Metadata.Workspace,
+		overMaxItemsRoutesRouteTable.Metadata.Network,
+		overMaxItemsRoutesRouteTable.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overMaxItemsRoutesURL, scenario.MockParams); err != nil {
+		return err
+	}
+
 	if err := configurator.ConfigureDeleteStub(gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}

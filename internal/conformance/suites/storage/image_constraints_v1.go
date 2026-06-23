@@ -46,7 +46,7 @@ func CreateImageConstraintsValidationV1TestSuite(regionalTestSuite suites.Region
 }
 
 func (suite *ImageConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.StorageParentSuite)
 
 	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]
 

@@ -92,6 +92,19 @@ func ConfigureSubnetConstraintsValidationV1(scenario *mockscenarios.Scenario, p 
 		return err
 	}
 
+	// Over-length zone Validation
+	overLengthZoneSubnet := p.OverLengthZoneSubnet
+	overLengthZoneURL := generators.GenerateSubnetURL(
+		sdkconsts.NetworkProviderV1Name,
+		overLengthZoneSubnet.Metadata.Tenant,
+		overLengthZoneSubnet.Metadata.Workspace,
+		overLengthZoneSubnet.Metadata.Network,
+		overLengthZoneSubnet.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthZoneURL, scenario.MockParams); err != nil {
+		return err
+	}
+
 	if err := configurator.ConfigureDeleteStub(gatewayURL, scenario.MockParams); err != nil {
 		return err
 	}

@@ -48,7 +48,7 @@ func CreateSecurityGroupConstraintsValidationV1TestSuite(regionalTestSuite suite
 }
 
 func (suite *SecurityGroupConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 

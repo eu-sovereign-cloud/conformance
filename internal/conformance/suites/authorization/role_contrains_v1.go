@@ -40,12 +40,31 @@ func CreateRoleConstraintsValidationV1TestSuite(globalTestSuite suites.GlobalTes
 }
 
 func (suite *RoleConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.AuthorizationParentSuite)
 
 	imageName := generators.GenerateImageName()
 	imageResource := generators.GenerateImageResource(imageName)
-	basePermissions := []schema.Permission{
-		{Provider: sdkconsts.StorageProviderV1Name, Resources: []string{imageResource}, Verb: []string{http.MethodGet}},
+
+	basePermission := schema.Permission{
+		Provider:  sdkconsts.StorageProviderV1Name,
+		Resources: []string{imageResource},
+		Verb:      []string{http.MethodGet},
+	}
+	basePermissions := []schema.Permission{basePermission}
+
+	repeatStrings := func(v string, n int) []string {
+		out := make([]string, n)
+		for i := range out {
+			out[i] = v
+		}
+		return out
+	}
+	repeatPermissions := func(p schema.Permission, n int) []schema.Permission {
+		out := make([]schema.Permission, n)
+		for i := range out {
+			out[i] = p
+		}
+		return out
 	}
 
 	buildRole := func(name string, labels schema.Labels, annotations schema.Annotations) *schema.Role {
@@ -74,6 +93,12 @@ func (suite *RoleConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		if err != nil {
 			t.Fatalf("Failed to build Role: %v", err)
 		}
+		return role
+	}
+
+	buildValidRoleAndMutate := func(name string, mutate func(*schema.Role)) *schema.Role {
+		role := buildRoleWithPermission(name, []schema.Permission{basePermission})
+		mutate(role)
 		return role
 	}
 
@@ -120,6 +145,50 @@ func (suite *RoleConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 				Provider:  "seca.storage/v1",
 				Resources: []string{"images/*"},
 				Verb:      []string{strings.Repeat("a", 8)},
+			}},
+		),
+		EmptyPermissionsRole: buildValidRoleAndMutate(
+			generators.GenerateRoleName(),
+			func(r *schema.Role) { r.Spec.Permissions = []schema.Permission{} },
+		),
+		EmptyPermissionProviderRole: buildValidRoleAndMutate(
+			generators.GenerateRoleName(),
+			func(r *schema.Role) { r.Spec.Permissions[0].Provider = "" },
+		),
+		EmptyPermissionResourcesRole: buildValidRoleAndMutate(
+			generators.GenerateRoleName(),
+			func(r *schema.Role) { r.Spec.Permissions[0].Resources = []string{} },
+		),
+		EmptyPermissionResourceValueRole: buildValidRoleAndMutate(
+			generators.GenerateRoleName(),
+			func(r *schema.Role) { r.Spec.Permissions[0].Resources = []string{""} },
+		),
+		EmptyPermissionVerbsRole: buildValidRoleAndMutate(
+			generators.GenerateRoleName(),
+			func(r *schema.Role) { r.Spec.Permissions[0].Verb = []string{} },
+		),
+		EmptyPermissionVerbValueRole: buildValidRoleAndMutate(
+			generators.GenerateRoleName(),
+			func(r *schema.Role) { r.Spec.Permissions[0].Verb = []string{""} },
+		),
+		OverMaxItemsPermissionsRole: buildRoleWithPermission(
+			generators.GenerateRoleName(),
+			repeatPermissions(basePermission, 257),
+		),
+		OverMaxItemsPermissionResourcesRole: buildRoleWithPermission(
+			generators.GenerateRoleName(),
+			[]schema.Permission{{
+				Provider:  "seca.storage/v1",
+				Resources: repeatStrings("images/*", 257),
+				Verb:      []string{"get"},
+			}},
+		),
+		OverMaxItemsPermissionVerbsRole: buildRoleWithPermission(
+			generators.GenerateRoleName(),
+			[]schema.Permission{{
+				Provider:  "seca.storage/v1",
+				Resources: []string{"images/*"},
+				Verb:      repeatStrings("get", 17),
 			}},
 		),
 	}
@@ -169,6 +238,51 @@ func (suite *RoleConstraintsValidationV1TestSuite) TestScenario(t provider.T) {
 		"Create a role with permission verb exceeding maxLength:7 — expect rejection",
 		suite.Client.AuthorizationV1,
 		suite.params.OverLengthPermissionVerbRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with permissions empty (minItems:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyPermissionsRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with permissions exceeding maxItems:256 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverMaxItemsPermissionsRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with empty permission provider (minLength:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyPermissionProviderRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with permission resources empty (minItems:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyPermissionResourcesRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with permission resources exceeding maxItems:256 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverMaxItemsPermissionResourcesRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with empty permission resource value (minLength:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyPermissionResourceValueRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with permission verbs empty (minItems:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyPermissionVerbsRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with permission verbs exceeding maxItems:16 — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.OverMaxItemsPermissionVerbsRole,
+	)
+	stepsBuilder.CreateOrUpdateRoleExpectViolationV1Step(
+		"Create a role with empty permission verb value (minLength:1) — expect rejection",
+		suite.Client.AuthorizationV1,
+		suite.params.EmptyPermissionVerbValueRole,
 	)
 
 	suite.FinishScenario()

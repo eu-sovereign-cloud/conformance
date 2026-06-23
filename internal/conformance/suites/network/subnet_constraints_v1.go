@@ -22,10 +22,11 @@ import (
 // field constraints are rejected by the API with 422 Unprocessable Entity.
 //
 // Constraints tested:
-//   - name: maxLength 128 (NameMetadata)
-//   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
-//   - labels values: maxLength 63 (UserResourceMetadata)
-//   - annotations values: maxLength 1024 (UserResourceMetadata)
+//   - name: maxLength 128
+//   - name: pattern kebab-case
+//   - labels values: maxLength 63
+//   - annotations values: maxLength 1024
+//   - spec.zone: maxLength 32
 type SubnetConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 
@@ -43,7 +44,7 @@ func CreateSubnetConstraintsValidationV1TestSuite(regionalTestSuite suites.Regio
 }
 
 func (suite *SubnetConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	networkName := generators.GenerateNetworkName()
@@ -129,31 +130,60 @@ func (suite *SubnetConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		return s
 	}
 
+	overLengthNameSubnet := buildSubnet(
+		strings.Repeat("a", 129),
+		schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+		schema.Annotations{"description": "Subnet with over-length name"},
+	)
+
+	invalidPatternNameSubnet := buildSubnet(
+		"Invalid-Name-With-Uppercase",
+		schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+		schema.Annotations{"description": "Subnet with non-kebab-case name"},
+	)
+
+	overLengthLabelValueSubnet := buildSubnet(
+		generators.GenerateSubnetName(),
+		schema.Labels{
+			constants.EnvLabel: constants.EnvConformanceLabel,
+			"constraint-test":  strings.Repeat("x", 64),
+		},
+		schema.Annotations{"description": "Subnet with over-length label value"},
+	)
+
+	overLengthAnnotationSubnet := buildSubnet(
+		generators.GenerateSubnetName(),
+		schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
+		schema.Annotations{
+			"description":     "Subnet with over-length annotation value",
+			"long-annotation": strings.Repeat("y", 1025),
+		},
+	)
+
+	overLengthZoneSubnet, err := builders.NewSubnetBuilder().
+		Name(generators.GenerateSubnetName()).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
+		Annotations(schema.Annotations{"description": "Subnet with over-length zone"}).
+		Spec(&schema.SubnetSpec{
+			Cidr: schema.Cidr{Ipv4: subnetCidr},
+			Zone: strings.Repeat("z", 33),
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build Subnet (over-length zone): %v", err)
+	}
+
 	p := &params.SubnetConstraintsValidationV1Params{
-		Workspace:       workspace,
-		Network:         network,
-		InternetGateway: internetGateway,
-		RouteTable:      routeTable,
-		OverLengthNameSubnet: buildSubnet(
-			strings.Repeat("a", 129),
-			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "Subnet with over-length name"},
-		),
-		InvalidPatternNameSubnet: buildSubnet(
-			"Invalid-Name-With-Uppercase",
-			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "Subnet with non-kebab-case name"},
-		),
-		OverLengthLabelValueSubnet: buildSubnet(
-			generators.GenerateSubnetName(),
-			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel, "constraint-test": strings.Repeat("x", 64)},
-			schema.Annotations{"description": "Subnet with over-length label value"},
-		),
-		OverLengthAnnotationSubnet: buildSubnet(
-			generators.GenerateSubnetName(),
-			schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel},
-			schema.Annotations{"description": "Subnet with over-length annotation value", "long-annotation": strings.Repeat("y", 1025)},
-		),
+		Workspace:                  workspace,
+		Network:                    network,
+		InternetGateway:            internetGateway,
+		RouteTable:                 routeTable,
+		OverLengthNameSubnet:       overLengthNameSubnet,
+		InvalidPatternNameSubnet:   invalidPatternNameSubnet,
+		OverLengthLabelValueSubnet: overLengthLabelValueSubnet,
+		OverLengthAnnotationSubnet: overLengthAnnotationSubnet,
+		OverLengthZoneSubnet:       overLengthZoneSubnet,
 	}
 	suite.params = p
 	if err := suites.SetupMockIfEnabled(suite.TestSuite, mockNetwork.ConfigureSubnetConstraintsValidationV1, *p); err != nil {
@@ -338,6 +368,11 @@ func (suite *SubnetConstraintsValidationV1TestSuite) TestScenario(t provider.T) 
 		"Create a subnet with annotation value exceeding maxLength:1024 — expect rejection",
 		suite.Client.NetworkV1,
 		suite.params.OverLengthAnnotationSubnet,
+	)
+	stepsBuilder.CreateOrUpdateSubnetExpectViolationV1Step(
+		"Create a subnet with zone exceeding maxLength:32 — expect rejection",
+		suite.Client.NetworkV1,
+		suite.params.OverLengthZoneSubnet,
 	)
 
 	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.Client.NetworkV1, internetGat)

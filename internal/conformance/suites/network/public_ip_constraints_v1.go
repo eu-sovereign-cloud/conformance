@@ -43,7 +43,7 @@ func CreatePublicIpConstraintsValidationV1TestSuite(regionalTestSuite suites.Reg
 }
 
 func (suite *PublicIpConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 

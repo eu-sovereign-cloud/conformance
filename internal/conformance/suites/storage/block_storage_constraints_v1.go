@@ -46,7 +46,7 @@ func CreateBlockStorageConstraintsValidationV1TestSuite(regionalTestSuite suites
 }
 
 func (suite *BlockStorageConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.StorageParentSuite)
 
 	// Select sku
 	storageSkuName := suite.StorageSkus[rand.Intn(len(suite.StorageSkus))]

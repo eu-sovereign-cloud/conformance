@@ -43,7 +43,7 @@ func CreateNicConstraintsValidationV1TestSuite(regionalTestSuite suites.Regional
 }
 
 func (suite *NicConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.NetworkParentSuite)
 
 	workspaceName := generators.GenerateWorkspaceName()
 	networkName := generators.GenerateNetworkName()

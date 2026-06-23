@@ -22,13 +22,16 @@ import (
 // field constraints are rejected by the API with 422 Unprocessable Entity.
 //
 // Constraints tested:
-//   - name: maxLength 128 (NameMetadata)
-//   - name: pattern ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ (NameMetadata)
-//   - labels values: maxLength 63 (UserResourceMetadata)
-//   - annotations values: maxLength 1024 (UserResourceMetadata)
-//   - spec.userData: maxLength 65536 (InstanceSpec)
-//   - spec.antiAffinityGroup: maxLength 64 (InstanceSpec)
-//   - spec.sshKeys[]: maxLength 4096 (InstanceSpec)
+//   - name: maxLength 128
+//   - name: pattern kebab-case
+//   - labels values: maxLength 63
+//   - annotations values: maxLength 1024
+//   - spec.userData: maxLength 65536
+//   - spec.antiAffinityGroup: maxLength 64
+//   - spec.sshKeys[]: item maxLength 4096, item minLength 1, maxItems 32
+//   - spec.zone: maxLength 32, minLength 1
+//   - spec.dataVolumes: maxItems 64
+
 type InstanceConstraintsValidationV1TestSuite struct {
 	suites.RegionalTestSuite
 	config *InstanceContraintsValidationV1Config
@@ -52,7 +55,7 @@ func CreateInstanceConstraintsValidationV1TestSuite(regionalTestSuite suites.Reg
 }
 
 func (suite *InstanceConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
-	t.AddParentSuite("Constraints")
+	t.AddParentSuite(suites.ComputeParentSuite)
 
 	instanceSkuName := suite.config.InstanceSkus[rand.Intn(len(suite.config.InstanceSkus))]
 	storageSkuName := suite.config.StorageSkus[rand.Intn(len(suite.config.StorageSkus))]
@@ -126,6 +129,42 @@ func (suite *InstanceConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 	overLengthSshKeySpec := baseSpec()
 	overLengthSshKeySpec.SshKeys = []string{strings.Repeat("a", 4097)}
 
+	repeatStrings := func(v string, n int) []string {
+		out := make([]string, n)
+		for i := range out {
+			out[i] = v
+		}
+		return out
+	}
+
+	buildValidInstanceAndMutate := func(mutate func(*schema.Instance)) *schema.Instance {
+		instance := buildInstance(
+			generators.GenerateInstanceName(),
+			baseLabels,
+			schema.Annotations{"description": "Mutated invalid instance"},
+			baseSpec(),
+		)
+		mutate(instance)
+		return instance
+	}
+
+	overMaxItemsSshKeysSpec := baseSpec()
+	overMaxItemsSshKeysSpec.SshKeys = repeatStrings("ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD", 33)
+
+	emptySshKeyValueSpec := baseSpec()
+	emptySshKeyValueSpec.SshKeys = []string{""}
+
+	overLengthZoneSpec := baseSpec()
+	overLengthZoneSpec.Zone = strings.Repeat("z", 33)
+
+	overMaxItemsDataVolumesSpec := baseSpec()
+	overMaxItemsDataVolumesSpec.DataVolumes = make([]schema.VolumeReference, 65)
+	for i := range overMaxItemsDataVolumesSpec.DataVolumes {
+		overMaxItemsDataVolumesSpec.DataVolumes[i] = schema.VolumeReference{
+			DeviceRef: *blockStorageRefObj,
+		}
+	}
+
 	p := &params.InstanceConstraintsValidationV1Params{
 		Workspace:    workspace,
 		BlockStorage: blockStorage,
@@ -170,6 +209,33 @@ func (suite *InstanceConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 			baseLabels,
 			schema.Annotations{"description": "Instance with over-length sshKey"},
 			overLengthSshKeySpec,
+		),
+		OverMaxItemsSshKeysInstance: buildInstance(
+			generators.GenerateInstanceName(),
+			baseLabels,
+			schema.Annotations{"description": "Instance with sshKeys exceeding maxItems"},
+			overMaxItemsSshKeysSpec,
+		),
+		EmptySshKeyValueInstance: buildInstance(
+			generators.GenerateInstanceName(),
+			baseLabels,
+			schema.Annotations{"description": "Instance with empty sshKey value"},
+			emptySshKeyValueSpec,
+		),
+		OverLengthZoneInstance: buildInstance(
+			generators.GenerateInstanceName(),
+			baseLabels,
+			schema.Annotations{"description": "Instance with over-length zone"},
+			overLengthZoneSpec,
+		),
+		EmptyZoneInstance: buildValidInstanceAndMutate(func(i *schema.Instance) {
+			i.Spec.Zone = schema.Zone("")
+		}),
+		OverMaxItemsDataVolumesInstance: buildInstance(
+			generators.GenerateInstanceName(),
+			baseLabels,
+			schema.Annotations{"description": "Instance with dataVolumes exceeding maxItems"},
+			overMaxItemsDataVolumesSpec,
 		),
 	}
 	suite.params = p
@@ -292,6 +358,34 @@ func (suite *InstanceConstraintsValidationV1TestSuite) TestScenario(t provider.T
 		suite.Client.ComputeV1,
 		suite.params.OverLengthSshKeyInstance,
 	)
+	stepsBuilder.CreateOrUpdateInstanceExpectViolationV1Step(
+		"Create an instance with sshKeys exceeding maxItems:32 — expect rejection",
+		suite.Client.ComputeV1,
+		suite.params.OverMaxItemsSshKeysInstance,
+	)
+	stepsBuilder.CreateOrUpdateInstanceExpectViolationV1Step(
+		"Create an instance with empty sshKey value (minLength:1) — expect rejection",
+		suite.Client.ComputeV1,
+		suite.params.EmptySshKeyValueInstance,
+	)
+	stepsBuilder.CreateOrUpdateInstanceExpectViolationV1Step(
+		"Create an instance with zone exceeding maxLength:32 — expect rejection",
+		suite.Client.ComputeV1,
+		suite.params.OverLengthZoneInstance,
+	)
+	stepsBuilder.CreateOrUpdateInstanceExpectViolationV1Step(
+		"Create an instance with empty zone (minLength:1) — expect rejection",
+		suite.Client.ComputeV1,
+		suite.params.EmptyZoneInstance,
+	)
+	stepsBuilder.CreateOrUpdateInstanceExpectViolationV1Step(
+		"Create an instance with dataVolumes exceeding maxItems:64 — expect rejection",
+		suite.Client.ComputeV1,
+		suite.params.OverMaxItemsDataVolumesInstance,
+	)
+
+	stepsBuilder.DeleteBlockStorageV1Step("Delete the blockstorage", t, suite.Client.StorageV1, block)
+	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the blockstorage deletion", t, suite.Client.StorageV1, blockWRef)
 
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)
 	stepsBuilder.WatchWorkspaceUntilDeletedV1Step("Watch the workspace deletion", t, suite.Client.WorkspaceV1, workspaceTRef)

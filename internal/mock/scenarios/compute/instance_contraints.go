@@ -126,6 +126,61 @@ func ConfigureInstanceConstraintsValidationV1(scenario *mockscenarios.Scenario, 
 		return err
 	}
 
+	// Over-length ssh keys violation
+	overMaxItemsSshKeysURL := generators.GenerateInstanceURL(
+		sdkconsts.ComputeProviderV1Name,
+		p.OverMaxItemsSshKeysInstance.Metadata.Tenant,
+		p.OverMaxItemsSshKeysInstance.Metadata.Workspace,
+		p.OverMaxItemsSshKeysInstance.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overMaxItemsSshKeysURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Empty ssh key value violation
+	emptySshKeyValueURL := generators.GenerateInstanceURL(
+		sdkconsts.ComputeProviderV1Name,
+		p.EmptySshKeyValueInstance.Metadata.Tenant,
+		p.EmptySshKeyValueInstance.Metadata.Workspace,
+		p.EmptySshKeyValueInstance.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(emptySshKeyValueURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length zone violation
+	overLengthZoneURL := generators.GenerateInstanceURL(
+		sdkconsts.ComputeProviderV1Name,
+		p.OverLengthZoneInstance.Metadata.Tenant,
+		p.OverLengthZoneInstance.Metadata.Workspace,
+		p.OverLengthZoneInstance.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overLengthZoneURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Empty zone violation
+	emptyZoneURL := generators.GenerateInstanceURL(
+		sdkconsts.ComputeProviderV1Name,
+		p.EmptyZoneInstance.Metadata.Tenant,
+		p.EmptyZoneInstance.Metadata.Workspace,
+		p.EmptyZoneInstance.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(emptyZoneURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Over-length data volumes violation
+	overMaxItemsDataVolumesURL := generators.GenerateInstanceURL(
+		sdkconsts.ComputeProviderV1Name,
+		p.OverMaxItemsDataVolumesInstance.Metadata.Tenant,
+		p.OverMaxItemsDataVolumesInstance.Metadata.Workspace,
+		p.OverMaxItemsDataVolumesInstance.Metadata.Name,
+	)
+	if err := configurator.ConfigurePutUnprocessableEntityStub(overMaxItemsDataVolumesURL, scenario.MockParams); err != nil {
+		return err
+	}
+
 	// Delete block storage teardown
 	if err := configurator.ConfigureDeleteStub(blockURL, scenario.MockParams); err != nil {
 		return err
