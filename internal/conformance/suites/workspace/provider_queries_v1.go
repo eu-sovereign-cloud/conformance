@@ -91,19 +91,26 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
 
+	workspaceExpects := steps.ListResponseExpects[schema.Workspace]{
+		Metadata: &suite.params.Workspaces.Metadata,
+		Items:    workspaces.Items,
+	}
+
 	// List workspaces
-	stepsBuilder.ListWorkspaceV1Step("list workspaces", suite.Client.WorkspaceV1, tpath, nil)
+	stepsBuilder.ListWorkspaceV1Step("list workspaces", suite.Client.WorkspaceV1, tpath, nil, workspaceExpects)
 
 	// List workspaces with limit
-	stepsBuilder.ListWorkspaceV1Step("list workspaces with limit", suite.Client.WorkspaceV1, tpath, secapi.NewListOptions().WithLimit(1))
+	stepsBuilder.ListWorkspaceV1Step("list workspaces with limit", suite.Client.WorkspaceV1, tpath, secapi.NewListOptions().WithLimit(1), workspaceExpects)
 
 	// List workspaces with label
 	stepsBuilder.ListWorkspaceV1Step("list workspaces with label", suite.Client.WorkspaceV1, tpath,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		workspaceExpects)
 
 	// List workspaces with label and limit
 	stepsBuilder.ListWorkspaceV1Step("list workspaces with label and limit", suite.Client.WorkspaceV1, tpath,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		workspaceExpects)
 
 	// Delete all workspaces
 	steps.BulkDeleteWorkspacesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all workspaces", workspaces.Items)

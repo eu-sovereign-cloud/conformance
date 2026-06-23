@@ -2,6 +2,7 @@ package region
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
@@ -10,6 +11,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	mockRegion "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios/region"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
+	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 
@@ -71,7 +73,15 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	ctx := context.Background()
 
 	// Test List iterator's (Next and All) for Regions and verify both responses have the same length
-	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1, nil)
+
+	regionMetadataExpects := steps.ListResponseExpects[schema.Region]{
+		Metadata: &schema.ResponseMetadata{
+			Provider: sdkconsts.RegionProviderV1Name,
+			Resource: generators.GenerateRegionListResource(),
+			Verb:     http.MethodGet,
+		},
+	}
+	regions := stepsBuilder.ListRegionsV1Step("List all regions", ctx, suite.Client.RegionV1, nil, regionMetadataExpects)
 
 	// Call Get Region and verify response
 	expectedRegionMeta := suite.params.RegionsMetadata[0]

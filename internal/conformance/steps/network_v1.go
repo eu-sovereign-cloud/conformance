@@ -9,17 +9,25 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
 // Sku
 
-func (configurator *StepsConfigurator) ListNetworkSkusV1Step(stepName string, api secapi.NetworkV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListNetworkSkusV1Step(stepName string, api secapi.NetworkV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.NetworkSku]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
-		listTenantResourcesParams[schema.NetworkSku, schema.SkuResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.NetworkSku, schema.SkuResourceMetadata, secapi.TenantPath]{
+		listTenantResourcesParams[schema.NetworkSku, schema.SkuResourceMetadata, schema.NetworkSkuSpec]{
+			listResourcesParams: listResourcesParams[schema.NetworkSku, schema.SkuResourceMetadata, schema.NetworkSkuSpec, secapi.TenantPath]{
 				path: tpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.NetworkSku], error) {
 					return api.ListSkusWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.NetworkSku) {
+					configurator.suite.VerifyNetworkSkuItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,
@@ -60,13 +68,20 @@ func (configurator *StepsConfigurator) CreateOrUpdateNetworkV1Step(stepName stri
 	)
 }
 
-func (configurator *StepsConfigurator) ListNetworkV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListNetworkV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Network]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
-		listWorkspaceResourcesParams[schema.Network, schema.RegionalWorkspaceResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
+		listWorkspaceResourcesParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			listResourcesParams: listResourcesParams[schema.Network, schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, secapi.WorkspacePath]{
 				path: wpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.WorkspacePath, options *secapi.ListOptions) (*secapi.Iterator[schema.Network], error) {
 					return api.ListNetworksWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.Network) {
+					configurator.suite.VerifyNetworkItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,
@@ -166,13 +181,20 @@ func (configurator *StepsConfigurator) CreateOrUpdateInternetGatewayV1Step(stepN
 	)
 }
 
-func (configurator *StepsConfigurator) ListInternetGatewayV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListInternetGatewayV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.InternetGateway]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
-		listWorkspaceResourcesParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
+		listWorkspaceResourcesParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			listResourcesParams: listResourcesParams[schema.InternetGateway, schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, secapi.WorkspacePath]{
 				path: wpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.WorkspacePath, options *secapi.ListOptions) (*secapi.Iterator[schema.InternetGateway], error) {
 					return api.ListInternetGatewaysWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.InternetGateway) {
+					configurator.suite.VerifyInternetGatewayItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,
@@ -273,13 +295,20 @@ func (configurator *StepsConfigurator) CreateOrUpdateRouteTableV1Step(stepName s
 	)
 }
 
-func (configurator *StepsConfigurator) ListRouteTableV1Step(stepName string, api secapi.NetworkV1, npath secapi.NetworkPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListRouteTableV1Step(stepName string, api secapi.NetworkV1, npath secapi.NetworkPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.RouteTable]) {
 	listNetworkResourcesStep(configurator.t, configurator.suite,
-		listNetworkResourcesParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, secapi.NetworkPath]{
+		listNetworkResourcesParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			listResourcesParams: listResourcesParams[schema.RouteTable, schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, secapi.NetworkPath]{
 				path: npath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.NetworkPath, options *secapi.ListOptions) (*secapi.Iterator[schema.RouteTable], error) {
 					return api.ListRouteTablesWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.RouteTable) {
+					configurator.suite.VerifyRouteTableItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,
@@ -400,13 +429,20 @@ func (configurator *StepsConfigurator) CreateOrUpdateSubnetV1Step(stepName strin
 	)
 }
 
-func (configurator *StepsConfigurator) ListSubnetV1Step(stepName string, api secapi.NetworkV1, npath secapi.NetworkPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListSubnetV1Step(stepName string, api secapi.NetworkV1, npath secapi.NetworkPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Subnet]) {
 	listNetworkResourcesStep(configurator.t, configurator.suite,
-		listNetworkResourcesParams[schema.Subnet, schema.RegionalNetworkResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, secapi.NetworkPath]{
+		listNetworkResourcesParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec]{
+			listResourcesParams: listResourcesParams[schema.Subnet, schema.RegionalNetworkResourceMetadata, schema.SubnetSpec, secapi.NetworkPath]{
 				path: npath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.NetworkPath, options *secapi.ListOptions) (*secapi.Iterator[schema.Subnet], error) {
 					return api.ListSubnetsWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.Subnet) {
+					configurator.suite.VerifySubnetItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,
@@ -507,13 +543,20 @@ func (configurator *StepsConfigurator) CreateOrUpdatePublicIpV1Step(stepName str
 	)
 }
 
-func (configurator *StepsConfigurator) ListPublicIpV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListPublicIpV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.PublicIp]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
-		listWorkspaceResourcesParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
+		listWorkspaceResourcesParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec]{
+			listResourcesParams: listResourcesParams[schema.PublicIp, schema.RegionalWorkspaceResourceMetadata, schema.PublicIpSpec, secapi.WorkspacePath]{
 				path: wpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.WorkspacePath, options *secapi.ListOptions) (*secapi.Iterator[schema.PublicIp], error) {
 					return api.ListPublicIpsWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.PublicIp) {
+					configurator.suite.VerifyPublicIpItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,
@@ -613,13 +656,20 @@ func (configurator *StepsConfigurator) CreateOrUpdateNicV1Step(stepName string, 
 	)
 }
 
-func (configurator *StepsConfigurator) ListNicV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListNicV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Nic]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
-		listWorkspaceResourcesParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
+		listWorkspaceResourcesParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec]{
+			listResourcesParams: listResourcesParams[schema.Nic, schema.RegionalWorkspaceResourceMetadata, schema.NicSpec, secapi.WorkspacePath]{
 				path: wpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.WorkspacePath, options *secapi.ListOptions) (*secapi.Iterator[schema.Nic], error) {
 					return api.ListNicsWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.Nic) {
+					configurator.suite.VerifyNicItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,
@@ -719,13 +769,20 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupRuleV1Step(ste
 	)
 }
 
-func (configurator *StepsConfigurator) ListSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListSecurityGroupRuleV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.SecurityGroupRule]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
-		listWorkspaceResourcesParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
+		listWorkspaceResourcesParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec]{
+			listResourcesParams: listResourcesParams[schema.SecurityGroupRule, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupRuleSpec, secapi.WorkspacePath]{
 				path: wpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.WorkspacePath, options *secapi.ListOptions) (*secapi.Iterator[schema.SecurityGroupRule], error) {
 					return api.ListSecurityGroupRulesWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.SecurityGroupRule) {
+					configurator.suite.VerifySecurityGroupRuleItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,
@@ -825,13 +882,20 @@ func (configurator *StepsConfigurator) CreateOrUpdateSecurityGroupV1Step(stepNam
 	)
 }
 
-func (configurator *StepsConfigurator) ListSecurityGroupV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListSecurityGroupV1Step(stepName string, api secapi.NetworkV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.SecurityGroup]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
-		listWorkspaceResourcesParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
+		listWorkspaceResourcesParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec]{
+			listResourcesParams: listResourcesParams[schema.SecurityGroup, schema.RegionalWorkspaceResourceMetadata, schema.SecurityGroupSpec, secapi.WorkspacePath]{
 				path: wpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.WorkspacePath, options *secapi.ListOptions) (*secapi.Iterator[schema.SecurityGroup], error) {
 					return api.ListSecurityGroupsWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.SecurityGroup) {
+					configurator.suite.VerifySecurityGroupItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,

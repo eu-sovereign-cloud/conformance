@@ -202,23 +202,28 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 	tpath := secapi.TenantPath{
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
-
+	roleItems := roles.Items
+	roleExpects := steps.ListResponseExpects[schema.Role]{
+		Metadata: &suite.params.Roles.Metadata,
+		Items:    roleItems,
+	}
 	// List Roles
-	stepsBuilder.ListRoleV1Step("List roles", suite.Client.AuthorizationV1, tpath, nil)
+	stepsBuilder.ListRoleV1Step("List roles", suite.Client.AuthorizationV1, tpath, nil, roleExpects)
 
 	// List Roles with limit
 	stepsBuilder.ListRoleV1Step("List roles with limit", suite.Client.AuthorizationV1, tpath,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		roleExpects)
 
 	// List Roles with Label
 	stepsBuilder.ListRoleV1Step("List roles with label", suite.Client.AuthorizationV1, tpath,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		roleExpects)
 
 	// List Roles with Limit and label
 	stepsBuilder.ListRoleV1Step("List roles with limit and label", suite.Client.AuthorizationV1, tpath,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		roleExpects)
 
 	// Role assignment
 	roleAssignments := suite.params.RoleAssignments
@@ -230,22 +235,27 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Tenant: secapi.TenantID(suite.Tenant),
 	}
 
-	// List RoleAssignments
-	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath, nil)
+	roleAssignmentExpects := steps.ListResponseExpects[schema.RoleAssignment]{
+		Metadata: &suite.params.RoleAssignments.Metadata,
+		Items:    roleAssignments.Items,
+	}
+
+	// List RoleAssignments\
+	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath, nil, roleAssignmentExpects)
 
 	// List RoleAssignments with limit
 	stepsBuilder.ListRoleAssignmentsV1("List role assignments with limit", suite.Client.AuthorizationV1, tpath,
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1), roleAssignmentExpects)
 
 	// List RoleAssignments with Label
 	stepsBuilder.ListRoleAssignmentsV1("List role assignments", suite.Client.AuthorizationV1, tpath,
-		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		roleAssignmentExpects)
 
 	// List RoleAssignments with Limit and label
 	stepsBuilder.ListRoleAssignmentsV1("List role assignments with limit and label", suite.Client.AuthorizationV1, tpath,
-		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		roleAssignmentExpects)
 
 	// Delete all role assignments
 	steps.BulkDeleteRoleAssignmentsStepsV1(stepsBuilder, suite.GlobalTestSuite, "Delete all role assignments", roleAssignments.Items)

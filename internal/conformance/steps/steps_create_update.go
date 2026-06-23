@@ -3,7 +3,6 @@ package steps
 import (
 	"context"
 	"fmt"
-	"log"
 	"log/slog"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/suites"
@@ -179,7 +178,8 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 	if resp.GetMetadata() != nil && params.expectedMetadata != nil {
 		params.verifyMetadataFunc(sCtx, params.expectedMetadata, resp.GetMetadata())
 	} else {
-		log.Fatalln("Metadata verification failed: expected or actual metadata is nil")
+		slog.Error("Metadata verification failed: expected or actual metadata is nil")
+		return
 	}
 
 	if params.expectedSpec != nil {
@@ -190,6 +190,7 @@ func createOrUpdateResourceStep[R types.ResourceType, M types.MetadataType, E ty
 	if resp.GetStatus() != nil && len(params.expectedResourceStates) > 0 {
 		suite.VerifyStatusStatesStep(sCtx, params.expectedResourceStates, types.GetStatusState(resp.GetStatus()))
 	} else {
-		log.Fatalln("Status verification failed: expected or actual Status is nil")
+		slog.Error("Status verification failed: expected or actual Status is nil")
+		return
 	}
 }
