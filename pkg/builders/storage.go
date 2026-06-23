@@ -294,3 +294,24 @@ func (builder *ImageIteratorBuilder) Build() (*storage.ImageIterator, error) {
 		Items:    builder.items,
 	}, nil
 }
+
+/// StorageSkuListMetadataBuilder (sem items)
+
+type StorageSkuListMetadataBuilder struct {
+	*tenantResponseMetadataBuilder[StorageSkuListMetadataBuilder]
+}
+
+func NewStorageSkuListMetadataBuilder() *StorageSkuListMetadataBuilder {
+	builder := &StorageSkuListMetadataBuilder{}
+	builder.tenantResponseMetadataBuilder = newTenantResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *StorageSkuListMetadataBuilder) Build() (*schema.ResponseMetadata, error) {
+	if err := builder.validate(); err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateSkuListResource()
+	return builder.metadata, nil
+}

@@ -42,6 +42,27 @@ func (builder *InstanceSkuIteratorBuilder) Build() (*compute.SkuIterator, error)
 	}, nil
 }
 
+/// InstanceSkuListMetadataBuilder (sem items)
+
+type InstanceSkuListMetadataBuilder struct {
+	*tenantResponseMetadataBuilder[InstanceSkuListMetadataBuilder]
+}
+
+func NewInstanceSkuListMetadataBuilder() *InstanceSkuListMetadataBuilder {
+	builder := &InstanceSkuListMetadataBuilder{}
+	builder.tenantResponseMetadataBuilder = newTenantResponseMetadataBuilder(builder)
+	return builder
+}
+
+func (builder *InstanceSkuListMetadataBuilder) Build() (*schema.ResponseMetadata, error) {
+	if err := builder.validate(); err != nil {
+		return nil, err
+	}
+
+	builder.metadata.Resource = generators.GenerateSkuListResource()
+	return builder.metadata, nil
+}
+
 // Instance
 
 /// InstanceMetadataBuilder

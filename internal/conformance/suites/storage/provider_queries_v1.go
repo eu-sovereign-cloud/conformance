@@ -238,22 +238,29 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
 	}
 
+	blockStorageExpects := steps.ListResponseExpects[schema.BlockStorage]{
+		Metadata: &suite.params.BlockStorages.Metadata,
+		Items:    blocks.Items,
+	}
+
 	// List block storages
-	stepsBuilder.ListBlockStorageV1Step("List block storages", suite.Client.StorageV1, wpath, nil)
+	stepsBuilder.ListBlockStorageV1Step("List block storages", suite.Client.StorageV1, wpath, nil, blockStorageExpects)
 
 	// List block storages with limit
 	stepsBuilder.ListBlockStorageV1Step("List block storages with limit", suite.Client.StorageV1, wpath,
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1), blockStorageExpects)
 
 	// List block storages with label
 	stepsBuilder.ListBlockStorageV1Step("List block storages with label", suite.Client.StorageV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		blockStorageExpects)
 
 	// List block storages with limit and label
 	stepsBuilder.ListBlockStorageV1Step("List block storages with limit and label", suite.Client.StorageV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		blockStorageExpects)
 
 	// Image
 	images := suite.params.Images
@@ -265,31 +272,49 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Tenant: secapi.TenantID(workspace.Metadata.Tenant),
 	}
 
+	imageExpects := steps.ListResponseExpects[schema.Image]{
+		Metadata: &suite.params.Images.Metadata,
+		Items:    images.Items,
+	}
+
 	// List images
-	stepsBuilder.ListImageV1Step("List images", suite.Client.StorageV1, tpath, nil)
+	stepsBuilder.ListImageV1Step("List images", suite.Client.StorageV1, tpath, nil, imageExpects)
 
 	// List images with limit
 	stepsBuilder.ListImageV1Step("List images with limit", suite.Client.StorageV1, tpath,
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1), imageExpects)
 
 	// List images with label
 	stepsBuilder.ListImageV1Step("List images with label", suite.Client.StorageV1, tpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		imageExpects)
 
 	// List images with limit and label
 	stepsBuilder.ListImageV1Step("List images", suite.Client.StorageV1, tpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		imageExpects)
 
 	// Skus
 
+	skuMetadata, err := builders.NewStorageSkuListMetadataBuilder().
+		Provider(sdkconsts.StorageProviderV1Name).
+		Tenant(suite.Tenant).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build StorageSku list metadata: %v", err)
+	}
+
+	skuExpects := steps.ListResponseExpects[schema.StorageSku]{
+		Metadata: skuMetadata,
+	}
 	// List Skus
-	stepsBuilder.ListSkuV1Step("List skus", suite.Client.StorageV1, tpath, nil)
+	stepsBuilder.ListSkuV1Step("List skus", suite.Client.StorageV1, tpath, nil, skuExpects)
 
 	// List Skus with limit
 	stepsBuilder.ListSkuV1Step("List skus with limit", suite.Client.StorageV1, tpath,
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1), skuExpects)
 
 	// Delete all images
 	steps.BulkDeleteImagesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete images", images.Items)

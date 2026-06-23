@@ -9,17 +9,25 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
 // Sku
 
-func (configurator *StepsConfigurator) ListSkusV1Step(stepName string, api secapi.ComputeV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListInstanceSkusV1Step(stepName string, api secapi.ComputeV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.InstanceSku]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
-		listTenantResourcesParams[schema.InstanceSku, schema.SkuResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.InstanceSku, schema.SkuResourceMetadata, secapi.TenantPath]{
+		listTenantResourcesParams[schema.InstanceSku, schema.SkuResourceMetadata, schema.InstanceSkuSpec]{
+			listResourcesParams: listResourcesParams[schema.InstanceSku, schema.SkuResourceMetadata, schema.InstanceSkuSpec, secapi.TenantPath]{
 				path: tpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.InstanceSku], error) {
 					return api.ListSkusWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.InstanceSku) {
+					configurator.suite.VerifyInstanceSkuItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,
@@ -60,13 +68,20 @@ func (configurator *StepsConfigurator) CreateOrUpdateInstanceV1Step(stepName str
 	)
 }
 
-func (configurator *StepsConfigurator) ListInstanceV1Step(stepName string, api secapi.ComputeV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListInstanceV1Step(stepName string, api secapi.ComputeV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Instance]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
-		listWorkspaceResourcesParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
+		listWorkspaceResourcesParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			listResourcesParams: listResourcesParams[schema.Instance, schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, secapi.WorkspacePath]{
 				path: wpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.WorkspacePath, options *secapi.ListOptions) (*secapi.Iterator[schema.Instance], error) {
 					return api.ListInstancesWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.Instance) {
+					configurator.suite.VerifyInstanceItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,

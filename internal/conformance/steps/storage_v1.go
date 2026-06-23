@@ -9,6 +9,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
 // Sku
@@ -42,13 +43,20 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageV1Step(stepName
 	)
 }
 
-func (configurator *StepsConfigurator) ListSkuV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListSkuV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.StorageSku]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
-		listTenantResourcesParams[schema.StorageSku, schema.SkuResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.StorageSku, schema.SkuResourceMetadata, secapi.TenantPath]{
+		listTenantResourcesParams[schema.StorageSku, schema.SkuResourceMetadata, schema.StorageSkuSpec]{
+			listResourcesParams: listResourcesParams[schema.StorageSku, schema.SkuResourceMetadata, schema.StorageSkuSpec, secapi.TenantPath]{
 				path: tpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.StorageSku], error) {
 					return api.ListSkusWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.StorageSku) {
+					configurator.suite.VerifyStorageSkuItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,
@@ -60,13 +68,20 @@ func (configurator *StepsConfigurator) ListSkuV1Step(stepName string, api secapi
 
 // BlockStorage
 
-func (configurator *StepsConfigurator) ListBlockStorageV1Step(stepName string, api secapi.StorageV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListBlockStorageV1Step(stepName string, api secapi.StorageV1, wpath secapi.WorkspacePath, opts *secapi.ListOptions, expects ListResponseExpects[schema.BlockStorage]) {
 	listWorkspaceResourcesStep(configurator.t, configurator.suite,
-		listWorkspaceResourcesParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, secapi.WorkspacePath]{
+		listWorkspaceResourcesParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec]{
+			listResourcesParams: listResourcesParams[schema.BlockStorage, schema.RegionalWorkspaceResourceMetadata, schema.BlockStorageSpec, secapi.WorkspacePath]{
 				path: wpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.WorkspacePath, options *secapi.ListOptions) (*secapi.Iterator[schema.BlockStorage], error) {
 					return api.ListBlockStoragesWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.BlockStorage) {
+					configurator.suite.VerifyBlockStorageItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,
@@ -155,13 +170,20 @@ func (configurator *StepsConfigurator) CreateOrUpdateBlockStorageExpectViolation
 
 // Image
 
-func (configurator *StepsConfigurator) ListImageV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListImageV1Step(stepName string, api secapi.StorageV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Image]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
-		listTenantResourcesParams[schema.Image, schema.GlobalTenantResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.Image, schema.GlobalTenantResourceMetadata, secapi.TenantPath]{
+		listTenantResourcesParams[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec]{
+			listResourcesParams: listResourcesParams[schema.Image, schema.RegionalResourceMetadata, schema.ImageSpec, secapi.TenantPath]{
 				path: tpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.Image], error) {
 					return api.ListImagesWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.Image) {
+					configurator.suite.VerifyImageItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,

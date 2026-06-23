@@ -224,41 +224,60 @@ func (suite *ProviderQueriesV1TestSuite) TestScenario(t provider.T) {
 		Workspace: secapi.WorkspaceID(workspace.Metadata.Name),
 	}
 
+	instanceExpects := steps.ListResponseExpects[schema.Instance]{
+		Metadata: &suite.params.Instances.Metadata,
+		Items:    instances.Items,
+	}
+
 	// List instances
-	stepsBuilder.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wpath, nil)
+	stepsBuilder.ListInstanceV1Step("List instances", suite.Client.ComputeV1, wpath, nil, instanceExpects)
 
 	// List instances with limit
 	stepsBuilder.ListInstanceV1Step("List instances with limit", suite.Client.ComputeV1, wpath,
-		secapi.NewListOptions().WithLimit(1))
+		secapi.NewListOptions().WithLimit(1), instanceExpects)
 
 	// List instances with label
 	stepsBuilder.ListInstanceV1Step("List instances with label", suite.Client.ComputeV1, wpath,
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		instanceExpects)
 
 	// List instances with limit and label
 	stepsBuilder.ListInstanceV1Step("List instances with limit and label", suite.Client.ComputeV1, wpath,
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.EnvLabel, constants.EnvConformanceLabel)))
+			Equals(constants.EnvLabel, constants.EnvConformanceLabel)),
+		instanceExpects)
 
 	// Skus
 
+	skuMetadata, err := builders.NewInstanceSkuListMetadataBuilder().
+		Provider(sdkconsts.ComputeProviderV1Name).
+		Tenant(suite.Tenant).
+		Build()
+	if err != nil {
+		t.Fatalf("Failed to build InstanceSku list metadata: %v", err)
+	}
+
+	skuExpects := steps.ListResponseExpects[schema.InstanceSku]{
+		Metadata: skuMetadata, // se o teu struct já mudou: ResponseMetadata: *skuMetadata
+	}
+
 	// List skus
-	stepsBuilder.ListSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil)
+	stepsBuilder.ListInstanceSkusV1Step("List skus", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)}, nil, skuExpects)
 
 	// List skus with limit
-	stepsBuilder.ListSkusV1Step("List skus with limit", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
-		secapi.NewListOptions().WithLimit(1))
+	stepsBuilder.ListInstanceSkusV1Step("List skus with limit", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+		secapi.NewListOptions().WithLimit(1), skuExpects)
 
 	// List skus with label
-	stepsBuilder.ListSkusV1Step("List skus with label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListInstanceSkusV1Step("List skus with label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
+			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)), skuExpects)
 
 	// List skus with limit and label
-	stepsBuilder.ListSkusV1Step("List skus with limit and label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
+	stepsBuilder.ListInstanceSkusV1Step("List skus with limit and label", suite.Client.ComputeV1, secapi.TenantPath{Tenant: secapi.TenantID(workspace.Metadata.Tenant)},
 		secapi.NewListOptions().WithLimit(1).WithLabels(labelBuilder.NewLabelsBuilder().
-			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)))
+			Equals(constants.TierLabel, constants.TierSkuD2XSLabel)), skuExpects)
 
 	// Delete all instances
 	steps.BulkDeleteInstancesStepsV1(stepsBuilder, suite.RegionalTestSuite, "Delete all instances", instances.Items)

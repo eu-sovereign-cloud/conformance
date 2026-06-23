@@ -9,6 +9,7 @@ import (
 	"github.com/eu-sovereign-cloud/conformance/pkg/wrappers"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
 func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName string, stepCreator StepCreator, api secapi.WorkspaceV1, resource *schema.Workspace,
@@ -37,13 +38,20 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceV1Step(stepName st
 	)
 }
 
-func (configurator *StepsConfigurator) ListWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, tpath secapi.TenantPath, opts *secapi.ListOptions) {
+func (configurator *StepsConfigurator) ListWorkspaceV1Step(stepName string, api secapi.WorkspaceV1, tpath secapi.TenantPath, opts *secapi.ListOptions, expects ListResponseExpects[schema.Workspace]) {
 	listTenantResourcesStep(configurator.t, configurator.suite,
-		listTenantResourcesParams[schema.Workspace, schema.GlobalTenantResourceMetadata]{
-			listResourcesParams: listResourcesParams[schema.Workspace, schema.GlobalTenantResourceMetadata, secapi.TenantPath]{
+		listTenantResourcesParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec]{
+			listResourcesParams: listResourcesParams[schema.Workspace, schema.RegionalResourceMetadata, schema.WorkspaceSpec, secapi.TenantPath]{
 				path: tpath, listOptions: opts,
 				listFunc: func(ctx context.Context, path secapi.TenantPath, options *secapi.ListOptions) (*secapi.Iterator[schema.Workspace], error) {
 					return api.ListWorkspacesWithOptions(ctx, path, options)
+				},
+				expects: expects,
+				verifyMetadataFunc: func(ctx provider.StepCtx, actual *schema.ResponseMetadata, expected *schema.ResponseMetadata) {
+					configurator.suite.VerifyResponseMetadataStep(ctx, expected, actual)
+				},
+				verifyItemsFunc: func(ctx provider.StepCtx, items []*schema.Workspace) {
+					configurator.suite.VerifyWorkspaceItemsStep(ctx, items)
 				},
 			},
 			stepName:       stepName,

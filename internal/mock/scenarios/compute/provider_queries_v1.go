@@ -83,7 +83,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// Create skus
 	skusList := steps.GenerateInstanceSkusV1(secapi.TenantID(workspace.Metadata.Tenant))
-	skuResponse, err := builders.NewInstanceSkuIteratorBuilder().Provider(sdkconsts.StorageProviderV1Name).Tenant(workspace.Metadata.Tenant).Items(skusList).Build()
+	skuResponse, err := builders.NewInstanceSkuIteratorBuilder().Provider(sdkconsts.ComputeProviderV1Name).Tenant(workspace.Metadata.Tenant).Items(skusList).Build()
 	if err != nil {
 		return err
 	}

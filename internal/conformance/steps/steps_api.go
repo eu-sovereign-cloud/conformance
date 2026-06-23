@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log/slog"
 
+	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/types"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
@@ -71,17 +72,20 @@ func resourceResponseStep[R types.ResourceType](ctx provider.StepCtx, resource *
 	})
 }
 
-func iteratorResponseStep[R types.ResourceType](ctx provider.StepCtx, resources []*R) {
+func resourcesResponseStep[R types.ResourceType](ctx provider.StepCtx, metadata schema.ResponseMetadata, items []*R) {
 	ctx.WithNewStep("Receive response", func(stepCtx provider.StepCtx) {
-		if resources == nil {
-			return
-		}
-
-		if data, err := json.Marshal(resources); err != nil {
-			slog.Error("Error marshaling iterator to json", "error", err)
+		if data, err := json.Marshal(metadata); err != nil {
+			slog.Error("Error marshaling metadata to json", "error", err)
 			stepCtx.FailNow()
 		} else {
-			stepCtx.WithNewParameters("iterator", string(data))
+			stepCtx.WithNewParameters("metadata", string(data))
+		}
+
+		if data, err := json.Marshal(items); err != nil {
+			slog.Error("Error marshaling items to json", "error", err)
+			stepCtx.FailNow()
+		} else {
+			stepCtx.WithNewParameters("items", string(data))
 		}
 	})
 }
