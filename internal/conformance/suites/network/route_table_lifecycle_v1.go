@@ -53,8 +53,6 @@ func (suite *RouteTableLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 
 	instanceRefObj := generators.GenerateInstanceRefObject(sdkconsts.ComputeProviderV1Name, suite.Tenant, workspaceName, instanceName)
 
-	routeTableRefObj := generators.GenerateRouteTableRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, routeTableName)
-
 	networkSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName)
 
 	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, internetGatewayName)
@@ -85,9 +83,8 @@ func (suite *RouteTableLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 			"description": "Network for conformance testing",
 		}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
-			SkuRef:        *networkSkuRefObj,
-			RouteTableRef: *routeTableRefObj,
+			Cidr:   schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			SkuRef: *networkSkuRefObj,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Network: %v", err)

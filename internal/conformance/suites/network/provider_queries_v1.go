@@ -169,9 +169,8 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
-			SkuRef:        *networkSkuRefObj,
-			RouteTableRef: *routeTableRefObj,
+			Cidr:   schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			SkuRef: *networkSkuRefObj,
 		}).
 		Build()
 	if err != nil {
@@ -186,9 +185,8 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
-			SkuRef:        *networkSkuRefObj,
-			RouteTableRef: *routeTableRefObj,
+			Cidr:   schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			SkuRef: *networkSkuRefObj,
 		}).
 		Build()
 	if err != nil {
@@ -293,8 +291,9 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: subnetCidr},
-			Zone: zone,
+			Cidr:          schema.Cidr{Ipv4: subnetCidr},
+			RouteTableRef: *routeTableRefObj,
+			Zone:          zone,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Subnet: %v", err)
@@ -308,8 +307,9 @@ func (suite *ProviderQueriesV1TestSuite) BeforeAll(t provider.T) {
 			constants.EnvLabel: constants.EnvConformanceLabel,
 		}).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: subnetCidr},
-			Zone: zone,
+			Cidr:          schema.Cidr{Ipv4: subnetCidr},
+			RouteTableRef: *routeTableRefObj,
+			Zone:          zone,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Subnet: %v", err)

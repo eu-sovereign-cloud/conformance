@@ -80,9 +80,8 @@ func (suite *SubnetConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 		Labels(schema.Labels{constants.EnvLabel: constants.EnvConformanceLabel}).
 		Annotations(schema.Annotations{"description": "Network for subnet constraints testing"}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
-			SkuRef:        *networkSkuRefObj,
-			RouteTableRef: *routeTableRefObj,
+			Cidr:   schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			SkuRef: *networkSkuRefObj,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Network: %v", err)
@@ -121,8 +120,9 @@ func (suite *SubnetConstraintsValidationV1TestSuite) BeforeAll(t provider.T) {
 			Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 			Labels(labels).Annotations(annotations).
 			Spec(&schema.SubnetSpec{
-				Cidr: schema.Cidr{Ipv4: subnetCidr},
-				Zone: zone,
+				Cidr:          schema.Cidr{Ipv4: subnetCidr},
+				RouteTableRef: *routeTableRefObj,
+				Zone:          zone,
 			}).Build()
 		if err != nil {
 			t.Fatalf("Failed to build Subnet: %v", err)

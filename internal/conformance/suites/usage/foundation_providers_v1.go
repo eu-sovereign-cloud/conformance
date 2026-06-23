@@ -204,9 +204,8 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
-			SkuRef:        *networkSkuRefObj,
-			RouteTableRef: *routeTableRefObj,
+			Cidr:   schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			SkuRef: *networkSkuRefObj,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Network: %v", err)
@@ -241,8 +240,9 @@ func (suite *FoundationProvidersV1TestSuite) BeforeAll(t provider.T) {
 		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
 		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
 		Spec(&schema.SubnetSpec{
-			Cidr: schema.Cidr{Ipv4: subnetCidr},
-			Zone: zone,
+			Cidr:          schema.Cidr{Ipv4: subnetCidr},
+			RouteTableRef: *routeTableRefObj,
+			Zone:          zone,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Subnet: %v", err)

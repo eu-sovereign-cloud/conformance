@@ -48,8 +48,6 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 	networkSkuName := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 	networkSkuName2 := suite.config.NetworkSkus[rand.Intn(len(suite.config.NetworkSkus))]
 
-	routeTableRefObj := generators.GenerateRouteTableRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, networkName, routeTableName)
-
 	networkSkuRefObj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName)
 	networkSkuRef2Obj := generators.GenerateSkuRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, networkSkuName2)
 
@@ -81,9 +79,8 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 			"description": "Network for conformance testing",
 		}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
-			SkuRef:        *networkSkuRefObj,
-			RouteTableRef: *routeTableRefObj,
+			Cidr:   schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			SkuRef: *networkSkuRefObj,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Network: %v", err)
@@ -100,9 +97,8 @@ func (suite *NetworkLifeCycleV1TestSuite) BeforeAll(t provider.T) {
 			"description": "Network for conformance testing",
 		}).
 		Spec(&schema.NetworkSpec{
-			Cidr:          schema.Cidr{Ipv4: suite.config.NetworkCidr},
-			SkuRef:        *networkSkuRef2Obj,
-			RouteTableRef: *routeTableRefObj,
+			Cidr:   schema.Cidr{Ipv4: suite.config.NetworkCidr},
+			SkuRef: *networkSkuRef2Obj,
 		}).Build()
 	if err != nil {
 		t.Fatalf("Failed to build Network: %v", err)

@@ -110,7 +110,6 @@ func (builder *NetworkBuilder) validateSpec() error {
 		field("spec", builder.spec),
 		field("spec.Cidr", builder.spec.Cidr),
 		field("spec.SkuRef", builder.spec.SkuRef),
-		field("spec.RouteTableRef", builder.spec.RouteTableRef),
 	); err != nil {
 		return err
 	}
@@ -526,6 +525,7 @@ func (builder *SubnetBuilder) validateSpec() error {
 	if err := validateRequired(builder.validator,
 		field("spec", builder.spec),
 		field("spec.Cidr", builder.spec.Cidr),
+		field("spec.RouteTableRef", builder.spec.RouteTableRef),
 		field("spec.Zone", builder.spec.Zone),
 	); err != nil {
 		return err
