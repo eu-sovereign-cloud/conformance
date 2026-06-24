@@ -419,3 +419,11 @@ type SubnetConstraintsValidationV1Params struct {
 
 	OverLengthZoneSubnet *schema.Subnet
 }
+
+// errors
+type BlockStorageErrorV1Params struct {
+	Workspace                        *schema.Workspace
+	InvalidRegionBlockStorage        *schema.BlockStorage
+	InvalidSkuBlockStorage           *schema.BlockStorage
+	NonExistentWorkspaceBlockStorage *schema.BlockStorage
+}

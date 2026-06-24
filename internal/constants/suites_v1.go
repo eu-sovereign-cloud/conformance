@@ -40,6 +40,8 @@ const (
 
 	UsageFoundationProvidersV1SuiteName SuiteName = "Usage.V1.FoundationProviders"
 
+	BlockStorageErrorV1SuiteName SuiteName = "Storage.V1.BlockStorageError"
+
 	// Constraints
 
 	RoleConstraintsValidationV1SuiteName              SuiteName = "Authorization.V1.RoleConstraintsValidation"
