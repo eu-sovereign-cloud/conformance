@@ -41,6 +41,7 @@ const (
 	UsageFoundationProvidersV1SuiteName SuiteName = "Usage.V1.FoundationProviders"
 
 	BlockStorageErrorV1SuiteName SuiteName = "Storage.V1.BlockStorageError"
+	ImageErrorV1SuiteName        SuiteName = "Storage.V1.ImageError"
 
 	// Constraints
 

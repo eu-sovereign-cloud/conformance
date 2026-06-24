@@ -53,4 +53,10 @@ func TestStorageV1Suites(t *testing.T) {
 	if imageConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, imageConstraintsSuite)
 	}
+
+	// Image Error Suite
+	imageErrorSuite := storage.CreateImageErrorV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if imageErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, imageErrorSuite)
+	}
 }

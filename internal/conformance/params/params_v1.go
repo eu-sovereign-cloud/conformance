@@ -427,3 +427,12 @@ type BlockStorageErrorV1Params struct {
 	InvalidSkuBlockStorage           *schema.BlockStorage
 	NonExistentWorkspaceBlockStorage *schema.BlockStorage
 }
+
+type ImageErrorV1Params struct {
+	Workspace                    *schema.Workspace
+	BlockStorage                 *schema.BlockStorage
+	InvalidRegionImage           *schema.Image
+	InvalidCpuArchitectureImage  *schema.Image
+	CrossRegionBlockStorageImage *schema.Image
+	NonExistentWorkspaceImage    *schema.Image
+}
