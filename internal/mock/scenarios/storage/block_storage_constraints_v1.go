@@ -1,16 +1,16 @@
-package mockstorage
+package storage
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 // ConfigureBlockStorageConstraintsV1 sets up mock stubs for the block storage
 // constraints violations suite. Creates a valid workspace environment before testing
 // violations, all invalid block storage requests returning 422 Unprocessable Entity.
-func ConfigureBlockStorageConstraintsV1(scenario *mockscenarios.Scenario, p params.BlockStorageConstraintsValidationV1Params) error {
+func ConfigureBlockStorageConstraintsV1(scenario *scenarios.Scenario, p params.BlockStorageConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err

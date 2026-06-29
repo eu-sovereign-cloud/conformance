@@ -1,20 +1,20 @@
-package mocknetwork
+package network
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	pgkscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/mock/stubs"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 )
 
-func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.NetworkProviderQueriesV1Params) error {
+func ConfigureProviderQueriesV1(scenario *pgkscenarios.Scenario, params params.NetworkProviderQueriesV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List with limit 1
 	networkResponse.Items = networks.Items[:1]
-	if err := configurator.ConfigureListNetworkStub(networkResponse, networkListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListNetworkStub(networkResponse, networkListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -76,13 +76,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredNetworks
 	}
 	networkResponse.Items = networksWithLabel(networks.Items)
-	if err := configurator.ConfigureListNetworkStub(networkResponse, networkListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListNetworkStub(networkResponse, networkListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
 	networkResponse.Items = networksWithLabel(networks.Items)[:1]
-	if err := configurator.ConfigureListNetworkStub(networkResponse, networkListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListNetworkStub(networkResponse, networkListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -101,7 +101,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List skus with limit 1
-	if err := configurator.ConfigureListNetworkSkuStub(skuResponse, skuListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListNetworkSkuStub(skuResponse, skuListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -119,7 +119,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List with limit 1
 	gatewayResponse.Items = internetGateways.Items[:1]
-	if err := configurator.ConfigureListInternetGatewayStub(gatewayResponse, gatewayListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListInternetGatewayStub(gatewayResponse, gatewayListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -134,13 +134,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredGateway
 	}
 	gatewayResponse.Items = gatewayWithLabel(internetGateways.Items)
-	if err := configurator.ConfigureListInternetGatewayStub(gatewayResponse, gatewayListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListInternetGatewayStub(gatewayResponse, gatewayListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
 	gatewayResponse.Items = gatewayWithLabel(internetGateways.Items)[:1]
-	if err := configurator.ConfigureListInternetGatewayStub(gatewayResponse, gatewayListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListInternetGatewayStub(gatewayResponse, gatewayListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -160,7 +160,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List with limit 1
 	routeTableResponse.Items = routeTables.Items[:1]
-	if err := configurator.ConfigureListRouteTableStub(routeTableResponse, routeTableListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListRouteTableStub(routeTableResponse, routeTableListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -176,13 +176,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	routeTableResponse.Items = routeTableWithLabel(routeTables.Items)
-	if err := configurator.ConfigureListRouteTableStub(routeTableResponse, routeTableListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListRouteTableStub(routeTableResponse, routeTableListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
 	routeTableResponse.Items = routeTableWithLabel(routeTables.Items)[:1]
-	if err := configurator.ConfigureListRouteTableStub(routeTableResponse, routeTableListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListRouteTableStub(routeTableResponse, routeTableListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -201,7 +201,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List with limit 1
 	subnetResponse.Items = subnets.Items[:1]
-	if err := configurator.ConfigureListSubnetStub(subnetResponse, subnetListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListSubnetStub(subnetResponse, subnetListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -216,13 +216,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredSubnet
 	}
 	subnetResponse.Items = subnetWithLabel(subnets.Items)
-	if err := configurator.ConfigureListSubnetStub(subnetResponse, subnetListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListSubnetStub(subnetResponse, subnetListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
 	subnetResponse.Items = subnetWithLabel(subnets.Items)[:1]
-	if err := configurator.ConfigureListSubnetStub(subnetResponse, subnetListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListSubnetStub(subnetResponse, subnetListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -240,7 +240,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List with limit 1
 	publicIpResponse.Items = publicIps.Items[:1]
-	if err := configurator.ConfigureListPublicIpStub(publicIpResponse, publicIpListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListPublicIpStub(publicIpResponse, publicIpListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -255,13 +255,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredPublicIp
 	}
 	publicIpResponse.Items = publicIpWithLabel(publicIps.Items)
-	if err := configurator.ConfigureListPublicIpStub(publicIpResponse, publicIpListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListPublicIpStub(publicIpResponse, publicIpListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
 	publicIpResponse.Items = publicIpWithLabel(publicIps.Items)[:1]
-	if err := configurator.ConfigureListPublicIpStub(publicIpResponse, publicIpListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListPublicIpStub(publicIpResponse, publicIpListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -279,7 +279,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List with limit 1
 	nicResponse.Items = nics.Items[:1]
-	if err := configurator.ConfigureListNicStub(nicResponse, nicListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListNicStub(nicResponse, nicListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -294,13 +294,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredNic
 	}
 	nicResponse.Items = nicWithLabel(nics.Items)
-	if err := configurator.ConfigureListNicStub(nicResponse, nicListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListNicStub(nicResponse, nicListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
 	nicResponse.Items = nicWithLabel(nics.Items)[:1]
-	if err := configurator.ConfigureListNicStub(nicResponse, nicListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListNicStub(nicResponse, nicListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -318,7 +318,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List with limit 1
 	securityGroupRuleResponse.Items = securityGroupRules.Items[:1]
-	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -334,13 +334,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	securityGroupRuleResponse.Items = secGroupRuleWithLabel(securityGroupRules.Items)
-	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
 	securityGroupRuleResponse.Items = secGroupRuleWithLabel(securityGroupRules.Items)[:1]
-	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListSecurityGroupRuleStub(securityGroupRuleResponse, securityGroupRuleListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -358,7 +358,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List with limit 1
 	securityGroupResponse.Items = securityGroups.Items[:1]
-	if err := configurator.ConfigureListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -374,13 +374,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	securityGroupResponse.Items = secGroupWithLabel(securityGroups.Items)
-	if err := configurator.ConfigureListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
 	securityGroupResponse.Items = secGroupWithLabel(securityGroups.Items)[:1]
-	if err := configurator.ConfigureListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListSecurityGroupStub(securityGroupResponse, securityGroupListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 

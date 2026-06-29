@@ -1,17 +1,17 @@
-package mockworkspace
+package workspace
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	pkgscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/mock/stubs"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.WorkspaceProviderQueriesV1Params) error {
+func ConfigureProviderQueriesV1(scenario *pkgscenarios.Scenario, params params.WorkspaceProviderQueriesV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -34,7 +34,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List with limit
-	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -49,13 +49,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredWorkspaces
 	}
 	workspaceListResponse.Items = workspaceWithLabel(workspaces.Items)
-	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit & labels
 	workspaceListResponse.Items = workspaceWithLabel(workspaces.Items[:1])
-	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListActiveWorkspaceStub(workspaceListResponse, url, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 

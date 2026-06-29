@@ -1,13 +1,13 @@
-package mockstorage
+package storage
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureImageLifecycleScenarioV1(scenario *mockscenarios.Scenario, params params.ImageLifeCycleV1Params) error {
+func ConfigureImageLifecycleScenarioV1(scenario *scenarios.Scenario, params params.ImageLifeCycleV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err

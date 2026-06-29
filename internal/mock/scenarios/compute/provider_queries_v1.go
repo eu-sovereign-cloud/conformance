@@ -1,20 +1,20 @@
-package mockcompute
+package compute
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	pkgscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/mock/stubs"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 )
 
-func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.ComputeProviderQueriesV1Params) error {
+func ConfigureProviderQueriesV1(scenario *pkgscenarios.Scenario, params params.ComputeProviderQueriesV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -56,7 +56,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List roles with limit 1
 	instanceResponse.Items = instances.Items[:1]
-	if err := configurator.ConfigureListInstanceStub(instanceResponse, instanceListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListInstanceStub(instanceResponse, instanceListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -71,13 +71,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredInstances
 	}
 	instanceResponse.Items = instancesWithLabel(instances.Items)
-	if err := configurator.ConfigureListInstanceStub(instanceResponse, instanceListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListInstanceStub(instanceResponse, instanceListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List instances with limit and label
 	instanceResponse.Items = instancesWithLabel(instances.Items)[:1]
-	if err := configurator.ConfigureListInstanceStub(instanceResponse, instanceListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListInstanceStub(instanceResponse, instanceListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -94,7 +94,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	// List skus with limit 1
-	if err := configurator.ConfigureListSkuStub(skuResponse, skuListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListSkuStub(skuResponse, skuListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -109,12 +109,12 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredSkus
 	}
 	skuResponse.Items = skusWithLabel(skusList)
-	if err := configurator.ConfigureListSkuStub(skuResponse, skuListUrl, scenario.MockParams, mock.PathParamsLabel(constants.TierLabel, constants.TierSkuD2XSLabel)); err != nil {
+	if err := configurator.ConfigureListSkuStub(skuResponse, skuListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.TierLabel, constants.TierSkuD2XSLabel)); err != nil {
 		return err
 	}
 
 	// List sku with limit and label
-	if err := configurator.ConfigureListSkuStub(skuResponse, skuListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.TierLabel, constants.TierSkuD2XSLabel)); err != nil {
+	if err := configurator.ConfigureListSkuStub(skuResponse, skuListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.TierLabel, constants.TierSkuD2XSLabel)); err != nil {
 		return err
 	}
 

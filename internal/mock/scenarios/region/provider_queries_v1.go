@@ -1,11 +1,11 @@
-package mockregion
+package region
 
 import (
 	"net/http"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
@@ -14,7 +14,7 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.RegionProviderQueriesV1Params) error {
+func ConfigureProviderQueriesV1(scenario *scenarios.Scenario, params params.RegionProviderQueriesV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err

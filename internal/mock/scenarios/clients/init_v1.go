@@ -1,16 +1,16 @@
-package mockclients
+package clients
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-func ConfigureInitScenarioV1(scenario *mockscenarios.Scenario, params params.ClientsInitParams) error {
+func ConfigureInitScenarioV1(scenario *scenarios.Scenario, params params.ClientsInitParams) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err

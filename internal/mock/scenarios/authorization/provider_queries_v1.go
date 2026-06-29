@@ -1,17 +1,17 @@
-package mockauthorization
+package authorization
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	pkgscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/mock/stubs"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.AuthorizationProviderQueriesV1Params) error {
+func ConfigureProviderQueriesV1(scenario *pkgscenarios.Scenario, params params.AuthorizationProviderQueriesV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List roles with limit 1
 	rolesResponse.Items = roles.Items[:1]
-	if err := configurator.ConfigureListRoleStub(rolesResponse, roleUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListRoleStub(rolesResponse, roleUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -52,13 +52,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredRoles
 	}
 	rolesResponse.Items = rolesListWithLabel(roles.Items)
-	if err := configurator.ConfigureListRoleStub(rolesResponse, roleUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListRoleStub(rolesResponse, roleUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List roles with limit and label
 	rolesResponse.Items = rolesListWithLabel(roles.Items)[:1]
-	if err := configurator.ConfigureListRoleStub(rolesResponse, roleUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListRoleStub(rolesResponse, roleUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -76,7 +76,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List role assignments with limit 1
 	roleAssignResponse.Items = roleAssignments.Items[:1]
-	if err := configurator.ConfigureListRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -91,13 +91,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredRoles
 	}
 	roleAssignResponse.Items = rolesAssignWithLabel(roleAssignments.Items)
-	if err := configurator.ConfigureListRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List role assignments with limit and label
 	roleAssignResponse.Items = rolesAssignWithLabel(roleAssignments.Items)[:1]
-	if err := configurator.ConfigureListRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListRoleAssignmentStub(roleAssignResponse, roleAssignmentUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 

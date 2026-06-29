@@ -1,13 +1,13 @@
-package mocknetwork
+package network
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureNetworkConstraintsValidationV1(scenario *mockscenarios.Scenario, p params.NetworkConstraintsValidationV1Params) error {
+func ConfigureNetworkConstraintsValidationV1(scenario *scenarios.Scenario, p params.NetworkConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err

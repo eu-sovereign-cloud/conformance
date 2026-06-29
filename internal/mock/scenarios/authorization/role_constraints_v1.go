@@ -1,15 +1,15 @@
-package mockauthorization
+package authorization
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 // ConfigureRoleConstraintsValidationV1 sets up mock stubs for the role constraints validation suite.
 // Each role in the params targets a different constraint Validation, all returning 422 Unprocessable Entity.
-func ConfigureRoleConstraintsValidationV1(scenario *mockscenarios.Scenario, p params.RoleConstraintsValidationV1Params) error {
+func ConfigureRoleConstraintsValidationV1(scenario *scenarios.Scenario, p params.RoleConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err

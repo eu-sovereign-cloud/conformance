@@ -1,13 +1,13 @@
-package mocknetwork
+package network
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
-func ConfigureRouteTableLifecycleScenarioV1(scenario *mockscenarios.Scenario, params params.RouteTableLifeCycleV1Params) error {
+func ConfigureRouteTableLifecycleScenarioV1(scenario *scenarios.Scenario, params params.RouteTableLifeCycleV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err

@@ -1,4 +1,4 @@
-package mock
+package scenarios
 
 const (
 	// Http Headers

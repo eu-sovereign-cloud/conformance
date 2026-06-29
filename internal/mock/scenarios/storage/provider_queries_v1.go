@@ -1,20 +1,20 @@
-package mockstorage
+package storage
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/steps"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
+	"github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	pkgscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/mock/stubs"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 )
 
-func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.StorageProviderQueriesV1Params) error {
+func ConfigureProviderQueriesV1(scenario *pkgscenarios.Scenario, params params.StorageProviderQueriesV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
@@ -49,7 +49,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List with limit 1
 	blockListResponse.Items = blockStorages.Items[:1]
-	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -64,13 +64,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 		return filteredInstances
 	}
 	blockListResponse.Items = blocksWithLabel(blockStorages.Items)
-	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with limit and label
 	blockListResponse.Items = blocksWithLabel(blockStorages.Items)[:1]
-	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListBlockStorageStub(*blockListResponse, blockListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -88,7 +88,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List with limit 1
 	imageListResponse.Items = images.Items[:1]
-	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 
@@ -104,13 +104,13 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	imageListResponse.Items = imagesWithLabel(images.Items)
-	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, scenarios.PathParamsLabel(constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
 	// List with Limit and Label
 	imageListResponse.Items = imagesWithLabel(images.Items)[:1]
-	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, mock.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
+	if err := configurator.ConfigureListImageStub(*imageListResponse, imageListUrl, scenario.MockParams, scenarios.PathParamsLimitAndLabel("1", constants.EnvLabel, constants.EnvConformanceLabel)); err != nil {
 		return err
 	}
 
@@ -132,7 +132,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 
 	// List with Limit 1
 	skuResponse.Items = skuList[:1]
-	if err := configurator.ConfigureListStorageSkuStub(*skuResponse, skuListUrl, scenario.MockParams, mock.PathParamsLimit("1")); err != nil {
+	if err := configurator.ConfigureListStorageSkuStub(*skuResponse, skuListUrl, scenario.MockParams, scenarios.PathParamsLimit("1")); err != nil {
 		return err
 	}
 

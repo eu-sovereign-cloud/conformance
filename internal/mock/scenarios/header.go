@@ -1,4 +1,4 @@
-package mock
+package scenarios
 
 func PathParamsLimit(limit string) map[string]string {
 	return map[string]string{

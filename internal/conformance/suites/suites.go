@@ -6,7 +6,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
 	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -23,7 +23,7 @@ type TestSuite struct {
 	MockServerURL *string
 
 	MockClient   *mock.MockClient
-	MockScenario *mockscenarios.Scenario
+	MockScenario *scenarios.Scenario
 	ScenarioName string
 
 	BaseDelay    int
@@ -84,7 +84,7 @@ func (suite *TestSuite) ResetAllScenarios() {
 	}
 }
 
-func SetupMockIfEnabled[P any](suite *TestSuite, configFunc func(*mockscenarios.Scenario, P) error, suiteParams P) error {
+func SetupMockIfEnabled[P any](suite *TestSuite, configFunc func(*scenarios.Scenario, P) error, suiteParams P) error {
 	// Setup mock, if configured to use
 	if suite.MockEnabled {
 		mockParams := mock.MockParams{
@@ -92,7 +92,7 @@ func SetupMockIfEnabled[P any](suite *TestSuite, configFunc func(*mockscenarios.
 			AuthToken: suite.AuthToken,
 		}
 
-		suite.MockScenario = mockscenarios.NewScenario(suite.ScenarioName, mockParams)
+		suite.MockScenario = scenarios.NewScenario(suite.ScenarioName, mockParams)
 
 		err := configFunc(suite.MockScenario, suiteParams)
 		if err != nil {

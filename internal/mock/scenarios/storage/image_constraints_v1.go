@@ -1,16 +1,16 @@
-package mockstorage
+package storage
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 // ConfigureImageConstraintsViolationsV1 sets up mock stubs for the image constraints
 // violations suite. Each image in the params targets a different constraint violation,
 // all returning 422 Unprocessable Entity.
-func ConfigureImageConstraintsViolationsV1(scenario *mockscenarios.Scenario, p params.ImageConstraintsValidationV1Params) error {
+func ConfigureImageConstraintsViolationsV1(scenario *scenarios.Scenario, p params.ImageConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err

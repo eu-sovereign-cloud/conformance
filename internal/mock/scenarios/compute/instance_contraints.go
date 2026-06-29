@@ -1,16 +1,16 @@
-package mockcompute
+package compute
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 
 // ConfigureInstanceConstraintsValidationV1 sets up mock stubs for the instance constraints
 // validation suite. Creates a valid workspace + block storage environment before testing
 // validation, all invalid instance requests returning 422 Unprocessable Entity.
-func ConfigureInstanceConstraintsValidationV1(scenario *mockscenarios.Scenario, p params.InstanceConstraintsValidationV1Params) error {
+func ConfigureInstanceConstraintsValidationV1(scenario *scenarios.Scenario, p params.InstanceConstraintsValidationV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
 		return err
