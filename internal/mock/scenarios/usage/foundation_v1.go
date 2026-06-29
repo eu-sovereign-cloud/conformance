@@ -2,8 +2,8 @@ package mockusage
 
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 )
 

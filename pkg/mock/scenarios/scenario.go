@@ -1,4 +1,4 @@
-package mockscenarios
+package mock
 
 import (
 	"fmt"

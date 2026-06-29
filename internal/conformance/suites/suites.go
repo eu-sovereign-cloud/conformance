@@ -5,8 +5,8 @@ import (
 	"regexp"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/config"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
+	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 	"github.com/eu-sovereign-cloud/go-sdk/secapi"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"

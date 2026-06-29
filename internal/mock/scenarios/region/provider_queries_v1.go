@@ -5,7 +5,7 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
+	mockscenarios "github.com/eu-sovereign-cloud/conformance/pkg/mock/scenarios"
 
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
