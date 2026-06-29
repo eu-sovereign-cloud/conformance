@@ -1,7 +1,7 @@
 package stubs
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
 	network "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.network.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )

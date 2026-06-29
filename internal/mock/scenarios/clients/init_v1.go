@@ -3,7 +3,6 @@ package mockclients
 import (
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
@@ -21,7 +20,7 @@ func ConfigureInitScenarioV1(scenario *mockscenarios.Scenario, params params.Cli
 
 	spec := &schema.RegionSpec{
 		AvailableZones: []string{constants.ZoneA, constants.ZoneB},
-		Providers:      mock.BuildProviderSpecV1(params.Providers),
+		Providers:      mockscenarios.BuildProviderSpec(params.Providers, sdkconsts.ApiVersion1),
 	}
 
 	response, err := builders.NewRegionBuilder().

@@ -2,9 +2,9 @@
 package stubs
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
 	"github.com/eu-sovereign-cloud/conformance/pkg/generators"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
 	sdkconsts "github.com/eu-sovereign-cloud/go-sdk/pkg/constants"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )

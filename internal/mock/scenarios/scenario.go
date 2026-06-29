@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock/stubs"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock/stubs"
 )
 
 type Scenario struct {

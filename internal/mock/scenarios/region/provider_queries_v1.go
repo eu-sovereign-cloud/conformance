@@ -5,7 +5,6 @@ import (
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
 	"github.com/eu-sovereign-cloud/conformance/internal/constants"
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
 	mockscenarios "github.com/eu-sovereign-cloud/conformance/internal/mock/scenarios"
 
 	"github.com/eu-sovereign-cloud/conformance/pkg/builders"
@@ -39,7 +38,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 			Provider(regionMeta.Provider).ApiVersion(regionMeta.ApiVersion).
 			Spec(&schema.RegionSpec{
 				AvailableZones: []string{constants.ZoneA, constants.ZoneB},
-				Providers:      mock.BuildProviderSpecV1(params.MockProviders),
+				Providers:      mockscenarios.BuildProviderSpec(params.MockProviders, sdkconsts.ApiVersion1),
 			}).
 			Build()
 		if err != nil {

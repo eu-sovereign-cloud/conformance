@@ -2,7 +2,7 @@
 package stubs
 
 import (
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
 	authorization "github.com/eu-sovereign-cloud/go-sdk/pkg/spec/foundation.authorization.v1"
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )

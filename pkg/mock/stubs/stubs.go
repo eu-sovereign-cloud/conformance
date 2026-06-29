@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/eu-sovereign-cloud/conformance/internal/mock"
+	"github.com/eu-sovereign-cloud/conformance/pkg/mock"
 	"github.com/wiremock/go-wiremock"
 )
 
