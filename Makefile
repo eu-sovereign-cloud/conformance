@@ -121,6 +121,16 @@ clean:
 	rm -rf $(DIST_DIR)
 	rm -rf $(REPORTS_PATH)
 
+.PHONY: tag
+tag:
+	@if [ -z "$(VERSION)" ]; then \
+		echo "ERROR: VERSION is required. Usage: make tag VERSION=v0.3.20"; \
+		exit 1; \
+	fi
+	@echo "Tagging $(VERSION)..."
+	git tag $(VERSION)
+	git push origin $(VERSION)
+
 .PHONY: libs
 libs:
 	@echo "Updating libraries..."

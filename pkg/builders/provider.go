@@ -1,4 +1,4 @@
-package mockscenarios
+package builders
 
 import (
 	"slices"
@@ -8,9 +8,6 @@ import (
 	"github.com/eu-sovereign-cloud/go-sdk/pkg/spec/schema"
 )
 
-// Region
-
-// TODO Find a better package to it
 func BuildProviderSpec(mockProviders []string, version string) []schema.Provider {
 	var providers []schema.Provider
 

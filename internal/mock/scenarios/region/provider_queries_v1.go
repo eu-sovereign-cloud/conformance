@@ -38,7 +38,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 			Provider(regionMeta.Provider).ApiVersion(regionMeta.ApiVersion).
 			Spec(&schema.RegionSpec{
 				AvailableZones: []string{constants.ZoneA, constants.ZoneB},
-				Providers:      mockscenarios.BuildProviderSpec(params.MockProviders, sdkconsts.ApiVersion1),
+				Providers:      builders.BuildProviderSpec(params.MockProviders, sdkconsts.ApiVersion1),
 			}).
 			Build()
 		if err != nil {

@@ -20,7 +20,7 @@ func ConfigureInitScenarioV1(scenario *mockscenarios.Scenario, params params.Cli
 
 	spec := &schema.RegionSpec{
 		AvailableZones: []string{constants.ZoneA, constants.ZoneB},
-		Providers:      mockscenarios.BuildProviderSpec(params.Providers, sdkconsts.ApiVersion1),
+		Providers:      builders.BuildProviderSpec(params.Providers, sdkconsts.ApiVersion1),
 	}
 
 	response, err := builders.NewRegionBuilder().
