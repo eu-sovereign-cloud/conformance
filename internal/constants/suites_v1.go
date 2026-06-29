@@ -40,8 +40,16 @@ const (
 
 	UsageFoundationProvidersV1SuiteName SuiteName = "Usage.V1.FoundationProviders"
 
-	BlockStorageErrorV1SuiteName SuiteName = "Storage.V1.BlockStorageError"
-	ImageErrorV1SuiteName        SuiteName = "Storage.V1.ImageError"
+	BlockStorageErrorV1SuiteName      SuiteName = "Storage.V1.BlockStorageError"
+	ImageErrorV1SuiteName             SuiteName = "Storage.V1.ImageError"
+	InternetGatewayErrorV1SuiteName   SuiteName = "Network.V1.InternetGatewayError"
+	SecurityGroupRuleErrorV1SuiteName SuiteName = "Network.V1.SecurityGroupRuleError"
+	SecurityGroupErrorV1SuiteName     SuiteName = "Network.V1.SecurityGroupError"
+	PublicIpErrorV1SuiteName          SuiteName = "Network.V1.PublicIpError"
+	NetworkErrorV1SuiteName           SuiteName = "Network.V1.NetworkError"
+	RouteTableErrorV1SuiteName        SuiteName = "Network.V1.RouteTableError"
+	SubnetErrorV1SuiteName            SuiteName = "Network.V1.SubnetError"
+	NicErrorV1SuiteName               SuiteName = "Network.V1.NicError"
 
 	// Constraints
 
@@ -89,21 +97,29 @@ var AllSuiteNames = []SuiteName{
 	NetworkProviderLifeCycleV1SuiteName,
 	NetworkProviderQueriesV1SuiteName,
 	NetworkLifeCycleV1SuiteName,
-	SubnetLifeCycleV1SuiteName,
-	SecurityGroupRuleLifeCycleV1SuiteName,
-	SecurityGroupLifeCycleV1SuiteName,
-	InternetGatewayLifeCycleV1SuiteName,
-	PublicIpLifeCycleV1SuiteName,
-	NicLifeCycleV1SuiteName,
-	RouteTableLifeCycleV1SuiteName,
 	NetworkConstraintsValidationV1SuiteName,
-	InternetGatewayConstraintsValidationV1SuiteName,
-	PublicIpConstraintsValidationV1SuiteName,
-	NicConstraintsValidationV1SuiteName,
-	SecurityGroupConstraintsValidationV1SuiteName,
-	SecurityGroupRuleConstraintsValidationV1SuiteName,
-	RouteTableConstraintsValidationV1SuiteName,
+	NetworkErrorV1SuiteName,
+	SubnetLifeCycleV1SuiteName,
 	SubnetConstraintsValidationV1SuiteName,
+	SubnetErrorV1SuiteName,
+	SecurityGroupRuleLifeCycleV1SuiteName,
+	SecurityGroupRuleConstraintsValidationV1SuiteName,
+	SecurityGroupRuleErrorV1SuiteName,
+	SecurityGroupLifeCycleV1SuiteName,
+	SecurityGroupConstraintsValidationV1SuiteName,
+	SecurityGroupErrorV1SuiteName,
+	InternetGatewayLifeCycleV1SuiteName,
+	InternetGatewayConstraintsValidationV1SuiteName,
+	InternetGatewayErrorV1SuiteName,
+	PublicIpLifeCycleV1SuiteName,
+	PublicIpConstraintsValidationV1SuiteName,
+	PublicIpErrorV1SuiteName,
+	NicLifeCycleV1SuiteName,
+	NicConstraintsValidationV1SuiteName,
+	NicErrorV1SuiteName,
+	RouteTableLifeCycleV1SuiteName,
+	RouteTableConstraintsValidationV1SuiteName,
+	RouteTableErrorV1SuiteName,
 
 	UsageFoundationProvidersV1SuiteName,
 }

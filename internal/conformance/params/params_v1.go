@@ -436,3 +436,71 @@ type ImageErrorV1Params struct {
 	CrossRegionBlockStorageImage *schema.Image
 	NonExistentWorkspaceImage    *schema.Image
 }
+
+type InternetGatewayErrorV1Params struct {
+	Workspace                           *schema.Workspace
+	InvalidRegionInternetGateway        *schema.InternetGateway
+	NonExistentWorkspaceInternetGateway *schema.InternetGateway
+}
+
+type SecurityGroupRuleErrorV1Params struct {
+	Workspace                             *schema.Workspace
+	InvalidRegionSecurityGroupRule        *schema.SecurityGroupRule
+	NonExistentWorkspaceSecurityGroupRule *schema.SecurityGroupRule
+}
+
+type SecurityGroupErrorV1Params struct {
+	Workspace                         *schema.Workspace
+	InvalidRegionSecurityGroup        *schema.SecurityGroup
+	NonExistentWorkspaceSecurityGroup *schema.SecurityGroup
+	NonExistentRuleRefSecurityGroup   *schema.SecurityGroup
+}
+
+type PublicIpErrorV1Params struct {
+	Workspace                    *schema.Workspace
+	InvalidRegionPublicIp        *schema.PublicIp
+	NonExistentWorkspacePublicIp *schema.PublicIp
+	InvalidVersionPublicIp       *schema.PublicIp
+}
+
+type NetworkErrorV1Params struct {
+	Workspace                   *schema.Workspace
+	InvalidRegionNetwork        *schema.Network
+	InvalidSkuNetwork           *schema.Network
+	NonExistentWorkspaceNetwork *schema.Network
+}
+
+type RouteTableErrorV1Params struct {
+	Workspace                      *schema.Workspace
+	Network                        *schema.Network
+	InternetGateway                *schema.InternetGateway
+	InvalidRegionRouteTable        *schema.RouteTable
+	NonExistentWorkspaceRouteTable *schema.RouteTable
+	NonExistentNetworkRouteTable   *schema.RouteTable
+	NonExistentTargetRefRouteTable *schema.RouteTable
+}
+
+type SubnetErrorV1Params struct {
+	Workspace                      *schema.Workspace
+	Network                        *schema.Network
+	InternetGateway                *schema.InternetGateway
+	RouteTable                     *schema.RouteTable
+	InvalidRegionSubnet            *schema.Subnet
+	InvalidZoneSubnet              *schema.Subnet
+	NonExistentWorkspaceSubnet     *schema.Subnet
+	NonExistentNetworkSubnet       *schema.Subnet
+	NonExistentRouteTableRefSubnet *schema.Subnet
+	OutsideCidrSubnet              *schema.Subnet
+}
+
+type NicErrorV1Params struct {
+	Workspace                 *schema.Workspace
+	Network                   *schema.Network
+	InternetGateway           *schema.InternetGateway
+	RouteTable                *schema.RouteTable
+	Subnet                    *schema.Subnet
+	InvalidRegionNic          *schema.Nic
+	NonExistentWorkspaceNic   *schema.Nic
+	NonExistentSubnetRefNic   *schema.Nic
+	NonExistentPublicIpRefNic *schema.Nic
+}
