@@ -30,21 +30,33 @@ func TestStorageV1Suites(t *testing.T) {
 		suite.RunSuite(t, blockStorageLifeCycleSuite)
 	}
 
-	// Image LifeCycle Suite
-	imageLifeCycleSuite := storage.CreateImageLifeCycleV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
-	if imageLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, imageLifeCycleSuite)
-	}
-
 	// Block Storage Constraints Violations Suite
 	blockStorageConstraintsSuite := storage.CreateBlockStorageConstraintsValidationV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
 	if blockStorageConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, blockStorageConstraintsSuite)
 	}
 
+	// Block Storage Error Suite
+	blockStorageErrorSuite := storage.CreateBlockStorageErrorV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if blockStorageErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, blockStorageErrorSuite)
+	}
+
+	// Image LifeCycle Suite
+	imageLifeCycleSuite := storage.CreateImageLifeCycleV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if imageLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, imageLifeCycleSuite)
+	}
+
 	// Image Constraints Violations Suite
 	imageConstraintsSuite := storage.CreateImageConstraintsValidationV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
 	if imageConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, imageConstraintsSuite)
+	}
+
+	// Image Error Suite
+	imageErrorSuite := storage.CreateImageErrorV1TestSuite(regionalTestSuite, config.Clients.StorageSkus)
+	if imageErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, imageErrorSuite)
 	}
 }
