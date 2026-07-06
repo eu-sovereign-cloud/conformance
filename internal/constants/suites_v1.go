@@ -40,6 +40,7 @@ const (
 
 	UsageFoundationProvidersV1SuiteName SuiteName = "Usage.V1.FoundationProviders"
 
+	RoleAssignmentErrorV1SuiteName    SuiteName = "Authorization.V1.RoleAssignmentError"
 	BlockStorageErrorV1SuiteName      SuiteName = "Storage.V1.BlockStorageError"
 	ImageErrorV1SuiteName             SuiteName = "Storage.V1.ImageError"
 	InternetGatewayErrorV1SuiteName   SuiteName = "Network.V1.InternetGatewayError"

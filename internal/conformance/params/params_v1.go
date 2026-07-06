@@ -421,6 +421,15 @@ type SubnetConstraintsValidationV1Params struct {
 }
 
 // errors
+
+type RoleAssignmentErrorV1Params struct {
+	Role                                    *schema.Role
+	NonExistentRoleRefRoleAssignment        *schema.RoleAssignment
+	NonExistentScopeTenantRoleAssignment    *schema.RoleAssignment
+	NonExistentScopeRegionRoleAssignment    *schema.RoleAssignment
+	NonExistentScopeWorkspaceRoleAssignment *schema.RoleAssignment
+	NonExistentSubRoleAssignment            *schema.RoleAssignment
+}
 type BlockStorageErrorV1Params struct {
 	Workspace                        *schema.Workspace
 	InvalidRegionBlockStorage        *schema.BlockStorage
