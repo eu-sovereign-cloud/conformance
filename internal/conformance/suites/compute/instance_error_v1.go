@@ -99,7 +99,7 @@ func (suite *InstanceErrorV1TestSuite) BeforeAll(t provider.T) {
 			Annotations(schema.Annotations{"description": "Instance for error scenario testing"}).
 			Spec(&schema.InstanceSpec{
 				SkuRef: skuRef,
-				Zone:   schema.Zone(instanceZone),
+				Zone:   instanceZone,
 				BootVolume: schema.VolumeReference{
 					DeviceRef: bootVolumeRef,
 				},
