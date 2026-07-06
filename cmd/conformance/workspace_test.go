@@ -29,4 +29,11 @@ func TestWorkspaceV1Suites(t *testing.T) {
 	if workspaceConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, workspaceConstraintsSuite)
 	}
+
+	workspaceErrorSuite := workspace.CreateWorkspaceErrorV1TestSuite(
+		suites.CreateRegionalTestSuite(config.Parameters, config.Clients),
+	)
+	if workspaceErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, workspaceErrorSuite)
+	}
 }

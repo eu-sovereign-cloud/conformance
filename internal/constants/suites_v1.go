@@ -52,6 +52,11 @@ const (
 	SubnetErrorV1SuiteName            SuiteName = "Network.V1.SubnetError"
 	NicErrorV1SuiteName               SuiteName = "Network.V1.NicError"
 
+	// New error suites
+	RoleErrorV1SuiteName      SuiteName = "Authorization.V1.RoleError"
+	InstanceErrorV1SuiteName  SuiteName = "Compute.V1.InstanceError"
+	WorkspaceErrorV1SuiteName SuiteName = "Workspace.V1.WorkspaceError"
+
 	// Constraints
 
 	RoleConstraintsValidationV1SuiteName              SuiteName = "Authorization.V1.RoleConstraintsValidation"
@@ -123,4 +128,45 @@ var AllSuiteNames = []SuiteName{
 	RouteTableErrorV1SuiteName,
 
 	UsageFoundationProvidersV1SuiteName,
+	RoleAssignmentErrorV1SuiteName,
+	RoleErrorV1SuiteName,
+	BlockStorageErrorV1SuiteName,
+	BlockStorageConstraintsValidationV1SuiteName,
+	ImageErrorV1SuiteName,
+	ImageConstraintsValidationV1SuiteName,
+	InternetGatewayErrorV1SuiteName,
+	InternetGatewayConstraintsValidationV1SuiteName,
+	InternetGatewayErrorV1SuiteName,
+	PublicIpErrorV1SuiteName,
+	PublicIpConstraintsValidationV1SuiteName,
+	PublicIpErrorV1SuiteName,
+	NicErrorV1SuiteName,
+	NicConstraintsValidationV1SuiteName,
+	NicErrorV1SuiteName,
+	RouteTableErrorV1SuiteName,
+	RouteTableConstraintsValidationV1SuiteName,
+	RouteTableErrorV1SuiteName,
+	SubnetErrorV1SuiteName,
+	SubnetConstraintsValidationV1SuiteName,
+	SubnetErrorV1SuiteName,
+	SecurityGroupRuleErrorV1SuiteName,
+	SecurityGroupRuleConstraintsValidationV1SuiteName,
+	SecurityGroupRuleErrorV1SuiteName,
+	SecurityGroupLifeCycleV1SuiteName,
+	SecurityGroupConstraintsValidationV1SuiteName,
+	SecurityGroupErrorV1SuiteName,
+	InternetGatewayLifeCycleV1SuiteName,
+	InternetGatewayConstraintsValidationV1SuiteName,
+	InternetGatewayErrorV1SuiteName,
+	PublicIpLifeCycleV1SuiteName,
+	PublicIpConstraintsValidationV1SuiteName,
+	PublicIpErrorV1SuiteName,
+	NicLifeCycleV1SuiteName,
+	NicConstraintsValidationV1SuiteName,
+	NicErrorV1SuiteName,
+	RouteTableLifeCycleV1SuiteName,
+	RouteTableConstraintsValidationV1SuiteName,
+	RouteTableErrorV1SuiteName,
+	InstanceErrorV1SuiteName,
+	WorkspaceErrorV1SuiteName,
 }

@@ -513,3 +513,24 @@ type NicErrorV1Params struct {
 	NonExistentSubnetRefNic   *schema.Nic
 	NonExistentPublicIpRefNic *schema.Nic
 }
+
+// New error params
+
+type RoleErrorV1Params struct {
+    InvalidProviderPermissionRole *schema.Role
+    EmptyPermissionsRole          *schema.Role
+    InvalidVerbRole               *schema.Role
+}
+
+type InstanceErrorV1Params struct {
+    Workspace                     *schema.Workspace
+    BlockStorage                  *schema.BlockStorage
+    InvalidSkuInstance            *schema.Instance
+    NonExistentWorkspaceInstance  *schema.Instance
+    NonExistentBootVolumeInstance *schema.Instance
+    InvalidZoneInstance           *schema.Instance
+}
+
+type WorkspaceErrorV1Params struct {
+    NonExistentRegionWorkspace *schema.Workspace
+}
