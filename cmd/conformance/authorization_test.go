@@ -30,21 +30,33 @@ func TestAuthorizationV1Suites(t *testing.T) {
 		suite.RunSuite(t, roleLifeCycleSuite)
 	}
 
-	// Role Assignment LifeCycle Suite
-	roleAssignmentLifeCycleSuite := authorization.CreateRoleAssignmentLifeCycleV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
-	if roleAssignmentLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
-		suite.RunSuite(t, roleAssignmentLifeCycleSuite)
-	}
-
 	// Role Constraints Violations Suite
 	roleConstraintsViolationsSuite := authorization.CreateRoleConstraintsValidationV1TestSuite(globalTestSuite)
 	if roleConstraintsViolationsSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, roleConstraintsViolationsSuite)
 	}
 
+	// Role Errors Suite
+	roleErrorSuite := authorization.CreateRoleErrorV1TestSuite(globalTestSuite)
+	if roleErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, roleErrorSuite)
+	}
+
+	// Role Assignment LifeCycle Suite
+	roleAssignmentLifeCycleSuite := authorization.CreateRoleAssignmentLifeCycleV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
+	if roleAssignmentLifeCycleSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, roleAssignmentLifeCycleSuite)
+	}
+
 	// Role Assignment Constraints Violations Suite
 	roleAssignmentConstraintsSuite := authorization.CreateRoleAssignmentConstraintsValidationV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
 	if roleAssignmentConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, roleAssignmentConstraintsSuite)
+	}
+
+	// Role Assignment Errors Suite
+	roleAssignmentErrorSuite := authorization.CreateRoleAssignmentErrorV1TestSuite(globalTestSuite, config.Parameters.ScenariosUsers)
+	if roleAssignmentErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, roleAssignmentErrorSuite)
 	}
 }

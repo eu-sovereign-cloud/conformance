@@ -197,4 +197,82 @@ func TestNetworkV1Suites(t *testing.T) {
 	if subnetConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, subnetConstraintsSuite)
 	}
+
+	// ── Error Suites ──────────────────────────────────────────────────────────
+
+	// Internet Gateway Error Suite
+	internetGatewayErrorSuite := network.CreateInternetGatewayErrorV1TestSuite(regionalTestSuite)
+	if internetGatewayErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, internetGatewayErrorSuite)
+	}
+
+	// Security Group Rule Error Suite
+	securityGroupRuleErrorSuite := network.CreateSecurityGroupRuleErrorV1TestSuite(regionalTestSuite)
+	if securityGroupRuleErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, securityGroupRuleErrorSuite)
+	}
+
+	// Security Group Error Suite
+	securityGroupErrorSuite := network.CreateSecurityGroupErrorV1TestSuite(regionalTestSuite)
+	if securityGroupErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, securityGroupErrorSuite)
+	}
+
+	// Public IP Error Suite
+	publicIpErrorSuite := network.CreatePublicIpErrorV1TestSuite(regionalTestSuite,
+		&network.PublicIpLifeCycleV1Config{
+			PublicIpsRange: config.Parameters.ScenariosPublicIps,
+			NetworkSkus:    config.Clients.NetworkSkus,
+		},
+	)
+	if publicIpErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, publicIpErrorSuite)
+	}
+
+	// Network Error Suite
+	networkErrorSuite := network.CreateNetworkErrorV1TestSuite(regionalTestSuite,
+		&network.NetworkErrorV1Config{
+			NetworkCidr: config.Parameters.ScenariosCidr,
+			NetworkSkus: config.Clients.NetworkSkus,
+		},
+	)
+	if networkErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, networkErrorSuite)
+	}
+
+	// Route Table Error Suite
+	routeTableErrorSuite := network.CreateRouteTableErrorV1TestSuite(regionalTestSuite,
+		&network.RouteTableErrorV1Config{
+			NetworkCidr: config.Parameters.ScenariosCidr,
+			NetworkSkus: config.Clients.NetworkSkus,
+		},
+	)
+	if routeTableErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, routeTableErrorSuite)
+	}
+
+	// Subnet Error Suite
+	subnetErrorSuite := network.CreateSubnetErrorV1TestSuite(regionalTestSuite,
+		&network.SubnetLifeCycleV1Config{
+			NetworkCidr: config.Parameters.ScenariosCidr,
+			RegionZones: config.Clients.RegionZones,
+			NetworkSkus: config.Clients.NetworkSkus,
+		},
+	)
+	if subnetErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, subnetErrorSuite)
+	}
+
+	// Nic Error Suite
+	nicErrorSuite := network.CreateNicErrorV1TestSuite(regionalTestSuite,
+		&network.NicLifeCycleV1Config{
+			NetworkCidr:    config.Parameters.ScenariosCidr,
+			PublicIpsRange: config.Parameters.ScenariosPublicIps,
+			RegionZones:    config.Clients.RegionZones,
+			NetworkSkus:    config.Clients.NetworkSkus,
+		},
+	)
+	if nicErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, nicErrorSuite)
+	}
 }

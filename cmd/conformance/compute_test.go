@@ -45,4 +45,16 @@ func TestComputeV1Suites(t *testing.T) {
 	if instanceConstraintsSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, instanceConstraintsSuite)
 	}
+
+	instanceErrorSuite := compute.CreateInstanceErrorV1TestSuite(
+		suites.CreateRegionalTestSuite(config.Parameters, config.Clients),
+		&compute.InstanceErrorV1Config{
+			AvailableZones: config.Clients.RegionZones,
+			InstanceSkus:   config.Clients.InstanceSkus,
+			StorageSkus:    config.Clients.StorageSkus,
+		},
+	)
+	if instanceErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
+		suite.RunSuite(t, instanceErrorSuite)
+	}
 }
