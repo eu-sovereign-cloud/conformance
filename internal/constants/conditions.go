@@ -97,6 +97,13 @@ var (
 		schema.ResourceStateUpdating,
 		schema.ResourceStateActive,
 	)
+	GetConditionAfterStartingWithoutUpdate = buildConditionSequence(
+		schema.ResourceStatePending,
+		schema.ResourceStateCreating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+	)
 
 	GetConditionAfterRestarting = buildConditionSequence(
 		schema.ResourceStatePending,

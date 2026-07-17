@@ -209,6 +209,21 @@ func (configurator *StepsConfigurator) RestartInstanceV1Step(stepName string, ap
 	)
 }
 
+func (configurator *StepsConfigurator) InstanceOperationExpectConflictV1Step(stepName string, api secapi.ComputeV1, resource *schema.Instance, operationFunc func(context.Context, *schema.Instance) error, operationName constants.OperationName) {
+	conflictWorkspaceResourceStep(configurator.t, configurator.suite,
+		actionWorkspaceResourceParams[schema.Instance]{
+			actionResourceParams: actionResourceParams[schema.Instance]{
+				resource:   resource,
+				actionFunc: operationFunc,
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetComputeV1StepParams,
+			operationName:  operationName,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) CreateOrUpdateInstanceExpectViolationV1Step(stepName string, api secapi.ComputeV1, resource *schema.Instance) {
 	violationWorkspaceResourceStep(configurator.t, configurator.suite,
 		actionWorkspaceResourceParams[schema.Instance]{

@@ -40,12 +40,13 @@ var (
 	UpdatingCondition = constants.UpdatingCondition
 	DeletingCondition = constants.DeletingCondition
 
-	GetConditionAfterCreating   = constants.GetConditionAfterCreating
-	GetConditionAfterUpdating   = constants.GetConditionAfterUpdating
-	GetConditionAfterDeleting   = constants.GetConditionAfterDeleting
-	GetConditionAfterStopping   = constants.GetConditionAfterStopping
-	GetConditionAfterStarting   = constants.GetConditionAfterStarting
-	GetConditionAfterRestarting = constants.GetConditionAfterRestarting
+	GetConditionAfterCreating              = constants.GetConditionAfterCreating
+	GetConditionAfterUpdating              = constants.GetConditionAfterUpdating
+	GetConditionAfterDeleting              = constants.GetConditionAfterDeleting
+	GetConditionAfterStopping              = constants.GetConditionAfterStopping
+	GetConditionAfterStarting              = constants.GetConditionAfterStarting
+	GetConditionAfterRestarting            = constants.GetConditionAfterRestarting
+	GetConditionAfterStartingWithoutUpdate = constants.GetConditionAfterStartingWithoutUpdate
 )
 
 // suppress unused import warning - schema is used transitively via constants

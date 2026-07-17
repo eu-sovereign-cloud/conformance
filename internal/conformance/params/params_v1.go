@@ -529,6 +529,7 @@ type InstanceErrorV1Params struct {
 	NonExistentWorkspaceInstance  *schema.Instance
 	NonExistentBootVolumeInstance *schema.Instance
 	InvalidZoneInstance           *schema.Instance
+	PowerInstance                 *schema.Instance
 }
 
 type WorkspaceErrorV1Params struct {

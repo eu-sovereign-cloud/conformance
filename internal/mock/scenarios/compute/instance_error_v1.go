@@ -16,6 +16,9 @@ import (
 //   - Create instance with non-existent workspace
 //   - Create instance with non-existent boot volume ref
 //   - Create instance with invalid zone
+//   - Start an already-on instance → 409
+//   - Stop an already-off instance → 409
+//   - Restart an already-off instance → 409
 func ConfigureInstanceErrorV1(scenario *mockscenarios.Scenario, p params.InstanceErrorV1Params) error {
 	configurator, err := scenario.StartConfiguration()
 	if err != nil {
@@ -27,7 +30,7 @@ func ConfigureInstanceErrorV1(scenario *mockscenarios.Scenario, p params.Instanc
 
 	// Generate URLs
 	workspaceURL := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
-	blockURL := generators.GenerateBlockStorageURL(sdkconsts.StorageProviderV1Name, blockStorage.Metadata.Tenant, blockStorage.Metadata.Workspace, blockStorage.Metadata.Name)
+	blockURL := generators.GenerateBlockStorageURL(sdkconsts.StorageProviderV1Name, blockStorage.Metadata.Tenant, workspace.Metadata.Name, blockStorage.Metadata.Name)
 
 	// Create workspace
 	if err := configurator.ConfigureCreateWorkspaceStub(workspace, workspaceURL, scenario.MockParams); err != nil {
@@ -51,51 +54,89 @@ func ConfigureInstanceErrorV1(scenario *mockscenarios.Scenario, p params.Instanc
 		return err
 	}
 
-	// Invalid SKU violation
-	invalidSkuURL := generators.GenerateInstanceURL(
-		sdkconsts.ComputeProviderV1Name,
-		p.InvalidSkuInstance.Metadata.Tenant,
-		p.InvalidSkuInstance.Metadata.Workspace,
-		p.InvalidSkuInstance.Metadata.Name,
-	)
+	// Invalid SKU → 422
+	invalidSkuURL := generators.GenerateInstanceURL(sdkconsts.ComputeProviderV1Name, p.InvalidSkuInstance.Metadata.Tenant, workspace.Metadata.Name, p.InvalidSkuInstance.Metadata.Name)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(invalidSkuURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Non-existent workspace violation
-	nonExistentWorkspaceURL := generators.GenerateInstanceURL(
-		sdkconsts.ComputeProviderV1Name,
-		p.NonExistentWorkspaceInstance.Metadata.Tenant,
-		p.NonExistentWorkspaceInstance.Metadata.Workspace,
-		p.NonExistentWorkspaceInstance.Metadata.Name,
-	)
+	// Non-existent workspace → 422
+	nonExistentWorkspaceURL := generators.GenerateInstanceURL(sdkconsts.ComputeProviderV1Name, p.NonExistentWorkspaceInstance.Metadata.Tenant, p.NonExistentWorkspaceInstance.Metadata.Workspace, p.NonExistentWorkspaceInstance.Metadata.Name)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(nonExistentWorkspaceURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Non-existent boot volume violation
-	nonExistentBootVolumeURL := generators.GenerateInstanceURL(
-		sdkconsts.ComputeProviderV1Name,
-		p.NonExistentBootVolumeInstance.Metadata.Tenant,
-		p.NonExistentBootVolumeInstance.Metadata.Workspace,
-		p.NonExistentBootVolumeInstance.Metadata.Name,
-	)
+	// Non-existent boot volume → 422
+	nonExistentBootVolumeURL := generators.GenerateInstanceURL(sdkconsts.ComputeProviderV1Name, p.NonExistentBootVolumeInstance.Metadata.Tenant, workspace.Metadata.Name, p.NonExistentBootVolumeInstance.Metadata.Name)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(nonExistentBootVolumeURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Invalid zone violation
-	invalidZoneURL := generators.GenerateInstanceURL(
-		sdkconsts.ComputeProviderV1Name,
-		p.InvalidZoneInstance.Metadata.Tenant,
-		p.InvalidZoneInstance.Metadata.Workspace,
-		p.InvalidZoneInstance.Metadata.Name,
-	)
+	// Invalid zone → 422
+	invalidZoneURL := generators.GenerateInstanceURL(sdkconsts.ComputeProviderV1Name, p.InvalidZoneInstance.Metadata.Tenant, workspace.Metadata.Name, p.InvalidZoneInstance.Metadata.Name)
 	if err := configurator.ConfigurePutUnprocessableEntityStub(invalidZoneURL, scenario.MockParams); err != nil {
 		return err
 	}
 
-	// Delete block storage teardown
+	// Power state error scenarios
+	powerInstance := p.PowerInstance
+	powerInstanceURL := generators.GenerateInstanceURL(sdkconsts.ComputeProviderV1Name, powerInstance.Metadata.Tenant, workspace.Metadata.Name, powerInstance.Metadata.Name)
+	powerInstanceStartURL := generators.GenerateInstanceStartURL(sdkconsts.ComputeProviderV1Name, powerInstance.Metadata.Tenant, workspace.Metadata.Name, powerInstance.Metadata.Name)
+	powerInstanceStopURL := generators.GenerateInstanceStopURL(sdkconsts.ComputeProviderV1Name, powerInstance.Metadata.Tenant, workspace.Metadata.Name, powerInstance.Metadata.Name)
+	powerInstanceRestartURL := generators.GenerateInstanceRestartURL(sdkconsts.ComputeProviderV1Name, powerInstance.Metadata.Tenant, workspace.Metadata.Name, powerInstance.Metadata.Name)
+
+	// Create power instance → creating → active
+	if err := configurator.ConfigureCreateInstanceStub(powerInstance, powerInstanceURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetCreatingInstanceStub(powerInstance, powerInstanceURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetActiveInstanceStub(powerInstance, powerInstanceURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Start → instance transitions to powerState=on
+	if err := configurator.ConfigureInstanceOperationStub(powerInstance, powerInstanceStartURL, scenario.MockParams); err != nil {
+		return err
+	}
+	// GET after start → still active
+	if err := configurator.ConfigureGetActiveInstanceStub(powerInstance, powerInstanceURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Start on already-on instance → 412
+	if err := configurator.ConfigurePostUnprocessableEntityStub(powerInstanceStartURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Stop → instance transitions to powerState=off
+	if err := configurator.ConfigureInstanceOperationStub(powerInstance, powerInstanceStopURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Stop on already-off instance → 412
+	if err := configurator.ConfigurePostUnprocessableEntityStub(powerInstanceStopURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Restart on already-off instance → 412
+	if err := configurator.ConfigurePostUnprocessableEntityStub(powerInstanceRestartURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Teardown power instance
+	if err := configurator.ConfigureDeleteStub(powerInstanceURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetDeletingInstanceStub(powerInstance, powerInstanceURL, scenario.MockParams); err != nil {
+		return err
+	}
+	if err := configurator.ConfigureGetNotFoundStub(powerInstanceURL, scenario.MockParams); err != nil {
+		return err
+	}
+
+	// Teardown block storage
 	if err := configurator.ConfigureDeleteStub(blockURL, scenario.MockParams); err != nil {
 		return err
 	}
@@ -106,7 +147,7 @@ func ConfigureInstanceErrorV1(scenario *mockscenarios.Scenario, p params.Instanc
 		return err
 	}
 
-	// Delete workspace teardown
+	// Teardown workspace
 	if err := configurator.ConfigureDeleteStub(workspaceURL, scenario.MockParams); err != nil {
 		return err
 	}

@@ -1,6 +1,7 @@
 package compute
 
 import (
+	"context"
 	"math/rand"
 
 	"github.com/eu-sovereign-cloud/conformance/internal/conformance/params"
@@ -149,6 +150,13 @@ func (suite *InstanceErrorV1TestSuite) BeforeAll(t provider.T) {
 			*blockStorageRefObj,
 			"invalid-zone",
 		),
+		PowerInstance: buildInstance(
+			generators.GenerateInstanceName(),
+			workspaceName,
+			*instanceSkuRefObj,
+			*blockStorageRefObj,
+			zone,
+		),
 	}
 
 	suite.params = p
@@ -259,7 +267,96 @@ func (suite *InstanceErrorV1TestSuite) TestScenario(t provider.T) {
 		suite.params.InvalidZoneInstance,
 	)
 
+	// Power state error scenarios
+	// Started instance: PUT → creating → active → powerState=on
+	powerInstance := suite.params.PowerInstance
+	expectInstanceMeta := powerInstance.Metadata
+	expectInstanceSpec := &powerInstance.Spec
+	expectInstanceLabels := powerInstance.Labels
+	expectInstanceAnnotations := powerInstance.Annotations
+	expectInstanceExtensions := powerInstance.Extensions
+	stepsBuilder.CreateOrUpdateInstanceV1Step("Create an instance", t, suite.Client.ComputeV1, powerInstance,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec]{
+			Metadata:       expectInstanceMeta,
+			Labels:         expectInstanceLabels,
+			Annotations:    expectInstanceAnnotations,
+			Extensions:     expectInstanceExtensions,
+			Spec:           expectInstanceSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
+		},
+	)
+
+	// Get the created instance
+	instanceWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(suite.Tenant),
+		Workspace: secapi.WorkspaceID(suite.params.Workspace.Metadata.Name),
+		Name:      suite.params.PowerInstance.Metadata.Name,
+	}
+	powerInstance = stepsBuilder.GetInstanceV1Step("Get the created instance", suite.Client.ComputeV1, instanceWRef,
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus]{
+			Metadata: expectInstanceMeta,
+			Spec:     expectInstanceSpec,
+			ResourceStatus: schema.InstanceStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
+		},
+	)
+
+	// Start
+	stepsBuilder.StartInstanceV1Step("Start the instance", suite.Client.ComputeV1, powerInstance)
+
+	// Get the started instance
+	powerInstance = stepsBuilder.GetInstanceV1Step("Get the started instance", suite.Client.ComputeV1, instanceWRef,
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InstanceSpec, schema.InstanceStatus]{
+			Metadata: expectInstanceMeta,
+			Spec:     expectInstanceSpec,
+			ResourceStatus: schema.InstanceStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterStartingWithoutUpdate,
+			},
+		},
+	)
+
+	// Start on already-on instance → 412
+	stepsBuilder.InstanceOperationExpectConflictV1Step(
+		"Start an already-on instance — expect 412 conflict",
+		suite.Client.ComputeV1,
+		powerInstance,
+		func(ctx context.Context, r *schema.Instance) error {
+			return suite.Client.ComputeV1.StartInstance(ctx, r)
+		},
+		constants.StartInstanceOperation,
+	)
+	// Stopped instance: PUT  → powerState=off
+	stepsBuilder.StopInstanceV1Step("Stop the instance", suite.Client.ComputeV1, powerInstance)
+
+	// Stop on already-off instance → 409
+	stepsBuilder.InstanceOperationExpectConflictV1Step(
+		"Stop an already-off instance — expect 409 conflict",
+		suite.Client.ComputeV1,
+		powerInstance,
+		func(ctx context.Context, r *schema.Instance) error {
+			return suite.Client.ComputeV1.StopInstance(ctx, r)
+		},
+		constants.StopInstanceOperation,
+	)
+
+	// Restart on already-off instance → 409
+	stepsBuilder.InstanceOperationExpectConflictV1Step(
+		"Restart an already-off instance — expect 409 conflict",
+		suite.Client.ComputeV1,
+		powerInstance,
+		func(ctx context.Context, r *schema.Instance) error {
+			return suite.Client.ComputeV1.RestartInstance(ctx, r)
+		},
+		constants.RestartInstanceOperation,
+	)
+
 	// Teardown — reverse dependency order
+	stepsBuilder.DeleteInstanceV1Step("Delete started instance", t, suite.Client.ComputeV1, powerInstance)
+	stepsBuilder.WatchInstanceUntilDeletedV1Step("Watch started instance deletion", t, suite.Client.ComputeV1, instanceWRef)
+
 	stepsBuilder.DeleteBlockStorageV1Step("Delete the block storage", t, suite.Client.StorageV1, block)
 	stepsBuilder.WatchBlockStorageUntilDeletedV1Step("Watch the block storage deletion", t, suite.Client.StorageV1, blockWRef)
 
