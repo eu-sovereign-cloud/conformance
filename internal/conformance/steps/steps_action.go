@@ -93,3 +93,20 @@ func violationNetworkResourceStep[R types.ResourceType](t provider.T, suite *sui
 		violationResourceStep(t, suite, params.stepName, sCtx, params.actionResourceParams)
 	})
 }
+
+func conflictWorkspaceResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, params actionWorkspaceResourceParams[R]) {
+	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+		params.stepParamsFunc(sCtx, params.operationName, params.workspace)
+		conflictResourceStep(t, suite, params.stepName, sCtx, params.actionResourceParams)
+	})
+}
+
+func conflictResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, stepName string, sCtx provider.StepCtx, params actionResourceParams[R]) {
+	slog.Info(fmt.Sprintf("[%s] %s", suite.ScenarioName, stepName))
+
+	resourceRequestStep(sCtx, params.resource)
+	err := params.actionFunc(t.Context(), params.resource)
+	emptyResponseStep(sCtx)
+
+	requirePreConditionFailedError(sCtx, err)
+}
