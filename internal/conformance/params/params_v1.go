@@ -307,6 +307,85 @@ type FoundationUsageV1Params struct {
 	Instance        *schema.Instance
 }
 
+// Usage - Multi-Tier Workload
+
+type MultiTierWorkloadV1Params struct {
+	Role           *schema.Role
+	RoleAssignment *schema.RoleAssignment
+	Workspace      *schema.Workspace
+
+	WebBootVolume  *schema.BlockStorage
+	DataBootVolume *schema.BlockStorage
+	DataVolume     *schema.BlockStorage
+
+	Network           *schema.Network
+	InternetGateway   *schema.InternetGateway
+	WebRouteTable     *schema.RouteTable
+	DataRouteTable    *schema.RouteTable
+	WebSubnet         *schema.Subnet
+	DataSubnet        *schema.Subnet
+	WebSecurityGroup  *schema.SecurityGroup
+	DataSecurityGroup *schema.SecurityGroup
+	PublicIp          *schema.PublicIp
+	WebNic            *schema.Nic
+	DataNic           *schema.Nic
+
+	WebInstance  *schema.Instance
+	DataInstance *schema.Instance
+}
+
+// Usage - Multi-Workspace Isolation
+
+type WorkspaceStackV1 struct {
+	BlockStorage    *schema.BlockStorage
+	Network         *schema.Network
+	InternetGateway *schema.InternetGateway
+	RouteTable      *schema.RouteTable
+	Subnet          *schema.Subnet
+	SecurityGroup   *schema.SecurityGroup
+	PublicIp        *schema.PublicIp
+	Nic             *schema.Nic
+	Instance        *schema.Instance
+	Instances       compute.InstanceIterator
+}
+
+type MultiWorkspaceIsolationV1Params struct {
+	Role           *schema.Role
+	RoleAssignment *schema.RoleAssignment
+
+	WorkspaceA *schema.Workspace
+	WorkspaceB *schema.Workspace
+
+	StackA WorkspaceStackV1
+	StackB WorkspaceStackV1
+}
+
+// Usage - HA Multi-Zone
+
+type HaMultiZoneV1Params struct {
+	Workspace *schema.Workspace
+
+	BlockStorageA *schema.BlockStorage
+	BlockStorageB *schema.BlockStorage
+
+	ReplicaA *schema.Instance
+	ReplicaB *schema.Instance
+}
+
+// Usage - Private Secure Workspace
+
+type PrivateSecureWorkspaceV1Params struct {
+	Workspace       *schema.Workspace
+	BlockStorage    *schema.BlockStorage
+	Network         *schema.Network
+	InternetGateway *schema.InternetGateway
+	RouteTable      *schema.RouteTable
+	Subnet          *schema.Subnet
+	SecurityGroup   *schema.SecurityGroup
+	Nic             *schema.Nic
+	Instance        *schema.Instance
+}
+
 // Network Constraints
 
 type NetworkConstraintsValidationV1Params struct {
