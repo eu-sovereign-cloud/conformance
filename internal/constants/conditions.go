@@ -52,76 +52,68 @@ var (
 	}
 
 	GetConditionAfterCreating = buildConditionSequence(
-		schema.ResourceStatePending,
+		schema.ResourceStateActive,		
 		schema.ResourceStateCreating,
-		schema.ResourceStateActive,
+		schema.ResourceStatePending,
 	)
 
 	GetConditionAfterUpdating = buildConditionSequence(
-		schema.ResourceStatePending,
-		schema.ResourceStateCreating,
 		schema.ResourceStateActive,
 		schema.ResourceStateUpdating,
 		schema.ResourceStateActive,
+		schema.ResourceStateCreating,
+		schema.ResourceStatePending,
 	)
 
 	GetConditionAfterDeleting = buildConditionSequence(
-		schema.ResourceStatePending,
-		schema.ResourceStateCreating,
+		schema.ResourceStateDeleting,
 		schema.ResourceStateActive,
 		schema.ResourceStateUpdating,
 		schema.ResourceStateActive,
-		schema.ResourceStateDeleting,
+		schema.ResourceStateCreating,
+		schema.ResourceStatePending,
 	)
 
 	GetConditionAfterStopping = buildConditionSequence(
-		schema.ResourceStatePending,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
 		schema.ResourceStateCreating,
-		schema.ResourceStateActive,
-		schema.ResourceStateUpdating,
-		schema.ResourceStateActive,
-		schema.ResourceStateUpdating,
-		schema.ResourceStateActive,
-		schema.ResourceStateUpdating,
-		schema.ResourceStateActive,
-		schema.ResourceStateUpdating,
-		schema.ResourceStateActive,
+		schema.ResourceStatePending,
 	)
 
 	GetConditionAfterStarting = buildConditionSequence(
-		schema.ResourceStatePending,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
 		schema.ResourceStateCreating,
-		schema.ResourceStateActive,
-		schema.ResourceStateUpdating,
-		schema.ResourceStateActive,
-		schema.ResourceStateUpdating,
-		schema.ResourceStateActive,
+		schema.ResourceStatePending,
 	)
 	GetConditionAfterStartingWithoutUpdate = buildConditionSequence(
-		schema.ResourceStatePending,
-		schema.ResourceStateCreating,
 		schema.ResourceStateActive,
 		schema.ResourceStateUpdating,
 		schema.ResourceStateActive,
+		schema.ResourceStateCreating,
+		schema.ResourceStatePending,
 	)
 
 	GetConditionAfterRestarting = buildConditionSequence(
-		schema.ResourceStatePending,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
+		schema.ResourceStateUpdating,
+		schema.ResourceStateActive,
 		schema.ResourceStateCreating,
-		schema.ResourceStateActive,
-		schema.ResourceStateUpdating,
-		schema.ResourceStateActive,
-		schema.ResourceStateUpdating,
-		schema.ResourceStateActive,
-		schema.ResourceStateUpdating,
-		schema.ResourceStateActive,
+		schema.ResourceStatePending,
 	)
 )
-
-func GetConditionBeforeUpdating() []schema.StatusCondition {
-	return buildConditionSequence(
-		schema.ResourceStatePending,
-		schema.ResourceStateCreating,
-		schema.ResourceStateActive,
-	)
-}
