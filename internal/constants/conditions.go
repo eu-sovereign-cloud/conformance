@@ -52,7 +52,7 @@ var (
 	}
 
 	GetConditionAfterCreating = buildConditionSequence(
-		schema.ResourceStateActive,		
+		schema.ResourceStateActive,
 		schema.ResourceStateCreating,
 		schema.ResourceStatePending,
 	)
