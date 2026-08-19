@@ -10,14 +10,14 @@ import (
 func addStatusCondition(conditions []schema.StatusCondition, state schema.ResourceState) []schema.StatusCondition {
 	t := time.Now()
 	if len(conditions) > 0 {
-		if last := conditions[len(conditions)-1].LastTransitionAt; !t.After(last) {
-			t = last.Add(time.Millisecond)
+		if newest := conditions[0].LastTransitionAt; !t.After(newest) {
+			t = newest.Add(time.Millisecond)
 		}
 	}
-	return append(conditions, schema.StatusCondition{
+	return append([]schema.StatusCondition{{
 		LastTransitionAt: t,
 		State:            state,
-	})
+	}}, conditions...)
 }
 
 func newResourceStatus(state schema.ResourceState) *schema.Status {

@@ -11,7 +11,7 @@ func buildConditionSequence(states ...schema.ResourceState) []schema.StatusCondi
 	conditions := make([]schema.StatusCondition, len(states))
 	for i, state := range states {
 		conditions[i] = schema.StatusCondition{
-			LastTransitionAt: base.Add(time.Duration(i) * time.Second),
+			LastTransitionAt: base.Add(time.Duration(len(states)-i) * time.Second),
 			State:            state,
 		}
 	}
