@@ -16,6 +16,8 @@ SECA Conformance ensure that CSP implementations comply with the standardized AP
 - [Docker] (https://docs.docker.com/engine/install/);
 - [Allure Report V2](https://allurereport.org/docs/v2/install/).
 
+> **Note for Linux users:** install Allure from the official `.deb` package (or the tarball), **not** from Homebrew. The Homebrew formula pins Allure to its own bundled OpenJDK, whose AWT desktop integration does not support the `BROWSE` action on Linux. With that build, [`secatest report`](#viewing-result) fails to open the browser and exits with `java.lang.UnsupportedOperationException: The BROWSE action is not supported on the current platform!` — the report is still generated, but it has to be opened manually from the URL printed in the output.
+
 ### Installation
 
 ```bash
