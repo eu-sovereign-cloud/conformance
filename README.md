@@ -6,6 +6,13 @@ A comprehensive conformance testing tool to validate a Cloud Service Provider (C
 
 SECA Conformance ensure that CSP implementations comply with the standardized API specification for sovereign cloud services. This tool validates API endpoints, resource lifecycle management, and compliance with SECA standards across multiple cloud providers.
 
+## Documentation
+
+- [Project Structure](docs/structure.md) — purpose of each folder in the repository.
+- [HOWTO: Add a New Use-Case Scenario](docs/HOWTO.md) — walkthrough for adding a new conformance test scenario end-to-end.
+- [Coding Guidelines](docs/coding-guidelines.md) — formatting, linting, and code style conventions.
+- [Glossary](docs/glossary.md) — domain terminology, SDK types, and test-framework types.
+
 ## Requirements
 
 - POSIX compatible environment;
