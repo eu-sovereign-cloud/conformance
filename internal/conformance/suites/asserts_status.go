@@ -31,10 +31,9 @@ func (suite *TestSuite) VerifyStatusConditionsStep(ctx provider.StepCtx, expecte
 				fmt.Sprintf("Condition [%d] lastTransitionAt should not be zero", i))
 
 			if i != 0 {
-				stepCtx.Require().False(actual[i].LastTransitionAt.Before(actual[i-1].LastTransitionAt),
+				stepCtx.Require().False(actual[i-1].LastTransitionAt.Before(actual[i].LastTransitionAt),
 					fmt.Sprintf("Condition [%d] lastTransitionAt should be after to previous condition's lastTransitionAt", i))
 			}
-
 		}
 	})
 }
