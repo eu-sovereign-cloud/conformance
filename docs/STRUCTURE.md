@@ -43,8 +43,6 @@ The CLI entry point, implemented as a Go test binary (`package main` with `TestM
 
 Private application logic that implements the test framework itself.
 
-- **`internal/builders`** — Currently empty (leftover from a refactor; builders now live in `pkg/builders`).
-
 - **`internal/conformance/config`** — Global runtime configuration. `parameters.go` defines `ParametersHolder` (provider URLs, client auth/tenant/region, scenario filters, mock settings, retry settings) populated from CLI flags; `clients.go` builds SDK API clients from those parameters.
 
 - **`internal/conformance/params`** — Domain-specific parameter/config structs used to configure individual test suites/scenarios.
