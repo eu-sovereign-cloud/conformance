@@ -19,7 +19,7 @@ func TestWorkspaceV1Suites(t *testing.T) {
 	}
 
 	// Provider Queries Suite
-	providerQueriesSuite := *workspace.CreateProviderQueriesV1TestSuite(regionalTestSuite)
+	providerQueriesSuite := workspace.CreateProviderQueriesV1TestSuite(regionalTestSuite)
 	if providerQueriesSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, providerQueriesSuite)
 	}
