@@ -94,6 +94,13 @@ func violationNetworkResourceStep[R types.ResourceType](t provider.T, suite *sui
 	})
 }
 
+func conflictTenantResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, params actionTenantResourceParams[R]) {
+	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
+		params.stepParamsFunc(sCtx, params.operationName)
+		conflictResourceStep(t, suite, params.stepName, sCtx, params.actionResourceParams)
+	})
+}
+
 func conflictWorkspaceResourceStep[R types.ResourceType](t provider.T, suite *suites.TestSuite, params actionWorkspaceResourceParams[R]) {
 	t.WithNewStep(params.stepName, func(sCtx provider.StepCtx) {
 		params.stepParamsFunc(sCtx, params.operationName, params.workspace)

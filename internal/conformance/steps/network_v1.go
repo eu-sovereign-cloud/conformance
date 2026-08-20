@@ -964,6 +964,23 @@ func (configurator *StepsConfigurator) DeleteSecurityGroupV1Step(stepName string
 	)
 }
 
+func (configurator *StepsConfigurator) DeleteNetworkExpectConflictV1Step(stepName string, api secapi.NetworkV1, resource *schema.Network) {
+	conflictWorkspaceResourceStep(configurator.t, configurator.suite,
+		actionWorkspaceResourceParams[schema.Network]{
+			actionResourceParams: actionResourceParams[schema.Network]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.Network) error {
+					return api.DeleteNetwork(ctx, r)
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetNetworkV1StepParams,
+			operationName:  constants.DeleteNetworkOperation,
+			workspace:      secapi.WorkspaceID(resource.Metadata.Workspace),
+		},
+	)
+}
+
 func (configurator *StepsConfigurator) CreateOrUpdateNetworkExpectViolationV1Step(stepName string, api secapi.NetworkV1, resource *schema.Network) {
 	violationWorkspaceResourceStep(configurator.t, configurator.suite,
 		actionWorkspaceResourceParams[schema.Network]{

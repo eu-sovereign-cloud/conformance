@@ -32,6 +32,11 @@ func TestWorkspaceV1Suites(t *testing.T) {
 
 	workspaceErrorSuite := workspace.CreateWorkspaceErrorV1TestSuite(
 		suites.CreateRegionalTestSuite(config.Parameters, config.Clients),
+		&workspace.WorkspaceErrorV1Config{
+			AvailableZones: config.Clients.RegionZones,
+			InstanceSkus:   config.Clients.InstanceSkus,
+			StorageSkus:    config.Clients.StorageSkus,
+		},
 	)
 	if workspaceErrorSuite.CanRun(config.Parameters.ScenariosRegexp) {
 		suite.RunSuite(t, workspaceErrorSuite)
