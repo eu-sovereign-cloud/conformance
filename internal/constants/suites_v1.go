@@ -39,7 +39,6 @@ const (
 	RouteTableLifeCycleV1SuiteName        SuiteName = "Network.V1.RouteTableLifeCycle"
 
 	UsageFoundationProvidersV1SuiteName     SuiteName = "Usage.V1.FoundationProviders"
-	UsageMultiTierWorkloadV1SuiteName       SuiteName = "Usage.V1.MultiTierWorkload"
 	UsageMultiWorkspaceIsolationV1SuiteName SuiteName = "Usage.V1.MultiWorkspaceIsolation"
 	UsageHaMultiZoneV1SuiteName             SuiteName = "Usage.V1.HaMultiZone"
 	UsagePrivateSecureWorkspaceV1SuiteName  SuiteName = "Usage.V1.PrivateSecureWorkspace"
@@ -138,7 +137,6 @@ var AllSuiteNames = []SuiteName{
 	RouteTableErrorV1SuiteName,
 
 	UsageFoundationProvidersV1SuiteName,
-	UsageMultiTierWorkloadV1SuiteName,
 	UsageMultiWorkspaceIsolationV1SuiteName,
 	UsageHaMultiZoneV1SuiteName,
 	UsagePrivateSecureWorkspaceV1SuiteName,
