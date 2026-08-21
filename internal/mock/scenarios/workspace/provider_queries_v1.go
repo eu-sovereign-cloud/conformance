@@ -60,7 +60,7 @@ func ConfigureProviderQueriesV1(scenario *mockscenarios.Scenario, params params.
 	}
 
 	for _, workspace := range workspaces.Items {
-		url := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Name, workspace.Metadata.Name)
+		url := generators.GenerateWorkspaceURL(sdkconsts.WorkspaceProviderV1Name, workspace.Metadata.Tenant, workspace.Metadata.Name)
 
 		// Delete the workspace
 		if err := configurator.ConfigureDeleteStub(url, scenario.MockParams); err != nil {

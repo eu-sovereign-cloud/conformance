@@ -39,7 +39,6 @@ const (
 	RouteTableLifeCycleV1SuiteName        SuiteName = "Network.V1.RouteTableLifeCycle"
 
 	UsageFoundationProvidersV1SuiteName     SuiteName = "Usage.V1.FoundationProviders"
-	UsageMultiTierWorkloadV1SuiteName       SuiteName = "Usage.V1.MultiTierWorkload"
 	UsageMultiWorkspaceIsolationV1SuiteName SuiteName = "Usage.V1.MultiWorkspaceIsolation"
 	UsageHaMultiZoneV1SuiteName             SuiteName = "Usage.V1.HaMultiZone"
 	UsagePrivateSecureWorkspaceV1SuiteName  SuiteName = "Usage.V1.PrivateSecureWorkspace"
@@ -86,23 +85,29 @@ var AllSuiteNames = []SuiteName{
 	RoleAssignmentLifeCycleV1SuiteName,
 	RoleConstraintsValidationV1SuiteName,
 	RoleAssignmentConstraintsValidationV1SuiteName,
+	RoleErrorV1SuiteName,
+	RoleAssignmentErrorV1SuiteName,
 
 	RegionProviderQueriesV1SuiteName,
 
 	WorkspaceProviderLifeCycleV1SuiteName,
 	WorkspaceProviderQueriesV1SuiteName,
 	WorkspaceConstraintsValidationV1SuiteName,
+	WorkspaceErrorV1SuiteName,
 
 	ComputeProviderLifeCycleV1SuiteName,
 	ComputeProviderQueriesV1SuiteName,
 	InstanceConstraintsValidationV1SuiteName,
+	InstanceErrorV1SuiteName,
 
 	StorageProviderLifeCycleV1SuiteName,
 	StorageProviderQueriesV1SuiteName,
 	BlockStorageLifeCycleV1SuiteName,
-	ImageLifeCycleV1SuiteName,
 	BlockStorageConstraintsValidationV1SuiteName,
+	BlockStorageErrorV1SuiteName,
+	ImageLifeCycleV1SuiteName,
 	ImageConstraintsValidationV1SuiteName,
+	ImageErrorV1SuiteName,
 
 	NetworkProviderLifeCycleV1SuiteName,
 	NetworkProviderQueriesV1SuiteName,
@@ -132,49 +137,7 @@ var AllSuiteNames = []SuiteName{
 	RouteTableErrorV1SuiteName,
 
 	UsageFoundationProvidersV1SuiteName,
-	UsageMultiTierWorkloadV1SuiteName,
 	UsageMultiWorkspaceIsolationV1SuiteName,
 	UsageHaMultiZoneV1SuiteName,
 	UsagePrivateSecureWorkspaceV1SuiteName,
-	RoleAssignmentErrorV1SuiteName,
-	RoleErrorV1SuiteName,
-	BlockStorageErrorV1SuiteName,
-	BlockStorageConstraintsValidationV1SuiteName,
-	ImageErrorV1SuiteName,
-	ImageConstraintsValidationV1SuiteName,
-	InternetGatewayErrorV1SuiteName,
-	InternetGatewayConstraintsValidationV1SuiteName,
-	InternetGatewayErrorV1SuiteName,
-	PublicIpErrorV1SuiteName,
-	PublicIpConstraintsValidationV1SuiteName,
-	PublicIpErrorV1SuiteName,
-	NicErrorV1SuiteName,
-	NicConstraintsValidationV1SuiteName,
-	NicErrorV1SuiteName,
-	RouteTableErrorV1SuiteName,
-	RouteTableConstraintsValidationV1SuiteName,
-	RouteTableErrorV1SuiteName,
-	SubnetErrorV1SuiteName,
-	SubnetConstraintsValidationV1SuiteName,
-	SubnetErrorV1SuiteName,
-	SecurityGroupRuleErrorV1SuiteName,
-	SecurityGroupRuleConstraintsValidationV1SuiteName,
-	SecurityGroupRuleErrorV1SuiteName,
-	SecurityGroupLifeCycleV1SuiteName,
-	SecurityGroupConstraintsValidationV1SuiteName,
-	SecurityGroupErrorV1SuiteName,
-	InternetGatewayLifeCycleV1SuiteName,
-	InternetGatewayConstraintsValidationV1SuiteName,
-	InternetGatewayErrorV1SuiteName,
-	PublicIpLifeCycleV1SuiteName,
-	PublicIpConstraintsValidationV1SuiteName,
-	PublicIpErrorV1SuiteName,
-	NicLifeCycleV1SuiteName,
-	NicConstraintsValidationV1SuiteName,
-	NicErrorV1SuiteName,
-	RouteTableLifeCycleV1SuiteName,
-	RouteTableConstraintsValidationV1SuiteName,
-	RouteTableErrorV1SuiteName,
-	InstanceErrorV1SuiteName,
-	WorkspaceErrorV1SuiteName,
 }

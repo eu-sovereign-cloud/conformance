@@ -307,33 +307,6 @@ type FoundationUsageV1Params struct {
 	Instance        *schema.Instance
 }
 
-// Usage - Multi-Tier Workload
-
-type MultiTierWorkloadV1Params struct {
-	Role           *schema.Role
-	RoleAssignment *schema.RoleAssignment
-	Workspace      *schema.Workspace
-
-	WebBootVolume  *schema.BlockStorage
-	DataBootVolume *schema.BlockStorage
-	DataVolume     *schema.BlockStorage
-
-	Network           *schema.Network
-	InternetGateway   *schema.InternetGateway
-	WebRouteTable     *schema.RouteTable
-	DataRouteTable    *schema.RouteTable
-	WebSubnet         *schema.Subnet
-	DataSubnet        *schema.Subnet
-	WebSecurityGroup  *schema.SecurityGroup
-	DataSecurityGroup *schema.SecurityGroup
-	PublicIp          *schema.PublicIp
-	WebNic            *schema.Nic
-	DataNic           *schema.Nic
-
-	WebInstance  *schema.Instance
-	DataInstance *schema.Instance
-}
-
 // Usage - Multi-Workspace Isolation
 
 type WorkspaceStackV1 struct {
