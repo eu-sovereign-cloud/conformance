@@ -17,12 +17,14 @@ import (
 )
 
 // NetworkErrorV1TestSuite verifies that Network resources with invalid references
-// are rejected by the API with 422 Unprocessable Entity.
+// are rejected by the API with 422 Unprocessable Entity, and that operations conflicting
+// with the current state of a network are rejected with 409 Conflict.
 //
 // Scenarios tested:
 //   - Create network with invalid region
 //   - Create network with invalid SKU
 //   - Create network with non-existent workspace
+//   - Delete a network that still has an active route table — expect 409 conflict
 type NetworkErrorV1TestSuite struct {
 	suites.RegionalTestSuite
 
@@ -81,6 +83,40 @@ func (suite *NetworkErrorV1TestSuite) BeforeAll(t provider.T) {
 		return n
 	}
 
+	// Network kept alive by an active route table, for the delete-conflict scenario
+	networkName := generators.GenerateNetworkName()
+	internetGatewayName := generators.GenerateInternetGatewayName()
+	routeTableName := generators.GenerateRouteTableName()
+	internetGatewayRefObj := generators.GenerateInternetGatewayRefObject(sdkconsts.NetworkProviderV1Name, suite.Tenant, workspaceName, internetGatewayName)
+
+	network := buildNetwork(networkName, workspaceName, suite.Region, *networkSkuRefObj)
+
+	internetGateway, err := builders.NewInternetGatewayBuilder().
+		Name(internetGatewayName).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).
+		Labels(baseLabels).
+		Annotations(schema.Annotations{"description": "Internet gateway for network delete conflict scenario testing"}).
+		Spec(&schema.InternetGatewaySpec{EgressOnly: false}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build InternetGateway: %v", err)
+	}
+
+	routeTable, err := builders.NewRouteTableBuilder().
+		Name(routeTableName).
+		Provider(sdkconsts.NetworkProviderV1Name).ApiVersion(sdkconsts.ApiVersion1).
+		Tenant(suite.Tenant).Workspace(workspaceName).Region(suite.Region).Network(networkName).
+		Labels(baseLabels).
+		Annotations(schema.Annotations{"description": "Route table keeping the network active for delete conflict scenario testing"}).
+		Spec(&schema.RouteTableSpec{
+			Routes: []schema.RouteSpec{
+				{DestinationCidrBlock: constants.RouteTableDefaultDestination, TargetRef: *internetGatewayRefObj},
+			},
+		}).Build()
+	if err != nil {
+		t.Fatalf("Failed to build RouteTable: %v", err)
+	}
+
 	p := &params.NetworkErrorV1Params{
 		Workspace: workspace,
 
@@ -107,6 +143,10 @@ func (suite *NetworkErrorV1TestSuite) BeforeAll(t provider.T) {
 			suite.Region,
 			*networkSkuRefObj,
 		),
+
+		Network:         network,
+		InternetGateway: internetGateway,
+		RouteTable:      routeTable,
 	}
 
 	suite.params = p
@@ -118,7 +158,11 @@ func (suite *NetworkErrorV1TestSuite) BeforeAll(t provider.T) {
 func (suite *NetworkErrorV1TestSuite) TestScenario(t provider.T) {
 	suite.StartScenario(t, sdkconsts.NetworkProviderV1Name)
 	suite.ConfigureResources(t, string(schema.RegionalWorkspaceResourceMetadataKindResourceKindNetwork))
-	suite.ConfigureDepends(t, string(schema.RegionalResourceMetadataKindResourceKindWorkspace))
+	suite.ConfigureDepends(t,
+		string(schema.RegionalResourceMetadataKindResourceKindWorkspace),
+		string(schema.RegionalResourceMetadataKindResourceKindInternetGateway),
+		string(schema.RegionalNetworkResourceMetadataKindResourceKindRoutingTable),
+	)
 
 	stepsBuilder := steps.NewStepsConfigurator(suite.TestSuite, t)
 
@@ -172,6 +216,127 @@ func (suite *NetworkErrorV1TestSuite) TestScenario(t provider.T) {
 		suite.Client.NetworkV1,
 		suite.params.NonExistentWorkspaceNetwork,
 	)
+
+	// Delete conflict scenario — network with an active route table must not be deletable
+	network := suite.params.Network
+	expectNetworkMeta := network.Metadata
+	expectNetworkSpec := &network.Spec
+	expectNetworkLabels := network.Labels
+	expectNetworkAnnotations := network.Annotations
+	expectNetworkExtensions := network.Extensions
+
+	stepsBuilder.CreateOrUpdateNetworkV1Step("Create a network", t, suite.Client.NetworkV1, network,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec]{
+			Labels:         expectNetworkLabels,
+			Annotations:    expectNetworkAnnotations,
+			Extensions:     expectNetworkExtensions,
+			Metadata:       expectNetworkMeta,
+			Spec:           expectNetworkSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
+		},
+	)
+
+	networkWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(network.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(network.Metadata.Workspace),
+		Name:      network.Metadata.Name,
+	}
+	stepsBuilder.GetNetworkV1Step("Get the created network", suite.Client.NetworkV1, networkWRef,
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.NetworkSpec, schema.NetworkStatus]{
+			Metadata: expectNetworkMeta,
+			Spec:     expectNetworkSpec,
+			ResourceStatus: schema.NetworkStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
+		},
+	)
+
+	internetGateway := suite.params.InternetGateway
+	expectInternetGatewayMeta := internetGateway.Metadata
+	expectInternetGatewaySpec := &internetGateway.Spec
+	expectInternetGatewayLabels := internetGateway.Labels
+	expectInternetGatewayAnnotations := internetGateway.Annotations
+	expectInternetGatewayExtensions := internetGateway.Extensions
+
+	stepsBuilder.CreateOrUpdateInternetGatewayV1Step("Create an internet gateway", t, suite.Client.NetworkV1, internetGateway,
+		steps.ResponseExpects[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec]{
+			Labels:         expectInternetGatewayLabels,
+			Annotations:    expectInternetGatewayAnnotations,
+			Extensions:     expectInternetGatewayExtensions,
+			Metadata:       expectInternetGatewayMeta,
+			Spec:           expectInternetGatewaySpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
+		},
+	)
+
+	internetGatewayWRef := secapi.WorkspaceReference{
+		Tenant:    secapi.TenantID(internetGateway.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(internetGateway.Metadata.Workspace),
+		Name:      internetGateway.Metadata.Name,
+	}
+	stepsBuilder.GetInternetGatewayV1Step("Get the created internet gateway", suite.Client.NetworkV1, internetGatewayWRef,
+		steps.ResponseExpectsWithCondition[schema.RegionalWorkspaceResourceMetadata, schema.InternetGatewaySpec, schema.InternetGatewayStatus]{
+			Metadata: expectInternetGatewayMeta,
+			Spec:     expectInternetGatewaySpec,
+			ResourceStatus: schema.InternetGatewayStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
+		},
+	)
+
+	routeTable := suite.params.RouteTable
+	expectRouteTableMeta := routeTable.Metadata
+	expectRouteTableSpec := &routeTable.Spec
+	expectRouteTableLabels := routeTable.Labels
+	expectRouteTableAnnotations := routeTable.Annotations
+	expectRouteTableExtensions := routeTable.Extensions
+
+	stepsBuilder.CreateOrUpdateRouteTableV1Step("Create a route table", t, suite.Client.NetworkV1, routeTable,
+		steps.ResponseExpects[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec]{
+			Labels:         expectRouteTableLabels,
+			Annotations:    expectRouteTableAnnotations,
+			Extensions:     expectRouteTableExtensions,
+			Metadata:       expectRouteTableMeta,
+			Spec:           expectRouteTableSpec,
+			ResourceStates: suites.CreatedResourceExpectedStates,
+		},
+	)
+
+	routeTableNRef := secapi.NetworkReference{
+		Tenant:    secapi.TenantID(routeTable.Metadata.Tenant),
+		Workspace: secapi.WorkspaceID(routeTable.Metadata.Workspace),
+		Network:   secapi.NetworkID(routeTable.Metadata.Network),
+		Name:      routeTable.Metadata.Name,
+	}
+	stepsBuilder.GetRouteTableV1Step("Get the created route table", suite.Client.NetworkV1, routeTableNRef,
+		steps.ResponseExpectsWithCondition[schema.RegionalNetworkResourceMetadata, schema.RouteTableSpec, schema.RouteTableStatus]{
+			Metadata: expectRouteTableMeta,
+			Spec:     expectRouteTableSpec,
+			ResourceStatus: schema.RouteTableStatus{
+				State:      schema.ResourceStateActive,
+				Conditions: suites.GetConditionAfterCreating,
+			},
+		},
+	)
+
+	// Delete the network while the route table is still active — expect 409 conflict
+	stepsBuilder.DeleteNetworkExpectConflictV1Step(
+		"Delete a network with an active route table — expect 409 conflict",
+		suite.Client.NetworkV1,
+		network,
+	)
+
+	// Teardown — reverse dependency order
+	stepsBuilder.DeleteRouteTableV1Step("Delete the route table", t, suite.Client.NetworkV1, routeTable)
+	stepsBuilder.WatchRouteTableUntilDeletedV1Step("Watch the route table deletion", t, suite.Client.NetworkV1, routeTableNRef)
+
+	stepsBuilder.DeleteInternetGatewayV1Step("Delete the internet gateway", t, suite.Client.NetworkV1, internetGateway)
+	stepsBuilder.WatchInternetGatewayUntilDeletedV1Step("Watch the internet gateway deletion", t, suite.Client.NetworkV1, internetGatewayWRef)
+
+	stepsBuilder.DeleteNetworkV1Step("Delete the network", t, suite.Client.NetworkV1, network)
+	stepsBuilder.WatchNetworkUntilDeletedV1Step("Watch the network deletion", t, suite.Client.NetworkV1, networkWRef)
 
 	// Teardown
 	stepsBuilder.DeleteWorkspaceV1Step("Delete the workspace", t, suite.Client.WorkspaceV1, workspace)

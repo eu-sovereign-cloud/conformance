@@ -133,3 +133,19 @@ func (configurator *StepsConfigurator) CreateOrUpdateWorkspaceExpectViolationV1S
 		},
 	)
 }
+
+func (configurator *StepsConfigurator) DeleteWorkspaceExpectConflictV1Step(stepName string, api secapi.WorkspaceV1, resource *schema.Workspace) {
+	conflictTenantResourceStep(configurator.t, configurator.suite,
+		actionTenantResourceParams[schema.Workspace]{
+			actionResourceParams: actionResourceParams[schema.Workspace]{
+				resource: resource,
+				actionFunc: func(ctx context.Context, r *schema.Workspace) error {
+					return api.DeleteWorkspace(ctx, r)
+				},
+			},
+			stepName:       stepName,
+			stepParamsFunc: configurator.suite.SetWorkspaceV1StepParams,
+			operationName:  constants.DeleteWorkspaceOperation,
+		},
+	)
+}

@@ -123,6 +123,13 @@ func (configurator *Configurator) ConfigurePutUnprocessableEntityStub(url string
 	}, url, params, nil, nil)
 }
 
+func (configurator *Configurator) ConfigureDeleteUnprocessableEntityStub(url string, params mock.MockParams) error {
+	return configurator.configureStub(func(wm *wiremock.Client, scenarioName string, sc *stubConfig) error {
+		sc.httpMethod = http.MethodDelete
+		return configurePreconditionFailedStub(wm, scenarioName, sc)
+	}, url, params, nil, nil)
+}
+
 func (configurator *Configurator) Finish() (*mock.MockClient, error) {
 	if err := configureDefaultStub(configurator.client.Wiremock); err != nil {
 		return nil, err

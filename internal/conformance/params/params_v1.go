@@ -529,6 +529,10 @@ type NetworkErrorV1Params struct {
 	InvalidRegionNetwork        *schema.Network
 	InvalidSkuNetwork           *schema.Network
 	NonExistentWorkspaceNetwork *schema.Network
+
+	Network         *schema.Network
+	InternetGateway *schema.InternetGateway
+	RouteTable      *schema.RouteTable
 }
 
 type RouteTableErrorV1Params struct {
@@ -586,4 +590,8 @@ type InstanceErrorV1Params struct {
 
 type WorkspaceErrorV1Params struct {
 	NonExistentRegionWorkspace *schema.Workspace
+
+	Workspace    *schema.Workspace
+	BlockStorage *schema.BlockStorage
+	Instance     *schema.Instance
 }
